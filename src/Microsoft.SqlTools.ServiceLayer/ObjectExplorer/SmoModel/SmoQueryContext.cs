@@ -29,6 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
+        /// The server type 
+        /// </summary>
+        public SqlServerType SqlServerType { get; set; }
+
+        /// <summary>
         /// The server SMO will query against
         /// </summary>
         public Server Server { get; private set; }
@@ -94,7 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider)
             {
                 Database = this.Database,
-                Parent = parent
+                Parent = parent,
+                SqlServerType = this.SqlServerType
             };
             return context;
         }

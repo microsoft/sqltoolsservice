@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -78,12 +80,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// </summary>
         public void RunQuery(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
         {
+            RunQueryAsync(serverType, databaseName, queryText, throwOnError).Wait();
+
+        }
+
+        /// <summary>
+        /// Runs a query by calling the services directly (not using the test driver) 
+        /// </summary>
+        public async Task RunQueryAsync(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
+        {
+            string uri = "";
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, queryTempFile.FilePath);
+                uri = queryTempFile.FilePath;
+
+                ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, uri);
                 Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
                 query.Execute();
-                query.ExecutionTask.Wait();
+                await query.ExecutionTask;
 
                 if (throwOnError)
                 {
@@ -96,7 +110,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                                 string.Join(Environment.NewLine, errorBatches.Select(b => b.BatchText))));
                     }
                 }
+                DisconnectConnection(uri);
             }
+
+        }
+
+        public static async Task<T> CalculateRunTime<T>(Func<Task<T>> testToRun, bool printResult, [CallerMemberName] string testName = "")
+        {
+            TestTimer timer = new TestTimer() { PrintResult = printResult };
+            T result = await testToRun();
+            timer.EndAndPrint(testName);
+
+            return result;
         }
 
         private ConnectionInfo InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
@@ -117,6 +142,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectionService.TryFindConnection(ownerUri, out connInfo);
             Assert.NotNull(connInfo);
             return connInfo;
+        }
+
+        private void DisconnectConnection(string uri)
+        {
+            ConnectionService.Instance.Disconnect(new DisconnectParams
+            {
+                OwnerUri = uri,
+                Type = ConnectionType.Default
+            });
         }
 
         private static bool hasInitServices = false;

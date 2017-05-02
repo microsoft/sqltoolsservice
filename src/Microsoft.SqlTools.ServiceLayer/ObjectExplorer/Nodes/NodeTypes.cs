@@ -24,6 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         View,
         Table,
         HistoryTable,
+        Folder,
         Databases,
         ExternalResources,
         ServerLevelSecurity,

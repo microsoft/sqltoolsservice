@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private Lazy<SmoQueryContext> context;
         private ConnectionService connectionService;
         private SmoServerCreator serverCreator;
+        private SqlServerType sqlServerType;
 
         public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider)
             : base()
@@ -42,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
             this.connectionUri = connInfo.OwnerUri;
+            this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
             this.connectionService = serviceProvider.GetService<ConnectionService>();
 
@@ -123,6 +125,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return label;
         }
 
+       
+
         private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
         {
             string exceptionMessage;
@@ -160,7 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 Server server = ServerCreator.Create(connection);
                 return new SmoQueryContext(server, serviceProvider)
                 {
-                    Parent = server
+                    Parent = server,
+                    SqlServerType = this.sqlServerType
                 };
             }
             catch (ConnectionFailureException cfe)

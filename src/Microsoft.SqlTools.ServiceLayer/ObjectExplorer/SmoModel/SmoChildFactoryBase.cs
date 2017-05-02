@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -24,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         
         public override IEnumerable<TreeNode> Expand(TreeNode parent)
         {
-            //parent.BeginChildrenInit();
             try
             {
                 List<TreeNode> allChildren = new List<TreeNode>();
@@ -36,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             finally
             {
-                //parent.EndChildrenInit();
             }
         }
         
@@ -63,22 +60,63 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
             Validate.IsNotNull(nameof(context), context);
+            
+            var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType);
+            if (ShouldFilterNode(parent, validForFlag))
+            {
+                return;
+            }
+
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
+            var filters = this.Filters;
             foreach (var querier in queriers)
             {
-                foreach(var smoObject in querier.Query(context))
+                string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
+
+                foreach (var smoObject in querier.Query(context, propertyFilter))
                 {
                     if (smoObject == null)
                     {
                         Console.WriteLine("smoObject should not be null");
                     }
                     TreeNode childNode = CreateChild(parent, smoObject);
-                    if (childNode != null)
+                    if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, validForFlag))
                     {
                         allChildren.Add(childNode);
                     }
                 }
             }
+        }
+
+        private bool ShouldFilterNode(TreeNode childNode, ValidForFlag validForFlag)
+        {
+            bool filterTheNode = false;
+            SmoTreeNode smoTreeNode = childNode as SmoTreeNode;
+            if (smoTreeNode != null && smoTreeNode.ValidFor != 0)
+            {
+                if (!(smoTreeNode.ValidFor.HasFlag(validForFlag)))
+                {
+                    filterTheNode = true;
+                }
+            }
+
+            return filterTheNode;
+        }
+
+        private string GetProperyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
+        {
+            string filter = string.Empty;
+            if (filters != null)
+            {
+                var filtersToApply = filters.Where(f => f.CanApplyFilter(querierType, validForFlag)).ToList();
+                filter = string.Empty;
+                if (filtersToApply.Any())
+                {
+                    filter = NodeFilter.ConcatProperties(filtersToApply);
+                }
+            }
+
+            return filter;
         }
 
         private bool IsCompatibleQuerier(SmoQuerier querier)
@@ -143,6 +181,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
                 return null;
+            }
+        }
+
+        public override IEnumerable<NodeFilter> Filters
+        {
+            get
+            {
+                return Enumerable.Empty<NodeFilter>();
             }
         }
 

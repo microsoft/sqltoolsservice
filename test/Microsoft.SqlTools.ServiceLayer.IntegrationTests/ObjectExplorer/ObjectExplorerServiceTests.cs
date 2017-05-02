@@ -3,16 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Xunit;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
 
@@ -26,79 +29,138 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void CreateSessionAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
-            string uri = "CreateSessionAndExpandServer";
             string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            await RunTest(databaseName, query, "EmptyDatabase", async (testDbName, session) =>
             {
-                var session = await CreateSession(null, uri);
-                await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                CancelConnection(uri);
-            }
+                await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
+            });
         }
 
         [Fact]
         public async void CreateSessionWithTempdbAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
-            string uri = "CreateSessionAndExpandServer";
-            string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            string databaseName = "tempdb";
+            await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
             {
-                var session = await CreateSession("tempdb", uri);
-                await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                CancelConnection(uri);
-            }
+                await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
+            });
         }
 
         [Fact]
         public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";
-            string uri = "CreateSessionAndExpandDatabase";
-            string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
             {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                ExpandAndVerifyDatabaseNode(testDb.DatabaseName, session);
-                CancelConnection(uri);
+                await ExpandAndVerifyDatabaseNode(testDbName, session);
+            });
+        }
+
+        [Fact]
+        public async void VerifyAllSqlObjects()
+        {
+            var queryFileName = "AllSqlObjects.sql";
+            string baselineFileName = "AllSqlObjects.txt";
+            string databaseName = "#testDb#";
+            await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, "AllSqlObjects", queryFileName, baselineFileName), true);
+        }
+
+        //[Fact]
+        //This takes take long to run so not a good test for CI builds
+        public async void VerifySystemObjects()
+        {
+            string queryFileName = null;
+            string baselineFileName = null;
+            string databaseName = "#testDb#";
+            await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, "SystemOBjects", baselineFileName, true), true);
+        }
+
+        private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, ObjectExplorerSession, Task> test)
+        {
+            SqlTestDb testDb = null;
+            string uri = string.Empty;
+            try
+            {
+                testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, testDbPrefix);
+                if (databaseName == "#testDb#")
+                {
+                    databaseName = testDb.DatabaseName;
+                }
+                var session = await CreateSession(databaseName);
+                uri = session.Uri;
+                await test(testDb.DatabaseName, session);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message}");
+                Assert.False(true, ex.Message);
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(uri))
+                {
+                    CloseSession(uri);
+                }
+                if (testDb != null)
+                {
+                    await testDb.CleanupAsync();
+                }
             }
         }
 
-        private async Task<ObjectExplorerSession> CreateSession(string databaseName, string uri)
+        private async Task<ObjectExplorerSession> CreateSession(string databaseName)
         {
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
+            //connectParams.Connection.Pooling = false;
             ConnectionDetails details = connectParams.Connection;
+            string uri = ObjectExplorerService.GenerateUri(details);
 
-            return await _service.DoCreateSession(details, uri);
+            var session =  await _service.DoCreateSession(details, uri);
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "OE session created for database: {0}", databaseName));
+            return session;
         }
 
-        private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session)
+        private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session, bool serverNode = true)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
             Assert.Equal(nodeInfo.IsLeaf, false);
-            Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
-            var children = session.Root.Expand();
+           
+            NodeInfo databaseNode = null;
 
-            //All server children should be folder nodes
-            foreach (var item in children)
+            if (serverNode)
             {
-                Assert.Equal(item.NodeType, "Folder");
+                Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
+                var children = session.Root.Expand();
+
+                //All server children should be folder nodes
+                foreach (var item in children)
+                {
+                    Assert.Equal(item.NodeType, "Folder");
+                }
+
+                var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
+                var databasesChildren = await _service.ExpandNode(session, databasesRoot.GetNodePath());
+                var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
+
+                //Verify the test databases is in the list
+                Assert.NotNull(databases);
+                databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
-
-            var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
-            var databasesChildren = await _service.ExpandNode(session, databasesRoot.GetNodePath());
-            var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
-
-            //Verify the test databases is in the list
-            Assert.NotNull(databases);
-            var databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
+            else
+            {
+                Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
+                databaseNode = session.Root.ToNodeInfo();
+                Assert.True(databaseNode.Label.Contains(databaseName));
+            }
             Assert.NotNull(databaseNode);
             return databaseNode;
         }
 
-        private void ExpandAndVerifyDatabaseNode(string databaseName, ObjectExplorerSession session)
+        private async Task ExpandAndVerifyDatabaseNode(string databaseName, ObjectExplorerSession session)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
@@ -106,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.Equal(nodeInfo.IsLeaf, false);
             Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
-            var children = session.Root.Expand();
+            var children = await _service.ExpandNode(session, session.Root.GetNodePath());
 
             //All server children should be folder nodes
             foreach (var item in children)
@@ -114,138 +176,113 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.Equal(item.NodeType, "Folder");
             }
 
-            var tablesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Tables);
+            var tablesRoot = children.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Tables);
             Assert.NotNull(tablesRoot);
         }
 
-        private void CancelConnection(string uri)
+        private void CloseSession(string uri)
         {
-            //ConnectionService.Instance.CancelConnect(new CancelConnectParams
-            //{
-            //    OwnerUri = uri,
-            //    Type = ConnectionType.Default
-            //});
+            _service.CloseSession(uri);
+            Console.WriteLine($"Session closed uri:{uri}");
         }
 
-        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session)
+        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session, StringBuilder stringBuilder = null, bool verifySystemObjects = false)
         {
-            if(node != null && !node.IsLeaf)
+            if (node != null && !node.IsLeaf)
+            {
+                var children = await _service.ExpandNode(session, node.NodePath);
+                foreach (var child in children)
+                {
+                    if (stringBuilder != null && child.NodeType != "Folder" && child.NodeType != "FileGroupFile")
+                    {
+                        stringBuilder.AppendLine($"NodeType: {child.NodeType} Label: {child.Label}");
+                    }
+                    if (!verifySystemObjects && (child.Label == SR.SchemaHierarchy_SystemStoredProcedures ||
+                        child.Label == SR.SchemaHierarchy_SystemViews ||
+                        child.Label == SR.SchemaHierarchy_SystemFunctions ||
+                        child.Label == SR.SchemaHierarchy_SystemDataTypes))
+                    {
+                        // don't expand the system folders because then the test will take for ever
+                    }
+                    else
+                    {
+                        await ExpandTree(child, session, stringBuilder, verifySystemObjects);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the children of a node with the given label
+        /// </summary>
+        private async Task<IList<NodeInfo>> FindNodeByLabel(NodeInfo node, ObjectExplorerSession session, string nodeType, bool nodeFound = false)
+        {
+            if (node != null && !node.IsLeaf)
             {
                 var children = await _service.ExpandNode(session, node.NodePath);
                 Assert.NotNull(children);
-                if(!node.NodePath.Contains("System") &&
-                    !node.NodePath.Contains("FileTables") && !node.NodePath.Contains("External Tables"))
+                if (!nodeFound)
                 {
-                    var labaleToUpper = node.Label.ToUpper();
                     foreach (var child in children)
                     {
-                        if (child.NodeType != "Folder")
+                        VerifyMetadata(child);
+                        if (child.Label == nodeType)
                         {
-                            Assert.NotNull(child.NodeType);
-                            if (child.Metadata != null && !string.IsNullOrEmpty(child.Metadata.MetadataTypeName))
-                            {
-                                if (!string.IsNullOrEmpty(child.Metadata.Schema))
-                                {
-                                    Assert.Equal($"{child.Metadata.Schema}.{child.Metadata.Name}", child.Label);
-                                }
-                                else
-                                {
-                                    Assert.Equal(child.Metadata.Name, child.Label);
-                                }
-                            }
-                            else
-                            {
-
-                            }
+                            return await FindNodeByLabel(child, session, nodeType, true);
+                        }
+                        var result = await FindNodeByLabel(child, session, nodeType);
+                        if (result != null)
+                        {
+                            return result;
                         }
                     }
                 }
-                foreach (var child in children)
+                else
                 {
-                    //Console.WriteLine(child.Label);
-                    await ExpandTree(child, session);
+                    return children;
+                }
+            }
+
+            return null;
+        }
+
+
+        private void VerifyMetadata(NodeInfo node)
+        {
+            if (node.NodeType != "Folder")
+            {
+                Assert.NotNull(node.NodeType);
+                if (node.Metadata != null && !string.IsNullOrEmpty(node.Metadata.MetadataTypeName))
+                {
+                    if (!string.IsNullOrEmpty(node.Metadata.Schema))
+                    {
+                        Assert.Equal($"{node.Metadata.Schema}.{node.Metadata.Name}", node.Label);
+                    }
+                    else
+                    {
+                        Assert.Equal(node.Metadata.Name, node.Label);
+                    }
                 }
             }
         }
 
-        [Fact]
-        public async void VerifyAdventureWorksDatabaseObjects()
+        private async Task<bool> VerifyObjectExplorerTest(string databaseName, string testDbPrefix, string queryFileName, string baselineFileName, bool verifySystemObjects = false)
         {
-            var query = Scripts.AdventureWorksScript;
-            string uri = "VerifyAdventureWorksDatabaseObjects";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            var query = string.IsNullOrEmpty(queryFileName) ? string.Empty : LoadScript(queryFileName);
+            StringBuilder stringBuilder = new StringBuilder();
+            await RunTest(databaseName, query, testDbPrefix, async (testDbName, session) =>
             {
-                var session = await CreateSession(null, uri);
-                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
-        }
-
-       // [Fact]
-        public async void VerifySql2016Objects()
-        {
-            var query = LoadScript("Sql_2016_Additions.sql");
-            string uri = "VerifySql2016Objects";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
-        }
-
-       // [Fact]
-        public async void VerifySqlObjects()
-        {
-            var query = LoadScript("Sql_Additions.sql");
-            string uri = "VerifySqlObjects";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
-        }
-
-       // [Fact]
-        public async void VerifyFileTableTest()
-        {
-            var query = LoadScript("FileTableTest.sql");
-            string uri = "VerifyFileTableTest";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
-        }
-
-        //[Fact]
-        public async void VerifyColumnstoreindexSql16()
-        {
-            var query = LoadScript("ColumnstoreindexSql16.sql");
-            string uri = "VerifyColumnstoreindexSql16";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
+                await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session, false);
+                await ExpandTree(session.Root.ToNodeInfo(), session, stringBuilder, verifySystemObjects);
+                string baseline = string.IsNullOrEmpty(baselineFileName) ? string.Empty : LoadBaseLine(baselineFileName);
+                if (!string.IsNullOrEmpty(baseline))
+                {
+                    string actual = stringBuilder.ToString();
+                    BaselinedTest.CompareActualWithBaseline(actual, baseline);
+                }
+            });
+           
+            return true;
         }
 
         private static string TestLocationDirectory
@@ -265,14 +302,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
         }
 
+        public DirectoryInfo BaselineFileDirectory
+        {
+            get
+            {
+                string d = Path.Combine(TestLocationDirectory, "Baselines");
+                return new DirectoryInfo(d);
+            }
+        }
+
         public FileInfo GetInputFile(string fileName)
         {
             return new FileInfo(Path.Combine(InputFileDirectory.FullName, fileName));
         }
 
+        public FileInfo GetBaseLineFile(string fileName)
+        {
+            return new FileInfo(Path.Combine(BaselineFileDirectory.FullName, fileName));
+        }
+
         private string LoadScript(string fileName)
         {
             FileInfo inputFile = GetInputFile(fileName);
+            return TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
+        }
+
+        private string LoadBaseLine(string fileName)
+        {
+            FileInfo inputFile = GetBaseLineFile(fileName);
             return TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
         }
     }
