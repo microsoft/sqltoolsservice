@@ -150,10 +150,10 @@
     </Filters>
   </Node>
 
-  <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="HistoryTableTreeNode">
+  <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <!-- TODO Add special history table handling to only return related history table instead of all! Under Table, we directly show any related history tables.-->
     <Filters>
-      <Filter  Property="TemporalType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
+      <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
         <Value>TableTemporalType.HistoryTable</Value>
       </Filter>
     </Filters>
@@ -166,8 +166,10 @@
   </Node>
 
   <!-- TODO This should use display item not ChildQuerierTypes -->
-  <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|SqlvNext|AzureV12">
+  
+  <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ValidFor="Sql2016|SqlvNext|AzureV12">
     <Child Name="Columns"/>
+    <Child Name="Constraints"/>
     <Child Name="Indexes"/>
     <Child Name="Statistics"/>
   </Node>
