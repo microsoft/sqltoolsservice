@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             
             await service.HandleSaveCredentialRequest(new Credential(CredentialId), contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
-            Assert.Contains("ArgumentException", errorResponse);
+            Assert.True(errorResponse.Contains("ArgumentException") || errorResponse.Contains("ArgumentNullException"));
         }
 
         [Fact]
