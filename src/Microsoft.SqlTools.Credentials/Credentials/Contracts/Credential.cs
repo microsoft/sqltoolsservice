@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.Credentials.Contracts
         public static void ValidateForSave(Credential credential)
         {
             ValidateForLookup(credential);
-            Validate.IsNotNullOrEmptyString("credential.Password", credential.Password);
+            Validate.IsNotNull("credential.Password", credential.Password);
         }
     }
 
