@@ -70,9 +70,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
                 {
                     OperationId = this.OperationId,
-                    DatabaseObjects = databaseObjects,
+                    ScriptingObjects = databaseObjects,
                     Count = databaseObjects.Count,
                     Success = true,
+                    SequenceNumber = 1,
                 });
             }
             catch (Exception e)
