@@ -490,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Close a connection with the specified connection details.
         /// </summary>
-        public bool Disconnect(DisconnectParams disconnectParams)
+        public virtual bool Disconnect(DisconnectParams disconnectParams)
         {
             // Validate parameters
             if (disconnectParams == null || string.IsNullOrEmpty(disconnectParams.OwnerUri))
