@@ -75,13 +75,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			
 			if (IsCollection(nodeElement))
 			{
-				
+				string fieldForUrn = GetNavPathFieldForUrn(xmlFile, nodeName, parentType);
+				if (!string.IsNullOrEmpty(fieldForUrn))
+				{
+					fieldForUrn = string.Format("{0}.{1}", parentVar, fieldForUrn);
+				}
+				else
+				{
+					fieldForUrn = parentVar;
+				}
 				WriteLine("HashSet<string> urns = null;");
 				
 				WriteLine("if (hasFilter)");
 				WriteLine("{");
 				PushIndent(indent);
-				WriteLine(string.Format("string urn = $\"{{{0}.Urn.ToString()}}/{1}\" + filter;", parentVar, nodeType));
+				WriteLine(string.Format("string urn = $\"{{{0}.Urn.ToString()}}/{1}\" + filter;", fieldForUrn, nodeType));
 				WriteLine("Enumerator en = new Enumerator();");
 				WriteLine("Request request = new Request(new Urn(urn));");
 				WriteLine("ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);");
@@ -92,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("if (hasFilter && urns != null)");
 				WriteLine("{");
 				PushIndent(indent);
-				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => urns.Contains(c.Urn));", nodeType));
+				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c) && urns.Contains(c.Urn));", nodeType, parentVar));
 				PopIndent();
 				WriteLine("}");
 				WriteLine("else");
@@ -160,6 +168,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlElement navPathElement = (XmlElement)doc.SelectSingleNode(string.Format("/SmoQueryModel/Node[@Name='{0}']/NavigationPath[@Parent='{1}']", nodeName, parent));
 		
 		return navPathElement == null ? null : navPathElement.GetAttribute("Field");
+	}
+
+	public static string GetNavPathFieldForUrn(string xmlFile, string nodeName, string parent)
+	{
+		XmlDocument doc = new XmlDocument();
+		doc.Load(xmlFile);
+		XmlElement navPathElement = (XmlElement)doc.SelectSingleNode(string.Format("/SmoQueryModel/Node[@Name='{0}']/NavigationPath[@Parent='{1}']", nodeName, parent));
+		
+		return navPathElement == null ? null : navPathElement.GetAttribute("FieldForUrn");
 	}
 
 	public static string GetNavigationPath(XmlElement nodeElement, string xmlFile, string nodeName, string parentName)
