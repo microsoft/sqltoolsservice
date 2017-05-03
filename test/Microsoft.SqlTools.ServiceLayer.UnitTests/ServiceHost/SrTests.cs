@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         public void SrStringsTestWithEnLocalization()
         {
             string locale = "en";
-            var args = new string[] { "--locale " + locale };
+            var args = new string[] { "--locale", locale };
             CommandOptions options = new CommandOptions(args);
             Assert.Equal(SR.Culture.Name, options.Locale);
             Assert.Equal(options.Locale, locale);
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         public void SrStringsTestWithEsLocalization()
         {
             string locale = "es";
-            var args = new string[] { "--locale " + locale };
+            var args = new string[] { "--locale", locale };
             CommandOptions options = new CommandOptions(args);
             Assert.Equal(SR.Culture.Name, options.Locale);
             Assert.Equal(options.Locale, locale);
