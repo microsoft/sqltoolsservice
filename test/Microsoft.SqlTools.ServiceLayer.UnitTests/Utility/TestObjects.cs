@@ -44,12 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 GetTestConnectionDetails());
         }
 
-        public static ConnectParams GetTestConnectionParams()
+        public static ConnectParams GetTestConnectionParams(bool useConnectionString = false)
         {
             return new ConnectParams() 
             {
                 OwnerUri = ScriptUri,
-                Connection = GetTestConnectionDetails()
+                Connection = GetTestConnectionDetails(useConnectionString)
             };
         }
 
@@ -80,8 +80,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <summary>
         /// Creates a test connection details object
         /// </summary>
-        public static ConnectionDetails GetTestConnectionDetails()
+        public static ConnectionDetails GetTestConnectionDetails(bool useConnectionString = false)
         {
+            if (useConnectionString)
+            {
+                return new ConnectionDetails()
+                {
+                    ConnectionString = "User ID=user;PWD=password;Database=databaseName;Server=serverName"
+                };
+            }
+
             return new ConnectionDetails()
             {
                 UserName = "user",

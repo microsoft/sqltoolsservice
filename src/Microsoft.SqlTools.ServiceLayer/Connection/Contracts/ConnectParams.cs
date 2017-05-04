@@ -14,7 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
         /// or a virtual file representing an object in a database.         
         /// </summary>
-        public string OwnerUri { get; set;  }
+        public string OwnerUri { get; set; }
+
         /// <summary>
         /// Contains the required parameters to initialize a connection to a database.
         /// A connection will identified by its server name, database name and user name.

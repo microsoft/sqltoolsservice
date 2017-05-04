@@ -1271,6 +1271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Property = "TemporalType",
                    Type = typeof(Enum),
+                   TypeToReverse = typeof(SqlHistoryTableQuerier),
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                    Values = new List<object>
                    {
@@ -1325,7 +1326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
            get
            {
-              return new [] { typeof(SqlTableQuerier), };
+              return new [] { typeof(SqlTableQuerier), typeof(SqlHistoryTableQuerier), };
            }
         }
 
@@ -1352,6 +1353,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Constraints,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Constraints,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Indexes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Indexes,
@@ -1369,8 +1376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
            get
            {
-              return new [] { typeof(SqlTableQuerier), };
-           }
+              return new Type[0];           }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)

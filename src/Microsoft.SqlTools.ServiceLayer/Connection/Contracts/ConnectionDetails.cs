@@ -443,6 +443,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        /// <summary>
+        /// Gets or sets a string value to be used as the connection string. If given, all other options will be ignored.
+        /// </summary>
+        public string ConnectionString
+        {
+            get
+            {
+                return GetOptionValue<string>("connectionString");
+            }
+
+            set
+            {
+                SetOptionValue("connectionString", value);
+            }
+        }
+
         private T GetOptionValue<T>(string name)
         {
             T result = default(T);
@@ -494,9 +510,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 return false;
             }
 
-            if (!string.Equals(ServerName, other.ServerName)
-                || !string.Equals(AuthenticationType, other.AuthenticationType)
-                || !string.Equals(UserName, other.UserName))
+            if (ServerName != other.ServerName
+                || AuthenticationType != other.AuthenticationType
+                || UserName != other.UserName)
             {
                 return false;
             }
@@ -506,7 +522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             // not a 100% accurate heuristic.
             if (!string.IsNullOrEmpty(DatabaseName)
                 && !string.IsNullOrEmpty(other.DatabaseName)
-                && !string.Equals(DatabaseName, other.DatabaseName))
+                && DatabaseName != other.DatabaseName)
             {
                 return false;
             }

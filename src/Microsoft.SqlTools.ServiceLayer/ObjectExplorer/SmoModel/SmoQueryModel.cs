@@ -26,23 +26,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Databases;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/Database" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Databases;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/Database" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Database>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -66,23 +66,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.LinkedServers;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/LinkedServer" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.LinkedServers;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/LinkedServer" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -106,23 +106,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Logins;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/Login" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Logins;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/Login" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Login>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -146,23 +146,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Roles;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/ServerRole" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Roles;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/ServerRole" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -186,23 +186,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Credentials;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/Credential" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Credentials;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/Credential" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Credential>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -226,23 +226,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.CryptographicProviders;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/CryptographicProvider" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.CryptographicProviders;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/CryptographicProvider" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -266,23 +266,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Audits;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/Audit" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Audits;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/Audit" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Audit>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -306,23 +306,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.ServerAuditSpecifications;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/ServerAuditSpecification" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.ServerAuditSpecifications;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/ServerAuditSpecification" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -346,23 +346,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Endpoints;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/Endpoint" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Endpoints;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/Endpoint" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -386,23 +386,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.LinkedServers;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/LinkedServer" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.LinkedServers;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/LinkedServer" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -426,23 +426,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.Triggers;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/ServerDdlTrigger" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.Triggers;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/ServerDdlTrigger" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -466,23 +466,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
-                var retValue = parentServer.UserDefinedMessages;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/UserDefinedMessage" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServer.UserDefinedMessages;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServer.Urn.ToString()}/UserDefinedMessage" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -506,23 +506,63 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Tables;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Table" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Tables;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Table" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Table>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Table>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlHistoryTableQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(Table) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
+        {
+            Table parentTable = context.Parent as Table;
+            if (parentTable != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                var retValue = parentTable.Parent.Tables;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTable.Parent.Urn.ToString()}/Table" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -546,23 +586,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Views;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/View" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Views;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/View" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<View>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -586,23 +626,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Synonyms;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Synonym" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Synonyms;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Synonym" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Synonym>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -626,23 +666,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
-                var retValue = parentTableViewTableTypeBase.Columns;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTableViewTableTypeBase.Urn.ToString()}/Column" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTableViewTableTypeBase.Columns;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTableViewTableTypeBase.Urn.ToString()}/Column" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Column>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -666,23 +706,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
-                var retValue = parentTableViewTableTypeBase.Indexes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTableViewTableTypeBase.Urn.ToString()}/Index" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTableViewTableTypeBase.Indexes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTableViewTableTypeBase.Urn.ToString()}/Index" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Index>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -706,23 +746,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
-                var retValue = parentTable.Checks;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTable.Urn.ToString()}/Check" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTable.Checks;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTable.Urn.ToString()}/Check" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Check>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -746,23 +786,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
-                var retValue = parentTable.ForeignKeys;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTable.Urn.ToString()}/ForeignKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTable.ForeignKeys;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTable.Urn.ToString()}/ForeignKey" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -786,18 +826,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Column parentColumn = context.Parent as Column;
             if (parentColumn != null)
             {
-                var retValue = parentColumn.DefaultConstraint;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentColumn.Urn.ToString()}/DefaultConstraint" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentColumn.DefaultConstraint;
                 if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
@@ -819,23 +849,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
-                var retValue = parentTable.Triggers;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTable.Urn.ToString()}/Trigger" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTable.Triggers;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTable.Urn.ToString()}/Trigger" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -859,18 +889,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
-                var retValue = parentTable.FullTextIndex;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTable.Urn.ToString()}/FullTextIndex" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTable.FullTextIndex;
                 if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
@@ -892,23 +912,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             TableViewBase parentTableViewBase = context.Parent as TableViewBase;
             if (parentTableViewBase != null)
             {
-                var retValue = parentTableViewBase.Statistics;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentTableViewBase.Urn.ToString()}/Statistic" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentTableViewBase.Statistics;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentTableViewBase.Urn.ToString()}/Statistic" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Statistic>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -932,23 +952,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Triggers;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseDdlTrigger" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Triggers;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/DatabaseDdlTrigger" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -972,23 +992,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Assemblies;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/SqlAssembly" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Assemblies;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/SqlAssembly" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1012,23 +1032,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Rules;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Rule" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Rules;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Rule" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Rule>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Rule>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1052,23 +1072,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Defaults;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Default" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Defaults;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Default" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Default>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Default>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1092,23 +1112,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Sequences;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Sequence" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Sequences;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Sequence" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Sequence>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1132,23 +1152,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.UserDefinedDataTypes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedDataType" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.UserDefinedDataTypes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedDataType" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1172,23 +1192,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.UserDefinedTableTypes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedTableType" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.UserDefinedTableTypes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedTableType" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1212,23 +1232,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.XmlSchemaCollections;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/XmlSchemaCollection" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.XmlSchemaCollections;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/XmlSchemaCollection" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1252,23 +1272,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.UserDefinedTypes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedType" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.UserDefinedTypes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedType" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1292,23 +1312,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.UserDefinedFunctions;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedFunction" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.UserDefinedFunctions;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedFunction" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1332,23 +1352,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.UserDefinedAggregates;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedAggregate" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.UserDefinedAggregates;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedAggregate" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1372,23 +1392,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.FileGroups;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/FileGroup" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.FileGroups;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/FileGroup" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1412,23 +1432,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             FileGroup parentFileGroup = context.Parent as FileGroup;
             if (parentFileGroup != null)
             {
-                var retValue = parentFileGroup.Files;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentFileGroup.Urn.ToString()}/DataFile" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentFileGroup.Files;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentFileGroup.Urn.ToString()}/DataFile" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<DataFile>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1452,23 +1472,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.FullTextCatalogs;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/FullTextCatalog" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.FullTextCatalogs;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/FullTextCatalog" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1492,23 +1512,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.FullTextStopLists;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/FullTextStopList" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.FullTextStopLists;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/FullTextStopList" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1532,23 +1552,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.PartitionFunctions;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/PartitionFunction" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.PartitionFunctions;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/PartitionFunction" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1572,23 +1592,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.PartitionSchemes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/PartitionScheme" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.PartitionSchemes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/PartitionScheme" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1612,23 +1632,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.SearchPropertyLists;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/SearchPropertyList" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.SearchPropertyLists;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/SearchPropertyList" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1652,23 +1672,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Users;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/User" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Users;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/User" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<User>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1692,23 +1712,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Schemas;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Schema" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Schemas;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Schema" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Schema>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1732,23 +1752,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.AsymmetricKeys;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/AsymmetricKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.AsymmetricKeys;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/AsymmetricKey" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1772,23 +1792,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Certificates;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Certificate" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Certificates;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/Certificate" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Certificate>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1812,23 +1832,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.SymmetricKeys;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/SymmetricKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.SymmetricKeys;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/SymmetricKey" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1852,18 +1872,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.DatabaseEncryptionKey;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseEncryptionKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.DatabaseEncryptionKey;
                 if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
@@ -1885,18 +1895,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.MasterKey;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/MasterKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.MasterKey;
                 if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
@@ -1918,23 +1918,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.DatabaseAuditSpecifications;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseAuditSpecification" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.DatabaseAuditSpecifications;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/DatabaseAuditSpecification" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1958,23 +1958,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.SecurityPolicies;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/SecurityPolicy" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.SecurityPolicies;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/SecurityPolicy" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -1998,23 +1998,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.DatabaseScopedCredentials;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseScopedCredential" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.DatabaseScopedCredentials;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/DatabaseScopedCredential" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2038,23 +2038,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Roles;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseRole" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Roles;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/DatabaseRole" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2078,23 +2078,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ApplicationRoles;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ApplicationRole" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ApplicationRoles;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/ApplicationRole" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2118,23 +2118,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ColumnMasterKeys;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ColumnMasterKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ColumnMasterKeys;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/ColumnMasterKey" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2158,23 +2158,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ColumnEncryptionKeys;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ColumnEncryptionKey" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ColumnEncryptionKeys;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/ColumnEncryptionKey" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2198,18 +2198,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ServiceBroker;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ServiceBroker" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ServiceBroker;
                 if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
@@ -2231,23 +2221,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
-                var retValue = parentServiceBroker.Services;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServiceBroker.Urn.ToString()}/BrokerService" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServiceBroker.Services;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServiceBroker.Urn.ToString()}/BrokerService" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2271,23 +2261,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
-                var retValue = parentServiceBroker.ServiceContracts;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServiceBroker.Urn.ToString()}/ServiceContract" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServiceBroker.ServiceContracts;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServiceBroker.Urn.ToString()}/ServiceContract" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2311,23 +2301,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
-                var retValue = parentServiceBroker.Queues;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServiceBroker.Urn.ToString()}/ServiceQueue" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServiceBroker.Queues;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServiceBroker.Urn.ToString()}/ServiceQueue" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2351,23 +2341,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
-                var retValue = parentServiceBroker.RemoteServiceBindings;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServiceBroker.Urn.ToString()}/RemoteServiceBinding" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServiceBroker.RemoteServiceBindings;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServiceBroker.Urn.ToString()}/RemoteServiceBinding" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2391,23 +2381,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
-                var retValue = parentServiceBroker.Priorities;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServiceBroker.Urn.ToString()}/BrokerPriority" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServiceBroker.Priorities;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServiceBroker.Urn.ToString()}/BrokerPriority" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2431,23 +2421,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
-                var retValue = parentServiceBroker.MessageTypes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServiceBroker.Urn.ToString()}/MessageType" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentServiceBroker.MessageTypes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentServiceBroker.Urn.ToString()}/MessageType" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2471,23 +2461,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ExternalDataSources;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ExternalDataSource" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ExternalDataSources;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/ExternalDataSource" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2511,23 +2501,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ExternalFileFormats;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ExternalFileFormat" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ExternalFileFormats;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/ExternalFileFormat" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2551,23 +2541,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.StoredProcedures;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/StoredProcedure" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.StoredProcedures;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/StoredProcedure" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2591,23 +2581,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.ExtendedStoredProcedures;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/ExtendedStoredProcedure" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.ExtendedStoredProcedures;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Urn.ToString()}/ExtendedStoredProcedure" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2631,23 +2621,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
             {
-                var retValue = parentStoredProcedure.Parameters;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentStoredProcedure.Urn.ToString()}/Parameter" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentStoredProcedure.Parameters;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentStoredProcedure.Urn.ToString()}/Parameter" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2658,23 +2648,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
             if (parentUserDefinedAggregate != null)
             {
-                var retValue = parentUserDefinedAggregate.Parameters;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentUserDefinedAggregate.Urn.ToString()}/Parameter" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentUserDefinedAggregate.Parameters;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentUserDefinedAggregate.Urn.ToString()}/Parameter" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2685,23 +2675,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
             if (parentUserDefinedFunction != null)
             {
-                var retValue = parentUserDefinedFunction.Parameters;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentUserDefinedFunction.Urn.ToString()}/Parameter" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentUserDefinedFunction.Parameters;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentUserDefinedFunction.Urn.ToString()}/Parameter" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2725,23 +2715,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             PartitionFunction parentPartitionFunction = context.Parent as PartitionFunction;
             if (parentPartitionFunction != null)
             {
-                var retValue = parentPartitionFunction.PartitionFunctionParameters;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentPartitionFunction.Urn.ToString()}/PartitionFunctionParameter" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentPartitionFunction.PartitionFunctionParameters;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentPartitionFunction.Urn.ToString()}/PartitionFunctionParameter" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c) && urns.Contains(c.Urn));
                     }
                     else
                     {
@@ -2765,23 +2755,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
-                var retValue = parentDatabase.Parent.SystemDataTypes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentDatabase.Urn.ToString()}/SystemDataType" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
+                var retValue = parentDatabase.Parent.SystemDataTypes;
                 if (retValue != null)
                 {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        string urn = $"{parentDatabase.Parent.Urn.ToString()}/SystemDataType" + filter;
+                        Enumerator en = new Enumerator();
+                        Request request = new Request(new Urn(urn));
+                        ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                        EnumResult result = en.Process(serverConnection, request);
+                        urns = GetUrns(result);
+                    }
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
                     }
                     else
                     {

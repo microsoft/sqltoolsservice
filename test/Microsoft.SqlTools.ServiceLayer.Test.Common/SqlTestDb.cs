@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Xunit;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -60,15 +61,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             string query = null,
             string dbNamePrefix = null)
         {
+            return CreateNewAsync(serverType, doNotCleanupDb, databaseName, query, dbNamePrefix).Result;
+        }
+
+        /// <summary>
+        /// Create the test db if not already exists
+        /// </summary>
+        public static async Task<SqlTestDb> CreateNewAsync(
+            TestServerType serverType,
+            bool doNotCleanupDb = false,
+            string databaseName = null,
+            string query = null,
+            string dbNamePrefix = null)
+        {
             SqlTestDb testDb = new SqlTestDb();
 
             databaseName = databaseName ?? GetUniqueDBName(dbNamePrefix);
             string createDatabaseQuery = Scripts.CreateDatabaseQuery.Replace("#DatabaseName#", databaseName);
-            TestServiceProvider.Instance.RunQuery(serverType, MasterDatabaseName, createDatabaseQuery);
+            await TestServiceProvider.Instance.RunQueryAsync(serverType, MasterDatabaseName, createDatabaseQuery);
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' is created", databaseName));
             if (!string.IsNullOrEmpty(query))
             {
-                TestServiceProvider.Instance.RunQuery(serverType, databaseName, query);
+                await TestServiceProvider.Instance.RunQueryAsync(serverType, databaseName, query);
                 Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' SQL types are created", databaseName));
             }
             testDb.DatabaseName = databaseName;
@@ -108,6 +122,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public void Cleanup()
         {
+            CleanupAsync().Wait();
+        }
+
+        public async Task CleanupAsync()
+        {
             try
             {
                 if (!DoNotCleanupDb)
@@ -116,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         (ServerType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), DatabaseName);
 
                     Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Cleaning up database {0}", DatabaseName));
-                    TestServiceProvider.Instance.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
+                    await TestServiceProvider.Instance.RunQueryAsync(ServerType, MasterDatabaseName, dropDatabaseQuery);
                 }
             }
             catch (Exception ex)
