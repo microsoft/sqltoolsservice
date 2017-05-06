@@ -42,8 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             serviceHost.SetRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest);
             serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest);
+            serviceHost.SetRequestHandler(AdminServiceOptionsRequest.Type, HandleOptionsRequest);
         }
 
+
+        public static async Task HandleOptionsRequest(
+            AdminServiceOptionsParams optionsParams,
+            RequestContext<AdminServiceOptionsResponse> requestContext)
+        {
+            await requestContext.SendResult(new AdminServiceOptionsResponse());
+        }
 
         private static XmlDocument CreateDataContainerDocument()
         {

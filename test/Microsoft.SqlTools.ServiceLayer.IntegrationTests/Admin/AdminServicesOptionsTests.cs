@@ -19,9 +19,9 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
 {
     /// <summary>
-    /// Tests for the ServiceHost Language Service tests
+    /// Tests for the Admin Services tests
     /// </summary>
-    public class CreateDatabaseTests
+    public class AdminServicesOptionsTests
     {
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -44,19 +44,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// 
         /// </summary>
         [Fact]
-        public async void CreateDatabaseWithValidInputTest()
+        public async void GetAdminServicesOptions()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<CreateDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<CreateDatabaseResponse>())).Returns(Task.FromResult(new object()));
+            var requestContext = new Mock<RequestContext<AdminServiceOptionsResponse>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<AdminServiceOptionsResponse>())).Returns(Task.FromResult(new object()));
 
-            var dbParams = new CreateDatabaseParams
+            var dbParams = new AdminServiceOptionsParams
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
-                DatabaseInfo = new DatabaseInfo()
             };
         
-            await AdminService.HandleCreateDatabaseRequest(dbParams, requestContext.Object);
+            await AdminService.HandleOptionsRequest(dbParams, requestContext.Object);
 
             requestContext.VerifyAll();
         }
