@@ -1210,5 +1210,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => service.GetOrOpenConnection(TestObjects.ScriptUri, ConnectionType.Query));
         }
+
+        [Fact]
+        public async Task ConnectionWithConnectionStringSucceeds()
+        {
+            var connectionParameters = TestObjects.GetTestConnectionParams(true);
+            var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
+
+            Assert.NotEmpty(connectionResult.ConnectionId);
+        }
+
+        [Fact]
+        public async Task ConnectionWithBadConnectionStringFails()
+        {
+            var connectionParameters = TestObjects.GetTestConnectionParams(true);
+            connectionParameters.Connection.ConnectionString = "thisisnotavalidconnectionstring";
+            var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
+
+            Assert.NotEmpty(connectionResult.ErrorMessage);
+        }
+
+        [Fact]
+        public async Task ConnectionWithConnectionStringOverridesParameters()
+        {
+            var connectionParameters = TestObjects.GetTestConnectionParams();
+            connectionParameters.Connection.ServerName = "overriddenServerName";
+            var connectionString = TestObjects.GetTestConnectionParams(true).Connection.ConnectionString;
+            connectionParameters.Connection.ConnectionString = connectionString;
+
+            // Connect and verify that the server name has been overridden
+            var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
+            Assert.NotEqual(connectionParameters.Connection.ServerName, connectionResult.ConnectionSummary.ServerName);
+        }
     }
 }

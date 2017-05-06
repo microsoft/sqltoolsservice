@@ -36,6 +36,10 @@
   <Node Name="SqlErrorMessage" Type="UserDefinedMessage" Parent="Server" />
 
   <Node Name="SqlTable" Parent="Database" />
+  <Node Name="SqlHistoryTable" Type="Table" Parent="Table" >
+    <NavigationPath Parent="Table" Type="Table" Field="Parent.Tables" FieldForUrn="Parent" />
+  </Node>
+  
   <Node Name="SqlView" Parent="Database" />
 
   <Node Name="SqlSynonym" Parent="Database" />
@@ -131,7 +135,7 @@
   <Node Name="SqlPartitionFunctionParameter" Parent="PartitionFunction" />
 
   <Node Name="SqlBuiltInType" Type="SystemDataType" Parent="Database">
-    <NavigationPath Parent="Database" Field="Parent.SystemDataTypes" />
+    <NavigationPath Parent="Database" Field="Parent.SystemDataTypes" FieldForUrn="Parent" />
   </Node>
   <!-- TODO Enable all types
   <Node Name="SqlRoute"/>

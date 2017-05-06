@@ -66,6 +66,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
+        /// Mthod used to do custom filtering on smo objects if cannot be implemented using the filters
+        /// </summary>
+        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject smoObject)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Gets the urn from the enumResult 
         /// </summary>
         protected HashSet<string> GetUrns(EnumResult enumResult)

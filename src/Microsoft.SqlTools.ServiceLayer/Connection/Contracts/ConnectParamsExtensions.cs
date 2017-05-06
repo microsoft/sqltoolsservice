@@ -24,20 +24,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             {
                 errorMessage = SR.ConnectionParamsValidateNullConnection;
             }
+            else if (!string.IsNullOrEmpty(parameters.Connection.ConnectionString))
+            {
+                // Do not check other connection parameters if a connection string is present
+                return string.IsNullOrEmpty(errorMessage);
+            }
             else if (string.IsNullOrEmpty(parameters.Connection.ServerName))
             {
                 errorMessage = SR.ConnectionParamsValidateNullServerName;
             }
             else if (string.IsNullOrEmpty(parameters.Connection.AuthenticationType) || parameters.Connection.AuthenticationType == "SqlLogin")
             {
-                // For SqlLogin, username/password cannot be empty
+                // For SqlLogin, username cannot be empty
                 if (string.IsNullOrEmpty(parameters.Connection.UserName))
                 {
                     errorMessage = SR.ConnectionParamsValidateNullSqlAuth("UserName");
-                }
-                else if( string.IsNullOrEmpty(parameters.Connection.Password))
-                {
-                    errorMessage = SR.ConnectionParamsValidateNullSqlAuth("Password");
                 }
             }
 
