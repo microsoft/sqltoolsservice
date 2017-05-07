@@ -159,23 +159,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private SqlScriptPublishModel BuildPublishModel()
         {
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
-            PopulateAdvancedScriptOptions(publishModel.AdvancedOptions);
 
+            // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
+            // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
+            // of when SqlScriptPublishModel.ScriptAllObjects is set.  To workaround this, we initialize with 
+            // SqlScriptPublishModel.ScriptAllObjects to true.  If we need to set SqlScriptPublishModel.ScriptAllObjects 
+            // to false, it must the last thing we do after setting all SqlScriptPublishModel.AdvancedOptions values.  
+            // If we call the SqlScriptPublishModel.AdvancedOptions getter afterwards, all options will be reset.
+            //
+            publishModel.ScriptAllObjects = true;
+
+            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
+
+            // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
+            // criteria should include the target objects to script.
+            //
             bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any();
             bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any();
             bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-
-            // If no object selection criteria was specified, we're scripting the entire database
-            publishModel.ScriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
-            if (publishModel.ScriptAllObjects)
+            bool scriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
+            if (scriptAllObjects)
             {
-                publishModel.AdvancedOptions.GenerateScriptForDependentObjects = BooleanTypeOptions.True;
+                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is True");
                 return publishModel;
             }
 
-            // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+            // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
+            // or all SqlScriptPublishModel.AdvancedOptions will be reset.
+            //
+            publishModel.ScriptAllObjects = false;
+            Logger.Write(LogLevel.Verbose, "ScriptAllObjects is False");
 
+            // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
+            //
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
             if (hasIncludeCriteria || hasExcludeCriteria)
             {
                 // This is an expensive remote call to load all objects from the database.
@@ -188,6 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
 
             // If specific objects are specified, include them.
+            //
             if (hasObjectsSpecified)
             {
                 selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
@@ -209,15 +227,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return publishModel;
         }
 
-        private void PopulateAdvancedScriptOptions(SqlScriptOptions advancedOptions)
+        private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
         {
-            if (this.Parameters.ScriptOptions == null)
+            if (scriptOptionsParameters == null)
             {
                 Logger.Write(LogLevel.Verbose, "No advanced options set, the ScriptOptions object is null.");
                 return;
             }
 
-            foreach (PropertyInfo optionPropInfo in this.Parameters.ScriptOptions.GetType().GetProperties())
+            foreach (PropertyInfo optionPropInfo in scriptOptionsParameters.GetType().GetProperties())
             {
                 PropertyInfo advancedOptionPropInfo = advancedOptions.GetType().GetProperty(optionPropInfo.Name);
                 if (advancedOptionPropInfo == null)
@@ -226,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     continue;
                 }
 
-                object optionValue = optionPropInfo.GetValue(this.Parameters.ScriptOptions, index: null);
+                object optionValue = optionPropInfo.GetValue(scriptOptionsParameters, index: null);
                 if (optionValue == null)
                 {
                     Logger.Write(LogLevel.Verbose, string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
