@@ -114,20 +114,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         private void SetLoggingDirectory(string loggingDirectory)
         {
-            try
+            if (string.IsNullOrWhiteSpace(loggingDirectory))
             {
-                if (string.IsNullOrWhiteSpace(loggingDirectory))
-                {
-                    return;
-                }
+                return;
+            }
 
-                this.LoggingDirectory = Path.GetFullPath(loggingDirectory);
-            }
-            catch (Exception ex)
-            {
-                // Warn user of invalid logging directory, and fall back to the default
-                Console.WriteLine(ex);
-            }
+            this.LoggingDirectory = Path.GetFullPath(loggingDirectory);
         }
 
         private void SetLocale(string locale)
