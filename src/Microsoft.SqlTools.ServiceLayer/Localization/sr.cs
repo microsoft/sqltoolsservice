@@ -2181,6 +2181,886 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string filegroup_dialog_defaultFilegroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroup_dialog_defaultFilegroup);
+            }
+        }
+
+        public static string filegroup_dialog_title
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroup_dialog_title);
+            }
+        }
+
+        public static string filegroups_default
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroups_default);
+            }
+        }
+
+        public static string filegroups_files
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroups_files);
+            }
+        }
+
+        public static string filegroups_name
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroups_name);
+            }
+        }
+
+        public static string filegroups_readonly
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroups_readonly);
+            }
+        }
+
+        public static string general_autogrowth
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_autogrowth);
+            }
+        }
+
+        public static string general_builderText
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_builderText);
+            }
+        }
+
+        public static string general_default
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_default);
+            }
+        }
+
+        public static string general_fileGroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_fileGroup);
+            }
+        }
+
+        public static string general_fileName
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_fileName);
+            }
+        }
+
+        public static string general_fileType
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_fileType);
+            }
+        }
+
+        public static string general_initialSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_initialSize);
+            }
+        }
+
+        public static string general_newFilegroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_newFilegroup);
+            }
+        }
+
+        public static string general_path
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_path);
+            }
+        }
+
+        public static string general_physicalFileName
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_physicalFileName);
+            }
+        }
+
+        public static string general_rawDevice
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_rawDevice);
+            }
+        }
+
+        public static string general_recoveryModel_bulkLogged
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_recoveryModel_bulkLogged);
+            }
+        }
+
+        public static string general_recoveryModel_full
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_recoveryModel_full);
+            }
+        }
+
+        public static string general_recoveryModel_simple
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_recoveryModel_simple);
+            }
+        }
+
+        public static string general_titleSearchOwner
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_titleSearchOwner);
+            }
+        }
+
+        public static string prototype_autogrowth_disabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_disabled);
+            }
+        }
+
+        public static string prototype_autogrowth_restrictedGrowthByMB
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_restrictedGrowthByMB);
+            }
+        }
+
+        public static string prototype_autogrowth_restrictedGrowthByPercent
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_restrictedGrowthByPercent);
+            }
+        }
+
+        public static string prototype_autogrowth_unrestrictedGrowthByMB
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_unrestrictedGrowthByMB);
+            }
+        }
+
+        public static string prototype_autogrowth_unrestrictedGrowthByPercent
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_unrestrictedGrowthByPercent);
+            }
+        }
+
+        public static string prototype_autogrowth_unlimitedfilestream
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_unlimitedfilestream);
+            }
+        }
+
+        public static string prototype_autogrowth_limitedfilestream
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_autogrowth_limitedfilestream);
+            }
+        }
+
+        public static string prototype_db_category_automatic
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_automatic);
+            }
+        }
+
+        public static string prototype_db_category_servicebroker
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_servicebroker);
+            }
+        }
+
+        public static string prototype_db_category_collation
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_collation);
+            }
+        }
+
+        public static string prototype_db_category_cursor
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_cursor);
+            }
+        }
+
+        public static string prototype_db_category_misc
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_misc);
+            }
+        }
+
+        public static string prototype_db_category_recovery
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_recovery);
+            }
+        }
+
+        public static string prototype_db_category_state
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_category_state);
+            }
+        }
+
+        public static string prototype_db_prop_ansiNullDefault
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_ansiNullDefault);
+            }
+        }
+
+        public static string prototype_db_prop_ansiNulls
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_ansiNulls);
+            }
+        }
+
+        public static string prototype_db_prop_ansiPadding
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_ansiPadding);
+            }
+        }
+
+        public static string prototype_db_prop_ansiWarnings
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_ansiWarnings);
+            }
+        }
+
+        public static string prototype_db_prop_arithabort
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_arithabort);
+            }
+        }
+
+        public static string prototype_db_prop_autoClose
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_autoClose);
+            }
+        }
+
+        public static string prototype_db_prop_autoCreateStatistics
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_autoCreateStatistics);
+            }
+        }
+
+        public static string prototype_db_prop_autoShrink
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_autoShrink);
+            }
+        }
+
+        public static string prototype_db_prop_autoUpdateStatistics
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_autoUpdateStatistics);
+            }
+        }
+
+        public static string prototype_db_prop_autoUpdateStatisticsAsync
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_autoUpdateStatisticsAsync);
+            }
+        }
+
+        public static string prototype_db_prop_caseSensitive
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_caseSensitive);
+            }
+        }
+
+        public static string prototype_db_prop_closeCursorOnCommit
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_closeCursorOnCommit);
+            }
+        }
+
+        public static string prototype_db_prop_collation
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_collation);
+            }
+        }
+
+        public static string prototype_db_prop_concatNullYieldsNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_concatNullYieldsNull);
+            }
+        }
+
+        public static string prototype_db_prop_databaseCompatibilityLevel
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseCompatibilityLevel);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState);
+            }
+        }
+
+        public static string prototype_db_prop_defaultCursor
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_defaultCursor);
+            }
+        }
+
+        public static string prototype_db_prop_fullTextIndexing
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_fullTextIndexing);
+            }
+        }
+
+        public static string prototype_db_prop_numericRoundAbort
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_numericRoundAbort);
+            }
+        }
+
+        public static string prototype_db_prop_pageVerify
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_pageVerify);
+            }
+        }
+
+        public static string prototype_db_prop_quotedIdentifier
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_quotedIdentifier);
+            }
+        }
+
+        public static string prototype_db_prop_readOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_readOnly);
+            }
+        }
+
+        public static string prototype_db_prop_recursiveTriggers
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_recursiveTriggers);
+            }
+        }
+
+        public static string prototype_db_prop_restrictAccess
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_restrictAccess);
+            }
+        }
+
+        public static string prototype_db_prop_selectIntoBulkCopy
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_selectIntoBulkCopy);
+            }
+        }
+
+        public static string prototype_db_prop_honorBrokerPriority
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_honorBrokerPriority);
+            }
+        }
+
+        public static string prototype_db_prop_serviceBrokerGuid
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_serviceBrokerGuid);
+            }
+        }
+
+        public static string prototype_db_prop_brokerEnabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_brokerEnabled);
+            }
+        }
+
+        public static string prototype_db_prop_truncateLogOnCheckpoint
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_truncateLogOnCheckpoint);
+            }
+        }
+
+        public static string prototype_db_prop_dbChaining
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_dbChaining);
+            }
+        }
+
+        public static string prototype_db_prop_trustworthy
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_trustworthy);
+            }
+        }
+
+        public static string prototype_db_prop_dateCorrelationOptimization
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_dateCorrelationOptimization);
+            }
+        }
+
+        public static string prototype_db_prop_parameterization_value_forced
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_parameterization_value_forced);
+            }
+        }
+
+        public static string prototype_db_prop_parameterization_value_simple
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_parameterization_value_simple);
+            }
+        }
+
+        public static string prototype_file_dataFile
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_file_dataFile);
+            }
+        }
+
+        public static string prototype_file_logFile
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_file_logFile);
+            }
+        }
+
+        public static string prototype_file_filestreamFile
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_file_filestreamFile);
+            }
+        }
+
+        public static string prototype_file_noFileGroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_file_noFileGroup);
+            }
+        }
+
+        public static string prototype_file_defaultpathstring
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_file_defaultpathstring);
+            }
+        }
+
+        public static string title_openConnectionsMustBeClosed
+        {
+            get
+            {
+                return Keys.GetString(Keys.title_openConnectionsMustBeClosed);
+            }
+        }
+
+        public static string warning_openConnectionsMustBeClosed
+        {
+            get
+            {
+                return Keys.GetString(Keys.warning_openConnectionsMustBeClosed);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_autoClosed
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_autoClosed);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_emergency
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_emergency);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_inaccessible
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_inaccessible);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_normal
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_normal);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_offline
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_offline);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_recovering
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_recovering);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_recoveryPending
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_recoveryPending);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_restoring
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_restoring);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_shutdown
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_shutdown);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_standby
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_standby);
+            }
+        }
+
+        public static string prototype_db_prop_databaseState_value_suspect
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databaseState_value_suspect);
+            }
+        }
+
+        public static string prototype_db_prop_defaultCursor_value_global
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_defaultCursor_value_global);
+            }
+        }
+
+        public static string prototype_db_prop_defaultCursor_value_local
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_defaultCursor_value_local);
+            }
+        }
+
+        public static string prototype_db_prop_restrictAccess_value_multiple
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_restrictAccess_value_multiple);
+            }
+        }
+
+        public static string prototype_db_prop_restrictAccess_value_restricted
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_restrictAccess_value_restricted);
+            }
+        }
+
+        public static string prototype_db_prop_restrictAccess_value_single
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_restrictAccess_value_single);
+            }
+        }
+
+        public static string prototype_db_prop_pageVerify_value_checksum
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_pageVerify_value_checksum);
+            }
+        }
+
+        public static string prototype_db_prop_pageVerify_value_none
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_pageVerify_value_none);
+            }
+        }
+
+        public static string prototype_db_prop_pageVerify_value_tornPageDetection
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_pageVerify_value_tornPageDetection);
+            }
+        }
+
+        public static string prototype_db_prop_varDecimalEnabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_varDecimalEnabled);
+            }
+        }
+
+        public static string compatibilityLevel_katmai
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_katmai);
+            }
+        }
+
+        public static string prototype_db_prop_encryptionEnabled
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_encryptionEnabled);
+            }
+        }
+
+        public static string prototype_db_prop_databasescopedconfig_value_off
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databasescopedconfig_value_off);
+            }
+        }
+
+        public static string prototype_db_prop_databasescopedconfig_value_on
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databasescopedconfig_value_on);
+            }
+        }
+
+        public static string prototype_db_prop_databasescopedconfig_value_primary
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databasescopedconfig_value_primary);
+            }
+        }
+
+        public static string error_db_prop_invalidleadingColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.error_db_prop_invalidleadingColumns);
+            }
+        }
+
+        public static string compatibilityLevel_denali
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_denali);
+            }
+        }
+
+        public static string compatibilityLevel_sql14
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_sql14);
+            }
+        }
+
+        public static string compatibilityLevel_sql15
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_sql15);
+            }
+        }
+
+        public static string compatibilityLevel_sqlvNext
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_sqlvNext);
+            }
+        }
+
+        public static string general_containmentType_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_containmentType_None);
+            }
+        }
+
+        public static string general_containmentType_Partial
+        {
+            get
+            {
+                return Keys.GetString(Keys.general_containmentType_Partial);
+            }
+        }
+
+        public static string filegroups_filestreamFiles
+        {
+            get
+            {
+                return Keys.GetString(Keys.filegroups_filestreamFiles);
+            }
+        }
+
+        public static string prototype_file_noApplicableFileGroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_file_noApplicableFileGroup);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3106,6 +3986,336 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
+
+
+            public const string filegroup_dialog_defaultFilegroup = "filegroup_dialog_defaultFilegroup";
+
+
+            public const string filegroup_dialog_title = "filegroup_dialog_title";
+
+
+            public const string filegroups_default = "filegroups_default";
+
+
+            public const string filegroups_files = "filegroups_files";
+
+
+            public const string filegroups_name = "filegroups_name";
+
+
+            public const string filegroups_readonly = "filegroups_readonly";
+
+
+            public const string general_autogrowth = "general_autogrowth";
+
+
+            public const string general_builderText = "general_builderText";
+
+
+            public const string general_default = "general_default";
+
+
+            public const string general_fileGroup = "general_fileGroup";
+
+
+            public const string general_fileName = "general_fileName";
+
+
+            public const string general_fileType = "general_fileType";
+
+
+            public const string general_initialSize = "general_initialSize";
+
+
+            public const string general_newFilegroup = "general_newFilegroup";
+
+
+            public const string general_path = "general_path";
+
+
+            public const string general_physicalFileName = "general_physicalFileName";
+
+
+            public const string general_rawDevice = "general_rawDevice";
+
+
+            public const string general_recoveryModel_bulkLogged = "general_recoveryModel_bulkLogged";
+
+
+            public const string general_recoveryModel_full = "general_recoveryModel_full";
+
+
+            public const string general_recoveryModel_simple = "general_recoveryModel_simple";
+
+
+            public const string general_titleSearchOwner = "general_titleSearchOwner";
+
+
+            public const string prototype_autogrowth_disabled = "prototype_autogrowth_disabled";
+
+
+            public const string prototype_autogrowth_restrictedGrowthByMB = "prototype_autogrowth_restrictedGrowthByMB";
+
+
+            public const string prototype_autogrowth_restrictedGrowthByPercent = "prototype_autogrowth_restrictedGrowthByPercent";
+
+
+            public const string prototype_autogrowth_unrestrictedGrowthByMB = "prototype_autogrowth_unrestrictedGrowthByMB";
+
+
+            public const string prototype_autogrowth_unrestrictedGrowthByPercent = "prototype_autogrowth_unrestrictedGrowthByPercent";
+
+
+            public const string prototype_autogrowth_unlimitedfilestream = "prototype_autogrowth_unlimitedfilestream";
+
+
+            public const string prototype_autogrowth_limitedfilestream = "prototype_autogrowth_limitedfilestream";
+
+
+            public const string prototype_db_category_automatic = "prototype_db_category_automatic";
+
+
+            public const string prototype_db_category_servicebroker = "prototype_db_category_servicebroker";
+
+
+            public const string prototype_db_category_collation = "prototype_db_category_collation";
+
+
+            public const string prototype_db_category_cursor = "prototype_db_category_cursor";
+
+
+            public const string prototype_db_category_misc = "prototype_db_category_misc";
+
+
+            public const string prototype_db_category_recovery = "prototype_db_category_recovery";
+
+
+            public const string prototype_db_category_state = "prototype_db_category_state";
+
+
+            public const string prototype_db_prop_ansiNullDefault = "prototype_db_prop_ansiNullDefault";
+
+
+            public const string prototype_db_prop_ansiNulls = "prototype_db_prop_ansiNulls";
+
+
+            public const string prototype_db_prop_ansiPadding = "prototype_db_prop_ansiPadding";
+
+
+            public const string prototype_db_prop_ansiWarnings = "prototype_db_prop_ansiWarnings";
+
+
+            public const string prototype_db_prop_arithabort = "prototype_db_prop_arithabort";
+
+
+            public const string prototype_db_prop_autoClose = "prototype_db_prop_autoClose";
+
+
+            public const string prototype_db_prop_autoCreateStatistics = "prototype_db_prop_autoCreateStatistics";
+
+
+            public const string prototype_db_prop_autoShrink = "prototype_db_prop_autoShrink";
+
+
+            public const string prototype_db_prop_autoUpdateStatistics = "prototype_db_prop_autoUpdateStatistics";
+
+
+            public const string prototype_db_prop_autoUpdateStatisticsAsync = "prototype_db_prop_autoUpdateStatisticsAsync";
+
+
+            public const string prototype_db_prop_caseSensitive = "prototype_db_prop_caseSensitive";
+
+
+            public const string prototype_db_prop_closeCursorOnCommit = "prototype_db_prop_closeCursorOnCommit";
+
+
+            public const string prototype_db_prop_collation = "prototype_db_prop_collation";
+
+
+            public const string prototype_db_prop_concatNullYieldsNull = "prototype_db_prop_concatNullYieldsNull";
+
+
+            public const string prototype_db_prop_databaseCompatibilityLevel = "prototype_db_prop_databaseCompatibilityLevel";
+
+
+            public const string prototype_db_prop_databaseState = "prototype_db_prop_databaseState";
+
+
+            public const string prototype_db_prop_defaultCursor = "prototype_db_prop_defaultCursor";
+
+
+            public const string prototype_db_prop_fullTextIndexing = "prototype_db_prop_fullTextIndexing";
+
+
+            public const string prototype_db_prop_numericRoundAbort = "prototype_db_prop_numericRoundAbort";
+
+
+            public const string prototype_db_prop_pageVerify = "prototype_db_prop_pageVerify";
+
+
+            public const string prototype_db_prop_quotedIdentifier = "prototype_db_prop_quotedIdentifier";
+
+
+            public const string prototype_db_prop_readOnly = "prototype_db_prop_readOnly";
+
+
+            public const string prototype_db_prop_recursiveTriggers = "prototype_db_prop_recursiveTriggers";
+
+
+            public const string prototype_db_prop_restrictAccess = "prototype_db_prop_restrictAccess";
+
+
+            public const string prototype_db_prop_selectIntoBulkCopy = "prototype_db_prop_selectIntoBulkCopy";
+
+
+            public const string prototype_db_prop_honorBrokerPriority = "prototype_db_prop_honorBrokerPriority";
+
+
+            public const string prototype_db_prop_serviceBrokerGuid = "prototype_db_prop_serviceBrokerGuid";
+
+
+            public const string prototype_db_prop_brokerEnabled = "prototype_db_prop_brokerEnabled";
+
+
+            public const string prototype_db_prop_truncateLogOnCheckpoint = "prototype_db_prop_truncateLogOnCheckpoint";
+
+
+            public const string prototype_db_prop_dbChaining = "prototype_db_prop_dbChaining";
+
+
+            public const string prototype_db_prop_trustworthy = "prototype_db_prop_trustworthy";
+
+
+            public const string prototype_db_prop_dateCorrelationOptimization = "prototype_db_prop_dateCorrelationOptimization";
+
+
+            public const string prototype_db_prop_parameterization_value_forced = "prototype_db_prop_parameterization_value_forced";
+
+
+            public const string prototype_db_prop_parameterization_value_simple = "prototype_db_prop_parameterization_value_simple";
+
+
+            public const string prototype_file_dataFile = "prototype_file_dataFile";
+
+
+            public const string prototype_file_logFile = "prototype_file_logFile";
+
+
+            public const string prototype_file_filestreamFile = "prototype_file_filestreamFile";
+
+
+            public const string prototype_file_noFileGroup = "prototype_file_noFileGroup";
+
+
+            public const string prototype_file_defaultpathstring = "prototype_file_defaultpathstring";
+
+
+            public const string title_openConnectionsMustBeClosed = "title_openConnectionsMustBeClosed";
+
+
+            public const string warning_openConnectionsMustBeClosed = "warning_openConnectionsMustBeClosed";
+
+
+            public const string prototype_db_prop_databaseState_value_autoClosed = "prototype_db_prop_databaseState_value_autoClosed";
+
+
+            public const string prototype_db_prop_databaseState_value_emergency = "prototype_db_prop_databaseState_value_emergency";
+
+
+            public const string prototype_db_prop_databaseState_value_inaccessible = "prototype_db_prop_databaseState_value_inaccessible";
+
+
+            public const string prototype_db_prop_databaseState_value_normal = "prototype_db_prop_databaseState_value_normal";
+
+
+            public const string prototype_db_prop_databaseState_value_offline = "prototype_db_prop_databaseState_value_offline";
+
+
+            public const string prototype_db_prop_databaseState_value_recovering = "prototype_db_prop_databaseState_value_recovering";
+
+
+            public const string prototype_db_prop_databaseState_value_recoveryPending = "prototype_db_prop_databaseState_value_recoveryPending";
+
+
+            public const string prototype_db_prop_databaseState_value_restoring = "prototype_db_prop_databaseState_value_restoring";
+
+
+            public const string prototype_db_prop_databaseState_value_shutdown = "prototype_db_prop_databaseState_value_shutdown";
+
+
+            public const string prototype_db_prop_databaseState_value_standby = "prototype_db_prop_databaseState_value_standby";
+
+
+            public const string prototype_db_prop_databaseState_value_suspect = "prototype_db_prop_databaseState_value_suspect";
+
+
+            public const string prototype_db_prop_defaultCursor_value_global = "prototype_db_prop_defaultCursor_value_global";
+
+
+            public const string prototype_db_prop_defaultCursor_value_local = "prototype_db_prop_defaultCursor_value_local";
+
+
+            public const string prototype_db_prop_restrictAccess_value_multiple = "prototype_db_prop_restrictAccess_value_multiple";
+
+
+            public const string prototype_db_prop_restrictAccess_value_restricted = "prototype_db_prop_restrictAccess_value_restricted";
+
+
+            public const string prototype_db_prop_restrictAccess_value_single = "prototype_db_prop_restrictAccess_value_single";
+
+
+            public const string prototype_db_prop_pageVerify_value_checksum = "prototype_db_prop_pageVerify_value_checksum";
+
+
+            public const string prototype_db_prop_pageVerify_value_none = "prototype_db_prop_pageVerify_value_none";
+
+
+            public const string prototype_db_prop_pageVerify_value_tornPageDetection = "prototype_db_prop_pageVerify_value_tornPageDetection";
+
+
+            public const string prototype_db_prop_varDecimalEnabled = "prototype_db_prop_varDecimalEnabled";
+
+
+            public const string compatibilityLevel_katmai = "compatibilityLevel_katmai";
+
+
+            public const string prototype_db_prop_encryptionEnabled = "prototype_db_prop_encryptionEnabled";
+
+
+            public const string prototype_db_prop_databasescopedconfig_value_off = "prototype_db_prop_databasescopedconfig_value_off";
+
+
+            public const string prototype_db_prop_databasescopedconfig_value_on = "prototype_db_prop_databasescopedconfig_value_on";
+
+
+            public const string prototype_db_prop_databasescopedconfig_value_primary = "prototype_db_prop_databasescopedconfig_value_primary";
+
+
+            public const string error_db_prop_invalidleadingColumns = "error_db_prop_invalidleadingColumns";
+
+
+            public const string compatibilityLevel_denali = "compatibilityLevel_denali";
+
+
+            public const string compatibilityLevel_sql14 = "compatibilityLevel_sql14";
+
+
+            public const string compatibilityLevel_sql15 = "compatibilityLevel_sql15";
+
+
+            public const string compatibilityLevel_sqlvNext = "compatibilityLevel_sqlvNext";
+
+
+            public const string general_containmentType_None = "general_containmentType_None";
+
+
+            public const string general_containmentType_Partial = "general_containmentType_Partial";
+
+
+            public const string filegroups_filestreamFiles = "filegroups_filestreamFiles";
+
+
+            public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
 
 
             private Keys()

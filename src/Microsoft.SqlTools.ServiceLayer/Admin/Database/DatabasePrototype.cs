@@ -178,7 +178,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 this.targetRecoveryTime = 0;
 
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
                 //in katmai var decimal going to be true by default
                 if (context.Server.Information.Version.Major >= 10)
@@ -188,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 if (7 < context.Server.Information.Version.Major)
                 {
-                    this.collation = this.defaultCollation = manager.GetString("general.default");
+                    this.collation = this.defaultCollation = manager.GetString("general_default");
                 }
                 else
                 {
@@ -218,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     case 6:
 
-                        string errorMessage = manager.GetString("error.60compatibility");
+                        string errorMessage = manager.GetString("error_60compatibility");
                         throw new InvalidOperationException(errorMessage);
 
                     case 7:
@@ -300,7 +301,7 @@ WHERE do.database_id = @DbID
 
                 isSystemDB = db.IsSystemObject;
 
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
                 this.owner = db.Owner;
 
@@ -388,7 +389,7 @@ WHERE do.database_id = @DbID
                 {
                     if (context.IsNewObject)
                     {
-                        this.collation = this.defaultCollation = manager.GetString("general.default");
+                        this.collation = this.defaultCollation = manager.GetString("general_default");
                     }
                     else
                     {
@@ -515,7 +516,7 @@ WHERE do.database_id = @DbID
                 if ((db.CompatibilityLevel == CompatibilityLevel.Version60) ||
                     (db.CompatibilityLevel == CompatibilityLevel.Version65))
                 {
-                    string errorMessage = manager.GetString("error.60compatibility");
+                    string errorMessage = manager.GetString("error_60compatibility");
                     throw new InvalidOperationException(errorMessage);
                 }        
 
@@ -932,24 +933,24 @@ WHERE do.database_id = @DbID
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.restrictAccess)
                 {
                     case DatabaseUserAccess.Multiple:
 
-                        result = manager.GetString("prototype.db.prop.restrictAccess.value.multiple");
+                        result = manager.GetString("prototype_db_prop_restrictAccess_value_multiple");
                         break;
 
                     case DatabaseUserAccess.Restricted:
 
-                        result = manager.GetString("prototype.db.prop.restrictAccess.value.restricted");
+                        result = manager.GetString("prototype_db_prop_restrictAccess_value_restricted");
                         break;
 
                     case DatabaseUserAccess.Single:
 
-                        result = manager.GetString("prototype.db.prop.restrictAccess.value.single");
+                        result = manager.GetString("prototype_db_prop_restrictAccess_value_single");
                         break;
 
                 }
@@ -958,13 +959,13 @@ WHERE do.database_id = @DbID
             }
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
-                if (value == manager.GetString("prototype.db.prop.restrictAccess.value.multiple"))
+                if (value == manager.GetString("prototype_db_prop_restrictAccess_value_multiple"))
                 {
                     this.currentState.restrictAccess = DatabaseUserAccess.Multiple;
                 }
-                else if (value == manager.GetString("prototype.db.prop.restrictAccess.value.restricted"))
+                else if (value == manager.GetString("prototype_db_prop_restrictAccess_value_restricted"))
                 {
                     this.currentState.restrictAccess = DatabaseUserAccess.Restricted;
                 }
