@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.IO;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
@@ -112,9 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         [Fact]
-        public void LogginDirectorySet()
+        public void LoggingDirectorySet()
         {
-            string logDir = @"C:\Temp";
+            string logDir = Directory.GetCurrentDirectory();
             var args = new string[] { "--log-dir", logDir };
             CommandOptions options = new CommandOptions(args);
 
