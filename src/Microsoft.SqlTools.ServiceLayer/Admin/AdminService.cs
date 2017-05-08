@@ -83,15 +83,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             XmlDocument xmlDoc = CreateDataContainerDocument();
 
-            char[] passwordArray = "Katmai900".ToCharArray();
+            char[] passwordArray = "Yukon900".ToCharArray();
             unsafe
             {
                 fixed (char* passwordPtr = passwordArray)
                 {
-
                     var dataContainer = new CDataContainer(
                         CDataContainer.ServerType.SQL,
-                        "sqltools100",
+                        "localhost",
                         false,
                         "sa",
                         new System.Security.SecureString(passwordPtr, passwordArray.Length),
