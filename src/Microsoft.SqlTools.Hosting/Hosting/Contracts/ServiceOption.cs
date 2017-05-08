@@ -13,6 +13,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public static readonly string ValueTypeNumber = "number";
         public static readonly string ValueTypeCategory = "category";
         public static readonly string ValueTypeBoolean = "boolean";
+        public static readonly string ValueTypeObject = "object";
 
         public string Name { get; set; }
 
@@ -29,6 +30,8 @@ namespace Microsoft.SqlTools.Hosting.Contracts
 
         public string DefaultValue { get; set; }
 
+        public string ObjectType { get; set; }
+
         /// <summary>
         /// Set of permitted values if ValueType is category.
         /// </summary>
@@ -38,6 +41,8 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// Flag to indicate that this option is required
         /// </summary>
         public bool IsRequired { get; set; }
+
+        public bool IsArray { get; set; }
     }
 }
 
