@@ -300,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Error, $"Failed populating oe children error:{ex.Message} {ex.Source}");
+                Logger.Write(LogLevel.Error, $"Failed populating oe children. error:{ex.Message} {ex.StackTrace}");
             }
             finally
             {
