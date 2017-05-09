@@ -79,9 +79,17 @@ namespace Microsoft.SqlTools.Utility
             {
                 if (!Directory.Exists(logDir))
                 {
-                    Directory.CreateDirectory(logDir);
+                    try
+                    {
+                        Directory.CreateDirectory(logDir);
+                    }
+                    catch (Exception)
+                    {
+                        // Creating the log directory is a best effort operation, so ignore any failures.
+                    }
                 }
             }
+
 
             // get a unique number to prevent conflicts of two process launching at the same time
             int uniqueId;
