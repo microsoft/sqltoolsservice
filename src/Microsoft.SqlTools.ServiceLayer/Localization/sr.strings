@@ -638,6 +638,7 @@ ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error par
 ############################################################################
 # Admin Service
 
+unavailable = Unavailable
 filegroup_dialog_defaultFilegroup = Current default filegroup: {0}
 filegroup_dialog_title = New Filegroup for {0}
 filegroups_default = Default

@@ -18,6 +18,6 @@ namespace Microsoft.SqlTools.Hosting.Contracts
 
         public ConnectionProviderOptions ConnectionProvider { get; set; }
 
-        public AdminServicesProviderOptions AdminServicesProviderOptions { get; set; }
+        public AdminServicesProviderOptions AdminServicesProvider { get; set; }
     }
 }

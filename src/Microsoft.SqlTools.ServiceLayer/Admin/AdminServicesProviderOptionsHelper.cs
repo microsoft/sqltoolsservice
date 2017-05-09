@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// </summary>         
     public class AdminServicesProviderOptionsHelper
     {
-        internal static AdminServicesProviderOptions BuildConnectionProviderOptions()
+        internal static AdminServicesProviderOptions BuildAdminServicesProviderOptions()
         {
             return new AdminServicesProviderOptions
             {

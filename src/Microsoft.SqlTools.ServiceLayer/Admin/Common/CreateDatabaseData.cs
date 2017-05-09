@@ -844,11 +844,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 if (file.FileName.EndsWith(":", StringComparison.Ordinal))
                 {
                     // the data file is on a raw device
-                    ResourceManager resourceManager = new ResourceManager(
-                        "Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                        this.GetType().GetAssembly());
-
-                    this.physicalName = resourceManager.GetString("general.rawDevice");
+                    ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                    this.physicalName = manager.GetString("general_rawDevice");
                     this.folder = file.FileName;
                 }
                 else
@@ -893,11 +890,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (file.FileName.EndsWith(":", StringComparison.Ordinal))
                     {
                         // the log file is on a raw device
-                        ResourceManager resourceManager = new ResourceManager(
-                            "Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                            this.GetType().GetAssembly());
-
-                        this.physicalName = resourceManager.GetString("general.rawDevice");
+                        ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                        this.physicalName = manager.GetString("general_rawDevice");
                         this.folder = file.FileName;
                     }
                     else
@@ -910,12 +904,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
                 catch (Exception)
                 {
-                    ResourceManager resourceManager = new ResourceManager(
-                        "Microsoft.SqlServer.Management.SqlManagerUI.DbPropGeneralDataStrings",
-                        this.GetType().GetAssembly());
-
-                    this.physicalName = resourceManager.GetString("unavailable");
-                    this.folder = resourceManager.GetString("unavailable");
+                    ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                    this.physicalName = manager.GetString("unavailable");
+                    this.folder = manager.GetString("unavailable");
                     this.initialSize = 0;
                 }
 
