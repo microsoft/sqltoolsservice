@@ -68,6 +68,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public NodeTypes NodeTypeId { get; set; }
 
         /// <summary>
+        /// Node Sub type - for example a key can have type as "Key" and sub type as "PrimaryKey"
+        /// </summary>
+        public string NodeSubType { get; set; }
+
+        /// <summary>
+        /// Node status - for example login can be disabled/enabled
+        /// </summary>
+        public string NodeStatus { get; set; }
+
+        /// <summary>
         /// Label to display to the user, describing this node.
         /// If not explicitly set this will fall back to the <see cref="NodeValue"/> but
         /// for many nodes such as the server, the display label will be different
@@ -176,7 +186,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 Label = this.Label,
                 NodePath = this.GetNodePath(),
                 NodeType = this.NodeType,
-                Metadata = this.ObjectMetadata
+                Metadata = this.ObjectMetadata,
+                NodeStatus = this.NodeStatus,
+                NodeSubType = this.NodeSubType
             };
         }
 
@@ -191,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             {
                 return children;
             }
-            PopulateChildren();
+            PopulateChildren(false);
             return children;
         }
 
@@ -199,10 +211,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Refresh this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Refresh()
+        public virtual IList<TreeNode> Refresh()
         {
             // TODO consider why solution explorer has separate Children and Items options
-            PopulateChildren();
+            PopulateChildren(true);
             return children;
         }
 
@@ -254,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected void PopulateChildren()
+        protected void PopulateChildren(bool refresh)
         {
             Debug.Assert(IsAlwaysLeaf == false);
 
@@ -273,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     foreach (var factory in childFactories)
                     {
-                        IEnumerable<TreeNode> items = factory.Expand(this);
+                        IEnumerable<TreeNode> items = factory.Expand(this, refresh);
                         if (items != null)
                         {
                             foreach (TreeNode item in items)

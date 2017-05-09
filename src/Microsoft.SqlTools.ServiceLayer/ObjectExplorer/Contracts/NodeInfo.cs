@@ -34,6 +34,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public string Label { get; set; }
 
         /// <summary>
+        /// Node Sub type - for example a key can have type as "Key" and sub type as "PrimaryKey"
+        /// </summary>
+        public string NodeSubType { get; set; }
+
+        /// <summary>
+        /// Node status - for example login can be disabled/enabled
+        /// </summary>
+        public string NodeStatus { get; set; }
+
+        /// <summary>
         /// Is this a leaf node (in which case no children can be generated) or
         /// is it expandable?
         /// </summary>

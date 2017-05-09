@@ -277,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				{
 					WriteLine("            child.SortPriority = SmoTreeNode.NextSortPriority;");
 				}
-				WriteLine("            InitializeChild(child, context);");
+				WriteLine("            InitializeChild(parent, child, context);");
 				
 
 				WriteLine("            return child;");
