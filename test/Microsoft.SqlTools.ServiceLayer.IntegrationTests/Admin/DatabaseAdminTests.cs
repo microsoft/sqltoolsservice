@@ -60,6 +60,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
 
             requestContext.VerifyAll();
         }
-   
+
+
+        /// <summary>
+        /// Get a default database info object
+        /// </summary>
+        [Fact]
+        public async void GetDefaultDatebaseInfoTest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var requestContext = new Mock<RequestContext<DefaultDatabaseInfoResponse>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DefaultDatabaseInfoResponse>())).Returns(Task.FromResult(new object()));
+
+            var dbParams = new DefaultDatabaseInfoParams
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri
+            };
+
+            await AdminService.HandleDefaultDatabaseInfoRequest(dbParams, requestContext.Object);
+
+            requestContext.VerifyAll();
+        }
+
     }
 }

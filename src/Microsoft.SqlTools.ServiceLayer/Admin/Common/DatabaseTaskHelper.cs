@@ -5,6 +5,7 @@
 
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -100,6 +101,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
         }
 
+        internal static DatabaseInfo DatabasePrototypeToDatabaseInfo(DatabasePrototype prototype)
+        {
+            var databaseInfo = new DatabaseInfo();
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Name, prototype.Name);
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Owner, prototype.Owner);
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Collation, prototype.Collation);
+            
+            for (int i = 0; i < prototype.Filegroups.Count; ++i)
+            {
+                var fileGroup = prototype.Filegroups[i];
+                string itemPrefix = AdminServicesProviderOptionsHelper.FileGroups + "." + i + ".";
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Name, fileGroup.Name);
+             
+            }
 
+            for (int i = 0; i < prototype.Files.Count; ++i)
+            {
+                var file = prototype.Files[i];
+                string itemPrefix = AdminServicesProviderOptionsHelper.DatabaseFiles + "." + i + ".";
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Name, file.Name);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.PhysicalName, file.PhysicalName);
+            }
+
+            return databaseInfo;
+        }
     }
 }

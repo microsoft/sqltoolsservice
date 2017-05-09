@@ -12,6 +12,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// </summary>         
     public class AdminServicesProviderOptionsHelper
     {
+        internal const string Name = "name";
+        internal const string Owner = "owner";
+        internal const string Collation = "collation";
+        internal const string FileGroups = "fileGroups";
+        internal const string DatabaseFiles = "databaseFiles";
+        internal const string PhysicalName = "physicalName";
+
         internal static AdminServicesProviderOptions BuildAdminServicesProviderOptions()
         {
             return new AdminServicesProviderOptions
@@ -20,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     new ServiceOption
                     {
-                        Name = "name",
+                        Name = AdminServicesProviderOptionsHelper.Name,
                         DisplayName = "Name",
                         Description = "Name of the database",
                         ValueType = ServiceOption.ValueTypeString,
@@ -29,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     },
                     new ServiceOption
                     {
-                        Name = "owner",
+                        Name = AdminServicesProviderOptionsHelper.Owner,
                         DisplayName = "Owner",
                         Description = "Database owner",
                         ValueType = ServiceOption.ValueTypeString,
@@ -38,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     },
                     new ServiceOption
                     {
-                        Name = "collation",
+                        Name = AdminServicesProviderOptionsHelper.Collation,
                         DisplayName = "Collation",
                         Description = "Database collation",
                         ValueType = ServiceOption.ValueTypeString,
@@ -47,10 +54,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     },
                     new ServiceOption
                     {
-                        Name = "fileGroups",
+                        Name = AdminServicesProviderOptionsHelper.FileGroups,
                         DisplayName = "File Groups",
                         Description = "File groups",
                         ObjectType = "FileGroupInfo",
+                        ValueType = ServiceOption.ValueTypeObject,
+                        IsRequired = true,
+                        IsArray = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.DatabaseFiles,
+                        DisplayName = "Database Files",
+                        Description = "Database Files",
+                        ObjectType = "DatabaseFileInfo",
                         ValueType = ServiceOption.ValueTypeObject,
                         IsRequired = true,
                         IsArray = true,
@@ -61,30 +79,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     new ServiceOption
                     {
-                        Name = "name",
+                        Name = AdminServicesProviderOptionsHelper.Name,
                         DisplayName = "Name",
                         Description = "Name of the file group",
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = true,
                         GroupName = "General"
-                    },
-                    new ServiceOption
-                    {
-                        Name = "databaseFiles",
-                        DisplayName = "Database Files",
-                        Description = "Database Files",
-                        ObjectType = "DatabaseFileInfo",
-                        ValueType = ServiceOption.ValueTypeObject,
-                        IsRequired = true,
-                        IsArray = true,
-                        GroupName = "General"
-                    }
+                    }                  
                 },
                 DatabaseFileInfoOptions = new ServiceOption[]
                 {
                     new ServiceOption
                     {
-                        Name = "name",
+                        Name = AdminServicesProviderOptionsHelper.Name,
                         DisplayName = "Name",
                         Description = "Name of the database file",
                         ValueType = ServiceOption.ValueTypeString,
@@ -93,9 +100,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     },
                      new ServiceOption
                     {
-                        Name = "physicalName",
+                        Name = AdminServicesProviderOptionsHelper.PhysicalName,
                         DisplayName = "Physical Name",
-                        Description = "Name of the database file",
+                        Description = "Physical name of the database file",
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = true,
                         GroupName = "General"
