@@ -124,16 +124,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         private void SetLocale(string locale)
         {
-            // Creating cultureInfo from our given locale
-            CultureInfo language = new CultureInfo(locale);
-            Locale = locale;
+            try
+            {
+                // Creating cultureInfo from our given locale
+                CultureInfo language = new CultureInfo(locale);
+                Locale = locale;
 
-            // Setting our language globally 
-            CultureInfo.CurrentCulture = language;
-            CultureInfo.CurrentUICulture = language;
+                // Setting our language globally 
+                CultureInfo.CurrentCulture = language;
+                CultureInfo.CurrentUICulture = language;
 
-            // Setting our internal SR culture to our global culture
-            SR.Culture = CultureInfo.CurrentCulture;
+                // Setting our internal SR culture to our global culture
+                SR.Culture = CultureInfo.CurrentCulture;
+            }
+            catch (CultureNotFoundException)
+            {
+                // Ignore CultureNotFoundException since it only is thrown before Windows 10.  Windows 10,
+                // along with macOS and Linux, pick up the default culture if an invalid locale is passed
+                // into the CultureInfo constructor.
+            }
         }
     }
 }

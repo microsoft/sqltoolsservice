@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         [Fact]
-        public void ShouldExitSetWhenInvalidLocale()
+        public void ShouldExitNotSetWhenInvalidLocale()
         {
             string locale = "invalid";
             var args = new string[] { "--locale", locale };
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             // Asserting all options were properly set 
             Assert.NotNull(options);
-            Assert.True(options.ShouldExit);
+            Assert.False(options.ShouldExit);
         }
 
         [Fact]
