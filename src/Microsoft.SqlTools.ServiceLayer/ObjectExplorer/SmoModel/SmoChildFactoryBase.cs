@@ -20,15 +20,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return null;
         }
-        
-        public override IEnumerable<TreeNode> Expand(TreeNode parent)
+
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh)
         {
             try
             {
                 List<TreeNode> allChildren = new List<TreeNode>();
                 OnExpandPopulateFolders(allChildren, parent);
                 RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                OnExpandPopulateNonFolders(allChildren, parent);
+                OnExpandPopulateNonFolders(allChildren, parent, refresh);
                 OnBeginAsyncOperations(parent);
                 return allChildren;
             }
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
             }
         }
-        
+
         /// <summary>
         /// Populates any folders for a given parent node 
         /// </summary>
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh)
         {
             if (ChildQuerierTypes == null)
             {
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
             Validate.IsNotNull(nameof(context), context);
-            
+
             var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType);
             if (ShouldFilterNode(parent, validForFlag))
             {
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
 
-                foreach (var smoObject in querier.Query(context, propertyFilter))
+                foreach (var smoObject in querier.Query(context, propertyFilter, refresh))
                 {
                     if (smoObject == null)
                     {
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return false;
 
         }
-        
+
         /// <summary>
         /// Filters out invalid folders if they cannot be displayed for the current server version
         /// </summary>
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             throw new NotImplementedException();
         }
 
-        protected virtual void InitializeChild(TreeNode child, object context)
+        protected virtual void InitializeChild(TreeNode parent, TreeNode child, object context)
         {
             NamedSmoObject smoObj = context as NamedSmoObject;
             if (smoObj == null)
@@ -174,10 +174,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 SmoTreeNode childAsMeItem = (SmoTreeNode)child;
                 childAsMeItem.CacheInfoFromModel(smoObj);
+                SmoQueryContext smoContext = parent.GetContextAs<SmoQueryContext>();
+
+                // If node has custom name, replaced it with the name already set
+                string customizedName = GetNodeCustomName(context, smoContext);
+                if (!string.IsNullOrEmpty(customizedName))
+                {
+                    childAsMeItem.NodeValue = customizedName;
+                }
+
+                childAsMeItem.NodeSubType = GetNodeSubType(context);
+                childAsMeItem.NodeStatus = GetNodeStatus(context);
             }
         }
 
-        internal virtual Type[] ChildQuerierTypes { 
+        internal virtual Type[] ChildQuerierTypes
+        {
             get
             {
                 return null;
@@ -202,6 +214,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public virtual bool PassesFinalFilters(TreeNode parent, object context)
         {
             return true;
+        }
+
+        public override string GetNodeSubType(object context)
+        {
+            return string.Empty;
+        }
+
+        public override string GetNodeStatus(object context)
+        {
+            return string.Empty;
+        }
+
+        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        {
+            return string.Empty;
         }
     }
 }
