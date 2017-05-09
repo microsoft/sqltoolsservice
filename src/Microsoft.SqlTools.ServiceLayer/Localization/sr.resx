@@ -1351,6 +1351,10 @@
     <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
     <comment></comment>
   </data>
+  <data name="unavailable" xml:space="preserve">
+    <value>Unavailable</value>
+    <comment></comment>
+  </data>
   <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
     <value>Current default filegroup: {0}</value>
     <comment></comment>

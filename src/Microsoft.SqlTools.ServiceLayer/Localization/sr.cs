@@ -2357,6 +2357,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string unavailable
+        {
+            get
+            {
+                return Keys.GetString(Keys.unavailable);
+            }
+        }
+
         public static string filegroup_dialog_defaultFilegroup
         {
             get
@@ -4228,6 +4236,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
+
+
+            public const string unavailable = "unavailable";
 
 
             public const string filegroup_dialog_defaultFilegroup = "filegroup_dialog_defaultFilegroup";
