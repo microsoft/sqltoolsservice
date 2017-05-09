@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 if (column.Computed)
                 {
-                    return GetComutedColumnLabel(column, uddts);
+                    return GetComputedColumnLabel(column, uddts);
                 }
                 else if (column.IsColumnSet)
                 {
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                                          isNullable);
         }
 
-        private static string GetComutedColumnLabel(Column column, UserDefinedDataTypeCollection uddts)
+        private static string GetComputedColumnLabel(Column column, UserDefinedDataTypeCollection uddts)
         {
             string columnType = null;
 
