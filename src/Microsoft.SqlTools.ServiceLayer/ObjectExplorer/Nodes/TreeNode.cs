@@ -298,6 +298,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     }
                 }
             }
+            catch(Exception ex)
+            {
+                Logger.Write(LogLevel.Error, $"Failed populating oe children error:{ex.Message} {ex.Source}");
+            }
             finally
             {
                 EndChildrenInit();

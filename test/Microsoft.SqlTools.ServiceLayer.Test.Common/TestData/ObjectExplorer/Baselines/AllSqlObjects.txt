@@ -1,3 +1,6 @@
+NodeType: Table Label: dbo.tableWithColumnset
+NodeType: Column Label: i (int, null)
+NodeType: Column Label: cs (Column Set, null)
 NodeType: Table Label: Employee_Temporal (System-Versioned)
 NodeType: Column Label: BusinessEntityID (PK, int, not null)
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null)
