@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -27,12 +28,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         /// <param name="parent"></param>
         /// <returns></returns>
-        public abstract IEnumerable<TreeNode> Expand(TreeNode parent);
+        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh);
 
         /// <summary>
         /// The list of filters that should be applied on the smo object list
         /// </summary>
         public abstract IEnumerable<NodeFilter> Filters { get; }
+
+        /// <summary>
+        /// Returns the node sub type if the object can have sub types otehr wise returns empty string
+        /// </summary>
+        public abstract string GetNodeSubType(object context);
+
+        /// <summary>
+        /// Returns the status of the object assigned to node. If the object doesn't spport status returns empty string
+        /// </summary>
+        public abstract string GetNodeStatus(object context);
+
+        /// <summary>
+        /// Returns the custom name of the object assigned to the node. If the object doesn't have custom name, returns empty string
+        /// </summary>
+        public abstract string GetNodeCustomName(object smoObject, SmoQueryContext smoContext);
 
         public abstract bool CanCreateChild(TreeNode parent, object context);
         public abstract TreeNode CreateChild(TreeNode parent, object context);
