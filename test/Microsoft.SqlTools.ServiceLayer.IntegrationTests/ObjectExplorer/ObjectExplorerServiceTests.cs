@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message}");
+                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message} {ex.StackTrace}");
                 Assert.False(true, ex.Message);
             }
             finally

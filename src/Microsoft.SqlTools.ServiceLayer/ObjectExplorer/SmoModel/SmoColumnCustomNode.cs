@@ -6,6 +6,7 @@
 using System;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -55,19 +56,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         private static string GetCustomizedLabel(Column column, UserDefinedDataTypeCollection uddts)
         {
-            if (column.Computed)
+            try
             {
-                return GetComutedColumnLabel(column, uddts);
+                if (column.Computed)
+                {
+                    return GetComutedColumnLabel(column, uddts);
+                }
+                else if (column.IsColumnSet)
+                {
+                    return GetColumnSetLabel(column, uddts);
+                }
+                else
+                {
+                    return GetSimpleColumnLabel(column, uddts);
+                }
             }
-            else if (column.IsColumnSet)
+            catch(Exception ex)
             {
-                return GetColumnSetLabel(column, uddts);
+                Logger.Write(LogLevel.Error, $"Failed to get customized column name. error:{ex.Message}");
             }
-            else
-            {
-                return GetSimpleColumnLabel(column, uddts);
-            }
-            
+            return string.Empty;
         }
 
         private static string GetTypeSpecifierLabel(DataType dataType, UserDefinedDataTypeCollection uddts)
@@ -88,10 +96,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
                 }
 
-                if(dataType.SqlDataType == SqlDataType.UserDefinedDataType && uddts != null && uddts.Contains(dataType.Name))
+                if(dataType.SqlDataType == SqlDataType.UserDefinedDataType && uddts != null)
                 {
-                    var uddt = uddts[dataType.Name];
-                    typeName += $"({uddt.SystemType})";
+                    foreach (UserDefinedDataType item in uddts)
+                    {
+                        if(item.Name == dataType.Name)
+                        {
+                            typeName += $"({item.SystemType})";
+                            break;
+                        }
+                    }
                 }
 
                 // These types support Length
