@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -48,6 +47,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         }
 
         [Fact]
+        public async void VerifyServerLogins()
+        {
+            var query = @"If Exists (select loginname from master.dbo.syslogins 
+                            where name = 'OEServerLogin')
+                        Begin
+                            Drop Login  [OEServerLogin]
+                        End
+
+                        CREATE LOGIN OEServerLogin WITH PASSWORD = 'SuperSecret52&&'
+                        GO
+                        ALTER LOGIN OEServerLogin DISABLE; ";
+            string databaseName = "tempdb";
+            await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
+            {
+                var serverChildren = await _service.ExpandNode(session, session.Root.GetNodePath());
+                var securityNode = serverChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Security);
+                var securityChildren = await _service.ExpandNode(session, securityNode.NodePath);
+                var loginsNode = securityChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Logins);
+                var loginsChildren = await _service.ExpandNode(session, loginsNode.NodePath);
+                var login = loginsChildren.FirstOrDefault(x => x.Label == "OEServerLogin");
+                Assert.NotNull(login);
+               
+                Assert.True(login.NodeStatus == "Disabled");
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, "Drop Login  OEServerLogin");
+
+            });
+        }
+
+        [Fact]
         public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";
@@ -56,6 +84,92 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             {
                 await ExpandAndVerifyDatabaseNode(testDbName, session);
             });
+        }
+
+        [Fact]
+        public async void RefreshNodeShouldGetTheDataFromDatabase()
+        {
+            var query = "Create table t1 (c1 int)";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                var tablesNode = await FindNodeByLabel(session.Root.ToNodeInfo(), session, SR.SchemaHierarchy_Tables);
+                var tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
+                string dropTableScript = "Drop Table t1";
+                Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, dropTableScript);
+                tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
+                Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
+                tableChildren = await _service.ExpandNode(session, tablesNode.NodePath, true);
+                Assert.False(tableChildren.Any(t => t.Label == "dbo.t1"));
+
+            });
+        }
+
+        [Fact]
+        public async void RefreshShouldCleanTheCache()
+        {
+            string query = @"Create table t1 (c1 int)
+                            GO
+                            Create table t2 (c1 int)
+                            GO";
+            string dropTableScript1 = "Drop Table t1";
+            string createTableScript2 = "Create table t3 (c1 int)";
+
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                var tablesNode = await FindNodeByLabel(session.Root.ToNodeInfo(), session, SR.SchemaHierarchy_Tables);
+
+                //Expand Tables node
+                var tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
+
+                //Expanding the tables return t1
+                Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
+
+                //Delete the table from db
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, dropTableScript1);
+
+                //Expand Tables node
+                tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
+
+                //Tables still includes t1
+                Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
+
+                //Verify the tables cache has items 
+
+                var rootChildrenCache = session.Root.GetChildren();
+                var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
+                Assert.True(tablesCache.Any());
+
+                await VerifyRefresh(session, tablesNode.NodePath, "dbo.t1");
+                //Delete the table from db
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, createTableScript2);
+                await VerifyRefresh(session, tablesNode.NodePath, "dbo.t3", false);
+
+            });
+        }
+
+        private async Task VerifyRefresh(ObjectExplorerSession session, string tablePath, string tableName, bool deleted = true)
+        {
+            //Refresh Root
+            var rootChildren = await _service.ExpandNode(session, session.Root.ToNodeInfo().NodePath, true);
+
+            //Verify tables cache is empty
+            var rootChildrenCache = session.Root.GetChildren();
+             var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
+            Assert.False(tablesCache.Any());
+
+            //Expand Tables
+            var tableChildren = await _service.ExpandNode(session, tablePath, true);
+
+            //Verify table is not returned
+            Assert.Equal(tableChildren.Any(t => t.Label == tableName), !deleted);
+
+            //Verify tables cache has items
+            rootChildrenCache = session.Root.GetChildren();
+            tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
+            Assert.True(tablesCache.Any());
         }
 
         [Fact]
@@ -94,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message}");
+                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message} {ex.StackTrace}");
                 Assert.False(true, ex.Message);
             }
             finally
@@ -193,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var children = await _service.ExpandNode(session, node.NodePath);
                 foreach (var child in children)
                 {
+                    //VerifyMetadata(child);
                     if (stringBuilder != null && child.NodeType != "Folder" && child.NodeType != "FileGroupFile")
                     {
                         stringBuilder.AppendLine($"NodeType: {child.NodeType} Label: {child.Label}");
@@ -213,33 +328,30 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         }
 
         /// <summary>
-        /// Returns the children of a node with the given label
+        /// Returns the node with the given label
         /// </summary>
-        private async Task<IList<NodeInfo>> FindNodeByLabel(NodeInfo node, ObjectExplorerSession session, string nodeType, bool nodeFound = false)
+        private async Task<NodeInfo> FindNodeByLabel(NodeInfo node, ObjectExplorerSession session, string label)
         {
-            if (node != null && !node.IsLeaf)
+            if(node != null && node.Label == label)
+            {
+                return node;
+            }
+            else if (node != null && !node.IsLeaf)
             {
                 var children = await _service.ExpandNode(session, node.NodePath);
                 Assert.NotNull(children);
-                if (!nodeFound)
+                foreach (var child in children)
                 {
-                    foreach (var child in children)
+                    VerifyMetadata(child);
+                    if (child.Label == label)
                     {
-                        VerifyMetadata(child);
-                        if (child.Label == nodeType)
-                        {
-                            return await FindNodeByLabel(child, session, nodeType, true);
-                        }
-                        var result = await FindNodeByLabel(child, session, nodeType);
-                        if (result != null)
-                        {
-                            return result;
-                        }
+                        return child;
                     }
-                }
-                else
-                {
-                    return children;
+                    var result = await FindNodeByLabel(child, session, label);
+                    if (result != null)
+                    {
+                        return result;
+                    }
                 }
             }
 

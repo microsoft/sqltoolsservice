@@ -1251,6 +1251,94 @@
     <value>Column Encryption Keys</value>
     <comment></comment>
   </data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
+    <value>{0} ({1}, {2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
+    <value>No default</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
+    <value>Input</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
+    <value>Input/Output</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
+    <value>Input/ReadOnly</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
+    <value>Input/Output/ReadOnly</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
+    <value>Default</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
+    <value>null</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
+    <value>not null</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
+    <value>{0} ({1}, {2})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
+    <value>{0} ({1}Computed, {2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1}Computed)</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
+    <value>{0} (Column Set, {1})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
+    <value>{0} (Column Set, {1}{2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
+    <value>{0} (Column Set, {1}, {2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="UniqueIndex_LabelPart" xml:space="preserve">
+    <value>Unique</value>
+    <comment></comment>
+  </data>
+  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
+    <value>Non-Unique</value>
+    <comment></comment>
+  </data>
+  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
+    <value>Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
+    <value>Non-Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="History_LabelPart" xml:space="preserve">
+    <value>History</value>
+    <comment></comment>
+  </data>
+  <data name="SystemVersioned_LabelPart" xml:space="preserve">
+    <value>System-Versioned</value>
+    <comment></comment>
+  </data>
   <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error parsing ScriptingParams.ConnectionString property.</value>
     <comment></comment>

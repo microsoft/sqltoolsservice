@@ -1431,554 +1431,114 @@
         <target state="new">Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="filegroup_dialog_defaultFilegroup">
-        <source>Current default filegroup: {0}</source>
-        <target state="new">Current default filegroup: {0}</target>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterLabelFormatString">
+        <source>{0} ({1}, {2}, {3})</source>
+        <target state="new">{0} ({1}, {2}, {3})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="filegroup_dialog_title">
-        <source>New Filegroup for {0}</source>
-        <target state="new">New Filegroup for {0}</target>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterNoDefaultLabel">
+        <source>No default</source>
+        <target state="new">No default</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="filegroups_default">
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputLabel">
+        <source>Input</source>
+        <target state="new">Input</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputLabel">
+        <source>Input/Output</source>
+        <target state="new">Input/Output</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel">
+        <source>Input/ReadOnly</source>
+        <target state="new">Input/ReadOnly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel">
+        <source>Input/Output/ReadOnly</source>
+        <target state="new">Input/Output/ReadOnly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterDefaultLabel">
         <source>Default</source>
         <target state="new">Default</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="filegroups_files">
-        <source>Files</source>
-        <target state="new">Files</target>
+      <trans-unit id="SchemaHierarchy_NullColumn_Label">
+        <source>null</source>
+        <target state="new">null</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="filegroups_name">
-        <source>Name</source>
-        <target state="new">Name</target>
+      <trans-unit id="SchemaHierarchy_NotNullColumn_Label">
+        <source>not null</source>
+        <target state="new">not null</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="filegroups_readonly">
-        <source>Read-Only</source>
-        <target state="new">Read-Only</target>
+      <trans-unit id="SchemaHierarchy_UDDTLabelWithType">
+        <source>{0} ({1}, {2})</source>
+        <target state="new">{0} ({1}, {2})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_autogrowth">
-        <source>Autogrowth / Maxsize</source>
-        <target state="new">Autogrowth / Maxsize</target>
+      <trans-unit id="SchemaHierarchy_UDDTLabelWithoutType">
+        <source>{0} ({1})</source>
+        <target state="new">{0} ({1})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_builderText">
-        <source>...</source>
-        <target state="new">...</target>
+      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithType">
+        <source>{0} ({1}Computed, {2}, {3})</source>
+        <target state="new">{0} ({1}Computed, {2}, {3})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_default">
-        <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
+      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithoutType">
+        <source>{0} ({1}Computed)</source>
+        <target state="new">{0} ({1}Computed)</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_fileGroup">
-        <source>Filegroup</source>
-        <target state="new">Filegroup</target>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithoutType">
+        <source>{0} (Column Set, {1})</source>
+        <target state="new">{0} (Column Set, {1})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_fileName">
-        <source>Logical Name</source>
-        <target state="new">Logical Name</target>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithType">
+        <source>{0} (Column Set, {1}{2}, {3})</source>
+        <target state="new">{0} (Column Set, {1}{2}, {3})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_fileType">
-        <source>File Type</source>
-        <target state="new">File Type</target>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString">
+        <source>{0} (Column Set, {1}, {2}, {3})</source>
+        <target state="new">{0} (Column Set, {1}, {2}, {3})</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_initialSize">
-        <source>Initial Size (MB)</source>
-        <target state="new">Initial Size (MB)</target>
+      <trans-unit id="UniqueIndex_LabelPart">
+        <source>Unique</source>
+        <target state="new">Unique</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_newFilegroup">
-        <source>&lt;new filegroup&gt;</source>
-        <target state="new">&lt;new filegroup&gt;</target>
+      <trans-unit id="NonUniqueIndex_LabelPart">
+        <source>Non-Unique</source>
+        <target state="new">Non-Unique</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_path">
-        <source>Path</source>
-        <target state="new">Path</target>
+      <trans-unit id="ClusteredIndex_LabelPart">
+        <source>Clustered</source>
+        <target state="new">Clustered</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_physicalFileName">
-        <source>File Name</source>
-        <target state="new">File Name</target>
+      <trans-unit id="NonClusteredIndex_LabelPart">
+        <source>Non-Clustered</source>
+        <target state="new">Non-Clustere</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_rawDevice">
-        <source>&lt;raw device&gt;</source>
-        <target state="new">&lt;raw device&gt;</target>
+      <trans-unit id="History_LabelPart">
+        <source>History</source>
+        <target state="new">History</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="general_recoveryModel_bulkLogged">
-        <source>Bulk-logged</source>
-        <target state="new">Bulk-logged</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_full">
-        <source>Full</source>
-        <target state="new">Full</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_simple">
-        <source>Simple</source>
-        <target state="new">Simple</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_titleSearchOwner">
-        <source>Select Database Owner</source>
-        <target state="new">Select Database Owner</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_disabled">
-        <source>None</source>
-        <target state="new">None</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_restrictedGrowthByMB">
-        <source>By {0} MB, Limited to {1} MB</source>
-        <target state="new">By {0} MB, Limited to {1} MB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_restrictedGrowthByPercent">
-        <source>By {0} percent, Limited to {1} MB</source>
-        <target state="new">By {0} percent, Limited to {1} MB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByMB">
-        <source>By {0} MB, Unlimited</source>
-        <target state="new">By {0} MB, Unlimited</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByPercent">
-        <source>By {0} percent, Unlimited</source>
-        <target state="new">By {0} percent, Unlimited</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unlimitedfilestream">
-        <source>Unlimited</source>
-        <target state="new">Unlimited</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_limitedfilestream">
-        <source>Limited to {0} MB</source>
-        <target state="new">Limited to {0} MB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_automatic">
-        <source>Automatic</source>
-        <target state="new">Automatic</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_servicebroker">
-        <source>Service Broker</source>
-        <target state="new">Service Broker</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_collation">
-        <source>Collation</source>
-        <target state="new">Collation</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_cursor">
-        <source>Cursor</source>
-        <target state="new">Cursor</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_misc">
-        <source>Miscellaneous</source>
-        <target state="new">Miscellaneous</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_recovery">
-        <source>Recovery</source>
-        <target state="new">Recovery</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_state">
-        <source>State</source>
-        <target state="new">State</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiNullDefault">
-        <source>ANSI NULL Default</source>
-        <target state="new">ANSI NULL Default</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiNulls">
-        <source>ANSI NULLS Enabled</source>
-        <target state="new">ANSI NULLS Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiPadding">
-        <source>ANSI Padding Enabled </source>
-        <target state="new">ANSI Padding Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiWarnings">
-        <source>ANSI Warnings Enabled</source>
-        <target state="new">ANSI Warnings Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_arithabort">
-        <source>Arithmetic Abort Enabled </source>
-        <target state="new">Arithmetic Abort Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoClose">
-        <source>Auto Close</source>
-        <target state="new">Auto Close</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoCreateStatistics">
-        <source>Auto Create Statistics</source>
-        <target state="new">Auto Create Statistics</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoShrink">
-        <source>Auto Shrink</source>
-        <target state="new">Auto Shrink</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoUpdateStatistics">
-        <source>Auto Update Statistics </source>
-        <target state="new">Auto Update Statistics </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoUpdateStatisticsAsync">
-        <source>Auto Update Statistics Asynchronously</source>
-        <target state="new">Auto Update Statistics Asynchronously</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_caseSensitive">
-        <source>Case Sensitive</source>
-        <target state="new">Case Sensitive</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_closeCursorOnCommit">
-        <source>Close Cursor on Commit Enabled </source>
-        <target state="new">Close Cursor on Commit Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_collation">
-        <source>Collation</source>
-        <target state="new">Collation</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_concatNullYieldsNull">
-        <source>Concatenate Null Yields Null </source>
-        <target state="new">Concatenate Null Yields Null </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseCompatibilityLevel">
-        <source>Database Compatibility Level</source>
-        <target state="new">Database Compatibility Level</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState">
-        <source>Database State </source>
-        <target state="new">Database State </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor">
-        <source>Default Cursor</source>
-        <target state="new">Default Cursor</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_fullTextIndexing">
-        <source>Full-Text Indexing Enabled </source>
-        <target state="new">Full-Text Indexing Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_numericRoundAbort">
-        <source>Numeric Round-Abort </source>
-        <target state="new">Numeric Round-Abort </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify">
-        <source>Page Verify </source>
-        <target state="new">Page Verify </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_quotedIdentifier">
-        <source>Quoted Identifiers Enabled </source>
-        <target state="new">Quoted Identifiers Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_readOnly">
-        <source>Database Read-Only</source>
-        <target state="new">Database Read-Only</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_recursiveTriggers">
-        <source>Recursive Triggers Enabled </source>
-        <target state="new">Recursive Triggers Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess">
-        <source>Restrict Access</source>
-        <target state="new">Restrict Access</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_selectIntoBulkCopy">
-        <source>Select Into/Bulk Copy</source>
-        <target state="new">Select Into/Bulk Copy</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_honorBrokerPriority">
-        <source>Honor Broker Priority</source>
-        <target state="new">Honor Broker Priority</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_serviceBrokerGuid">
-        <source>Service Broker Identifier</source>
-        <target state="new">Service Broker Identifier</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_brokerEnabled">
-        <source>Broker Enabled</source>
-        <target state="new">Broker Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_truncateLogOnCheckpoint">
-        <source>Truncate Log on Checkpoint </source>
-        <target state="new">Truncate Log on Checkpoint </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_dbChaining">
-        <source>Cross-database Ownership Chaining Enabled</source>
-        <target state="new">Cross-database Ownership Chaining Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_trustworthy">
-        <source>Trustworthy</source>
-        <target state="new">Trustworthy</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
-        <source>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</source>
-        <target state="new">Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization_value_forced">
-        <source>Forced</source>
-        <target state="new">Forced</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization_value_simple">
-        <source>Simple</source>
-        <target state="new">Simple</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_dataFile">
-        <source>ROWS Data</source>
-        <target state="new">ROWS Data</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_logFile">
-        <source>LOG</source>
-        <target state="new">LOG</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_filestreamFile">
-        <source>FILESTREAM Data</source>
-        <target state="new">FILESTREAM Data</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_noFileGroup">
-        <source>Not Applicable</source>
-        <target state="new">Not Applicable</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_defaultpathstring">
-        <source>&lt;default path&gt;</source>
-        <target state="new">&lt;default path&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="title_openConnectionsMustBeClosed">
-        <source>Open Connections</source>
-        <target state="new">Open Connections</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="warning_openConnectionsMustBeClosed">
-        <source>To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</source>
-        <target state="new">To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_autoClosed">
-        <source>AUTO_CLOSED</source>
-        <target state="new">AUTO_CLOSED</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_emergency">
-        <source>EMERGENCY</source>
-        <target state="new">EMERGENCY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_inaccessible">
-        <source>INACCESSIBLE</source>
-        <target state="new">INACCESSIBLE</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_normal">
-        <source>NORMAL</source>
-        <target state="new">NORMAL</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_offline">
-        <source>OFFLINE</source>
-        <target state="new">OFFLINE</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_recovering">
-        <source>RECOVERING</source>
-        <target state="new">RECOVERING</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_recoveryPending">
-        <source>RECOVERY PENDING</source>
-        <target state="new">RECOVERY PENDING</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_restoring">
-        <source>RESTORING</source>
-        <target state="new">RESTORING</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_shutdown">
-        <source>SHUTDOWN</source>
-        <target state="new">SHUTDOWN</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_standby">
-        <source>STANDBY</source>
-        <target state="new">STANDBY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_suspect">
-        <source>SUSPECT</source>
-        <target state="new">SUSPECT</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor_value_global">
-        <source>GLOBAL</source>
-        <target state="new">GLOBAL</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor_value_local">
-        <source>LOCAL</source>
-        <target state="new">LOCAL</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_multiple">
-        <source>MULTI_USER</source>
-        <target state="new">MULTI_USER</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_restricted">
-        <source>RESTRICTED_USER</source>
-        <target state="new">RESTRICTED_USER</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_single">
-        <source>SINGLE_USER</source>
-        <target state="new">SINGLE_USER</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_checksum">
-        <source>CHECKSUM</source>
-        <target state="new">CHECKSUM</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_none">
-        <source>NONE</source>
-        <target state="new">NONE</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_tornPageDetection">
-        <source>TORN_PAGE_DETECTION</source>
-        <target state="new">TORN_PAGE_DETECTION</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_varDecimalEnabled">
-        <source>VarDecimal Storage Format Enabled</source>
-        <target state="new">VarDecimal Storage Format Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_katmai">
-        <source>SQL Server 2008 (100)</source>
-        <target state="new">SQL Server 2008 (100)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_encryptionEnabled">
-        <source>Encryption Enabled</source>
-        <target state="new">Encryption Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_off">
-        <source>OFF</source>
-        <target state="new">OFF</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_on">
-        <source>ON</source>
-        <target state="new">ON</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
-        <source>PRIMARY</source>
-        <target state="new">PRIMARY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="error_db_prop_invalidleadingColumns">
-        <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </source>
-        <target state="new">For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_denali">
-        <source>SQL Server 2012 (110)</source>
-        <target state="new">SQL Server 2012 (110)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sql14">
-        <source>SQL Server 2014 (120)</source>
-        <target state="new">SQL Server 2014 (120)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sql15">
-        <source>SQL Server 2016 (130)</source>
-        <target state="new">SQL Server 2016 (130)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sqlvNext">
-        <source>SQL Server vNext (140)</source>
-        <target state="new">SQL Server vNext (140)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_containmentType_None">
-        <source>None</source>
-        <target state="new">None</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_containmentType_Partial">
-        <source>Partial</source>
-        <target state="new">Partial</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroups_filestreamFiles">
-        <source>FILESTREAM Files</source>
-        <target state="new">FILESTREAM Files</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_noApplicableFileGroup">
-        <source>No Applicable Filegroup</source>
-        <target state="new">No Applicable Filegroup</target>
+      <trans-unit id="SystemVersioned_LabelPart">
+        <source>System-Versioned</source>
+        <target state="new">System-Versioned</target>
         <note></note>
       </trans-unit>
     </body>

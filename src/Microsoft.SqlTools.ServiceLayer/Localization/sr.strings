@@ -623,6 +623,51 @@ SchemaHierarchy_ColumnMasterKeys = Column Master Keys
 
 SchemaHierarchy_ColumnEncryptionKeys = Column Encryption Keys
 
+SchemaHierarchy_SubroutineParameterLabelFormatString = {0} ({1}, {2}, {3})
+
+SchemaHierarchy_SubroutineParameterNoDefaultLabel = No default
+
+SchemaHierarchy_SubroutineParameterInputLabel = Input
+
+SchemaHierarchy_SubroutineParameterInputOutputLabel = Input/Output
+
+SchemaHierarchy_SubroutineParameterInputReadOnlyLabel = Input/ReadOnly
+
+SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel = Input/Output/ReadOnly
+
+SchemaHierarchy_SubroutineParameterDefaultLabel = Default
+
+SchemaHierarchy_NullColumn_Label = null
+
+SchemaHierarchy_NotNullColumn_Label = not null
+
+SchemaHierarchy_UDDTLabelWithType = {0} ({1}, {2})
+
+SchemaHierarchy_UDDTLabelWithoutType = {0} ({1})
+
+SchemaHierarchy_ComputedColumnLabelWithType = {0} ({1}Computed, {2}, {3})
+
+SchemaHierarchy_ComputedColumnLabelWithoutType = {0} ({1}Computed)
+
+SchemaHierarchy_ColumnSetLabelWithoutType = {0} (Column Set, {1})
+
+SchemaHierarchy_ColumnSetLabelWithType = {0} (Column Set, {1}{2}, {3})
+
+SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString = {0} (Column Set, {1}, {2}, {3})
+
+UniqueIndex_LabelPart = Unique
+
+NonUniqueIndex_LabelPart = Non-Unique
+
+ClusteredIndex_LabelPart = Clustered
+
+NonClusteredIndex_LabelPart = Non-Clustered
+
+History_LabelPart = History
+
+SystemVersioned_LabelPart = System-Versioned
+
+
 ############################################################################
 # Scripting Service
 

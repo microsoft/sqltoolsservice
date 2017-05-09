@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new DatabaseTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -341,7 +341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelLinkedServerLogin";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -365,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelLogin";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -389,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelServerRole";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -413,7 +413,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelCredential";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -437,7 +437,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelCryptographicProvider";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelServerAudit";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -485,7 +485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelServerAuditSpecification";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -509,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelEndpoint";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -533,7 +533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelLinkedServer";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -557,7 +557,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelServerTrigger";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -581,7 +581,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelErrorMessage";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -659,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Database";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -718,20 +718,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_FileTables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.FileTables,
-                ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ExternalTables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ExternalTables,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
         }
 
         internal override Type[] ChildQuerierTypes
@@ -745,7 +731,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new TableTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -793,7 +779,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new ViewTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -817,7 +803,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Synonym";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -859,20 +845,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Types,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Types,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Rules,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Rules,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Defaults,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Defaults,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1177,81 +1149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new TableTreeNode();
-            InitializeChild(child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class FileTablesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "FileTables" }; }
-
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsFileTable",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
-                });
-                return filters;
-           }
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new TableTreeNode();
-            InitializeChild(child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ExternalTablesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalTables" }; }
-
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsExternal",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
-                });
-                return filters;
-           }
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new ExternalTableTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1333,7 +1231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new HistoryTableTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1384,7 +1282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Table";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1424,7 +1322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Table";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1449,7 +1347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "Column";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1494,7 +1392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Key";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1518,7 +1416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Constraint";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1542,7 +1440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Trigger";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1586,7 +1484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Index";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1610,7 +1508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Statistic";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1647,7 +1545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new ViewTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1698,7 +1596,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "View";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1760,7 +1658,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "DatabaseTrigger";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1784,7 +1682,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Assembly";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -1843,54 +1741,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
-    internal partial class RulesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "Rules" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlRuleQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "Rule";
-            InitializeChild(child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class DefaultsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "Defaults" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlDefaultQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "Default";
-            InitializeChild(child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
     internal partial class SequencesChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Sequences" }; }
@@ -1908,7 +1758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Sequence";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2007,7 +1857,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "UserDefinedDataType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2029,7 +1879,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new UserDefinedTableTypeTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2053,7 +1903,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "UserDefinedType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2077,7 +1927,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "XmlSchemaCollection";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2122,7 +1972,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "UserDefinedTableType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2147,7 +1997,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "UserDefinedTableTypeColumn";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2192,7 +2042,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "UserDefinedTableTypeKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2216,7 +2066,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "UserDefinedTableTypeConstraint";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2240,7 +2090,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemExactNumeric";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2264,7 +2114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemApproximateNumeric";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2288,7 +2138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemDateAndTime";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2312,7 +2162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemCharacterString";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2336,7 +2186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemUnicodeCharacterString";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2360,7 +2210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemBinaryString";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2384,7 +2234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemOtherDataType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2408,7 +2258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemClrDataType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2432,7 +2282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemSpatialDataType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2456,7 +2306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ExternalDataSource";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2480,7 +2330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ExternalFileFormat";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2528,7 +2378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new StoredProcedureTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2565,7 +2415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new StoredProcedureTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2598,7 +2448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "StoredProcedure";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2623,7 +2473,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "StoredProcedureParameter";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2670,7 +2520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new TableValuedFunctionTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2703,7 +2553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "TableValuedFunction";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2728,7 +2578,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "TableValuedFunctionParameter";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2775,7 +2625,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new ScalarValuedFunctionTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2808,7 +2658,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ScalarValuedFunction";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2833,7 +2683,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "ScalarValuedFunctionParameter";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2855,7 +2705,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new AggregateFunctionTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2888,7 +2738,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "AggregateFunction";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2913,7 +2763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "AggregateFunctionParameter";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2937,7 +2787,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "RemoteServiceBinding";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2961,7 +2811,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "BrokerPriority";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -2983,7 +2833,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new FileGroupTreeNode();
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3007,7 +2857,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "FullTextCatalog";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3031,7 +2881,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "FullTextStopList";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3055,7 +2905,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SqlLogFile";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3079,7 +2929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "PartitionFunction";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3103,7 +2953,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "PartitionScheme";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3127,7 +2977,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SearchPropertyList";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3176,7 +3026,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "FileGroupFile";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3200,7 +3050,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "User";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3256,7 +3106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Schema";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3280,7 +3130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "AsymmetricKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3304,7 +3154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Certificate";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3328,7 +3178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SymmetricKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3352,7 +3202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "DatabaseEncryptionKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3376,7 +3226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "MasterKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3400,7 +3250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "DatabaseAuditSpecification";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3424,7 +3274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SecurityPolicie";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3448,7 +3298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "DatabaseScopedCredential";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3505,7 +3355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "DatabaseRole";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3529,7 +3379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ApplicationRole";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3553,7 +3403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ColumnMasterKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3577,7 +3427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ColumnEncryptionKey";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3612,7 +3462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "MessageType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3636,7 +3486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemMessageType";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3671,7 +3521,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Contract";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3695,7 +3545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemContract";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3730,7 +3580,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Queue";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3754,7 +3604,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemQueue";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3789,7 +3639,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Service";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }
@@ -3813,7 +3663,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "SystemService";
-            InitializeChild(child, context);
+            InitializeChild(parent, child, context);
             return child;
         }
     }

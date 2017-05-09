@@ -1,20 +1,55 @@
+NodeType: Table Label: dbo.tableWithColumnset
+NodeType: Column Label: i (int, null)
+NodeType: Column Label: cs (Column Set, null)
+NodeType: Table Label: Employee_Temporal (System-Versioned)
+NodeType: Column Label: BusinessEntityID (PK, int, not null)
+NodeType: Column Label: NationalIDNumber (nvarchar(15), not null)
+NodeType: Column Label: LoginID (nvarchar(256), not null)
+NodeType: Column Label: OrganizationNode (hierarchyid, null)
+NodeType: Column Label: OrganizationLevel (Computed, smallint, null)
+NodeType: Column Label: JobTitle (nvarchar(50), not null)
+NodeType: Column Label: BirthDate (date, not null)
+NodeType: Column Label: MaritalStatus (nchar(1), not null)
+NodeType: Column Label: Gender (nchar(1), not null)
+NodeType: Column Label: HireDate (date, not null)
+NodeType: Column Label: VacationHours (smallint, not null)
+NodeType: Column Label: SickLeaveHours (smallint, not null)
+NodeType: Column Label: ValidFrom (datetime2, not null)
+NodeType: Column Label: ValidTo (datetime2, not null)
+NodeType: Key Label: PK_Employee_History_BusinessEntityID
+NodeType: Statistic Label: PK_Employee_History_BusinessEntityID
+NodeType: HistoryTable Label: Employee_Temporal_History (History)
+NodeType: Column Label: BusinessEntityID (int, not null)
+NodeType: Column Label: NationalIDNumber (nvarchar(15), not null)
+NodeType: Column Label: LoginID (nvarchar(256), not null)
+NodeType: Column Label: OrganizationNode (hierarchyid, null)
+NodeType: Column Label: OrganizationLevel (smallint, null)
+NodeType: Column Label: JobTitle (nvarchar(50), not null)
+NodeType: Column Label: BirthDate (date, not null)
+NodeType: Column Label: MaritalStatus (nchar(1), not null)
+NodeType: Column Label: Gender (nchar(1), not null)
+NodeType: Column Label: HireDate (date, not null)
+NodeType: Column Label: VacationHours (smallint, not null)
+NodeType: Column Label: SickLeaveHours (smallint, not null)
+NodeType: Column Label: ValidFrom (datetime2, not null)
+NodeType: Column Label: ValidTo (datetime2, not null)
 NodeType: Table Label: HumanResources.Employee
-NodeType: Column Label: BusinessEntityID
-NodeType: Column Label: NationalIDNumber
-NodeType: Column Label: LoginID
-NodeType: Column Label: OrganizationNode
-NodeType: Column Label: OrganizationLevel
-NodeType: Column Label: JobTitle
-NodeType: Column Label: BirthDate
-NodeType: Column Label: MaritalStatus
-NodeType: Column Label: Gender
-NodeType: Column Label: HireDate
-NodeType: Column Label: SalariedFlag
-NodeType: Column Label: VacationHours
-NodeType: Column Label: SickLeaveHours
-NodeType: Column Label: CurrentFlag
-NodeType: Column Label: rowguid
-NodeType: Column Label: ModifiedDate
+NodeType: Column Label: BusinessEntityID (PK, FK, int, not null)
+NodeType: Column Label: NationalIDNumber (nvarchar(15), not null)
+NodeType: Column Label: LoginID (nvarchar(256), not null)
+NodeType: Column Label: OrganizationNode (hierarchyid, null)
+NodeType: Column Label: OrganizationLevel (Computed, smallint, null)
+NodeType: Column Label: JobTitle (nvarchar(50), not null)
+NodeType: Column Label: BirthDate (date, not null)
+NodeType: Column Label: MaritalStatus (nchar(1), not null)
+NodeType: Column Label: Gender (nchar(1), not null)
+NodeType: Column Label: HireDate (date, not null)
+NodeType: Column Label: SalariedFlag (Flag(bit), not null)
+NodeType: Column Label: VacationHours (smallint, not null)
+NodeType: Column Label: SickLeaveHours (smallint, not null)
+NodeType: Column Label: CurrentFlag (Flag(bit), not null)
+NodeType: Column Label: rowguid (uniqueidentifier, not null)
+NodeType: Column Label: ModifiedDate (datetime, not null)
 NodeType: Key Label: FK_Employee_Person_BusinessEntityID
 NodeType: Key Label: PK_Employee_BusinessEntityID
 NodeType: Constraint Label: CK_Employee_BirthDate
@@ -23,76 +58,44 @@ NodeType: Constraint Label: CK_Employee_HireDate
 NodeType: Constraint Label: CK_Employee_MaritalStatus
 NodeType: Constraint Label: CK_Employee_SickLeaveHours
 NodeType: Constraint Label: CK_Employee_VacationHours
-NodeType: Index Label: NonClusteredIndex-Login
+NodeType: Index Label: NonClusteredIndex-Login (Non-Unique, Non-Clustered)
 NodeType: Statistic Label: NonClusteredIndex-Login
 NodeType: Statistic Label: PK_Employee_BusinessEntityID
-NodeType: Table Label: HumanResources.Employee_Temporal
-NodeType: Column Label: BusinessEntityID
-NodeType: Column Label: NationalIDNumber
-NodeType: Column Label: LoginID
-NodeType: Column Label: OrganizationNode
-NodeType: Column Label: OrganizationLevel
-NodeType: Column Label: JobTitle
-NodeType: Column Label: BirthDate
-NodeType: Column Label: MaritalStatus
-NodeType: Column Label: Gender
-NodeType: Column Label: HireDate
-NodeType: Column Label: VacationHours
-NodeType: Column Label: SickLeaveHours
-NodeType: Column Label: ValidFrom
-NodeType: Column Label: ValidTo
-NodeType: Key Label: PK_Employee_History_BusinessEntityID
-NodeType: Statistic Label: PK_Employee_History_BusinessEntityID
-NodeType: HistoryTable Label: HumanResources.Employee_Temporal_History
-NodeType: Column Label: BusinessEntityID
-NodeType: Column Label: NationalIDNumber
-NodeType: Column Label: LoginID
-NodeType: Column Label: OrganizationNode
-NodeType: Column Label: OrganizationLevel
-NodeType: Column Label: JobTitle
-NodeType: Column Label: BirthDate
-NodeType: Column Label: MaritalStatus
-NodeType: Column Label: Gender
-NodeType: Column Label: HireDate
-NodeType: Column Label: VacationHours
-NodeType: Column Label: SickLeaveHours
-NodeType: Column Label: ValidFrom
-NodeType: Column Label: ValidTo
 NodeType: Table Label: Person.Person
-NodeType: Column Label: BusinessEntityID
-NodeType: Column Label: PersonType
-NodeType: Column Label: NameStyle
-NodeType: Column Label: Title
-NodeType: Column Label: FirstName
-NodeType: Column Label: MiddleName
-NodeType: Column Label: LastName
-NodeType: Column Label: Suffix
-NodeType: Column Label: EmailPromotion
-NodeType: Column Label: AdditionalContactInfo
-NodeType: Column Label: rowguid
-NodeType: Column Label: ModifiedDate
+NodeType: Column Label: BusinessEntityID (PK, int, not null)
+NodeType: Column Label: PersonType (nchar(2), not null)
+NodeType: Column Label: NameStyle (NameStyle(bit), not null)
+NodeType: Column Label: Title (nvarchar(8), null)
+NodeType: Column Label: FirstName (Name(nvarchar), not null)
+NodeType: Column Label: MiddleName (Name(nvarchar), null)
+NodeType: Column Label: LastName (Name(nvarchar), not null)
+NodeType: Column Label: Suffix (nvarchar(10), null)
+NodeType: Column Label: EmailPromotion (int, not null)
+NodeType: Column Label: AdditionalContactInfo (AdditionalContactInfoSchemaCollection, null)
+NodeType: Column Label: rowguid (uniqueidentifier, not null)
+NodeType: Column Label: ModifiedDate (datetime, not null)
 NodeType: Key Label: PK_Person_BusinessEntityID
 NodeType: Constraint Label: CK_Person_EmailPromotion
 NodeType: Constraint Label: CK_Person_PersonType
 NodeType: Trigger Label: TableTrigger
 NodeType: Statistic Label: PK_Person_BusinessEntityID
 NodeType: View Label: HumanResources.vEmployee
-NodeType: Column Label: BusinessEntityID
-NodeType: Column Label: Title
-NodeType: Column Label: FirstName
-NodeType: Column Label: MiddleName
-NodeType: Column Label: LastName
-NodeType: Column Label: Suffix
-NodeType: Column Label: JobTitle
-NodeType: Column Label: AdditionalContactInfo
+NodeType: Column Label: BusinessEntityID (int, not null)
+NodeType: Column Label: Title (nvarchar(8), null)
+NodeType: Column Label: FirstName (Name(nvarchar), not null)
+NodeType: Column Label: MiddleName (Name(nvarchar), null)
+NodeType: Column Label: LastName (Name(nvarchar), not null)
+NodeType: Column Label: Suffix (nvarchar(10), null)
+NodeType: Column Label: JobTitle (nvarchar(50), not null)
+NodeType: Column Label: AdditionalContactInfo (AdditionalContactInfoSchemaCollection, null)
 NodeType: Synonym Label: dbo.MyProduct
 NodeType: StoredProcedure Label: HumanResources.sp_GetEmployee_Person_Info_AsOf
-NodeType: StoredProcedureParameter Label: @asOf
+NodeType: StoredProcedureParameter Label: @asOf (datetime2, Input, Default)
 NodeType: TableValuedFunction Label: dbo.ufnGetContactInformation
-NodeType: TableValuedFunctionParameter Label: @PersonID
+NodeType: TableValuedFunctionParameter Label: @PersonID (int, Input, No default)
 NodeType: ScalarValuedFunction Label: dbo.fun1
 NodeType: ScalarValuedFunction Label: dbo.ufnGetInventoryStock
-NodeType: ScalarValuedFunctionParameter Label: @ProductID
+NodeType: ScalarValuedFunctionParameter Label: @ProductID (int, Input, No default)
 NodeType: DatabaseTrigger Label: Trigger_2
 NodeType: Assembly Label: Microsoft.SqlServer.Types
 NodeType: UserDefinedDataType Label: dbo.AccountNumber
@@ -102,16 +105,14 @@ NodeType: UserDefinedDataType Label: dbo.NameStyle
 NodeType: UserDefinedDataType Label: dbo.OrderNumber
 NodeType: UserDefinedDataType Label: dbo.Phone
 NodeType: UserDefinedTableType Label: Demo.SalesOrderDetailType_inmem
-NodeType: UserDefinedTableTypeColumn Label: OrderQty
-NodeType: UserDefinedTableTypeColumn Label: ProductID
-NodeType: UserDefinedTableTypeColumn Label: SpecialOfferID
+NodeType: UserDefinedTableTypeColumn Label: OrderQty (smallint, not null)
+NodeType: UserDefinedTableTypeColumn Label: ProductID (int, not null)
+NodeType: UserDefinedTableTypeColumn Label: SpecialOfferID (int, not null)
 NodeType: UserDefinedTableType Label: Demo.SalesOrderDetailType_ondisk
-NodeType: UserDefinedTableTypeColumn Label: OrderQty
-NodeType: UserDefinedTableTypeColumn Label: ProductID
-NodeType: UserDefinedTableTypeColumn Label: SpecialOfferID
+NodeType: UserDefinedTableTypeColumn Label: OrderQty (smallint, not null)
+NodeType: UserDefinedTableTypeColumn Label: ProductID (int, not null)
+NodeType: UserDefinedTableTypeColumn Label: SpecialOfferID (int, not null)
 NodeType: XmlSchemaCollection Label: Person.AdditionalContactInfoSchemaCollection
-NodeType: Rule Label: dbo.list_rule
-NodeType: Default Label: dbo.phonedflt
 NodeType: Sequence Label: Demo.ID_Seq
 NodeType: FileGroup Label: PRIMARY
 NodeType: FullTextCatalog Label: AW2014FullTextCatalog

@@ -2157,6 +2157,182 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaHierarchy_SubroutineParameterLabelFormatString
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterLabelFormatString);
+            }
+        }
+
+        public static string SchemaHierarchy_SubroutineParameterNoDefaultLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterNoDefaultLabel);
+            }
+        }
+
+        public static string SchemaHierarchy_SubroutineParameterInputLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterInputLabel);
+            }
+        }
+
+        public static string SchemaHierarchy_SubroutineParameterInputOutputLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterInputOutputLabel);
+            }
+        }
+
+        public static string SchemaHierarchy_SubroutineParameterInputReadOnlyLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterInputReadOnlyLabel);
+            }
+        }
+
+        public static string SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel);
+            }
+        }
+
+        public static string SchemaHierarchy_SubroutineParameterDefaultLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SubroutineParameterDefaultLabel);
+            }
+        }
+
+        public static string SchemaHierarchy_NullColumn_Label
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_NullColumn_Label);
+            }
+        }
+
+        public static string SchemaHierarchy_NotNullColumn_Label
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_NotNullColumn_Label);
+            }
+        }
+
+        public static string SchemaHierarchy_UDDTLabelWithType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UDDTLabelWithType);
+            }
+        }
+
+        public static string SchemaHierarchy_UDDTLabelWithoutType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UDDTLabelWithoutType);
+            }
+        }
+
+        public static string SchemaHierarchy_ComputedColumnLabelWithType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ComputedColumnLabelWithType);
+            }
+        }
+
+        public static string SchemaHierarchy_ComputedColumnLabelWithoutType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ComputedColumnLabelWithoutType);
+            }
+        }
+
+        public static string SchemaHierarchy_ColumnSetLabelWithoutType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ColumnSetLabelWithoutType);
+            }
+        }
+
+        public static string SchemaHierarchy_ColumnSetLabelWithType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ColumnSetLabelWithType);
+            }
+        }
+
+        public static string SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString);
+            }
+        }
+
+        public static string UniqueIndex_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.UniqueIndex_LabelPart);
+            }
+        }
+
+        public static string NonUniqueIndex_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.NonUniqueIndex_LabelPart);
+            }
+        }
+
+        public static string ClusteredIndex_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndex_LabelPart);
+            }
+        }
+
+        public static string NonClusteredIndex_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.NonClusteredIndex_LabelPart);
+            }
+        }
+
+        public static string History_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.History_LabelPart);
+            }
+        }
+
+        public static string SystemVersioned_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.SystemVersioned_LabelPart);
+            }
+        }
+
         public static string ScriptingParams_ConnectionString_Property_Invalid
         {
             get
@@ -3977,6 +4153,72 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_ColumnEncryptionKeys = "SchemaHierarchy_ColumnEncryptionKeys";
+
+
+            public const string SchemaHierarchy_SubroutineParameterLabelFormatString = "SchemaHierarchy_SubroutineParameterLabelFormatString";
+
+
+            public const string SchemaHierarchy_SubroutineParameterNoDefaultLabel = "SchemaHierarchy_SubroutineParameterNoDefaultLabel";
+
+
+            public const string SchemaHierarchy_SubroutineParameterInputLabel = "SchemaHierarchy_SubroutineParameterInputLabel";
+
+
+            public const string SchemaHierarchy_SubroutineParameterInputOutputLabel = "SchemaHierarchy_SubroutineParameterInputOutputLabel";
+
+
+            public const string SchemaHierarchy_SubroutineParameterInputReadOnlyLabel = "SchemaHierarchy_SubroutineParameterInputReadOnlyLabel";
+
+
+            public const string SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel = "SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel";
+
+
+            public const string SchemaHierarchy_SubroutineParameterDefaultLabel = "SchemaHierarchy_SubroutineParameterDefaultLabel";
+
+
+            public const string SchemaHierarchy_NullColumn_Label = "SchemaHierarchy_NullColumn_Label";
+
+
+            public const string SchemaHierarchy_NotNullColumn_Label = "SchemaHierarchy_NotNullColumn_Label";
+
+
+            public const string SchemaHierarchy_UDDTLabelWithType = "SchemaHierarchy_UDDTLabelWithType";
+
+
+            public const string SchemaHierarchy_UDDTLabelWithoutType = "SchemaHierarchy_UDDTLabelWithoutType";
+
+
+            public const string SchemaHierarchy_ComputedColumnLabelWithType = "SchemaHierarchy_ComputedColumnLabelWithType";
+
+
+            public const string SchemaHierarchy_ComputedColumnLabelWithoutType = "SchemaHierarchy_ComputedColumnLabelWithoutType";
+
+
+            public const string SchemaHierarchy_ColumnSetLabelWithoutType = "SchemaHierarchy_ColumnSetLabelWithoutType";
+
+
+            public const string SchemaHierarchy_ColumnSetLabelWithType = "SchemaHierarchy_ColumnSetLabelWithType";
+
+
+            public const string SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString = "SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString";
+
+
+            public const string UniqueIndex_LabelPart = "UniqueIndex_LabelPart";
+
+
+            public const string NonUniqueIndex_LabelPart = "NonUniqueIndex_LabelPart";
+
+
+            public const string ClusteredIndex_LabelPart = "ClusteredIndex_LabelPart";
+
+
+            public const string NonClusteredIndex_LabelPart = "NonClusteredIndex_LabelPart";
+
+
+            public const string History_LabelPart = "History_LabelPart";
+
+
+            public const string SystemVersioned_LabelPart = "SystemVersioned_LabelPart";
 
 
             public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";

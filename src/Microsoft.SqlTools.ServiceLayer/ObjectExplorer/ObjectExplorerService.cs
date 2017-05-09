@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
         {
             ObjectExplorerSession session;
-
+            connectionDetails.PersistSecurityInfo = true;
             ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
 
             ConnectionCompleteParams connectionResult = await Connect(connectParams);
