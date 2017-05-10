@@ -108,13 +108,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Owner, prototype.Owner);
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Collation, prototype.Collation);
             
+            databaseInfo.Options.Add(
+                AdminServicesProviderOptionsHelper.FileGroups + "Count", 
+                prototype.Filegroups.Count);
+             
             for (int i = 0; i < prototype.Filegroups.Count; ++i)
             {
                 var fileGroup = prototype.Filegroups[i];
                 string itemPrefix = AdminServicesProviderOptionsHelper.FileGroups + "." + i + ".";
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Name, fileGroup.Name);
-             
             }
+
+            databaseInfo.Options.Add(
+                AdminServicesProviderOptionsHelper.DatabaseFiles + "Count", 
+                prototype.Files.Count);
 
             for (int i = 0; i < prototype.Files.Count; ++i)
             {
