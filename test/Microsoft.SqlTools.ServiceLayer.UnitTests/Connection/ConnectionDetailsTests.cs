@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Xunit;
-
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void ConnectionDetailsOptionsShouldBeDefinedInConnectionProviderOptions()
         {
             ConnectionDetails details = new ConnectionDetails();
-            ConnectionProviderOptions optionMetadata = Hosting.ServiceHost.BuildConnectionProviderOptions();
+            ConnectionProviderOptions optionMetadata = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions();
 
             var index = 0;
             var expectedForStrings = "Value for strings";
