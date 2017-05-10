@@ -310,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     this.OperationId,
                     this.eventSequenceNumber,
                     e.Completed,
-                    e?.Error?.ToString()));
+                    e?.Error?.ToString() ?? "null"));
 
             // Keep scripting...it's a best effort operation.
             e.ContinueScripting = true;
@@ -366,7 +366,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     this.OperationId,
                     this.eventSequenceNumber,
                     e.GetStatus(),
-                    e?.Error?.ToString()));
+                    e?.Error?.ToString() ?? "null"));
 
             this.SendProgressNotificationEvent(new ScriptingProgressNotificationParams
             {
