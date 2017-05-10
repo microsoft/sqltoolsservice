@@ -68,12 +68,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
         }
 
+        /// <summary>
+        /// Handle a request for the default database prototype info
+        /// </summary>
         public static async Task HandleDefaultDatabaseInfoRequest(
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<DefaultDatabaseInfoResponse> requestContext)
         {
             var response = new DefaultDatabaseInfoResponse();
-
             ConnectionInfo connInfo;
             AdminService.ConnectionServiceInstance.TryFindConnection(
                 optionsParams.OwnerUri,
@@ -81,28 +83,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
             char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
+            CDataContainer dataContainer;
+
             unsafe
             {
                 fixed (char* passwordPtr = passwordArray)
                 {
-                    var dataContainer = new CDataContainer(
+                    dataContainer = new CDataContainer(
                         CDataContainer.ServerType.SQL,
                         connInfo.ConnectionDetails.ServerName,
                         false,
                         connInfo.ConnectionDetails.UserName,
                         new System.Security.SecureString(passwordPtr, passwordArray.Length),
                         xmlDoc.InnerXml);
-
-                    var taskHelper = new DatabaseTaskHelper();
-                    taskHelper.CreateDatabase(dataContainer);
-
-                    response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
                 }
             }
 
+            var taskHelper = new DatabaseTaskHelper();
+            taskHelper.CreateDatabase(dataContainer);
+
+            response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
             await requestContext.SendResult(response);
         }
-
 
         private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo)
         {
