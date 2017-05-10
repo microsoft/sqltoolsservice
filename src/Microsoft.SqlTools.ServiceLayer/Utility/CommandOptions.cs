@@ -5,6 +5,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
@@ -31,28 +32,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                         // Extracting arguments and properties
                         arg = arg.Substring(1).ToLowerInvariant();
                         string argName = arg;
-                        string argProperty = "";
-                        int splitIndex = arg.IndexOf(' ');
-                        if (splitIndex > 0)
-                        {
-                            argName = arg.Substring(0, splitIndex);
-                            argProperty = arg.Substring(splitIndex + 1);
-                        }
 
                         switch (argName)
                         {
                             case "-enable-logging":
                                 EnableLogging = true;
                                 break;
+                            case "-log-dir":
+                                SetLoggingDirectory(args[++i]);
+                                break;
                             case "-locale":
-                                SetLocale(argProperty);
+                                SetLocale(args[++i]);
                                 break;
                             case "h":
                             case "-help":
                                 ShouldExit = true;
                                 return;
                             default:
-                                ErrorMessage += String.Format("Unknown argument \"{0}\" with property \"{1}\"" + Environment.NewLine, argName, argProperty);
+                                ErrorMessage += String.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
                         }
                     }
@@ -82,6 +79,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         public bool EnableLogging { get; private set; }
 
         /// <summary>
+        /// Gets the directory where log files are output.
+        /// </summary>
+        public string LoggingDirectory { get; private set; }
+
+        /// <summary>
         /// Whether the program should exit immediately. Set to true when the usage is printed.
         /// </summary>
         public bool ShouldExit { get; private set; }
@@ -102,11 +104,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     "Microsoft.SqlTools.ServiceLayer.exe " + Environment.NewLine +
                     "   Options:" + Environment.NewLine +
                     "        [--enable-logging]" + Environment.NewLine +
+                    "        [--log-dir **] (default: current directory)" + Environment.NewLine +
                     "        [--help]" + Environment.NewLine +
                     "        [--locale **] (default: 'en')" + Environment.NewLine,
                     ErrorMessage);
                 return str;
             }
+        }
+
+        private void SetLoggingDirectory(string loggingDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(loggingDirectory))
+            {
+                return;
+            }
+
+            this.LoggingDirectory = Path.GetFullPath(loggingDirectory);
         }
 
         private void SetLocale(string locale)
@@ -124,10 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 // Setting our internal SR culture to our global culture
                 SR.Culture = CultureInfo.CurrentCulture;
             }
-            catch(Exception ex)
+            catch (CultureNotFoundException)
             {
-                // Warn user of invalid locale, and fall back to english 
-                Console.WriteLine(ex);
+                // Ignore CultureNotFoundException since it only is thrown before Windows 10.  Windows 10,
+                // along with macOS and Linux, pick up the default culture if an invalid locale is passed
+                // into the CultureInfo constructor.
             }
         }
     }
