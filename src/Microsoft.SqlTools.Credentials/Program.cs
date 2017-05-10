@@ -19,28 +19,36 @@ namespace Microsoft.SqlTools.Credentials
         /// </summary>
         internal static void Main(string[] args)
         {
-            // read command-line arguments
-            CommandOptions commandOptions = new CommandOptions(args);
-            if (commandOptions.ShouldExit)
+            try
             {
-                return;
+                // read command-line arguments
+                CommandOptions commandOptions = new CommandOptions(args);
+                if (commandOptions.ShouldExit)
+                {
+                    return;
+                }
+
+                // turn on Verbose logging during early development
+                // we need to switch to Normal when preparing for public preview
+                Logger.Initialize(minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
+                Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
+
+                // set up the host details and profile paths 
+                var hostDetails = new HostDetails(
+                    name: "SqlTools Credentials Provider",
+                    profileId: "Microsoft.SqlTools.Credentials",
+                    version: new Version(1, 0));
+
+                SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
+                CredentialsServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+
+                serviceHost.WaitForExit();
             }
-
-            // turn on Verbose logging during early development
-            // we need to switch to Normal when preparing for public preview
-            Logger.Initialize(minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-            Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
-
-            // set up the host details and profile paths 
-            var hostDetails = new HostDetails(
-                name: "SqlTools Credentials Provider",
-                profileId: "Microsoft.SqlTools.Credentials",
-                version: new Version(1, 0));
-            
-            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-            CredentialsServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
-
-            serviceHost.WaitForExit();
+            catch (Exception e)
+            {
+                Logger.Write(LogLevel.Error, string.Format("An unhandled exception occurred: {0}", e));
+                Environment.Exit(1);               
+            }
         }
     }
 }

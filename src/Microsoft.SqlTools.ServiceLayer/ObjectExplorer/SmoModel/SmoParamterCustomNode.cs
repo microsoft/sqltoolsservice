@@ -15,7 +15,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+        }
+
+        public override string GetNodeSubType(object context)
+        {
+            return ParameterCustomeNodeHelper.GetSubType(context);
         }
     }
 
@@ -26,7 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+        }
+        public override string GetNodeSubType(object context)
+        {
+            return ParameterCustomeNodeHelper.GetSubType(context);
         }
     }
 
@@ -37,7 +46,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+        }
+        public override string GetNodeSubType(object context)
+        {
+            return ParameterCustomeNodeHelper.GetSubType(context);
         }
     }
 
@@ -48,19 +61,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+        }
+        public override string GetNodeSubType(object context)
+        {
+            return ParameterCustomeNodeHelper.GetSubType(context);
         }
     }
 
     static class ParameterCustomeNodeHelper
     {
-
-        internal static string CalculateCustomLabel(object context, SmoQueryContext smoContext)
+        internal static string GetSubType(object context)
         {
             Parameter parameter = context as Parameter;
             if (parameter != null)
             {
-                return ParameterCustomeNodeHelper.GetParameterCustomLabel(parameter);
+                StoredProcedureParameter stordProcedureParameter = parameter as StoredProcedureParameter;
+                if (stordProcedureParameter != null && stordProcedureParameter.IsOutputParameter)
+                {
+                    return "Output";
+                }
+                return "Input";
+                //TODO return parameters
+            }
+            return string.Empty;
+
+        }
+
+        internal static string GetCustomLabel(object context, SmoQueryContext smoContext)
+        {
+            Parameter parameter = context as Parameter;
+            if (parameter != null)
+            {
+                return GetParameterCustomLabel(parameter);
             }
 
             return string.Empty;

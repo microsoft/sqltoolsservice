@@ -39,6 +39,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Gets or sets the error details if an error occurred scripting a database object.
         /// </summary>
         public string ErrorDetails { get; set; }
+
+        /// <summary>
+        /// Get or sets the error message for an error that occurred scripting a database object.
+        /// </summary>
+        public string ErrorMessage { get; set; }
     }
 
     /// <summary>

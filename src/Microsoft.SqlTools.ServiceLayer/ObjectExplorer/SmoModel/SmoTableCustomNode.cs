@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table table = smoObject as Table;
             if (table != null && table.IsSystemVersioned)
             {
-                return $"{table.Name} ({SR.SystemVersioned_LabelPart})";
+                return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
             }
 
             return string.Empty;
@@ -34,20 +34,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table table = smoObject as Table;
             if (table != null)
             {
-                return $"{table.Name} ({SR.History_LabelPart})";
+                return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
             }
 
-            return string.Empty;
-        }
-
-        public override string GetNodeSubType(object context)
-        {
-            Table table = context as Table;
-
-            if (table != null)
-            {
-                return "History";
-            }
             return string.Empty;
         }
     }

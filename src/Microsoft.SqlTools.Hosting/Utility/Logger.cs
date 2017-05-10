@@ -73,6 +73,24 @@ namespace Microsoft.SqlTools.Utility
 
             Logger.isInitialized = true;
 
+            // Create the log directory
+            string logDir = Path.GetDirectoryName(logFilePath);
+            if (!string.IsNullOrWhiteSpace(logDir))
+            {
+                if (!Directory.Exists(logDir))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(logDir);
+                    }
+                    catch (Exception)
+                    {
+                        // Creating the log directory is a best effort operation, so ignore any failures.
+                    }
+                }
+            }
+
+
             // get a unique number to prevent conflicts of two process launching at the same time
             int uniqueId;
             try

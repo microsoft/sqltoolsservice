@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.IO;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
@@ -68,6 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
    
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.True(string.IsNullOrWhiteSpace(options.LoggingDirectory));
             Assert.Equal(options.Locale, string.Empty);
         }
         
@@ -76,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         [InlineData("es")]
         public void LocaleSetWhenProvided(string locale)
         {
-            var args = new string[] {"--locale " + locale};
+            var args = new string[] {"--locale", locale};
             CommandOptions options = new CommandOptions(args);
 
             // Asserting all options were properly set 
@@ -86,10 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         [Fact]
-        public void ShouldExitSetWhenInvalidLocale()
+        public void ShouldExitNotSetWhenInvalidLocale()
         {
             string locale = "invalid";
-            var args = new string[] { "--locale " + locale };
+            var args = new string[] { "--locale", locale };
             CommandOptions options = new CommandOptions(args);
 
             // Asserting all options were properly set 
@@ -108,6 +110,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
             Assert.Equal(options.Locale, string.Empty);
+        }
+
+        [Fact]
+        public void LoggingDirectorySet()
+        {
+            string logDir = Directory.GetCurrentDirectory();
+            var args = new string[] { "--log-dir", logDir };
+            CommandOptions options = new CommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.LoggingDirectory, logDir);
         }
     }
 }

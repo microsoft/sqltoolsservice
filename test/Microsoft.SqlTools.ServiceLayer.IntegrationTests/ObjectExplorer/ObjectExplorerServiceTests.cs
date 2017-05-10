@@ -307,10 +307,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var children = await _service.ExpandNode(session, node.NodePath);
                 foreach (var child in children)
                 {
-                    //VerifyMetadata(child);
+                    VerifyMetadata(child);
                     if (stringBuilder != null && child.NodeType != "Folder" && child.NodeType != "FileGroupFile")
                     {
-                        stringBuilder.AppendLine($"NodeType: {child.NodeType} Label: {child.Label}");
+                        stringBuilder.AppendLine($"NodeType: {child.NodeType} Label: {child.Label} SubType:{child.NodeSubType} Status:{child.NodeStatus}");
                     }
                     if (!verifySystemObjects && (child.Label == SR.SchemaHierarchy_SystemStoredProcedures ||
                         child.Label == SR.SchemaHierarchy_SystemViews ||
@@ -368,11 +368,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 {
                     if (!string.IsNullOrEmpty(node.Metadata.Schema))
                     {
-                        Assert.Equal($"{node.Metadata.Schema}.{node.Metadata.Name}", node.Label);
+                        Assert.True(node.Label.Contains($"{node.Metadata.Schema}.{node.Metadata.Name}"));
                     }
                     else
                     {
-                        Assert.Equal(node.Metadata.Name, node.Label);
+                        Assert.NotNull(node.Label);
                     }
                 }
             }
