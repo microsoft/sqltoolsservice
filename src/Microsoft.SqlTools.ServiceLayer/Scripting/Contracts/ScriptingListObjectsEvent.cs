@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// Gets or sets the list of database objects returned from the list objects operation.
         /// </summary>
-        public List<ScriptingObject> DatabaseObjects { get; set; }
+        public List<ScriptingObject> ScriptingObjects { get; set; }
 
         /// <summary>
         /// Gets or sets the count of database object returned from the list objects operation.
