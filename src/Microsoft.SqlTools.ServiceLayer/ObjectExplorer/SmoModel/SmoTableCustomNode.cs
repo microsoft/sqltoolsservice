@@ -14,11 +14,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            Table table = smoObject as Table;
-            if (table != null && table.IsSystemVersioned)
-            {
-                return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
-            }
+            // TODO: this  code makes expanding the tables slow because of loading the IsSystemVersioned property for each table.
+            // Have to uncomment this after optimizing the way properties are loaded for SMO objects 
+            //Table table = smoObject as Table;
+            //if (table != null && table.IsSystemVersioned)
+            //{
+            //    return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
+            //}
 
             return string.Empty;
         }
