@@ -11,20 +11,14 @@ using System.Resources;
 using System.Data;
 using System.IO;
 using System.Text;
-//using System.Windows.Forms;
-//using System.Drawing.Design;
 using Microsoft.SqlServer.Management.Common;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Smo = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
-//using Microsoft.NetEnterpriseServers;
 using System.Globalization;
 using System.Data.SqlClient;
 using System.Collections.Generic;
-
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 using DataSet = Microsoft.Data.Tools.DataSets.DataSet;
 using DataTable = Microsoft.Data.Tools.DataSets.DataTable;
@@ -741,9 +735,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>The string representation</returns>
         public override string ToString()
         {
-            ResourceManager manager =
-                new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    this.GetType().GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             string result = "";
 
             if (this.IsEnabled)
@@ -760,7 +752,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     else
                     {
                         result = String.Format(System.Globalization.CultureInfo.CurrentCulture,
-                            manager.GetString("prototype.autogrowth.restrictedGrowthByMB"),
+                            manager.GetString("prototype_autogrowth_restrictedGrowthByMB"),
                             this.GrowthInMegabytes,
                             this.MaximumFileSizeInMegabytes);
                     }
@@ -770,13 +762,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.IsGrowthInPercent)
                     {
                         result = String.Format(System.Globalization.CultureInfo.CurrentCulture,
-                            manager.GetString("prototype.autogrowth.unrestrictedGrowthByPercent"),
+                            manager.GetString("prototype_autogrowth_unrestrictedGrowthByPercent"),
                             this.GrowthInPercent);
                     }
                     else
                     {
                         result = String.Format(System.Globalization.CultureInfo.CurrentCulture,
-                            manager.GetString("prototype.autogrowth.unrestrictedGrowthByMB"),
+                            manager.GetString("prototype_autogrowth_unrestrictedGrowthByMB"),
                             this.GrowthInMegabytes);
                     }
 

@@ -107,14 +107,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Name, prototype.Name);
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Owner, prototype.Owner);
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Collation, prototype.Collation);
-            
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.DatabaseState, prototype.DatabaseState.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.IsSystemDB, prototype.IsSystemDB.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.AnsiNulls, prototype.AnsiNulls.ToString());
+
+            databaseInfo.Options.Add(
+                AdminServicesProviderOptionsHelper.FileGroups + "Count", 
+                prototype.Filegroups.Count);
+             
             for (int i = 0; i < prototype.Filegroups.Count; ++i)
             {
                 var fileGroup = prototype.Filegroups[i];
                 string itemPrefix = AdminServicesProviderOptionsHelper.FileGroups + "." + i + ".";
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Name, fileGroup.Name);
-             
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsMemoryOptimized, fileGroup.IsMemoryOptimized);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsReadOnly, fileGroup.IsReadOnly);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsFileStream, fileGroup.IsFileStream);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsDefault, fileGroup.IsDefault);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.FileGroupType, fileGroup.FileGroupType.ToString());
             }
+
+            databaseInfo.Options.Add(
+                AdminServicesProviderOptionsHelper.DatabaseFiles + "Count", 
+                prototype.Files.Count);
 
             for (int i = 0; i < prototype.Files.Count; ++i)
             {
@@ -122,9 +137,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 string itemPrefix = AdminServicesProviderOptionsHelper.DatabaseFiles + "." + i + ".";
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Name, file.Name);
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.PhysicalName, file.PhysicalName);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Autogrowth, file.DefaultAutogrowth.ToString());
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.DatabaseFileType, file.DatabaseFileType.ToString());
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Folder, file.DefaultFolder);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Size, file.DefaultSize);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.FileGroup, file.FileGroup != null ? file.FileGroup.Name : string.Empty);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.InitialSize, file.InitialSize);
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsPrimaryFile, file.IsPrimaryFile);
             }
 
             return databaseInfo;
+        }
+
+        public static DatabasePrototype ApplyToPrototype(DatabaseInfo databaseInfo, DatabasePrototype prototype)
+        {
+            prototype.Name   = databaseInfo.Options[AdminServicesProviderOptionsHelper.Name] as string;
+            return prototype;
         }
     }
 }

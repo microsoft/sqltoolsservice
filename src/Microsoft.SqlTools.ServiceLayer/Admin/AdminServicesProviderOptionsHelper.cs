@@ -18,6 +18,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal const string FileGroups = "fileGroups";
         internal const string DatabaseFiles = "databaseFiles";
         internal const string PhysicalName = "physicalName";
+        internal const string RecursiveTriggers = "recursiveTriggers";
+        internal const string Trustworthy = "trustworthy";
+        internal const string AnsiNullDefault = "ansiNullDefault";
+        internal const string AnsiNulls = "ansiNulls";
+        internal const string AnsiPadding = "ansiNulls";
+        internal const string AnsiWarnings = "ansiNulls";
+        internal const string IsFilestreamEnabled = "isFilestreamEnabled";
+        internal const string IsReadCommittedSnapshotOn = "isReadCommittedSnapshotOn";
+        internal const string IsReadOnly = "isReadOnly";
+        internal const string IsSystemDB = "isSystemDB";
+        internal const string MaxDop = "maxDop";
+        internal const string DatabaseContainmentType = "databaseContainmentType";
+        internal const string DatabaseState = "databaseState";
+        internal const string FileGroupType = "fileGroupType";
+        internal const string IsDefault = "isDefault";
+        internal const string IsFileStream = "isFileStream";
+        internal const string IsMemoryOptimized = "isMemoryOptimized";
+        internal const string Autogrowth = "autogrowth";
+        internal const string DatabaseFileType = "databaseFileType";
+        internal const string Folder = "folder";
+        internal const string Size = "size";
+        internal const string FileGroup = "fileGroup";
+        internal const string InitialSize = "initialSize";
+        internal const string IsPrimaryFile = "isPrimaryFile";
+
 
         internal static AdminServicesProviderOptions BuildAdminServicesProviderOptions()
         {
@@ -54,6 +79,123 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     },
                     new ServiceOption
                     {
+                        Name = AdminServicesProviderOptionsHelper.RecursiveTriggers,
+                        DisplayName = "Recursive Triggers",
+                        Description = "Recursive triggers",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.Trustworthy,
+                        DisplayName = "Trustworthy",
+                        Description = "Trustworthy",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.AnsiNullDefault,
+                        DisplayName = "AnsiNullDefault",
+                        Description = "Ansi null default",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.AnsiNulls,
+                        DisplayName = "AnsiNulls",
+                        Description = "AnsiNulls",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.AnsiPadding,
+                        DisplayName = "AnsiPadding",
+                        Description = "Ansi padding",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.AnsiWarnings,
+                        DisplayName = "AnsiWarnings",
+                        Description = "Ansi warnings",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsFilestreamEnabled,
+                        DisplayName = "IsFilestreamEnabled",
+                        Description = "Is filestream enabled",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsReadCommittedSnapshotOn,
+                        DisplayName = "IsReadCommittedSnapshotOn",
+                        Description = "Is read committed snapshot on",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsReadOnly,
+                        DisplayName = "IsReadOnly",
+                        Description = "Is read only",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsSystemDB,
+                        DisplayName = "IsSystemDB",
+                        Description = "Is system database",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.MaxDop,
+                        DisplayName = "MaxDop",
+                        Description = "Max degree of parallelism",
+                        ValueType = ServiceOption.ValueTypeBoolean,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.DatabaseContainmentType, 
+                        DisplayName = "DatabaseContainmentType",
+                        Description = "Database containment type",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.DatabaseState,
+                        DisplayName = "DatabaseState",
+                        Description = "Database state",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
                         Name = AdminServicesProviderOptionsHelper.FileGroups,
                         DisplayName = "File Groups",
                         Description = "File groups",
@@ -85,8 +227,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = true,
                         GroupName = "General"
-                    }                  
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.FileGroupType,
+                        DisplayName = "FileGroupType",
+                        Description = "File group type",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsDefault,
+                        DisplayName = "IsDefault",
+                        Description = "Is default",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsFileStream,
+                        DisplayName = "IsFileStream",
+                        Description = "Is file stream",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsMemoryOptimized,
+                        DisplayName = "IsMemoryOptimized",
+                        Description = "Is memory optimized",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsReadOnly,
+                        DisplayName = "IsReadOnly",
+                        Description = "Is read-only",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    }              
                 },
+
+
                 DatabaseFileInfoOptions = new ServiceOption[]
                 {
                     new ServiceOption
@@ -98,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         IsRequired = true,
                         GroupName = "General"
                     },
-                     new ServiceOption
+                    new ServiceOption
                     {
                         Name = AdminServicesProviderOptionsHelper.PhysicalName,
                         DisplayName = "Physical Name",
@@ -106,7 +295,71 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = true,
                         GroupName = "General"
-                    }
+                    },
+
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.Autogrowth,
+                        DisplayName = "Autogrowth",
+                        Description = "Autogrowth",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.DatabaseFileType,
+                        DisplayName = "DatabaseFileType",
+                        Description = "Database file type",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.Folder,
+                        DisplayName = "Folder",
+                        Description = "Folder",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.Size,
+                        DisplayName = "Size",
+                        Description = "Size",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.FileGroup,
+                        DisplayName = "FileGroup",
+                        Description = "File group",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.InitialSize,
+                        DisplayName = "InitialSize",
+                        Description = "Initial size",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.IsPrimaryFile,
+                        DisplayName = "IsPrimaryFile",
+                        Description = "Is primary file",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = true,
+                        GroupName = "General"
+                    },
                 }
             };
         }
