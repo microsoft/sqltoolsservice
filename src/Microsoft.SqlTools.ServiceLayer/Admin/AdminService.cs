@@ -68,19 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
         }
 
-        /// <summary>
-        /// Handle a request for the default database prototype info
-        /// </summary>
-        public static async Task HandleDefaultDatabaseInfoRequest(
-            DefaultDatabaseInfoParams optionsParams,
-            RequestContext<DefaultDatabaseInfoResponse> requestContext)
+        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
         {
-            var response = new DefaultDatabaseInfoResponse();
-            ConnectionInfo connInfo;
-            AdminService.ConnectionServiceInstance.TryFindConnection(
-                optionsParams.OwnerUri,
-                out connInfo);
-
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
             char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
             CDataContainer dataContainer;
@@ -101,6 +90,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             var taskHelper = new DatabaseTaskHelper();
             taskHelper.CreateDatabase(dataContainer);
+            return taskHelper;
+        }
+
+        /// <summary>
+        /// Handle a request for the default database prototype info
+        /// </summary>
+        public static async Task HandleDefaultDatabaseInfoRequest(
+            DefaultDatabaseInfoParams optionsParams,
+            RequestContext<DefaultDatabaseInfoResponse> requestContext)
+        {
+            var response = new DefaultDatabaseInfoResponse();
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                optionsParams.OwnerUri,
+                out connInfo);
+
+            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo);
 
             response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
             await requestContext.SendResult(response);
@@ -132,6 +138,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             CreateDatabaseParams databaseParams,
             RequestContext<CreateDatabaseResponse> requestContext)
         {
+            var response = new DefaultDatabaseInfoResponse();
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                databaseParams.OwnerUri,
+                out connInfo);
+
+            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo);
+            DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
+
+            response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+
             await requestContext.SendResult(new CreateDatabaseResponse());
         }
 

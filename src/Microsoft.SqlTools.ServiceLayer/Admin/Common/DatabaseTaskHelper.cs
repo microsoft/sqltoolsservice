@@ -148,5 +148,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             return databaseInfo;
         }
+
+        public static DatabasePrototype ApplyToPrototype(DatabaseInfo databaseInfo, DatabasePrototype prototype)
+        {
+            prototype.Name   = databaseInfo.Options[AdminServicesProviderOptionsHelper.Name] as string;
+            return prototype;
+        }
     }
 }
