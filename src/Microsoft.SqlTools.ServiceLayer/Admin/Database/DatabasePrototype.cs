@@ -983,61 +983,61 @@ WHERE do.database_id = @DbID
             get
             {
                 string result = null;
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype90).GetAssembly());
-
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                
                 if ((this.currentState.databaseState & DatabaseStatus.Normal) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.normal"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_normal"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Restoring) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.restoring"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_restoring"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.RecoveryPending) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.recoveryPending"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_recoveryPending"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Recovering) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.recovering"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_recovering"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Suspect) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.suspect"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_suspect"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Offline) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.offline"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_offline"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Inaccessible) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.inaccessible"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_inaccessible"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Standby) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.standby"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_standby"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.Shutdown) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.shutdown"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_shutdown"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.EmergencyMode) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.emergency"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_emergency"));
                 }
 
                 if ((this.currentState.databaseState & DatabaseStatus.AutoClosed) != 0)
                 {
-                    result = this.AppendState(result, manager.GetString("prototype.db.prop.databaseState.value.autoClosed"));
+                    result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_autoClosed"));
                 }
 
                 return result;
@@ -1089,19 +1089,19 @@ WHERE do.database_id = @DbID
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.defaultCursor)
                 {
                     case DefaultCursor.Local:
 
-                        result = manager.GetString("prototype.db.prop.defaultCursor.value.local");
+                        result = manager.GetString("prototype_db_prop_defaultCursor_value_local");
                         break;
 
                     case DefaultCursor.Global:
 
-                        result = manager.GetString("prototype.db.prop.defaultCursor.value.global");
+                        result = manager.GetString("prototype_db_prop_defaultCursor_value_global");
                         break;
                 }
 
@@ -1110,9 +1110,9 @@ WHERE do.database_id = @DbID
 
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
-
-                if (value == manager.GetString("prototype.db.prop.defaultCursor.value.local"))
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                
+                if (value == manager.GetString("prototype_db_prop_defaultCursor_value_local"))
                 {
                     this.currentState.defaultCursor = DefaultCursor.Local;
                 }
@@ -1547,7 +1547,7 @@ WHERE do.database_id = @DbID
             }
         }
 
-        // $FUTURE: 6/29/2004-stevetw  Make sure version checks use this property,
+        // Make sure version checks use this property,
         // not explicit comparisons against the server major version
         /// <summary>
         /// Whether the server is Yukon or later
@@ -2609,19 +2609,19 @@ WHERE do.database_id = @DbID
         {
 
             TypeConverter.StandardValuesCollection result = null;
-            ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             List<string> standardValues = new List<string>();
 
             if (context.PropertyDescriptor.Name == "DefaultCursorDisplay")
             {
-                standardValues.Add(manager.GetString("prototype.db.prop.defaultCursor.value.local"));
-                standardValues.Add(manager.GetString("prototype.db.prop.defaultCursor.value.global"));
+                standardValues.Add(manager.GetString("prototype_db_prop_defaultCursor_value_local"));
+                standardValues.Add(manager.GetString("prototype_db_prop_defaultCursor_value_global"));
             }
             else if (context.PropertyDescriptor.Name == "RestrictAccess")
             {
-                standardValues.Add(manager.GetString("prototype.db.prop.restrictAccess.value.multiple"));
-                standardValues.Add(manager.GetString("prototype.db.prop.restrictAccess.value.single"));
-                standardValues.Add(manager.GetString("prototype.db.prop.restrictAccess.value.restricted"));
+                standardValues.Add(manager.GetString("prototype_db_prop_restrictAccess_value_multiple"));
+                standardValues.Add(manager.GetString("prototype_db_prop_restrictAccess_value_single"));
+                standardValues.Add(manager.GetString("prototype_db_prop_restrictAccess_value_restricted"));
             }
 
             if (standardValues.Count > 0)

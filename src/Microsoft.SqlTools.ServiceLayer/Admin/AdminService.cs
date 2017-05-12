@@ -149,16 +149,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
 
             Database db = prototype.ApplyChanges();
-
-                // this.DataContainer.ObjectName = .prototype.Name;
-                // this.DataContainer.SqlDialogSubject	= db;
-
-            //databaseParams.DatabaseInfo
-
-            //response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-
-
-            await requestContext.SendResult(new CreateDatabaseResponse());
+      
+            await requestContext.SendResult(new CreateDatabaseResponse()
+            {
+                Result = true,
+                TaskId = 0
+            });
         }
 
         /// <summary>

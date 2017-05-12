@@ -4,10 +4,7 @@
 //
 
 using System.ComponentModel;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -15,7 +12,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// Database Prototype for SqlServer 2000 SP3 and later servers
     /// </summary>
     [TypeConverter(typeof(DynamicValueTypeConverter))]
-    //[StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
     internal class DatabasePrototype80SP3 : DatabasePrototype80
     {
         /// <summary>
@@ -35,5 +31,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         public DatabasePrototype80SP3(CDataContainer context) : base(context) { }
     }
 }
-
-

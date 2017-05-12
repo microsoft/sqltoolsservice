@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
             var dbParams = new CreateDatabaseParams
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
-                DatabaseInfo = new DatabaseInfo()
+                DatabaseInfo = databaseInfo
             };
         
             await AdminService.HandleCreateDatabaseRequest(dbParams, requestContext.Object);

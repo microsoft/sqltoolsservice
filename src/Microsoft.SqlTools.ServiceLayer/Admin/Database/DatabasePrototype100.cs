@@ -253,21 +253,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>A string from the resource manager representing the value.</returns>
         private string GetDatabaseScopedConfigDisplayText(DatabaseScopedConfigurationOnOff onOffValue)
         {
-            ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             string result = null;
 
             switch (onOffValue)
             {
                 case DatabaseScopedConfigurationOnOff.Off:
-                    result = manager.GetString("prototype.db.prop.databasescopedconfig.value.off");
+                    result = manager.GetString("prototype_db_prop_databasescopedconfig_value_off");
                     break;
 
                 case DatabaseScopedConfigurationOnOff.On:
-                    result = manager.GetString("prototype.db.prop.databasescopedconfig.value.on");
+                    result = manager.GetString("prototype_db_prop_databasescopedconfig_value_on");
                     break;
 
                 case DatabaseScopedConfigurationOnOff.Primary:
-                    result = manager.GetString("prototype.db.prop.databasescopedconfig.value.primary");
+                    result = manager.GetString("prototype_db_prop_databasescopedconfig_value_primary");
                     break;
             }
 
@@ -282,13 +282,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>The database scoped configuration enum value that matches the display text.</returns>
         private DatabaseScopedConfigurationOnOff SetDatabaseScopedConfigHelper(string displayText, bool forSecondary)
         {
-            ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
-            if (displayText == manager.GetString("prototype.db.prop.databasescopedconfig.value.off"))
+            if (displayText == manager.GetString("prototype_db_prop_databasescopedconfig_value_off"))
             {
                 return DatabaseScopedConfigurationOnOff.Off;
             }
-            else if (displayText == manager.GetString("prototype.db.prop.databasescopedconfig.value.on") || !forSecondary)
+            else if (displayText == manager.GetString("prototype_db_prop_databasescopedconfig_value_on") || !forSecondary)
             {            
                 return DatabaseScopedConfigurationOnOff.On;
             }
