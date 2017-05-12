@@ -9,16 +9,10 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
@@ -33,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private int scriptedObjectCount = 0;
 
         private int totalScriptedObjectCount = 0;
+
+        private int eventSequenceNumber = 1;
 
         public ScriptingScriptOperation(ScriptingParams parameters)
         {
@@ -92,13 +88,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 Logger.Write(
                     LogLevel.Verbose,
                     string.Format(
-                        "Sending script complete notification event with total count {0} and scripted count {1}",
+                        "Sending script complete notification event for operation {0}, sequence number {1} with total count {2} and scripted count {3}",
+                        this.OperationId,
+                        this.eventSequenceNumber,
                         this.totalScriptedObjectCount,
                         this.scriptedObjectCount));
 
                 this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                 {
-                    OperationId = this.OperationId,
                     Success = true,
                 });
             }
@@ -109,7 +106,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     Logger.Write(LogLevel.Normal, string.Format("Scripting operation {0} was canceled", this.OperationId));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     { 
-                        OperationId = this.OperationId,
                         Canceled = true,
                     });
                 }
@@ -118,7 +114,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     Logger.Write(LogLevel.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     {
-                        OperationId = this.OperationId,
                         HasError = true,
                         ErrorMessage = e.Message,
                         ErrorDetails = e.ToString(),
@@ -138,39 +133,66 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
+            this.SetCommomEventProperties(parameters);
             this.CompleteNotification?.Invoke(this, parameters);
         }
 
         private void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
         {
+            this.SetCommomEventProperties(parameters);
             this.PlanNotification?.Invoke(this, parameters);
         }
 
         private void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
+            this.SetCommomEventProperties(parameters);
             this.ProgressNotification?.Invoke(this, parameters);
+        }
+
+        private void SetCommomEventProperties(ScriptingEventParams parameters)
+        {
+            parameters.OperationId = this.OperationId;
+            parameters.SequenceNumber = this.eventSequenceNumber;
+            this.eventSequenceNumber += 1;
         }
 
         private SqlScriptPublishModel BuildPublishModel()
         {
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
-            PopulateAdvancedScriptOptions(publishModel.AdvancedOptions);
 
+            // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
+            // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
+            // of when SqlScriptPublishModel.ScriptAllObjects is set.  To workaround this, we initialize with 
+            // SqlScriptPublishModel.ScriptAllObjects to true.  If we need to set SqlScriptPublishModel.ScriptAllObjects 
+            // to false, it must the last thing we do after setting all SqlScriptPublishModel.AdvancedOptions values.  
+            // If we call the SqlScriptPublishModel.AdvancedOptions getter afterwards, all options will be reset.
+            //
+            publishModel.ScriptAllObjects = true;
+
+            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
+
+            // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
+            // criteria should include the target objects to script.
+            //
             bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any();
             bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any();
             bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-
-            // If no object selection criteria was specified, we're scripting the entire database
-            publishModel.ScriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
-            if (publishModel.ScriptAllObjects)
+            bool scriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
+            if (scriptAllObjects)
             {
-                publishModel.AdvancedOptions.GenerateScriptForDependentObjects = BooleanTypeOptions.True;
+                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is True");
                 return publishModel;
             }
 
-            // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+            // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
+            // or all SqlScriptPublishModel.AdvancedOptions will be reset.
+            //
+            publishModel.ScriptAllObjects = false;
+            Logger.Write(LogLevel.Verbose, "ScriptAllObjects is False");
 
+            // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
+            //
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
             if (hasIncludeCriteria || hasExcludeCriteria)
             {
                 // This is an expensive remote call to load all objects from the database.
@@ -183,6 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
 
             // If specific objects are specified, include them.
+            //
             if (hasObjectsSpecified)
             {
                 selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
@@ -204,9 +227,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return publishModel;
         }
 
-        private void PopulateAdvancedScriptOptions(SqlScriptOptions advancedOptions)
+        private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
         {
-            foreach (PropertyInfo optionPropInfo in this.Parameters.ScriptOptions.GetType().GetProperties())
+            if (scriptOptionsParameters == null)
+            {
+                Logger.Write(LogLevel.Verbose, "No advanced options set, the ScriptOptions object is null.");
+                return;
+            }
+
+            foreach (PropertyInfo optionPropInfo in scriptOptionsParameters.GetType().GetProperties())
             {
                 PropertyInfo advancedOptionPropInfo = advancedOptions.GetType().GetProperty(optionPropInfo.Name);
                 if (advancedOptionPropInfo == null)
@@ -215,12 +244,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     continue;
                 }
 
-                object optionValue = optionPropInfo.GetValue(this.Parameters.ScriptOptions, index: null);
+                object optionValue = optionPropInfo.GetValue(scriptOptionsParameters, index: null);
                 if (optionValue == null)
                 {
-#if DEBUG
                     Logger.Write(LogLevel.Verbose, string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
-#endif
                     continue;
                 }
 
@@ -242,9 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, (string)optionValue, ignoreCase: true);
                     }
 
-#if DEBUG
                     Logger.Write(LogLevel.Verbose, string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
-#endif
                     advancedOptionPropInfo.SetValue(advancedOptions, smoValue);
                 }
                 catch (Exception e)
@@ -280,23 +305,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             Logger.Write(
                 LogLevel.Verbose,
                 string.Format(
-                    "Sending scripting error progress event, Urn={0}, OperationId={1}, Completed={2}, Error={3}",
+                    "Sending scripting error progress event, Urn={0}, OperationId={1}, Sequence={2}, Completed={3}, Error={4}",
                     e.Urn,
                     this.OperationId,
+                    this.eventSequenceNumber,
                     e.Completed,
-                    e.Error));
+                    e?.Error?.ToString() ?? "null"));
 
             // Keep scripting...it's a best effort operation.
             e.ContinueScripting = true;
 
             this.SendProgressNotificationEvent(new ScriptingProgressNotificationParams
             {
-                OperationId = this.OperationId,
                 ScriptingObject = e.Urn?.ToScriptingObject(),
-                Status = "Error",
+                Status = e.GetStatus(),
                 CompletedCount = this.scriptedObjectCount,
                 TotalCount = this.totalScriptedObjectCount,
-                ErrorDetails = e?.ToString(),
+                ErrorMessage = e?.Error?.Message,
+                ErrorDetails = e?.Error?.ToString(),
             });
         }
 
@@ -310,13 +336,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             Logger.Write(
                 LogLevel.Verbose,
                 string.Format(
-                    "Sending plan notification event with count {0}, objects: {1}", 
+                    "Sending scripting plan notification event OperationId={0}, Sequence={1}, Count={2}, Objects: {3}",
+                    this.OperationId,
+                    this.eventSequenceNumber,
                     this.totalScriptedObjectCount, 
                     string.Join(", ", e.Urns)));
 
             this.SendPlanNotificationEvent(new ScriptingPlanNotificationParams
             {
-                OperationId = this.OperationId,
                 ScriptingObjects = scriptingObjects,
                 Count = scriptingObjects.Count,
             });
@@ -334,20 +361,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             Logger.Write(
                 LogLevel.Verbose,
                 string.Format(
-                    "Sending progress event, Urn={0}, OperationId={1}, Completed={2}, Error={3}",
+                    "Sending progress event, Urn={0}, OperationId={1}, Sequence={2}, Status={3}, Error={4}",
                     e.Urn,
                     this.OperationId,
-                    e.Completed,
-                    e.Error));
+                    this.eventSequenceNumber,
+                    e.GetStatus(),
+                    e?.Error?.ToString() ?? "null"));
 
             this.SendProgressNotificationEvent(new ScriptingProgressNotificationParams
             {
-                OperationId = this.OperationId,
                 ScriptingObject = e.Urn.ToScriptingObject(),
-                Status = e.Completed ? "Completed" : "Progress",
+                Status = e.GetStatus(),
                 CompletedCount = this.scriptedObjectCount,
                 TotalCount = this.totalScriptedObjectCount,
-                ErrorDetails = e?.ToString(),
+                ErrorMessage = e?.Error?.Message,
+                ErrorDetails = e?.Error?.ToString(),
             });
         }
         

@@ -20,6 +20,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     internal static class ScriptingExtensionMethods
     {
         /// <summary>
+        /// Gets the status of a scripting operation for the passed scripting event.
+        /// </summary>
+        /// <param name="e">The scripting event.</param>
+        /// <returns>The status.</returns>
+        public static string GetStatus(this ScriptEventArgs e)
+        {
+            Validate.IsNotNull("e", e);
+
+            string status = null;
+
+            if (e.Error != null)
+            {
+                status = "Error";
+            }
+            else if (e.Completed)
+            {
+                status = "Completed";
+            }
+            else
+            {
+                status = "Progress";
+            }
+
+            return status;
+        }
+
+        /// <summary>
         /// Returns a list of ScriptingObject instances for the passed SqlScriptPublishModel instance.
         /// </summary>
         /// <param name="publishModel">The sql script publish model instance.</param>

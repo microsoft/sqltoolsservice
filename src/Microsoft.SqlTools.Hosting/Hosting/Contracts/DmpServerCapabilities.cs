@@ -17,5 +17,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public string ProviderDisplayName { get; set; }
 
         public ConnectionProviderOptions ConnectionProvider { get; set; }
+
+        public AdminServicesProviderOptions AdminServicesProvider { get; set; }
     }
 }

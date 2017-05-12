@@ -623,6 +623,51 @@ SchemaHierarchy_ColumnMasterKeys = Column Master Keys
 
 SchemaHierarchy_ColumnEncryptionKeys = Column Encryption Keys
 
+SchemaHierarchy_SubroutineParameterLabelFormatString = {0} ({1}, {2}, {3})
+
+SchemaHierarchy_SubroutineParameterNoDefaultLabel = No default
+
+SchemaHierarchy_SubroutineParameterInputLabel = Input
+
+SchemaHierarchy_SubroutineParameterInputOutputLabel = Input/Output
+
+SchemaHierarchy_SubroutineParameterInputReadOnlyLabel = Input/ReadOnly
+
+SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel = Input/Output/ReadOnly
+
+SchemaHierarchy_SubroutineParameterDefaultLabel = Default
+
+SchemaHierarchy_NullColumn_Label = null
+
+SchemaHierarchy_NotNullColumn_Label = not null
+
+SchemaHierarchy_UDDTLabelWithType = {0} ({1}, {2})
+
+SchemaHierarchy_UDDTLabelWithoutType = {0} ({1})
+
+SchemaHierarchy_ComputedColumnLabelWithType = {0} ({1}Computed, {2}, {3})
+
+SchemaHierarchy_ComputedColumnLabelWithoutType = {0} ({1}Computed)
+
+SchemaHierarchy_ColumnSetLabelWithoutType = {0} (Column Set, {1})
+
+SchemaHierarchy_ColumnSetLabelWithType = {0} (Column Set, {1}{2}, {3})
+
+SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString = {0} (Column Set, {1}, {2}, {3})
+
+UniqueIndex_LabelPart = Unique
+
+NonUniqueIndex_LabelPart = Non-Unique
+
+ClusteredIndex_LabelPart = Clustered
+
+NonClusteredIndex_LabelPart = Non-Clustered
+
+History_LabelPart = History
+
+SystemVersioned_LabelPart = System-Versioned
+
+
 ############################################################################
 # Scripting Service
 
@@ -631,3 +676,125 @@ ScriptingParams_ConnectionString_Property_Invalid = Error parsing ScriptingParam
 ScriptingParams_FilePath_Property_Invalid = Invalid directory specified by the ScriptingParams.FilePath property.
 
 ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.
+
+
+
+
+############################################################################
+# Admin Service
+
+unavailable = Unavailable
+filegroup_dialog_defaultFilegroup = Current default filegroup: {0}
+filegroup_dialog_title = New Filegroup for {0}
+filegroups_default = Default
+filegroups_files = Files
+filegroups_name = Name
+filegroups_readonly = Read-Only
+general_autogrowth = Autogrowth / Maxsize
+general_builderText = ...
+general_default = &lt;default&gt;
+general_fileGroup = Filegroup
+general_fileName = Logical Name
+general_fileType = File Type
+general_initialSize = Initial Size (MB)
+general_newFilegroup = &lt;new filegroup&gt;
+general_path = Path
+general_physicalFileName = File Name
+general_rawDevice = &lt;raw device&gt;
+general_recoveryModel_bulkLogged = Bulk-logged
+general_recoveryModel_full = Full
+general_recoveryModel_simple = Simple
+general_titleSearchOwner = Select Database Owner
+
+prototype_autogrowth_disabled = None
+prototype_autogrowth_restrictedGrowthByMB = By {0} MB, Limited to {1} MB
+prototype_autogrowth_restrictedGrowthByPercent = By {0} percent, Limited to {1} MB
+prototype_autogrowth_unrestrictedGrowthByMB = By {0} MB, Unlimited
+prototype_autogrowth_unrestrictedGrowthByPercent = By {0} percent, Unlimited
+prototype_autogrowth_unlimitedfilestream = Unlimited
+prototype_autogrowth_limitedfilestream = Limited to {0} MB
+prototype_db_category_automatic = Automatic
+prototype_db_category_servicebroker = Service Broker
+prototype_db_category_collation = Collation
+prototype_db_category_cursor = Cursor
+prototype_db_category_misc = Miscellaneous
+prototype_db_category_recovery = Recovery
+prototype_db_category_state = State
+prototype_db_prop_ansiNullDefault = ANSI NULL Default
+prototype_db_prop_ansiNulls = ANSI NULLS Enabled
+prototype_db_prop_ansiPadding = ANSI Padding Enabled 
+prototype_db_prop_ansiWarnings = ANSI Warnings Enabled
+prototype_db_prop_arithabort = Arithmetic Abort Enabled 
+prototype_db_prop_autoClose = Auto Close
+prototype_db_prop_autoCreateStatistics = Auto Create Statistics
+prototype_db_prop_autoShrink = Auto Shrink
+prototype_db_prop_autoUpdateStatistics = Auto Update Statistics 
+prototype_db_prop_autoUpdateStatisticsAsync = Auto Update Statistics Asynchronously
+prototype_db_prop_caseSensitive = Case Sensitive
+prototype_db_prop_closeCursorOnCommit = Close Cursor on Commit Enabled 
+prototype_db_prop_collation = Collation
+prototype_db_prop_concatNullYieldsNull = Concatenate Null Yields Null 
+prototype_db_prop_databaseCompatibilityLevel = Database Compatibility Level
+prototype_db_prop_databaseState = Database State 
+prototype_db_prop_defaultCursor = Default Cursor
+prototype_db_prop_fullTextIndexing = Full-Text Indexing Enabled 
+prototype_db_prop_numericRoundAbort = Numeric Round-Abort 
+prototype_db_prop_pageVerify = Page Verify 
+prototype_db_prop_quotedIdentifier = Quoted Identifiers Enabled 
+prototype_db_prop_readOnly = Database Read-Only
+prototype_db_prop_recursiveTriggers = Recursive Triggers Enabled 
+prototype_db_prop_restrictAccess = Restrict Access
+prototype_db_prop_selectIntoBulkCopy = Select Into/Bulk Copy
+prototype_db_prop_honorBrokerPriority = Honor Broker Priority
+prototype_db_prop_serviceBrokerGuid = Service Broker Identifier
+prototype_db_prop_brokerEnabled = Broker Enabled
+prototype_db_prop_truncateLogOnCheckpoint = Truncate Log on Checkpoint 
+prototype_db_prop_dbChaining = Cross-database Ownership Chaining Enabled
+prototype_db_prop_trustworthy = Trustworthy
+prototype_db_prop_dateCorrelationOptimization = Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization
+prototype_db_prop_parameterization_value_forced = Forced
+prototype_db_prop_parameterization_value_simple = Simple
+prototype_file_dataFile = ROWS Data
+prototype_file_logFile = LOG
+prototype_file_filestreamFile = FILESTREAM Data
+prototype_file_noFileGroup = Not Applicable
+prototype_file_defaultpathstring = &lt;default path&gt;
+title_openConnectionsMustBeClosed = Open Connections
+warning_openConnectionsMustBeClosed=To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?
+prototype_db_prop_databaseState_value_autoClosed = AUTO_CLOSED
+prototype_db_prop_databaseState_value_emergency = EMERGENCY
+prototype_db_prop_databaseState_value_inaccessible = INACCESSIBLE
+prototype_db_prop_databaseState_value_normal = NORMAL
+prototype_db_prop_databaseState_value_offline = OFFLINE
+prototype_db_prop_databaseState_value_recovering = RECOVERING
+prototype_db_prop_databaseState_value_recoveryPending = RECOVERY PENDING
+prototype_db_prop_databaseState_value_restoring = RESTORING
+prototype_db_prop_databaseState_value_shutdown=SHUTDOWN
+prototype_db_prop_databaseState_value_standby = STANDBY
+prototype_db_prop_databaseState_value_suspect = SUSPECT
+prototype_db_prop_defaultCursor_value_global = GLOBAL
+prototype_db_prop_defaultCursor_value_local = LOCAL
+prototype_db_prop_restrictAccess_value_multiple = MULTI_USER
+prototype_db_prop_restrictAccess_value_restricted = RESTRICTED_USER
+prototype_db_prop_restrictAccess_value_single = SINGLE_USER
+prototype_db_prop_pageVerify_value_checksum = CHECKSUM
+prototype_db_prop_pageVerify_value_none = NONE
+prototype_db_prop_pageVerify_value_tornPageDetection = TORN_PAGE_DETECTION
+prototype_db_prop_varDecimalEnabled = VarDecimal Storage Format Enabled
+compatibilityLevel_katmai = SQL Server 2008 (100)
+prototype_db_prop_encryptionEnabled = Encryption Enabled
+prototype_db_prop_databasescopedconfig_value_off = OFF
+prototype_db_prop_databasescopedconfig_value_on = ON
+prototype_db_prop_databasescopedconfig_value_primary = PRIMARY
+error_db_prop_invalidleadingColumns = For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  
+compatibilityLevel_denali = SQL Server 2012 (110)
+compatibilityLevel_sql14 = SQL Server 2014 (120)
+compatibilityLevel_sql15 = SQL Server 2016 (130)
+compatibilityLevel_sqlvNext = SQL Server vNext (140)
+general_containmentType_None = None
+general_containmentType_Partial = Partial
+filegroups_filestreamFiles = FILESTREAM Files
+prototype_file_noApplicableFileGroup = No Applicable Filegroup
+
+
+

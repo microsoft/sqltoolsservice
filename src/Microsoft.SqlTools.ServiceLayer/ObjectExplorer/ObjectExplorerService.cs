@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
         {
             ObjectExplorerSession session;
-
+            connectionDetails.PersistSecurityInfo = true;
             ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
 
             ConnectionCompleteParams connectionResult = await Connect(connectParams);
@@ -200,16 +200,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams)
         {
+            string connectionErrorMessage = string.Empty;
             try
             {
                 // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
-                if(result != null && !string.IsNullOrEmpty(result.ConnectionId))
+                connectionErrorMessage = result != null ? result.Messages : string.Empty;
+                if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {
                     return result;
                 }
                 else
                 {
+                    Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error: {connectionErrorMessage}");
                     await serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                     return null;
                 }
@@ -217,6 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception ex)
             {
+                Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error:{connectionErrorMessage} error: {ex.Message}");
                 // Send a connection failed error message in this case.
                 ConnectionCompleteParams result = new ConnectionCompleteParams()
                 {

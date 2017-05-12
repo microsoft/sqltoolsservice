@@ -71,8 +71,10 @@
       </Filter>
     </Filters>
     <Child Name="SystemTables"/>
+    <!--
     <Child Name="FileTables"/>
     <Child Name="ExternalTables"/>
+    -->
   </Node>
 
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
@@ -89,8 +91,10 @@
     <Child Name="DatabaseTriggers"/>
     <Child Name="Assemblies"/>
     <Child Name="Types"/>
+    <!--
     <Child Name="Rules"/>
     <Child Name="Defaults"/>
+    -->
     <Child Name="Sequences"/>
   </Node>
   <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016|SqlvNext|AzureV12">
@@ -139,6 +143,7 @@
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
     </Filters>
   </Node>
+  <!--
   <Node Name="FileTables" LocLabel="SR.SchemaHierarchy_FileTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2012|Sql2014|Sql2016|SqlvNext|NotDebug">
     <Filters >
       <Filter Property="IsFileTable" Value="1" Type="bool" />
@@ -149,9 +154,8 @@
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
   </Node>
-
+  -->
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
-    <!-- TODO Add special history table handling to only return related history table instead of all! Under Table, we directly show any related history tables.-->
     <Filters>
       <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
         <Value>TableTemporalType.HistoryTable</Value>
@@ -228,8 +232,10 @@
     <Child Name="UserDefinedTypes"/>
     <Child Name="XmlSchemaCollections"/>
   </Node>
+  <!--==
   <Node Name="Rules" LocLabel="SR.SchemaHierarchy_Rules" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Rule" ChildQuerierTypes="SqlRule" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
   <Node Name="Defaults" LocLabel="SR.SchemaHierarchy_Defaults" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Default" ChildQuerierTypes="SqlDefault" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
+  -->
   <Node Name="Sequences" LocLabel="SR.SchemaHierarchy_Sequences" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Sequence" ChildQuerierTypes="SqlSequence" ValidFor="Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
 
   <Node Name="SystemDataTypes" LocLabel="SR.SchemaHierarchy_SystemDataTypes" BaseClass="ModelBased" >

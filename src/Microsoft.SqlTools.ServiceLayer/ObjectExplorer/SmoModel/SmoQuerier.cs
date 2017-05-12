@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public abstract IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter);
+        public abstract IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh);
 
         internal IMultiServiceProvider ServiceProvider
         {

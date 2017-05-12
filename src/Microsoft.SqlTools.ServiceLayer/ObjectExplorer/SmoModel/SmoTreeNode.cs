@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
+using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// Indicates which platforms a node is valid for
         /// </summary>
         public ValidForFlag ValidFor { get; set; }
-        
+
         /// <summary>
         /// Gets an incrementing sort priority value to assist in automatically sorting
         /// elements in a tree

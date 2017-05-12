@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		WriteLine("");
 
 		// Query impl
- 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)");
+ 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)");
 		WriteLine("{");
 		PushIndent(indent);
 
@@ -67,6 +67,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine("bool hasFilter = !string.IsNullOrEmpty(filter);");
 			
 			string navigationPath = GetNavigationPath(nodeElement, xmlFile, nodeName, parentType);
+			WriteLine("if (refresh)");
+			WriteLine("{");
+			PushIndent(indent);
+			WriteLine(string.Format("{0}.{1}.Refresh();", parentVar, navigationPath));
+			PopIndent();
+			WriteLine("}");
+
 			WriteLine(string.Format("var retValue = {0}.{1};", parentVar, navigationPath));
 			WriteLine("if (retValue != null)");
 			WriteLine("{");

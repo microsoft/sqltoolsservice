@@ -14,5 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Gets or sets the operation id of the scripting operation this event is associated with.
         /// </summary>
         public string OperationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sequence number.  The sequence number starts at 1, and is incremented each time a scripting event is 
+        /// raised for the current scripting operation.
+        /// </summary>
+        public int SequenceNumber { get; set; }
     }
 }
