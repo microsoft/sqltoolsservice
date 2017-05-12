@@ -2118,9 +2118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <exception cref="InvalidOperationException">If logical name is empty, or physical name is invalid.</exception>
         private string MakeDiskFileName(string logicalName, string preferredPhysicalName, string suffix)
         {
-            ResourceManager resourceManager =
-                new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    this.GetType().GetAssembly());
+            ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             string filePath = String.Empty; // returned to the caller.
             if (String.IsNullOrEmpty(preferredPhysicalName))
@@ -2139,7 +2137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     string message = String.Empty;
 
-                    message = resourceManager.GetString("error.emptyFileName");
+                    message = resourceManager.GetString("error_emptyFileName");
                     throw new InvalidOperationException(message);
                 }
 

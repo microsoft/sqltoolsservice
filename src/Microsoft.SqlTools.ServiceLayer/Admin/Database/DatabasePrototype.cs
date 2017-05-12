@@ -1897,9 +1897,7 @@ WHERE do.database_id = @DbID
                    db.Alter(termination);
                }
 
-               // FIXED-SQLBUDefectTracking-20006074-2005/07/11-stevetw
                // have to explicitly set the default filegroup after the database has been created
-               // Also bug 97696
                foreach (FilegroupPrototype filegroup in Filegroups)
                {
                    if (filegroup.IsDefault && !(filegroup.Exists && db.FileGroups[filegroup.Name].IsDefault))

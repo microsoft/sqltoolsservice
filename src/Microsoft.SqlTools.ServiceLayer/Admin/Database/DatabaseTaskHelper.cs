@@ -155,11 +155,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return defaultValue;
         }
 
+        private static int logicalNameCount = 0;
+
         public static DatabasePrototype ApplyToPrototype(DatabaseInfo databaseInfo, DatabasePrototype prototype)
         {
             if (databaseInfo != null && prototype != null)
             {
                 prototype.Name = GetValueOrDefault(AdminServicesProviderOptionsHelper.Name, databaseInfo.Options, prototype.Name);
+            
+                foreach (var file in prototype.Files)
+                {
+                    if (string.IsNullOrWhiteSpace(file.Name))
+                    {
+                        file.Name = prototype.Name + "_" + logicalNameCount;
+                    }
+                }
+
             }
             return prototype;
         }
