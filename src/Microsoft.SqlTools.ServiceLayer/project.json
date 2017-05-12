@@ -43,8 +43,7 @@
     },
     "Microsoft.SqlTools.Credentials": {
       "target": "project"
-    },
-    "System.Xml.XmlDocument": "4.0.1"
+    }    
   },
   "frameworks": {
     "netcoreapp1.0": {
