@@ -38,12 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
         }
 
-        public void CreateDatabase(CDataContainer context)
+        public DatabaseTaskHelper(CDataContainer context)
         {
-            InitializeDataMembers(context);
+            Initialize(context);
         }
 
-        private void InitializeDataMembers(CDataContainer context)
+        internal void Initialize(CDataContainer context)
         {
             if (context != null)
             {
@@ -88,16 +88,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     this.prototype = new DatabasePrototype(context);
                 }
 
-                this.prototype.Initialize();
-
-                //this.databasesCreated = new ArrayList();                
+                this.prototype.Initialize();         
             }
             else
             {
                 this.DataContainer = null;
                 this.document = null;
                 this.prototype = null;
-                //this.databasesCreated = null;
             }
         }
 
@@ -149,9 +146,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return databaseInfo;
         }
 
+        private static T GetValueOrDefault<T>(string key, Dictionary<string, object> map, T defaultValue) 
+        {
+            if (map != null && map.ContainsKey(key))
+            {
+                return map[key] != null ? (T)map[key] : default(T);
+            }
+            return defaultValue;
+        }
+
         public static DatabasePrototype ApplyToPrototype(DatabaseInfo databaseInfo, DatabasePrototype prototype)
         {
-            prototype.Name   = databaseInfo.Options[AdminServicesProviderOptionsHelper.Name] as string;
+            if (databaseInfo != null && prototype != null)
+            {
+                prototype.Name = GetValueOrDefault(AdminServicesProviderOptionsHelper.Name, databaseInfo.Options, prototype.Name);
+            }
             return prototype;
         }
     }

@@ -88,8 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
             }
 
-            var taskHelper = new DatabaseTaskHelper();
-            taskHelper.CreateDatabase(dataContainer);
+            var taskHelper = new DatabaseTaskHelper(dataContainer);
             return taskHelper;
         }
 

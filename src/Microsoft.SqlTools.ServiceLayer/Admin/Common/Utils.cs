@@ -243,93 +243,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return result;
         }
 
-        /// <summary>
-        /// This function returns true if SSMS is the running application
-        /// and if it contains only the core relational packages. 
-        /// </summary>
-        /// <returns></returns>
-        //public static bool IsSsmsMinimalSet()
-        //{
-        //    IVsShell vsShell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
-        //    const string guidSqlStudioPkgString = "04401ff3-8b0f-4d2d-85eb-2a3542867a8b";
-        //    Guid guidSqlStudioPkg = new Guid(guidSqlStudioPkgString);
-
-
-        //    //Applications like 'AS Migration wizard' are non-ssms/non-VS shell applications
-        //    if (vsShell == null)
-        //    {
-        //        return false;
-        //    }
-        //    else
-        //    {
-        //        IVsPackage ssmsPackage;
-        //        vsShell.IsPackageLoaded(ref guidSqlStudioPkg, out ssmsPackage);
-
-        //        return ((ssmsPackage != null) &&
-        //                !AreExtendedFeaturesAvailable());
-        //    }
-        //}
-
-        /// <summary>
-        /// This function checks if extended SSMS packages are loaded
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        //public static bool AreExtendedFeaturesAvailable()
-        //{
-        //    return Microsoft.SqlServer.Management.UI.VSIntegration.SsmsInformation.CanShowNonExpressFeatures;
-        //}
-
-        /// <summary>
-        /// Execute a static method by reflection
-        /// </summary>
-        /// <param name="assemblyShortName">The short name of the assembly, like Microsoft.SqlServer.Management.RegisteredServersUI.dll</param>
-        /// <param name="className">The fully qualified name of the class, like Microsoft.SqlServer.Management.RegisteredServers.Utils</param>
-        /// <param name="methodName">THe name of the static method to call, like DoSomething</param>
-        /// <param name="parameters">params array of arguments to pass to the method</param>
-        /// <returns></returns>
-        //public static object ReflectionExecuteStatic(
-        //    string assemblyShortName,
-        //    string className,
-        //    string methodName,
-        //    params object[] parameters)
-        //{
-        //    STrace.Params(
-        //        SqlMgmtDiag.TName,
-        //        "Utils.ReflectionExecuteStatic(string, string, string, object[])",
-        //        "assemblyShortName='{0}', className='{1}', methodName='{2}'",
-        //        assemblyShortName,
-        //        className,
-        //        methodName);
-
-        //    Assembly assembly = Assembly.Load(
-        //         Microsoft.SqlServer.Management.SqlMgmt.AssemblyLoadUtil.GetFullAssemblyName(assemblyShortName));
-
-        //    if (assembly == null)
-        //    {
-        //        STrace.LogExThrow();
-        //        throw new ArgumentException("Couldn't load assembly by reflection");
-        //    }
-
-        //    Type type = assembly.GetType(className);
-        //    if (type == null)
-        //    {
-        //        STrace.LogExThrow();
-        //        throw new ArgumentException("Couldn't find class by reflection");
-        //    }
-
-        //    // if we need to call a polymorphic method, use type.GetMethod(string, BindingFlags, null, Type[], null)
-        //    MethodInfo method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-
-        //    if (method == null)
-        //    {
-        //        STrace.LogExThrow();
-        //        throw new ArgumentException("Couldn't find method by reflection");
-        //    }
-
-        //    return method.Invoke(null, parameters);
-        //}
-
         public static bool IsYukonOrAbove(SMO.Server server)
         {
             return server.Version.Major >= 9;
@@ -340,51 +253,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return server.Version.Major < 9;
         }
 
-        /// <summary>
-        /// Some calendars, such as the UmAlQuraCalendar, support an upper date range that is earlier than MaxValue. 
-        /// In these cases, trying to access MaxValue in variable assignments or formatting and parsing operations can throw 
-        /// an ArgumentOutOfRangeException. Rather than retrieving the value of DateTime.MaxValue, you can retrieve the value 
-        /// of the specified culture's latest valid date value from the 
-        /// System.Globalization.CultureInfo.DateTimeFormat.Calendar.MaxSupportedDateTime property. 
-        /// http://msdn.microsoft.com/en-us/library/system.datetime.maxvalue(v=VS.90).aspx
-        /// </summary>
-        /// <returns></returns>
-        //public static DateTime GetMaxCultureDateTime()
-        //{
-        //    CultureInfo currentCulture = System.Threading.Thread.CurrentThread.CU;
-        //    return currentCulture.DateTimeFormat.Calendar.MaxSupportedDateTime;
-        //}
-
         public static string MakeSqlBracket(string s)
         {
             return "[" + s.Replace("]", "]]") + "]";
         }
-
-        /// <summary>
-        /// Displays F1 Help link
-        /// </summary>
-        /// <param name="serviceProvider">Service provider to display help</param>
-        /// <param name="dialogF1Keyword">F1 help link</param>
-        //public static void DisplayHelp(IServiceProvider serviceProvider, string dialogF1Keyword)
-        //{
-        //    if (serviceProvider == null)
-        //    {
-        //        return;
-        //    }
-        //    IHelpService helpService = (IHelpService)serviceProvider.GetService(typeof(IHelpService));
-        //    if (helpService == null)
-        //    {
-        //        IHelpProvider helpProvider = (IHelpProvider)serviceProvider.GetService(typeof(IHelpProvider));
-        //        if (helpProvider != null)
-        //        {
-        //            helpProvider.DisplayTopicFromF1Keyword(dialogF1Keyword);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        helpService.DisplayHelp(dialogF1Keyword);
-        //    }
-        //}
     }
 
     /// <summary>

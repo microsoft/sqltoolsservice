@@ -1787,7 +1787,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 defaultDataFileSize = DatabaseFilePrototype.RoundUpToNearestMegabyte(size);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // user doesn't have access to model so we set the default size
                 // to be 5 MB
@@ -1805,7 +1805,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 defaultLogFileSize = DatabaseFilePrototype.RoundUpToNearestMegabyte(size);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // user doesn't have access to model so we set the default size
                 // to be 1MB
@@ -1864,7 +1864,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         rest);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }

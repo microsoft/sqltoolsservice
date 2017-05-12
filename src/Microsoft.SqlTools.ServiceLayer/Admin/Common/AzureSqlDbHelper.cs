@@ -16,14 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     public static class AzureSqlDbHelper
     {
-
         private static readonly TraceContext TraceContext = TraceContext.GetTraceContext("AzureSqlDbUtils", typeof(AzureSqlDbHelper).Name);
 
-        /// <summary>
-        /// Registry key for SSMS Azure overrides
-        /// </summary>
-        private static readonly string SSMSAzureRegKey =
-            @"HKEY_CURRENT_USER\Software\Microsoft\SQL Server Management Studio\14.0\Azure";
 
         /// <summary>
         /// Registry sub key for the AzureServiceObjectives overrides

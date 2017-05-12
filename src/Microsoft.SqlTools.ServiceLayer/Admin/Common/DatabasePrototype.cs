@@ -7,20 +7,14 @@ using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Resources;
-// using System.Data;
-//using System.Windows.Forms;
-//using Microsoft.SqlServer.Management.AzureSqlDbUtils;
 using Microsoft.SqlServer.Management.Common;
-//using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
-//using Microsoft.NetEnterpriseServers;
 using System.Globalization;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Diagnostics;
-//using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 using Microsoft.Data.Tools.DataSets;
 
@@ -1767,235 +1761,235 @@ WHERE do.database_id = @DbID
         /// </summary>
         /// <param name="marshallingControl">The control through which UI interactions are to be marshalled</param>
         /// <returns>The SMO database object that was created or modified</returns>
-        //public virtual Database ApplyChanges(Control marshallingControl)
-        //{
-        //    Database db = null;
+        public virtual Database ApplyChanges()
+        {
+           Database db = null;
 
-        //    if (this.ChangesExist())
-        //    {
-        //        bool scripting = (SqlExecutionModes.CaptureSql == this.context.Server.ConnectionContext.SqlExecutionModes);
-        //        bool mustRollback = false;
+           if (this.ChangesExist())
+           {
+               bool scripting = (SqlExecutionModes.CaptureSql == this.context.Server.ConnectionContext.SqlExecutionModes);
+               bool mustRollback = false;
 
-        //        db = this.GetDatabase();
+               db = this.GetDatabase();
 
-        //        // Other connections will need to be closed if the following is true
-        //        // 1) The database already exists, AND
-        //        // 2) We are not scripting, AND
-        //        //  a) read-only state is changing, OR
-        //        //  b) user-access is changing, OR
-        //        //  c) date correlation optimization is changing
+               // Other connections will need to be closed if the following is true
+               // 1) The database already exists, AND
+               // 2) We are not scripting, AND
+               //  a) read-only state is changing, OR
+               //  b) user-access is changing, OR
+               //  c) date correlation optimization is changing
 
-        //        // There are also additional properties we don't currently expose that also need
-        //        // to be changed when no one else is connected:
+               // There are also additional properties we don't currently expose that also need
+               // to be changed when no one else is connected:
 
-        //        //  d) emergency, OR
-        //        //  e) offline, (moving to offline - obviously not necessary to check when moving from offline)
-        //        //  f) read committed snapshot
+               //  d) emergency, OR
+               //  e) offline, (moving to offline - obviously not necessary to check when moving from offline)
+               //  f) read committed snapshot
 
-        //        if (this.Exists && !scripting &&
-        //            ((this.currentState.isReadOnly != this.originalState.isReadOnly) ||
-        //            (this.currentState.filestreamDirectoryName != this.originalState.filestreamDirectoryName) ||
-        //            (this.currentState.filestreamNonTransactedAccess != this.originalState.filestreamNonTransactedAccess) ||
-        //            (this.currentState.restrictAccess != this.originalState.restrictAccess) ||
-        //            (this.currentState.dateCorrelationOptimization != this.originalState.dateCorrelationOptimization) ||
-        //            (this.currentState.isReadCommittedSnapshotOn != this.originalState.isReadCommittedSnapshotOn)))
-        //        {
+               if (this.Exists && !scripting &&
+                   ((this.currentState.isReadOnly != this.originalState.isReadOnly) ||
+                   (this.currentState.filestreamDirectoryName != this.originalState.filestreamDirectoryName) ||
+                   (this.currentState.filestreamNonTransactedAccess != this.originalState.filestreamNonTransactedAccess) ||
+                   (this.currentState.restrictAccess != this.originalState.restrictAccess) ||
+                   (this.currentState.dateCorrelationOptimization != this.originalState.dateCorrelationOptimization) ||
+                   (this.currentState.isReadCommittedSnapshotOn != this.originalState.isReadCommittedSnapshotOn)))
+               {
 
-        //            // If the user lacks permissions to enumerate other connections (e.g. the user is not SA)
-        //            // assume there is a connection to close.  This occasionally results in unnecessary
-        //            // prompts, but the database alter does succeed this way.  If we assume no other connections,
-        //            // then we get errors when other connections do exist.
-        //            int numberOfOpenConnections = 1;
+                   // If the user lacks permissions to enumerate other connections (e.g. the user is not SA)
+                   // assume there is a connection to close.  This occasionally results in unnecessary
+                   // prompts, but the database alter does succeed this way.  If we assume no other connections,
+                   // then we get errors when other connections do exist.
+                   int numberOfOpenConnections = 1;
 
-        //            try
-        //            {
-        //                numberOfOpenConnections = db.ActiveConnections;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                // do nothing - the user doesn't have permission to check whether there are active connections
-        //                STrace.LogExCatch(ex);
-        //            }
+                   try
+                   {
+                       numberOfOpenConnections = db.ActiveConnections;
+                   }
+                   catch (Exception)
+                   {
+                       // do nothing - the user doesn't have permission to check whether there are active connections
+                       //STrace.LogExCatch(ex);
+                   }
 
-        //            if (0 < numberOfOpenConnections)
-        //            {
-        //                DialogResult result = (DialogResult)marshallingControl.Invoke(new SimplePrompt(this.PromptToCloseConnections));
-        //                if (result == DialogResult.No)
-        //                {
-        //                    throw new OperationCanceledException();
-        //                }
+                   if (0 < numberOfOpenConnections)
+                   {
+                    //    DialogResult result = (DialogResult)marshallingControl.Invoke(new SimplePrompt(this.PromptToCloseConnections));
+                    //    if (result == DialogResult.No)
+                    //    {
+                    //        throw new OperationCanceledException();
+                    //    }
+                        mustRollback = true;
+                        throw new OperationCanceledException();                       
+                   }
+               }
 
-        //                mustRollback = true;
-        //            }
-        //        }
+               // create/alter filegroups
+               foreach (FilegroupPrototype filegroup in Filegroups)
+               {
+                   filegroup.ApplyChanges(db);
+               }
 
-        //        // create/alter filegroups
-        //        foreach (FilegroupPrototype filegroup in Filegroups)
-        //        {
-        //            filegroup.ApplyChanges(db);
-        //        }
+               // create/alter files
+               foreach (DatabaseFilePrototype file in Files)
+               {
+                   file.ApplyChanges(db);
+               }
 
-        //        // create/alter files
-        //        foreach (DatabaseFilePrototype file in Files)
-        //        {
-        //            file.ApplyChanges(db);
-        //        }
+               // set the database properties
+               this.SaveProperties(db);
 
-        //        // set the database properties
-        //        this.SaveProperties(db);
-
-        //        // alter the database to match the properties
-        //        if (!this.Exists)
-        //        {
-        //            // this is to prevent silent creation of db behind users back
-        //            // eg. the alter statements to set properties fail when filestream directory name is invalid bug #635273 
-        //            // but create database statement already succeeded
+               // alter the database to match the properties
+               if (!this.Exists)
+               {
+                   // this is to prevent silent creation of db behind users back
+                   // eg. the alter statements to set properties fail when filestream directory name is invalid bug #635273 
+                   // but create database statement already succeeded
 
 
-        //            // if filestream directory name has been set by user validate it
-        //            if (!string.IsNullOrEmpty(this.FilestreamDirectoryName))
-        //            {
-        //                // check is filestream directory name is valid
-        //                if (!FileNameHelper.IsValidFilename(this.FilestreamDirectoryName))
-        //                {
-        //                    string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-        //                                                    Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR.Error_InvalidDirectoryName,
-        //                                                    this.FilestreamDirectoryName);
-        //                    throw new ArgumentException(message);
-        //                }
+                   // if filestream directory name has been set by user validate it
+                   if (!string.IsNullOrEmpty(this.FilestreamDirectoryName))
+                   {
+                       // check is filestream directory name is valid
+                       if (!FileNameHelper.IsValidFilename(this.FilestreamDirectoryName))
+                       {
+                           string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                                           "CreateDatabaseOptionsSR.Error_InvalidDirectoryName {0}",
+                                                           this.FilestreamDirectoryName);
+                           throw new ArgumentException(message);
+                       }
 
-        //                int rowCount = 0;
-        //                try
-        //                {
+                       int rowCount = 0;
+                       try
+                       {
 
-        //                    //if filestream directory name already exists in this instance
-        //                    string sqlFilestreamQuery = string.Format(SmoApplication.DefaultCulture, "SELECT * from sys.database_filestream_options WHERE directory_name = {0}",
-        //                                                              SqlSmoObject.MakeSqlString(this.FilestreamDirectoryName));
-        //                    DataSet filestreamResults = this.context.ServerConnection.ExecuteWithResults(sqlFilestreamQuery);
-        //                    rowCount = filestreamResults.Tables[0].Rows.Count;
-        //                }
-        //                catch
-        //                {
-        //                    // lets not do anything if there is an exception while validating
-        //                    // this is will prevent bugs in validation logic from preventing creation of valid databases
-        //                    // if database settings are invalid create database tsql statement will fail anyways
-        //                }
-        //                if (rowCount != 0)
-        //                {
-        //                    string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-        //                                                    Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR.Error_ExistingDirectoryName,
-        //                                                    this.FilestreamDirectoryName, this.Name);
-        //                    throw new ArgumentException(message);
+                           //if filestream directory name already exists in this instance
+                           string sqlFilestreamQuery = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
+                                                                    "SELECT * from sys.database_filestream_options WHERE directory_name = {0}",
+                                                                     SqlSmoObject.MakeSqlString(this.FilestreamDirectoryName));
+                           DataSet filestreamResults = this.context.ServerConnection.ExecuteWithResults(sqlFilestreamQuery);
+                           rowCount = filestreamResults.Tables[0].Rows.Count;
+                       }
+                       catch
+                       {
+                           // lets not do anything if there is an exception while validating
+                           // this is will prevent bugs in validation logic from preventing creation of valid databases
+                           // if database settings are invalid create database tsql statement will fail anyways
+                       }
+                       if (rowCount != 0)
+                       {
+                           string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                                           "CreateDatabaseOptionsSR.Error_ExistingDirectoryName {0} {1}",
+                                                           this.FilestreamDirectoryName, this.Name);
+                           throw new ArgumentException(message);
 
-        //                }
-        //            }
+                       }
+                   }
 
-        //            db.Create();
-        //        }
-        //        else
-        //        {
-        //            TerminationClause termination =
-        //                mustRollback ?
-        //                TerminationClause.RollbackTransactionsImmediately :
-        //                TerminationClause.FailOnOpenTransactions;
+                   db.Create();
+               }
+               else
+               {
+                   TerminationClause termination =
+                       mustRollback ?
+                       TerminationClause.RollbackTransactionsImmediately :
+                       TerminationClause.FailOnOpenTransactions;
 
-        //            db.Alter(termination);
-        //        }
+                   db.Alter(termination);
+               }
 
-        //        // FIXED-SQLBUDefectTracking-20006074-2005/07/11-stevetw
-        //        // have to explicitly set the default filegroup after the database has been created
-        //        // Also bug 97696
-        //        foreach (FilegroupPrototype filegroup in Filegroups)
-        //        {
-        //            if (filegroup.IsDefault && !(filegroup.Exists && db.FileGroups[filegroup.Name].IsDefault))
-        //            {
-        //                if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized) &&
-        //                    Utils.IsKatmaiOrLater(db.ServerVersion.Major))
-        //                {
-        //                    db.SetDefaultFileStreamFileGroup(filegroup.Name);
-        //                }
-        //                else
-        //                {
-        //                    db.SetDefaultFileGroup(filegroup.Name);
-        //                }
-        //            }
-        //        }
+               // FIXED-SQLBUDefectTracking-20006074-2005/07/11-stevetw
+               // have to explicitly set the default filegroup after the database has been created
+               // Also bug 97696
+               foreach (FilegroupPrototype filegroup in Filegroups)
+               {
+                   if (filegroup.IsDefault && !(filegroup.Exists && db.FileGroups[filegroup.Name].IsDefault))
+                   {
+                       if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized))
+                       {
+                           db.SetDefaultFileStreamFileGroup(filegroup.Name);
+                       }
+                       else
+                       {
+                           db.SetDefaultFileGroup(filegroup.Name);
+                       }
+                   }
+               }
 
-        //        FilegroupPrototype fg = null;
-        //        // drop should happen after alter so that if we delete default filegroup it makes another default before deleting.
-        //        // drop removed files and filegroups for existing databases
-        //        if (this.Exists)
-        //        {
-        //            foreach (FilegroupPrototype filegroup in this.removedFilegroups)
-        //            {
-        //                // In case all filegroups are removed from filestream . memory optimized one default will remain and that has to be the last.
-        //                if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized) &&
-        //                    db.FileGroups[filegroup.Name].IsDefault)
-        //                {
-        //                    fg = filegroup;
-        //                }
-        //                else
-        //                {
-        //                    filegroup.ApplyChanges(db);
-        //                }
-        //            }
+               FilegroupPrototype fg = null;
+               // drop should happen after alter so that if we delete default filegroup it makes another default before deleting.
+               // drop removed files and filegroups for existing databases
+               if (this.Exists)
+               {
+                   foreach (FilegroupPrototype filegroup in this.removedFilegroups)
+                   {
+                       // In case all filegroups are removed from filestream . memory optimized one default will remain and that has to be the last.
+                       if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized) &&
+                           db.FileGroups[filegroup.Name].IsDefault)
+                       {
+                           fg = filegroup;
+                       }
+                       else
+                       {
+                           filegroup.ApplyChanges(db);
+                       }
+                   }
 
-        //            if (fg != null)
-        //            {
-        //                fg.ApplyChanges(db);
-        //            }
+                   if (fg != null)
+                   {
+                       fg.ApplyChanges(db);
+                   }
 
-        //            foreach (DatabaseFilePrototype file in this.removedFiles)
-        //            {
-        //                file.ApplyChanges(db);
-        //            }
-        //        }
+                   foreach (DatabaseFilePrototype file in this.removedFiles)
+                   {
+                       file.ApplyChanges(db);
+                   }
+               }
 
-        //        // SnapshotIsolation and Owner cannot be set during scripting time for a newly creating database
-        //        // and even in capture mode. Hence this check has been made
-        //        if (db.State == SqlSmoState.Existing)
-        //        {
-        //            if (this.originalState.allowSnapshotIsolation != this.currentState.allowSnapshotIsolation)
-        //            {
-        //                db.SetSnapshotIsolation(this.currentState.allowSnapshotIsolation);
-        //            }
+               // SnapshotIsolation and Owner cannot be set during scripting time for a newly creating database
+               // and even in capture mode. Hence this check has been made
+               if (db.State == SqlSmoState.Existing)
+               {
+                   if (this.originalState.allowSnapshotIsolation != this.currentState.allowSnapshotIsolation)
+                   {
+                       db.SetSnapshotIsolation(this.currentState.allowSnapshotIsolation);
+                   }
 
-        //            // Set the database owner.  Note that setting owner is an "immediate" operation that 
-        //            // has to happen after the database is created. There is a SMO limitation where SMO 
-        //            // throws an exception if immediate operations such as SetOwner() are attempted on 
-        //            // an object that doesn't exist on the server.
+                   // Set the database owner.  Note that setting owner is an "immediate" operation that 
+                   // has to happen after the database is created. There is a SMO limitation where SMO 
+                   // throws an exception if immediate operations such as SetOwner() are attempted on 
+                   // an object that doesn't exist on the server.
 
-        //            if ((this.Owner.Length != 0) &&
-        //                (this.currentState.owner != this.originalState.owner))
-        //            {
-        //                //
-        //                // bug 20000092 says the error message is confusing if this fails, so 
-        //                // wrap this and throw a nicer error on failure.
-        //                //
-        //                try
-        //                {
-        //                    db.SetOwner(this.Owner, false);
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    SqlException sqlException = CUtils.GetSqlException(ex);
+                   if ((this.Owner.Length != 0) &&
+                       (this.currentState.owner != this.originalState.owner))
+                   {
+                       //
+                       // bug 20000092 says the error message is confusing if this fails, so 
+                       // wrap this and throw a nicer error on failure.
+                       //
+                       try
+                       {
+                           db.SetOwner(this.Owner, false);
+                       }
+                       catch (Exception ex)
+                       {
+                           SqlException sqlException = CUtils.GetSqlException(ex);
 
-        //                    if ((null != sqlException) && CUtils.IsPermissionDeniedException(sqlException))
-        //                    {
-        //                        STrace.LogExCatch(ex);
-        //                        throw new Exception(SRError.SetOwnerFailed(this.Owner), ex);
-        //                    }
-        //                    else
-        //                    {
-        //                        throw;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
+                           if ((null != sqlException) && CUtils.IsPermissionDeniedException(sqlException))
+                           {
+                               
+                               throw new Exception("SRError.SetOwnerFailed(this.Owner)" + ex.ToString());
+                           }
+                           else
+                           {
+                               throw;
+                           }
+                       }
+                   }
+               }
+           }
 
-        //    return db;
-        //}
+           return db;
+        }
 
         /// <summary>
         /// Purge Query Store Data.
@@ -2163,20 +2157,6 @@ WHERE do.database_id = @DbID
             }
 
             Database database = context.Server.Databases[this.Name];
-
-            // we can only get the files and filegroups if the db can be opened.
-            // dbs that are in a restoring state, for example, can't be asked for this info.
-            //if (!DBPropSheet.IsAccessible(database))
-            //{
-            //    return;
-            //}
-
-            // Dialog load time optimization: tell SMO to initialize all Filegroups and all Files
-            // using one single query (instead of 1/query for each File collection in each Filegroup)
-
-            // database.InitChildLevel("FileGroup", null, false);
-            // database.InitChildLevel("FileGroup/File", null, false);
-
             foreach (FileGroup filegroup in database.FileGroups)
             {
                 FilegroupPrototype filegroupPrototype = new FilegroupPrototype(this,
@@ -2196,7 +2176,7 @@ WHERE do.database_id = @DbID
                         this.Add(file);
                     }
                 }
-                catch (ExecutionFailureException ex)
+                catch (ExecutionFailureException)
                 {
                     // do nothing
 
@@ -2239,7 +2219,7 @@ WHERE do.database_id = @DbID
                         this.Add(logfilePrototype);
                     }
                 }
-                catch (ExecutionFailureException ex)
+                catch (ExecutionFailureException)
                 {
                     // do nothing
                 }
@@ -2572,26 +2552,6 @@ WHERE do.database_id = @DbID
             return result;
         }
 
-       //  private delegate DialogResult SimplePrompt();
-
-        /// <summary>
-        /// Show prompt dialog to close other open connections
-        /// </summary>
-        /// <returns>The prompt result</returns>
-        //private DialogResult PromptToCloseConnections()
-        //{
-        //    ResourceManager resourceManager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabaseAlreadyExistsException).Assembly);
-        //    ExceptionMessageBox emb = new ExceptionMessageBox();
-        //    emb.Buttons = ExceptionMessageBoxButtons.YesNo;
-        //    emb.Symbol = ExceptionMessageBoxSymbol.Question;
-        //    emb.Caption = resourceManager.GetString("title.openConnectionsMustBeClosed");
-        //    emb.Message = new Exception(resourceManager.GetString("warning.openConnectionsMustBeClosed"));
-        //    DialogResult result = emb.Show(null);
-
-        //    return result;
-        //}
-
-
         protected Database GetDatabase()
         {
             Database result = null;
@@ -2675,5 +2635,3 @@ WHERE do.database_id = @DbID
         #endregion
     }
 }
-
-
