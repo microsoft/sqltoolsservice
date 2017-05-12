@@ -4,13 +4,9 @@
 //
 
 using System.ComponentModel;
-// using System.Drawing.Design;
 using Microsoft.SqlServer.Management.Common;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -18,8 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// Database properties for SqlServer 2011
     /// </summary>
     [TypeConverter(typeof(DynamicValueTypeConverter))]
-    // [StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
-    internal class DatabasePrototype110 : DatabasePrototype100 //, ILanguageLcidWithConnectionInfo
+    internal class DatabasePrototype110 : DatabasePrototype100
     {
         /// <summary>
         /// Database compatibility level
@@ -52,25 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.NotifyObservers();
             }
         }
-
-        //[
-        //// Editor(typeof(DefaultLanguageEditor), typeof(UITypeEditor)),
-        //Category("Category_ContainedDatabases"),
-        //DisplayNameAttribute("Property_DefaultLanguage")
-        //]
-        //public LanguageChoice DefaultLanguage
-        //{
-        //    get
-        //    {
-        //        return LanguageUtils.GetLanguageChoiceAlias(this.context.Server,
-        //                                        this.currentState.defaultLanguageLcid);
-        //    }
-        //    set
-        //    {
-        //        this.currentState.defaultLanguageLcid = value.lcid;
-        //        this.NotifyObservers();
-        //    }
-        //}
 
         [Category("Category_ContainedDatabases"),
         DisplayNameAttribute("Property_NestedTriggersEnabled")]
@@ -174,11 +150,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         db.DefaultFullTextLanguage.Lcid = this.DefaultFullTextLanguageLcid;
                     }
 
-                    //if (!this.Exists || (db.DefaultLanguage.Lcid != this.DefaultLanguage.lcid))
-                    //{
-                    //    db.DefaultLanguage.Lcid = this.DefaultLanguage.lcid;
-                    //}
-
                     if (!this.Exists || (db.NestedTriggersEnabled != this.NestedTriggersEnabled))
                     {
                         db.NestedTriggersEnabled = this.NestedTriggersEnabled;
@@ -212,21 +183,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
             }
         }
-
-        #region ILanguageLcidWithConnectionInfo Members
-
-        //int ILanguageLcidWithConnectionInfo.Lcid
-        //{
-        //    get { return this.DefaultLanguage.lcid; }
-        //}
-
-        //ServerConnection ILanguageLcidWithConnectionInfo.Connection
-        //{
-        //    get { return this.context.ServerConnection; }
-        //}
-
-        #endregion
     }
 }
-
-

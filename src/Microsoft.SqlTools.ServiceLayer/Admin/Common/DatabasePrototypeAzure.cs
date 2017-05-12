@@ -5,16 +5,11 @@
 
 using System.ComponentModel;
 using System.Text;
-//using System.Windows.Forms;
-//using Microsoft.SqlServer.Management.AzureSqlDbUtils;
-//using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Globalization;
 using System.Data.SqlClient;
-
-//using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 using Microsoft.SqlServer.Management.Common;
 using System;
@@ -28,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     ///  Business/Web editions are up to compat level 100 now   
     /// </summary>
     [TypeConverter(typeof(DynamicValueTypeConverter))]
-    //[StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
     internal class DatabasePrototypeAzure : DatabasePrototype100
     {
 
@@ -49,27 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         #region Properties
 
-        //private DesignableObject wrapper;
-
-        //[Browsable(false)]
-        //public DesignableObject Wrapper
-        //{
-        //    get
-        //    {
-        //        return wrapper;
-        //    }
-        //    set
-        //    {
-        //        this.wrapper = value;
-        //        //Now that we have a new wrapper make sure to update the dynamic visibility for the SLO options
-        //        SetServiceLevelObjectiveOptionVisibility();
-
-        //    }
-        //}
-
         [Category(Category_Azure),
          DisplayNameAttribute(Property_AzureMaxSize)]
-         //TypeConverter(typeof(DynamicValuesConverter))]
         public string MaxSize
         {
             get
@@ -85,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category(Category_Azure),
          DisplayNameAttribute(Property_AzureCurrentServiceLevelObjective)]
-         //TypeConverter(typeof(DynamicValuesConverter))]
         public string CurrentServiceLevelObjective
         {
             get
@@ -122,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category(Category_Azure),
          DisplayNameAttribute(Property_AzureEdition)]
-        // TypeConverter(typeof(DynamicValuesConverter))]
         //We have a separate property here so that the AzureEdition enum value is still exposed
         //(This property is for the name displayed in the drop down menu, which needs to be a string for casting purposes)
         public string AzureEditionDisplay
@@ -142,7 +115,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     }
 
                     this.currentState.azureEdition = edition;
-                    // this.SetServiceLevelObjectiveOptionVisibility();
                     this.CurrentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(edition);
                     this.MaxSize = AzureSqlDbHelper.GetDatabaseDefaultSize(edition).ToString();
                     this.NotifyObservers();
@@ -175,28 +147,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         #endregion Properties
 
-        /// <summary>
-        /// Sets the visibility of the SLO options based on the current configured Edition
-        /// </summary>
-        //private void SetServiceLevelObjectiveOptionVisibility()
-        //{
-        //    if (this.wrapper == null)
-        //    {               
-        //        return;
-        //    }
-
-        //    if (this.AzureEdition == AzureEdition.Business || this.AzureEdition == AzureEdition.Web)
-        //    { //Business and Web editions don't support SLO so hide those options
-        //        this.wrapper.SetupDynamicVisibility(Property_AzureCurrentServiceLevelObjective, false);
-        //        this.wrapper.SetupDynamicVisibility(Property_AzureConfiguredServiceLevelObjective, false);
-        //    }
-        //    else
-        //    { //Reset SLO options to visible in case they were hidden before
-        //        this.wrapper.SetupDynamicVisibility(Property_AzureCurrentServiceLevelObjective, true);
-        //        this.wrapper.SetupDynamicVisibility(Property_AzureConfiguredServiceLevelObjective, true);
-        //    }
-        //}
-
         #region DatabasePrototype overrides
 
         /// <summary>
@@ -204,70 +154,70 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// </summary>
         /// <param name="marshallingControl">The control through which UI interactions are to be marshalled</param>
         /// <returns>The SMO database object that was created or modified</returns>
-        //public override Database ApplyChanges(Control marshallingControl)
-        //{
-        //    // For v12 Non-DW DBs lets use SMO
-        //    if (this.ServerVersion.Major >= 12  && this.AzureEdition != AzureEdition.DataWarehouse)
-        //    {
-        //        return base.ApplyChanges(marshallingControl);
-        //    }
+        public override Database ApplyChanges()
+        {
+           // For v12 Non-DW DBs lets use SMO
+           if (this.ServerVersion.Major >= 12  && this.AzureEdition != AzureEdition.DataWarehouse)
+           {
+               return base.ApplyChanges();
+           }
 
-        //    //Note : We purposely don't call base.ApplyChanges() here since SMO doesn't fully support Azure yet and so will throw
-        //    //an error if we try to modify the Database object directly            
-        //    string alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifyAzureDbOptionsStatement(this.Name, this.AzureEdition, this.MaxSize, this.CurrentServiceLevelObjective);
-        //    if (this.AzureEdition == AzureEdition.DataWarehouse)
-        //    {
-        //        alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifySqlDwDbOptionsStatement(this.Name, this.MaxSize, this.CurrentServiceLevelObjective);
-        //    }
+           //Note : We purposely don't call base.ApplyChanges() here since SMO doesn't fully support Azure yet and so will throw
+           //an error if we try to modify the Database object directly            
+           string alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifyAzureDbOptionsStatement(this.Name, this.AzureEdition, this.MaxSize, this.CurrentServiceLevelObjective);
+           if (this.AzureEdition == AzureEdition.DataWarehouse)
+           {
+               alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifySqlDwDbOptionsStatement(this.Name, this.MaxSize, this.CurrentServiceLevelObjective);
+           }
 
-        //    string alterAzureDbRecursiveTriggersEnabledStatement = DatabasePrototypeAzure.CreateAzureDbSetRecursiveTriggersStatement(this.Name, this.RecursiveTriggers);
-        //    string alterAzureDbIsReadOnlyStatement = DatabasePrototypeAzure.CreateAzureDbSetIsReadOnlyStatement(this.Name, this.IsReadOnly);
+           string alterAzureDbRecursiveTriggersEnabledStatement = DatabasePrototypeAzure.CreateAzureDbSetRecursiveTriggersStatement(this.Name, this.RecursiveTriggers);
+           string alterAzureDbIsReadOnlyStatement = DatabasePrototypeAzure.CreateAzureDbSetIsReadOnlyStatement(this.Name, this.IsReadOnly);
 
-        //    Database db = this.GetDatabase();
+           Database db = this.GetDatabase();
 
-        //    //Altering the DB needs to be done on the master DB
-        //    using (var conn = new SqlConnection(this.context.ServerConnection.GetDatabaseConnection("master").ConnectionString))
-        //    {                
-        //        var cmd = new SqlCommand();
-        //        cmd.Connection = conn;
-        //        conn.Open();
+           //Altering the DB needs to be done on the master DB
+           using (var conn = new SqlConnection(this.context.ServerConnection.GetDatabaseConnection("master").ConnectionString))
+           {                
+               var cmd = new SqlCommand();
+               cmd.Connection = conn;
+               conn.Open();
 
-        //        //Only run the alter statements for modifications made. This is mostly to allow the non-Azure specific
-        //        //properties to be updated when a SLO change is in progress, but it also is beneficial to save trips to the
-        //        //server whenever we can (especially when Azure is concerned)
-        //        if (currentState.azureEdition != originalState.azureEdition ||
-        //           currentState.currentServiceLevelObjective != originalState.currentServiceLevelObjective ||
-        //           currentState.maxSize != originalState.maxSize)
-        //        {
-        //            cmd.CommandText = alterDbPropertiesStatement;
-        //            cmd.ExecuteNonQuery();
-        //        }
+               //Only run the alter statements for modifications made. This is mostly to allow the non-Azure specific
+               //properties to be updated when a SLO change is in progress, but it also is beneficial to save trips to the
+               //server whenever we can (especially when Azure is concerned)
+               if (currentState.azureEdition != originalState.azureEdition ||
+                  currentState.currentServiceLevelObjective != originalState.currentServiceLevelObjective ||
+                  currentState.maxSize != originalState.maxSize)
+               {
+                   cmd.CommandText = alterDbPropertiesStatement;
+                   cmd.ExecuteNonQuery();
+               }
 
-        //        if (currentState.recursiveTriggers != originalState.recursiveTriggers)
-        //        {
-        //            cmd.CommandText = alterAzureDbRecursiveTriggersEnabledStatement;
-        //            cmd.ExecuteNonQuery();
-        //        }
+               if (currentState.recursiveTriggers != originalState.recursiveTriggers)
+               {
+                   cmd.CommandText = alterAzureDbRecursiveTriggersEnabledStatement;
+                   cmd.ExecuteNonQuery();
+               }
 
-        //        if (currentState.isReadOnly != originalState.isReadOnly)
-        //        {
-        //            cmd.CommandText = alterAzureDbIsReadOnlyStatement;
-        //            cmd.ExecuteNonQuery();
-        //        }
-        //    }
+               if (currentState.isReadOnly != originalState.isReadOnly)
+               {
+                   cmd.CommandText = alterAzureDbIsReadOnlyStatement;
+                   cmd.ExecuteNonQuery();
+               }
+           }
 
-        //    //Because we didn't use SMO to do the alter we should refresh the DB object so it picks up the correct properties
-        //    db.Refresh();
+           //Because we didn't use SMO to do the alter we should refresh the DB object so it picks up the correct properties
+           db.Refresh();
 
-        //    // For properties that are supported in Database.Alter(), call SaveProperties, and then alter the DB.
-        //    //
-        //    if (this.AzureEdition != AzureEdition.DataWarehouse)
-        //    {
-        //        this.SaveProperties(db);
-        //        db.Alter(TerminationClause.FailOnOpenTransactions);
-        //    }
-        //    return db;
-        //}
+           // For properties that are supported in Database.Alter(), call SaveProperties, and then alter the DB.
+           //
+           if (this.AzureEdition != AzureEdition.DataWarehouse)
+           {
+               this.SaveProperties(db);
+               db.Alter(TerminationClause.FailOnOpenTransactions);
+           }
+           return db;
+        }
 
         #endregion DatabasePrototype overrides
 

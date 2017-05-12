@@ -6,13 +6,10 @@
 using System;
 using System.ComponentModel;
 using System.Resources;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
-
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -20,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// Database properties for SqlServer 2008
     /// </summary>
     [TypeConverter(typeof(DynamicValueTypeConverter))]
-    // [StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
     internal class DatabasePrototype100 : DatabasePrototype90
     {
         /// <summary>
@@ -100,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category("Category_DatabaseScopedConfigurations"),
         DisplayNameAttribute("Property_LegacyCardinalityEstimation")]
-        //TypeConverter(typeof(DatabaseScopedConfigurationOnOffTypes))]
         public string LegacyCardinalityEstimationDisplay
         {
             get
@@ -116,7 +111,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category("Category_DatabaseScopedConfigurations"),
         DisplayNameAttribute("Property_LegacyCardinalityEstimationForSecondary")]
-        //TypeConverter(typeof(DatabaseScopedConfigurationOnOffTypes))]
         public String LegacyCardinalityEstimationForSecondaryDisplay
         {
             get
@@ -132,7 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category("Category_DatabaseScopedConfigurations"),
         DisplayNameAttribute("Property_ParameterSniffing")]
-        //TypeConverter(typeof(DatabaseScopedConfigurationOnOffTypes))]
         public string ParameterSniffingDisplay
         {
             get
@@ -148,7 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category("Category_DatabaseScopedConfigurations"),
         DisplayNameAttribute("Property_ParameterSniffingForSecondary")]
-        //TypeConverter(typeof(DatabaseScopedConfigurationOnOffTypes))]
         public String ParameterSniffingForSecondaryDisplay
         {
             get
@@ -164,7 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category("Category_DatabaseScopedConfigurations"),
         DisplayNameAttribute("Property_QueryOptimizerHotfixes")]
-        //TypeConverter(typeof(DatabaseScopedConfigurationOnOffTypes))]
         public String QueryOptimizerHotfixesDisplay
         {
             get
@@ -180,7 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         [Category("Category_DatabaseScopedConfigurations"),
         DisplayNameAttribute("Property_QueryOptimizerHotfixesForSecondary")]
-        //TypeConverter(typeof(DatabaseScopedConfigurationOnOffTypes))]
         public String QueryOptimizerHotfixesForSecondaryDisplay
         {
             get
@@ -311,5 +301,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         #endregion
     }
 }
-
-

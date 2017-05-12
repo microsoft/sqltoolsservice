@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Get a default database info object
         /// </summary>
-        [Fact]
+        // [Fact]
         public async void GetDefaultDatebaseInfoTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
