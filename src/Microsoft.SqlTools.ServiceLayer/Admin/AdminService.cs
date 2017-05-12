@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using System;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -144,11 +145,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 out connInfo);
 
             DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo);
+            DatabasePrototype prototype = taskHelper.Prototype;
             DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
 
-            response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-
-            await requestContext.SendResult(new CreateDatabaseResponse());
+            Database db = prototype.ApplyChanges();
+      
+            await requestContext.SendResult(new CreateDatabaseResponse()
+            {
+                Result = true,
+                TaskId = 0
+            });
         }
 
         /// <summary>

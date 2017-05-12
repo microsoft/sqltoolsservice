@@ -4,11 +4,8 @@
 //
 
 using System.ComponentModel;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -16,7 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// Database Prototype for SqlServer 2005 Enterprise SP2 and later servers
     /// </summary>
     [TypeConverter(typeof(DynamicValueTypeConverter))]
-    //[StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
     internal class DatabasePrototype90EnterpriseSP2 : DatabasePrototype90
     {
         /// <summary>

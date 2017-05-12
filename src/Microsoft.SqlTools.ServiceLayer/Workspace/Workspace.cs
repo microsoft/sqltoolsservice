@@ -117,9 +117,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     filePath = fileUri.LocalPath.TrimStart('/');
                 }
 
-                // Some clients send paths with UNIX-style slashes, replace those if necessary
-                filePath = filePath.Replace('/', '\\');
-
                 // Clients could specify paths with escaped space, [ and ] characters which .NET APIs
                 // will not handle.  These paths will get appropriately escaped just before being passed
                 // into the SqlTools engine.

@@ -5,22 +5,17 @@
 
 using System.ComponentModel;
 using System.Resources;
-//using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Collections.Generic;
 
-//using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
-
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     /// <summary>
     /// Database Prototype for SqlServer 2000 and later servers
     /// </summary>
-    //[TypeConverter(typeof(DynamicValueTypeConverter))]
-    //[StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
     internal class DatabasePrototype80 : DatabasePrototype, IDynamicValues
     {
         /// <summary>
@@ -53,19 +48,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype80).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.pageVerify)
                 {
                     case PageVerify.Checksum:
 
-                        result = manager.GetString("prototype.db.prop.pageVerify.value.checksum");
+                        result = manager.GetString("prototype_db_prop_pageVerify_value_checksum");
                         break;
 
                     case PageVerify.None:
 
-                        result = manager.GetString("prototype.db.prop.pageVerify.value.none");
+                        result = manager.GetString("prototype_db_prop_pageVerify_value_none");
                         break;
 
                     case PageVerify.TornPageDetection:
@@ -79,12 +74,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype80).GetAssembly());
-                if (value == manager.GetString("prototype.db.prop.pageVerify.value.checksum"))
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                if (value == manager.GetString("prototype_db_prop_pageVerify_value_checksum"))
                 {
                     this.currentState.pageVerify = PageVerify.Checksum;
                 }
-                else if (value == manager.GetString("prototype.db.prop.pageVerify.value.none"))
+                else if (value == manager.GetString("prototype_db_prop_pageVerify_value_none"))
                 {
                     this.currentState.pageVerify = PageVerify.None;
                 }
@@ -198,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             base.SaveProperties(db);
 
-            ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             // never set the real database collation to "<server default>" - there is no
             // real collation with that name. "<server default>" is only valid for new
@@ -257,16 +252,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (context.PropertyDescriptor.Name == "PageVerifyDisplay")
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype80).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 List<string> standardValues = new List<string>();
 
                 if (this.IsYukonOrLater)
                 {
-                    standardValues.Add(manager.GetString("prototype.db.prop.pageVerify.value.checksum"));
+                    standardValues.Add(manager.GetString("prototype_db_prop_pageVerify_value_checksum"));
                 }
 
-                standardValues.Add(manager.GetString("prototype.db.prop.pageVerify.value.tornPageDetection"));
-                standardValues.Add(manager.GetString("prototype.db.prop.pageVerify.value.none"));
+                standardValues.Add(manager.GetString("prototype_db_prop_pageVerify_value_tornPageDetection"));
+                standardValues.Add(manager.GetString("prototype_db_prop_pageVerify_value_none"));
 
                 result = new TypeConverter.StandardValuesCollection(standardValues);
             }

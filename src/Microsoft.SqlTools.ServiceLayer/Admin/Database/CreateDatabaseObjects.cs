@@ -2033,26 +2033,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (isAllWhitespace || (0 == fileName.Length) || (-1 != fileName.IndexOfAny(badFileCharacters)))
             {
-                ResourceManager resourceManager =
-                    new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                        this.GetType().GetAssembly());
+                ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            
 
                 string message = String.Empty;
 
                 if (0 == fileName.Length)
                 {
-                    message = resourceManager.GetString("error.emptyFileName");
+                    message = resourceManager.GetString("error_emptyFileName");
                 }
                 else if (isAllWhitespace)
                 {
-                    message = resourceManager.GetString("error.whitespaceDatabaseName");
+                    message = resourceManager.GetString("error_whitespaceDatabaseName");
                 }
                 else
                 {
                     int i = fileName.IndexOfAny(badFileCharacters);
 
                     message = String.Format(System.Globalization.CultureInfo.CurrentCulture,
-                        resourceManager.GetString("error.fileNameContainsIllegalCharacter"), fileName, fileName[i]);
+                        resourceManager.GetString("error_fileNameContainsIllegalCharacter"), fileName, fileName[i]);
                 }
 
                 throw new InvalidOperationException(message);
@@ -2119,9 +2118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <exception cref="InvalidOperationException">If logical name is empty, or physical name is invalid.</exception>
         private string MakeDiskFileName(string logicalName, string preferredPhysicalName, string suffix)
         {
-            ResourceManager resourceManager =
-                new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    this.GetType().GetAssembly());
+            ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             string filePath = String.Empty; // returned to the caller.
             if (String.IsNullOrEmpty(preferredPhysicalName))
@@ -2140,7 +2137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     string message = String.Empty;
 
-                    message = resourceManager.GetString("error.emptyFileName");
+                    message = resourceManager.GetString("error_emptyFileName");
                     throw new InvalidOperationException(message);
                 }
 
@@ -2468,18 +2465,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>List of Restrict Access Types </returns>
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            ResourceManager manager =
-                new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             List<string> standardValues = new List<string>();
             TypeConverter.StandardValuesCollection result = null;
 
             if (string.Compare(context.PropertyDescriptor.Name, "RestrictAccess", StringComparison.OrdinalIgnoreCase) ==
                 0)
             {
-                standardValues.Add(manager.GetString("prototype.db.prop.restrictAccess.value.multiple"));
-                standardValues.Add(manager.GetString("prototype.db.prop.restrictAccess.value.single"));
-                standardValues.Add(manager.GetString("prototype.db.prop.restrictAccess.value.restricted"));
+                standardValues.Add(manager.GetString("prototype_db_prop_restrictAccess_value_multiple"));
+                standardValues.Add(manager.GetString("prototype_db_prop_restrictAccess_value_single"));
+                standardValues.Add(manager.GetString("prototype_db_prop_restrictAccess_value_restricted"));
             }
             if (standardValues.Count > 0)
             {
@@ -2520,17 +2515,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 string.Compare(context.PropertyDescriptor.Name, "DatabaseStatusDisplay",
                     StringComparison.OrdinalIgnoreCase) == 0)
             {
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.normal"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.restoring"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.recoveryPending"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.recovering"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.suspect"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.offline"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.inaccessible"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.standby"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.shutdown"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.emergency"));
-                standardValues.Add(manager.GetString("prototype.db.prop.databaseState.value.autoClosed"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_normal"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_restoring"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_recoveryPending"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_recovering"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_suspect"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_offline"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_inaccessible"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_standby"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_shutdown"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_emergency"));
+                standardValues.Add(manager.GetString("prototype_db_prop_databaseState_value_autoClosed"));
             }
             if (standardValues.Count > 0)
             {

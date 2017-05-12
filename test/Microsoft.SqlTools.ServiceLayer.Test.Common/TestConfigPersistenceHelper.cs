@@ -11,6 +11,26 @@ using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
+    /// <summary>
+    /// Class to handle loading test configuration settings
+    ///    
+    /// Example contents of file at default location ~/sqlConnectionSettings.json
+    /// 
+    /// {
+    ///     "mssql.connections": [
+    ///         {
+    ///             "server": "localhost",
+    ///             "database": "master",
+    ///             "authenticationType": "SqlLogin",
+    ///             "user": "sa",
+    ///             "password": "[putvaluehere]",
+    ///             "serverType":"OnPrem", 
+    ///             "VersionKey": "defaultSql2016"
+    ///         }
+    ///     ]
+    /// }
+    /// 
+    /// </summary> 
     public sealed class TestConfigPersistenceHelper
     {
         private static string DefaultSettingFileName = Path.Combine(FileUtils.UserRootFolder, "sqlConnectionSettings.json");
