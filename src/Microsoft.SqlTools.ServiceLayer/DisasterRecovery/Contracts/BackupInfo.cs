@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
@@ -13,25 +14,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// Name of the datbase to perfom backup
         /// </summary>
         public string DatabaseName { get; set; }
+        
+        /// <summary>
+        /// Component to backup - Database or Files
+        /// </summary>
+        public int BackupComponent { get; set; }
 
         /// <summary>
-        /// Full/Differential/Log
+        /// Type of backup - Full/Differential/Log
         /// </summary>
-        public string BackupType { get; set; }
+        public int BackupType { get; set; }
 
         /// <summary>
-        /// Database or Files/Filegroups
+        /// Backup device - Disk, Url, etc.
         /// </summary>
-        public string BackupComponent { get; set; }
+        public int BackupDeviceType { get; set; }
 
         /// <summary>
-        /// Disk or URL
+        /// The text input of selected files
         /// </summary>
-        public string BackupDevice { get; set; }
+        public string SelectedFiles { get; set; }
 
         /// <summary>
-        /// List of backup destination paths
+        /// Backupset name
         /// </summary>
-        public Dictionary<string, int> BackupPathList { get; set; }
+        public string BackupsetName { get; set; }
+
+        /// <summary>
+        /// List of selected file groups
+        /// </summary>
+        public Dictionary<string, string> SelectedFileGroup { get; set; }
+
+        /// <summary>
+        /// List of {key: backup path, value: device type}
+        /// </summary>        
+        public Dictionary<string, int> arChangesList { get; set; }
+        
+        /// <summary>
+        /// List of selected backup paths
+        /// </summary>        
+        public ArrayList BackupPathList { get; set; }
+        
     }
 }
