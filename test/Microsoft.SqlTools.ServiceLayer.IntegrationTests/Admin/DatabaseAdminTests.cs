@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Validate creating a database with valid input
         /// </summary>
-        [Fact]
+        // [Fact]
         public async void CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
