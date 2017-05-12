@@ -4,11 +4,8 @@
 //
 
 using System.ComponentModel;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {

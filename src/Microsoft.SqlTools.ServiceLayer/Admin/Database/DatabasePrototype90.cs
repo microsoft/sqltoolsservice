@@ -5,22 +5,17 @@
 
 using System.ComponentModel;
 using System.Resources;
-// using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Collections.Generic;
 
-// using DisplayNameAttribute = Microsoft.SqlServer.Management.SqlMgmt.DisplayNameAttribute;
-
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     /// <summary>
     /// Database Prototype for SqlServer 2005 and later servers
     /// </summary>
-    //[TypeConverter(typeof(DynamicValueTypeConverter))]
-    //[StringResourceClass(typeof(Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseOptionsSR))]
     internal class DatabasePrototype90 : DatabasePrototype80SP3, IDynamicValues
     {
         /// <summary>

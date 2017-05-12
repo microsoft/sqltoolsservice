@@ -198,68 +198,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// </summary>
         static AzureSqlDbHelper()
         {
-            //foreach (AzureEdition edition in Enum.GetValues(typeof (AzureEdition)))
-            //{
-            //    object value;
-
-            //    try
-            //    {
-            //        value = Registry.GetValue(
-            //            string.Format(CultureInfo.InvariantCulture, @"{0}\{1}", SSMSAzureRegKey,
-            //                AzureServiceObjectivesRegSubKey), edition.ToString(), null);
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        //We don't really care if we can't read in an override (just fall back to default) so log and move on
-            //        TraceContext.TraceVerbose("Exception reading service objective overrides for {0} - {1}", edition, e.Message);
-            //        continue;
-            //    }
-
-            //    if (value != null)
-            //    {
-            //        TraceContext.TraceVerbose("Found ServiceObjective override for {0}, value is {1}", edition, value);
-            //        //Key is in format <DefaultIndex>:<ServiceObjectiveList>
-            //        //e.g. 2:S0,S1,S2
-            //        //Only split into 2 parts since the service objectives could
-            //        //be changed in the future to have :'s, so only treat the first
-            //        //as special
-            //        string[] values = value.ToString().Split(new[] {':'}, 2);
-            //        if (values.Length != 2)
-            //        {
-            //            //Badly formatted value, ignore this one
-            //            TraceContext.TraceVerbose("ServiceObjective override for {0} is badly formatted - skipping", edition);
-            //            continue;
-            //        }
-
-            //        int defaultIndex;
-            //        if (!int.TryParse(values[0], out defaultIndex))
-            //        {
-            //            //Invalid default index, ignore this one
-            //            TraceContext.TraceVerbose("ServiceObjective override for {0} has non-parseable default index - skipping", edition);
-            //            continue;
-            //        }
-
-            //        //Service objectives are in a comma-separated list
-            //        string[] serviceObjectives = values[1].Split(',');
-            //        if (defaultIndex < 0 || defaultIndex >= serviceObjectives.Length)
-            //        {
-            //            //Index out of bounds, ignore this one
-            //            TraceContext.TraceVerbose("ServiceObjective override for {0} has out of bounds default index - skipping");
-            //            continue;
-            //        }
-            //        if (AzureServiceObjectiveInfo.ContainsKey(edition))
-            //        {
-            //            //Overwrite our default values if the registry key for this edition exists
-            //            AzureServiceObjectiveInfo[edition] = new KeyValuePair<int, string[]>(defaultIndex,
-            //                serviceObjectives);
-            //        }
-            //        else
-            //        {
-            //            AzureServiceObjectiveInfo.Add(edition,
-            //                new KeyValuePair<int, string[]>(defaultIndex, serviceObjectives));
-            //        }
-            //    }
-            //}
         }
 
         /// <summary>

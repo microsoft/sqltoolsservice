@@ -15,6 +15,7 @@ using Moq;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
 {
@@ -43,12 +44,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Validate creating a database with valid input
         /// </summary>
-        // [Fact]
+        [Fact]
         public async void CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<CreateDatabaseResponse>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<CreateDatabaseResponse>())).Returns(Task.FromResult(new object()));
+
+            var databaseInfo = new DatabaseInfo();
+            databaseInfo.Options.Add("name", "testdb_" + new Random().Next(10000000, 99999999));
 
             var dbParams = new CreateDatabaseParams
             {
@@ -61,11 +65,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
             requestContext.VerifyAll();
         }
 
-
         /// <summary>
         /// Get a default database info object
         /// </summary>
-        // [Fact]
+        [Fact]
         public async void GetDefaultDatebaseInfoTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
