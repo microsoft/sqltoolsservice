@@ -99,6 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "encrypted",
             "end",
             "end-exec",
+            "except",
             "exec",
             "execute",
             "exists",
