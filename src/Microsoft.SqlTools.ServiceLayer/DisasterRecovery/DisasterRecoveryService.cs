@@ -78,30 +78,43 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
                     backupParams.OwnerUri,
                     out connInfo);
-                        
+            CDataContainer dataContainer;
+
             if (connInfo != null)
             {
                 char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
-
-                unsafe
-                {
-                    fixed (char* passwordPtr = passwordArray)
+                if (string.Equals(connInfo.ConnectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
+                {   
+                    unsafe
                     {
-                        var dataContainer = new CDataContainer(
-                        CDataContainer.ServerType.SQL,
-                        connInfo.ConnectionDetails.ServerName,
-                        false,
-                        connInfo.ConnectionDetails.UserName,
-                        new System.Security.SecureString(passwordPtr, passwordArray.Length),
-                        string.Empty);
-
-                        SqlConnection sqlConn = GetSqlConnection(connInfo);
-                        if (sqlConn != null)
+                        fixed (char* passwordPtr = passwordArray)
                         {
-                            DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn, backupParams.BackupInfo);
-                            DisasterRecoveryService.Instance.PerformBackup();
+                            dataContainer = new CDataContainer(
+                            CDataContainer.ServerType.SQL,
+                            connInfo.ConnectionDetails.ServerName,
+                            false,
+                            connInfo.ConnectionDetails.UserName,
+                            new System.Security.SecureString(passwordPtr, passwordArray.Length),
+                            string.Empty);
                         }
                     }
+                }
+                else
+                {
+                    dataContainer = new CDataContainer(
+                    CDataContainer.ServerType.SQL,
+                    connInfo.ConnectionDetails.ServerName,
+                    true,
+                    null,
+                    null,
+                    null);
+                }
+
+                SqlConnection sqlConn = GetSqlConnection(connInfo);
+                if (sqlConn != null)
+                {
+                    DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn, backupParams.BackupInfo);
+                    DisasterRecoveryService.Instance.PerformBackup();
                 }
             }
          

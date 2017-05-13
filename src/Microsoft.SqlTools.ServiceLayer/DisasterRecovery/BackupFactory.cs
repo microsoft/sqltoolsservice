@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.dataContainer = dataContainer;
             this.serverConnection = new ServerConnection(sqlConnection); // @@ check the value!
             this.backupRestoreUtil = new BackupRestoreUtil(this.dataContainer, this.serverConnection);
-            this.urlControl.SqlServer = dataContainer.Server;
+            //this.urlControl.SqlServer = dataContainer.Server;
             this.backupInfo = input;
 
             // convert the types            
@@ -278,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 }
                 else
                 {
-                    if (this.urlControl.ListBakDestUrls.Count > 0)
+                    /*if (this.urlControl.ListBakDestUrls.Count > 0)
                     {
                         // Append the URL filename to the URL prefix
                         foreach (string urlPath in this.urlControl.ListBakDestUrls.ToArray())
@@ -288,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                                 bk.Devices.AddDevice(urlPath, DeviceType.Url);
                             }
                         }
-                    }
+                    }*/
                 }
                 /*
                 if (this.dataContainer.HashTable.ContainsKey(bk.BackupSetName))
