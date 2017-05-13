@@ -37,6 +37,8 @@
     "System.Runtime.Loader": "4.0.0",
     "System.Xml.XmlDocument": "4.0.1",
     "System.Composition": "1.0.31-beta-24326-02",
+    "Npgsql": "3.2.2",
+    "MySql.Data": "7.0.7-m61",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
     "Microsoft.SqlTools.Hosting": {
       "target": "project"

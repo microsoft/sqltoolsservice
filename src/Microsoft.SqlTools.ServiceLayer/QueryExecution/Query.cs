@@ -358,11 +358,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Locate and setup the connection
             DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
             ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;
-            if (sqlConn != null)
-            {
-                // Subscribe to database informational messages
-                sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
-            }
+            // if (sqlConn != null)
+            // {
+            //     // Subscribe to database informational messages
+            //     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+            // }
 
             try
             {

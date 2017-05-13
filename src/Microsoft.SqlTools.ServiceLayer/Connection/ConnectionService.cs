@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 if (this.connectionFactory == null)
                 {
-                    this.connectionFactory = new SqlConnectionFactory();
+                    this.connectionFactory = new PgConnectionFactory();
                 }
                 return this.connectionFactory;
             }
@@ -835,6 +835,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
         {
+            string connstring = String.Format("Server={0};" + 
+                    "Userid={1};Password={2};Database={3};SslMode=Disable;",
+                    connectionDetails.ServerName, connectionDetails.UserName, 
+                    connectionDetails.Password, connectionDetails.DatabaseName );
+            return connstring;
             SqlConnectionStringBuilder connectionBuilder;
 
             // If connectionDetails has a connection string already, just validate and return it
@@ -1026,7 +1031,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             foreach (var activity in this.onConnectionActivities)
             {
                 // not awaiting here to allow handlers to run in the background
-                activity(connectionInfo);
+                // activity(connectionInfo);
             }
         }
 

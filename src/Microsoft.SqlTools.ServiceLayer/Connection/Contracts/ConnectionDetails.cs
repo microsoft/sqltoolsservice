@@ -10,6 +10,12 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
+    public enum ServerType {
+        MSSQL = 0,
+        MySQL = 1,
+        PgSQL = 2
+    }
+
     /// <summary>
     /// Message format for the initial connection request
     /// </summary>
@@ -27,6 +33,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or Sets the connection options
         /// </summary>
         public Dictionary<string, object> Options { get; set; }
+
+        /// <summary>
+        /// Gets of sets the serverType
+        /// </summary>
+        public ServerType ServerType { get; set; }
 
         /// <summary>
         /// Gets or sets the connection password

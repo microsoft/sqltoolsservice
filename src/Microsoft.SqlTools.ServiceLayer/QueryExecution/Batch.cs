@@ -330,11 +330,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             finally
             {
                 // Remove the message event handler from the connection
-                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
-                if (sqlConn != null)
-                {
-                    sqlConn.GetUnderlyingConnection().InfoMessage -= ServerMessageHandler;
-                }
+                // ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+                // if (sqlConn != null)
+                // {
+                //     sqlConn.GetUnderlyingConnection().InfoMessage -= ServerMessageHandler;
+                // }
 
                 // Mark that we have executed
                 HasExecuted = true;
