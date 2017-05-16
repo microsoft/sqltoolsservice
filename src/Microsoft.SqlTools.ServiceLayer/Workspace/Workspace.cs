@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
@@ -114,13 +115,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     // Client sent the path in URI format, extract the local path and trim
                     // any extraneous slashes
                     Uri fileUri = new Uri(filePath);
-                    filePath = fileUri.LocalPath.TrimStart('/');
+                    filePath = fileUri.LocalPath;
+                    if (filePath.StartsWith("//") || filePath.StartsWith("\\\\")) 
+                    {
+                        filePath = filePath.Substring(1);
+                    }
                 }
 
                 // Clients could specify paths with escaped space, [ and ] characters which .NET APIs
                 // will not handle.  These paths will get appropriately escaped just before being passed
                 // into the SqlTools engine.
                 filePath = UnescapePath(filePath);
+
+                // switch to unix path separators on non-Windows platforms
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    filePath = filePath.Replace('\\', '/');
+                }
 
                 // Get the absolute file path
                 filePath = Path.GetFullPath(filePath);

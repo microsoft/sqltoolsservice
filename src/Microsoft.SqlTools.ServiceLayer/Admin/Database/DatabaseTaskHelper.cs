@@ -169,6 +169,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     {
                         file.Name = prototype.Name + "_" + logicalNameCount;
                     }
+                    else
+                    {
+                        file.Name += prototype.Name + file.Name  + "_" + logicalNameCount;
+                    }
+
+                    ++logicalNameCount;
                 }
 
             }
