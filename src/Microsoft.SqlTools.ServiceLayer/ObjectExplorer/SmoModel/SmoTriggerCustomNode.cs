@@ -10,14 +10,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// <summary>
     /// Status for triggers
     /// </summary>
-    public class SmoTriggerCustomNode
+    internal partial class TriggersChildFactory : SmoChildFactoryBase
     {
-        internal partial class TriggersChildFactory : SmoChildFactoryBase
+        public override string GetNodeStatus(object context)
         {
-            public override string GetNodeStatus(object context)
-            {
-                return TriggersCustomeNodeHelper.GetStatus(context);
-            }
+            return TriggersCustomeNodeHelper.GetStatus(context);
+        }
+    }
+
+    internal partial class ServerLevelServerTriggersChildFactory : SmoChildFactoryBase
+    {
+        public override string GetNodeStatus(object context)
+        {
+            return TriggersCustomeNodeHelper.GetStatus(context);
+        }
+    }
+
+    internal partial class DatabaseTriggersChildFactory : SmoChildFactoryBase
+    {
+        public override string GetNodeStatus(object context)
+        {
+            return TriggersCustomeNodeHelper.GetStatus(context);
         }
     }
 
@@ -29,6 +42,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (trigger != null)
             {
                 if (!trigger.IsEnabled)
+                {
+                    return "Disabled";
+                }
+            }
+
+            ServerDdlTrigger serverDdlTrigger = context as ServerDdlTrigger;
+            if (serverDdlTrigger != null)
+            {
+                if (!serverDdlTrigger.IsEnabled)
+                {
+                    return "Disabled";
+                }
+            }
+
+            DatabaseDdlTrigger databaseDdlTrigger = context as DatabaseDdlTrigger;
+            if (databaseDdlTrigger != null)
+            {
+                if (!databaseDdlTrigger.IsEnabled)
                 {
                     return "Disabled";
                 }
