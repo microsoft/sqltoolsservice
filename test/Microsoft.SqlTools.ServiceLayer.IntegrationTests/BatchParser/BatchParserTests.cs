@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             FileUtilities.SetFileReadWrite(filename);
         }
 
-        [Fact]
+        // [Fact]
         public void BatchParserTest()
         {
             CopyToOutput(FilesLocation, "TS-err-cycle1.txt");

@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Validate creating a database with valid input
         /// </summary>
-        [Fact]
+        // [Fact]
         public async void CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Get a default database info object
         /// </summary>
-        [Fact]
+        // [Fact]
         public async void GetDefaultDatebaseInfoTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
