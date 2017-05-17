@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 string headerLine = string.Join(",", selectedColumns);
 
                 // Encode it and write it out
-                byte[] headerBytes = Encoding.UTF8.GetBytes(headerLine + Environment.NewLine);
+                byte[] headerBytes = Encoding.Unicode.GetBytes(headerLine + Environment.NewLine);
                 FileStream.Write(headerBytes, 0, headerBytes.Length);
 
                 headerWritten = true;
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             string rowLine = string.Join(",", selectedCells);
 
             // Encode it and write it out
-            byte[] rowBytes = Encoding.UTF8.GetBytes(rowLine + Environment.NewLine);
+            byte[] rowBytes = Encoding.Unicode.GetBytes(rowLine + Environment.NewLine);
             FileStream.Write(rowBytes, 0, rowBytes.Length);
         }
 
