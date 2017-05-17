@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     public abstract class SmoQuerier : IComposableService
     {
         public abstract Type[] SupportedObjectTypes { get;  }
+        private static object lockObject = new object();
         
         /// <summary>
         /// Queries SMO for a collection of objects using the <see cref="SmoQueryContext"/> 
@@ -78,21 +79,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         protected HashSet<string> GetUrns(EnumResult enumResult)
         {
-            HashSet<string> urns = null;
-            if (enumResult != null && enumResult.Data != null)
+            lock (lockObject)
             {
-                urns = new HashSet<string>();
-                IDataReader reader = GetDataReader(enumResult.Data);
-                if (reader != null)
+                HashSet<string> urns = null;
+                if (enumResult != null && enumResult.Data != null)
                 {
-                    while (reader.Read())
+                    urns = new HashSet<string>();
+                    using (IDataReader reader = GetDataReader(enumResult.Data))
                     {
-                        urns.Add(reader.GetString(0));
+                        if (reader != null)
+                        {
+                            while (reader.Read())
+                            {
+                                urns.Add(reader.GetString(0));
+                            }
+                        }
                     }
                 }
-            }
 
-            return urns;
+                return urns;
+            }
         }
     }
     

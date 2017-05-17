@@ -23,18 +23,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh)
         {
+            List<TreeNode> allChildren = new List<TreeNode>();
+
             try
             {
-                List<TreeNode> allChildren = new List<TreeNode>();
                 OnExpandPopulateFolders(allChildren, parent);
                 RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
                 OnExpandPopulateNonFolders(allChildren, parent, refresh);
                 OnBeginAsyncOperations(parent);
-                return allChildren;
+            }
+            catch(Exception ex)
+            {
+                Logger.Write(LogLevel.Error, $"Failed expanding oe children. error:{ex.Message} {ex.StackTrace}");
             }
             finally
             {
             }
+            return allChildren;
         }
 
         /// <summary>

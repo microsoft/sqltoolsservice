@@ -76,6 +76,42 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         }
 
         [Fact]
+        public async void VerifyServerTriggers()
+        {
+            var query = @"IF EXISTS (SELECT * FROM sys.server_triggers  WHERE name = 'OE_ddl_trig_database')
+                           
+                        Begin
+                            DROP TRIGGER OE_ddl_trig_database  ON ALL SERVER
+                        
+                        ENd
+                        GO
+
+                        CREATE TRIGGER OE_ddl_trig_database   
+                        ON ALL SERVER   
+                        FOR CREATE_DATABASE   
+                        AS   
+                            PRINT 'Database Created.'  
+                        GO  
+                        GO
+                        Disable TRIGGER OE_ddl_trig_database ON ALL SERVER ;";
+            string databaseName = "tempdb";
+            await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
+            {
+                var serverChildren = await _service.ExpandNode(session, session.Root.GetNodePath());
+                var serverObjectsNode = serverChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_ServerObjects);
+                var serverObjectsChildren = await _service.ExpandNode(session, serverObjectsNode.NodePath);
+                var triggersNode = serverObjectsChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Triggers);
+                var triggersChildren = await _service.ExpandNode(session, triggersNode.NodePath);
+                var trigger = triggersChildren.FirstOrDefault(x => x.Label == "OE_ddl_trig_database");
+                Assert.NotNull(trigger);
+
+                Assert.True(trigger.NodeStatus == "Disabled");
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, "DROP TRIGGER OE_ddl_trig_database");
+
+            });
+        }
+
+        [Fact]
         public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";
