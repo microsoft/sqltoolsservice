@@ -2433,7 +2433,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Property = "FunctionType",
                    Type = typeof(Enum),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                    Values = new List<object>
                    {
                       { UserDefinedFunctionType.Table }
@@ -2480,7 +2479,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Property = "FunctionType",
                    Type = typeof(Enum),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                    Values = new List<object>
                    {
                       { UserDefinedFunctionType.Table }
@@ -2633,7 +2631,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Property = "FunctionType",
                    Type = typeof(Enum),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                    Values = new List<object>
                    {
                       { UserDefinedFunctionType.Scalar }

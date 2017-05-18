@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         if (smoObject == null)
                         {
-                            Console.WriteLine("smoObject should not be null");
+                            Logger.Write(LogLevel.Error, "smoObject should not be null");
                         }
                         TreeNode childNode = CreateChild(parent, smoObject);
                         if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, validForFlag))

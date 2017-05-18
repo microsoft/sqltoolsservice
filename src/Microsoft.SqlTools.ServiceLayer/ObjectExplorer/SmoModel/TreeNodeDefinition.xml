@@ -318,7 +318,7 @@
 
   <Node Name="TableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode">
     <Filters >
-      <Filter Property="FunctionType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
+      <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Table</Value>
       </Filter>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
@@ -326,7 +326,7 @@
   </Node>
   <Node Name="SystemTableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode">
     <Filters >
-      <Filter Property="FunctionType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
+      <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Table</Value>
       </Filter>
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
@@ -348,7 +348,7 @@
   </Node>
   <Node Name="SystemScalarValuedFunctions" LocLabel="SR.SchemaHierarchy_ScalarValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="ScalarValuedFunctionTreeNode" >
     <Filters>
-      <Filter Property="FunctionType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
+      <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Scalar</Value>
       </Filter>
       <Filter  Property="IsSystemObject" Value="1" Type="bool" />
