@@ -23,7 +23,7 @@
   </Node>
   
   <Node Name="SqlCredential" Parent="Server" />
-  <!--Node Name="SqlCryptographicProvider" Parent="Server" /-->
+  <Node Name="SqlCryptographicProvider" Parent="Server" />
   <Node Name="SqlServerAudit" Type="Audit" Parent="Server" />
   <Node Name="SqlServerAuditSpecification" Type="ServerAuditSpecification" Parent="Server"/>
   
@@ -33,7 +33,7 @@
     <NavigationPath Parent="Server" Field="Triggers" />
   </Node>
 
-  <!--Node Name="SqlErrorMessage" Type="UserDefinedMessage" Parent="Server" /-->
+  <Node Name="SqlErrorMessage" Type="UserDefinedMessage" Parent="Server" />
 
   <Node Name="SqlTable" Parent="Database" />
   <Node Name="SqlHistoryTable" Type="Table" Parent="Table" >
@@ -108,7 +108,6 @@
   <Node Name="SqlColumnMasterKey" />
   <Node Name="SqlColumnEncryptionKey" />
   
-  <!--
   <Node Name="SqlServiceBroker" Type="ServiceBroker" Collection="False" />
   <Node Name="SqlService" Type="BrokerService" Parent="ServiceBroker" >
     <NavigationPath Parent="ServiceBroker" Field="Services" />
@@ -124,11 +123,9 @@
   </Node>
   
   <Node Name="SqlMessageType" Parent="ServiceBroker"/>
--->
-  <!--
+  
   <Node Name="SqlExternalDataSource" />
   <Node Name="SqlExternalFileFormat" />
-  -->
 
   <Node Name="SqlProcedure" Type="StoredProcedure"/>
   <Node Name="SqlExtendedStoredProcedure" />

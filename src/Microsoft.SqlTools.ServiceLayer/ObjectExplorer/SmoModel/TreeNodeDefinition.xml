@@ -16,7 +16,7 @@
     <Child Name="ServerLevelLogins"/>
     <Child Name="ServerLevelServerRoles"/>
     <Child Name="ServerLevelCredentials"/>
-    <!--Child Name="ServerLevelCryptographicProviders"/-->
+    <Child Name="ServerLevelCryptographicProviders"/>
     <Child Name="ServerLevelServerAudits"/>
     <Child Name="ServerLevelServerAuditSpecifications"/>
     <!-- TODO Support XEvents in .Net Core SMO
@@ -27,7 +27,7 @@
     <Child Name="ServerLevelEndpoints"/>
     <Child Name="ServerLevelLinkedServers"/>
     <Child Name="ServerLevelServerTriggers"/>
-    <!--Child Name="ServerLevelErrorMessages"/-->
+    <Child Name="ServerLevelErrorMessages"/>
     <!-- TODO Support XEvents in .Net Core SMO
     <Child Name="ServerLevelEventNotifications"/>
     -->
@@ -47,22 +47,22 @@
   <Node Name="ServerLevelLogins" LocLabel="SR.SchemaHierarchy_Logins" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelLogin" ChildQuerierTypes="SqlLogin"/>
   <Node Name="ServerLevelServerRoles" LocLabel="SR.SchemaHierarchy_ServerRoles" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerRole" ChildQuerierTypes="SqlServerRole" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext"/>
   <Node Name="ServerLevelCredentials" LocLabel="SR.SchemaHierarchy_Credentials" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelCredential" ChildQuerierTypes="SqlCredential" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext"/>
-  <!--Node Name="ServerLevelCryptographicProviders" LocLabel="SR.SchemaHierarchy_CryptographicProviders" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelCryptographicProvider" ChildQuerierTypes="SqlCryptographicProvider"  ValidFor="Sql2008|Sql2012|Sql2014|NotDebugInstance|Sql2016|SqlvNext"/-->
+  <Node Name="ServerLevelCryptographicProviders" LocLabel="SR.SchemaHierarchy_CryptographicProviders" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelCryptographicProvider" ChildQuerierTypes="SqlCryptographicProvider"  ValidFor="Sql2008|Sql2012|Sql2014|NotDebugInstance|Sql2016|SqlvNext"/>
   <Node Name="ServerLevelServerAudits" LocLabel="SR.SchemaHierarchy_ServerAudits" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerAudit" ChildQuerierTypes="SqlServerAudit" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext"/>
   <Node Name="ServerLevelServerAuditSpecifications" LocLabel="SR.SchemaHierarchy_ServerAuditSpecifications" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerAuditSpecification" ChildQuerierTypes="SqlServerAuditSpecification" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext"/>
   
   <Node Name="ServerLevelEndpoints" LocLabel="SR.SchemaHierarchy_Endpoints" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelEndpoint" ChildQuerierTypes="SqlEndpoint" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext"/>
   <Node Name="ServerLevelLinkedServers" LocLabel="SR.SchemaHierarchy_LinkedServers" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelLinkedServer" ChildQuerierTypes="SqlLinkedServer"/>
   <Node Name="ServerLevelServerTriggers" LocLabel="SR.SchemaHierarchy_ServerTriggers" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerTrigger" ChildQuerierTypes="SqlServerDdlTrigger"/>
-  <!--Node Name="ServerLevelErrorMessages" LocLabel="SR.SchemaHierarchy_ErrorMessages" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelErrorMessage" ChildQuerierTypes="SqlErrorMessage"/-->
+  <Node Name="ServerLevelErrorMessages" LocLabel="SR.SchemaHierarchy_ErrorMessages" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelErrorMessage" ChildQuerierTypes="SqlErrorMessage"/>
   
   <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel">
     <Child Name="Tables"/>
     <Child Name="Views"/>
     <Child Name="Synonyms"/>
     <Child Name="Programmability"/>
-    <!--Child Name="ExternalResources"/-->
-    <!--Child Name="ServiceBroker"/-->
+    <Child Name="ExternalResources"/>
+    <Child Name="ServiceBroker"/>
     <Child Name="Storage"/>
     <Child Name="Security"/>
   </Node>
@@ -102,23 +102,21 @@
     -->
     <Child Name="Sequences"/>
   </Node>
-  <!--Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016|SqlvNext|AzureV12">
+  <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016|SqlvNext|AzureV12">
     <Child Name="ExternalDataSources"/>
     <Child Name="ExternalFileFormats"/>
-  </Node-->
+  </Node>
   
-  <!--
   <Node Name="ServiceBroker" LocLabel="SR.SchemaHierarchy_ServiceBroker" BaseClass="ModelBased" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext">
     <Child Name="MessageTypes"/>
     <Child Name="Contracts"/>
     <Child Name="Queues"/>
     <Child Name="Services"/>
-    <Child Name="Routes"/>
+    <!--Child Name="Routes"/-->
     <Child Name="DatabaseAndQueueEventNotifications"/>
     <Child Name="RemoteServiceBindings"/>
     <Child Name="BrokerPriorities"/>
   </Node>
-  -->
 
   <Node Name="Storage" LocLabel="SR.SchemaHierarchy_Storage" BaseClass="ModelBased" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12">
     <Child Name="FileGroups"/>
@@ -295,10 +293,8 @@
   <Node Name="SystemSpatialDataTypes" LocLabel="SR.SchemaHierarchy_SystemSpatialDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemSpatialDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV11|AzureV12"/>
 
   <!-- Childs of ExternalResources -->
-  <!--
   <Node Name="ExternalDataSources" LocLabel="SR.SchemaHierarchy_ExternalDataSources" BaseClass="ModelBased" NodeType="ExternalDataSource" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalDataSource" ValidFor="Sql2016|SqlvNext|AzureV12"/>
   <Node Name="ExternalFileFormats" LocLabel="SR.SchemaHierarchy_ExternalFileFormats" BaseClass="ModelBased" NodeType="ExternalFileFormat" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalFileFormat" ValidFor="Sql2016|SqlvNext"/>
-   -->
   
   <Node Name="StoredProcedures" LocLabel="SR.SchemaHierarchy_StoredProcedures" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlProcedure" TreeNode="StoredProcedureTreeNode">
     <Filters >
@@ -371,10 +367,11 @@
   -->
   <!-- TODO support events
   <Node Name="DatabaseAndQueueEventNotifications" LocLabel="SR.SchemaHierarchy_EventNotifications" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlEventNotification"/>
+  -->
   
   <Node Name="RemoteServiceBindings" LocLabel="SR.SchemaHierarchy_RemoteServiceBindings" BaseClass="ModelBased" NodeType="RemoteServiceBinding" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlRemoteServiceBinding"/>
   <Node Name="BrokerPriorities" LocLabel="SR.SchemaHierarchy_BrokerPriorities" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="BrokerPriority" ChildQuerierTypes="SqlBrokerPriority" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext"/>
--->
+
   <Node Name="FileGroups" LocLabel="SR.SchemaHierarchy_FileGroups" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFileGroup" TreeNode="FileGroupTreeNode"/>
   <Node Name="FullTextCatalogs" LocLabel="SR.SchemaHierarchy_FullTextCatalogs" BaseClass="ModelBased" NodeType="FullTextCatalog" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFullTextCatalog"/>
   <Node Name="FullTextStopLists" LocLabel="SR.SchemaHierarchy_FullTextStopLists" BaseClass="ModelBased" NodeType="FullTextStopList" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFullTextStopList" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
@@ -418,7 +415,6 @@
   <Node Name="ColumnMasterKeys" LocLabel="SR.SchemaHierarchy_ColumnMasterKeys" BaseClass="ModelBased" NodeType="ColumnMasterKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnMasterKey" ValidFor="Sql2016|SqlvNext|AzureV12"/>
   <Node Name="ColumnEncryptionKeys" LocLabel="SR.SchemaHierarchy_ColumnEncryptionKeys" BaseClass="ModelBased" NodeType="ColumnEncryptionKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnEncryptionKey" ValidFor="Sql2016|SqlvNext|AzureV12"/>
 
-  <!--
   <Node Name="MessageTypes" LocLabel="SR.SchemaHierarchy_MessageTypes" BaseClass="ModelBased" NodeType="MessageType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlMessageType">
     <Child Name="SystemMessageTypes" IsSystemObject="1"/>
   </Node>
@@ -438,7 +434,7 @@
     <Child Name="SystemServices" IsSystemObject="1"/>
   </Node>
   <Node Name="SystemServices" LocLabel="SR.SchemaHierarchy_SystemServices" BaseClass="ModelBased" NodeType="SystemService" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlService"/>
--->
+
   <CodeGenOptions>
     <UniqueTreeNode Name="DatabaseTreeNode"/>
     <UniqueTreeNode Name="TableTreeNode"/>
@@ -450,7 +446,7 @@
     <UniqueTreeNode Name="AggregateFunctionTreeNode"/>
     <UniqueTreeNode Name="FileGroupTreeNode"/>
     <UniqueTreeNode Name="ExternalTableTreeNode"/>
-    <!--UniqueTreeNode Name="ExternalResourceTreeNode"/-->
+    <UniqueTreeNode Name="ExternalResourceTreeNode"/>
     <UniqueTreeNode Name="HistoryTableTreeNode" />
   </CodeGenOptions>
 

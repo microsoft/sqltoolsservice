@@ -118,6 +118,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	}
     }
 
+    internal sealed partial class ExternalResourceTreeNode : SmoTreeNode
+    {
+    	public ExternalResourceTreeNode() : base()
+    	{
+    		NodeValue = string.Empty;
+    		this.NodeType = "ExternalResource";
+    		this.NodeTypeId = NodeTypes.ExternalResource;
+	    	OnInitialize();
+    	}
+    }
+
     internal sealed partial class HistoryTableTreeNode : SmoTreeNode
     {
     	public HistoryTableTreeNode() : base()
@@ -252,6 +263,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_CryptographicProviders,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ServerLevelCryptographicProviders,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.NotDebugInstance,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ServerAudits,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerAudits,
@@ -305,6 +324,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_ServerTriggers,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerTriggers,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ErrorMessages,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ServerLevelErrorMessages,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -454,6 +480,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
+    internal partial class ServerLevelCryptographicProvidersChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ServerLevelCryptographicProviders" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlCryptographicProviderQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "ServerLevelCryptographicProvider";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
     internal partial class ServerLevelServerAuditsChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "ServerLevelServerAudits" }; }
@@ -574,6 +624,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
+    internal partial class ServerLevelErrorMessagesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ServerLevelErrorMessages" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlErrorMessageQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "ServerLevelErrorMessage";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
     internal partial class DatabaseChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Database" }; }
@@ -606,6 +680,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Programmability,
                 IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ExternalResources,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ExternalResources,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ServiceBroker,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ServiceBroker,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -825,6 +915,103 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Sequences,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes { get {return null;} }
+
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            return null;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExternalResourcesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalResources" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ExternalDataSources,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ExternalDataSources,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ExternalFileFormats,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ExternalFileFormats,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2016,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes { get {return null;} }
+
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            return null;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ServiceBrokerChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ServiceBroker" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_MessageTypes,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.MessageTypes,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Contracts,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Contracts,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Queues,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Queues,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Services,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Services,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_RemoteServiceBindings,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.RemoteServiceBindings,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_BrokerPriorities,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.BrokerPriorities,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2275,6 +2462,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
+    internal partial class ExternalDataSourcesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalDataSources" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlExternalDataSourceQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "ExternalDataSource";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExternalFileFormatsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalFileFormats" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlExternalFileFormatQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "ExternalFileFormat";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
     internal partial class StoredProceduresChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "StoredProcedures" }; }
@@ -2797,6 +3032,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "AggregateFunctionParameter";
             child.SortPriority = SmoTreeNode.NextSortPriority;
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class RemoteServiceBindingsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "RemoteServiceBindings" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlRemoteServiceBindingQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "RemoteServiceBinding";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class BrokerPrioritiesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "BrokerPriorities" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlBrokerPriorityQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "BrokerPriority";
             InitializeChild(parent, child, context);
             return child;
         }
@@ -3418,6 +3701,246 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ColumnEncryptionKey";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class MessageTypesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "MessageTypes" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_SystemMessageTypes,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemMessageTypes,
+                IsSystemObject = true,
+                IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlMessageTypeQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "MessageType";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class SystemMessageTypesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemMessageTypes" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlMessageTypeQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "SystemMessageType";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ContractsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "Contracts" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_SystemContracts,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemContracts,
+                IsSystemObject = true,
+                IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlContractQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "Contract";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class SystemContractsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemContracts" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlContractQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "SystemContract";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class QueuesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "Queues" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_SystemQueues,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemQueues,
+                IsSystemObject = true,
+                IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlQueueQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "Queue";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class SystemQueuesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemQueues" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlQueueQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "SystemQueue";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ServicesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "Services" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_SystemServices,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemServices,
+                IsSystemObject = true,
+                IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlServiceQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "Service";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class SystemServicesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemServices" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlServiceQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "SystemService";
             InitializeChild(parent, child, context);
             return child;
         }

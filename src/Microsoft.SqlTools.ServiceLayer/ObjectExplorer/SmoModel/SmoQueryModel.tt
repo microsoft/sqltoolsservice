@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Smo.Broker;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -67,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine("if (refresh)");
 			WriteLine("{");
 			PushIndent(indent);
-			WriteLine(string.Format("{0}.{1}.Refresh();", parentVar, navigationPath));
+			WriteLine(string.Format("{0}.{1}.Refresh({2});", parentVar, navigationPath, IsCollection(nodeElement) ? "true" : ""));
 			PopIndent();
 			WriteLine("}");
 

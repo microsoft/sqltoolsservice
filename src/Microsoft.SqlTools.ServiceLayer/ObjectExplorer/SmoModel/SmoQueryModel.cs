@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Smo.Broker;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Databases.Refresh();
+                    parentServer.Databases.Refresh(true);
                 }
                 var retValue = parentServer.Databases;
                 if (retValue != null)
@@ -65,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.LinkedServers.Refresh();
+                    parentServer.LinkedServers.Refresh(true);
                 }
                 var retValue = parentServer.LinkedServers;
                 if (retValue != null)
@@ -104,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Logins.Refresh();
+                    parentServer.Logins.Refresh(true);
                 }
                 var retValue = parentServer.Logins;
                 if (retValue != null)
@@ -143,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Roles.Refresh();
+                    parentServer.Roles.Refresh(true);
                 }
                 var retValue = parentServer.Roles;
                 if (retValue != null)
@@ -182,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Credentials.Refresh();
+                    parentServer.Credentials.Refresh(true);
                 }
                 var retValue = parentServer.Credentials;
                 if (retValue != null)
@@ -207,6 +208,45 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     }
 
     [Export(typeof(SmoQuerier))]
+    internal partial class SqlCryptographicProviderQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(CryptographicProvider) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            Server parentServer = context.Parent as Server;
+            if (parentServer != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServer.CryptographicProviders.Refresh(true);
+                }
+                var retValue = parentServer.CryptographicProviders;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServer, filter, "CryptographicProvider");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<CryptographicProvider>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
     internal partial class SqlServerAuditQuerier: SmoQuerier
     {
         Type[] supportedTypes = new Type[] { typeof(Audit) };
@@ -221,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Audits.Refresh();
+                    parentServer.Audits.Refresh(true);
                 }
                 var retValue = parentServer.Audits;
                 if (retValue != null)
@@ -260,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.ServerAuditSpecifications.Refresh();
+                    parentServer.ServerAuditSpecifications.Refresh(true);
                 }
                 var retValue = parentServer.ServerAuditSpecifications;
                 if (retValue != null)
@@ -299,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Endpoints.Refresh();
+                    parentServer.Endpoints.Refresh(true);
                 }
                 var retValue = parentServer.Endpoints;
                 if (retValue != null)
@@ -338,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.LinkedServers.Refresh();
+                    parentServer.LinkedServers.Refresh(true);
                 }
                 var retValue = parentServer.LinkedServers;
                 if (retValue != null)
@@ -377,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentServer.Triggers.Refresh();
+                    parentServer.Triggers.Refresh(true);
                 }
                 var retValue = parentServer.Triggers;
                 if (retValue != null)
@@ -402,6 +442,45 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     }
 
     [Export(typeof(SmoQuerier))]
+    internal partial class SqlErrorMessageQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(UserDefinedMessage) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            Server parentServer = context.Parent as Server;
+            if (parentServer != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServer.UserDefinedMessages.Refresh(true);
+                }
+                var retValue = parentServer.UserDefinedMessages;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServer, filter, "UserDefinedMessage");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
     internal partial class SqlTableQuerier: SmoQuerier
     {
         Type[] supportedTypes = new Type[] { typeof(Table) };
@@ -416,7 +495,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Tables.Refresh();
+                    parentDatabase.Tables.Refresh(true);
                 }
                 var retValue = parentDatabase.Tables;
                 if (retValue != null)
@@ -455,7 +534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTable.Parent.Tables.Refresh();
+                    parentTable.Parent.Tables.Refresh(true);
                 }
                 var retValue = parentTable.Parent.Tables;
                 if (retValue != null)
@@ -494,7 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Views.Refresh();
+                    parentDatabase.Views.Refresh(true);
                 }
                 var retValue = parentDatabase.Views;
                 if (retValue != null)
@@ -533,7 +612,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Synonyms.Refresh();
+                    parentDatabase.Synonyms.Refresh(true);
                 }
                 var retValue = parentDatabase.Synonyms;
                 if (retValue != null)
@@ -572,7 +651,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTableViewTableTypeBase.Columns.Refresh();
+                    parentTableViewTableTypeBase.Columns.Refresh(true);
                 }
                 var retValue = parentTableViewTableTypeBase.Columns;
                 if (retValue != null)
@@ -611,7 +690,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTableViewTableTypeBase.Indexes.Refresh();
+                    parentTableViewTableTypeBase.Indexes.Refresh(true);
                 }
                 var retValue = parentTableViewTableTypeBase.Indexes;
                 if (retValue != null)
@@ -650,7 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTable.Checks.Refresh();
+                    parentTable.Checks.Refresh(true);
                 }
                 var retValue = parentTable.Checks;
                 if (retValue != null)
@@ -689,7 +768,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTable.ForeignKeys.Refresh();
+                    parentTable.ForeignKeys.Refresh(true);
                 }
                 var retValue = parentTable.ForeignKeys;
                 if (retValue != null)
@@ -755,7 +834,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTable.Triggers.Refresh();
+                    parentTable.Triggers.Refresh(true);
                 }
                 var retValue = parentTable.Triggers;
                 if (retValue != null)
@@ -821,7 +900,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentTableViewBase.Statistics.Refresh();
+                    parentTableViewBase.Statistics.Refresh(true);
                 }
                 var retValue = parentTableViewBase.Statistics;
                 if (retValue != null)
@@ -860,7 +939,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Triggers.Refresh();
+                    parentDatabase.Triggers.Refresh(true);
                 }
                 var retValue = parentDatabase.Triggers;
                 if (retValue != null)
@@ -899,7 +978,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Assemblies.Refresh();
+                    parentDatabase.Assemblies.Refresh(true);
                 }
                 var retValue = parentDatabase.Assemblies;
                 if (retValue != null)
@@ -938,7 +1017,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Sequences.Refresh();
+                    parentDatabase.Sequences.Refresh(true);
                 }
                 var retValue = parentDatabase.Sequences;
                 if (retValue != null)
@@ -977,7 +1056,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.UserDefinedDataTypes.Refresh();
+                    parentDatabase.UserDefinedDataTypes.Refresh(true);
                 }
                 var retValue = parentDatabase.UserDefinedDataTypes;
                 if (retValue != null)
@@ -1016,7 +1095,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.UserDefinedTableTypes.Refresh();
+                    parentDatabase.UserDefinedTableTypes.Refresh(true);
                 }
                 var retValue = parentDatabase.UserDefinedTableTypes;
                 if (retValue != null)
@@ -1055,7 +1134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.XmlSchemaCollections.Refresh();
+                    parentDatabase.XmlSchemaCollections.Refresh(true);
                 }
                 var retValue = parentDatabase.XmlSchemaCollections;
                 if (retValue != null)
@@ -1094,7 +1173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.UserDefinedTypes.Refresh();
+                    parentDatabase.UserDefinedTypes.Refresh(true);
                 }
                 var retValue = parentDatabase.UserDefinedTypes;
                 if (retValue != null)
@@ -1133,7 +1212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.UserDefinedFunctions.Refresh();
+                    parentDatabase.UserDefinedFunctions.Refresh(true);
                 }
                 var retValue = parentDatabase.UserDefinedFunctions;
                 if (retValue != null)
@@ -1172,7 +1251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.UserDefinedAggregates.Refresh();
+                    parentDatabase.UserDefinedAggregates.Refresh(true);
                 }
                 var retValue = parentDatabase.UserDefinedAggregates;
                 if (retValue != null)
@@ -1211,7 +1290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.FileGroups.Refresh();
+                    parentDatabase.FileGroups.Refresh(true);
                 }
                 var retValue = parentDatabase.FileGroups;
                 if (retValue != null)
@@ -1250,7 +1329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentFileGroup.Files.Refresh();
+                    parentFileGroup.Files.Refresh(true);
                 }
                 var retValue = parentFileGroup.Files;
                 if (retValue != null)
@@ -1289,7 +1368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.FullTextCatalogs.Refresh();
+                    parentDatabase.FullTextCatalogs.Refresh(true);
                 }
                 var retValue = parentDatabase.FullTextCatalogs;
                 if (retValue != null)
@@ -1328,7 +1407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.FullTextStopLists.Refresh();
+                    parentDatabase.FullTextStopLists.Refresh(true);
                 }
                 var retValue = parentDatabase.FullTextStopLists;
                 if (retValue != null)
@@ -1367,7 +1446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.PartitionFunctions.Refresh();
+                    parentDatabase.PartitionFunctions.Refresh(true);
                 }
                 var retValue = parentDatabase.PartitionFunctions;
                 if (retValue != null)
@@ -1406,7 +1485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.PartitionSchemes.Refresh();
+                    parentDatabase.PartitionSchemes.Refresh(true);
                 }
                 var retValue = parentDatabase.PartitionSchemes;
                 if (retValue != null)
@@ -1445,7 +1524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.SearchPropertyLists.Refresh();
+                    parentDatabase.SearchPropertyLists.Refresh(true);
                 }
                 var retValue = parentDatabase.SearchPropertyLists;
                 if (retValue != null)
@@ -1484,7 +1563,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Users.Refresh();
+                    parentDatabase.Users.Refresh(true);
                 }
                 var retValue = parentDatabase.Users;
                 if (retValue != null)
@@ -1523,7 +1602,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Schemas.Refresh();
+                    parentDatabase.Schemas.Refresh(true);
                 }
                 var retValue = parentDatabase.Schemas;
                 if (retValue != null)
@@ -1562,7 +1641,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.AsymmetricKeys.Refresh();
+                    parentDatabase.AsymmetricKeys.Refresh(true);
                 }
                 var retValue = parentDatabase.AsymmetricKeys;
                 if (retValue != null)
@@ -1601,7 +1680,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Certificates.Refresh();
+                    parentDatabase.Certificates.Refresh(true);
                 }
                 var retValue = parentDatabase.Certificates;
                 if (retValue != null)
@@ -1640,7 +1719,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.SymmetricKeys.Refresh();
+                    parentDatabase.SymmetricKeys.Refresh(true);
                 }
                 var retValue = parentDatabase.SymmetricKeys;
                 if (retValue != null)
@@ -1733,7 +1812,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.DatabaseAuditSpecifications.Refresh();
+                    parentDatabase.DatabaseAuditSpecifications.Refresh(true);
                 }
                 var retValue = parentDatabase.DatabaseAuditSpecifications;
                 if (retValue != null)
@@ -1772,7 +1851,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.SecurityPolicies.Refresh();
+                    parentDatabase.SecurityPolicies.Refresh(true);
                 }
                 var retValue = parentDatabase.SecurityPolicies;
                 if (retValue != null)
@@ -1811,7 +1890,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.DatabaseScopedCredentials.Refresh();
+                    parentDatabase.DatabaseScopedCredentials.Refresh(true);
                 }
                 var retValue = parentDatabase.DatabaseScopedCredentials;
                 if (retValue != null)
@@ -1850,7 +1929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Roles.Refresh();
+                    parentDatabase.Roles.Refresh(true);
                 }
                 var retValue = parentDatabase.Roles;
                 if (retValue != null)
@@ -1889,7 +1968,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.ApplicationRoles.Refresh();
+                    parentDatabase.ApplicationRoles.Refresh(true);
                 }
                 var retValue = parentDatabase.ApplicationRoles;
                 if (retValue != null)
@@ -1928,7 +2007,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.ColumnMasterKeys.Refresh();
+                    parentDatabase.ColumnMasterKeys.Refresh(true);
                 }
                 var retValue = parentDatabase.ColumnMasterKeys;
                 if (retValue != null)
@@ -1967,7 +2046,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.ColumnEncryptionKeys.Refresh();
+                    parentDatabase.ColumnEncryptionKeys.Refresh(true);
                 }
                 var retValue = parentDatabase.ColumnEncryptionKeys;
                 if (retValue != null)
@@ -1992,6 +2071,345 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     }
 
     [Export(typeof(SmoQuerier))]
+    internal partial class SqlServiceBrokerQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(ServiceBroker) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentDatabase.ServiceBroker.Refresh();
+                }
+                var retValue = parentDatabase.ServiceBroker;
+                if (retValue != null)
+                {
+                    return new SqlSmoObject[] { retValue };
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlServiceQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(BrokerService) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
+            if (parentServiceBroker != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServiceBroker.Services.Refresh(true);
+                }
+                var retValue = parentServiceBroker.Services;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServiceBroker, filter, "BrokerService");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<BrokerService>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlContractQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(ServiceContract) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
+            if (parentServiceBroker != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServiceBroker.ServiceContracts.Refresh(true);
+                }
+                var retValue = parentServiceBroker.ServiceContracts;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServiceBroker, filter, "ServiceContract");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServiceContract>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlQueueQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(ServiceQueue) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
+            if (parentServiceBroker != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServiceBroker.Queues.Refresh(true);
+                }
+                var retValue = parentServiceBroker.Queues;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServiceBroker, filter, "ServiceQueue");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServiceQueue>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlRemoteServiceBindingQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(RemoteServiceBinding) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
+            if (parentServiceBroker != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServiceBroker.RemoteServiceBindings.Refresh(true);
+                }
+                var retValue = parentServiceBroker.RemoteServiceBindings;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServiceBroker, filter, "RemoteServiceBinding");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlBrokerPriorityQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(BrokerPriority) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
+            if (parentServiceBroker != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServiceBroker.Priorities.Refresh(true);
+                }
+                var retValue = parentServiceBroker.Priorities;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServiceBroker, filter, "BrokerPriority");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<BrokerPriority>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlMessageTypeQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(MessageType) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
+            if (parentServiceBroker != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentServiceBroker.MessageTypes.Refresh(true);
+                }
+                var retValue = parentServiceBroker.MessageTypes;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentServiceBroker, filter, "MessageType");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<MessageType>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlExternalDataSourceQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(ExternalDataSource) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentDatabase.ExternalDataSources.Refresh(true);
+                }
+                var retValue = parentDatabase.ExternalDataSources;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentDatabase, filter, "ExternalDataSource");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ExternalDataSource>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
+    internal partial class SqlExternalFileFormatQuerier: SmoQuerier
+    {
+        Type[] supportedTypes = new Type[] { typeof(ExternalFileFormat) };
+
+        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
+
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)
+        {
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
+            {
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                if (refresh)
+                {
+                    parentDatabase.ExternalFileFormats.Refresh(true);
+                }
+                var retValue = parentDatabase.ExternalFileFormats;
+                if (retValue != null)
+                {
+                    HashSet<string> urns = null;
+                    if (hasFilter)
+                    {
+                        urns = GetUrns(context, parentDatabase, filter, "ExternalFileFormat");
+                    }
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue);
+                    }
+                }
+            }
+            return Enumerable.Empty<SqlSmoObject>();
+        }
+    }
+
+    [Export(typeof(SmoQuerier))]
     internal partial class SqlProcedureQuerier: SmoQuerier
     {
         Type[] supportedTypes = new Type[] { typeof(StoredProcedure) };
@@ -2006,7 +2424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.StoredProcedures.Refresh();
+                    parentDatabase.StoredProcedures.Refresh(true);
                 }
                 var retValue = parentDatabase.StoredProcedures;
                 if (retValue != null)
@@ -2045,7 +2463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.ExtendedStoredProcedures.Refresh();
+                    parentDatabase.ExtendedStoredProcedures.Refresh(true);
                 }
                 var retValue = parentDatabase.ExtendedStoredProcedures;
                 if (retValue != null)
@@ -2084,7 +2502,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentStoredProcedure.Parameters.Refresh();
+                    parentStoredProcedure.Parameters.Refresh(true);
                 }
                 var retValue = parentStoredProcedure.Parameters;
                 if (retValue != null)
@@ -2110,7 +2528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentUserDefinedAggregate.Parameters.Refresh();
+                    parentUserDefinedAggregate.Parameters.Refresh(true);
                 }
                 var retValue = parentUserDefinedAggregate.Parameters;
                 if (retValue != null)
@@ -2136,7 +2554,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentUserDefinedFunction.Parameters.Refresh();
+                    parentUserDefinedFunction.Parameters.Refresh(true);
                 }
                 var retValue = parentUserDefinedFunction.Parameters;
                 if (retValue != null)
@@ -2175,7 +2593,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentPartitionFunction.PartitionFunctionParameters.Refresh();
+                    parentPartitionFunction.PartitionFunctionParameters.Refresh(true);
                 }
                 var retValue = parentPartitionFunction.PartitionFunctionParameters;
                 if (retValue != null)
@@ -2214,7 +2632,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 if (refresh)
                 {
-                    parentDatabase.Parent.SystemDataTypes.Refresh();
+                    parentDatabase.Parent.SystemDataTypes.Refresh(true);
                 }
                 var retValue = parentDatabase.Parent.SystemDataTypes;
                 if (retValue != null)
