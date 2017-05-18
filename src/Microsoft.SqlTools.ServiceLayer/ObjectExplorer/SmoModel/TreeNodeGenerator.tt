@@ -208,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine(string.Format("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel")));
 						WriteLine(string.Format("                NodeType = \"{0}\",", "Folder"));
 						WriteLine(string.Format("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name")));
+						WriteLine(string.Format("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false"));
 						
 						if (msShippedOwned != null)
 						{

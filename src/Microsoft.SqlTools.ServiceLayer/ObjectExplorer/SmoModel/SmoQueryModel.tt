@@ -15,10 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Smo.Broker;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -96,12 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("if (hasFilter)");
 				WriteLine("{");
 				PushIndent(indent);
-				WriteLine(string.Format("string urn = $\"{{{0}.Urn.ToString()}}/{1}\" + filter;", fieldForUrn, nodeType));
-				WriteLine("Enumerator en = new Enumerator();");
-				WriteLine("Request request = new Request(new Urn(urn));");
-				WriteLine("ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);");
-				WriteLine("EnumResult result = en.Process(serverConnection, request);");
-				WriteLine("urns = GetUrns(result);");
+				WriteLine(string.Format("urns = GetUrns(context, {0}, filter, \"{1}\");", fieldForUrn, nodeType));
 				PopIndent();
 				WriteLine("}");
 				WriteLine("if (hasFilter && urns != null)");

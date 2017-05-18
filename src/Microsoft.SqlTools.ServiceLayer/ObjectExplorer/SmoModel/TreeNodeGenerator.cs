@@ -118,17 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	}
     }
 
-    internal sealed partial class ExternalResourceTreeNode : SmoTreeNode
-    {
-    	public ExternalResourceTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "ExternalResource";
-    		this.NodeTypeId = NodeTypes.ExternalResource;
-	    	OnInitialize();
-    	}
-    }
-
     internal sealed partial class HistoryTableTreeNode : SmoTreeNode
     {
     	public HistoryTableTreeNode() : base()
@@ -152,12 +141,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Databases,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Databases,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Security,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelSecurity,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Azure|ValidForFlag.AzureV12|ValidForFlag.NotContainedUser|ValidForFlag.CanViewSecurity,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -165,6 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_ServerObjects,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerObjects,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.NotContainedUser,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -177,12 +169,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Databases" }; }
 
+        public override IEnumerable<NodeFilter> Filters
+        {
+           get
+           {
+                var filters = new List<NodeFilter>();
+                filters.Add(new NodeFilter
+                {
+                   Property = "IsSystemObject",
+                   Type = typeof(bool),
+                   Values = new List<object> { 0 },
+                });
+                return filters;
+           }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemDatabases,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemDatabases,
+                IsSystemObject = true,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Azure|ValidForFlag.AzureV12|ValidForFlag.NotContainedUser|ValidForFlag.CanConnectToMaster,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -216,6 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_LinkedServerLogins,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelLinkedServerLogins,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -223,12 +232,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Logins,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelLogins,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ServerRoles,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerRoles,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -236,20 +247,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Credentials,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelCredentials,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_CryptographicProviders,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ServerLevelCryptographicProviders,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.NotDebugInstance,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ServerAudits,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerAudits,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -257,6 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_ServerAuditSpecifications,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerAuditSpecifications,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -283,6 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Endpoints,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelEndpoints,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -290,18 +298,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_LinkedServers,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelLinkedServers,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ServerTriggers,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerTriggers,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ErrorMessages,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ServerLevelErrorMessages,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -320,6 +324,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     internal partial class SystemDatabasesChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemDatabases" }; }
+
+        public override IEnumerable<NodeFilter> Filters
+        {
+           get
+           {
+                var filters = new List<NodeFilter>();
+                filters.Add(new NodeFilter
+                {
+                   Property = "IsSystemObject",
+                   Type = typeof(bool),
+                   Values = new List<object> { 1 },
+                });
+                return filters;
+           }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlDatabaseQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new DatabaseTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
     }
 
     [Export(typeof(ChildFactory))]
@@ -413,30 +447,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ServerLevelCredential";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ServerLevelCryptographicProvidersChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ServerLevelCryptographicProviders" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlCryptographicProviderQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "ServerLevelCryptographicProvider";
             InitializeChild(parent, child, context);
             return child;
         }
@@ -564,30 +574,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
-    internal partial class ServerLevelErrorMessagesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ServerLevelErrorMessages" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlErrorMessageQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "ServerLevelErrorMessage";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
     internal partial class DatabaseChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Database" }; }
@@ -598,44 +584,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Tables,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Tables,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Views,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Views,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Synonyms,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Synonyms,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Programmability,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Programmability,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ExternalResources,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ExternalResources,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ServiceBroker,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ServiceBroker,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Storage,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Storage,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -643,6 +620,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Security,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Security,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -677,21 +655,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 var filters = new List<NodeFilter>();
                 filters.Add(new NodeFilter
                 {
-                   Property = "IsFileTable",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
-                });
-                filters.Add(new NodeFilter
-                {
                    Property = "IsSystemObject",
                    Type = typeof(bool),
-                   Values = new List<object> { 0 },
-                });
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsExternal",
-                   Type = typeof(bool),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                    Values = new List<object> { 0 },
                 });
                 filters.Add(new NodeFilter
@@ -715,6 +680,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SystemTables,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemTables,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -763,6 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SystemViews,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemViews,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -820,24 +787,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_StoredProcedures,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.StoredProcedures,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Functions,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Functions,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_DatabaseTriggers,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseTriggers,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Assemblies,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Assemblies,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -845,102 +816,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Types,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Types,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Sequences,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Sequences,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-        }
-
-        internal override Type[] ChildQuerierTypes { get {return null;} }
-
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            return null;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ExternalResourcesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalResources" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ExternalDataSources,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ExternalDataSources,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ExternalFileFormats,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ExternalFileFormats,
-                ValidFor = ValidForFlag.Sql2016,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-        }
-
-        internal override Type[] ChildQuerierTypes { get {return null;} }
-
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            return null;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ServiceBrokerChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ServiceBroker" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_MessageTypes,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.MessageTypes,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Contracts,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Contracts,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Queues,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Queues,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Services,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Services,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_RemoteServiceBindings,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.RemoteServiceBindings,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_BrokerPriorities,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.BrokerPriorities,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -966,18 +850,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_FileGroups,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.FileGroups,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_FullTextCatalogs,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.FullTextCatalogs,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_FullTextStopLists,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.FullTextStopLists,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -985,24 +872,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_LogFiles,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SqlLogFiles,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_PartitionFunctions,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.PartitionFunctions,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_PartitionSchemes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.PartitionSchemes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SearchPropertyLists,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SearchPropertyLists,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1029,24 +920,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Users,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Users,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Roles,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Roles,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Schemas,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Schemas,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_AsymmetricKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.AsymmetricKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1054,6 +949,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Certificates,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Certificates,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1061,6 +957,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SymmetricKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SymmetricKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1068,6 +965,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_DatabaseScopedCredentials,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseScopedCredentials,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1075,6 +973,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_DatabaseEncryptionKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseEncryptionKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1082,6 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_MasterKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.MasterKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1089,6 +989,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_DatabaseAuditSpecifications,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseAuditSpecifications,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1096,6 +997,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SecurityPolicies,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SecurityPolicies,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1103,6 +1005,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_AlwaysEncryptedKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.AlwaysEncryptedKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1186,36 +1089,42 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Columns,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Columns,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Keys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Keys,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Constraints,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Constraints,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Triggers,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Triggers,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Indexes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Indexes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Statistics,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1248,24 +1157,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Columns,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Columns,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Constraints,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Constraints,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Indexes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Indexes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Statistics,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1299,12 +1212,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Columns,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Columns,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Statistics,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1562,24 +1477,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Columns,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Columns,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Triggers,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Triggers,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Indexes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Indexes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Statistics,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1610,21 +1529,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_SystemFunctions,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemFunctions,
+                IsSystemObject = true,
+                IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_TableValuedFunctions,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.TableValuedFunctions,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ScalarValuedFunctions,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ScalarValuedFunctions,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_AggregateFunctions,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.AggregateFunctions,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1636,6 +1566,45 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             return null;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class SystemFunctionsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemFunctions" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_TableValuedFunctions,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemTableValuedFunctions,
+                IsSystemObject = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_ScalarValuedFunctions,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.SystemScalarValuedFunctions,
+                IsSystemObject = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new Type[0];           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new TableValuedFunctionTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
         }
     }
 
@@ -1699,18 +1668,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SystemDataTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemDataTypes,
+                IsSystemObject = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_UserDefinedDataTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedDataTypes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_UserDefinedTableTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedTableTypes,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Azure|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1718,6 +1690,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_UserDefinedTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedTypes,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1725,6 +1698,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_XMLSchemaCollections,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.XmlSchemaCollections,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1775,48 +1749,56 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SystemExactNumerics,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemExactNumerics,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemApproximateNumerics,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemApproximateNumerics,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemDateAndTime,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemDateAndTimes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemCharacterStrings,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemCharacterStrings,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemUnicodeCharacterStrings,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemUnicodeCharacterStrings,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemBinaryStrings,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemBinaryStrings,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemOtherDataTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemOtherDataTypes,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_SystemCLRDataTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemClrDataTypes,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Azure|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1824,6 +1806,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SystemSpatialDataTypes,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemSpatialDataTypes,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Azure|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1944,18 +1927,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Columns,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedTableTypeColumns,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Keys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedTableTypeKeys,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Constraints,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedTableTypeConstraints,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2289,54 +2275,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
-    internal partial class ExternalDataSourcesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalDataSources" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlExternalDataSourceQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "ExternalDataSource";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ExternalFileFormatsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalFileFormats" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlExternalFileFormatQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "ExternalFileFormat";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
     internal partial class StoredProceduresChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "StoredProcedures" }; }
@@ -2362,6 +2300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_SystemStoredProcedures,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemStoredProcedures,
+                IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -2432,6 +2371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Parameters,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.StoredProcedureParameters,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2527,6 +2467,53 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
+    internal partial class SystemTableValuedFunctionsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemTableValuedFunctions" }; }
+
+        public override IEnumerable<NodeFilter> Filters
+        {
+           get
+           {
+                var filters = new List<NodeFilter>();
+                filters.Add(new NodeFilter
+                {
+                   Property = "FunctionType",
+                   Type = typeof(Enum),
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
+                   Values = new List<object>
+                   {
+                      { UserDefinedFunctionType.Table }
+                   }
+                });
+                filters.Add(new NodeFilter
+                {
+                   Property = "IsSystemObject",
+                   Type = typeof(bool),
+                   Values = new List<object> { 1 },
+                });
+                return filters;
+           }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlUserDefinedFunctionQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new TableValuedFunctionTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
     internal partial class TableValuedFunctionChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "TableValuedFunction" }; }
@@ -2537,6 +2524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Parameters,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.TableValuedFunctionParameters,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2632,6 +2620,53 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
+    internal partial class SystemScalarValuedFunctionsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemScalarValuedFunctions" }; }
+
+        public override IEnumerable<NodeFilter> Filters
+        {
+           get
+           {
+                var filters = new List<NodeFilter>();
+                filters.Add(new NodeFilter
+                {
+                   Property = "FunctionType",
+                   Type = typeof(Enum),
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
+                   Values = new List<object>
+                   {
+                      { UserDefinedFunctionType.Scalar }
+                   }
+                });
+                filters.Add(new NodeFilter
+                {
+                   Property = "IsSystemObject",
+                   Type = typeof(bool),
+                   Values = new List<object> { 1 },
+                });
+                return filters;
+           }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+           get
+           {
+              return new [] { typeof(SqlUserDefinedFunctionQuerier), };
+           }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ScalarValuedFunctionTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
     internal partial class ScalarValuedFunctionChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "ScalarValuedFunction" }; }
@@ -2642,6 +2677,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Parameters,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ScalarValuedFunctionParameters,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2722,6 +2758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_Parameters,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.AggregateFunctionParameters,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2763,54 +2800,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "AggregateFunctionParameter";
             child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class RemoteServiceBindingsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "RemoteServiceBindings" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlRemoteServiceBindingQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "RemoteServiceBinding";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class BrokerPrioritiesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "BrokerPriorities" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlBrokerPriorityQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "BrokerPriority";
             InitializeChild(parent, child, context);
             return child;
         }
@@ -2994,6 +2983,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_FilegroupFiles,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.FileGroupFiles,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -3067,12 +3057,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_DatabaseRoles,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseRoles,
+                IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ApplicationRoles,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ApplicationRoles,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -3315,6 +3307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_ColumnMasterKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ColumnMasterKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -3322,6 +3315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeValue = SR.SchemaHierarchy_ColumnEncryptionKeys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ColumnEncryptionKeys,
+                IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -3427,242 +3421,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "ColumnEncryptionKey";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class MessageTypesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "MessageTypes" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_SystemMessageTypes,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.SystemMessageTypes,
-                IsMsShippedOwned = true,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlMessageTypeQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "MessageType";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class SystemMessageTypesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemMessageTypes" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlMessageTypeQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "SystemMessageType";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ContractsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "Contracts" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_SystemContracts,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.SystemContracts,
-                IsMsShippedOwned = true,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlContractQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "Contract";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class SystemContractsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemContracts" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlContractQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "SystemContract";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class QueuesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "Queues" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_SystemQueues,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.SystemQueues,
-                IsMsShippedOwned = true,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlQueueQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "Queue";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class SystemQueuesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemQueues" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlQueueQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "SystemQueue";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ServicesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "Services" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_SystemServices,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.SystemServices,
-                IsMsShippedOwned = true,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlServiceQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "Service";
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class SystemServicesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "SystemServices" }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlServiceQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "SystemService";
             InitializeChild(parent, child, context);
             return child;
         }

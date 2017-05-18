@@ -70,9 +70,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     var value = values[i];
                     object proeprtyValue = value;
+                    if (Type == typeof(string))
+                    {
+                        proeprtyValue = $"'{proeprtyValue}'";
+                    }
                     if (Type == typeof(Enum))
                     {
                         proeprtyValue = (int)Convert.ChangeType(value, Type);
+                       
                     }
                     string orPrefix = i == 0 ? string.Empty : "or";
                     filter = $"{filter} {orPrefix} @{Property} = {proeprtyValue}";

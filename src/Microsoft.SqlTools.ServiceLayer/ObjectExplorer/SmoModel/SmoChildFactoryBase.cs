@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.SqlServer.Management.Smo;
@@ -21,20 +22,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
             try
             {
                 OnExpandPopulateFolders(allChildren, parent);
+                if(!includeSystemObjects)
+                {
+                    allChildren.RemoveAll(x => x.IsSystemObject);
+                }
                 RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                OnExpandPopulateNonFolders(allChildren, parent, refresh);
+                OnExpandPopulateNonFolders(allChildren, parent, refresh, name);
                 OnBeginAsyncOperations(parent);
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Error, $"Failed expanding oe children. error:{ex.Message} {ex.StackTrace}");
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
+                    parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
             }
             finally
             {
@@ -56,8 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name)
         {
+            Logger.Write(LogLevel.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
+
             if (ChildQuerierTypes == null)
             {
                 // This node does not support non-folder children
@@ -73,22 +82,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
-            var filters = this.Filters;
+            var filters = this.Filters.ToList();
+            if (!string.IsNullOrEmpty(name))
+            {
+                filters.Add(new NodeFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    Values = new List<object> { name },
+                });
+            }
             foreach (var querier in queriers)
             {
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
-
-                foreach (var smoObject in querier.Query(context, propertyFilter, refresh))
+                try
                 {
-                    if (smoObject == null)
+                    foreach (var smoObject in querier.Query(context, propertyFilter, refresh))
                     {
-                        Console.WriteLine("smoObject should not be null");
+                        if (smoObject == null)
+                        {
+                            Console.WriteLine("smoObject should not be null");
+                        }
+                        TreeNode childNode = CreateChild(parent, smoObject);
+                        if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, validForFlag))
+                        {
+                            allChildren.Add(childNode);
+                        }
                     }
-                    TreeNode childNode = CreateChild(parent, smoObject);
-                    if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, validForFlag))
-                    {
-                        allChildren.Add(childNode);
-                    }
+
+                }
+                catch (Exception ex)
+                {
+                    string error = string.Format(CultureInfo.InvariantCulture, "Failed getting smo objects. parent:{0} querier: {1} error:{2} inner:{3} stacktrace:{4}",
+                    parent != null ? parent.GetNodePath() : "", querier.GetType(), ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                    Logger.Write(LogLevel.Error, error);
                 }
             }
         }
