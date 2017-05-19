@@ -69,13 +69,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 for (int i = 0; i < values.Count; i++)
                 {
                     var value = values[i];
-                    object proeprtyValue = value;
+                    object propertyValue = value;
+                    if (Type == typeof(string))
+                    {
+                        propertyValue = $"'{propertyValue}'";
+                    }
                     if (Type == typeof(Enum))
                     {
-                        proeprtyValue = (int)Convert.ChangeType(value, Type);
+                        propertyValue = (int)Convert.ChangeType(value, Type);
+                       
                     }
                     string orPrefix = i == 0 ? string.Empty : "or";
-                    filter = $"{filter} {orPrefix} @{Property} = {proeprtyValue}";
+                    filter = $"{filter} {orPrefix} @{Property} = {propertyValue}";
                 }
             }
             filter = $"({filter})";
