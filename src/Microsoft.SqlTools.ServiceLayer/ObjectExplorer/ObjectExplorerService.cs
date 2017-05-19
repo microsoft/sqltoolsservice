@@ -496,7 +496,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 this.serviceProvider = serviceProvider;
                 this.connectionService = connectionService;
             }
-            
+
             public string Uri { get; private set; }
             public TreeNode Root { get; private set; }
 
@@ -509,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     // Assuming the databases are in a folder under server node
                     var children = rootNode.Expand();
                     var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
-                    var databasesChildren = databasesRoot.Expand();
+                    var databasesChildren = databasesRoot.Expand(response.ConnectionSummary.DatabaseName);
                     var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
                     var databaseNode = databases.FirstOrDefault(d => d.Label == response.ConnectionSummary.DatabaseName);
                     databaseNode.Label = rootNode.Label;
