@@ -73,6 +73,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public string NodeSubType { get; set; }
 
         /// <summary>
+        /// Error message returned from the engine for a object explorer node failure reason, if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
         /// Node status - for example login can be disabled/enabled
         /// </summary>
         public string NodeStatus { get; set; }
@@ -188,7 +193,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 NodeType = this.NodeType,
                 Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
-                NodeSubType = this.NodeSubType
+                NodeSubType = this.NodeSubType,
+                ErrorMessage = this.ErrorMessage
             };
         }
 
@@ -285,15 +291,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     foreach (var factory in childFactories)
                     {
-                        IEnumerable<TreeNode> items = factory.Expand(this, refresh);
-                        if (items != null)
+                        try
                         {
-                            foreach (TreeNode item in items)
+                            IEnumerable<TreeNode> items = factory.Expand(this, refresh);
+                            if (items != null)
                             {
-                                children.Add(item);
-                                item.Parent = this;
+                                foreach (TreeNode item in items)
+                                {
+                                    children.Add(item);
+                                    item.Parent = this;
 
+                                }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Write(LogLevel.Error, $"Failed populating oe children. error:{ex.Message} {ex.StackTrace}");
+                            ErrorMessage = ex.Message;
                         }
                     }
                 }
@@ -301,6 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             catch(Exception ex)
             {
                 Logger.Write(LogLevel.Error, $"Failed populating oe children. error:{ex.Message} {ex.StackTrace}");
+                ErrorMessage = ex.Message;
             }
             finally
             {
