@@ -58,9 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 reader = ((Data.Tools.DataSets.DataTable)data).CreateDataReader();
             }
            
-            else if (data is DataSet)
+            else if (data is Microsoft.Data.Tools.DataSets.DataSet)
             {
-                reader = ((DataSet)data).Tables[0].CreateDataReader();
+                reader = ((Microsoft.Data.Tools.DataSets.DataSet)data).Tables[0].CreateDataReader();
             }
 
             return reader;

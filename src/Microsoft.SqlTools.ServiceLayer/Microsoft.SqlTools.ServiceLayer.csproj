@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<OutputType>Exe</OutputType>
+	<EnableDefaultItems>false</EnableDefaultItems>
+	<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+	<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<RuntimeIdentifiers>win7-x64;osx.10.11-x64;ubuntu.16.04-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System.Data.SqlClient" />
+  </ItemGroup>
+  <ItemGroup>
+	<PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17054.0" />
+	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17050.0" />
+  </ItemGroup>
+  <ItemGroup>
+	<Compile Include="**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+	<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+	<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+  </ItemGroup>
+</Project>
