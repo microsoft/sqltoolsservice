@@ -63,6 +63,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public string NodeType { get; set; }
 
         /// <summary>
+        // True if the node includes system object
+        /// </summary>
+        public bool IsSystemObject { get; set; }
+
+        /// <summary>
         /// Enum defining the type of the node - for example Server, Database, Folder, Table
         /// </summary>
         public NodeTypes NodeTypeId { get; set; }
@@ -196,15 +201,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand()
+        public IList<TreeNode> Expand(string name= null)
         {
             // TODO consider why solution explorer has separate Children and Items options
             if (children.IsInitialized)
             {
                 return children;
             }
-            PopulateChildren(false);
+            PopulateChildren(false, name);
             return children;
+        }
+
+        /// <summary>
+        /// Expands this node and returns its children
+        /// </summary>
+        /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
+        public IList<TreeNode> Expand()
+        {
+            return Expand(null);
         }
 
         /// <summary>
@@ -214,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public virtual IList<TreeNode> Refresh()
         {
             // TODO consider why solution explorer has separate Children and Items options
-            PopulateChildren(true);
+            PopulateChildren(true, null);
             return children;
         }
 
@@ -266,13 +280,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected void PopulateChildren(bool refresh)
+        protected void PopulateChildren(bool refresh, string name = null)
         {
+            Logger.Write(LogLevel.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
 
             SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+            bool includeSystemObjects = context != null && context.Database != null ? ObjectExplorerUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
+            
 
-            if (children.IsPopulating || context == null)
+                if (children.IsPopulating || context == null)
                 return;
 
             children.Clear();
@@ -285,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     foreach (var factory in childFactories)
                     {
-                        IEnumerable<TreeNode> items = factory.Expand(this, refresh);
+                        IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects);
                         if (items != null)
                         {
                             foreach (TreeNode item in items)
@@ -300,7 +317,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Error, $"Failed populating oe children. error:{ex.Message} {ex.StackTrace}");
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
+                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
             }
             finally
             {

@@ -6,10 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using Microsoft.Data.Tools.DataSets;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -74,12 +77,42 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return true;
         }
 
+        protected HashSet<string> GetUrns(SmoQueryContext context, SqlSmoObject smoObject, string filter, string objectName)
+        {
+            HashSet<string> urns = null;
+            string urn = string.Empty;
+            try
+            {
+                string parentUrn = smoObject.Urn;
+                urn = parentUrn != null ? $"{parentUrn.ToString()}/{objectName}" + filter : string.Empty;
+
+                if (!string.IsNullOrEmpty(urn))
+                {
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+
+                    EnumResult result = en.Process(serverConnection, request);
+
+                    urns = GetUrns(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed getting urns. error:{0} inner:{1} stacktrace:{2}",
+                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
+            }
+
+            return urns;
+        }
+
         /// <summary>
         /// Gets the urn from the enumResult 
         /// </summary>
         protected HashSet<string> GetUrns(EnumResult enumResult)
         {
-            lock (lockObject)
+            try
             {
                 HashSet<string> urns = null;
                 if (enumResult != null && enumResult.Data != null)
@@ -99,6 +132,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
                 return urns;
             }
+            catch(Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed getting urns. error:{0} inner:{1} stacktrace:{2}",
+                  ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
+            }
+
+            return null;
         }
     }
     

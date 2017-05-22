@@ -298,6 +298,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                 //Verify the test databases is in the list
                 Assert.NotNull(databases);
+                Assert.False(databases.Any(x => x.Label == "master"));
+                var systemDatabasesNode = databasesChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_SystemDatabases);
+                Assert.NotNull(systemDatabasesNode);
+
+                var systemDatabases = await _service.ExpandNode(session, systemDatabasesNode.NodePath);
+                Assert.True(systemDatabases.Any(x => x.Label == "master"));
+
                 databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
             else
@@ -305,6 +312,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
                 databaseNode = session.Root.ToNodeInfo();
                 Assert.True(databaseNode.Label.Contains(databaseName));
+                var databasesChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.False(databasesChildren.Any(x => x.Label == SR.SchemaHierarchy_SystemDatabases));
+
             }
             Assert.NotNull(databaseNode);
             return databaseNode;
