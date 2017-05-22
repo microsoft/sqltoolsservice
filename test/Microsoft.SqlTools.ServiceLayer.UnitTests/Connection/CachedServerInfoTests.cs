@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
         }
 
-        [Fact]
+       // [Fact]
         public void AddOrUpdateIsSqlDwFalseToggle()
         {
             bool state = true;

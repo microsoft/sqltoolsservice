@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
 	<OutputType>Exe</OutputType>
 	<EnableDefaultItems>false</EnableDefaultItems>
 	<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -26,4 +26,15 @@
 	<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 	<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
   </ItemGroup>
+   <ItemGroup>
+    <EmbeddedResource Include="Localization\sr.resx" />
+  </ItemGroup>
+   <ItemGroup>
+     <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">
+       <SubType>Component</SubType>
+     </Compile>
+     <Compile Update="Connection\ReliableConnection\ReliableSqlConnection.cs">
+       <SubType>Component</SubType>
+     </Compile>
+   </ItemGroup>
 </Project>

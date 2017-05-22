@@ -20,6 +20,13 @@
 	<Compile Include="**/*.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Scripts/CreateTestDatabaseObjects.sql" />
+    <EmbeddedResource Include="Scripts/CreateTestDatabase.sql" />
+    <EmbeddedResource Include="Scripts/AdventureWorks.sql" />
+    <EmbeddedResource Include="Scripts/CreateNorthwindSchema.sql" />
+    <EmbeddedResource Include="Scripts/TestDbTableQueries.sql" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Moq">
 	  <HintPath>..\..\bin\ref\Moq.dll</HintPath>
 	</Reference>
