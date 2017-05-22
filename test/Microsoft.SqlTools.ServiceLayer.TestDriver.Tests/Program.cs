@@ -13,6 +13,9 @@ using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
+// turn off entry point since this is xUnit project
+#if false
+
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
     internal class Program
@@ -120,3 +123,4 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
     }
 }
+#endif

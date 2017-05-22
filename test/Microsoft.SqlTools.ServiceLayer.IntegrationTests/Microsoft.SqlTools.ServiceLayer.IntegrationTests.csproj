@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -9,56 +8,35 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTargetFallback>$(PackageTargetFallback);dotnet5.4;portable-net451+win8</PackageTargetFallback>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-
   <ItemGroup>
- 	<Reference Include="Newtonsoft.Json">
-	  <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
-	</Reference>
-	<Reference Include="Moq">
-	  <HintPath>../../bin/ref/Moq.dll</HintPath>
-	</Reference>
-	<Reference Include="Castle.Core">
-	  <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
-	</Reference>
-    <ProjectReference Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+ 	  <Reference Include="Newtonsoft.Json">
+	    <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Moq">
+	    <HintPath>../../bin/ref/Moq.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Castle.Core">
+	    <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
+	  </Reference>
+    <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170427-09" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-	<PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17054.0" />
-  
-  <!--
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20170106-08" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta5-build1225" />
-    
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
-    <PackageReference Include="System.Data.Common" Version="4.1.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.0-sqltools-24613-04" />
-    <PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17053.0" />
-    <PackageReference Include="System.Security.SecureString" Version="4.0.0" />
-    <PackageReference Include="System.Collections.Specialized" Version="4.0.1" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.1.0" />
-    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
-    <PackageReference Include="Moq" Version="4.6.36-alpha" />
-	-->
+	  <PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
+	  <PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17054.0" />
   </ItemGroup>
-
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Integration' ">
     <DefineConstants>$(DefineConstants);WINDOWS_ONLY_BUILD</DefineConstants>
   </PropertyGroup>
-
 </Project>
