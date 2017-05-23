@@ -50,12 +50,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeCoverage", "CodeCoverag
 		test\CodeCoverage\runintegration.bat = test\CodeCoverage\runintegration.bat
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.PerfTests", "test\Microsoft.SqlTools.ServiceLayer.PerfTests\Microsoft.SqlTools.ServiceLayer.PerfTests.xproj", "{7E5968AB-83D7-4738-85A2-416A50F13D2F}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests", "test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.xproj", "{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestEnvConfig", "test\Microsoft.SqlTools.ServiceLayer.TestEnvConfig\Microsoft.SqlTools.ServiceLayer.TestEnvConfig.xproj", "{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Credentials", "src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj", "{0F761F76-E0F3-472E-B539-1815CE2BC696}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting", "src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
@@ -70,6 +64,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.IntegrationTests", "test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj", "{16D4C526-A3DD-4B12-84F7-AB42D56C2FA4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.PerfTests", "test\Microsoft.SqlTools.ServiceLayer.PerfTests\Microsoft.SqlTools.ServiceLayer.PerfTests.csproj", "{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests", "test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj", "{501DB3B2-AF92-41CF-82F6-780F9C37C219}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.TestEnvConfig", "test\Microsoft.SqlTools.ServiceLayer.TestEnvConfig\Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj", "{2C290C58-C98D-46B2-BCED-44D9B67F6D31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,24 +77,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Integration|Any CPU.ActiveCfg = Release|Any CPU
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Integration|Any CPU.Build.0 = Release|Any CPU
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F761F76-E0F3-472E-B539-1815CE2BC696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0F761F76-E0F3-472E-B539-1815CE2BC696}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F761F76-E0F3-472E-B539-1815CE2BC696}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
@@ -137,6 +119,24 @@ Global
 		{16D4C526-A3DD-4B12-84F7-AB42D56C2FA4}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{16D4C526-A3DD-4B12-84F7-AB42D56C2FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16D4C526-A3DD-4B12-84F7-AB42D56C2FA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,9 +144,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{B7D21727-2926-452B-9610-3ADB0BB6D789} = {F9978D78-78FE-4E92-A7D6-D436B7683EF6}
 		{87D9C7D9-18F4-4AB9-B20D-66C02B6075E2} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
-		{7E5968AB-83D7-4738-85A2-416A50F13D2F} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
-		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
-		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{0F761F76-E0F3-472E-B539-1815CE2BC696} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{835EDEB4-289B-4D6D-A9A0-609E43A87D6E} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
@@ -154,5 +151,8 @@ Global
 		{4F250E56-F8B4-4E69-AECC-4D31EDD891E7} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{8339991B-6D11-45A4-87D0-DF3322198990} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{16D4C526-A3DD-4B12-84F7-AB42D56C2FA4} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{501DB3B2-AF92-41CF-82F6-780F9C37C219} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{2C290C58-C98D-46B2-BCED-44D9B67F6D31} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 	EndGlobalSection
 EndGlobal
