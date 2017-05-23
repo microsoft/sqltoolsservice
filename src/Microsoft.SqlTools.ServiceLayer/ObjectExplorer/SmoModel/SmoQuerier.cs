@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             string urn = string.Empty;
             try
             {
-                string parentUrn = smoObject.Urn;
+                string parentUrn = smoObject.Urn != null ? smoObject.Urn.Value : string.Empty;
                 urn = parentUrn != null ? $"{parentUrn.ToString()}/{objectName}" + filter : string.Empty;
 
                 if (!string.IsNullOrEmpty(urn))
@@ -102,6 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed getting urns. error:{0} inner:{1} stacktrace:{2}",
                  ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(LogLevel.Error, error);
+                throw ex;
             }
 
             return urns;

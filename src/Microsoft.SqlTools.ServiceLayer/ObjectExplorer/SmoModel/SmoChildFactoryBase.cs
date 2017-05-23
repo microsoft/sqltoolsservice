@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
                     parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(LogLevel.Error, error);
+                throw ex;
             }
             finally
             {
@@ -97,7 +98,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
                 try
                 {
-                    foreach (var smoObject in querier.Query(context, propertyFilter, refresh))
+                    var smoObjectList = querier.Query(context, propertyFilter, refresh).ToList();
+                    foreach (var smoObject in smoObjectList)
                     {
                         if (smoObject == null)
                         {
@@ -116,6 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     string error = string.Format(CultureInfo.InvariantCulture, "Failed getting smo objects. parent:{0} querier: {1} error:{2} inner:{3} stacktrace:{4}",
                     parent != null ? parent.GetNodePath() : "", querier.GetType(), ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                     Logger.Write(LogLevel.Error, error);
+                    throw ex;
                 }
             }
         }

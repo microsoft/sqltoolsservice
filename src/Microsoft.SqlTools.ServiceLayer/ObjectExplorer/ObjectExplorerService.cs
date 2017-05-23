@@ -117,12 +117,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 {
                     string uri = GenerateUri(connectionDetails);
 
-                    RunCreateSessionTask(connectionDetails, uri);
                     return new CreateSessionResponse { SessionId = uri };
                 });
             };
 
-            await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+            CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+            if (response != null)
+            {
+                RunCreateSessionTask(connectionDetails, response.SessionId);
+            }
+
         }
 
         internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
@@ -222,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerSession session;
             if (sessionMap.TryGetValue(uri, out session))
             {
-                // Establish a connection to the specified server/database
+                // Remove the session from active sessions and disconnect
                 sessionMap.TryRemove(session.Uri, out session);
                 connectionService.Disconnect(new DisconnectParams()
                 {
@@ -233,9 +237,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private void  RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
-            Task task = CreateSessionAsync(connectionDetails, uri);
-            CreateSessionTask = task;
-            Task.Run(async () => await task);
+            if (connectionDetails != null && !string.IsNullOrEmpty(uri))
+            {
+                Task task = CreateSessionAsync(connectionDetails, uri);
+                CreateSessionTask = task;
+                Task.Run(async () => await task);
+            }
         }
 
         /// <summary>
@@ -264,7 +271,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 {
                     Success = true,
                     RootNode = session.Root.ToNodeInfo(),
-                    SessionId = session.Uri
+                    SessionId = uri,
+                    ErrorMessage = session.ErrorMessage
+                    
                 };
                  await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                 return response;
@@ -304,7 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             connectionDetails.PersistSecurityInfo = true;
             ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
 
-            ConnectionCompleteParams connectionResult = await Connect(connectParams);
+            ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
             if (connectionResult == null)
             {
                 // Connection failed and notification is already sent
@@ -317,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         }
         
 
-        private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams)
+        private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
             string connectionErrorMessage = string.Empty;
             try
@@ -334,7 +343,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error: {connectionErrorMessage}");
                     await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, new SessionCreatedParameters
                     {
-                        ErrorMessage = result.ErrorMessage
+                        ErrorMessage = result.ErrorMessage,
+                        SessionId = uri
                     });
                     return null;
                 }
@@ -346,7 +356,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 // Send a connection failed error message in this case.
                 SessionCreatedParameters result = new SessionCreatedParameters()
                 {
-                    ErrorMessage = ex.ToString()
+                    ErrorMessage = ex.ToString(),
+                    SessionId = uri
                 };
                 await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
                 return null;
@@ -382,7 +393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
        
 
-        private async Task HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        private async Task<T> HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(LogLevel.Verbose, requestType);
 
@@ -390,11 +401,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 T result = await handler();
                 await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
+            return default(T);
         }
 
         /// <summary>
@@ -500,21 +513,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             public string Uri { get; private set; }
             public TreeNode Root { get; private set; }
 
+            public string ErrorMessage { get; set; }
+
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider)
             {
-                TreeNode rootNode = new ServerNode(response, serviceProvider);
+                ServerNode rootNode = new ServerNode(response, serviceProvider);
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!ObjectExplorerUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
                 {
                     // Assuming the databases are in a folder under server node
-                    var children = rootNode.Expand();
-                    var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
-                    var databasesChildren = databasesRoot.Expand(response.ConnectionSummary.DatabaseName);
-                    var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
-                    var databaseNode = databases.FirstOrDefault(d => d.Label == response.ConnectionSummary.DatabaseName);
-                    databaseNode.Label = rootNode.Label;
+                    DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);
                     session.Root = databaseNode;
                 }
+               
                 return session;
             }
             

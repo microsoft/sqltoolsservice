@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallCreateSession(details, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Null(actual.SessionId);
+                    Assert.NotNull(actual.SessionId);
                     Assert.NotNull(actual);
                     Assert.True(actual.ErrorMessage.Contains(expectedExceptionText));
                 }));
