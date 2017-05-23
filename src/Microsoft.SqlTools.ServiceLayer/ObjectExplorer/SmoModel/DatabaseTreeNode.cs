@@ -10,6 +10,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     internal partial class DatabaseTreeNode
     {
+        public DatabaseTreeNode(ServerNode serverNode, string databaseName): this()
+        {
+            Parent = serverNode;
+            NodeValue = databaseName;
+            Database db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, this.NodeValue);
+            db.Refresh();
+            CacheInfoFromModel(db);
+        }
 
         /// <summary>
         /// Initializes the context and ensures that 

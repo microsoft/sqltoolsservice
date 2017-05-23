@@ -22,6 +22,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Information describing the expanded nodes in the tree
         /// </summary>
         public NodeInfo[] Nodes { get; set; }
+
+        /// <summary>
+        /// Path identifying the node to expand. See <see cref="NodeInfo.NodePath"/> for details
+        /// </summary>
+        public string NodePath { get; set; }
+
+        /// <summary>
+        /// Error message returned from the engine for a object explorer expand failure reason, if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
     }
 
     /// <summary>
@@ -50,7 +60,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Returns children of a given node as a <see cref="NodeInfo"/> array.
         /// </summary>
         public static readonly
-            RequestType<ExpandParams, ExpandResponse> Type =
-            RequestType<ExpandParams, ExpandResponse>.Create("objectexplorer/expand");
+            RequestType<ExpandParams, bool> Type =
+            RequestType<ExpandParams, bool>.Create("objectexplorer/expand");
+    }
+
+    /// <summary>
+    /// Expand notification mapping entry 
+    /// </summary>
+    public class ExpandCompleteNotification
+    {
+        public static readonly
+            EventType<ExpandResponse> Type =
+            EventType<ExpandResponse>.Create("objectexplorer/expandCompleted");
     }
 }
