@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("else");
 				WriteLine("{");
 				PushIndent(indent);
-				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue);", nodeType));
+				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
 				PopIndent();
 				WriteLine("}");
 			}

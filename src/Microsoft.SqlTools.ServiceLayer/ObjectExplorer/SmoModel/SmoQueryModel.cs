@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Database>(retValue);
+                        return new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue);
+                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Login>(retValue);
+                        return new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ServerRole>(retValue);
+                        return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Credential>(retValue);
+                        return new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<CryptographicProvider>(retValue);
+                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -277,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Audit>(retValue);
+                        return new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -316,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue);
+                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -355,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Endpoint>(retValue);
+                        return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -394,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue);
+                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -433,7 +433,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue);
+                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -472,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue);
+                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c));
                     }
                 }
             }
@@ -511,7 +511,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Table>(retValue);
+                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -550,7 +550,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Table>(retValue);
+                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     }
                 }
             }
@@ -589,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<View>(retValue);
+                        return new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -628,7 +628,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Synonym>(retValue);
+                        return new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -667,7 +667,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Column>(retValue);
+                        return new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
                     }
                 }
             }
@@ -706,7 +706,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Index>(retValue);
+                        return new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
                     }
                 }
             }
@@ -745,7 +745,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Check>(retValue);
+                        return new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     }
                 }
             }
@@ -784,7 +784,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ForeignKey>(retValue);
+                        return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     }
                 }
             }
@@ -850,7 +850,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Trigger>(retValue);
+                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                     }
                 }
             }
@@ -916,7 +916,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Statistic>(retValue);
+                        return new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c));
                     }
                 }
             }
@@ -955,7 +955,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue);
+                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -994,7 +994,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<SqlAssembly>(retValue);
+                        return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1033,7 +1033,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Sequence>(retValue);
+                        return new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1072,7 +1072,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue);
+                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1111,7 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue);
+                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1150,7 +1150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue);
+                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1189,7 +1189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<UserDefinedType>(retValue);
+                        return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1228,7 +1228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue);
+                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1267,7 +1267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue);
+                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1306,7 +1306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<FileGroup>(retValue);
+                        return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1345,7 +1345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<DataFile>(retValue);
+                        return new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c));
                     }
                 }
             }
@@ -1384,7 +1384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<FullTextCatalog>(retValue);
+                        return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1423,7 +1423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<FullTextStopList>(retValue);
+                        return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1462,7 +1462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<PartitionFunction>(retValue);
+                        return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1501,7 +1501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<PartitionScheme>(retValue);
+                        return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1540,7 +1540,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<SearchPropertyList>(retValue);
+                        return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1579,7 +1579,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<User>(retValue);
+                        return new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1618,7 +1618,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Schema>(retValue);
+                        return new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1657,7 +1657,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<AsymmetricKey>(retValue);
+                        return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1696,7 +1696,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Certificate>(retValue);
+                        return new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1735,7 +1735,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<SymmetricKey>(retValue);
+                        return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1828,7 +1828,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue);
+                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1867,7 +1867,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<SecurityPolicy>(retValue);
+                        return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1906,7 +1906,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue);
+                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1945,7 +1945,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<DatabaseRole>(retValue);
+                        return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -1984,7 +1984,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ApplicationRole>(retValue);
+                        return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2023,7 +2023,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue);
+                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2062,7 +2062,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue);
+                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2128,7 +2128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<BrokerService>(retValue);
+                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     }
                 }
             }
@@ -2167,7 +2167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ServiceContract>(retValue);
+                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     }
                 }
             }
@@ -2206,7 +2206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ServiceQueue>(retValue);
+                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     }
                 }
             }
@@ -2245,7 +2245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue);
+                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     }
                 }
             }
@@ -2284,7 +2284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<BrokerPriority>(retValue);
+                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     }
                 }
             }
@@ -2323,7 +2323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<MessageType>(retValue);
+                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
                     }
                 }
             }
@@ -2362,7 +2362,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ExternalDataSource>(retValue);
+                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2401,7 +2401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue);
+                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2440,7 +2440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<StoredProcedure>(retValue);
+                        return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2479,7 +2479,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue);
+                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
@@ -2518,7 +2518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Parameter>(retValue);
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
                     }
                 }
             }
@@ -2544,7 +2544,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Parameter>(retValue);
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
                     }
                 }
             }
@@ -2570,7 +2570,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Parameter>(retValue);
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
                     }
                 }
             }
@@ -2609,7 +2609,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue);
+                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c));
                     }
                 }
             }
@@ -2648,7 +2648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<SystemDataType>(retValue);
+                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                     }
                 }
             }
