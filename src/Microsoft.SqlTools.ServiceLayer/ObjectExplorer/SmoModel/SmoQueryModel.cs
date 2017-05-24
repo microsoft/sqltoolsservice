@@ -37,14 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "Database");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<Database>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -76,14 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "LinkedServer");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<LinkedServer>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -115,14 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "Login");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<Login>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -154,14 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "ServerRole");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<ServerRole>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -193,14 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "Credential");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<Credential>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -232,14 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "CryptographicProvider");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<CryptographicProvider>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -271,14 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "Audit");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<Audit>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -310,14 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "ServerAuditSpecification");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<ServerAuditSpecification>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -349,14 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "Endpoint");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<Endpoint>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -388,14 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "LinkedServer");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<LinkedServer>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -427,14 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "ServerDdlTrigger");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<ServerDdlTrigger>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -466,14 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServer, filter, "UserDefinedMessage");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                    }
+                    return GetSmoCollectionResult<UserDefinedMessage>(urns, retValue, parentServer);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -505,14 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "Table");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<Table>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -544,14 +453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTable.Parent, filter, "Table");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c));
-                    }
+                    return GetSmoCollectionResult<Table>(urns, retValue, parentTable);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -583,14 +485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "View");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<View>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -622,14 +517,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "Synonym");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<Synonym>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -661,14 +549,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTableViewTableTypeBase, filter, "Column");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
-                    }
+                    return GetSmoCollectionResult<Column>(urns, retValue, parentTableViewTableTypeBase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -700,14 +581,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTableViewTableTypeBase, filter, "Index");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
-                    }
+                    return GetSmoCollectionResult<Index>(urns, retValue, parentTableViewTableTypeBase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -739,14 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTable, filter, "Check");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c));
-                    }
+                    return GetSmoCollectionResult<Check>(urns, retValue, parentTable);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -778,14 +645,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTable, filter, "ForeignKey");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c));
-                    }
+                    return GetSmoCollectionResult<ForeignKey>(urns, retValue, parentTable);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -844,14 +704,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTable, filter, "Trigger");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c));
-                    }
+                    return GetSmoCollectionResult<Trigger>(urns, retValue, parentTable);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -910,14 +763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentTableViewBase, filter, "Statistic");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c));
-                    }
+                    return GetSmoCollectionResult<Statistic>(urns, retValue, parentTableViewBase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -949,14 +795,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "DatabaseDdlTrigger");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<DatabaseDdlTrigger>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -988,14 +827,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "SqlAssembly");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<SqlAssembly>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1027,14 +859,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "Sequence");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<Sequence>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1066,14 +891,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "UserDefinedDataType");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<UserDefinedDataType>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1105,14 +923,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "UserDefinedTableType");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<UserDefinedTableType>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1144,14 +955,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "XmlSchemaCollection");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<XmlSchemaCollection>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1183,14 +987,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "UserDefinedType");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<UserDefinedType>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1222,14 +1019,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "UserDefinedFunction");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<UserDefinedFunction>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1261,14 +1051,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "UserDefinedAggregate");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<UserDefinedAggregate>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1300,14 +1083,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "FileGroup");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<FileGroup>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1339,14 +1115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentFileGroup, filter, "DataFile");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c));
-                    }
+                    return GetSmoCollectionResult<DataFile>(urns, retValue, parentFileGroup);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1378,14 +1147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "FullTextCatalog");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<FullTextCatalog>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1417,14 +1179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "FullTextStopList");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<FullTextStopList>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1456,14 +1211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "PartitionFunction");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<PartitionFunction>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1495,14 +1243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "PartitionScheme");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<PartitionScheme>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1534,14 +1275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "SearchPropertyList");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<SearchPropertyList>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1573,14 +1307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "User");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<User>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1612,14 +1339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "Schema");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<Schema>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1651,14 +1371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "AsymmetricKey");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<AsymmetricKey>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1690,14 +1403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "Certificate");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<Certificate>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1729,14 +1435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "SymmetricKey");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<SymmetricKey>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1822,14 +1521,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "DatabaseAuditSpecification");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<DatabaseAuditSpecification>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1861,14 +1553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "SecurityPolicy");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<SecurityPolicy>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1900,14 +1585,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "DatabaseScopedCredential");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<DatabaseScopedCredential>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1939,14 +1617,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "DatabaseRole");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<DatabaseRole>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1978,14 +1649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "ApplicationRole");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<ApplicationRole>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2017,14 +1681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "ColumnMasterKey");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<ColumnMasterKey>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2056,14 +1713,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "ColumnEncryptionKey");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<ColumnEncryptionKey>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2122,14 +1772,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServiceBroker, filter, "BrokerService");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
-                    }
+                    return GetSmoCollectionResult<BrokerService>(urns, retValue, parentServiceBroker);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2161,14 +1804,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServiceBroker, filter, "ServiceContract");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
-                    }
+                    return GetSmoCollectionResult<ServiceContract>(urns, retValue, parentServiceBroker);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2200,14 +1836,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServiceBroker, filter, "ServiceQueue");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
-                    }
+                    return GetSmoCollectionResult<ServiceQueue>(urns, retValue, parentServiceBroker);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2239,14 +1868,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServiceBroker, filter, "RemoteServiceBinding");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
-                    }
+                    return GetSmoCollectionResult<RemoteServiceBinding>(urns, retValue, parentServiceBroker);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2278,14 +1900,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServiceBroker, filter, "BrokerPriority");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
-                    }
+                    return GetSmoCollectionResult<BrokerPriority>(urns, retValue, parentServiceBroker);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2317,14 +1932,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentServiceBroker, filter, "MessageType");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
-                    }
+                    return GetSmoCollectionResult<MessageType>(urns, retValue, parentServiceBroker);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2356,14 +1964,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "ExternalDataSource");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<ExternalDataSource>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2395,14 +1996,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "ExternalFileFormat");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<ExternalFileFormat>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2434,14 +2028,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "StoredProcedure");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<StoredProcedure>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2473,14 +2060,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase, filter, "ExtendedStoredProcedure");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<ExtendedStoredProcedure>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2512,14 +2092,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentStoredProcedure, filter, "Parameter");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
-                    }
+                    return GetSmoCollectionResult<Parameter>(urns, retValue, parentStoredProcedure);
                 }
             }
             UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
@@ -2538,14 +2111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentUserDefinedAggregate, filter, "Parameter");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
-                    }
+                    return GetSmoCollectionResult<Parameter>(urns, retValue, parentUserDefinedAggregate);
                 }
             }
             UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
@@ -2564,14 +2130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentUserDefinedFunction, filter, "Parameter");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
-                    }
+                    return GetSmoCollectionResult<Parameter>(urns, retValue, parentUserDefinedFunction);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2603,14 +2162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentPartitionFunction, filter, "PartitionFunctionParameter");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c));
-                    }
+                    return GetSmoCollectionResult<PartitionFunctionParameter>(urns, retValue, parentPartitionFunction);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -2642,14 +2194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     {
                         urns = GetUrns(context, parentDatabase.Parent, filter, "SystemDataType");
                     }
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c) && urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
-                    }
+                    return GetSmoCollectionResult<SystemDataType>(urns, retValue, parentDatabase);
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
