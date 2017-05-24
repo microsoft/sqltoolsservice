@@ -112,6 +112,7 @@
   <Node Name="SqlService" Type="BrokerService" Parent="ServiceBroker" >
     <NavigationPath Parent="ServiceBroker" Field="Services" />
   </Node>
+  -
   <Node Name="SqlContract" Type="ServiceContract" Parent="ServiceBroker" />
   <Node Name="SqlQueue" Type="ServiceQueue" Parent="ServiceBroker" >
     <NavigationPath Parent="ServiceBroker" Field="Queues" />
@@ -122,7 +123,7 @@
   </Node>
   
   <Node Name="SqlMessageType" Parent="ServiceBroker"/>
-
+  
   <Node Name="SqlExternalDataSource" />
   <Node Name="SqlExternalFileFormat" />
 

@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         Sql2012,
         Sql2014,
         Sql2016,
+        Sql2017,
         Azure,
         AzureV12
     }
@@ -82,6 +83,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 else if (serverVersion.StartsWith("13", StringComparison.Ordinal))
                 {
                     serverType = SqlServerType.Sql2016;
+                }
+                else if (serverVersion.StartsWith("14", StringComparison.Ordinal))
+                {
+                    serverType = SqlServerType.Sql2017;
                 }
             }
 

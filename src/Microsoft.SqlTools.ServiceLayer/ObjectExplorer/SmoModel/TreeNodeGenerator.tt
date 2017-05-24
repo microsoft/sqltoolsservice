@@ -208,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine(string.Format("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel")));
 						WriteLine(string.Format("                NodeType = \"{0}\",", "Folder"));
 						WriteLine(string.Format("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name")));
+						WriteLine(string.Format("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false"));
 						
 						if (msShippedOwned != null)
 						{
@@ -343,24 +344,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			flags.Add("ValidForFlag.AzureV12");
 	   }
 
-	   if (validForStr.Contains("NotDebugInstance"))
+	   if (validForStr.Contains("AllOnPrem"))
 	   {
-			flags.Add("ValidForFlag.NotDebugInstance");
+			flags.Add("ValidForFlag.AllOnPrem");
        }
-
-	   if (validForStr.Contains("NotContainedUser"))
+	    if (validForStr.Contains("AllAzure"))
 	   {
-			flags.Add("ValidForFlag.NotContainedUser");
+			flags.Add("ValidForFlag.AllAzure");
        }
-
-	   	if (validForStr.Contains("CanConnectToMaster"))
+	    if (validForStr == "All")
 	   {
-			flags.Add("ValidForFlag.CanConnectToMaster");
-       }
-
-	   	if (validForStr.Contains("CanViewSecurity"))
-	   {
-			flags.Add("ValidForFlag.CanViewSecurity");
+			flags.Add("ValidForFlag.All");
        }
 
 		return string.Join("|", flags);

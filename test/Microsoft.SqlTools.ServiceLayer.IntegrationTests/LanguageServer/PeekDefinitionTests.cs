@@ -297,9 +297,9 @@ GO";
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
-            string objectName = "sp_MSrepl_startup";
+            string objectName = "sp_columns";
 
-            string schemaName = "dbo";
+            string schemaName = "sys";
             string objectType = "PROCEDURE";
 
             Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);

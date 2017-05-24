@@ -12,17 +12,23 @@ using System;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Smo;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     /// <summary>
-    /// Datasource admin task service class
+    /// Admin task service class
     /// </summary>
     public class AdminService
     {
         private static readonly Lazy<AdminService> instance = new Lazy<AdminService>(() => new AdminService());
 
         private static ConnectionService connectionService = null;
+
+        private static readonly ConcurrentDictionary<string, DatabaseTaskHelper> serverTaskHelperMap =
+            new ConcurrentDictionary<string, DatabaseTaskHelper>();
+
+        private static DatabaseTaskHelper taskHelper;
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -69,30 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
         }
 
-        internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
-        {
-            XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
-            char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
-            CDataContainer dataContainer;
-
-            unsafe
-            {
-                fixed (char* passwordPtr = passwordArray)
-                {
-                    dataContainer = new CDataContainer(
-                        CDataContainer.ServerType.SQL,
-                        connInfo.ConnectionDetails.ServerName,
-                        false,
-                        connInfo.ConnectionDetails.UserName,
-                        new System.Security.SecureString(passwordPtr, passwordArray.Length),
-                        xmlDoc.InnerXml);
-                }
-            }
-
-            var taskHelper = new DatabaseTaskHelper(dataContainer);
-            return taskHelper;
-        }
-
         /// <summary>
         /// Handle a request for the default database prototype info
         /// </summary>
@@ -106,10 +88,85 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 optionsParams.OwnerUri,
                 out connInfo);
 
-            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo);
+            if (taskHelper == null)
+            {
+                taskHelper = CreateDatabaseTaskHelper(connInfo);
+            }
 
             response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
             await requestContext.SendResult(response);
+        }
+
+        /// <summary>
+        /// Handles a create database request
+        /// </summary>
+        internal static async Task HandleCreateDatabaseRequest(
+            CreateDatabaseParams databaseParams,
+            RequestContext<CreateDatabaseResponse> requestContext)
+        {
+            var response = new DefaultDatabaseInfoResponse();
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                databaseParams.OwnerUri,
+                out connInfo);
+
+            if (taskHelper == null)
+            {
+                taskHelper = CreateDatabaseTaskHelper(connInfo);
+            }
+
+            DatabasePrototype prototype = taskHelper.Prototype;
+            DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
+
+            Database db = prototype.ApplyChanges();
+            if (db != null)
+            {
+                taskHelper = null;
+            }
+
+            await requestContext.SendResult(new CreateDatabaseResponse()
+            {
+                Result = true,
+                TaskId = 0
+            });
+        }
+
+        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
+        {
+            XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
+            char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
+            CDataContainer dataContainer;
+
+            // check if the connection is using SQL Auth or Integrated Auth
+            if (string.Equals(connInfo.ConnectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
+            {
+                unsafe
+                {
+                    fixed (char* passwordPtr = passwordArray)
+                    {
+                        dataContainer = new CDataContainer(
+                            CDataContainer.ServerType.SQL,
+                            connInfo.ConnectionDetails.ServerName,
+                            false,
+                            connInfo.ConnectionDetails.UserName,
+                            new System.Security.SecureString(passwordPtr, passwordArray.Length),
+                            xmlDoc.InnerXml);
+                    }
+                }
+            }
+            else
+            {
+                dataContainer = new CDataContainer(
+                    CDataContainer.ServerType.SQL,
+                    connInfo.ConnectionDetails.ServerName,
+                    true,
+                    null,
+                    null,
+                    xmlDoc.InnerXml);
+            }
+
+            var taskHelper = new DatabaseTaskHelper(dataContainer);
+            return taskHelper;
         }
 
         private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo)
@@ -129,32 +186,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
             return xmlDoc;
-        }
-
-        /// <summary>
-        /// Handles a create database request
-        /// </summary>
-        internal static async Task HandleCreateDatabaseRequest(
-            CreateDatabaseParams databaseParams,
-            RequestContext<CreateDatabaseResponse> requestContext)
-        {
-            var response = new DefaultDatabaseInfoResponse();
-            ConnectionInfo connInfo;
-            AdminService.ConnectionServiceInstance.TryFindConnection(
-                databaseParams.OwnerUri,
-                out connInfo);
-
-            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo);
-            DatabasePrototype prototype = taskHelper.Prototype;
-            DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
-
-            Database db = prototype.ApplyChanges();
-      
-            await requestContext.SendResult(new CreateDatabaseResponse()
-            {
-                Result = true,
-                TaskId = 0
-            });
         }
 
         /// <summary>
