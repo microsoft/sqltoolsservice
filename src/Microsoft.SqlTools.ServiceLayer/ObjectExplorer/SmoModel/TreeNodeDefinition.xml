@@ -39,7 +39,7 @@
     </Filters>
   </Node>
   <!-- TODO Support XEvents in .Net Core SMO
-  <Node Name="ServerLevelEventSessions" LocLabel="SR.SchemaHierarchy_EventSessions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlEventSession" ValidFor="AllOnPrem"/>
+  <Node Name="ServerLevelEventSessions" LocLabel="SR.SchemaHierarchy_EventSessions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlEventSession" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017"/>
   <Node Name="ServerLevelEventNotifications" LocLabel="SR.SchemaHierarchy_ServerEventNotifications" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlServerEventNotification"/>
   -->
 
