@@ -130,6 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         public ExtendedDatabaseInfo GetDatabaseInfo(string databaseName)
         {
             ExtendedDatabaseInfo databaseInfo = new ExtendedDatabaseInfo();
+            databaseInfo.RecoveryModel = this.GetRecoveryModel(databaseName);
             databaseInfo.DefaultBackupFolder = this.GetDefaultBackupFolder();
             databaseInfo.LatestBackups = this.GetLatestBackupLocations(databaseName);
             return databaseInfo;
@@ -139,9 +140,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// Return recovery model of the database
         /// </summary>
         /// <returns></returns>
-        public string GetRecoveryModel()
+        public string GetRecoveryModel(string databaseName)
         {
-            RecoveryModel recoveryModel = this.backupRestoreUtil.GetRecoveryModel(this.backupInfo.DatabaseName);
+            RecoveryModel recoveryModel = this.backupRestoreUtil.GetRecoveryModel(databaseName);
             return recoveryModel.ToString();
         }
 

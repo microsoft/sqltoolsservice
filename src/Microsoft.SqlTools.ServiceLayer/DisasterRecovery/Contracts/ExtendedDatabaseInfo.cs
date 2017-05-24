@@ -13,6 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     /// </summary>
     public class ExtendedDatabaseInfo: DatabaseInfo
     {
+        public string RecoveryModel { get; set; }
         public ArrayList LatestBackups { get; set; }
         public string DefaultBackupFolder { get; set; }
 
