@@ -16,13 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         Sql2012 = 0x04,
         Sql2014 = 0x08,
         Azure = 0x10,
-        NotDebugInstance = 0x20,
-        NotContainedUser = 0x40,
-        AzureV12 = 0x80,
-        Sql2016 = 0x100,
-        CanConnectToMaster = 0x200,
-        CanViewSecurity = 0x400,
-        SqlvNext = 0x800,
-        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | SqlvNext | Azure | AzureV12
+        AzureV12 = 0x20,
+        Sql2016 = 0x40,
+        Sql2017 = 0x80,
+        AllOnPrem = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017,
+        AllAzure = Azure | AzureV12,
+        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | Azure | AzureV12
     }
 }

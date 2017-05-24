@@ -97,18 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine(string.Format("urns = GetUrns(context, {0}, filter, \"{1}\");", fieldForUrn, nodeType));
 				PopIndent();
 				WriteLine("}");
-				WriteLine("if (hasFilter && urns != null)");
-				WriteLine("{");
-				PushIndent(indent);
-				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c) && urns.Contains(c.Urn));", nodeType, parentVar));
-				PopIndent();
-				WriteLine("}");
-				WriteLine("else");
-				WriteLine("{");
-				PushIndent(indent);
-				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue);", nodeType));
-				PopIndent();
-				WriteLine("}");
+				WriteLine(string.Format("return GetSmoCollectionResult<{0}>(urns, retValue, {1});", nodeType, parentVar));
 			}
 			else
 			{
