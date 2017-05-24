@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
         }
 
-        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
+        internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
         {
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
             char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();

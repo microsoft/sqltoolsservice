@@ -10,7 +10,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using SMO = Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Common;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -76,13 +76,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// <summary>
     /// Summary description for SqlBackupRestoreBase.
     /// </summary>
-    public class BackupRestoreUtil
+    public class CommonUtil
     {
         private     CDataContainer DataContainer;
         private     ServerConnection SqlConnection = null;
         private ArrayList ExcludedDbs;
         
-        public BackupRestoreUtil(CDataContainer dataContainer, ServerConnection sqlConnection)
+        public CommonUtil(CDataContainer dataContainer, ServerConnection sqlConnection)
         {           
             DataContainer   = dataContainer;
             this.SqlConnection  = sqlConnection;

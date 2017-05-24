@@ -2,19 +2,16 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
+using System;
+using System.Collections;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using System;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -64,27 +61,49 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
+            // Get database info
+            serviceHost.SetRequestHandler(ExtendedDatabaseInfoRequest.Type, HandleExtendedDatabaseInfoRequest);
+            // Create backup
             serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
         }
 
-        /// <summary>
-        /// Handles a backup request
-        /// </summary>
-        internal static async Task HandleBackupRequest(
-            BackupParams backupParams,
-            RequestContext<BackupResponse> requestContext)
-        {            
+        public static async Task HandleExtendedDatabaseInfoRequest(
+            DefaultDatabaseInfoParams optionsParams,
+            RequestContext<ExtendedDatabaseInfoResponse> requestContext)
+        {
+            var response = new ExtendedDatabaseInfoResponse();
             ConnectionInfo connInfo;
             DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                    backupParams.OwnerUri,
+                    optionsParams.OwnerUri,
                     out connInfo);
-            CDataContainer dataContainer;
+
+            if (connInfo != null)
+            {
+                CDataContainer dataContainer = GetDataContainer(connInfo);
+                SqlConnection sqlConn = GetSqlConnection(connInfo);
+                if (sqlConn != null)
+                {
+                    DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn);
+                    ExtendedDatabaseInfo extendedDatabaseInfo = DisasterRecoveryService.Instance.GetDatabaseInfo(sqlConn.Database);
+                    DatabaseTaskHelper taskHelper = AdminService.CreateDatabaseTaskHelper(connInfo);
+                    DatabaseInfo defaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+                    extendedDatabaseInfo.Options = defaultDatabaseInfo.Options;
+                    response.ExtendedDatabaseInfo = extendedDatabaseInfo;
+                }
+            }
+            
+            await requestContext.SendResult(response);
+        }
+        
+        internal static CDataContainer GetDataContainer(ConnectionInfo connInfo)
+        {
+            CDataContainer dataContainer = null;
 
             if (connInfo != null)
             {
                 char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
                 if (string.Equals(connInfo.ConnectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
-                {   
+                {
                     unsafe
                     {
                         fixed (char* passwordPtr = passwordArray)
@@ -109,11 +128,32 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     null,
                     null);
                 }
+            }
 
+            return dataContainer;
+        }
+
+        /// <summary>
+        /// Handles a backup request
+        /// </summary>
+        internal static async Task HandleBackupRequest(
+            BackupParams backupParams,
+            RequestContext<BackupResponse> requestContext)
+        {            
+            ConnectionInfo connInfo;
+            DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
+                    backupParams.OwnerUri,
+                    out connInfo);
+            CDataContainer dataContainer;
+
+            if (connInfo != null)
+            {
+                dataContainer = GetDataContainer(connInfo);
                 SqlConnection sqlConn = GetSqlConnection(connInfo);
                 if (sqlConn != null)
                 {
-                    DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn, backupParams.BackupInfo);
+                    DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn);
+                    DisasterRecoveryService.Instance.SetBackupInput(backupParams.BackupInfo);
                     DisasterRecoveryService.Instance.PerformBackup();
                 }
             }
@@ -147,15 +187,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return null;
         }
 
-        private void InitializeBackup(CDataContainer dataContainer, SqlConnection sqlConnection, BackupInfo input)
+        private void InitializeBackup(CDataContainer dataContainer, SqlConnection sqlConnection)
+        {
+            this.backupFactory.Initialize(dataContainer, sqlConnection);
+        }
+
+        private void SetBackupInput(BackupInfo input)
         {   
-            this.backupFactory.Initialize(dataContainer, sqlConnection, input);
+            this.backupFactory.SetBackupInput(input);
         }
 
         private void PerformBackup()
         {
             this.backupFactory.PerformBackup();
-        }        
+        }
+        
+        private ExtendedDatabaseInfo GetDatabaseInfo(string databaseName)
+        {
+            return this.backupFactory.GetDatabaseInfo(databaseName);
+        }   
         
     }
 }
