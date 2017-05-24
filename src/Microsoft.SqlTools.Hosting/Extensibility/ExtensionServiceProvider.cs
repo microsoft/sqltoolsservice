@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.Extensibility
             // better seperate out framework assemblies and extension assemblies
             string[] inclusionList = 
             {
-                "microsoft.sqltools.credentials.dll",
+                "microsofsqltoolscredentials.dll",
                 "microsoft.sqltools.hosting.dll",
-                "microsoft.sqltools.servicelayer.dll"
+                "microsoftsqltoolsservicelayer.dll"
             };
 
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
