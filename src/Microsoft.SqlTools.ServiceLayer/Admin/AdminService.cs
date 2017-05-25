@@ -131,7 +131,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             });
         }
 
-        internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
+        /// <summary>
+        /// Return default database info for the specified connection
+        /// </summary>
+        /// <param name="connInfo"></param>
+        /// <returns></returns>
+        internal static DatabaseInfo GetDefaultDatabaseInfo(ConnectionInfo connInfo)
+        {
+            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo);
+            return DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+        }
+
+        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
         {
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
             char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();

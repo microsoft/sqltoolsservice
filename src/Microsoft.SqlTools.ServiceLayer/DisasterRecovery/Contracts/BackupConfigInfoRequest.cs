@@ -8,15 +8,15 @@ using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
 
-    public class ExtendedDatabaseInfoResponse
+    public class BackupConfigInfoResponse
     {
-        public ExtendedDatabaseInfo ExtendedDatabaseInfo { get; set; }
+        public BackupConfigInfo BackupConfigInfo { get; set; }
     }
 
-    public class ExtendedDatabaseInfoRequest
+    public class BackupConfigInfoRequest
     {
         public static readonly
-            RequestType<DefaultDatabaseInfoParams, ExtendedDatabaseInfoResponse> Type =
-                RequestType<DefaultDatabaseInfoParams, ExtendedDatabaseInfoResponse>.Create("disasterrecovery/extendeddatabaseinfo");
+            RequestType<DefaultDatabaseInfoParams, BackupConfigInfoResponse> Type =
+                RequestType<DefaultDatabaseInfoParams, BackupConfigInfoResponse>.Create("disasterrecovery/backupconfiginfo");
     }
 }

@@ -9,15 +9,15 @@ using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
-    /// Provides database info for backup/recovery. Extends the default DatabaseInfo
+    /// Provides database info for backup.
     /// </summary>
-    public class ExtendedDatabaseInfo: DatabaseInfo
+    public class BackupConfigInfo: DatabaseInfo
     {
         public string RecoveryModel { get; set; }
-        public ArrayList LatestBackups { get; set; }
+        public List<RestoreItemSource> LatestBackups { get; set; }
         public string DefaultBackupFolder { get; set; }
 
-        public ExtendedDatabaseInfo()
+        public BackupConfigInfo()
         {            
         }
     }

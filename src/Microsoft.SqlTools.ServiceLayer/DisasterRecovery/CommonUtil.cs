@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -986,9 +987,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         
-        public  ArrayList   GetLatestBackupLocations(string DatabaseName)
+        public List<RestoreItemSource> GetLatestBackupLocations(string DatabaseName)
         {
-            ArrayList LatestLocations   = new ArrayList();
+            List<RestoreItemSource>  LatestLocations   = new List<RestoreItemSource>();
 
             Enumerator en = null;
             DataSet ds = new DataSet();

@@ -62,16 +62,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         public void InitializeService(ServiceHost serviceHost)
         {
             // Get database info
-            serviceHost.SetRequestHandler(ExtendedDatabaseInfoRequest.Type, HandleExtendedDatabaseInfoRequest);
+            serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest);
             // Create backup
             serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
         }
 
-        public static async Task HandleExtendedDatabaseInfoRequest(
+        public static async Task HandleBackupConfigInfoRequest(
             DefaultDatabaseInfoParams optionsParams,
-            RequestContext<ExtendedDatabaseInfoResponse> requestContext)
+            RequestContext<BackupConfigInfoResponse> requestContext)
         {
-            var response = new ExtendedDatabaseInfoResponse();
+            var response = new BackupConfigInfoResponse();
             ConnectionInfo connInfo;
             DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
                     optionsParams.OwnerUri,
@@ -84,11 +84,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (sqlConn != null)
                 {
                     DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn);
-                    ExtendedDatabaseInfo extendedDatabaseInfo = DisasterRecoveryService.Instance.GetDatabaseInfo(sqlConn.Database);
-                    DatabaseTaskHelper taskHelper = AdminService.CreateDatabaseTaskHelper(connInfo);
-                    DatabaseInfo defaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-                    extendedDatabaseInfo.Options = defaultDatabaseInfo.Options;
-                    response.ExtendedDatabaseInfo = extendedDatabaseInfo;
+                    BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetDatabaseInfo(sqlConn.Database);
+                    DatabaseInfo defaultDatabaseInfo = AdminService.GetDefaultDatabaseInfo(connInfo);
+                    backupConfigInfo.Options = defaultDatabaseInfo.Options;
+                    response.BackupConfigInfo = backupConfigInfo;
                 }
             }
             
@@ -202,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.backupFactory.PerformBackup();
         }
         
-        private ExtendedDatabaseInfo GetDatabaseInfo(string databaseName)
+        private BackupConfigInfo GetDatabaseInfo(string databaseName)
         {
             return this.backupFactory.GetDatabaseInfo(databaseName);
         }   

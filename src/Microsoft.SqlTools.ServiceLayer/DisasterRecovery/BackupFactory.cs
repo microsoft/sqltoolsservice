@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -127,9 +128,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         #region Methods for UI logic
                 
-        public ExtendedDatabaseInfo GetDatabaseInfo(string databaseName)
+        public BackupConfigInfo GetDatabaseInfo(string databaseName)
         {
-            ExtendedDatabaseInfo databaseInfo = new ExtendedDatabaseInfo();
+            BackupConfigInfo databaseInfo = new BackupConfigInfo();
             databaseInfo.RecoveryModel = this.GetRecoveryModel(databaseName);
             databaseInfo.DefaultBackupFolder = this.GetDefaultBackupFolder();
             databaseInfo.LatestBackups = this.GetLatestBackupLocations(databaseName);
@@ -155,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// Return the latest backup locations
         /// </summary>
         /// <returns></returns>
-        public ArrayList GetLatestBackupLocations(string databaseName)
+        public List<RestoreItemSource> GetLatestBackupLocations(string databaseName)
         {
             return this.backupRestoreUtil.GetLatestBackupLocations(databaseName);
         }
@@ -273,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     for (int i = 0; i < this.backupInfo.BackupPathList.Count; i++)
                     {
                         string DestName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
-                        int deviceType = (int)(this.backupInfo.arChangesList[DestName]);
+                        int deviceType = (int)(this.backupInfo.backupPathDevice[DestName]);
                         switch (deviceType)
                         {
                             case (int)DeviceType.LogicalDevice:
@@ -302,27 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         }
                     }
                 }
-                else
-                {
-                    /*if (this.urlControl.ListBakDestUrls.Count > 0)
-                    {
-                        // Append the URL filename to the URL prefix
-                        foreach (string urlPath in this.urlControl.ListBakDestUrls.ToArray())
-                        {
-                            if (!String.IsNullOrWhiteSpace(urlPath))
-                            {
-                                bk.Devices.AddDevice(urlPath, DeviceType.Url);
-                            }
-                        }
-                    }*/
-                }
-                /*
-                if (this.dataContainer.HashTable.ContainsKey(bk.BackupSetName))
-                {
-                    this.dataContainer.HashTable.Remove(bk.BackupSetName);
-                }
-                this.dataContainer.HashTable.Add(bk.BackupSetName, bk);*/
-
+                
                 //TODO: This should be changed to get user inputs
                 bk.FormatMedia = false;
                 bk.Initialize = false;

@@ -48,12 +48,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// <summary>
         /// List of {key: backup path, value: device type}
         /// </summary>        
-        public Dictionary<string, int> arChangesList { get; set; }
+        public Dictionary<string, int> backupPathDevice { get; set; }
         
         /// <summary>
         /// List of selected backup paths
         /// </summary>        
-        public ArrayList BackupPathList { get; set; }
+        public List<string> BackupPathList { get; set; }
         
     }
 }
