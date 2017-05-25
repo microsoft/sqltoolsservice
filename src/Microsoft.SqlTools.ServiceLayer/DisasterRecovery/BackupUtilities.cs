@@ -5,24 +5,22 @@
 
 using System;
 using System.Collections;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.Data.Tools.DataSets;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
-    public class BackupFactory
+    public class BackupUtilities
     {
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
-        private CommonUtil backupRestoreUtil = null;
-        private UrlControl urlControl;
+        private CommonUtilities backupRestoreUtil = null;        
 
         /// <summary>
         /// Constants
@@ -92,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Ctor
         /// </summary>
-        public BackupFactory()
+        public BackupUtilities()
         {               
         }
 
@@ -106,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             this.dataContainer = dataContainer;
             this.serverConnection = new ServerConnection(sqlConnection);
-            this.backupRestoreUtil = new CommonUtil(this.dataContainer, this.serverConnection);            
+            this.backupRestoreUtil = new CommonUtilities(this.dataContainer, this.serverConnection);            
         }
 
         public void SetBackupInput(BackupInfo input)
@@ -128,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         #region Methods for UI logic
                 
-        public BackupConfigInfo GetDatabaseInfo(string databaseName)
+        public BackupConfigInfo GetBackupConfigInfo(string databaseName)
         {
             BackupConfigInfo databaseInfo = new BackupConfigInfo();
             databaseInfo.RecoveryModel = this.GetRecoveryModel(databaseName);
@@ -274,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     for (int i = 0; i < this.backupInfo.BackupPathList.Count; i++)
                     {
                         string DestName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
-                        int deviceType = (int)(this.backupInfo.backupPathDevice[DestName]);
+                        int deviceType = (int)(this.backupInfo.BackupPathDevices[DestName]);
                         switch (deviceType)
                         {
                             case (int)DeviceType.LogicalDevice:

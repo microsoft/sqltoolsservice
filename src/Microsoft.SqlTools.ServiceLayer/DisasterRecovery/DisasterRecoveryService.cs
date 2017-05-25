@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.Collections;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -19,14 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
-        private BackupFactory backupFactory;
+        private BackupUtilities backupFactory;
 
         /// <summary>
         /// Default, parameterless constructor.
         /// </summary>
         internal DisasterRecoveryService()
         {
-            this.backupFactory = new BackupFactory();
+            this.backupFactory = new BackupUtilities();
         }
 
         /// <summary>
@@ -85,9 +84,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn);
                     BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetDatabaseInfo(sqlConn.Database);
-                    DatabaseInfo defaultDatabaseInfo = AdminService.GetDefaultDatabaseInfo(connInfo);
-                    backupConfigInfo.Options = defaultDatabaseInfo.Options;
-                    response.BackupConfigInfo = backupConfigInfo;
+                    backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
+                    response.BackupConfigInfo = backupConfigInfo;                
                 }
             }
             
@@ -203,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         
         private BackupConfigInfo GetDatabaseInfo(string databaseName)
         {
-            return this.backupFactory.GetDatabaseInfo(databaseName);
+            return this.backupFactory.GetBackupConfigInfo(databaseName);
         }   
         
     }

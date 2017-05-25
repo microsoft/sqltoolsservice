@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
@@ -48,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// <summary>
         /// List of {key: backup path, value: device type}
         /// </summary>        
-        public Dictionary<string, int> backupPathDevice { get; set; }
+        public Dictionary<string, int> BackupPathDevices { get; set; }
         
         /// <summary>
         /// List of selected backup paths

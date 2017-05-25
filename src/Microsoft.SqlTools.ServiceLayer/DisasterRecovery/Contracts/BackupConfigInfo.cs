@@ -11,14 +11,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     /// <summary>
     /// Provides database info for backup.
     /// </summary>
-    public class BackupConfigInfo: DatabaseInfo
+    public class BackupConfigInfo
     {
+        public DatabaseInfo DatabaseInfo { get; set; }
         public string RecoveryModel { get; set; }
         public List<RestoreItemSource> LatestBackups { get; set; }
         public string DefaultBackupFolder { get; set; }
 
         public BackupConfigInfo()
-        {            
+        {
         }
     }
 }
