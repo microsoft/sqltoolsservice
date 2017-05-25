@@ -92,7 +92,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Enumerator en = new Enumerator();
                     Request request = new Request(new Urn(urn));
                     ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-
+                    if (!serverConnection.IsOpen)
+                    {
+                        serverConnection.Connect();
+                    }
                     EnumResult result = en.Process(serverConnection, request);
 
                     urns = GetUrns(result);

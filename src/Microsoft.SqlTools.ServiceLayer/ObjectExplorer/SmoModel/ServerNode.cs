@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private string connectionUri;
         private Lazy<SmoQueryContext> context;
         private ConnectionService connectionService;
-        private SmoServerCreator serverCreator;
+        private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
 
         public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider)
@@ -56,19 +56,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Label = GetConnectionLabel();
         }
 
-        internal SmoServerCreator ServerCreator
+        internal SmoWrapper SmoWrapper
         {
             get
             {
-                if (serverCreator == null)
+                if (smoWrapper == null)
                 {
-                    ServerCreator = new SmoServerCreator();
+                    smoWrapper = new SmoWrapper();
                 }
-                return serverCreator;
+                return smoWrapper;
             }
             set
             {
-                this.serverCreator = value;
+                this.smoWrapper = value;
             }
         }
 
@@ -161,8 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             try
             {
-                Server server = ServerCreator.Create(connection);
-                return new SmoQueryContext(server, serviceProvider)
+                Server server = SmoWrapper.Create(connection);
+                return new SmoQueryContext(server, serviceProvider, SmoWrapper)
                 {
                     Parent = server,
                     SqlServerType = this.sqlServerType
@@ -185,18 +185,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override object GetContext()
         {
             return context.Value;
-        }
-    }
-
-    /// <summary>
-    /// Internal for testing purposes only
-    /// </summary>
-    internal class SmoServerCreator
-    {
-        public virtual Server Create(SqlConnection connection)
-        {
-            ServerConnection serverConn = new ServerConnection(connection);
-            return new Server(serverConn);
         }
     }
 }

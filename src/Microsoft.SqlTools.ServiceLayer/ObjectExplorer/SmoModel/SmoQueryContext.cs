@@ -7,9 +7,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -18,14 +20,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     public class SmoQueryContext
     {
+        private Server server;
+        private Database database;
+        private SmoObjectBase parent;
+        private SmoWrapper smoWrapper;
+
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
         public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider)
+            : this(server, serviceProvider, null)
         {
-            Server = server;
+        }
+
+        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        {
+            this.server = server;
             ServiceProvider = serviceProvider;
+            this.smoWrapper = serverManager ?? new SmoWrapper();
         }
 
         /// <summary>
@@ -36,17 +49,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// The server SMO will query against
         /// </summary>
-        public Server Server { get; private set; }
+        public Server Server { 
+            get
+            {
+                return GetObjectWithOpenedConnection(server);
+            } 
+        }
 
         /// <summary>
         /// Optional Database context object to query against
         /// </summary>
-        public Database Database { get; set; }
+        public Database Database { 
+            get
+            {
+                return GetObjectWithOpenedConnection(database);
+            }
+            set
+            {
+                database = value;
+            }
+        }
 
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public SmoObjectBase Parent { get; set; }
+        public SmoObjectBase Parent { 
+            get
+            {
+                return GetObjectWithOpenedConnection(parent);
+            }
+            set
+            {
+                parent = value;
+            }
+        }
 
         /// <summary>
         /// A query loader that can be used to find <see cref="SmoQuerier"/> objects
@@ -89,6 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             return service;
         }
+
         /// <summary>
         /// Copies the context for use by another node
         /// </summary>
@@ -96,13 +133,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
         public SmoQueryContext CopyWithParent(SmoObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider)
+            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper)
             {
-                Database = this.Database,
+                database = this.Database,
                 Parent = parent,
                 SqlServerType = this.SqlServerType
             };
             return context;
+        }
+
+        private T GetObjectWithOpenedConnection<T>(T smoObj)
+            where T : SmoObjectBase
+        {
+            if (smoObj != null)
+            {
+                EnsureConnectionOpen(smoObj);
+            }
+            return smoObj;
+        }
+
+        /// <summary>
+        /// Ensures the server objects connection context is open. This is used by all child objects, and 
+        /// the only way to easily access is via the server object. This should be called during access of
+        /// any of the object properties
+        /// </summary>
+        private void EnsureConnectionOpen(SmoObjectBase smoObj)
+        {
+            if (!smoWrapper.IsConnectionOpen(smoObj))
+            {
+                // We have a closed server connection. Reopen this
+                // Note: not currently catching connection exceptions. Expect this to bubble
+                // up to calling methods and be logged there as this would be happening there in any case
+                smoWrapper.OpenConnection(smoObj);
+            }
         }
     }
 }

@@ -276,6 +276,74 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 string.Format(CultureInfo.CurrentCulture, SR.TreeNodeError, expectedMsg),
                 node.ErrorStateMessage);
         }
+        
+        [Fact]
+        public void QueryContextShouldNotCallOpenOnAlreadyOpenConnection()
+        {
+            // given a server connection that will state its connection is open
+            SetupAndRegisterTestConnectionService();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
+            Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: true);
+            
+            SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
+            
+            // when I access the Server property
+            Server actualServer = context.Server;
+
+            // Then I do not expect to have open called
+            Assert.NotNull(actualServer);
+            wrapper.Verify(c => c.OpenConnection(It.IsAny<Server>()), Times.Never);
+        }
+
+        private Mock<SmoWrapper> SetupSmoWrapperForIsOpenTest(Server smoServer, bool isOpen)
+        {
+            Mock<SmoWrapper> wrapper = new Mock<SmoWrapper>();
+            int count = 0;
+            wrapper.Setup(c => c.Create(It.IsAny<SqlConnection>()))
+                .Returns(() => smoServer);
+            wrapper.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
+                .Returns(() => isOpen);
+            wrapper.Setup(c => c.OpenConnection(It.IsAny<Server>()))
+                .Callback(() => count++)
+                .Verifiable();
+            return wrapper;
+        }
+
+        [Fact]
+        public void QueryContextShouldReopenClosedConnectionWhenGettingServer()
+        {
+            // given a server connection that will state its connection is closed
+            SetupAndRegisterTestConnectionService();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
+            Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
+            
+            SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
+            
+            // when I access the Server property
+            Server actualServer = context.Server;
+
+            // Then I expect to have open called
+            Assert.NotNull(actualServer);
+            wrapper.Verify(c => c.OpenConnection(It.IsAny<Server>()), Times.Once);
+        }
+
+        [Fact]
+        public void QueryContextShouldReopenClosedConnectionWhenGettingParent()
+        {
+            // given a server connection that will state its connection is closed
+            SetupAndRegisterTestConnectionService();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
+            Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
+            
+            SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
+            context.Parent = smoServer;
+            // when I access the Parent property
+            SmoObjectBase actualParent = context.Parent;
+
+            // Then I expect to have open called
+            Assert.NotNull(actualParent);
+            wrapper.Verify(c => c.OpenConnection(It.IsAny<Server>()), Times.Once);
+        }
 
         private ConnectionService SetupAndRegisterTestConnectionService()
         {
@@ -291,27 +359,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private ServerNode SetupServerNodeWithServer(Server smoServer)
         {
-            Mock<SmoServerCreator> creator = new Mock<SmoServerCreator>();
+            Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
             creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
                 .Returns(() => smoServer);
+            creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
+                .Returns(() => true);
             ServerNode node = SetupServerNodeWithCreator(creator.Object);
             return node;
         }
 
         private ServerNode SetupServerNodeWithExceptionCreator(Exception ex)
         {
-            Mock<SmoServerCreator> creator = new Mock<SmoServerCreator>();
+            Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
             creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
                 .Throws(ex);
+            creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
+                .Returns(() => false);
 
             ServerNode node = SetupServerNodeWithCreator(creator.Object);
             return node;
         }
 
-        private ServerNode SetupServerNodeWithCreator(SmoServerCreator creator)
+        private ServerNode SetupServerNodeWithCreator(SmoWrapper creator)
         {
             ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
-            node.ServerCreator = creator;
+            node.SmoWrapper = creator;
             return node;
         }
 
