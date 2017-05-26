@@ -23,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         public string ObjectName { get; set; }
 
         /// <summary>
+        /// The schema for the object to use 
+        /// </summary>
+        public string SchemaName { get; set; }
+
+        /// <summary>
         /// The type of the object to use for generating an edit script
         /// </summary>
         public string ObjectType { get; set; }

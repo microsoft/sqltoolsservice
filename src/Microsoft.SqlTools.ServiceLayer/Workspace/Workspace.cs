@@ -23,10 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
     {
         #region Private Fields
 
+        private const string UntitledScheme = "untitled";
         private static readonly HashSet<string> fileUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) 
         {
             "file",
-            "untitled",
+            UntitledScheme,
             "tsqloutput"
         };
 
@@ -101,6 +102,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
+                if (IsUntitled(resolvedFilePath))
+                {
+                    // It's not a registered untitled file, so any attempt to read from disk will fail as it's in memory
+                    return null;
+                }
                 // This method allows FileNotFoundException to bubble up 
                 // if the file isn't found.
                 using (FileStream fileStream = new FileStream(resolvedFilePath, FileMode.Open, FileAccess.Read))
@@ -295,6 +301,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             if (!string.IsNullOrEmpty(scheme))
             {
                 return !fileUriSchemes.Contains(scheme); ;
+            }
+            return false;
+        }
+        
+        private bool IsUntitled(string path)
+        {
+            string scheme = GetScheme(path);
+            if (scheme != null && scheme.Length > 0)
+            {
+                return string.Compare(UntitledScheme, scheme, StringComparison.OrdinalIgnoreCase) == 0;
             }
             return false;
         }
