@@ -23,12 +23,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
     {
         #region Private Fields
 
+        private const string UntitledScheme = "untitled";
         private static readonly HashSet<string> fileUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) 
         {
             "file",
-            "untitled",
+            UntitledScheme,
             "tsqloutput"
         };
+
 
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
 
@@ -101,6 +103,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
+                if (IsUntitled(resolvedFilePath))
+                {
+                    // It's not a registered untitled file, so any attempt to read from disk will fail as it's in memory
+                    return null;
+                }
                 // This method allows FileNotFoundException to bubble up 
                 // if the file isn't found.
                 using (FileStream fileStream = new FileStream(resolvedFilePath, FileMode.Open, FileAccess.Read))
@@ -151,36 +158,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             Logger.Write(LogLevel.Verbose, "Resolved path: " + filePath);
 
             return filePath;
-        }
-
-        internal static bool IsPathInMemoryOrNonFileUri(string path)
-        {
-            try
-            {
-                string scheme = GetScheme(path);
-                if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
-                {
-                    return true;
-                }
-            }
-            catch(Exception)
-            {
-                // Intentionally skipping if there is a parse error
-            }
-
-            return false;
-        }
-
-        private static string GetScheme(string uri)
-        {
-            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
-            string pattern = "^([a-z][a-z0-9+.-]*):";
-            Match match = Regex.Match(uri, pattern);
-            if (match != null && match.Success)
-            {
-                return match.Groups[1].Value;
-            }
-            return null;
         }
 
         /// <summary>
@@ -291,22 +268,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return combinedPath;
         }
 
+        internal static bool IsPathInMemoryOrNonFileUri(string path)
+        {
+            string scheme = GetScheme(path);
+            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static string GetScheme(string uri)
+        {
+            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
+            string pattern = "^([a-z][a-z0-9+.-]*):";
+            Match match = Regex.Match(uri, pattern);
+            if (match != null && match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return null;
+        }
+
         private bool IsNonFileUri(string path)
         {
-            try
+            string scheme = GetScheme(path);
+            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
             {
-
-                string scheme = GetScheme(path);
-                if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
-                {
-                    return !fileUriSchemes.Contains(scheme);;
-                }
+                return !fileUriSchemes.Contains(scheme);;
             }
-            catch(Exception)
+            return false;
+        }
+
+        private bool IsUntitled(string path)
+        {
+            string scheme = GetScheme(path);
+            if (scheme != null && scheme.Length > 0)
             {
-                // Intentionally skipping if there is a parse error
+                return string.Compare(UntitledScheme, scheme, StringComparison.OrdinalIgnoreCase) == 0;
             }
-
             return false;
         }
 
