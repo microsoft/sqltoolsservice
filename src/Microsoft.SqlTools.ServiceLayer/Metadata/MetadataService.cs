@@ -74,8 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 var metadata = new List<ObjectMetadata>();
                 if (connInfo != null) 
                 {                    
-                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);
-                    ReadMetadata(sqlConn, metadata);
+                    using (SqlConnection sqlConn = OpenMetadataConnection(connInfo))
+                    {
+                        ReadMetadata(sqlConn, metadata);
+                    }
                 }
 
                 await requestContext.SendResult(new MetadataQueryResult
