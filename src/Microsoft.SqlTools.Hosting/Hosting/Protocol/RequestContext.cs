@@ -48,8 +48,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 Code = errorCode
             };
             return this.messageWriter.WriteError(
-                    requestMessage.Id,
                     requestMessage.Method,
+                    requestMessage.Id,
                     error);
         }
 
