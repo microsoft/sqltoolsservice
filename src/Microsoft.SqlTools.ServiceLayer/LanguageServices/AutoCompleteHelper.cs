@@ -507,6 +507,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (scriptInfo.IsConnected)
             {
                 var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);
+                if (scriptFile == null)
+                {
+                    return;
+                }
+                
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
                 if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))

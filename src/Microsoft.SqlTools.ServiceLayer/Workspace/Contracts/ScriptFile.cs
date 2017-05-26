@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             FilePath = filePath;
             ClientFilePath = clientFilePath;
             IsAnalysisEnabled = true;
-            IsInMemory = Workspace.IsPathInMemory(filePath);
+            IsInMemory = Workspace.IsPathInMemoryOrNonFileUri(filePath);
 
             SetFileContents(textReader.ReadToEnd());
         }

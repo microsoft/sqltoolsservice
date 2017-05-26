@@ -23,6 +23,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
     {
         #region Private Fields
 
+        private static readonly HashSet<string> fileUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) 
+        {
+            "file",
+            "untitled",
+            "tsqloutput"
+        };
+
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
 
         #endregion
@@ -81,7 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public virtual ScriptFile GetFile(string filePath)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
-
+            if (IsNonFileUri(filePath))
+            {
+                return null;
+            }
+            
             // Resolve the full file path 
             string resolvedFilePath = this.ResolveFilePath(filePath);
             string keyName = resolvedFilePath.ToLower();
@@ -108,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         
         private string ResolveFilePath(string filePath)
         {
-            if (!IsPathInMemory(filePath))
+            if (!IsPathInMemoryOrNonFileUri(filePath))
             {
                 if (filePath.StartsWith(@"file://"))
                 {
@@ -141,20 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             return filePath;
         }
-
-        internal static bool IsPathInMemory(string filePath)
-        {
-            // When viewing SqlTools files in the Git diff viewer, VS Code
-            // sends the contents of the file at HEAD with a URI that starts
-            // with 'inmemory'.  Untitled files which have been marked of
-            // type SqlTools have a path starting with 'untitled'.
-            return
-                filePath.StartsWith("inmemory:") ||
-                filePath.StartsWith("tsqloutput:") ||
-                filePath.StartsWith("git:") ||            
-                filePath.StartsWith("untitled:");
-        }
-
+        
         /// <summary>
         /// Unescapes any escaped [, ] or space characters. Typically use this before calling a
         /// .NET API that doesn't understand PowerShell escaped chars.
@@ -181,6 +179,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public ScriptFile GetFileBuffer(string filePath, string initialBuffer)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
+            if (IsNonFileUri(filePath))
+            {
+                return null;
+            }
 
             // Resolve the full file path 
             string resolvedFilePath = this.ResolveFilePath(filePath);
@@ -222,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         internal string GetBaseFilePath(string filePath)
         {
-            if (IsPathInMemory(filePath))
+            if (IsPathInMemoryOrNonFileUri(filePath))
             {
                 // If the file is in memory, use the workspace path
                 return this.WorkspacePath;
@@ -257,6 +259,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                         relativePath));
 
             return combinedPath;
+        }
+        internal static bool IsPathInMemoryOrNonFileUri(string path)
+        {
+            string scheme = GetScheme(path);
+            if (!string.IsNullOrEmpty(scheme))
+            {
+                return !scheme.Equals("file");
+            }
+            return false;
+        }
+
+        public static string GetScheme(string uri)
+        {
+            string windowsFilePattern = @"^(?:[\w]\:|\\)";
+            if (Regex.IsMatch(uri, windowsFilePattern))
+            {
+                // Handle windows paths, these conflict with other "URI" handling
+                return null;
+            }
+
+            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
+            string pattern = "^([a-z][a-z0-9+.-]*):";
+            Match match = Regex.Match(uri, pattern);
+            if (match != null && match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return null;
+        }
+
+        private bool IsNonFileUri(string path)
+        {
+            string scheme = GetScheme(path);
+            if (!string.IsNullOrEmpty(scheme))
+            {
+                return !fileUriSchemes.Contains(scheme); ;
+            }
+            return false;
         }
 
         #endregion  
