@@ -6,6 +6,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Microsoft.SqlTools.Utility;
@@ -132,6 +133,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     contentObject));
         }
 
+        public async Task WriteError(string method, string requestId, Error error)
+        {
+            JToken contentObject = JToken.FromObject(error, contentSerializer);
+            await this.WriteMessage(Message.ResponseError(requestId, method, contentObject));
+        }
+        
         #endregion
     }
 }
