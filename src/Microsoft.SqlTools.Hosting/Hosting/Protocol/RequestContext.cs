@@ -47,11 +47,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 Message = errorMessage,
                 Code = errorCode
             };
-            return this.messageWriter.WriteMessage(
-                Message.ResponseError(
+            return this.messageWriter.WriteError(
                     requestMessage.Id,
                     requestMessage.Method,
-                    JToken.FromObject(error)));
+                    error);
         }
 
         public virtual Task SendError(Exception e)

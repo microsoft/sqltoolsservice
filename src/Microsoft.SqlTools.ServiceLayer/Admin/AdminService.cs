@@ -131,9 +131,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             });
         }
 
-        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo)
+        /// <summary>
+        /// Return database info for a specific database
+        /// </summary>
+        /// <param name="connInfo"></param>
+        /// <returns></returns>
+        internal static DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
+        {            
+            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo, true);
+            return DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+        }
+
+        /// <summary>
+        /// Create database task helper
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
+        /// <returns></returns>
+        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
         {
-            XmlDocument xmlDoc = CreateDataContainerDocument(connInfo);
+            XmlDocument xmlDoc = CreateDataContainerDocument(connInfo, databaseExists);
             char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
             CDataContainer dataContainer;
 
@@ -169,10 +186,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return taskHelper;
         }
 
-        private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo)
+        /// <summary>
+        /// Create data container document
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create document for existing database or not</param>
+        /// <returns></returns>
+        private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
         {
-            string xml =
-               string.Format(@"<?xml version=""1.0""?>
+            string xml = string.Empty;
+
+            if (!databaseExists)
+            {
+                xml =
+                string.Format(@"<?xml version=""1.0""?>
                 <formdescription><params>
                 <servername>{0}</servername>
                 <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
@@ -182,7 +209,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 </params></formdescription> ",
                 connInfo.ConnectionDetails.ServerName.ToUpper(),
                 connInfo.ConnectionDetails.UserName);
-
+            }
+            else
+            {
+                xml =
+                string.Format(@"<?xml version=""1.0""?>
+                <formdescription><params>
+                <servername>{0}</servername>
+                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                <servertype>sql</servertype>
+                <urn>Server[@Name='{0}']</urn>
+                <database>{2}</database>                
+                </params></formdescription> ",
+                connInfo.ConnectionDetails.ServerName.ToUpper(),
+                connInfo.ConnectionDetails.UserName,
+                connInfo.ConnectionDetails.DatabaseName);
+            }
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
             return xmlDoc;

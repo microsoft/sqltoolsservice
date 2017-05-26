@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 string itemPrefix = AdminServicesProviderOptionsHelper.DatabaseFiles + "." + i + ".";
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Name, file.Name);
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.PhysicalName, file.PhysicalName);
-                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Autogrowth, file.DefaultAutogrowth.ToString());
+                databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Autogrowth, (file.DefaultAutogrowth != null ? file.DefaultAutogrowth.ToString() : string.Empty));
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.DatabaseFileType, file.DatabaseFileType.ToString());
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Folder, file.DefaultFolder);
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.Size, file.DefaultSize);
