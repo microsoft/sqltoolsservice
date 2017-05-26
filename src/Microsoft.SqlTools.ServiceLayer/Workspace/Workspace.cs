@@ -304,6 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             return false;
         }
+        
         private bool IsUntitled(string path)
         {
             string scheme = GetScheme(path);
