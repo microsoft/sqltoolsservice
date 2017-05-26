@@ -412,8 +412,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// creates a new connection. This cannot be used to create a default connection or to create a 
         /// connection if a default connection does not exist.
         /// </summary>
+        /// <param name="ownerUri">URI identifying the resource mapped to this connection</param>
+        /// <param name="connectionType">
+        /// What the purpose for this connection is. A single resource
+        /// such as a SQL file may have multiple connections - one for Intellisense, another for query execution
+        /// </param>
+        /// <param name="alwaysPersistSecurity">
+        /// Workaround for .Net Core clone connection issues: should persist security be used so that
+        /// when SMO clones connections it can do so without breaking on SQL Password connections.
+        /// This should be removed once the core issue is resolved and clone works as expected
+        /// </param>
         /// <returns>A DB connection for the connection type requested</returns>
-        public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType)
+        public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
         {
             Validate.IsNotNullOrEmptyString(nameof(ownerUri), ownerUri);
             Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
@@ -439,13 +449,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // If the DbConnection does not exist and is not the default connection, create one.
                 // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
                 // if Connect() has not yet been called.
+                bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
+                if (alwaysPersistSecurity)
+                {
+                    connectionInfo.ConnectionDetails.PersistSecurityInfo = true;
+                }
                 ConnectParams connectParams = new ConnectParams
                 {
                     OwnerUri = ownerUri,
                     Connection = connectionInfo.ConnectionDetails,
                     Type = connectionType
                 };
-                await Connect(connectParams);
+                try
+                {
+                    await Connect(connectParams);
+                }
+                finally
+                {
+                    connectionInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+                }
+                
                 connectionInfo.TryGetConnection(connectionType, out connection);
             }
 

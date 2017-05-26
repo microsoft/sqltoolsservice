@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Connect with SMO and get the metadata for the table
             Server server = new Server(new ServerConnection(sqlConn));
-            Database db = server.Databases[sqlConn.Database];
+            Database db = new Database(server, sqlConn.Database);
             // Database db = new Database(server, sqlConn.Database);
             TableViewTableTypeBase smoResult;
             switch (objectType.ToLowerInvariant())
