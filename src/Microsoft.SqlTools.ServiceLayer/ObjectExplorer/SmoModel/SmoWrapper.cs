@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal class SmoWrapper
     {
-        public virtual Server Create(SqlConnection connection)
+        public virtual Server CreateServer(SqlConnection connection)
         {
             ServerConnection serverConn = new ServerConnection(connection);
             return new Server(serverConn);

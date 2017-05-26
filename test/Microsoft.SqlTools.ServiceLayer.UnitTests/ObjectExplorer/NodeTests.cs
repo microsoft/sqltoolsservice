@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             Mock<SmoWrapper> wrapper = new Mock<SmoWrapper>();
             int count = 0;
-            wrapper.Setup(c => c.Create(It.IsAny<SqlConnection>()))
+            wrapper.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
                 .Returns(() => smoServer);
             wrapper.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => isOpen);
@@ -360,7 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerNode SetupServerNodeWithServer(Server smoServer)
         {
             Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
-            creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
+            creator.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
                 .Returns(() => smoServer);
             creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => true);
@@ -371,7 +371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerNode SetupServerNodeWithExceptionCreator(Exception ex)
         {
             Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
-            creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
+            creator.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
                 .Throws(ex);
             creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => false);
