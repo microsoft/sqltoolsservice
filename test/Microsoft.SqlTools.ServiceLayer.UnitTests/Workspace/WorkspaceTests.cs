@@ -196,5 +196,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
             // verify the file is being tracked by workspace
             Assert.True(workspaceService.Workspace.ContainsFile(TestObjects.ScriptUri));
         }
+
+        [Fact]
+        public void DontBindToObjectExplorerConnectEvents()
+        {
+            // when I ask for a non-file object in the workspace, it should return null
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            ScriptFile file = workspace.GetFile("objectexplorer://server;database=database;user=user");            
+            Assert.Null(file);
+
+            // when I ask for a file, it should return the file
+            string tempFile = Path.GetTempFileName();
+            string fileContents = "hello world";
+            File.WriteAllText(tempFile, fileContents);
+
+            file = workspace.GetFile(tempFile);
+            Assert.Equal(fileContents, file.Contents);
+
+            if (tempFile.StartsWith("/"))
+            {
+                tempFile = tempFile.Substring(1);
+            }
+            file = workspace.GetFile("file://" + tempFile);
+            Assert.Equal(fileContents, file.Contents);
+
+            file = workspace.GetFileBuffer("untitled://"+ tempFile, fileContents);
+            Assert.Equal(fileContents, file.Contents);
+        }
+
     }
 }

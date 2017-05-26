@@ -23,6 +23,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
     {
         #region Private Fields
 
+        private static readonly HashSet<string> fileUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) 
+        {
+            "file",
+            "untitled",
+            "tsqloutput"
+        };
+
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
 
         #endregion
@@ -81,7 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public virtual ScriptFile GetFile(string filePath)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
-
+            if (IsNonFileUri(filePath))
+            {
+                return null;
+            }
+            
             // Resolve the full file path 
             string resolvedFilePath = this.ResolveFilePath(filePath);
             string keyName = resolvedFilePath.ToLower();
@@ -108,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         
         private string ResolveFilePath(string filePath)
         {
-            if (!IsPathInMemory(filePath))
+            if (!IsPathInMemoryOrNonFileUri(filePath))
             {
                 if (filePath.StartsWith(@"file://"))
                 {
@@ -142,17 +153,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return filePath;
         }
 
-        internal static bool IsPathInMemory(string filePath)
+        internal static bool IsPathInMemoryOrNonFileUri(string path)
         {
-            // When viewing SqlTools files in the Git diff viewer, VS Code
-            // sends the contents of the file at HEAD with a URI that starts
-            // with 'inmemory'.  Untitled files which have been marked of
-            // type SqlTools have a path starting with 'untitled'.
-            return
-                filePath.StartsWith("inmemory:") ||
-                filePath.StartsWith("tsqloutput:") ||
-                filePath.StartsWith("git:") ||            
-                filePath.StartsWith("untitled:");
+            try
+            {
+                string scheme = GetScheme(path);
+                if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+                {
+                    return true;
+                }
+            }
+            catch(Exception)
+            {
+                // Intentionally skipping if there is a parse error
+            }
+
+            return false;
+        }
+
+        private static string GetScheme(string uri)
+        {
+            string pattern = "^([a-z][a-z0-9+.-]*):(?://)";
+            Match match = Regex.Match(uri, pattern);
+            if (match != null && match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return null;
         }
 
         /// <summary>
@@ -181,6 +208,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public ScriptFile GetFileBuffer(string filePath, string initialBuffer)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
+            if (IsNonFileUri(filePath))
+            {
+                return null;
+            }
 
             // Resolve the full file path 
             string resolvedFilePath = this.ResolveFilePath(filePath);
@@ -222,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         internal string GetBaseFilePath(string filePath)
         {
-            if (IsPathInMemory(filePath))
+            if (IsPathInMemoryOrNonFileUri(filePath))
             {
                 // If the file is in memory, use the workspace path
                 return this.WorkspacePath;
@@ -257,6 +288,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                         relativePath));
 
             return combinedPath;
+        }
+
+        private bool IsNonFileUri(string path)
+        {
+            try
+            {
+
+                string scheme = GetScheme(path);
+                if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+                {
+                    return !fileUriSchemes.Contains(scheme);;
+                }
+            }
+            catch(Exception)
+            {
+                // Intentionally skipping if there is a parse error
+            }
+
+            return false;
         }
 
         #endregion  
