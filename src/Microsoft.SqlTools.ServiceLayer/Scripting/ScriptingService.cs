@@ -312,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                             if (operation == ScriptOperation.Select)
                             {                    
                                 return string.Format(
-                                    @"SELECT TOP 100 * " + Environment.NewLine + @"FROM {0}.{1}",
+                                    @"SELECT TOP 1000 * " + Environment.NewLine + @"FROM {0}.{1}",
                                     metadata.Schema, metadata.Name);
                             }
                             else if (operation == ScriptOperation.Create)

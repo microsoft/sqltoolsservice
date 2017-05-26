@@ -1,0 +1,29 @@
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+namespace Microsoft.SqlTools.ServiceLayer.SqlContext
+{
+    /// <summary>
+    /// Contract for receiving object explorer settings as part of workspace settings
+    /// </summary>
+    public class ObjectExplorerSettings
+    {
+        public ObjectExplorerSettings()
+        {
+            CreateSessionTimeout = 10;
+            ExpandTimeout = 10;
+        }
+
+        /// <summary>
+        /// Number of seconds to wait before fail create session request with timeout error
+        /// </summary>
+        public int CreateSessionTimeout { get; set; }
+
+        /// <summary>
+        /// Number of seconds to wait before fail expand request with timeout error
+        /// </summary>
+        public int ExpandTimeout { get; set; }
+    }
+}
