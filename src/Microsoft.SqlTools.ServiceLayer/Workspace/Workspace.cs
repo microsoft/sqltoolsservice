@@ -263,9 +263,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         internal static bool IsPathInMemoryOrNonFileUri(string path)
         {
             string scheme = GetScheme(path);
-            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+            if (!string.IsNullOrEmpty(scheme))
             {
-                return true;
+                return !scheme.Equals("file");
             }
             return false;
         }
@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         private bool IsNonFileUri(string path)
         {
             string scheme = GetScheme(path);
-            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+            if (!string.IsNullOrEmpty(scheme))
             {
                 return !fileUriSchemes.Contains(scheme); ;
             }
