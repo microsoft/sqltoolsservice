@@ -152,44 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             return filePath;
         }
-
-        internal static bool IsPathInMemoryOrNonFileUri(string path)
-        {
-            try
-            {
-                string scheme = GetScheme(path);
-                if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
-                {
-                    return true;
-                }
-            }
-            catch(Exception)
-            {
-                // Intentionally skipping if there is a parse error
-            }
-
-            return false;
-        }
-
-        public static string GetScheme(string uri)
-        {
-            string windowsFilePattern = @"^?(:[a-zA-Z]\:|\\\\)";
-            if (Regex.IsMatch(uri, windowsFilePattern))
-            {
-                // Handle windows paths, these conflict with other "URI" handling
-                return null;
-            }
-
-            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
-            string pattern = "^([a-z][a-z0-9+.-]*):";
-            Match match = Regex.Match(uri, pattern);
-            if (match != null && match.Success)
-            {
-                return match.Groups[1].Value;
-            }
-            return null;
-        }
-
+        
         /// <summary>
         /// Unescapes any escaped [, ] or space characters. Typically use this before calling a
         /// .NET API that doesn't understand PowerShell escaped chars.
@@ -297,23 +260,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             return combinedPath;
         }
+        internal static bool IsPathInMemoryOrNonFileUri(string path)
+        {
+            string scheme = GetScheme(path);
+            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static string GetScheme(string uri)
+        {
+            string windowsFilePattern = @"^(?:[\w]\:|\\)";
+            if (Regex.IsMatch(uri, windowsFilePattern))
+            {
+                // Handle windows paths, these conflict with other "URI" handling
+                return null;
+            }
+
+            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
+            string pattern = "^([a-z][a-z0-9+.-]*):";
+            Match match = Regex.Match(uri, pattern);
+            if (match != null && match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return null;
+        }
 
         private bool IsNonFileUri(string path)
         {
-            try
+            string scheme = GetScheme(path);
+            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
             {
-
-                string scheme = GetScheme(path);
-                if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
-                {
-                    return !fileUriSchemes.Contains(scheme);;
-                }
+                return !fileUriSchemes.Contains(scheme); ;
             }
-            catch(Exception)
-            {
-                // Intentionally skipping if there is a parse error
-            }
-
             return false;
         }
 
