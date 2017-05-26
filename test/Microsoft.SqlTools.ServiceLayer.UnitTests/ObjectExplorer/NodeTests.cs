@@ -360,11 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerNode SetupServerNodeWithServer(Server smoServer)
         {
             Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
-<<<<<<< HEAD
-            creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
-=======
             creator.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
->>>>>>> dev
                 .Returns(() => smoServer);
             creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => true);
@@ -375,11 +371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerNode SetupServerNodeWithExceptionCreator(Exception ex)
         {
             Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
-<<<<<<< HEAD
-            creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
-=======
             creator.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
->>>>>>> dev
                 .Throws(ex);
             creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => false);

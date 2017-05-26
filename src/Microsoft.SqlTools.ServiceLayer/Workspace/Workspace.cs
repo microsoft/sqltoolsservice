@@ -173,7 +173,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         private static string GetScheme(string uri)
         {
-            string pattern = "^([a-z][a-z0-9+.-]*):(?://)";
+            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
+            string pattern = "^([a-z][a-z0-9+.-]*):";
             Match match = Regex.Match(uri, pattern);
             if (match != null && match.Success)
             {
