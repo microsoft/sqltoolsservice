@@ -278,8 +278,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return false;
         }
 
-        private static string GetScheme(string uri)
+        public static string GetScheme(string uri)
         {
+            string windowsFilePattern = @"^?(:[a-zA-Z]\:|\\\\)";
+            if (Regex.IsMatch(uri, windowsFilePattern))
+            {
+                // Handle windows paths, these conflict with other "URI" handling
+                return null;
+            }
+
             // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
             string pattern = "^([a-z][a-z0-9+.-]*):";
             Match match = Regex.Match(uri, pattern);
@@ -289,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             return null;
         }
-
+        
         private bool IsNonFileUri(string path)
         {
             string scheme = GetScheme(path);
