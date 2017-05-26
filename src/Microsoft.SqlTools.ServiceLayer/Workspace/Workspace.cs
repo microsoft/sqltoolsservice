@@ -159,11 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             return filePath;
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> fix/LanguageServiceException
         /// <summary>
         /// Unescapes any escaped [, ] or space characters. Typically use this before calling a
         /// .NET API that doesn't understand PowerShell escaped chars.
@@ -271,16 +267,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             return combinedPath;
         }
-        internal static bool IsPathInMemoryOrNonFileUri(string path)
-        {
-            string scheme = GetScheme(path);
-            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
-            {
-                return true;
-            }
-            return false;
-        }
-
         internal static bool IsPathInMemoryOrNonFileUri(string path)
         {
             string scheme = GetScheme(path);
