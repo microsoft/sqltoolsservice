@@ -222,6 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             file = workspace.GetFileBuffer("untitled://"+ tempFile, fileContents);
             Assert.Equal(fileContents, file.Contents);
+
+            // For windows files, just check scheme is null since it's hard to mock file contents in these
+            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"C:\myfile.sql"));
+            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"\\myfile.sql"));
         }
 
     }
