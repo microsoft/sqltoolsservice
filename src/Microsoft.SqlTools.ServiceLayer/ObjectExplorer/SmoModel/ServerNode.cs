@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             try
             {
-                Server server = SmoWrapper.Create(connection);
+                Server server = SmoWrapper.CreateServer(connection);
                 return new SmoQueryContext(server, serviceProvider, SmoWrapper)
                 {
                     Parent = server,
