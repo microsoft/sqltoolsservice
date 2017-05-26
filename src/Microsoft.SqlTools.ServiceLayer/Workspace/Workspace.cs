@@ -31,7 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             "tsqloutput"
         };
 
-
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
 
         #endregion
@@ -159,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             return filePath;
         }
-
+        
         /// <summary>
         /// Unescapes any escaped [, ] or space characters. Typically use this before calling a
         /// .NET API that doesn't understand PowerShell escaped chars.
@@ -270,16 +269,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         internal static bool IsPathInMemoryOrNonFileUri(string path)
         {
             string scheme = GetScheme(path);
-            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+            if (!string.IsNullOrEmpty(scheme))
             {
-                return true;
+                return !scheme.Equals("file");
             }
             return false;
         }
 
         public static string GetScheme(string uri)
         {
-            string windowsFilePattern = @"^?(:[a-zA-Z]\:|\\\\)";
+            string windowsFilePattern = @"^(?:[\w]\:|\\)";
             if (Regex.IsMatch(uri, windowsFilePattern))
             {
                 // Handle windows paths, these conflict with other "URI" handling
@@ -295,17 +294,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             return null;
         }
-        
+
         private bool IsNonFileUri(string path)
         {
             string scheme = GetScheme(path);
-            if (scheme != null && scheme.Length > 0 && !scheme.Equals("file"))
+            if (!string.IsNullOrEmpty(scheme))
             {
-                return !fileUriSchemes.Contains(scheme);;
+                return !fileUriSchemes.Contains(scheme); ;
             }
             return false;
         }
-
         private bool IsUntitled(string path)
         {
             string scheme = GetScheme(path);
