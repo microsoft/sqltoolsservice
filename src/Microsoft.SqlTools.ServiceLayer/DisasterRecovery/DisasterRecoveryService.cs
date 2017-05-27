@@ -18,14 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
-        private BackupUtilities backupFactory;
+        private BackupUtilities backupUtilities;
 
         /// <summary>
         /// Default, parameterless constructor.
         /// </summary>
         internal DisasterRecoveryService()
         {
-            this.backupFactory = new BackupUtilities();
+            this.backupUtilities = new BackupUtilities();
         }
 
         /// <summary>
@@ -78,56 +78,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             if (connInfo != null)
             {
-                CDataContainer dataContainer = GetDataContainer(connInfo);
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                 SqlConnection sqlConn = GetSqlConnection(connInfo);
                 if (sqlConn != null)
                 {
-                    DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn);
-                    BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetDatabaseInfo(sqlConn.Database);
+                    DisasterRecoveryService.Instance.InitializeBackup(helper.DataContainer, sqlConn);
+                    BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(sqlConn.Database);
                     backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
                     response.BackupConfigInfo = backupConfigInfo;                
                 }
             }
             
             await requestContext.SendResult(response);
-        }
-        
-        internal static CDataContainer GetDataContainer(ConnectionInfo connInfo)
-        {
-            CDataContainer dataContainer = null;
-
-            if (connInfo != null)
-            {
-                char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
-                if (string.Equals(connInfo.ConnectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
-                {
-                    unsafe
-                    {
-                        fixed (char* passwordPtr = passwordArray)
-                        {
-                            dataContainer = new CDataContainer(
-                            CDataContainer.ServerType.SQL,
-                            connInfo.ConnectionDetails.ServerName,
-                            false,
-                            connInfo.ConnectionDetails.UserName,
-                            new System.Security.SecureString(passwordPtr, passwordArray.Length),
-                            string.Empty);
-                        }
-                    }
-                }
-                else
-                {
-                    dataContainer = new CDataContainer(
-                    CDataContainer.ServerType.SQL,
-                    connInfo.ConnectionDetails.ServerName,
-                    true,
-                    null,
-                    null,
-                    null);
-                }
-            }
-
-            return dataContainer;
         }
 
         /// <summary>
@@ -141,15 +103,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
                     backupParams.OwnerUri,
                     out connInfo);
-            CDataContainer dataContainer;
 
             if (connInfo != null)
             {
-                dataContainer = GetDataContainer(connInfo);
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                 SqlConnection sqlConn = GetSqlConnection(connInfo);
                 if (sqlConn != null)
                 {
-                    DisasterRecoveryService.Instance.InitializeBackup(dataContainer, sqlConn);
+                    DisasterRecoveryService.Instance.InitializeBackup(helper.DataContainer, sqlConn);
                     DisasterRecoveryService.Instance.SetBackupInput(backupParams.BackupInfo);
                     DisasterRecoveryService.Instance.PerformBackup();
                 }
@@ -186,22 +147,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         private void InitializeBackup(CDataContainer dataContainer, SqlConnection sqlConnection)
         {
-            this.backupFactory.Initialize(dataContainer, sqlConnection);
+            this.backupUtilities.Initialize(dataContainer, sqlConnection);
         }
 
         private void SetBackupInput(BackupInfo input)
         {   
-            this.backupFactory.SetBackupInput(input);
+            this.backupUtilities.SetBackupInput(input);
         }
 
         private void PerformBackup()
         {
-            this.backupFactory.PerformBackup();
+            this.backupUtilities.PerformBackup();
         }
         
-        private BackupConfigInfo GetDatabaseInfo(string databaseName)
+        private BackupConfigInfo GetBackupConfigInfo(string databaseName)
         {
-            return this.backupFactory.GetBackupConfigInfo(databaseName);
+            return this.backupUtilities.GetBackupConfigInfo(databaseName);
         }   
         
     }
