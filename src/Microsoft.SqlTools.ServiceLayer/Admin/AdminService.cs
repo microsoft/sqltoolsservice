@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
         /// <returns></returns>
-        private static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
+        internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
         {
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo, databaseExists);
             char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
