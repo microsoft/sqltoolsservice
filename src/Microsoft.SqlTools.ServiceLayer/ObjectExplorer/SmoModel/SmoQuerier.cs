@@ -149,14 +149,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected IEnumerable<T> GetSmoCollectionResult<T>(HashSet<string> urns, SmoCollectionBase retValue, SqlSmoObject parent) where T : SqlSmoObject
         {
-            if (urns != null)
-            {
-                return new SmoCollectionWrapper<T>(retValue).Where(c => PassesFinalFilters(parent, c) && urns.Contains(c.Urn));
-            }
-            else
-            {
-                return new SmoCollectionWrapper<T>(retValue).Where(c => PassesFinalFilters(parent, c));
-            }
+            // the below code is filtering out tables on helsinki system
+            return new SmoCollectionWrapper<T>(retValue);
+
+            // if (urns != null)
+            // {
+            //     return new SmoCollectionWrapper<T>(retValue).Where(c => PassesFinalFilters(parent, c) && urns.Contains(c.Urn));
+            // }
+            // else
+            // {
+            //     return new SmoCollectionWrapper<T>(retValue).Where(c => PassesFinalFilters(parent, c));
+            // }
         }
     }
     
