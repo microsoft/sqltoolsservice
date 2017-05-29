@@ -275,7 +275,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 CreateSessionTask = task;
                 Task.Run(async () => 
                 {
-                    ObjectExplorerTaskResult result = await RunTaskWithTimeout(task, settings.CreateSessionTimeout);
+                    ObjectExplorerTaskResult result = await RunTaskWithTimeout(task, 
+                        settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
+
                     if (result != null && !result.IsComplete)
                     {
                         cancellationTokenSource.Cancel();
@@ -419,7 +421,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ExpandTask = task;
             Task.Run(async () =>
             {
-                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, settings.ExpandTimeout);
+                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
+                    settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
+
                 if (result != null && !result.IsComplete)
                 {
                     cancellationTokenSource.Cancel();
