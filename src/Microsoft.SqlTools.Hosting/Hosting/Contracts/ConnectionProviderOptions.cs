@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public static readonly string SpecialValueAuthType = "authType";
         public static readonly string SpecialValueUserName = "userName";
         public static readonly string SpecialValuePasswordName = "password";
+        public static readonly string SpecialValueAppName = "appName";
 
         /// <summary>
         /// Determines if the parameter is one of the 'special' known values.
