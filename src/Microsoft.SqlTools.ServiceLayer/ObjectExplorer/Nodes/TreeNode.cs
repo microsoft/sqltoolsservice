@@ -78,6 +78,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public string NodeSubType { get; set; }
 
         /// <summary>
+        /// Error message returned from the engine for a object explorer node failure reason, if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
         /// Node status - for example login can be disabled/enabled
         /// </summary>
         public string NodeStatus { get; set; }
@@ -193,7 +198,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 NodeType = this.NodeType,
                 Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
-                NodeSubType = this.NodeSubType
+                NodeSubType = this.NodeSubType,
+                ErrorMessage = this.ErrorMessage
             };
         }
 
@@ -289,8 +295,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             bool includeSystemObjects = context != null && context.Database != null ? ObjectExplorerUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
             
 
-                if (children.IsPopulating || context == null)
-                return;
+            if (children.IsPopulating || context == null)
+            return;
 
             children.Clear();
             BeginChildrenInit();
@@ -302,15 +308,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     foreach (var factory in childFactories)
                     {
-                        IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects);
-                        if (items != null)
+                        try
                         {
-                            foreach (TreeNode item in items)
+                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects);
+                            if (items != null)
                             {
-                                children.Add(item);
-                                item.Parent = this;
+                                foreach (TreeNode item in items)
+                                {
+                                    children.Add(item);
+                                    item.Parent = this;
 
+                                }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
+                            ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                            Logger.Write(LogLevel.Error, error);
+                            ErrorMessage = ex.Message;
                         }
                     }
                 }
@@ -320,6 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(LogLevel.Error, error);
+                ErrorMessage = ex.Message;
             }
             finally
             {

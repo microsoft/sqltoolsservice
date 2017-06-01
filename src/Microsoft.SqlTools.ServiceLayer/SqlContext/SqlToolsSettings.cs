@@ -134,5 +134,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         [JsonProperty("format")]
         public FormatterSettings Format { get; set; }
+
+        /// <summary>
+        /// Gets or sets the formatter settings
+        /// </summary>
+        [JsonProperty("objectExplorer")]
+        public ObjectExplorerSettings ObjectExplorer { get; set; }
     }
 }

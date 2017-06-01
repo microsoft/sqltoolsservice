@@ -5,12 +5,14 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Data.Tools.DataSets;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Common;
+using Microsoft.SqlTools.ServiceLayer.Admin;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -74,15 +76,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     }
 
     /// <summary>
-    /// Summary description for SqlBackupRestoreBase.
+    /// Common methods used for backup and restore
     /// </summary>
-    public class BackupRestoreUtil
+    public class CommonUtilities
     {
         private     CDataContainer DataContainer;
         private     ServerConnection SqlConnection = null;
         private ArrayList ExcludedDbs;
         
-        public BackupRestoreUtil(CDataContainer dataContainer, ServerConnection sqlConnection)
+        public CommonUtilities(CDataContainer dataContainer, ServerConnection sqlConnection)
         {           
             DataContainer   = dataContainer;
             this.SqlConnection  = sqlConnection;
@@ -986,9 +988,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         
-        public  ArrayList   GetLatestBackupLocations(string DatabaseName)
+        public List<RestoreItemSource> GetLatestBackupLocations(string DatabaseName)
         {
-            ArrayList LatestLocations   = new ArrayList();
+            List<RestoreItemSource>  LatestLocations   = new List<RestoreItemSource>();
 
             Enumerator en = null;
             DataSet ds = new DataSet();

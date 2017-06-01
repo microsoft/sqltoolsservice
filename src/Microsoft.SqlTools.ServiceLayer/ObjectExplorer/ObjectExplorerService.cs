@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Composition;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -19,6 +20,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
@@ -38,6 +41,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
+
+        /// <summary>
+        /// This timeout limits the amount of time that object explorer tasks can take to complete
+        /// </summary>
+        private ObjectExplorerSettings settings;
 
         /// <summary>
         /// Singleton constructor
@@ -101,14 +109,155 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
+            WorkspaceService<SqlToolsSettings> workspaceService = WorkspaceService;
+            if (workspaceService != null)
+            {
+                workspaceService.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
+            }
         }
 
-        public void CloseSession(string uri)
+        /// <summary>
+        /// Gets the workspace service. Note: should handle case where this is null in cases where unit tests do not set this up
+        /// </summary>
+        private WorkspaceService<SqlToolsSettings> WorkspaceService
+        {
+            get { return serviceProvider.GetService<WorkspaceService<SqlToolsSettings>>(); }
+        }
+
+
+        /// <summary>
+        /// Ensure formatter settings are always up to date
+        /// </summary>
+        public Task HandleDidChangeConfigurationNotification(
+            SqlToolsSettings newSettings,
+            SqlToolsSettings oldSettings,
+            EventContext eventContext)
+        {
+            // update the current settings to reflect any changes (assuming formatter settings exist)
+            settings = newSettings.SqlTools.ObjectExplorer ?? settings;
+            return Task.FromResult(true);
+        }
+
+
+        internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleCreateSessionRequest");
+
+            Func<Task<CreateSessionResponse>> doCreateSession = async () =>
+            {
+                Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+                Validate.IsNotNull(nameof(context), context);
+                return await Task.Factory.StartNew(() =>
+                {
+                    string uri = GenerateUri(connectionDetails);
+
+                    return new CreateSessionResponse { SessionId = uri };
+                });
+            };
+
+            CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+            if (response != null)
+            {
+                RunCreateSessionTask(connectionDetails, response.SessionId);
+            }
+
+        }
+
+        internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleExpandRequest");
+
+            Func<Task<bool>> expandNode = async () =>
+            {
+                Validate.IsNotNull(nameof(expandParams), expandParams);
+                Validate.IsNotNull(nameof(context), context);
+
+                string uri = expandParams.SessionId;
+                ObjectExplorerSession session = null;
+                if (!sessionMap.TryGetValue(uri, out session))
+                {
+                    Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                    {
+                        SessionId = expandParams.SessionId,
+                        NodePath = expandParams.NodePath,
+                        ErrorMessage = $"Couldn't find session for session: {uri}"
+                    });
+                    return false;
+                }
+                else
+                {
+                    RunExpandTask(session, expandParams);
+                    return true;
+                }
+            };
+            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
+        }
+
+        internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleRefreshRequest");
+            Validate.IsNotNull(nameof(refreshParams), refreshParams);
+            Validate.IsNotNull(nameof(context), context);
+
+            string uri = refreshParams.SessionId;
+            ObjectExplorerSession session = null;
+            if (!sessionMap.TryGetValue(uri, out session))
+            {
+                Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                {
+                    SessionId = refreshParams.SessionId,
+                    NodePath = refreshParams.NodePath,
+                    ErrorMessage = $"Couldn't find session for session: {uri}"
+                });
+            }
+            else
+            {
+                RunExpandTask(session, refreshParams, true);
+            }
+            await context.SendResult(true);
+        }
+
+        internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
+        {
+
+            Logger.Write(LogLevel.Verbose, "HandleCloseSessionRequest");
+            Func<Task<CloseSessionResponse>> closeSession = () =>
+            {
+                Validate.IsNotNull(nameof(closeSessionParams), closeSessionParams);
+                Validate.IsNotNull(nameof(context), context);
+                return Task.Factory.StartNew(() =>
+                {
+                    string uri = closeSessionParams.SessionId;
+                    ObjectExplorerSession session = null;
+                    bool success = false;
+                    if (!sessionMap.TryGetValue(uri, out session))
+                    {
+                        Logger.Write(LogLevel.Verbose, $"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
+                    }
+
+                    if (session != null)
+                    {
+                        // refresh the nodes for given node path
+                        CloseSession(uri);
+                        success = true;
+                    }
+
+                    var response = new CloseSessionResponse() { Success = success, SessionId = uri };
+                    return response;
+                });
+            };
+
+            await HandleRequestAsync(closeSession, context, "HandleCloseSessionRequest");
+        }
+
+        internal void CloseSession(string uri)
         {
             ObjectExplorerSession session;
             if (sessionMap.TryGetValue(uri, out session))
             {
-                // Establish a connection to the specified server/database
+                // Remove the session from active sessions and disconnect
                 sessionMap.TryRemove(session.Uri, out session);
                 connectionService.Disconnect(new DisconnectParams()
                 {
@@ -116,43 +265,71 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 });
             }
         }
-        
-        internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
+
+        private void  RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
-            Logger.Write(LogLevel.Verbose, "HandleCreateSessionRequest");
-            Func<Task<CreateSessionResponse>> doCreateSession = async () =>
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {
-                Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-                Validate.IsNotNull(nameof(context), context);
-
-                string uri = GenerateUri(connectionDetails);
-
-                ObjectExplorerSession session;
-                if (!sessionMap.TryGetValue(uri, out session))
+                Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
+                CreateSessionTask = task;
+                Task.Run(async () => 
                 {
-                    // Establish a connection to the specified server/database
-                    session = await DoCreateSession(connectionDetails, uri);
-                }
+                    ObjectExplorerTaskResult result = await RunTaskWithTimeout(task, 
+                        settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
 
-                CreateSessionResponse response;
-                if (session == null)
-                {
-                    response = new CreateSessionResponse() { Success = false };
-                }
-                else
-                {
-                    // Else we have a session available, response with existing session information
-                    response = new CreateSessionResponse()
+                    if (result != null && !result.IsComplete)
                     {
-                        Success = true,
-                        RootNode = session.Root.ToNodeInfo(),
-                        SessionId = session.Uri
-                    };
-                }
-                return response;
-            };
+                        cancellationTokenSource.Cancel();
+                        SessionCreatedParameters response = new SessionCreatedParameters
+                        {
+                            Success = false,
+                            SessionId = uri,
+                            ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
 
-            await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+                        };
+                        await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
+                    }
+                    return result;
+                });
+            }
+        }
+
+        /// <summary>
+        /// For tests only
+        /// </summary>
+        internal Task CreateSessionTask
+        {
+            get;
+            private set;
+        }
+
+        private async Task<SessionCreatedParameters> CreateSessionAsync(ConnectionDetails connectionDetails, string uri, CancellationToken cancellationToken)
+        {
+            ObjectExplorerSession session;
+            if (!sessionMap.TryGetValue(uri, out session))
+            {
+                // Establish a connection to the specified server/database
+                session = await DoCreateSession(connectionDetails, uri);
+            }
+
+            SessionCreatedParameters response;
+            if (session != null && !cancellationToken.IsCancellationRequested)
+            {
+                // Else we have a session available, response with existing session information
+                response = new SessionCreatedParameters
+                {
+                    Success = true,
+                    RootNode = session.Root.ToNodeInfo(),
+                    SessionId = uri,
+                    ErrorMessage = session.ErrorMessage
+                    
+                };
+                await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
+                return response;
+            }
+            return null;
+
         }
 
         internal async Task<NodeInfo[]> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
@@ -186,9 +363,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             connectionDetails.PersistSecurityInfo = true;
             ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
 
-            ConnectionCompleteParams connectionResult = await Connect(connectParams);
+            ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
             if (connectionResult == null)
             {
+                // Connection failed and notification is already sent
                 return null;
             }
 
@@ -198,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         }
         
 
-        private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams)
+        private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
             string connectionErrorMessage = string.Empty;
             try
@@ -213,7 +391,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 else
                 {
                     Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error: {connectionErrorMessage}");
-                    await serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                    await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, new SessionCreatedParameters
+                    {
+                        ErrorMessage = result.ErrorMessage,
+                        SessionId = uri
+                    });
                     return null;
                 }
                
@@ -222,108 +404,85 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error:{connectionErrorMessage} error: {ex.Message}");
                 // Send a connection failed error message in this case.
-                ConnectionCompleteParams result = new ConnectionCompleteParams()
+                SessionCreatedParameters result = new SessionCreatedParameters()
                 {
-                    Messages = ex.ToString()
+                    ErrorMessage = ex.ToString(),
+                    SessionId = uri
                 };
-                await serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
                 return null;
             }
         }
 
-        internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<ExpandResponse> context)
+        private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
         {
-            Logger.Write(LogLevel.Verbose, "HandleExpandRequest");
-            Func<Task<ExpandResponse>> expandNode = async () =>
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            Task task = ExpandNodeAsync(session, expandParams,  cancellationTokenSource.Token, forceRefresh);
+            ExpandTask = task;
+            Task.Run(async () =>
             {
-                Validate.IsNotNull(nameof(expandParams), expandParams);
-                Validate.IsNotNull(nameof(context), context);
+                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
+                    settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
-                string uri = expandParams.SessionId;
-                ObjectExplorerSession session = null;
-                NodeInfo[] nodes = null;
-                ExpandResponse response;
-                if (!sessionMap.TryGetValue(uri, out session))
+                if (result != null && !result.IsComplete)
                 {
-                    Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    cancellationTokenSource.Cancel();
+                    ExpandResponse response = CreateExpandResponse(session, expandParams);
+                    response.ErrorMessage = result.Exception != null ? result.Exception.Message: $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
+                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
-
-                if (session != null)
-                {
-                    // expand the nodes for given node path
-                    nodes = await ExpandNode(session, expandParams.NodePath);
-                }
-
-                response = new ExpandResponse() { Nodes = nodes, SessionId = uri };
-                return response;
-            };
-
-            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
+                return result;
+            });
         }
 
-        internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<RefreshResponse> context)
+        private async Task<ObjectExplorerTaskResult> RunTaskWithTimeout(Task task, int timeoutInSec)
         {
-            Logger.Write(LogLevel.Verbose, "HandleRefreshRequest");
-            Func<Task<RefreshResponse>> refreshNode = async () =>
+            ObjectExplorerTaskResult result = new ObjectExplorerTaskResult();
+            TimeSpan timeout = TimeSpan.FromSeconds(timeoutInSec);
+            await Task.WhenAny(task, Task.Delay(timeout));
+            result.IsComplete = task.IsCompleted;
+            if(task.Exception != null)
             {
-                Validate.IsNotNull(nameof(refreshParams), refreshParams);
-                Validate.IsNotNull(nameof(context), context);
-
-                string uri = refreshParams.SessionId;
-                ObjectExplorerSession session = null;
-                NodeInfo[] nodes = null;
-                RefreshResponse response;
-                if (!sessionMap.TryGetValue(uri, out session))
-                {
-                    Logger.Write(LogLevel.Verbose, $"Cannot refresh object explorer node. Couldn't find session for uri. {uri} ");
-                }
-
-                if (session != null)
-                {
-                    // refresh the nodes for given node path
-                    nodes = await ExpandNode(session, refreshParams.NodePath, true);
-                }
-
-                response = new RefreshResponse() { Nodes = nodes, SessionId = uri };
-                return response;
-            };
-
-            await HandleRequestAsync(refreshNode, context, "HandleRefreshRequest");
+                result.Exception = task.Exception;
+            }
+            else if (!task.IsCompleted)
+            {
+                result.Exception = new TimeoutException($"Object Explorer task didn't completed in {timeoutInSec} seconds.");
+            }
+            return result;
         }
 
-        internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
+        /// <summary>
+        /// For tests only
+        /// </summary>
+        internal Task ExpandTask
         {
-            Validate.IsNotNull(nameof(closeSessionParams), closeSessionParams);
-            Validate.IsNotNull(nameof(context), context);
-            Logger.Write(LogLevel.Verbose, "HandleCloseSessionRequest");
-            Func<Task<CloseSessionResponse>> closeSession = () =>
-            {
-                return Task.Factory.StartNew(() =>
-                {
-                    string uri = closeSessionParams.SessionId;
-                    ObjectExplorerSession session = null;
-                    bool success = false;
-                    if (!sessionMap.TryGetValue(uri, out session))
-                    {
-                        Logger.Write(LogLevel.Verbose, $"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
-                    }
-
-                    if (session != null)
-                    {
-                        // refresh the nodes for given node path
-                        CloseSession(uri);
-                        success = true;
-                    }
-
-                    var response = new CloseSessionResponse() {Success = success, SessionId = uri};
-                    return response;
-                });
-            };
-
-            await HandleRequestAsync(closeSession, context, "HandleCloseSessionRequest");
+            get;
+            set;
         }
 
-        private async Task HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
+        {
+            NodeInfo[] nodes = null;
+            nodes = await ExpandNode(session, expandParams.NodePath, forceRefresh);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Logger.Write(LogLevel.Verbose, "OE expand canceled ");
+            }
+            else
+            {
+                ExpandResponse response = CreateExpandResponse(session, expandParams);
+                response.Nodes = nodes;
+                await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
+            }
+        }
+
+        private ExpandResponse CreateExpandResponse(ObjectExplorerSession session, ExpandParams expandParams)
+        {
+            return new ExpandResponse() { SessionId = session.Uri, NodePath = expandParams.NodePath };
+        }
+
+        private async Task<T> HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(LogLevel.Verbose, requestType);
 
@@ -331,11 +490,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 T result = await handler();
                 await requestContext.SendResult(result);
+                return result;
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
+            return default(T);
         }
 
         /// <summary>
@@ -419,6 +580,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             applicableFactories.Add(factory);
         }
 
+        internal class ObjectExplorerTaskResult
+        {
+            public bool IsComplete { get; set; }
+            public Exception Exception { get; set; }
+        }
+
         internal class ObjectExplorerSession
         {
             private ConnectionService connectionService;
@@ -441,21 +608,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             public string Uri { get; private set; }
             public TreeNode Root { get; private set; }
 
+            public string ErrorMessage { get; set; }
+
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider)
             {
-                TreeNode rootNode = new ServerNode(response, serviceProvider);
+                ServerNode rootNode = new ServerNode(response, serviceProvider);
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!ObjectExplorerUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
                 {
                     // Assuming the databases are in a folder under server node
-                    var children = rootNode.Expand();
-                    var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
-                    var databasesChildren = databasesRoot.Expand(response.ConnectionSummary.DatabaseName);
-                    var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
-                    var databaseNode = databases.FirstOrDefault(d => d.Label == response.ConnectionSummary.DatabaseName);
-                    databaseNode.Label = rootNode.Label;
+                    DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);
                     session.Root = databaseNode;
                 }
+               
                 return session;
             }
             

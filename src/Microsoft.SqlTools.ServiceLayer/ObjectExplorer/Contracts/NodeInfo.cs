@@ -53,5 +53,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Object Metadata for smo objects to be used for scripting
         /// </summary>
         public ObjectMetadata Metadata { get; set; }
+
+        /// <summary>
+        /// Error message returned from the engine for a object explorer node failure reason, if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
     }
 }

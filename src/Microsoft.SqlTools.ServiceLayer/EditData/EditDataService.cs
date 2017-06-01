@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             Func<Exception, Task> executionFailureHandler = (e) => SendSessionReadyEvent(requestContext, initParams.OwnerUri, false, e.Message);
             Func<Task> executionSuccessHandler = () => SendSessionReadyEvent(requestContext, initParams.OwnerUri, true, null);
 
-            EditSession.Connector connector = () => connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
+            EditSession.Connector connector = () => connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit, alwaysPersistSecurity: true);
             EditSession.QueryRunner queryRunner = q => SessionInitializeQueryRunner(initParams.OwnerUri, requestContext, q);
 
             try

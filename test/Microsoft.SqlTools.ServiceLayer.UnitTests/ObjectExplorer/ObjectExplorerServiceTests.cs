@@ -50,8 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             // Given the connection service fails to connect
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
-            ConnectionCompleteParams completeParams = null;
-            serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, (et, p) => completeParams = p);
 
             string expectedExceptionText = "Error!!!";
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
@@ -59,21 +57,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // when creating a new session
             // then expect the create session request to return false
-            await RunAndVerify<CreateSessionResponse>(
-                test: (requestContext) => service.HandleCreateSessionRequest(details, requestContext),
+            await RunAndVerify<CreateSessionResponse, SessionCreatedParameters>(
+                test: (requestContext) => CallCreateSession(details, requestContext),
                 verify: (actual =>
                 {
-                    Assert.False(actual.Success);
-                    Assert.Null(actual.SessionId);
-                    Assert.Null(actual.RootNode);
+                    Assert.NotNull(actual.SessionId);
+                    Assert.NotNull(actual);
+                    Assert.True(actual.ErrorMessage.Contains(expectedExceptionText));
                 }));
 
             // And expect error notification to be sent
-            serviceHostMock.Verify(x => x.SendEvent(ConnectionCompleteNotification.Type, It.IsAny<ConnectionCompleteParams>()), Times.Once());
-            Assert.NotNull(completeParams);
-            Assert.True(completeParams.Messages.Contains(expectedExceptionText));
+            serviceHostMock.Verify(x => x.SendEvent(CreateSessionCompleteNotification.Type, It.IsAny<SessionCreatedParameters>()), Times.Once());
         }
-
+        
 
         [Fact]
         public async Task CreateSessionRequestWithMasterConnectionReturnsServerSuccessAndNodeInfo()
@@ -138,10 +134,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 NodePath = "Any path"
             };
 
+
             // when expanding
             // then expect the nodes are server children 
-            await RunAndVerify<ExpandResponse>(
-                test: (requestContext) => service.HandleExpandRequest(expandParams, requestContext),
+            await RunAndVerify<bool, ExpandResponse>(
+                test: (requestContext) => CallServiceExpand(expandParams, requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(actual.SessionId, expandParams.SessionId);
@@ -160,8 +157,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // when expanding
             // then expect the nodes are server children 
-            await RunAndVerify<RefreshResponse>(
-                test: (requestContext) => service.HandleRefreshRequest(expandParams, requestContext),
+            await RunAndVerify<bool, ExpandResponse>(
+                test: (requestContext) => CallServiceRefresh(expandParams, requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(actual.SessionId, expandParams.SessionId);
@@ -179,8 +176,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // when expanding
             // then expect the nodes are server children 
-            await RunAndVerify<CloseSessionResponse>(
-                test: (requestContext) => service.HandleCloseSessionRequest(closeSessionParamsparams, requestContext),
+            await RunAndVerify<CloseSessionResponse, CloseSessionResponse>(
+                test: (requestContext) => CallCloseSession(closeSessionParamsparams, requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(actual.SessionId, closeSessionParamsparams.SessionId);
@@ -199,8 +196,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // when expanding
             // then expect the nodes are server children 
-            await RunAndVerify<CloseSessionResponse>(
-                test: (requestContext) => service.HandleCloseSessionRequest(closeSessionParamsparams, requestContext),
+            await RunAndVerify<CloseSessionResponse, CloseSessionResponse>(
+                test: (requestContext) => CallCloseSession(closeSessionParamsparams, requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(actual.SessionId, closeSessionParamsparams.SessionId);
@@ -211,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectionServiceMock.Verify(c => c.Disconnect(It.IsAny<DisconnectParams>()));
         }
 
-        private async Task<CreateSessionResponse> CreateSession()
+        private async Task<SessionCreatedParameters> CreateSession()
         {
             ConnectionDetails details = new ConnectionDetails()
             {
@@ -221,9 +218,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 ServerName = "serverName"
             };
 
-            serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
+            SessionCreatedParameters sessionResult = null;
+            serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (et, p) => sessionResult = p);
             CreateSessionResponse result = default(CreateSessionResponse);
             var contextMock = RequestContextMocks.Create<CreateSessionResponse>(r => result = r).AddErrorHandling(null);
+          
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));
 
@@ -236,8 +235,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             connectionServiceMock.Setup(c => c.Disconnect(It.IsAny<DisconnectParams>())).Returns(true);
             await service.HandleCreateSessionRequest(details, contextMock.Object);
+            await service.CreateSessionTask;
 
-            return result;
+            return sessionResult;
         }
 
         private async Task ExpandAndVerifyServerNodes()
@@ -251,8 +251,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // when expanding
             // then expect the nodes are server children 
-            await RunAndVerify<ExpandResponse>(
-                test: (requestContext) => service.HandleExpandRequest(expandParams, requestContext),
+            await RunAndVerify<bool, ExpandResponse>(
+                test: (requestContext) => CallServiceExpand(expandParams, requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(actual.SessionId, session.SessionId);
@@ -272,8 +272,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // when expanding
             // then expect the nodes are server children 
-            await RunAndVerify<RefreshResponse>(
-                test: (requestContext) => service.HandleRefreshRequest(expandParams, requestContext),
+            await RunAndVerify<bool, ExpandResponse>(
+                test: (requestContext) => CallServiceRefresh(expandParams, requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(actual.SessionId, session.SessionId);
@@ -282,17 +282,75 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }));
         }
 
+        private async Task<ExpandResponse> CallServiceRefresh(RefreshParams expandParams, RequestContext<bool> requestContext)
+        {
+            ExpandResponse result = null;
+            serviceHostMock.AddEventHandling(ExpandCompleteNotification.Type, (et, p) => result = p);
+
+            await service.HandleRefreshRequest(expandParams, requestContext);
+            Task task = service.ExpandTask;
+            if (task != null)
+            {
+                await task;
+            }
+
+            return result;
+
+        }
+
+        private async Task<ExpandResponse> CallServiceExpand(ExpandParams expandParams, RequestContext<bool> requestContext)
+        {
+            ExpandResponse result = null;
+            serviceHostMock.AddEventHandling(ExpandCompleteNotification.Type, (et, p) => result = p);
+
+            await service.HandleExpandRequest(expandParams, requestContext);
+            Task task = service.ExpandTask;
+            if (task != null)
+            {
+                await task;
+            }
+            return result;
+        }
+
+        private async Task<SessionCreatedParameters> CallCreateSession(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
+        {
+            SessionCreatedParameters result = null;
+            serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (et, p) => result = p);
+
+            await service.HandleCreateSessionRequest(connectionDetails, context);
+            Task task =  service.CreateSessionTask;
+            if (task != null)
+            {
+                await task;
+            }
+            return result;
+        }
+
+        private async Task<CloseSessionResponse> CallCloseSession(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
+        {
+            SessionCreatedParameters result = null;
+            serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (et, p) => result = p);
+
+            await service.HandleCloseSessionRequest(closeSessionParams, context);
+            return null;
+        }
+
         private async Task CreateSessionRequestAndVerifyServerNodeHelper(ConnectionDetails details)
         {
             serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
+            //SessionCreatedParameters sessionResult
             
+
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));
             
             // when creating a new session
             // then expect the create session request to return false
-            await RunAndVerify<CreateSessionResponse>(
-                test: (requestContext) => service.HandleCreateSessionRequest(details, requestContext),
+            await RunAndVerify<CreateSessionResponse, SessionCreatedParameters>(
+                test: (requestContext) => 
+                {
+                    return CallCreateSession(details, requestContext);
+                },
                 verify: (actual =>
                 {
                     Assert.True(actual.Success);
@@ -339,15 +397,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
         }
 
-        private async Task RunAndVerify<T>(Func<RequestContext<T>, Task> test, Action<T> verify)
+        private async Task RunAndVerify<T, TResult>(Func<RequestContext<T>, Task<TResult>> test, Action<TResult> verify)
         {
             T result = default(T);
             var contextMock = RequestContextMocks.Create<T>(r => result = r).AddErrorHandling(null);
-            await test(contextMock.Object);
-            VerifyResult(contextMock, verify, result);
+            TResult actualResult = await test(contextMock.Object);
+            if (actualResult == null && typeof(TResult) == typeof(T))
+            {
+                actualResult = (TResult)Convert.ChangeType(result, typeof(TResult));
+            }
+            VerifyResult(contextMock, verify, actualResult);
         }
         
-        private void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action<T> verify, T actual)
+        private void VerifyResult<T, TResult>(Mock<RequestContext<T>> contextMock, Action<TResult> verify, TResult actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
             contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
@@ -359,6 +421,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
             contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         }
-
     }
 }

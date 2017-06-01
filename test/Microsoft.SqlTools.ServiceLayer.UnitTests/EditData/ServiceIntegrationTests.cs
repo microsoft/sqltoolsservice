@@ -277,6 +277,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Empty(eds.ActiveSessions);
         }
 
+        [Theory]
+        [InlineData("table", "myschema", new [] { "myschema", "table" })]    // Use schema
+        [InlineData("table", null, new [] { "table" })]    // skip schema
+        [InlineData("schema.table", "myschema", new [] { "myschema", "schema.table"})]    // Use schema
+        [InlineData("schema.table", null, new [] { "schema", "table"})]    // Split object name into schema
+        public void ShouldUseSchemaNameIfDefined(string objName, string schemaName, string[] expectedNameParts)
+        {
+            // Setup: Create an edit data service without a session
+            var eds = new EditDataService(null, null, null);
+
+            // If:
+            // ... I have init params with an object and schema parameter
+            var initParams = new EditInitializeParams
+            {
+                ObjectName = objName,
+                SchemaName = schemaName,
+                OwnerUri = Common.OwnerUri,
+                ObjectType = "table"
+            };
+
+            // ... And I get named parts for that
+            string[] nameParts = EditSession.GetEditTargetName(initParams);
+
+            // Then:
+            Assert.Equal(expectedNameParts, nameParts);
+        }
+
         private static async Task<EditSession> GetDefaultSession()
         {
             // ... Create a session with a proper query and metadata

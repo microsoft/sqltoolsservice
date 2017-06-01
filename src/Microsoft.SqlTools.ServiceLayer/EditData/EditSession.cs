@@ -431,7 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             try
             {
                 // Step 1) Look up the SMO metadata
-                string[] namedParts = SqlScriptFormatter.DecodeMultipartIdenfitier(initParams.ObjectName);
+                string[] namedParts = GetEditTargetName(initParams);
                 objectMetadata = metadataFactory.GetObjectMetadata(await connector(), namedParts,
                     initParams.ObjectType);
 
@@ -457,6 +457,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 await failureHandler(e);
             }
+        }
+
+        public static string[] GetEditTargetName(EditInitializeParams initParams)
+        {
+            // Step 1) Look up the SMO metadata
+            if (initParams.SchemaName != null)
+            {
+                return new [] { initParams.SchemaName, initParams.ObjectName };
+            }
+            return SqlScriptFormatter.DecodeMultipartIdenfitier(initParams.ObjectName);
         }
 
         private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)

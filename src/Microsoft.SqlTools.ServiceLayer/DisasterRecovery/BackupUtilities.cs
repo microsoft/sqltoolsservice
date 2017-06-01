@@ -5,23 +5,22 @@
 
 using System;
 using System.Collections;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using Microsoft.Data.Tools.DataSets;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Common;
-using Microsoft.Data.Tools.DataSets;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
-    public class BackupFactory
+    public class BackupUtilities
     {
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
-        private BackupRestoreUtil backupRestoreUtil = null;
-        private UrlControl urlControl;
+        private CommonUtilities backupRestoreUtil = null;        
 
         /// <summary>
         /// Constants
@@ -91,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Ctor
         /// </summary>
-        public BackupFactory()
+        public BackupUtilities()
         {               
         }
 
@@ -101,12 +100,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="dataContainer"></param>
         /// <param name="sqlConnection"></param>
         /// <param name="input"></param>
-        public void Initialize(CDataContainer dataContainer, SqlConnection sqlConnection, BackupInfo input)
+        public void Initialize(CDataContainer dataContainer, SqlConnection sqlConnection)
         {
             this.dataContainer = dataContainer;
-            this.serverConnection = new ServerConnection(sqlConnection); // @@ check the value!
-            this.backupRestoreUtil = new BackupRestoreUtil(this.dataContainer, this.serverConnection);
-            //this.urlControl.SqlServer = dataContainer.Server;
+            this.serverConnection = new ServerConnection(sqlConnection);
+            this.backupRestoreUtil = new CommonUtilities(this.dataContainer, this.serverConnection);            
+        }
+
+        public void SetBackupInput(BackupInfo input)
+        {
             this.backupInfo = input;
 
             // convert the types            
@@ -118,20 +120,43 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 this.isLocalPrimaryReplica = this.backupRestoreUtil.IsLocalPrimaryReplica(this.backupInfo.DatabaseName);
             }
-
-            //TODO: when is backup device not null?
-            //bStatus = param.GetParam("backupdevice", ref this.initialBackupDestination); 
         }
         
         #endregion
 
         #region Methods for UI logic
-
-        // Return recovery model of the current database
-        private string GetRecoveryModel()
+                
+        public BackupConfigInfo GetBackupConfigInfo(string databaseName)
         {
-            RecoveryModel recoveryModel = this.backupRestoreUtil.GetRecoveryModel(this.backupInfo.DatabaseName);
+            BackupConfigInfo databaseInfo = new BackupConfigInfo();
+            databaseInfo.RecoveryModel = this.GetRecoveryModel(databaseName);
+            databaseInfo.DefaultBackupFolder = this.GetDefaultBackupFolder();
+            databaseInfo.LatestBackups = this.GetLatestBackupLocations(databaseName);
+            return databaseInfo;
+        }
+
+        /// <summary>
+        /// Return recovery model of the database
+        /// </summary>
+        /// <returns></returns>
+        public string GetRecoveryModel(string databaseName)
+        {
+            RecoveryModel recoveryModel = this.backupRestoreUtil.GetRecoveryModel(databaseName);
             return recoveryModel.ToString();
+        }
+
+        public string GetDefaultBackupFolder()
+        {
+            return this.backupRestoreUtil.GetDefaultBackupFolder();
+        }
+
+        /// <summary>
+        /// Return the latest backup locations
+        /// </summary>
+        /// <returns></returns>
+        public List<RestoreItemSource> GetLatestBackupLocations(string databaseName)
+        {
+            return this.backupRestoreUtil.GetLatestBackupLocations(databaseName);
         }
 
         /// <summary>
@@ -141,9 +166,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             return BackupRestoreBase.IsBackupUrlDeviceSupported(this.dataContainer.Server.PingSqlServerVersion(this.dataContainer.ServerName)); //@@ originally, DataContainer.Server.ServerVersion
         }
-        
+
         #endregion
-        
+
         private string GetDefaultBackupSetName()
         {
             string bkpsetName = this.backupInfo.DatabaseName + "-" 
@@ -247,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     for (int i = 0; i < this.backupInfo.BackupPathList.Count; i++)
                     {
                         string DestName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
-                        int deviceType = (int)(this.backupInfo.arChangesList[DestName]);
+                        int deviceType = (int)(this.backupInfo.BackupPathDevices[DestName]);
                         switch (deviceType)
                         {
                             case (int)DeviceType.LogicalDevice:
@@ -276,27 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         }
                     }
                 }
-                else
-                {
-                    /*if (this.urlControl.ListBakDestUrls.Count > 0)
-                    {
-                        // Append the URL filename to the URL prefix
-                        foreach (string urlPath in this.urlControl.ListBakDestUrls.ToArray())
-                        {
-                            if (!String.IsNullOrWhiteSpace(urlPath))
-                            {
-                                bk.Devices.AddDevice(urlPath, DeviceType.Url);
-                            }
-                        }
-                    }*/
-                }
-                /*
-                if (this.dataContainer.HashTable.ContainsKey(bk.BackupSetName))
-                {
-                    this.dataContainer.HashTable.Remove(bk.BackupSetName);
-                }
-                this.dataContainer.HashTable.Add(bk.BackupSetName, bk);*/
-
+                
                 //TODO: This should be changed to get user inputs
                 bk.FormatMedia = false;
                 bk.Initialize = false;
@@ -312,14 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
             }
         }
-
-        
-        private ArrayList getBackupDestinationList()
-        {
-            //TODO: return the latest backup destination paths to show to UI dialog
-            return null;
-        }
-                
+     
         private int GetDeviceType(string deviceName)
         {
             Enumerator en = new Enumerator();

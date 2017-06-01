@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using Microsoft.Data.Tools.DataSets;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             string urn = string.Empty;
             try
             {
-                string parentUrn = smoObject.Urn;
+                string parentUrn = smoObject.Urn != null ? smoObject.Urn.Value : string.Empty;
                 urn = parentUrn != null ? $"{parentUrn.ToString()}/{objectName}" + filter : string.Empty;
 
                 if (!string.IsNullOrEmpty(urn))
@@ -91,7 +92,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Enumerator en = new Enumerator();
                     Request request = new Request(new Urn(urn));
                     ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-
+                    if (!serverConnection.IsOpen)
+                    {
+                        serverConnection.Connect();
+                    }
                     EnumResult result = en.Process(serverConnection, request);
 
                     urns = GetUrns(result);
@@ -102,6 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed getting urns. error:{0} inner:{1} stacktrace:{2}",
                  ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(LogLevel.Error, error);
+                throw ex;
             }
 
             return urns;
@@ -140,6 +145,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             return null;
+        }
+
+        protected IEnumerable<T> GetSmoCollectionResult<T>(HashSet<string> urns, SmoCollectionBase retValue, SqlSmoObject parent) where T : SqlSmoObject
+        {
+            // the below code is filtering out tables on helsinki system
+            return new SmoCollectionWrapper<T>(retValue);
+
+            // if (urns != null)
+            // {
+            //     return new SmoCollectionWrapper<T>(retValue).Where(c => PassesFinalFilters(parent, c) && urns.Contains(c.Urn));
+            // }
+            // else
+            // {
+            //     return new SmoCollectionWrapper<T>(retValue).Where(c => PassesFinalFilters(parent, c));
+            // }
         }
     }
     
