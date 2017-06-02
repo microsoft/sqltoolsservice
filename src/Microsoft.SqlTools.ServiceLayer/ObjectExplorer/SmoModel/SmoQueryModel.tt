@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	{
 		XmlElement nodeElement = GetNodeElement(xmlFile, nodeName);
 		IList<string> parents = GetParents(nodeElement, xmlFile, nodeName);
+		string properties = GetProperties(nodeElement, xmlFile, nodeName);
 		string nodeType = GetNodeType(nodeElement, nodeName);
 
 		string queryBaseClass = "SmoQuerier";
@@ -62,15 +63,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine(string.Format("if ({0} != null)", parentVar));
 			WriteLine("{");
 			PushIndent(indent);
-			WriteLine("bool hasFilter = !string.IsNullOrEmpty(filter);");
 			
 			string navigationPath = GetNavigationPath(nodeElement, xmlFile, nodeName, parentType);
-			WriteLine("if (refresh)");
-			WriteLine("{");
-			PushIndent(indent);
-			WriteLine(string.Format("{0}.{1}.Refresh({2});", parentVar, navigationPath, IsCollection(nodeElement) ? "true" : ""));
-			PopIndent();
-			WriteLine("}");
+			
 
 			WriteLine(string.Format("var retValue = {0}.{1};", parentVar, navigationPath));
 			WriteLine("if (retValue != null)");
@@ -80,27 +75,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			
 			if (IsCollection(nodeElement))
 			{
-				string fieldForUrn = GetNavPathFieldForUrn(xmlFile, nodeName, parentType);
-				if (!string.IsNullOrEmpty(fieldForUrn))
-				{
-					fieldForUrn = string.Format("{0}.{1}", parentVar, fieldForUrn);
-				}
-				else
-				{
-					fieldForUrn = parentVar;
-				}
-				WriteLine("HashSet<string> urns = null;");
-				
-				WriteLine("if (hasFilter)");
-				WriteLine("{");
-				PushIndent(indent);
-				WriteLine(string.Format("urns = GetUrns(context, {0}, filter, \"{1}\");", fieldForUrn, nodeType));
-				PopIndent();
-				WriteLine("}");
-				WriteLine(string.Format("return GetSmoCollectionResult<{0}>(urns, retValue, {1});", nodeType, parentVar));
+				WriteLine(string.Format("retValue.InitializeCollection(filter, new string[] {{ {0} }});", properties));
+				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
 			}
 			else
 			{
+				WriteLine("if (refresh)");
+				WriteLine("{");
+				PushIndent(indent);
+				WriteLine(string.Format("{0}.{1}.Refresh();", parentVar, navigationPath));
+				PopIndent();
+				WriteLine("}");
 				WriteLine("return new SqlSmoObject[] { retValue };");
 			}
 			
@@ -227,6 +212,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		
 		// default to assuming a type is under Database
 		return new string[] { "Database" };
+	}
+
+	public static string GetProperties(XmlElement nodeElement, string xmlFile, string parentName)
+	{
+		var propertiesAttr = nodeElement.GetAttribute("Properties");
+		string result = string.Empty;
+		if (!string.IsNullOrEmpty(propertiesAttr))
+		{
+			var properties = propertiesAttr.Split(';');
+			foreach (var item in properties) 
+			{
+				result = result + (string.IsNullOrEmpty(result) ? "" : ",") + "\"" + item + "\"";
+			}
+
+		}
+		return result;
 	}
 	
 	public static List<XmlElement> GetChildren(string xmlFile, string parentName, string childNode)
