@@ -199,7 +199,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         DisplayName = "Application Name",
                         Description = "The name of the application",
                         ValueType = ConnectionOption.ValueTypeString,
-                        GroupName = "Context"
+                        GroupName = "Context",
+                        SpecialValueType = ConnectionOption.SpecialValueAppName
                     },
                     new ConnectionOption
                     {
