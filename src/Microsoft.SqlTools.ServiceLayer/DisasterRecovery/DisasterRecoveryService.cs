@@ -145,22 +145,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return null;
         }
 
-        private void InitializeBackup(CDataContainer dataContainer, SqlConnection sqlConnection)
+        internal void InitializeBackup(CDataContainer dataContainer, SqlConnection sqlConnection)
         {
             this.backupUtilities.Initialize(dataContainer, sqlConnection);
         }
 
-        private void SetBackupInput(BackupInfo input)
+        internal void SetBackupInput(BackupInfo input)
         {   
             this.backupUtilities.SetBackupInput(input);
         }
 
-        private void PerformBackup()
+        internal void PerformBackup()
         {
             this.backupUtilities.PerformBackup();
         }
-        
-        private BackupConfigInfo GetBackupConfigInfo(string databaseName)
+
+        internal BackupConfigInfo GetBackupConfigInfo(string databaseName)
         {
             return this.backupUtilities.GetBackupConfigInfo(databaseName);
         }   
