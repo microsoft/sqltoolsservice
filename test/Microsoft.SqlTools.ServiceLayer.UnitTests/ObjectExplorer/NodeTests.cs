@@ -400,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             smoObjectMock.SetupGet(s => s.Name).Returns(dbName);
 
             Mock<SqlDatabaseQuerier> querierMock = new Mock<SqlDatabaseQuerier>();
-            querierMock.Setup(q => q.Query(It.IsAny<SmoQueryContext>(), It.IsAny<string>(), false, Enumerable.Empty<string>()))
+            querierMock.Setup(q => q.Query(It.IsAny<SmoQueryContext>(), It.IsAny<string>(), false, It.IsAny<IEnumerable<string>>()))
                 .Returns(smoObjectMock.Object.SingleItemAsEnumerable());
 
             ServiceProvider.Register<SmoQuerier>(() => new[] { querierMock.Object });
