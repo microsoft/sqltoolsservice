@@ -12,7 +12,7 @@
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17054.0" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17055.0" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts/CreateTestDatabaseObjects.sql" />
