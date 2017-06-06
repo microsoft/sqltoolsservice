@@ -1339,6 +1339,10 @@
     <value>System-Versioned</value>
     <comment></comment>
   </data>
+  <data name="DatabaseNotAccessible" xml:space="preserve">
+    <value>The database {0} is not accessible.</value>
+    <comment></comment>
+  </data>
   <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error parsing ScriptingParams.ConnectionString property.</value>
     <comment></comment>

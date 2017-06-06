@@ -14,10 +14,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            Table table = smoObject as Table;
-            if (table != null && table.IsSystemVersioned)
+            try
             {
-                return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
+                Table table = smoObject as Table;
+                if (table != null && table.IsSystemVersioned)
+                {
+                    return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
+                }
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
             }
 
             return string.Empty;

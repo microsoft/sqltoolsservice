@@ -2333,6 +2333,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string DatabaseNotAccessible
+        {
+            get
+            {
+                return Keys.GetString(Keys.DatabaseNotAccessible);
+            }
+        }
+
         public static string ScriptingParams_ConnectionString_Property_Invalid
         {
             get
@@ -4227,6 +4235,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SystemVersioned_LabelPart = "SystemVersioned_LabelPart";
+
+
+            public const string DatabaseNotAccessible = "DatabaseNotAccessible";
 
 
             public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";

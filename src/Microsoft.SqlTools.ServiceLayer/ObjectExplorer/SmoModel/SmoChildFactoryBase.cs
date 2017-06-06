@@ -84,6 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters.ToList();
+            var smoProperties = this.SmoProperties.Where(p => (p.ValidFor == 0 || p.ValidFor.HasFlag(validForFlag))).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodeFilter
@@ -98,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
                 try
                 {
-                    var smoObjectList = querier.Query(context, propertyFilter, refresh).ToList();
+                    var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
                     foreach (var smoObject in smoObjectList)
                     {
                         if (smoObject == null)
@@ -236,6 +237,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
                 return Enumerable.Empty<NodeFilter>();
+            }
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                return Enumerable.Empty<NodeSmoProperty>();
             }
         }
 
