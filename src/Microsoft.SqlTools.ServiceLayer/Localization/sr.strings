@@ -667,6 +667,8 @@ History_LabelPart = History
 
 SystemVersioned_LabelPart = System-Versioned
 
+DatabaseNotAccessible = The database {0} is not accessible.
+
 
 ############################################################################
 # Scripting Service

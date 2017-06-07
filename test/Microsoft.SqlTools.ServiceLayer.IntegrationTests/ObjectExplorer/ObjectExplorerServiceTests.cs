@@ -61,11 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             string databaseName = "tempdb";
             await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
             {
-                var serverChildren = await _service.ExpandNode(session, session.Root.GetNodePath());
+                var serverChildren = (await _service.ExpandNode(session, session.Root.GetNodePath())).Nodes;
                 var securityNode = serverChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Security);
-                var securityChildren = await _service.ExpandNode(session, securityNode.NodePath);
+                var securityChildren = (await _service.ExpandNode(session, securityNode.NodePath)).Nodes;
                 var loginsNode = securityChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Logins);
-                var loginsChildren = await _service.ExpandNode(session, loginsNode.NodePath);
+                var loginsChildren = (await _service.ExpandNode(session, loginsNode.NodePath)).Nodes;
                 var login = loginsChildren.FirstOrDefault(x => x.Label == "OEServerLogin");
                 Assert.NotNull(login);
                
@@ -97,12 +97,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             string databaseName = "tempdb";
             await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
             {
-                var serverChildren = await _service.ExpandNode(session, session.Root.GetNodePath());
+                var serverChildren = (await _service.ExpandNode(session, session.Root.GetNodePath())).Nodes;
                 var serverObjectsNode = serverChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_ServerObjects);
-                var serverObjectsChildren = await _service.ExpandNode(session, serverObjectsNode.NodePath);
+                var serverObjectsChildren = (await _service.ExpandNode(session, serverObjectsNode.NodePath)).Nodes;
                 var triggersNode = serverObjectsChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Triggers);
                 var triggersChildren = await _service.ExpandNode(session, triggersNode.NodePath);
-                var trigger = triggersChildren.FirstOrDefault(x => x.Label == "OE_ddl_trig_database");
+                var trigger = triggersChildren.Nodes.FirstOrDefault(x => x.Label == "OE_ddl_trig_database");
                 Assert.NotNull(trigger);
 
                 Assert.True(trigger.NodeStatus == "Disabled");
@@ -130,15 +130,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
             {
                 var tablesNode = await FindNodeByLabel(session.Root.ToNodeInfo(), session, SR.SchemaHierarchy_Tables);
-                var tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
+                var tableChildren = (await _service.ExpandNode(session, tablesNode.NodePath)).Nodes;
                 string dropTableScript = "Drop Table t1";
                 Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, dropTableScript);
-                tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
+                tableChildren = (await _service.ExpandNode(session, tablesNode.NodePath)).Nodes;
                 Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
-                tableChildren = await _service.ExpandNode(session, tablesNode.NodePath, true);
+                tableChildren = (await _service.ExpandNode(session, tablesNode.NodePath, true)).Nodes;
                 Assert.False(tableChildren.Any(t => t.Label == "dbo.t1"));
 
+            });
+        }
+
+        /// <summary>
+        /// Create a test database with prefix (OfflineDb). Create an oe session for master db and expand the new test db.
+        /// The expand should return an error that says database if offline
+        /// </summary>
+        [Fact]
+        public async void ExpandOfflineDatabaseShouldReturnError()
+        {
+            var query = "ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE";
+            string databaseName = "master";
+            
+            await RunTest(databaseName, query, "OfflineDb", async (testDbName, session) =>
+            {
+                var databaseNode = await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
+                var response = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(response.ErrorMessage.Contains(string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, testDbName)));
             });
         }
 
@@ -161,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
 
                 //Expanding the tables return t1
-                Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
+                Assert.True(tableChildren.Nodes.Any(t => t.Label == "dbo.t1"));
 
                 //Delete the table from db
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, dropTableScript1);
@@ -170,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 tableChildren = await _service.ExpandNode(session, tablesNode.NodePath);
 
                 //Tables still includes t1
-                Assert.True(tableChildren.Any(t => t.Label == "dbo.t1"));
+                Assert.True(tableChildren.Nodes.Any(t => t.Label == "dbo.t1"));
 
                 //Verify the tables cache has items 
 
@@ -197,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.False(tablesCache.Any());
 
             //Expand Tables
-            var tableChildren = await _service.ExpandNode(session, tablePath, true);
+            var tableChildren = (await _service.ExpandNode(session, tablePath, true)).Nodes;
 
             //Verify table is not returned
             Assert.Equal(tableChildren.Any(t => t.Label == tableName), !deleted);
@@ -238,6 +256,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 {
                     databaseName = testDb.DatabaseName;
                 }
+
                 var session = await CreateSession(databaseName);
                 uri = session.Uri;
                 await test(testDb.DatabaseName, session);
@@ -293,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 }
 
                 var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
-                var databasesChildren = await _service.ExpandNode(session, databasesRoot.GetNodePath());
+                var databasesChildren = (await _service.ExpandNode(session, databasesRoot.GetNodePath())).Nodes;
                 var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
 
                 //Verify the test databases is in the list
@@ -303,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.NotNull(systemDatabasesNode);
 
                 var systemDatabases = await _service.ExpandNode(session, systemDatabasesNode.NodePath);
-                Assert.True(systemDatabases.Any(x => x.Label == "master"));
+                Assert.True(systemDatabases.Nodes.Any(x => x.Label == "master"));
 
                 databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
@@ -312,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
                 databaseNode = session.Root.ToNodeInfo();
                 Assert.True(databaseNode.Label.Contains(databaseName));
-                var databasesChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                var databasesChildren = (await _service.ExpandNode(session, databaseNode.NodePath)).Nodes;
                 Assert.False(databasesChildren.Any(x => x.Label == SR.SchemaHierarchy_SystemDatabases));
 
             }
@@ -328,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.Equal(nodeInfo.IsLeaf, false);
             Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
-            var children = await _service.ExpandNode(session, session.Root.GetNodePath());
+            var children = (await _service.ExpandNode(session, session.Root.GetNodePath())).Nodes;
 
             //All server children should be folder nodes
             foreach (var item in children)
@@ -350,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             if (node != null && !node.IsLeaf)
             {
-                var children = await _service.ExpandNode(session, node.NodePath);
+                var children = (await _service.ExpandNode(session, node.NodePath)).Nodes;
                 foreach (var child in children)
                 {
                     VerifyMetadata(child);
@@ -384,7 +403,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             else if (node != null && !node.IsLeaf)
             {
-                var children = await _service.ExpandNode(session, node.NodePath);
+                var response = await _service.ExpandNode(session, node.NodePath);
+                var children = response.Nodes;
                 Assert.NotNull(children);
                 foreach (var child in children)
                 {

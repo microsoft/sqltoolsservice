@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal async Task<NodeInfo[]> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        internal async Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
         {
             return await Task.Factory.StartNew(() =>
             {
@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         nodes = node.Expand().Select(x => x.ToNodeInfo()).ToArray();
                     }
                 }
-                return nodes; 
+                return new ExpandResponse { Nodes = nodes, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             });
         }
 
@@ -383,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
-                connectionErrorMessage = result != null ? result.Messages : string.Empty;
+                connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}"  : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {
                     return result;
@@ -463,16 +463,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
-            NodeInfo[] nodes = null;
-            nodes = await ExpandNode(session, expandParams.NodePath, forceRefresh);
+            ExpandResponse response = null;
+            response = await ExpandNode(session, expandParams.NodePath, forceRefresh);
             if (cancellationToken.IsCancellationRequested)
             {
-                Logger.Write(LogLevel.Verbose, "OE expand canceled ");
+                Logger.Write(LogLevel.Verbose, "OE expand canceled");
             }
             else
             {
-                ExpandResponse response = CreateExpandResponse(session, expandParams);
-                response.Nodes = nodes;
                 await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
             }
         }

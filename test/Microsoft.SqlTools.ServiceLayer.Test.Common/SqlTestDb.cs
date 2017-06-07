@@ -82,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' is created", databaseName));
             if (!string.IsNullOrEmpty(query))
             {
+                query = string.Format(CultureInfo.InvariantCulture, query, databaseName);
                 await TestServiceProvider.Instance.RunQueryAsync(serverType, databaseName, query);
                 Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' SQL types are created", databaseName));
             }

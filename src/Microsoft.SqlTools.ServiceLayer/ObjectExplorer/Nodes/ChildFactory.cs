@@ -38,6 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public abstract IEnumerable<NodeFilter> Filters { get; }
 
         /// <summary>
+        /// The list of properties to be loaded with the object
+        /// </summary>
+        public abstract IEnumerable<NodeSmoProperty> SmoProperties { get; }
+
+        /// <summary>
         /// Returns the node sub type if the object can have sub types otehr wise returns empty string
         /// </summary>
         public abstract string GetNodeSubType(object context);

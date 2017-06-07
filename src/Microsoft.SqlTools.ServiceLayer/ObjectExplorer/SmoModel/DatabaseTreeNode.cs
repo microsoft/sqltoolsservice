@@ -4,7 +4,10 @@
 //
 
 
+using System;
+using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -32,6 +35,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     context.Database = db;
                 }
+            }
+        }
+
+        protected override void PopulateChildren(bool refresh, string name = null)
+        {
+            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+            if (IsAccessible(context))
+            {
+                base.PopulateChildren(refresh, name);
+            }
+            else
+            {
+                ErrorMessage = string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, context.Database.Name);
+            }
+        }
+
+        public bool IsAccessible(SmoQueryContext context)
+        {
+            try
+            {
+                if (context == null || context.Database == null)
+                {
+                    return true;
+                }
+                return context.Database.IsAccessible;
+            }
+            catch (Exception ex)
+            {
+                return true;
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
+                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
+                ErrorMessage = ex.Message;
             }
         }
     }

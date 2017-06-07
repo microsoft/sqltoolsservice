@@ -107,9 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> filters = GetNodeFilters(xmlFile, type);
-
-			
-
+			List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
 
 			if (filters.Count > 0)
 				{
@@ -175,6 +173,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					}
 					
 					WriteLine("                return filters;");
+					WriteLine("           }");
+					WriteLine("        }");
+					
+				}
+
+
+			if (smoProperties.Count > 0)
+				{
+					WriteLine("");
+					WriteLine("        public override IEnumerable<NodeSmoProperty> SmoProperties");
+					WriteLine("        {");
+					WriteLine("           get");
+					WriteLine("           {");
+
+					WriteLine("                var properties = new List<NodeSmoProperty>();");
+					foreach (var smoPropertiy in smoProperties) 
+					{
+						var propertyName = smoPropertiy.GetAttribute("Name");
+						var validFor = smoPropertiy.GetAttribute("ValidFor");
+
+						
+
+						
+						WriteLine("                properties.Add(new NodeSmoProperty");
+						WriteLine("                {");
+						WriteLine(string.Format("                   Name = \"{0}\",", propertyName));
+						
+						if (!string.IsNullOrWhiteSpace(validFor))
+						{
+							WriteLine(string.Format("                   ValidFor = {0}", GetValidForFlags(validFor)));
+						}
+						WriteLine("                });");
+						
+						
+					}
+					
+					WriteLine("                return properties;");
 					WriteLine("           }");
 					WriteLine("        }");
 					
@@ -473,6 +508,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 		List<XmlElement> retElements = new List<XmlElement>();
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Filters/Filter", parentName));
+		foreach (var item in nodeList)
+		{
+		   XmlElement itemAsElement = item as XmlElement;
+		   if (itemAsElement != null)
+		   {
+		      retElements.Add(itemAsElement);
+		   }
+		}
+		return retElements;
+	}
+	
+
+	public static List<XmlElement> GetNodeSmoProperties(string xmlFile, string parentName)
+	{
+		XmlElement nodeElement = GetNodeElement(xmlFile, parentName);
+		XmlDocument doc = new XmlDocument();
+		doc.Load(xmlFile);
+
+		List<XmlElement> retElements = new List<XmlElement>();
+		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Properties/Property", parentName));
 		foreach (var item in nodeList)
 		{
 		   XmlElement itemAsElement = item as XmlElement;

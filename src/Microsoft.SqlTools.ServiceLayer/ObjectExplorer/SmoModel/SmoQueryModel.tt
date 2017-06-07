@@ -33,7 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	{
 		XmlElement nodeElement = GetNodeElement(xmlFile, nodeName);
 		IList<string> parents = GetParents(nodeElement, xmlFile, nodeName);
-		string properties = GetProperties(nodeElement, xmlFile, nodeName);
 		string nodeType = GetNodeType(nodeElement, nodeName);
 
 		string queryBaseClass = "SmoQuerier";
@@ -51,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		WriteLine("");
 
 		// Query impl
- 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh)");
+ 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)");
 		WriteLine("{");
 		PushIndent(indent);
 
@@ -75,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			
 			if (IsCollection(nodeElement))
 			{
-				WriteLine(string.Format("retValue.InitializeCollection(filter, new string[] {{ {0} }});", properties));
+				WriteLine(string.Format("retValue.ClearAndInitialize(filter, extraProperties);"));
 				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
 			}
 			else
@@ -214,22 +213,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		return new string[] { "Database" };
 	}
 
-	public static string GetProperties(XmlElement nodeElement, string xmlFile, string parentName)
-	{
-		var propertiesAttr = nodeElement.GetAttribute("Properties");
-		string result = string.Empty;
-		if (!string.IsNullOrEmpty(propertiesAttr))
-		{
-			var properties = propertiesAttr.Split(';');
-			foreach (var item in properties) 
-			{
-				result = result + (string.IsNullOrEmpty(result) ? "" : ",") + "\"" + item + "\"";
-			}
-
-		}
-		return result;
-	}
-	
 	public static List<XmlElement> GetChildren(string xmlFile, string parentName, string childNode)
 	{
 		XmlElement nodeElement = GetNodeElement(xmlFile, parentName);

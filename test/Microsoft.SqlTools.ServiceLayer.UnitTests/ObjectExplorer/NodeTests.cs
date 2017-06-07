@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
@@ -399,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             smoObjectMock.SetupGet(s => s.Name).Returns(dbName);
 
             Mock<SqlDatabaseQuerier> querierMock = new Mock<SqlDatabaseQuerier>();
-            querierMock.Setup(q => q.Query(It.IsAny<SmoQueryContext>(), It.IsAny<string>(), false))
+            querierMock.Setup(q => q.Query(It.IsAny<SmoQueryContext>(), It.IsAny<string>(), false, It.IsAny<IEnumerable<string>>()))
                 .Returns(smoObjectMock.Object.SingleItemAsEnumerable());
 
             ServiceProvider.Register<SmoQuerier>(() => new[] { querierMock.Object });
