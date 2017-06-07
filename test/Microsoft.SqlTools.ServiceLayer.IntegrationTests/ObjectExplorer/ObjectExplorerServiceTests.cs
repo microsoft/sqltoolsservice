@@ -142,16 +142,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
+        /// <summary>
+        /// Create a test database with prefix (OfflineDb). Create an oe session for master db and expand the new test db.
+        /// The expand should return an error that says database if offline
+        /// </summary>
         [Fact]
         public async void ExpandOfflineDatabaseShouldReturnError()
         {
             var query = "ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE";
             string databaseName = "master";
+            
             await RunTest(databaseName, query, "OfflineDb", async (testDbName, session) =>
             {
                 var databaseNode = await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
                 var response = await _service.ExpandNode(session, databaseNode.NodePath);
-                Assert.True(response.ErrorMessage.Contains(string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, databaseNode.Label)));
+                Assert.True(response.ErrorMessage.Contains(string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, testDbName)));
             });
         }
 
