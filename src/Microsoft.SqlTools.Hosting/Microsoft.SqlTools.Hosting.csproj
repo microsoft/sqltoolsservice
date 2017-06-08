@@ -13,8 +13,8 @@
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.17055.0" />
-	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17050.0" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.0" />
+	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.2.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
 	<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0-preview1-002111" />
 	<PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
