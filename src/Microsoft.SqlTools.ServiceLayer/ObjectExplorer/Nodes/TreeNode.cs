@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected void PopulateChildren(bool refresh, string name = null)
+        protected virtual void PopulateChildren(bool refresh, string name = null)
         {
             Logger.Write(LogLevel.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
@@ -331,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);

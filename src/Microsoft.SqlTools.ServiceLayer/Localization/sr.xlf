@@ -2096,6 +2096,11 @@
         <target state="new">No Applicable Filegroup</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="DatabaseNotAccessible">
+        <source>The database {0} is not accessible.</source>
+        <target state="new">The database {0} is not accessible.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -764,6 +764,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
            }
         }
 
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+           get
+           {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsSystemVersioned",
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12
+                });
+                return properties;
+           }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
