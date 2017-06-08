@@ -263,6 +263,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return "[" + s.Replace("]", "]]") + "]";
         }
 
+        /// <summary>
+        /// Converts a DatabaseInfo Object to DatabaseInfoWrapper with known dictionary values
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
         public static DatabaseInfoWrapper DatabaseInfoToDatabaseInfoWrapper(DatabaseInfo info)
         {
             DatabaseInfoWrapper wrapper = new DatabaseInfoWrapper();
@@ -274,10 +279,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return wrapper;
         }
 
-        public static T TryAndGetValueAsType<T>(Dictionary<string, object> map, string value) where T : class
+        /// <summary>
+        /// Trys to get the value from the object map and convert it to the generic
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static T TryAndGetValueAsType<T>(Dictionary<string, object> dict, string value) where T : class
         {
             object placeholder = null;
-            map.TryGetValue(value, out placeholder);
+            dict.TryGetValue(value, out placeholder);
             if (placeholder != null)
             {
                 return placeholder as T;
