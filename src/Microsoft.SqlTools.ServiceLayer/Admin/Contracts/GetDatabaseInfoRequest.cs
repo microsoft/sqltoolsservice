@@ -7,16 +7,31 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
 {
+    /// <summary>
+    /// Params for a get database info request
+    /// </summar>
     public class GetDatabaseInfoParams
     {
+        /// <summary>
+        /// Uri identifier for the connection to get the database info for
+        /// </summary>
         public string OwnerUri { get; set; }
     }
 
+    /// <summary>
+    /// Response object for get database info
+    /// </summary>
     public class GetDatabaseInfoResponse
     {
+        /// <summary>
+        /// The object containing the database info
+        /// </summary>
         public DatabaseInfoWrapper Result { get; set; }
     }
 
+    /// <summary>
+    /// Get database info request mapping
+    /// </summary>
     public class GetDatabaseInfoRequest
     {
         public static readonly

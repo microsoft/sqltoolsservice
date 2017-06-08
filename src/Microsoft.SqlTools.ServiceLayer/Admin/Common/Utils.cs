@@ -292,7 +292,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             if (placeholder != null)
             {
                 return placeholder as T;
-            } else {
+            } 
+            else 
+            {
                 return default(T);
             }
         }
