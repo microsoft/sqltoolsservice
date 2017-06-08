@@ -105,6 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Owner, prototype.Owner);
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.Collation, prototype.Collation);
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.DatabaseState, prototype.DatabaseState.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.RecoveryModel, prototype.RecoveryModel.ToString());
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.IsSystemDB, prototype.IsSystemDB.ToString());
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.AnsiNulls, prototype.AnsiNulls.ToString());
 
