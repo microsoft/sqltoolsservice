@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
         /// <summary>
         /// The object containing the database info
         /// </summary>
-        public DatabaseInfoWrapper Result { get; set; }
+        public DatabaseInfo Result { get; set; }
     }
 
     /// <summary>
@@ -36,6 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
     {
         public static readonly
             RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse> Type =
-                RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse>.Create("admin/getDatabaseInfo");
+                RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse>.Create("admin/getdatabaseinfo");
     }
 }

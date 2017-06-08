@@ -10,10 +10,8 @@ using System.IO;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using System.Data.SqlClient;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Globalization;
 using SMO = Microsoft.SqlServer.Management.Smo;
@@ -261,44 +259,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         public static string MakeSqlBracket(string s)
         {
             return "[" + s.Replace("]", "]]") + "]";
-        }
-
-        /// <summary>
-        /// Converts a DatabaseInfo Object to DatabaseInfoWrapper with known dictionary values
-        /// </summary>
-        /// <param name="info"></param>
-        /// <returns></returns>
-        public static DatabaseInfoWrapper DatabaseInfoToDatabaseInfoWrapper(DatabaseInfo info)
-        {
-            DatabaseInfoWrapper wrapper = new DatabaseInfoWrapper();
-            wrapper.Name = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Name);
-            wrapper.Owner = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Owner);
-            wrapper.RecoveryModel = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.RecoveryModel);
-            wrapper.Collation = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Collation);
-            wrapper.DatabaseState = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.DatabaseState);
-            wrapper.LastBackupDate = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.LastBackupDate);
-            wrapper.LastLogBackupDate = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.LastLogBackupDate);
-            return wrapper;
-        }
-
-        /// <summary>
-        /// Trys to get the value from the object map and convert it to the generic
-        /// </summary>
-        /// <param name="dict"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static T TryAndGetValueAsType<T>(Dictionary<string, object> dict, string value) where T : class
-        {
-            object placeholder = null;
-            dict.TryGetValue(value, out placeholder);
-            if (placeholder != null)
-            {
-                return placeholder as T;
-            } 
-            else 
-            {
-                return default(T);
-            }
         }
     }
 

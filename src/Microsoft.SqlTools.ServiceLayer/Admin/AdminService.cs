@@ -143,16 +143,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             AdminService.ConnectionServiceInstance.TryFindConnection(
                     databaseParams.OwnerUri,
                     out connInfo);
-            DatabaseInfoWrapper infoWrapper = null;
+            DatabaseInfo info = null;
             
             if (connInfo != null) 
             {
-                DatabaseInfo info = GetDatabaseInfo(connInfo);
-                infoWrapper = Utils.DatabaseInfoToDatabaseInfoWrapper(info);
+                info = GetDatabaseInfo(connInfo);
             }
 
             await requestContext.SendResult(new GetDatabaseInfoResponse(){
-                Result = infoWrapper
+                Result = info
             });
         }
         
