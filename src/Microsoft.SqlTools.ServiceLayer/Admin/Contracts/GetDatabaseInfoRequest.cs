@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
         /// <summary>
         /// The object containing the database info
         /// </summary>
-        public DatabaseInfoWrapper Result { get; set; }
+        public DatabaseInfo Result { get; set; }
     }
 
     /// <summary>
