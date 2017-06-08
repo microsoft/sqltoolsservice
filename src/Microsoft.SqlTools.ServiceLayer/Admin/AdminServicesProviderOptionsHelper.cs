@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal const string MaxDop = "maxDop";
         internal const string DatabaseContainmentType = "databaseContainmentType";
         internal const string DatabaseState = "databaseState";
+        internal const string RecoveryModel = "recoveryModel";
         internal const string FileGroupType = "fileGroupType";
         internal const string IsDefault = "isDefault";
         internal const string IsFileStream = "isFileStream";
@@ -190,6 +191,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         Name = AdminServicesProviderOptionsHelper.DatabaseState,
                         DisplayName = "DatabaseState",
                         Description = "Database state",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.RecoveryModel,
+                        DisplayName = "RecoveryModel",
+                        Description = "Recovery model",
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = false,
                         GroupName = "Other"
