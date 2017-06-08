@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             if (connInfo != null) 
             {
                 DatabaseInfo info = GetDatabaseInfo(connInfo);
-                infoWrapper = new DatabaseInfoWrapper(info);
+                infoWrapper = Utils.DatabaseInfoToDatabaseInfoWrapper(info);
             }
 
             await requestContext.SendResult(new GetDatabaseInfoResponse(){

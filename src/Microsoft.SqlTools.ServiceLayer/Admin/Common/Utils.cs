@@ -10,8 +10,10 @@ using System.IO;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using System.Data.SqlClient;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Globalization;
 using SMO = Microsoft.SqlServer.Management.Smo;
@@ -259,6 +261,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         public static string MakeSqlBracket(string s)
         {
             return "[" + s.Replace("]", "]]") + "]";
+        }
+
+        public static DatabaseInfoWrapper DatabaseInfoToDatabaseInfoWrapper(DatabaseInfo info)
+        {
+            DatabaseInfoWrapper wrapper = new DatabaseInfoWrapper();
+            wrapper.Name = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Name);
+            wrapper.Owner = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Owner);
+            wrapper.RecoveryModel = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.RecoveryModel);
+            wrapper.Collation = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Collation);
+            wrapper.DatabaseState = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.DatabaseState);
+            return wrapper;
+        }
+
+        public static T TryAndGetValueAsType<T>(Dictionary<string, object> map, string value) where T : class
+        {
+            object placeholder = null;
+            map.TryGetValue(value, out placeholder);
+            if (placeholder != null)
+            {
+                return placeholder as T;
+            } else {
+                return default(T);
+            }
         }
     }
 

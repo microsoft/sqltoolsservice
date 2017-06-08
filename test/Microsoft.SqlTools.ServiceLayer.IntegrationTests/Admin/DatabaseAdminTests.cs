@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summmary>
         /// Get database info test
         /// </summary>
-        // [Fact]
+        [Fact]
         public async void GetDatabaseInfoTest()
         {
             var results = GetLiveAutoCompleteTestObjects();
