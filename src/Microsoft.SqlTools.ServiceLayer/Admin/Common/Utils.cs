@@ -276,6 +276,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             wrapper.RecoveryModel = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.RecoveryModel);
             wrapper.Collation = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.Collation);
             wrapper.DatabaseState = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.DatabaseState);
+            wrapper.LastBackupDate = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.LastBackupDate);
+            wrapper.LastLogBackupDate = TryAndGetValueAsType<string>(info.Options, AdminServicesProviderOptionsHelper.LastLogBackupDate);
             return wrapper;
         }
 

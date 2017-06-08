@@ -37,5 +37,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
         /// State or Health of the database
         /// </summary>
         public string DatabaseState { get; set; }
+
+        /// <summary>
+        /// Last backup date
+        /// </summary>
+        public string LastBackupDate { get; set; }
+
+        /// <summary>
+        /// Last log backup date
+        /// </summary>
+        public string LastLogBackupDate { get; set; }
     }
 }

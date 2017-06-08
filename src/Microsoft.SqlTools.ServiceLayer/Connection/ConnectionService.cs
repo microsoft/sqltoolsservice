@@ -317,7 +317,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     ServerEdition = serverInfo.ServerEdition,
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
-                    OsVersion = serverInfo.OsVersion
+                    OsVersion = serverInfo.OsVersion,
+                    MachineName = serverInfo.MachineName
                 };
                 connectionInfo.IsAzure = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
