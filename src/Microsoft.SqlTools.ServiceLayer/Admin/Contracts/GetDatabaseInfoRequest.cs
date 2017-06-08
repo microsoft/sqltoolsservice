@@ -36,6 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
     {
         public static readonly
             RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse> Type =
-                RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse>.Create("admin/getDatabaseInfo");
+                RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse>.Create("admin/getdatabaseinfo");
     }
 }
