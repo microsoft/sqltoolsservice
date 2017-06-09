@@ -12,27 +12,16 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
     // Base class providing common test functionality for OE tests
-    public abstract class ObjectExplorerTestBase
+    public abstract class ObjectExplorerTestBase : ServiceTestBase
     {
-        protected RegisteredServiceProvider ServiceProvider
-        {
-            get;
-            set;
-        }
-
-        protected RegisteredServiceProvider CreateServiceProviderWithMinServices()
+      
+        protected override RegisteredServiceProvider CreateServiceProviderWithMinServices()
         {
             return CreateProvider()
                 .RegisterSingleService(new ConnectionService())
                 .RegisterSingleService(new ObjectExplorerService());
         }
 
-        protected RegisteredServiceProvider CreateProvider()
-        {
-            ServiceProvider = new RegisteredServiceProvider();
-            return ServiceProvider;
-        }
-        
         protected ObjectExplorerService CreateOEService(ConnectionService connService)
         {
             CreateProvider()

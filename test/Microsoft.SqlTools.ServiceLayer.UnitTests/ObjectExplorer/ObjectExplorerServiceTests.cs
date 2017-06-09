@@ -396,30 +396,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 ServerInfo = TestObjects.GetTestServerInfo()
             };
         }
-
-        private async Task RunAndVerify<T, TResult>(Func<RequestContext<T>, Task<TResult>> test, Action<TResult> verify)
-        {
-            T result = default(T);
-            var contextMock = RequestContextMocks.Create<T>(r => result = r).AddErrorHandling(null);
-            TResult actualResult = await test(contextMock.Object);
-            if (actualResult == null && typeof(TResult) == typeof(T))
-            {
-                actualResult = (TResult)Convert.ChangeType(result, typeof(TResult));
-            }
-            VerifyResult(contextMock, verify, actualResult);
-        }
-        
-        private void VerifyResult<T, TResult>(Mock<RequestContext<T>> contextMock, Action<TResult> verify, TResult actual)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
-            verify(actual);
-        }
-
-        private void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
-        }
     }
 }

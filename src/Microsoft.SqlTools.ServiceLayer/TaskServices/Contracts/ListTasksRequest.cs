@@ -14,12 +14,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
 
     public class ListTasksParams
     {
-        bool ListActiveTasksOnly { get; set; }        
+        bool ListActiveTasksOnly { get; set; }
     }
 
     public class ListTasksResponse
     {
-        TaskInfo[] Tasks { get; set; }
+        public TaskInfo[] Tasks { get; set; }
     }
 
     public class ListTasksRequest
