@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal const string DatabaseContainmentType = "databaseContainmentType";
         internal const string DatabaseState = "databaseState";
         internal const string RecoveryModel = "recoveryModel";
-        internal const string CompatabilityLevel = "compatabilityLevel";
+        internal const string CompatibilityLevel = "compatibilityLevel";
         internal const string LastBackupDate = "lastBackupDate";
         internal const string LastLogBackupDate = "lastLogBackupDate";
         internal const string FileGroupType = "fileGroupType";
@@ -209,9 +209,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     },
                     new ServiceOption
                     {
-                        Name = AdminServicesProviderOptionsHelper.CompatabilityLevel,
-                        DisplayName = "CompatabilityLevel",
-                        Description = "Compatability level",
+                        Name = AdminServicesProviderOptionsHelper.LastBackupDate,
+                        DisplayName = "LastBackupDate",
+                        Description = "Last backup date",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.LastLogBackupDate,
+                        DisplayName = "LastLogBackupDate",
+                        Description = "Last log backup date",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.CompatibilityLevel,
+                        DisplayName = "CompatibilityLevel",
+                        Description = "Compatibility level",
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = false,
                         GroupName = "Other"
