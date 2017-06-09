@@ -744,8 +744,8 @@ WHERE do.database_id = @DbID
             {
                 bool result =
                     (this.recoveryModel == other.recoveryModel) &&
-                    (DateTime.Compare(this.lastBackupDate, other.lastBackupDate) == 0) &&
-                    (DateTime.Compare(this.lastLogBackupDate, other.lastLogBackupDate) == 0) &&
+                    (this.lastBackupDate == other.lastBackupDate) &&
+                    (this.lastLogBackupDate == other.lastLogBackupDate) &&
                     (this.restrictAccess == other.restrictAccess) &&
                     (this.databaseState == other.databaseState) &&
                     (this.defaultCursor == other.defaultCursor) &&
