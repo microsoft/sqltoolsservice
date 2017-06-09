@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
 
             await requestContext.SendResult(new GetDatabaseInfoResponse(){
-                Result = info
+                DatabaseInfo = info
             });
         }
         
