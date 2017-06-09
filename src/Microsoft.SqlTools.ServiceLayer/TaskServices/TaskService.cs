@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Default, parameterless constructor.
         /// </summary>
-        internal TaskService()
+        public TaskService()
         {
             taskManager.TaskAdded += OnTaskAdded;
         }
