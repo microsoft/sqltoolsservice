@@ -32,8 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal const string DatabaseContainmentType = "databaseContainmentType";
         internal const string DatabaseState = "databaseState";
         internal const string RecoveryModel = "recoveryModel";
+<<<<<<< HEAD
         internal const string LastBackupDate = "lastBackupDate";
         internal const string LastLogBackupDate = "lastLogBackupDate";
+=======
+>>>>>>> master
         internal const string FileGroupType = "fileGroupType";
         internal const string IsDefault = "isDefault";
         internal const string IsFileStream = "isFileStream";
