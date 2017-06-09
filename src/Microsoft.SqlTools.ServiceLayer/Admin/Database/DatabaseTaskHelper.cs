@@ -108,6 +108,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.RecoveryModel, prototype.RecoveryModel.ToString());
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.IsSystemDB, prototype.IsSystemDB.ToString());
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.AnsiNulls, prototype.AnsiNulls.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.CompatibilityLevel, prototype.DatabaseCompatibilityLevel.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.LastBackupDate, prototype.LastBackupDate.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.LastLogBackupDate, prototype.LastLogBackupDate.ToString());
 
             databaseInfo.Options.Add(
                 AdminServicesProviderOptionsHelper.FileGroups + "Count", 
