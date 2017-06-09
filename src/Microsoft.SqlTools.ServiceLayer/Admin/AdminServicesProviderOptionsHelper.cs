@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal const string DatabaseContainmentType = "databaseContainmentType";
         internal const string DatabaseState = "databaseState";
         internal const string RecoveryModel = "recoveryModel";
+        internal const string CompatabilityLevel = "compatabilityLevel";
         internal const string LastBackupDate = "lastBackupDate";
         internal const string LastLogBackupDate = "lastLogBackupDate";
         internal const string FileGroupType = "fileGroupType";
@@ -202,6 +203,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         Name = AdminServicesProviderOptionsHelper.RecoveryModel,
                         DisplayName = "RecoveryModel",
                         Description = "Recovery model",
+                        ValueType = ServiceOption.ValueTypeString,
+                        IsRequired = false,
+                        GroupName = "Other"
+                    },
+                    new ServiceOption
+                    {
+                        Name = AdminServicesProviderOptionsHelper.CompatabilityLevel,
+                        DisplayName = "CompatabilityLevel",
+                        Description = "Compatability level",
                         ValueType = ServiceOption.ValueTypeString,
                         IsRequired = false,
                         GroupName = "Other"
