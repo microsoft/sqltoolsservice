@@ -33,90 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     /// <summary>
     /// Tests for the language service peek definition/ go to definition feature
     /// </summary>
-    public class PeekDefinitionTests
+    public class PeekDefinitionTests : LanguageServiceTestBase<Location>
     {
-        private const int TaskTimeout = 30000;
-
-        private readonly string testScriptUri = TestObjects.ScriptUri;
-
-        private readonly string testConnectionKey = "testdbcontextkey";
-
-        private Mock<ConnectedBindingQueue> bindingQueue;
-
-        private Mock<WorkspaceService<SqlToolsSettings>> workspaceService;
-
-        private Mock<RequestContext<Location[]>> requestContext;
-
-        private Mock<IBinder> binder;
-
-        private TextDocumentPosition textDocument;
-
-        private void InitializeTestObjects()
-        {
-            // initial cursor position in the script file
-            textDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier {Uri = this.testScriptUri},
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 23
-                }
-            };
-
-            // default settings are stored in the workspace service
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
-
-            // set up file for returning the query
-            var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(GlobalCommon.Constants.StandardQuery);
-            fileMock.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
-
-            // set up workspace mock
-            workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(fileMock.Object);
-
-            // setup binding queue mock
-            bindingQueue = new Mock<ConnectedBindingQueue>();
-            bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<bool>()))
-                .Returns(this.testConnectionKey);
-
-            // inject mock instances into the Language Service
-            LanguageService.WorkspaceServiceInstance = workspaceService.Object;
-            LanguageService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
-            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            LanguageService.ConnectionServiceInstance.OwnerToConnectionMap.Add(this.testScriptUri, connectionInfo);
-            LanguageService.Instance.BindingQueue = bindingQueue.Object;
-
-            // setup the mock for SendResult
-            requestContext = new Mock<RequestContext<Location[]>>();
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
-                .Returns(Task.FromResult(0));
-            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));
-
-            // setup the IBinder mock
-            binder = new Mock<IBinder>();
-            binder.Setup(b => b.Bind(
-                It.IsAny<IEnumerable<ParseResult>>(),
-                It.IsAny<string>(),
-                It.IsAny<BindMode>()));
-
-            var testScriptParseInfo = new ScriptParseInfo();
-            LanguageService.Instance.AddOrUpdateScriptParseInfo(this.testScriptUri, testScriptParseInfo);
-            testScriptParseInfo.IsConnected = false;
-            testScriptParseInfo.ConnectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(connectionInfo);
-
-            // setup the binding context object
-            ConnectedBindingContext bindingContext = new ConnectedBindingContext();
-            bindingContext.Binder = binder.Object;
-            bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-            LanguageService.Instance.BindingQueue.BindingContextMap.Add(testScriptParseInfo.ConnectionKey, bindingContext);
-        }
-
-
         /// <summary>
         /// Tests the definition event handler. When called with no active connection, an error is sent
         /// </summary>
@@ -124,8 +42,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public async Task DefinitionsHandlerWithNoConnectionTest()
         {
             InitializeTestObjects();
+            scriptParseInfo.IsConnected = false;
             // request definition
-            var definitionTask = await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
+            var definitionTask = await Task.WhenAny(langService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
             await definitionTask;
             // verify that send result was not called and send error was called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
@@ -199,9 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void DeletePeekDefinitionScriptsTest()
         {
             Scripter peekDefinition = new Scripter(null, null);
-            var languageService = LanguageService.Instance;
             Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
-            languageService.DeletePeekDefinitionScripts();
+            LanguageService.Instance.DeletePeekDefinitionScripts();
             Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
         }
 
@@ -211,12 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
         {
-            var languageService = LanguageService.Instance;
             Scripter peekDefinition = new Scripter(null, null);
             FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
             Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             // Expected not to throw any exception
-            languageService.DeletePeekDefinitionScripts();
+            LanguageService.Instance.DeletePeekDefinitionScripts();
         }
 
         /// <summary>
