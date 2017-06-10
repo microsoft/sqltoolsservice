@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -50,6 +51,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             InitializeTestObjects();
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleSignatureHelpRequest(null, null));
+        }
+
+        [Fact]
+        public void HandleSignatureHelpRequestNonMssqlFile()
+        {
+            InitializeTestObjects();
+
+            // setup the mock for SendResult
+            var signatureRequestContext = new Mock<RequestContext<SignatureHelp>>();
+            signatureRequestContext.Setup(rc => rc.SendResult(It.IsAny<SignatureHelp>()))
+                .Returns(Task.FromResult(0));
+            signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
+
+
+            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams {
+                Uri = textDocument.TextDocument.Uri,
+                Language = LanguageService.SQL_LANG.ToLower(),
+                Flavor = "NotMSSQL"
+            }, null);
+            Assert.NotNull(langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object));
+            
+            // verify that no events were sent
+            signatureRequestContext.Verify(m => m.SendResult(It.IsAny<SignatureHelp>()), Times.Never());
+            signatureRequestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never());
         }               
 
         [Fact]

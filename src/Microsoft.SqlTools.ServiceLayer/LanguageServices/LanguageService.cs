@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #region Private / internal instance fields and constructor
         private const int PrepopulateBindTimeout = 60000;
 
-        private const string SQL_LANG = "SQL";
+        public const string SQL_LANG = "SQL";
         private const int OneSecond = 1000;
 
         internal const string DefaultBatchSeperator = "GO";
@@ -302,6 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             RequestContext<CompletionItem> requestContext)
         {
             // check if Intellisense suggestions are enabled
+            // Note: Do not know file, so no need to check for MSSQL flavor
             if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
             {
                 await Task.FromResult(true);
@@ -340,7 +341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 else
                 {
                     // Send an empty result so that processing does not hang
-                    requestContext.SendResult(Array.Empty<Location>());
+                    await requestContext.SendResult(Array.Empty<Location>());
                 }
 
                 DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
@@ -384,7 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             RequestContext<SignatureHelp> requestContext)
         {
             // check if Intellisense suggestions are enabled
-            if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
+            if (ShouldSkipNonMssqlFile(textDocumentPosition.TextDocument.Uri))
             {
                 await Task.FromResult(true);
             }
@@ -410,7 +411,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             RequestContext<Hover> requestContext)
         {
             // check if Quick Info hover tooltips are enabled
-            if (CurrentWorkspaceSettings.IsQuickInfoEnabled)
+            if (CurrentWorkspaceSettings.IsQuickInfoEnabled
+                && !ShouldSkipNonMssqlFile(textDocumentPosition.TextDocument.Uri))
             {
                 var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
@@ -441,7 +443,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // if not in the preview window and diagnostics are enabled then run diagnostics
             if (!IsPreviewWindow(scriptFile)
-                && CurrentWorkspaceSettings.IsDiagnositicsEnabled)
+                && !ShouldSkipNonMssqlFile(scriptFile.FilePath)
+                && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
                 await RunScriptDiagnostics(
                     new ScriptFile[] { scriptFile },
@@ -458,10 +461,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext)
         {
-            if (CurrentWorkspaceSettings.IsDiagnositicsEnabled)
+            if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
+                // Only process files that are MSSQL flavor
                 await this.RunScriptDiagnostics(
-                    changedFiles.ToArray(),
+                    changedFiles.Where(f => !ShouldSkipNonMssqlFile(f.FilePath)).ToArray(),
                     eventContext);
             }
 
@@ -517,7 +521,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                         // if not in the preview window and diagnostics are enabled then run diagnostics
                         if (!IsPreviewWindow(scriptFile)
-                            && CurrentWorkspaceSettings.IsDiagnositicsEnabled)
+                            && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                         {
                             RunScriptDiagnostics(
                                 new ScriptFile[] { scriptFile },
@@ -563,7 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking)
             {
                 // if the user just turned off diagnostics then send an event to clear the error markers
-                if (!newSettings.IsDiagnositicsEnabled)
+                if (!newSettings.IsDiagnosticsEnabled)
                 {
                     ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
 
@@ -1367,7 +1371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
-            if (!CurrentWorkspaceSettings.IsDiagnositicsEnabled)
+            if (!CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
                 // If the user has disabled script analysis, skip it entirely
                 return Task.FromResult(true);
