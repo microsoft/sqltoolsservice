@@ -572,7 +572,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
                     {
-                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, emptyAnalysisDiagnostics, eventContext);
+                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
                     }
                 }
                 // otherwise rerun diagnostic analysis on all opened SQL files
@@ -818,7 +818,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// "MSSQL" language flavor returned by our service
         /// </summary>
         /// <param name="info"></param>
-        public Task HandleDidChangeLanguageFlavorNotification(
+        public async Task HandleDidChangeLanguageFlavorNotification(
             LanguageFlavorChangeParams changeParams,
             EventContext eventContext) 
         {
@@ -831,14 +831,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (shouldBlock) {
                 this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
+                if (CurrentWorkspace.ContainsFile(changeParams.Uri))
+                {
+                    await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
+                }
             }
             else
             {
                 bool value;
                 this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
             }
-
-            return Task.FromResult(0);
         }
 
         private bool ShouldSkipNonMssqlFile(TextDocumentPosition textDocPosition)
@@ -1469,7 +1471,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 else if (ShouldSkipNonMssqlFile(scriptFile.ClientFilePath))
                 {
                     // Clear out any existing markers in case file type was changed
-                    await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, Array.Empty<ScriptFileMarker>(), eventContext);
+                    await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
+                    continue;
                 }
 
                 Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
