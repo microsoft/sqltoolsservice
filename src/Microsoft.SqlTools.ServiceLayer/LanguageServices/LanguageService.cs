@@ -318,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
-            if (CurrentWorkspaceSettings.IsIntelliSenseEnabled)
+            if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
@@ -385,7 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             RequestContext<SignatureHelp> requestContext)
         {
             // check if Intellisense suggestions are enabled
-            if (ShouldSkipNonMssqlFile(textDocumentPosition.TextDocument.Uri))
+            if (ShouldSkipNonMssqlFile(textDocumentPosition))
             {
                 await Task.FromResult(true);
             }
@@ -412,7 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // check if Quick Info hover tooltips are enabled
             if (CurrentWorkspaceSettings.IsQuickInfoEnabled
-                && !ShouldSkipNonMssqlFile(textDocumentPosition.TextDocument.Uri))
+                && !ShouldSkipNonMssqlFile(textDocumentPosition))
             {
                 var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
@@ -443,7 +443,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // if not in the preview window and diagnostics are enabled then run diagnostics
             if (!IsPreviewWindow(scriptFile)
-                && !ShouldSkipNonMssqlFile(scriptFile.FilePath)
                 && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
                 await RunScriptDiagnostics(
@@ -465,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 // Only process files that are MSSQL flavor
                 await this.RunScriptDiagnostics(
-                    changedFiles.Where(f => !ShouldSkipNonMssqlFile(f.FilePath)).ToArray(),
+                    changedFiles.ToArray(),
                     eventContext);
             }
 
@@ -840,6 +839,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return Task.FromResult(0);
+        }
+
+        private bool ShouldSkipNonMssqlFile(TextDocumentPosition textDocPosition)
+        {
+            return ShouldSkipNonMssqlFile(textDocPosition.TextDocument.Uri);
+        }
+
+        private bool ShouldSkipNonMssqlFile(ScriptFile scriptFile)
+        {
+            return ShouldSkipNonMssqlFile(scriptFile.ClientFilePath);
         }
 
         private bool ShouldSkipNonMssqlFile(string uri)
@@ -1456,6 +1465,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (IsPreviewWindow(scriptFile))
                 {
                     continue;
+                }
+                else if (ShouldSkipNonMssqlFile(scriptFile.ClientFilePath))
+                {
+                    // Clear out any existing markers in case file type was changed
+                    await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, Array.Empty<ScriptFileMarker>(), eventContext);
                 }
 
                 Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
