@@ -38,6 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public string collation;
 
             public RecoveryModel recoveryModel;
+            public DateTime lastBackupDate;
+            public DateTime lastLogBackupDate;
             public DatabaseUserAccess restrictAccess;
             public DatabaseStatus databaseState;
             public DefaultCursor defaultCursor;
@@ -373,6 +375,16 @@ WHERE do.database_id = @DbID
                     this.recoveryModel = db.DatabaseOptions.RecoveryModel;
                 }
 
+                if (db.IsSupportedProperty("LastBackupDate"))
+                {
+                    this.lastBackupDate = db.LastBackupDate;
+                }
+
+                if (db.IsSupportedProperty("LastLogBackupDate"))
+                {
+                    this.lastLogBackupDate = db.LastLogBackupDate;
+                }
+
                 if (Utils.IsSql12OrLater(context.Server.Information.Version.Major))
                 {
                     this.autoCreateStatisticsIncremental = db.DatabaseOptions.AutoCreateStatisticsIncremental;
@@ -651,6 +663,8 @@ WHERE do.database_id = @DbID
                 this.name = other.name;
                 this.collation = other.collation;
                 this.recoveryModel = other.recoveryModel;
+                this.lastBackupDate = other.lastBackupDate;
+                this.lastLogBackupDate = other.lastLogBackupDate;
                 this.restrictAccess = other.restrictAccess;
                 this.databaseState = other.databaseState;
                 this.defaultCursor = other.defaultCursor;
@@ -730,6 +744,8 @@ WHERE do.database_id = @DbID
             {
                 bool result =
                     (this.recoveryModel == other.recoveryModel) &&
+                    (this.lastBackupDate == other.lastBackupDate) &&
+                    (this.lastLogBackupDate == other.lastLogBackupDate) &&
                     (this.restrictAccess == other.restrictAccess) &&
                     (this.databaseState == other.databaseState) &&
                     (this.defaultCursor == other.defaultCursor) &&
@@ -887,6 +903,40 @@ WHERE do.database_id = @DbID
             set
             {
                 this.currentState.recoveryModel = value;
+                this.NotifyObservers();
+            }
+        }
+
+        /// <summary>
+        /// The last backup date for the database
+        /// </summary>
+        [Browsable(false)]
+        public DateTime LastBackupDate
+        {
+            get
+            {
+                return this.currentState.lastBackupDate;
+            }
+            set
+            {
+                this.currentState.lastBackupDate = value;
+                this.NotifyObservers();
+            }
+        }
+
+        /// <summary>
+        /// The last log backup date for the database
+        /// </summary>
+        [Browsable(false)]
+        public DateTime LastLogBackupDate
+        {
+            get
+            {
+                return this.currentState.lastLogBackupDate;
+            }
+            set
+            {
+                this.currentState.lastLogBackupDate = value;
                 this.NotifyObservers();
             }
         }

@@ -59,5 +59,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// The Operating System version string of the machine running the SQL Server instance.
         /// </summary>
         public string OsVersion { get; set; }
+
+        /// <summary>
+        /// The Operating System version string of the machine running the SQL Server instance.
+        /// </summary>
+        public string MachineName { get; set; }
     }
 }

@@ -73,6 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest);
             serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest);
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
+            serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
         }
 
         /// <summary>
@@ -131,6 +132,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             });
         }
 
+        /// <summary>
+        /// Handle get database info request
+        /// </summary>
+        internal static async Task HandleGetDatabaseInfoRequest(
+            GetDatabaseInfoParams databaseParams,
+            RequestContext<GetDatabaseInfoResponse> requestContext)
+        {   
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                    databaseParams.OwnerUri,
+                    out connInfo);
+            DatabaseInfo info = null;
+            
+            if (connInfo != null) 
+            {
+                info = GetDatabaseInfo(connInfo);
+            }
+
+            await requestContext.SendResult(new GetDatabaseInfoResponse(){
+                DatabaseInfo = info
+            });
+        }
+        
         /// <summary>
         /// Return database info for a specific database
         /// </summary>
