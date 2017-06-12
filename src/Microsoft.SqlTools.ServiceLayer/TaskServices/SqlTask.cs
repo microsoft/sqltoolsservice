@@ -37,14 +37,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Creates new instance of SQL task
         /// </summary>
         /// <param name="taskMetdata">Task Metadata</param>
-        /// <param name="testToRun">The function to run to start the task</param>
-        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> testToRun)
+        /// <param name="taskToRun">The function to run to start the task</param>
+        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> taskToRun)
         {
             Validate.IsNotNull(nameof(taskMetdata), taskMetdata);
-            Validate.IsNotNull(nameof(testToRun), testToRun);
+            Validate.IsNotNull(nameof(taskToRun), taskToRun);
 
             TaskMetadata = taskMetdata;
-            TaskToRun = testToRun;
+            TaskToRun = taskToRun;
             StartTime = DateTime.UtcNow;
             TaskId = Guid.NewGuid();
         }

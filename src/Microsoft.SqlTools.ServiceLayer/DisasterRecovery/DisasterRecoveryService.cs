@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -112,7 +113,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     DisasterRecoveryService.Instance.InitializeBackup(helper.DataContainer, sqlConn);
                     DisasterRecoveryService.Instance.SetBackupInput(backupParams.BackupInfo);
-                    DisasterRecoveryService.Instance.PerformBackup();
+
+                    TaskMetadata metadata = new TaskMetadata();
+                    metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                    metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;                    
+                    metadata.Name = "Backup Database";
+                    metadata.Description = "Backup Database";
+                    metadata.IsCancelable = true;
+
+                    SqlTask sqlTask = TaskService.Instance.TaskManager.CreateTask(metadata, Instance.BackupToRun);
+                    await sqlTask.Run(); //?
+
+                    //DisasterRecoveryService.Instance.PerformBackup();
                 }
             }
          
@@ -163,7 +175,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal BackupConfigInfo GetBackupConfigInfo(string databaseName)
         {
             return this.backupUtilities.GetBackupConfigInfo(databaseName);
-        }   
-        
+        }
+
+        public async Task<TaskResult> BackupToRun(SqlTask sqlTask)
+        {
+            TaskResult result = new TaskResult();
+
+            //sqlTask.TaskCanceled += OnTaskCanceled;
+            return await Task.Factory.StartNew(() =>
+            {
+                sqlTask.AddMessage("still running", SqlTaskStatus.InProgress, true);
+
+                try
+                {
+                    this.backupUtilities.PerformBackup();
+                    result.TaskStatus = SqlTaskStatus.Succeeded;
+                }
+                catch (Exception ex)
+                {
+                    result.TaskStatus = SqlTaskStatus.Failed;
+                    result.ErrorMessage = ex.Message;
+                }
+                /*
+                while (!IsStopped)
+                {
+                    //Just keep running
+                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    if (Failed)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    sqlTask.AddMessage("still running", SqlTaskStatus.InProgress, true);
+                }*/
+                                
+                sqlTask.AddMessage("Executed", result.TaskStatus);
+                return result;
+            });
+        }
+
     }
 }
