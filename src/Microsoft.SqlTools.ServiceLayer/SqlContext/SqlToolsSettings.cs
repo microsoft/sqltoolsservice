@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets a flag determining if diagnostics are enabled
         /// </summary>
-        public bool IsDiagnositicsEnabled
+        public bool IsDiagnosticsEnabled
         {
             get
             {
