@@ -150,14 +150,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Equal(AutoCompleteHelper.EmptyCompletionList.Length, 0);
         }
 
-        [Fact]
-        public void SetWorkspaceServiceInstanceTest()
-        {           
-            AutoCompleteHelper.WorkspaceServiceInstance = null;
-            // workspace will be recreated if it's set to null
-            Assert.NotNull(AutoCompleteHelper.WorkspaceServiceInstance);
-        }
-
         internal class TestScriptDocumentInfo : ScriptDocumentInfo
         {
             public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo, 

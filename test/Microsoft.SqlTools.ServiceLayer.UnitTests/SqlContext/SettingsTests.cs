@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
         public void ValidateLanguageServiceDefaults()
         {
             var sqlToolsSettings = new SqlToolsSettings();
-            Assert.True(sqlToolsSettings.IsDiagnositicsEnabled);
+            Assert.True(sqlToolsSettings.IsDiagnosticsEnabled);
             Assert.True(sqlToolsSettings.IsSuggestionsEnabled);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking);
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
         }
 
         /// <summary>
-        /// Validate that the IsDiagnositicsEnabled flag behavior
+        /// Validate that the IsDiagnosticsEnabled flag behavior
         /// </summary>
         [Fact]
         public void ValidateIsDiagnosticsEnabled()
@@ -40,16 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
             // diagnostics is enabled if IntelliSense and Diagnostics flags are set
             sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking = true;
-            Assert.True(sqlToolsSettings.IsDiagnositicsEnabled);
+            Assert.True(sqlToolsSettings.IsDiagnosticsEnabled);
 
             // diagnostics is disabled if either IntelliSense and Diagnostics flags is not set
             sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking = true;
-            Assert.False(sqlToolsSettings.IsDiagnositicsEnabled);
+            Assert.False(sqlToolsSettings.IsDiagnosticsEnabled);
 
             sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking = false;
-            Assert.False(sqlToolsSettings.IsDiagnositicsEnabled);          
+            Assert.False(sqlToolsSettings.IsDiagnosticsEnabled);          
         }
 
         /// <summary>

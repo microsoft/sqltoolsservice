@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
     /// </summary>
     public sealed class ServiceHost : ServiceHostBase
     {
-        private const string ProviderName = "MSSQL";
+        public const string ProviderName = "MSSQL";
         private const string ProviderDescription = "Microsoft SQL Server";
         private const string ProviderProtocolVersion = "1.0";
 

@@ -52,8 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             }
             Assert.True(LanguageService.Instance.Context != null);
-            Assert.True(LanguageService.ConnectionServiceInstance != null);
-            Assert.True(LanguageService.Instance.CurrentSettings != null);
+            Assert.True(LanguageService.Instance.ConnectionServiceInstance != null);
+            Assert.True(LanguageService.Instance.CurrentWorkspaceSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
 
-            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
+            LanguageService.Instance.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
 
         // This test currently requires a live database connection to initialize 

@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -36,6 +37,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public sealed class LanguageService
     {
+        #region Singleton Instance Implementation
+
+        private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
+
+        /// <summary>
+        /// Gets the singleton instance object
+        /// </summary>
+        public static LanguageService Instance
+        {
+            get { return instance.Value; }
+        }
+
+        #endregion
+
+        #region Private / internal instance fields and constructor
+        private const int PrepopulateBindTimeout = 60000;
+
+        public const string SQL_LANG = "SQL";
         private const int OneSecond = 1000;
 
         internal const string DefaultBatchSeperator = "GO";
@@ -50,9 +69,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
-        private static ConnectionService connectionService = null;
+        private ConnectionService connectionService = null;
 
-        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+        private WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
         private object parseMapLock = new object();
 
@@ -60,51 +79,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
 
-        private ParseOptions defaultParseOptions =  new ParseOptions(
+        private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
             isQuotedIdentifierSet: true,
             compatibilityLevel: DatabaseCompatibilityLevel.Current,
             transactSqlVersion: TransactSqlVersion.Current);
 
-        /// <summary>
-        /// Gets or sets the binding queue instance
-        /// Internal for testing purposes only
-        /// </summary>
-        internal ConnectedBindingQueue BindingQueue
-        {
-            get
-            {
-                return this.bindingQueue;
-            }
-            set
-            {
-                this.bindingQueue = value;
-            }
-        }
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-
-            set
-            {
-                connectionService = value;
-            }
-        }
-
-        #region Singleton Instance Implementation
-
-        private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
+        private ConcurrentDictionary<string, bool> nonMssqlUriMap = new ConcurrentDictionary<string, bool>();
 
         private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
@@ -118,14 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 return this.scriptParseInfoMap.Value;
             }
-        }
-
-        /// <summary>
-        /// Gets the singleton instance object
-        /// </summary>
-        public static LanguageService Instance
-        {
-            get { return instance.Value; }
         }
 
         private ParseOptions DefaultParseOptions
@@ -147,34 +120,70 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #region Properties
 
-        private static CancellationTokenSource ExistingRequestCancellation { get; set; }
+        /// <summary>
+        /// Gets or sets the binding queue instance
+        /// Internal for testing purposes only
+        /// </summary>
+        internal ConnectedBindingQueue BindingQueue
+        {
+            get
+            {
+                return this.bindingQueue;
+            }
+            set
+            {
+                this.bindingQueue = value;
+            }
+        }
 
         /// <summary>
-        /// Gets the current settings
+        /// Internal for testing purposes only
         /// </summary>
-        internal SqlToolsSettings CurrentSettings
+        internal ConnectionService ConnectionServiceInstance
         {
-            get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
+            get
+            {
+                if (connectionService == null)
+                {
+                    connectionService = ConnectionService.Instance;
+                }
+                return connectionService;
+            }
+
+            set
+            {
+                connectionService = value;
+            }
         }
+
+        private CancellationTokenSource existingRequestCancellation;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
         /// Setter for internal testing purposes only
         /// </summary>
-        internal static WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
+        internal WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
         {
             get
             {
-                if (LanguageService.workspaceServiceInstance == null)
+                if (workspaceServiceInstance == null)
                 {
-                    LanguageService.workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
+                    workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
                 }
-                return LanguageService.workspaceServiceInstance;
+                return workspaceServiceInstance;
             }
             set
             {
-                LanguageService.workspaceServiceInstance = value;
+                workspaceServiceInstance = value;
             }
+        }
+
+        /// <summary>
+        /// Gets the current settings
+        /// </summary>
+        internal SqlToolsSettings CurrentWorkspaceSettings
+        {
+            get { return WorkspaceServiceInstance.CurrentSettings; }
         }
 
         /// <summary>
@@ -182,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal Workspace.Workspace CurrentWorkspace
         {
-            get { return LanguageService.WorkspaceServiceInstance.Workspace; }
+            get { return WorkspaceServiceInstance.Workspace; }
         }
 
         /// <summary>
@@ -214,6 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
+            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -224,13 +234,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             });
 
             // Register the configuration update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
+            WorkspaceServiceInstance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
 
             // Register the file change update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocChangeCallback(HandleDidChangeTextDocumentNotification);
+            WorkspaceServiceInstance.RegisterTextDocChangeCallback(HandleDidChangeTextDocumentNotification);
 
             // Register the file open update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
+            WorkspaceServiceInstance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
 
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
@@ -253,23 +263,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="textDocumentPosition"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal static async Task HandleCompletionRequest(
+        internal async Task HandleCompletionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
             // check if Intellisense suggestions are enabled
-            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            if (ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
                 await Task.FromResult(true);
             }
             else
             {
                 // get the current list of completion items and return to client
-                var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(
+                var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
 
                 ConnectionInfo connInfo;
-                LanguageService.ConnectionServiceInstance.TryFindConnection(
+                ConnectionServiceInstance.TryFindConnection(
                     scriptFile.ClientFilePath,
                     out connInfo);
 
@@ -287,34 +297,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal static async Task HandleCompletionResolveRequest(
+        internal async Task HandleCompletionResolveRequest(
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
             // check if Intellisense suggestions are enabled
-            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            // Note: Do not know file, so no need to check for MSSQL flavor
+            if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
             {
                 await Task.FromResult(true);
             }
             else
             {
-                completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
+                completionItem = ResolveCompletionItem(completionItem);
                 await requestContext.SendResult(completionItem);
             }
         }
 
-        internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
+        internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
             DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
-            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
+            if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
-                var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                bool isConnected = LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                bool isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
                 bool succeeded = false;
-                DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                DefinitionResult definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 if (definitionResult != null)
                 {
                     if (definitionResult.IsErrorResult)
@@ -326,6 +337,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         await requestContext.SendResult(definitionResult.Locations);
                         succeeded = true;
                     }
+                }
+                else
+                {
+                    // Send an empty result so that processing does not hang
+                    await requestContext.SendResult(Array.Empty<Location>());
                 }
 
                 DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
@@ -349,14 +365,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 // turn off this code until needed (10/28/2016)
 #if false
-        private static async Task HandleReferencesRequest(
+        private async Task HandleReferencesRequest(
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
         {
             await Task.FromResult(true);
         }
 
-        private static async Task HandleDocumentHighlightRequest(
+        private async Task HandleDocumentHighlightRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
         {
@@ -364,21 +380,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 #endif
 
-        internal static async Task HandleSignatureHelpRequest(
+        internal async Task HandleSignatureHelpRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
             // check if Intellisense suggestions are enabled
-            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            if (ShouldSkipNonMssqlFile(textDocumentPosition))
             {
                 await Task.FromResult(true);
             }
             else
             {
-                ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                ScriptFile scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
 
-                SignatureHelp help = LanguageService.Instance.GetSignatureHelp(textDocumentPosition, scriptFile);
+                SignatureHelp help = GetSignatureHelp(textDocumentPosition, scriptFile);
                 if (help != null)
                 {
                     await requestContext.SendResult(help);
@@ -390,17 +406,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private static async Task HandleHoverRequest(
+        private async Task HandleHoverRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
             // check if Quick Info hover tooltips are enabled
-            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsQuickInfoEnabled)
+            if (CurrentWorkspaceSettings.IsQuickInfoEnabled
+                && !ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
 
-                var hover = LanguageService.Instance.GetHoverItem(textDocumentPosition, scriptFile);
+                var hover = GetHoverItem(textDocumentPosition, scriptFile);
                 if (hover != null)
                 {
                     await requestContext.SendResult(hover);
@@ -426,7 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // if not in the preview window and diagnostics are enabled then run diagnostics
             if (!IsPreviewWindow(scriptFile)
-                && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+                && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
                 await RunScriptDiagnostics(
                     new ScriptFile[] { scriptFile },
@@ -443,8 +460,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext)
         {
-            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+            if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
+                // Only process files that are MSSQL flavor
                 await this.RunScriptDiagnostics(
                     changedFiles.ToArray(),
                     eventContext);
@@ -472,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 ConnectionInfo connInfo;
-                LanguageService.ConnectionServiceInstance.TryFindConnection(
+                ConnectionServiceInstance.TryFindConnection(
                     scriptFile.ClientFilePath,
                     out connInfo);
 
@@ -502,7 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                         // if not in the preview window and diagnostics are enabled then run diagnostics
                         if (!IsPreviewWindow(scriptFile)
-                            && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+                            && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                         {
                             RunScriptDiagnostics(
                                 new ScriptFile[] { scriptFile },
@@ -541,20 +559,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
 
             // update the current settings to reflect any changes
-            CurrentSettings.Update(newSettings);
+            CurrentWorkspaceSettings.Update(newSettings);
 
             // if script analysis settings have changed we need to clear the current diagnostic markers
             if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
                 || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking)
             {
                 // if the user just turned off diagnostics then send an event to clear the error markers
-                if (!newSettings.IsDiagnositicsEnabled)
+                if (!newSettings.IsDiagnosticsEnabled)
                 {
                     ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
 
-                    foreach (var scriptFile in WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetOpenedFiles())
+                    foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
                     {
-                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, emptyAnalysisDiagnostics, eventContext);
+                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
                     }
                 }
                 // otherwise rerun diagnostic analysis on all opened SQL files
@@ -700,11 +718,156 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
 
-                AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
+                PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
                 ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = info.OwnerUri});
             });
+        }
+
+
+        /// <summary>
+        /// Preinitialize the parser and binder with common metadata.
+        /// This should front load the long binding wait to the time the
+        /// connection is established.  Once this is completed other binding
+        /// requests should be faster.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="scriptInfo"></param>
+        internal void PrepopulateCommonMetadata(
+            ConnectionInfo info,
+            ScriptParseInfo scriptInfo,
+            ConnectedBindingQueue bindingQueue)
+        {
+            if (scriptInfo.IsConnected)
+            {
+                var scriptFile = CurrentWorkspace.GetFile(info.OwnerUri);
+                if (scriptFile == null)
+                {
+                    return;
+                }
+
+                ParseAndBind(scriptFile, info);
+
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                {
+                    try
+                    {
+                        QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            key: scriptInfo.ConnectionKey,
+                            bindingTimeout: PrepopulateBindTimeout,
+                            waitForLockTimeout: PrepopulateBindTimeout,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {
+                                // parse a simple statement that returns common metadata
+                                ParseResult parseResult = Parser.Parse(
+                                    "select ",
+                                    bindingContext.ParseOptions);
+
+                                List<ParseResult> parseResults = new List<ParseResult>();
+                                parseResults.Add(parseResult);
+                                bindingContext.Binder.Bind(
+                                    parseResults,
+                                    info.ConnectionDetails.DatabaseName,
+                                    BindMode.Batch);
+
+                                // get the completion list from SQL Parser
+                                var suggestions = Resolver.FindCompletions(
+                                    parseResult, 1, 8,
+                                    bindingContext.MetadataDisplayInfoProvider);
+
+                                // this forces lazy evaluation of the suggestion metadata
+                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+
+                                parseResult = Parser.Parse(
+                                    "exec ",
+                                    bindingContext.ParseOptions);
+
+                                parseResults = new List<ParseResult>();
+                                parseResults.Add(parseResult);
+                                bindingContext.Binder.Bind(
+                                    parseResults,
+                                    info.ConnectionDetails.DatabaseName,
+                                    BindMode.Batch);
+
+                                // get the completion list from SQL Parser
+                                suggestions = Resolver.FindCompletions(
+                                    parseResult, 1, 6,
+                                    bindingContext.MetadataDisplayInfoProvider);
+
+                                // this forces lazy evaluation of the suggestion metadata
+                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                return null;
+                            });
+
+                        queueItem.ItemProcessed.WaitOne();
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles language flavor changes by disabling intellisense on a file if it does not match the specific
+        /// "MSSQL" language flavor returned by our service
+        /// </summary>
+        /// <param name="info"></param>
+        public async Task HandleDidChangeLanguageFlavorNotification(
+            LanguageFlavorChangeParams changeParams,
+            EventContext eventContext) 
+        {
+            Validate.IsNotNull(nameof(changeParams), changeParams);
+            Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
+            bool shouldBlock = false;
+            if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase)) {
+                shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (shouldBlock) {
+                this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
+                if (CurrentWorkspace.ContainsFile(changeParams.Uri))
+                {
+                    await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
+                }
+            }
+            else
+            {
+                bool value;
+                this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
+            }
+        }
+
+        private bool ShouldSkipNonMssqlFile(TextDocumentPosition textDocPosition)
+        {
+            return ShouldSkipNonMssqlFile(textDocPosition.TextDocument.Uri);
+        }
+
+        private bool ShouldSkipNonMssqlFile(ScriptFile scriptFile)
+        {
+            return ShouldSkipNonMssqlFile(scriptFile.ClientFilePath);
+        }
+
+        private bool ShouldSkipNonMssqlFile(string uri)
+        {
+            bool isNonMssql = false;
+            nonMssqlUriMap.TryGetValue(uri, out isNonMssql);
+            return isNonMssql;
+        }
+
+        /// <summary>
+        /// Determines whether intellisense should be skipped for a document.
+        /// If IntelliSense is disabled or it's a non-MSSQL doc this will be skipped
+        /// </summary>
+        private bool ShouldSkipIntellisense(string uri)
+        {
+            return !CurrentWorkspaceSettings.IsSuggestionsEnabled
+                || ShouldSkipNonMssqlFile(uri);
         }
 
         /// <summary>
@@ -731,7 +894,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
-            var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
+            var scriptParseInfo = currentCompletionParseInfo;
             if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
                 if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
@@ -1055,7 +1218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             ConnectionInfo connInfo;
-            LanguageService.ConnectionServiceInstance.TryFindConnection(
+            ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath,
                 out connInfo);
 
@@ -1131,7 +1294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
-            bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
+            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
@@ -1179,7 +1342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
         {
             ConnectionInfo connInfo;
-            ConnectionService.Instance.TryFindConnection(
+            ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath,
                 out connInfo);
 
@@ -1219,7 +1382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
-            if (!CurrentSettings.IsDiagnositicsEnabled)
+            if (!CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
                 // If the user has disabled script analysis, skip it entirely
                 return Task.FromResult(true);
@@ -1228,15 +1391,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // If there's an existing task, attempt to cancel it
             try
             {
-                if (ExistingRequestCancellation != null)
+                if (existingRequestCancellation != null)
                 {
                     // Try to cancel the request
-                    ExistingRequestCancellation.Cancel();
+                    existingRequestCancellation.Cancel();
 
                     // If cancellation didn't throw an exception,
                     // clean up the existing token
-                    ExistingRequestCancellation.Dispose();
-                    ExistingRequestCancellation = null;
+                    existingRequestCancellation.Dispose();
+                    existingRequestCancellation = null;
                 }
             }
             catch (Exception e)
@@ -1251,14 +1414,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Create a fresh cancellation token and then start the task.
             // We create this on a different TaskScheduler so that we
             // don't block the main message loop thread.
-            ExistingRequestCancellation = new CancellationTokenSource();
+            existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
                     DelayThenInvokeDiagnostics(
                         LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,
-                        ExistingRequestCancellation.Token),
+                        existingRequestCancellation.Token),
                 CancellationToken.None,
                 TaskCreationOptions.None,
                 TaskScheduler.Default);
@@ -1303,6 +1466,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (IsPreviewWindow(scriptFile))
                 {
+                    continue;
+                }
+                else if (ShouldSkipNonMssqlFile(scriptFile.ClientFilePath))
+                {
+                    // Clear out any existing markers in case file type was changed
+                    await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
                     continue;
                 }
 

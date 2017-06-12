@@ -3,11 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -43,6 +46,29 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                        allMarkers
                             .Select(GetDiagnosticFromMarker)
                             .ToArray()
+                });
+        }
+
+        /// <summary>
+        /// Send the diagnostic results back to the host application
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        /// <param name="semanticMarkers"></param>
+        /// <param name="eventContext"></param>
+        internal static async Task ClearScriptDiagnostics(
+            string uri,
+            EventContext eventContext)
+        {
+            Validate.IsNotNullOrEmptyString(nameof(uri), uri);
+            Validate.IsNotNull(nameof(eventContext), eventContext);
+            // Always send syntax and semantic errors.  We want to 
+            // make sure no out-of-date markers are being displayed.
+            await eventContext.SendEvent(
+                PublishDiagnosticsNotification.Type,
+                new PublishDiagnosticsNotification
+                {
+                    Uri = uri,
+                    Diagnostics = Array.Empty<Diagnostic>()
                 });
         }
 
