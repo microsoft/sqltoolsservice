@@ -4,8 +4,10 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Hosting
 {
@@ -63,6 +65,23 @@ namespace Microsoft.SqlTools.Hosting
             {
                 return typeof(T);
             }
+        }
+
+        protected async Task<T> HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        {
+            Logger.Write(LogLevel.Verbose, requestType);
+
+            try
+            {
+                T result = await handler();
+                await requestContext.SendResult(result);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+            return default(T);
         }
 
         public abstract void InitializeService(IProtocolEndpoint serviceHost);

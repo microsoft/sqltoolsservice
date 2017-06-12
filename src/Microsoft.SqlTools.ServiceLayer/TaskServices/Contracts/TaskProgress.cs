@@ -3,10 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
 {
-    public class TaskInfo
+    public class TaskProgressInfo
     {
         /// <summary>
         /// An id to unify the task
@@ -21,23 +20,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// <summary>
         /// Database server name this task is created for
         /// </summary>
-        public string ServerName { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
-        /// Database name this task is created for
+        /// The number of millisecond the task was running
         /// </summary>
-        public string DatabaseName { get; set; }
-
-
-        /// <summary>
-        /// Task name which defines the type of the task (e.g. CreateDatabase, Backup)
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Task description
-        /// </summary>
-        public string Description { get; set; }
+        public double Duration { get; set; }
 
     }
 }

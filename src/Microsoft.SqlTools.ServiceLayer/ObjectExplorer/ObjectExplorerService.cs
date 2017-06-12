@@ -480,23 +480,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             return new ExpandResponse() { SessionId = session.Uri, NodePath = expandParams.NodePath };
         }
 
-        private async Task<T> HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
-        {
-            Logger.Write(LogLevel.Verbose, requestType);
-
-            try
-            {
-                T result = await handler();
-                await requestContext.SendResult(result);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
-            return default(T);
-        }
-
         /// <summary>
         /// Generates a URI for object explorer using a similar pattern to Mongo DB (which has URI-based database definition)
         /// as this should ensure uniqueness
