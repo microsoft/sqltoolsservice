@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
             sqlTask.Run().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                Assert.Equal(sqlTask.IsCanceled, true);
+                Assert.Equal(sqlTask.IsCancelRequested, true);
                 Assert.True(sqlTask.Duration > 0);
             });
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
             sqlTask.Run().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                Assert.Equal(sqlTask.IsCanceled, true);
+                Assert.Equal(sqlTask.IsCancelRequested, true);
                 Assert.True(sqlTask.Duration > 0);
             });
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);

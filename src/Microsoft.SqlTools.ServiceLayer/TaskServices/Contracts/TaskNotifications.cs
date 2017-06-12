@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
     {
         public static readonly
             EventType<TaskInfo> Type =
-            EventType<TaskInfo>.Create("task/newtaskcreated");
+            EventType<TaskInfo>.Create("tasks/newtaskcreated");
     }
 
     /// <summary>
@@ -24,6 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
     {
         public static readonly
             EventType<TaskProgressInfo> Type =
-            EventType<TaskProgressInfo>.Create("task/statuschanged");
+            EventType<TaskProgressInfo>.Create("tasks/statuschanged");
     }
 }

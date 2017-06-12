@@ -4,6 +4,8 @@
 //
 
 
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
 {
     public class TaskInfo
@@ -33,6 +35,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// Task name which defines the type of the task (e.g. CreateDatabase, Backup)
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Provider Name
+        /// </summary>
+        public string ProviderName
+        {
+            get
+            {
+                return ServiceHost.ProviderName;
+            }
+        }
 
         /// <summary>
         /// Task description
