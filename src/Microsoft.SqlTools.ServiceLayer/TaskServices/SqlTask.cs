@@ -37,14 +37,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Creates new instance of SQL task
         /// </summary>
         /// <param name="taskMetdata">Task Metadata</param>
-        /// <param name="tastToRun">The function to run to start the task</param>
-        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> tastToRun)
+        /// <param name="testToRun">The function to run to start the task</param>
+        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> testToRun)
         {
             Validate.IsNotNull(nameof(taskMetdata), taskMetdata);
-            Validate.IsNotNull(nameof(tastToRun), tastToRun);
+            Validate.IsNotNull(nameof(testToRun), testToRun);
 
             TaskMetadata = taskMetdata;
-            TaskToRun = tastToRun;
+            TaskToRun = testToRun;
             StartTime = DateTime.UtcNow;
             TaskId = Guid.NewGuid();
         }
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
-        /// 
+        /// Returns true if task is canceled, failed or succeed 
         /// </summary>
         public bool IsCompleted
         {

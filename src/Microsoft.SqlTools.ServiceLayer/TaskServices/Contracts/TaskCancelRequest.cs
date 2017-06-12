@@ -19,6 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
     {
         public static readonly
             RequestType<CancelTaskParams, bool> Type =
-                RequestType<CancelTaskParams, bool>.Create("tasks/cancel");
+                RequestType<CancelTaskParams, bool>.Create("tasks/canceltask");
     }
 }
