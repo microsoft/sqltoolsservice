@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             });
            
             serviceHostMock.Verify(x => x.SendEvent(TaskCreatedNotification.Type,
-                It.Is<TaskInfo>(t => t.TaskId == sqlTask.TaskId.ToString())), Times.Once());
+                It.Is<TaskInfo>(t => t.TaskId == sqlTask.TaskId.ToString() && t.ProviderName == "MSSQL")), Times.Once());
             operation.Stop();
 
             serviceHostMock.Verify(x => x.SendEvent(TaskStatusChangedNotification.Type,

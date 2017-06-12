@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     public class SqlTask : IDisposable
     {
         private bool isCompleted;
-        private bool isCanceled;
+        private bool isCancelRequested;
         private bool isDisposed;
         private readonly object lockObject = new object();
         private readonly List<TaskMessage> messages = new List<TaskMessage>();
@@ -114,18 +114,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Setting this to True will not change the Slot status.
         /// Setting the Slot status to Canceled will set this to true.
         /// </summary>
-        public bool IsCanceled
+        public bool IsCancelRequested
         {
             get
             {
-                return isCanceled;
+                return isCancelRequested;
             }
             private set
             {
-                if (isCanceled != value)
+                if (isCancelRequested != value)
                 {
-                    isCanceled = value;
-                    OnTaskCanceled();
+                    isCancelRequested = value;
+                    OnTaskCancelRequested();
                 }
             }
         }
@@ -221,9 +221,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                         throw new NotSupportedException("IsCompleted is not determined for status: " + status);
                 }
 
-                if (status == SqlTaskStatus.Canceled)
+                if (status == SqlTaskStatus.Canceled && !isCancelRequested)
                 {
-                    IsCanceled = true;
+                    IsCancelRequested = true;
                 }
 
                 OnStatusChanged();
@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// </summary>
         public void Cancel()
         {
-            IsCanceled = true;
+            IsCancelRequested = true;
         }
 
         /// <summary>
@@ -308,11 +308,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             return new TaskInfo
             {
+                TaskId = this.TaskId.ToString(),
                 DatabaseName = TaskMetadata.DatabaseName,
                 ServerName = TaskMetadata.ServerName,
                 Name = TaskMetadata.Name,
                 Description = TaskMetadata.Description,
-                TaskId = TaskId.ToString()
             };
         }
 
@@ -366,7 +366,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
         }
 
-        private void OnTaskCanceled()
+        private void OnTaskCancelRequested()
         {
             var handler = TaskCanceled;
             if (handler != null)
