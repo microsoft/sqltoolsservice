@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 sqlTask.Run().ContinueWith(task =>
                 {
                     Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                    Assert.Equal(sqlTask.IsCanceled, true);
+                    Assert.Equal(sqlTask.IsCancelRequested, true);
                     manager.Reset();
 
                 });
