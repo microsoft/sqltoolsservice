@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -32,11 +33,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Converts a server type to ValidForFlag
         /// </summary>
-        public static ValidForFlag GetValidForFlag(SqlServerType serverType)
+        public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database)
         {
             ValidForFlag validforFlag = ValidForFlag.All;
             if (Enum.TryParse<ValidForFlag>(serverType.ToString(), out validforFlag))
             {
+                if(database != null && database.IsSqlDw)
+                {
+                    validforFlag = validforFlag | ValidForFlag.SqlDw;
+                }
                 return validforFlag;
             }
             return ValidForFlag.All;

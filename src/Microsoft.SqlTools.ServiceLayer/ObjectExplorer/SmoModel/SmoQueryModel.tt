@@ -34,6 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlElement nodeElement = GetNodeElement(xmlFile, nodeName);
 		IList<string> parents = GetParents(nodeElement, xmlFile, nodeName);
 		string nodeType = GetNodeType(nodeElement, nodeName);
+		var validFor = nodeElement.GetAttribute("ValidFor");
 
 		string queryBaseClass = "SmoQuerier";
 		PushIndent(indent);
@@ -45,6 +46,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 		// Supported Types
 		WriteLine("Type[] supportedTypes = new Type[] { typeof("+ nodeType + ") };");
+		if (!string.IsNullOrWhiteSpace(validFor))
+		{
+			WriteLine("");
+			WriteLine(string.Format("public override ValidForFlag ValidFor {{ get {{ return {0}; }} }}", GetValidForFlags(validFor)));
+			WriteLine("");
+		}
+
 		WriteLine("");
 		WriteLine("public override Type[] SupportedObjectTypes { get { return supportedTypes; } }");
 		WriteLine("");
@@ -230,6 +238,55 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		   }
 		}
 		return retElements;
+	}
+
+	 public static string GetValidForFlags(string validForStr)
+	{
+	   List<string> flags = new List<string>();
+	   if (validForStr.Contains("Sql2005"))
+	   {
+			flags.Add("ValidForFlag.Sql2005");
+	   }
+
+	   if (validForStr.Contains("Sql2008"))
+	   {
+			flags.Add("ValidForFlag.Sql2008");
+       }
+
+	   if (validForStr.Contains("Sql2012"))
+	   {
+			flags.Add("ValidForFlag.Sql2012");
+       }
+
+	   if (validForStr.Contains("Sql2014"))
+	   {
+			flags.Add("ValidForFlag.Sql2014");
+       }
+
+	   if (validForStr.Contains("Sql2016"))
+	   {
+			flags.Add("ValidForFlag.Sql2016");
+       }
+
+	   if (validForStr.Contains("AzureV12"))
+	   {
+			flags.Add("ValidForFlag.AzureV12");
+	   }
+
+	   if (validForStr.Contains("AllOnPrem"))
+	   {
+			flags.Add("ValidForFlag.AllOnPrem");
+       }
+	    if (validForStr.Contains("AllAzure"))
+	   {
+			flags.Add("ValidForFlag.AllAzure");
+       }
+	    if (validForStr == "All")
+	   {
+			flags.Add("ValidForFlag.All");
+       }
+
+		return string.Join("|", flags);
 	}
 
 #>

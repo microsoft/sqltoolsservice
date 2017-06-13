@@ -83,9 +83,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (sqlConn != null)
                 {
                     DisasterRecoveryService.Instance.InitializeBackup(helper.DataContainer, sqlConn);
-                    BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(sqlConn.Database);
-                    backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
-                    response.BackupConfigInfo = backupConfigInfo;                
+                    if (!connInfo.IsSqlDW)
+                    {
+                        BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(sqlConn.Database);
+                        backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
+                        response.BackupConfigInfo = backupConfigInfo;
+                    }
                 }
             }
             

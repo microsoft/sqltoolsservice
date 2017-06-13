@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
             Validate.IsNotNull(nameof(context), context);
 
-            var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType);
+            var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType, context.Database);
             if (ShouldFilterNode(parent, validForFlag))
             {
                 return;
@@ -96,6 +96,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             foreach (var querier in queriers)
             {
+                if (querier.ValidFor != 0 && !querier.ValidFor.HasFlag(validForFlag))
+                {
+                    continue;
+                }
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
                 try
                 {

@@ -92,7 +92,7 @@
     <Child Name="SystemViews" IsSystemObject="1"/>
   </Node>
 
-  <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym"/>
+  <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
   <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased">
     <Child Name="StoredProcedures"/>
     <Child Name="Functions"/>
@@ -238,7 +238,7 @@
     <Child Name="SystemScalarValuedFunctions" IsSystemObject="1"/>
   </Node>
 
-  <Node Name="DatabaseTriggers" LocLabel="SR.SchemaHierarchy_DatabaseTriggers" BaseClass="ModelBased" NodeType="DatabaseTrigger" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseDdlTrigger"/>
+  <Node Name="DatabaseTriggers" LocLabel="SR.SchemaHierarchy_DatabaseTriggers" BaseClass="ModelBased" NodeType="DatabaseTrigger" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseDdlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
   <Node Name="Assemblies" LocLabel="SR.SchemaHierarchy_Assemblies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Assembly" ChildQuerierTypes="SqlAssembly" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Types" LocLabel="SR.SchemaHierarchy_Types" BaseClass="ModelBased" >
     <Child Name="SystemDataTypes" IsSystemObject="1"/>
@@ -264,8 +264,8 @@
     <Child Name="SystemClrDataTypes"/>
     <Child Name="SystemSpatialDataTypes"/>
   </Node>
-  <Node Name="UserDefinedDataTypes" LocLabel="SR.SchemaHierarchy_UserDefinedDataTypes" BaseClass="ModelBased" NodeType="UserDefinedDataType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedDataType"/>
-  <Node Name="UserDefinedTableTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTableTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedTableType" TreeNode="UserDefinedTableTypeTreeNode" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV11|AzureV12"/>
+  <Node Name="UserDefinedDataTypes" LocLabel="SR.SchemaHierarchy_UserDefinedDataTypes" BaseClass="ModelBased" NodeType="UserDefinedDataType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedDataType" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
+  <Node Name="UserDefinedTableTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTableTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedTableType" TreeNode="UserDefinedTableTypeTreeNode" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
   <Node Name="UserDefinedTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="UserDefinedType" ChildQuerierTypes="SqlUserDefinedType" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="XmlSchemaCollections" LocLabel="SR.SchemaHierarchy_XMLSchemaCollections" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="XmlSchemaCollection" ChildQuerierTypes="SqlXmlSchemaCollection" ValidFor="AllOnPrem|AzureV12"/>
 
@@ -293,7 +293,7 @@
   <Node Name="SystemBinaryStrings" LocLabel="SR.SchemaHierarchy_SystemBinaryStrings" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemBinaryString" ChildQuerierTypes="SqlBuiltInType"/>
   <Node Name="SystemOtherDataTypes" LocLabel="SR.SchemaHierarchy_SystemOtherDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemOtherDataType" ChildQuerierTypes="SqlBuiltInType"/>
   <Node Name="SystemClrDataTypes" LocLabel="SR.SchemaHierarchy_SystemCLRDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemClrDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="All"/>
-  <Node Name="SystemSpatialDataTypes" LocLabel="SR.SchemaHierarchy_SystemSpatialDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemSpatialDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV11|AzureV12"/>
+  <Node Name="SystemSpatialDataTypes" LocLabel="SR.SchemaHierarchy_SystemSpatialDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemSpatialDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
 
   <!-- Childs of ExternalResources -->
   <Node Name="ExternalDataSources" LocLabel="SR.SchemaHierarchy_ExternalDataSources" BaseClass="ModelBased" NodeType="ExternalDataSource" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalDataSource" ValidFor="Sql2016|Sql2017|AzureV12"/>

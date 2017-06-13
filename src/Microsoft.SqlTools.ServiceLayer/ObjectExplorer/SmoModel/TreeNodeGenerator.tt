@@ -369,11 +369,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			flags.Add("ValidForFlag.Sql2016");
        }
 
-	   if (validForStr.Contains("AzureV11"))
-	   {
-			flags.Add("ValidForFlag.Azure");
-       }
-
 	   if (validForStr.Contains("AzureV12"))
 	   {
 			flags.Add("ValidForFlag.AzureV12");

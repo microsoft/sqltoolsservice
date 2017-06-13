@@ -72,9 +72,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return true;
         }
-        
 
-       
+        /// <summary>
+        /// Indicates which platforms the querier is valid for
+        /// </summary>
+        public virtual ValidForFlag ValidFor
+        {
+            get
+            {
+                return ValidForFlag.All;
+            }
+        }
     }
-    
 }
