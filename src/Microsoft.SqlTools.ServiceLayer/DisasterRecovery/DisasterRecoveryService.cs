@@ -111,9 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 SqlConnection sqlConn = GetSqlConnection(connInfo);
                 if (sqlConn != null)
                 {
+                    // initialize backup
                     DisasterRecoveryService.Instance.InitializeBackup(helper.DataContainer, sqlConn);
                     DisasterRecoveryService.Instance.SetBackupInput(backupParams.BackupInfo);
 
+                    // create task metadata
                     TaskMetadata metadata = new TaskMetadata();
                     metadata.ServerName = connInfo.ConnectionDetails.ServerName;
                     metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;                    
@@ -121,10 +123,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     metadata.Description = "Backup Database";
                     metadata.IsCancelable = true;
 
-                    SqlTask sqlTask = TaskService.Instance.TaskManager.CreateTask(metadata, Instance.BackupToRun);
-                    await sqlTask.Run(); //?
-
-                    //DisasterRecoveryService.Instance.PerformBackup();
+                    // create backup task and perform
+                    SqlTask sqlTask = TaskService.Instance.TaskManager.CreateTask(metadata, Instance.BackupTask);
+                    sqlTask.Run();                    
                 }
             }
          
@@ -177,42 +178,59 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return this.backupUtilities.GetBackupConfigInfo(databaseName);
         }
 
-        public async Task<TaskResult> BackupToRun(SqlTask sqlTask)
-        {
-            TaskResult result = new TaskResult();
-
-            //sqlTask.TaskCanceled += OnTaskCanceled;
-            return await Task.Factory.StartNew(() =>
+        public async Task<TaskResult> BackupTask(SqlTask sqlTask)
+        {                           
+            return await await Task.Factory.StartNew(async () =>
             {
-                sqlTask.AddMessage("still running", SqlTaskStatus.InProgress, true);
+                sqlTask.AddMessage("In progress", SqlTaskStatus.InProgress, true);
 
-                try
+                // create a task to perform backup
+                Task<TaskResult> backupTask = Task.Factory.StartNew(() =>
                 {
-                    this.backupUtilities.PerformBackup();
-                    result.TaskStatus = SqlTaskStatus.Succeeded;
-                }
-                catch (Exception ex)
-                {
-                    result.TaskStatus = SqlTaskStatus.Failed;
-                    result.ErrorMessage = ex.Message;
-                }
-                /*
-                while (!IsStopped)
-                {
-                    //Just keep running
-                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                    TaskResult result = new TaskResult();
+                    try
                     {
-                        throw new OperationCanceledException();
+                        this.backupUtilities.PerformBackup();
+                        result.TaskStatus = SqlTaskStatus.Succeeded;
                     }
-                    if (Failed)
+                    catch (Exception ex)
                     {
-                        throw new InvalidOperationException();
+                        result.TaskStatus = SqlTaskStatus.Failed;
+                        result.ErrorMessage = ex.Message;
                     }
-                    sqlTask.AddMessage("still running", SqlTaskStatus.InProgress, true);
-                }*/
+                    return result;
+                });
+
+                // create a task for backup cancellation request
+                Task<TaskResult> cancelTask = Task.Factory.StartNew(() =>
+                {
+                    TaskResult result = new TaskResult();
+                    while (true)
+                    {
+                        if (sqlTask.IsCancelRequested)
+                        {
+                            break;
+                        }
+                    };
+
+                    try
+                    {
+                        this.backupUtilities.CancelBackup();
+                        result.TaskStatus = SqlTaskStatus.Canceled;                        
+                    }
+                    catch (Exception ex)
+                    {
+                        result.TaskStatus = SqlTaskStatus.Failed;
+                        result.ErrorMessage = ex.Message;
+                    }
+
+                    return result;
+                });
+
+                Task<TaskResult> completedTask = await Task.WhenAny(backupTask, cancelTask);
                                 
-                sqlTask.AddMessage("Executed", result.TaskStatus);
-                return result;
+                sqlTask.AddMessage("Finished", completedTask.Result.TaskStatus);
+                return completedTask.Result;                
             });
         }
 
