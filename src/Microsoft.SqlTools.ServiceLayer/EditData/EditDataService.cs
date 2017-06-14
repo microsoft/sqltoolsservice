@@ -303,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             };
 
             // Setup callback for failed query execution
-            Query.QueryAsyncEventHandler queryCompleteFailureCallback = q =>
+            Query.QueryAsyncErrorEventHandler queryCompleteFailureCallback = (q, e) =>
             {
                 taskCompletion.SetResult(new EditSession.EditSessionQueryExecutionState(null));
                 return Task.FromResult(0);
