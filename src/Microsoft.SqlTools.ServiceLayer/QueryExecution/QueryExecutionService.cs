@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ExecuteStringParams newParams = new ExecuteStringParams
             {
                 Query = executeParams.QueryString,
-                OwnerUri = executeParams.Owneruri
+                OwnerUri = executeParams.OwnerUri
             };
 
             ResultOnlyContext<ExecuteAndReturnResultResult> newContext = new ResultOnlyContext<ExecuteAndReturnResultResult>(requestContext);

@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// <summary>
         /// The owneruri to get connection from
         /// </summary>
-        public string Owneruri { get; set; }
+        public string OwnerUri { get; set; }
     }
 
     /// <summary>
