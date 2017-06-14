@@ -21,7 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         Sql2014,
         Sql2016,
         Sql2017,
-        Azure,
         AzureV12
     }
 
@@ -33,12 +32,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Converts a server type to ValidForFlag
         /// </summary>
-        public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database)
+        public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database = null)
+        {
+            return GetValidForFlag(serverType, database != null && database.IsSqlDw);
+        }
+
+        /// <summary>
+        /// Converts a server type to ValidForFlag
+        /// </summary>
+        public static ValidForFlag GetValidForFlag(SqlServerType serverType, bool isSqlDw)
         {
             ValidForFlag validforFlag = ValidForFlag.All;
             if (Enum.TryParse<ValidForFlag>(serverType.ToString(), out validforFlag))
             {
-                if(database != null && database.IsSqlDw)
+                if (isSqlDw)
                 {
                     validforFlag = validforFlag | ValidForFlag.SqlDw;
                 }
@@ -57,14 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 
             if (serverInfo.IsCloud)
             {
-                if (serverVersion.StartsWith("11", StringComparison.Ordinal))
-                {
-                    serverType = SqlServerType.Azure;
-                }
-                else
-                {
-                    serverType = SqlServerType.AzureV12;
-                }
+                serverType = SqlServerType.AzureV12;
             }
             else if (!string.IsNullOrWhiteSpace(serverVersion))
             {

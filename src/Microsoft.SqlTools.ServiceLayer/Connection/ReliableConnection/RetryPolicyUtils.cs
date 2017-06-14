@@ -345,12 +345,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             if (azureSessionId != Guid.Empty)
             {
                 Logger.Write(LogLevel.Warning, string.Format(
-                "Retry occurred: session: {0}; attempt - {1}; delay - {2}; exception - \"{3}\"",
-                azureSessionId,
-                retryState.RetryCount,
-                retryState.Delay,
-                retryState.LastError
-            ));
+                    "Retry occurred: session: {0}; attempt - {1}; delay - {2}; exception - \"{3}\"",
+                    azureSessionId,
+                    retryState.RetryCount,
+                    retryState.Delay,
+                    retryState.LastError
+                 ));
 
                 RaiseAmbientRetryMessage(retryState, errorCode);
             }
