@@ -71,12 +71,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
-
+                
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
                     SaveFileType = ScriptFileType.Unicode,          // UTF-16
                     SaveFileName = this.Parameters.FilePath,
+                    ScriptDestination = (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
                 };
 
                 this.CancellationToken.ThrowIfCancellationRequested();

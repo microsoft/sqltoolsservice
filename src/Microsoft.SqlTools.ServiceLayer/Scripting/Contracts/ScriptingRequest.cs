@@ -19,6 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         public string FilePath { get; set; }
 
         /// <summary>
+        /// Gets or sets whether scripting to a single file or file per object.
+        /// </summary>
+        public string ScriptDestination {get; set;}
+
+        /// <summary>
         /// Gets or sets connection string of the target database the scripting operation will run against.
         /// </summary>
         public string ConnectionString { get; set; }
@@ -43,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// </summary>
         public ScriptOptions ScriptOptions { get; set; }
     }
-
+    
     /// <summary>
     /// Parameters returned from a script request.
     /// </summary>
