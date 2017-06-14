@@ -213,10 +213,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendResult(result);
             };
 
-            // handle sending erro back when query fails
-            Query.QueryAsyncEventHandler queryFail = async q =>
+            // handle sending error back when query fails
+            Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
             {
-                
+                await requestContext.SendError(e);
             };
 
             return InterServiceExecuteQuery(newParams, requestContext, null, queryCreateFailureAction, queryComplete, queryFail);
