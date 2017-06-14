@@ -137,6 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
+            serviceHost.SetRequestHandler(ExecuteAndReturnResultRequest.Type, HandleExecuteAndReturnResultRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -166,6 +167,59 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Use the internal handler to launch the query
             return InterServiceExecuteQuery(executeParams, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
+        }
+
+        /// <summary>
+        /// Handles a request to execute a string and return the result
+        /// </summary>
+        internal Task HandleExecuteAndReturnResultRequest(ExecuteAndReturnResultParams executeParams,
+            RequestContext<ExecuteAndReturnResultResult> requestContext)
+        {
+            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+            ExecuteStringParams newParams = new ExecuteStringParams
+            {
+                Query = executeParams.QueryString,
+                OwnerUri = executeParams.Owneruri
+            };
+
+            ResultOnlyContext<ExecuteAndReturnResultResult> newContext = new ResultOnlyContext<ExecuteAndReturnResultResult>(requestContext);
+
+            // handle sending event back when the query completes
+            Query.QueryAsyncEventHandler queryComplete = async q =>
+            {
+                int rowCount = 0;
+                try
+                {
+                    rowCount = Convert.ToInt32(q.Batches[0].ResultSets[0].RowCount);
+                }
+                catch(OverflowException e)
+                {
+                    await requestContext.SendError(e);
+                }
+                SubsetParams subsetParams = new SubsetParams
+                {
+                    BatchIndex = 0,
+                    ResultSetIndex = 0,
+                    RowsStartIndex = 0,
+                    RowsCount = rowCount
+                };
+                ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
+                ExecuteAndReturnResultResult result = new ExecuteAndReturnResultResult
+                {
+                    RowCount = q.Batches[0].ResultSets[0].RowCount,
+                    ColumnInfo = q.Batches[0].ResultSets[0].Columns,
+                    Rows = subset.Rows
+                };
+                await requestContext.SendResult(result);
+            };
+
+            // handle sending erro back when query fails
+            Query.QueryAsyncEventHandler queryFail = async q =>
+            {
+                
+            };
+
+            return InterServiceExecuteQuery(newParams, requestContext, null, queryCreateFailureAction, queryComplete, queryFail);
         }
 
         /// <summary>
