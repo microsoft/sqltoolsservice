@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Starts the task and monitor the task progress
         /// </summary>
-        public async Task Run()
+        public async Task RunAsync()
         {
             TaskStatus = SqlTaskStatus.InProgress;
             await TaskToRun(this).ContinueWith(task =>
@@ -94,6 +94,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                     }
                 }
             });
+        }
+
+        public void Run()
+        {
+            Task.Run(RunAsync);
         }
 
         /// <summary>

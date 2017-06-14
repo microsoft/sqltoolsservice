@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     metadata.IsCancelable = true;
 
                     // create backup task and perform
-                    SqlTask sqlTask = TaskService.Instance.TaskManager.CreateTask(metadata, Instance.BackupTask);
+                    SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupTask);
                     sqlTask.Run();                    
                 }
             }
@@ -178,7 +178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return this.backupUtilities.GetBackupConfigInfo(databaseName);
         }
 
-        public async Task<TaskResult> BackupTask(SqlTask sqlTask)
+        /// <summary>
+        /// Create a backup task for execution and cancellation
+        /// </summary>
+        /// <param name="sqlTask"></param>
+        /// <returns></returns>
+        internal async Task<TaskResult> BackupTask(SqlTask sqlTask)
         {                           
             return await await Task.Factory.StartNew(async () =>
             {
