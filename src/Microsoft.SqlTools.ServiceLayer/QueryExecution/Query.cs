@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Delegate type for callback when a query connection fails
         /// </summary>
         /// <param name="message">Error message for the failing query</param>
-        public delegate Task QueryAsyncErrorEventHandler(string message);
+        public delegate Task QueryAsyncErrorEventHandler(Query q, Exception e);
 
         /// <summary>
         /// Callback for when the query has completed successfully
@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Callback for when the query has failed
         /// </summary>
-        public event QueryAsyncEventHandler QueryFailed;
+        public event QueryAsyncErrorEventHandler QueryFailed;
 
         /// <summary>
         /// Event to be called when a resultset has completed.
@@ -395,12 +395,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await QueryCompleted(this);
                 }         
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // Call the query failure callback
                 if (QueryFailed != null)
                 {
-                    await QueryFailed(this);
+                    await QueryFailed(this, e);
                 }
             }
             finally

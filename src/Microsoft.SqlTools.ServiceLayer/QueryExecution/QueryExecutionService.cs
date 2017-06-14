@@ -400,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Func<Query, Task<bool>> queryCreateSuccessFunc,
             Func<string, Task> queryCreateFailFunc,
             Query.QueryAsyncEventHandler querySuccessFunc, 
-            Query.QueryAsyncEventHandler queryFailureFunc)
+            Query.QueryAsyncErrorEventHandler queryFailureFunc)
         {
             Validate.IsNotNull(nameof(executeParams), executeParams);
             Validate.IsNotNull(nameof(queryEventSender), queryEventSender);
@@ -532,7 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private static void ExecuteAndCompleteQuery(string ownerUri, Query query,
             IEventSender eventSender,
             Query.QueryAsyncEventHandler querySuccessCallback,
-            Query.QueryAsyncEventHandler queryFailureCallback)
+            Query.QueryAsyncErrorEventHandler queryFailureCallback)
         {
             // Setup the callback to send the complete event
             Query.QueryAsyncEventHandler completeCallback = async q =>
@@ -546,8 +546,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
+
+            // Setup the callback to send the complete event
+            Query.QueryAsyncErrorEventHandler failureCallback = async (q, e) =>
+            {
+                // Send back the results
+                QueryCompleteParams eventParams = new QueryCompleteParams
+                {
+                    OwnerUri = ownerUri,
+                    BatchSummaries = q.BatchSummaries
+                };
+
+                await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
+            };
             query.QueryCompleted += completeCallback;
-            query.QueryFailed += completeCallback;
+            query.QueryFailed += failureCallback;
 
             // Add the callbacks that were provided by the caller
             // If they're null, that's no problem
