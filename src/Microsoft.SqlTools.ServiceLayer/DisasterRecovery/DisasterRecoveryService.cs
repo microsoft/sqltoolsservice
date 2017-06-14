@@ -184,60 +184,62 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="sqlTask"></param>
         /// <returns></returns>
         internal async Task<TaskResult> BackupTask(SqlTask sqlTask)
-        {                           
-            return await await Task.Factory.StartNew(async () =>
+        {
+            sqlTask.AddMessage("In progress", SqlTaskStatus.InProgress, true);
+            Task<TaskResult> completedTask = await Task.WhenAny(PerformTask(), CancelTask(sqlTask));
+            sqlTask.AddMessage("Finished", completedTask.Result.TaskStatus);
+            return completedTask.Result;
+        }
+
+        private async Task<TaskResult> PerformTask()
+        {
+            // create a task to perform backup
+            return await Task.Factory.StartNew(() =>
             {
-                sqlTask.AddMessage("In progress", SqlTaskStatus.InProgress, true);
-
-                // create a task to perform backup
-                Task<TaskResult> backupTask = Task.Factory.StartNew(() =>
+                TaskResult result = new TaskResult();
+                try
                 {
-                    TaskResult result = new TaskResult();
-                    try
-                    {
-                        this.backupUtilities.PerformBackup();
-                        result.TaskStatus = SqlTaskStatus.Succeeded;
-                    }
-                    catch (Exception ex)
-                    {
-                        result.TaskStatus = SqlTaskStatus.Failed;
-                        result.ErrorMessage = ex.Message;
-                    }
-                    return result;
-                });
-
-                // create a task for backup cancellation request
-                Task<TaskResult> cancelTask = Task.Factory.StartNew(() =>
+                    this.backupUtilities.PerformBackup();
+                    result.TaskStatus = SqlTaskStatus.Succeeded;
+                }
+                catch (Exception ex)
                 {
-                    TaskResult result = new TaskResult();
-                    while (true)
-                    {
-                        if (sqlTask.IsCancelRequested)
-                        {
-                            break;
-                        }
-                    };
-
-                    try
-                    {
-                        this.backupUtilities.CancelBackup();
-                        result.TaskStatus = SqlTaskStatus.Canceled;                        
-                    }
-                    catch (Exception ex)
-                    {
-                        result.TaskStatus = SqlTaskStatus.Failed;
-                        result.ErrorMessage = ex.Message;
-                    }
-
-                    return result;
-                });
-
-                Task<TaskResult> completedTask = await Task.WhenAny(backupTask, cancelTask);
-                                
-                sqlTask.AddMessage("Finished", completedTask.Result.TaskStatus);
-                return completedTask.Result;                
+                    result.TaskStatus = SqlTaskStatus.Failed;
+                    result.ErrorMessage = ex.Message;
+                }
+                return result;
             });
         }
+
+        private async Task<TaskResult> CancelTask(SqlTask sqlTask)
+        {
+            // create a task for backup cancellation request
+            return await Task.Factory.StartNew(() =>
+            {
+                TaskResult result = new TaskResult();
+                while (true)
+                {
+                    if (sqlTask.IsCancelRequested)
+                    {
+                        break;
+                    }
+                };
+
+                try
+                {
+                    this.backupUtilities.CancelBackup();
+                    result.TaskStatus = SqlTaskStatus.Canceled;
+                }
+                catch (Exception ex)
+                {
+                    result.TaskStatus = SqlTaskStatus.Failed;
+                    result.ErrorMessage = ex.Message;
+                }
+
+                return result;
+            });
+        }
+
 
     }
 }
