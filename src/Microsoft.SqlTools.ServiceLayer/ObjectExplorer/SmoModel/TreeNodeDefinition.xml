@@ -203,7 +203,7 @@
     </Filters>
   </Node>
   <Node Name="Constraints" LocLabel="SR.SchemaHierarchy_Constraints" BaseClass="ModelBased" NodeType="Constraint" Strategy="ElementsInRelationship" ChildQuerierTypes="SqlDefaultConstraint;SqlCheck"/>
-  <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger"/>
+  <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
   <Node Name="Indexes" LocLabel="SR.SchemaHierarchy_Indexes" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Index" ChildQuerierTypes="SqlIndex;SqlFullTextIndex">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">

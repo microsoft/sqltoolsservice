@@ -28,11 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             try
             {
-                OnExpandPopulateFolders(allChildren, parent);
-                if(!includeSystemObjects)
-                {
-                    allChildren.RemoveAll(x => x.IsSystemObject);
-                }
+                OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                 RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
                 OnExpandPopulateNonFolders(allChildren, parent, refresh, name);
                 OnBeginAsyncOperations(parent);
@@ -48,6 +44,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
             }
             return allChildren;
+        }
+
+        private void OnExpandPopulateFoldersAndFilter(List<TreeNode> allChildren, TreeNode parent, bool includeSystemObjects)
+        {
+            SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
+            OnExpandPopulateFolders(allChildren, parent);
+            if (!includeSystemObjects)
+            {
+                allChildren.RemoveAll(x => x.IsSystemObject);
+            }
+            if (context != null && context.ValidFor != 0 && context.ValidFor != ValidForFlag.All)
+            {
+                allChildren.RemoveAll(x =>
+                {
+                    FolderNode folderNode = x as FolderNode;
+                    if (folderNode != null && folderNode.ValidFor != 0 && !folderNode.ValidFor.HasFlag(context.ValidFor))
+                    {
+                        return true;
+                    }
+                    return false;
+                });
+            }
         }
 
         /// <summary>
@@ -76,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
             Validate.IsNotNull(nameof(context), context);
 
-            var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType, context.Database);
+            var validForFlag = context.ValidFor;
             if (ShouldFilterNode(parent, validForFlag))
             {
                 return;
