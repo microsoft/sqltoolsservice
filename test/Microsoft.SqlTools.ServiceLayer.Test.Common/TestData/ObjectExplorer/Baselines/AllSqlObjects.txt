@@ -123,9 +123,9 @@ NodeType: FileGroup Label: PRIMARY SubType: Status:
 NodeType: FullTextCatalog Label: AW2014FullTextCatalog SubType: Status:
 NodeType: User Label: amy0 SubType: Status:
 NodeType: User Label: dbo SubType: Status:
-NodeType: User Label: guest SubType: Status:
-NodeType: User Label: INFORMATION_SCHEMA SubType: Status:
-NodeType: User Label: sys SubType: Status:
+NodeType: User Label: guest SubType: Status:Disabled
+NodeType: User Label: INFORMATION_SCHEMA SubType: Status:Disabled
+NodeType: User Label: sys SubType: Status:Disabled
 NodeType: DatabaseRole Label: db_accessadmin SubType: Status:
 NodeType: DatabaseRole Label: db_backupoperator SubType: Status:
 NodeType: DatabaseRole Label: db_datareader SubType: Status:
