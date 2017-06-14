@@ -432,6 +432,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
+        [Fact]
+        public async Task QueryExecuteAndReturnQueryTest()
+        {
+            var queryService = Common.GetPrimedExecutionService(null, true, true, null);
+            var queryParams = new ExecuteAndReturnResultParams { Owneruri = Constants.OwnerUri, QueryString = Common.InvalidQuery };
+            var efv = new EventFlowValidator<ExecuteAndReturnResultResult>()
+                .AddStandardBatchStartValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
+            await queryService.HandleExecuteAndReturnResultRequest(queryParams, efv.Object);
+
+            Assert.Equal(1, queryService.ActiveQueries.Count);
+        }
+
         #endregion
 
         private static WorkspaceService<SqlToolsSettings> GetDefaultWorkspaceService(string query)
