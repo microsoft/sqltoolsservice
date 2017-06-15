@@ -16,7 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
-    public class BackupUtilities
+    public class BackupUtilities: IBackupUtilities
     {
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
@@ -95,6 +95,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {               
         }
 
+        #endregion
+
         /// <summary>
         /// Initialize variables
         /// </summary>
@@ -123,8 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
         
-        #endregion
-
         #region Methods for UI logic
                 
         public BackupConfigInfo GetBackupConfigInfo(string databaseName)

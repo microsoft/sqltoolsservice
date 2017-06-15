@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
-        private BackupUtilities backupUtilities;
+        private IBackupUtilities backupUtilities;
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -27,6 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal DisasterRecoveryService()
         {
             this.backupUtilities = new BackupUtilities();
+        }
+
+        /// <summary>
+        /// For testing purpose only
+        /// </summary>
+        internal DisasterRecoveryService(IBackupUtilities backupUtilities)
+        {
+            this.backupUtilities = backupUtilities;
         }
 
         /// <summary>
@@ -125,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                     // create backup task and perform
                     SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupTask);
-                    sqlTask.Run();                    
+                    sqlTask.Run();
                 }
             }
          
@@ -187,7 +195,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             sqlTask.AddMessage("In progress", SqlTaskStatus.InProgress, true);
             Task<TaskResult> completedTask = await Task.WhenAny(PerformTask(), CancelTask(sqlTask));
-            sqlTask.AddMessage("Finished", completedTask.Result.TaskStatus);
+            sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : "Completed",
+                               completedTask.Result.TaskStatus);
             return completedTask.Result;
         }
 
@@ -206,6 +215,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     result.TaskStatus = SqlTaskStatus.Failed;
                     result.ErrorMessage = ex.Message;
+                    if (ex.InnerException != null)
+                    {
+                        result.ErrorMessage += System.Environment.NewLine + ex.InnerException.Message;
+                    }
                 }
                 return result;
             });

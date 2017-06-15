@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             TaskStatus = SqlTaskStatus.InProgress;
             await TaskToRun(this).ContinueWith(task =>
             {
-                if (task.IsCompleted)
+                if (task.IsCompleted && !task.IsCanceled && !task.IsFaulted)
                 {
                     TaskResult taskResult = task.Result;
                     TaskStatus = taskResult.TaskStatus;
@@ -98,7 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         public void Run()
         {
-            Task.Run(RunAsync);
+            RunAsync().ContinueWith(task =>
+            {
+            });
         }
 
         /// <summary>
