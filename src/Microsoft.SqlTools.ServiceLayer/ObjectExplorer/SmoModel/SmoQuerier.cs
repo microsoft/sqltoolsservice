@@ -74,6 +74,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
+        /// Returns true if the querier is valid for the given server version
+        /// </summary>
+        /// <param name="serverValidFor"></param>
+        /// <returns></returns>
+        public bool IsValidFor(ValidForFlag serverValidFor)
+        {
+            return ServerVersionHelper.IsValidFor(serverValidFor,  ValidFor);
+        }
+
+        /// <summary>
         /// Indicates which platforms the querier is valid for
         /// </summary>
         public virtual ValidForFlag ValidFor

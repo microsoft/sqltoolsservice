@@ -11,6 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
     [Flags]
     public enum ValidForFlag
     {
+        None = 0x00,
         Sql2005 = 0x01,
         Sql2008 = 0x02,
         Sql2012 = 0x04,
@@ -21,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         SqlDw = 0x80,
         AllOnPrem = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017,
         AllAzure = AzureV12,
-        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw
+        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw,
+        NotSqlDw = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12
     }
 }

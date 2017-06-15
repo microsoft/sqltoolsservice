@@ -7,7 +7,7 @@ using System;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
     /// <summary>
     /// Server Types
@@ -38,6 +38,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
+        /// Returns true if the given valid for flag is not set or it includes the server version
+        /// </summary>
+        /// <param name="serverVersion">Server version</param>
+        /// <param name="validFor">Valid for flag</param>
+        /// <returns></returns>
+        public static bool IsValidFor(ValidForFlag serverVersion, ValidForFlag validFor)
+        {
+            return validFor == ValidForFlag.None || validFor.HasFlag(serverVersion);
+        }
+
+        /// <summary>
         /// Converts a server type to ValidForFlag
         /// </summary>
         public static ValidForFlag GetValidForFlag(SqlServerType serverType, bool isSqlDw)
@@ -45,9 +56,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             ValidForFlag validforFlag = ValidForFlag.All;
             if (Enum.TryParse<ValidForFlag>(serverType.ToString(), out validforFlag))
             {
-                if (isSqlDw)
+                if (isSqlDw && serverType == SqlServerType.AzureV12)
                 {
-                    validforFlag = validforFlag | ValidForFlag.SqlDw;
+                    validforFlag = ValidForFlag.SqlDw;
+                }
+                else
+                {
+                    //TODO: not supporting SQL DW for on prem 
                 }
                 return validforFlag;
             }

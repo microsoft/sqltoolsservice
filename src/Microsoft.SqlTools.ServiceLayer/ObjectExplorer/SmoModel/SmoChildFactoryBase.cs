@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 allChildren.RemoveAll(x =>
                 {
                     FolderNode folderNode = x as FolderNode;
-                    if (folderNode != null && folderNode.ValidFor != 0 && !folderNode.ValidFor.HasFlag(context.ValidFor))
+                    if (folderNode != null && !ServerVersionHelper.IsValidFor(context.ValidFor, folderNode.ValidFor))
                     {
                         return true;
                     }
@@ -94,15 +94,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
             Validate.IsNotNull(nameof(context), context);
 
-            var validForFlag = context.ValidFor;
-            if (ShouldFilterNode(parent, validForFlag))
+            var serverValidFor = context.ValidFor;
+            if (ShouldFilterNode(parent, serverValidFor))
             {
                 return;
             }
 
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters.ToList();
-            var smoProperties = this.SmoProperties.Where(p => (p.ValidFor == 0 || p.ValidFor.HasFlag(validForFlag))).Select(x => x.Name);
+            var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodeFilter
@@ -114,11 +114,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             foreach (var querier in queriers)
             {
-                if (querier.ValidFor != 0 && !querier.ValidFor.HasFlag(validForFlag))
+                if (!querier.IsValidFor(serverValidFor))
                 {
                     continue;
                 }
-                string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
+                string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                             Logger.Write(LogLevel.Error, "smoObject should not be null");
                         }
                         TreeNode childNode = CreateChild(parent, smoObject);
-                        if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, validForFlag))
+                        if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, serverValidFor))
                         {
                             allChildren.Add(childNode);
                         }
@@ -150,9 +150,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             bool filterTheNode = false;
             SmoTreeNode smoTreeNode = childNode as SmoTreeNode;
-            if (smoTreeNode != null && smoTreeNode.ValidFor != 0)
+            if (smoTreeNode != null)
             {
-                if (!(smoTreeNode.ValidFor.HasFlag(validForFlag)))
+                if (!ServerVersionHelper.IsValidFor(validForFlag, smoTreeNode.ValidFor))
                 {
                     filterTheNode = true;
                 }

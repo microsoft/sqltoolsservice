@@ -5,7 +5,6 @@
 
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
@@ -37,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void GetValidForFlagShouldReturnTheFlagIncludingSqlDwGivenSqlDwdatabase()
         {
             ValidForFlag validforFlag = ServerVersionHelper.GetValidForFlag(SqlServerType.AzureV12, true);
-            ValidForFlag expected = ValidForFlag.AzureV12 | ValidForFlag.SqlDw;
+            ValidForFlag expected = ValidForFlag.SqlDw;
 
             Assert.Equal(validforFlag, expected);
         }
@@ -47,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             string serverVersion = "9.1.2.3";
             SqlServerType expected = SqlServerType.Sql2005;
-            VrifyCalculateServerType(serverVersion, expected);
+            VerifyCalculateServerType(serverVersion, expected);
 
         }
 
@@ -56,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             string serverVersion = "10.1.2.3";
             SqlServerType expected = SqlServerType.Sql2008;
-            VrifyCalculateServerType(serverVersion, expected);
+            VerifyCalculateServerType(serverVersion, expected);
         }
 
         [Fact]
@@ -64,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             string serverVersion = "11.1.2.3";
             SqlServerType expected = SqlServerType.Sql2012;
-            VrifyCalculateServerType(serverVersion, expected);
+            VerifyCalculateServerType(serverVersion, expected);
         }
 
         [Fact]
@@ -72,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             string serverVersion = "12.1.2.3";
             SqlServerType expected = SqlServerType.Sql2014;
-            VrifyCalculateServerType(serverVersion, expected);
+            VerifyCalculateServerType(serverVersion, expected);
         }
 
         [Fact]
@@ -80,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             string serverVersion = "13.1.2.3";
             SqlServerType expected = SqlServerType.Sql2016;
-            VrifyCalculateServerType(serverVersion, expected);
+            VerifyCalculateServerType(serverVersion, expected);
         }
 
         [Fact]
@@ -88,10 +87,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             string serverVersion = "14.1.2.3";
             SqlServerType expected = SqlServerType.Sql2017;
-            VrifyCalculateServerType(serverVersion, expected);
+            VerifyCalculateServerType(serverVersion, expected);
         }
 
-        private void VrifyCalculateServerType(string serverVersion, SqlServerType expected)
+        private void VerifyCalculateServerType(string serverVersion, SqlServerType expected)
         {
             ServerInfo serverInfo = new ServerInfo
             {

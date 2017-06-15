@@ -104,6 +104,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 Assert.Null(querier);
             }
         }
-
     }
 }

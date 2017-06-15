@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         Type[] supportedTypes = new Type[] { typeof(ServerDdlTrigger) };
 
-        public override ValidForFlag ValidFor { get { return ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12; } }
+        public override ValidForFlag ValidFor { get { return ValidForFlag.NotSqlDw; } }
 
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
@@ -365,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         Type[] supportedTypes = new Type[] { typeof(Synonym) };
 
-        public override ValidForFlag ValidFor { get { return ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12; } }
+        public override ValidForFlag ValidFor { get { return ValidForFlag.NotSqlDw; } }
 
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
@@ -509,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         Type[] supportedTypes = new Type[] { typeof(Trigger) };
 
-        public override ValidForFlag ValidFor { get { return ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12; } }
+        public override ValidForFlag ValidFor { get { return ValidForFlag.NotSqlDw; } }
 
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
@@ -535,7 +535,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         Type[] supportedTypes = new Type[] { typeof(FullTextIndex) };
 
-        public override ValidForFlag ValidFor { get { return ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12; } }
+        public override ValidForFlag ValidFor { get { return ValidForFlag.NotSqlDw; } }
 
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
@@ -587,7 +587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         Type[] supportedTypes = new Type[] { typeof(DatabaseDdlTrigger) };
 
-        public override ValidForFlag ValidFor { get { return ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12; } }
+        public override ValidForFlag ValidFor { get { return ValidForFlag.NotSqlDw; } }
 
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
@@ -659,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         Type[] supportedTypes = new Type[] { typeof(UserDefinedDataType) };
 
-        public override ValidForFlag ValidFor { get { return ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.AzureV12; } }
+        public override ValidForFlag ValidFor { get { return ValidForFlag.NotSqlDw; } }
 
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }

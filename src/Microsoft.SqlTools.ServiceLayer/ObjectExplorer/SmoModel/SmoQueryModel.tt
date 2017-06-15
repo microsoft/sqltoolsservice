@@ -277,11 +277,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	   {
 			flags.Add("ValidForFlag.AllOnPrem");
        }
-	    if (validForStr.Contains("AllAzure"))
+	   if (validForStr.Contains("AllAzure"))
 	   {
 			flags.Add("ValidForFlag.AllAzure");
        }
-	    if (validForStr == "All")
+	   if (validForStr.Contains("NotSqlDw"))
+	   {
+			flags.Add("ValidForFlag.NotSqlDw");
+       }
+	   if (validForStr == "All")
 	   {
 			flags.Add("ValidForFlag.All");
        }
