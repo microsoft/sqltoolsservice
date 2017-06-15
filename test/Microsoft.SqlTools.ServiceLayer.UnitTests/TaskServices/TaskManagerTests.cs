@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Xunit;
 
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         }
 
         [Fact]
-        public void VerifyCreateAndRunningTask()
+        public async Task VerifyCreateAndRunningTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
@@ -39,13 +40,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 DatabaseOperationStub operation = new DatabaseOperationStub();
                 operation.TaskResult = new TaskResult
                 {
+                    TaskStatus = SqlTaskStatus.Succeeded
                 };
                 SqlTask sqlTask = manager.CreateTask(taskMetaData, operation.FunctionToRun);
                 Assert.NotNull(sqlTask);
                 Assert.True(taskAddedEventRaised);
 
                 Assert.False(manager.HasCompletedTasks());
-                sqlTask.Run().ContinueWith(task =>
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
                 {
                     Assert.True(manager.HasCompletedTasks());
                     manager.RemoveCompletedTask(sqlTask);
@@ -53,12 +55,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
                 });
                 operation.Stop();
+                await taskToVerify;
             }
 
         }
 
         [Fact]
-        public void CancelTaskShouldCancelTheOperation()
+        public async Task CancelTaskShouldCancelTheOperation()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
@@ -71,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 SqlTask sqlTask = manager.CreateTask(taskMetaData, operation.FunctionToRun);
                 Assert.NotNull(sqlTask);
 
-                sqlTask.Run().ContinueWith(task =>
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
                 {
                     Assert.Equal(sqlTask.TaskStatus, expectedStatus);
                     Assert.Equal(sqlTask.IsCancelRequested, true);
@@ -79,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
                 });
                 manager.CancelTask(sqlTask.TaskId);
+                await taskToVerify;
             }
 
         }

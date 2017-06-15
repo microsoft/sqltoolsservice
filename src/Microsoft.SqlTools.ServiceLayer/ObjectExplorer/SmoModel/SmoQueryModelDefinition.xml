@@ -29,7 +29,7 @@
   
   <Node Name="SqlEndpoint" Parent="Server"/>
   <Node Name="SqlLinkedServer" Parent="Server" />
-  <Node Name="SqlServerDdlTrigger" Parent="Server" >
+  <Node Name="SqlServerDdlTrigger" Parent="Server" ValidFor="NotSqlDw" >
     <NavigationPath Parent="Server" Field="Triggers" />
   </Node>
 
@@ -42,7 +42,7 @@
   
   <Node Name="SqlView" Parent="Database" />
 
-  <Node Name="SqlSynonym" Parent="Database" />
+  <Node Name="SqlSynonym" Parent="Database" ValidFor="NotSqlDw" />
 
   <Node Name="SqlColumn" Parent="TableViewTableTypeBase"/>
   <Node Name="SqlIndex" Parent="TableViewTableTypeBase">
@@ -52,11 +52,11 @@
   <Node Name="SqlCheck" Parent="Table"/>
   <Node Name="SqlForeignKeyConstraint" Type="ForeignKey" Parent="Table" />
   <Node Name="SqlDefaultConstraint" Parent="Column" Collection="False" />
-  <Node Name="SqlDmlTrigger" Type="Trigger" Parent="Table" />
-  <Node Name="SqlFullTextIndex" Parent="Table" Collection="False" />
+  <Node Name="SqlDmlTrigger" Type="Trigger" Parent="Table" ValidFor="NotSqlDw" />
+  <Node Name="SqlFullTextIndex" Parent="Table" Collection="False" ValidFor="NotSqlDw" />
   <Node Name="SqlStatistic" Parent="TableViewBase"/>
 
-  <Node Name="SqlDatabaseDdlTrigger" Type="DatabaseDdlTrigger" Parent="Database">
+  <Node Name="SqlDatabaseDdlTrigger" Type="DatabaseDdlTrigger" Parent="Database" ValidFor="NotSqlDw">
     <NavigationPath Parent="Database" Field="Triggers" />
   </Node>
   <Node Name="SqlAssembly" Type="SqlAssembly" Parent="Database" >
@@ -69,7 +69,7 @@
   -->
   <Node Name="SqlSequence" Parent="Database" />
 
-  <Node Name="SqlUserDefinedDataType" Parent="Database" />
+  <Node Name="SqlUserDefinedDataType" Parent="Database" ValidFor="NotSqlDw" />
 
   <Node Name="SqlUserDefinedTableType" Parent="Database" />
   <Node Name="SqlXmlSchemaCollection" />

@@ -15,6 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Property name
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
         /// Indicates which platforms a filter is valid for
         /// </summary>

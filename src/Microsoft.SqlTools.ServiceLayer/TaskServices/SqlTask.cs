@@ -96,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             });
         }
 
+        //Run Task synchronously 
         public void Run()
         {
             RunAsync().ContinueWith(task =>
