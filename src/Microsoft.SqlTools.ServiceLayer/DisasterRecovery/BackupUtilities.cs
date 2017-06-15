@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
         private CommonUtilities backupRestoreUtil = null;
-        private Backup bk = null;
+        private Backup backup = null;
 
         /// <summary>
         /// Constants
@@ -227,12 +227,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         public void PerformBackup()
         {
-            this.bk = new Backup();
+            this.backup = new Backup();
             this.SetBackupProps();
-            bk.Database = this.backupInfo.DatabaseName;
-            bk.Action = this.backupActionType;
-            bk.Incremental = this.IsBackupIncremental;
-            if (bk.Action == BackupActionType.Files)
+            backup.Database = this.backupInfo.DatabaseName;
+            backup.Action = this.backupActionType;
+            backup.Incremental = this.IsBackupIncremental;
+            if (backup.Action == BackupActionType.Files)
             {
                 IDictionaryEnumerator IEnum = this.backupInfo.SelectedFileGroup.GetEnumerator();
                 IEnum.Reset();
@@ -245,14 +245,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     if (CurrentKey.IndexOf(",", StringComparison.Ordinal) < 0)
                     {
                         // is a file group
-                        bk.DatabaseFileGroups.Add(CurrentValue);
+                        backup.DatabaseFileGroups.Add(CurrentValue);
                     }
                     else
                     {
                         // is a file
                         int Idx = CurrentValue.IndexOf(".", StringComparison.Ordinal);
                         CurrentValue = CurrentValue.Substring(Idx + 1, CurrentValue.Length - Idx - 1);
-                        bk.DatabaseFiles.Add(CurrentValue);
+                        backup.DatabaseFiles.Add(CurrentValue);
                     }
                 }
             }
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 bBackupToUrl = true;
             }
 
-            bk.BackupSetName = this.backupInfo.BackupsetName;
+            backup.BackupSetName = this.backupInfo.BackupsetName;
 
             if (false == bBackupToUrl)
             {
@@ -281,19 +281,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             if ((this.backupDeviceType == BackupDeviceType.Disk && backupDeviceType == constDeviceTypeFile)
                                 || (this.backupDeviceType == BackupDeviceType.Tape && backupDeviceType == constDeviceTypeTape))
                             {
-                                bk.Devices.AddDevice(DestName, DeviceType.LogicalDevice);
+                                backup.Devices.AddDevice(DestName, DeviceType.LogicalDevice);
                             }
                             break;
                         case (int)DeviceType.File:
                             if (this.backupDeviceType == BackupDeviceType.Disk)
                             {
-                                bk.Devices.AddDevice(DestName, DeviceType.File);
+                                backup.Devices.AddDevice(DestName, DeviceType.File);
                             }
                             break;
                         case (int)DeviceType.Tape:
                             if (this.backupDeviceType == BackupDeviceType.Tape)
                             {
-                                bk.Devices.AddDevice(DestName, DeviceType.Tape);
+                                backup.Devices.AddDevice(DestName, DeviceType.Tape);
                             }
                             break;
                     }
@@ -301,22 +301,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
                 
             //TODO: This should be changed to get user inputs
-            bk.FormatMedia = false;
-            bk.Initialize = false;
-            bk.SkipTapeHeader = true;
-            bk.Checksum = false;
-            bk.ContinueAfterError = false;
-            bk.LogTruncation = BackupTruncateLogType.Truncate;
+            backup.FormatMedia = false;
+            backup.Initialize = false;
+            backup.SkipTapeHeader = true;
+            backup.Checksum = false;
+            backup.ContinueAfterError = false;
+            backup.LogTruncation = BackupTruncateLogType.Truncate;
 
             // Execute backup
-            bk.SqlBackup(this.dataContainer.Server);
+            backup.SqlBackup(this.dataContainer.Server);
         }
      
         public void CancelBackup()
         {
-            if (this.bk != null)
+            if (this.backup != null)
             {
-                this.bk.Abort();
+                this.backup.Abort();
             }
         }
 

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
 using Microsoft.SqlTools.Utility;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -47,7 +48,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             TaskToRun = taskToRun;
             StartTime = DateTime.UtcNow;
             TaskId = Guid.NewGuid();
+            TokenSource = new CancellationTokenSource();
         }
+
+        /// <summary>
+        /// Cancellation token
+        /// </summary>
+        public CancellationTokenSource TokenSource { get; private set; }
 
         /// <summary>
         /// Task Metadata
@@ -99,9 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         //Run Task synchronously 
         public void Run()
         {
-            RunAsync().ContinueWith(task =>
-            {
-            });
+            Task.Run(() => RunAsync());
         }
 
         /// <summary>
@@ -254,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
-        /// Try to cancel the task, and even to cancel the task will be raised 
+        /// Try to cancel the task, and event to cancel the task will be raised 
         /// but the status won't change until that task actually get canceled by it's owner
         /// </summary>
         public void Cancel()
@@ -376,6 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         private void OnTaskCancelRequested()
         {
+            TokenSource.Cancel();
             var handler = TaskCanceled;
             if (handler != null)
             {
@@ -387,9 +393,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             //Dispose 
             isDisposed = true;
+            TokenSource.Dispose();
         }
-
-       
 
         protected void ValidateNotDisposed()
         {
