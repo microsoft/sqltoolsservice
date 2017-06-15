@@ -315,7 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 Query = query,
                 OwnerUri = ownerUri
             };
-            await queryExecutionService.InterServiceExecuteQuery(executeParams, eventSender,
+            await queryExecutionService.InterServiceExecuteQuery(executeParams, null, eventSender,
                 queryCreateSuccessCallback, queryCreateFailureCallback,
                 queryCompleteSuccessCallback, queryCompleteFailureCallback);
 

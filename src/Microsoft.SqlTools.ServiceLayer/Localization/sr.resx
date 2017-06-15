@@ -265,6 +265,14 @@
     <value>Cannot add row to result buffer, data reader does not contain rows</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>Query has no results to return</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>Result set has too many rows to be safely loaded</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
     <value>Result cannot be saved until query execution has completed</value>
     <comment></comment>

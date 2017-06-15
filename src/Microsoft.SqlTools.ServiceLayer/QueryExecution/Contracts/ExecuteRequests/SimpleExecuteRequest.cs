@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
     /// <summary>
     /// Parameters for executing a query from a document open in the workspace
     /// </summary>
-    public class ExecuteAndReturnResultParams
+    public class SimpleExecuteParams
     {
         /// <summary>
         /// The string to execute
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
     /// <summary>
     /// Result
     /// </summary>
-    public class ExecuteAndReturnResultResult
+    public class SimpleExecuteResult
     {
 
         /// <summary>
@@ -45,10 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         public DbCellValue[][] Rows { get; set; }
     }
 
-    public class ExecuteAndReturnResultRequest
+    public class SimpleExecuteRequest
     {
         public static readonly
-            RequestType<ExecuteAndReturnResultParams, ExecuteAndReturnResultResult> Type =
-            RequestType<ExecuteAndReturnResultParams, ExecuteAndReturnResultResult>.Create("query/executeandreturnresult");
+            RequestType<SimpleExecuteParams, SimpleExecuteResult> Type =
+            RequestType<SimpleExecuteParams, SimpleExecuteResult>.Create("query/simpleexecute");
     }
 }

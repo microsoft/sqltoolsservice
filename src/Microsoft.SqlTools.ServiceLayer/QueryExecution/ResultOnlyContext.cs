@@ -8,6 +8,11 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
+    /// <summary>
+    /// Implementation of IEventSender that swollows events without doing anything with them.
+    /// In the future this class could be used to roll up all the events and send
+    /// them all at once
+    /// </summary>
     public class ResultOnlyContext<TResult> : IEventSender
     {
         private readonly RequestContext<TResult> origContext;

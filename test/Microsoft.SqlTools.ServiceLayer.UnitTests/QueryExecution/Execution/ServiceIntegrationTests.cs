@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I call the inter-service API to execute with a null execute params
             // Then: It should throw
             await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(null, eventSender, null, null, null, null));
+                () => qes.InterServiceExecuteQuery(null, null, eventSender, null, null, null, null));
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I call the inter-service API to execute a query with a a null event sender
             // Then: It should throw
             await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null));
+                () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null, null));
         }
 
         [Fact]
@@ -433,16 +433,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
-        public async Task QueryExecuteAndReturnQueryTest()
+        public async Task SimpleExecuteTest()
         {
             var queryService = Common.GetPrimedExecutionService(null, true, true, null);
-            var queryParams = new ExecuteAndReturnResultParams { Owneruri = Constants.OwnerUri, QueryString = Common.InvalidQuery };
-            var efv = new EventFlowValidator<ExecuteAndReturnResultResult>()
-                .AddStandardBatchStartValidator()
-                .AddStandardBatchCompleteValidator()
-                .AddStandardQueryCompleteValidator(1)
+            var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Common.InvalidQuery };
+            var efv = new EventFlowValidator<SimpleExecuteResult>()
                 .Complete();
-            await queryService.HandleExecuteAndReturnResultRequest(queryParams, efv.Object);
+            await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
+
+            efv.Validate();
 
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }

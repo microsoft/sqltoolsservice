@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
-            serviceHost.SetRequestHandler(ExecuteAndReturnResultRequest.Type, HandleExecuteAndReturnResultRequest);
+            serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -166,51 +166,76 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
             // Use the internal handler to launch the query
-            return InterServiceExecuteQuery(executeParams, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
+            return InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
         }
 
         /// <summary>
         /// Handles a request to execute a string and return the result
         /// </summary>
-        internal Task HandleExecuteAndReturnResultRequest(ExecuteAndReturnResultParams executeParams,
-            RequestContext<ExecuteAndReturnResultResult> requestContext)
+        internal Task HandleSimpleExecuteRequest(SimpleExecuteParams executeParams,
+            RequestContext<SimpleExecuteResult> requestContext)
         {
-            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
-            ExecuteStringParams newParams = new ExecuteStringParams
+             ExecuteStringParams executeStringParams = new ExecuteStringParams
             {
                 Query = executeParams.QueryString,
-                OwnerUri = executeParams.OwnerUri
+                // generate guid as the owner uri to make sure every query is unique
+                OwnerUri = Guid.NewGuid().ToString()
             };
 
-            ResultOnlyContext<ExecuteAndReturnResultResult> newContext = new ResultOnlyContext<ExecuteAndReturnResultResult>(requestContext);
+            // get connection
+            ConnectionInfo connInfo;
+            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
+            {
+                return requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+            }
+
+            if (connInfo.ConnectionDetails.MultipleActiveResultSets == null || connInfo.ConnectionDetails.MultipleActiveResultSets == false) {
+                // if multipleActive result sets is not allowed, don't specific a connection and make the ownerURI the true owneruri
+                connInfo = null;
+                executeStringParams.OwnerUri = executeParams.OwnerUri;
+            }
+
+            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+
+           
+
+            ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
 
             // handle sending event back when the query completes
             Query.QueryAsyncEventHandler queryComplete = async q =>
             {
-                int rowCount = 0;
-                try
+                // check to make sure any results were recieved
+                if (q.Batches.Length < 0 || q.Batches[0].ResultSets.Count < 0) 
                 {
-                    rowCount = Convert.ToInt32(q.Batches[0].ResultSets[0].RowCount);
+                    await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                } 
+                else
+                {
+                    var rowCount = q.Batches[0].ResultSets[0].RowCount;
+                    // check to make sure there is a safe amount of rows to load into memory
+                    if (rowCount > Int32.MaxValue) 
+                    {
+                        await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
+                    }
+                    else 
+                    {
+                        SubsetParams subsetRequestParams = new SubsetParams
+                        {
+                            BatchIndex = 0,
+                            ResultSetIndex = 0,
+                            RowsStartIndex = 0,
+                            RowsCount = Convert.ToInt32(rowCount)
+                        };
+                        ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
+                        SimpleExecuteResult result = new SimpleExecuteResult
+                        {
+                            RowCount = q.Batches[0].ResultSets[0].RowCount,
+                            ColumnInfo = q.Batches[0].ResultSets[0].Columns,
+                            Rows = subset.Rows
+                        };
+                        await requestContext.SendResult(result);
+                    }
                 }
-                catch(OverflowException e)
-                {
-                    await requestContext.SendError(e);
-                }
-                SubsetParams subsetParams = new SubsetParams
-                {
-                    BatchIndex = 0,
-                    ResultSetIndex = 0,
-                    RowsStartIndex = 0,
-                    RowsCount = rowCount
-                };
-                ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
-                ExecuteAndReturnResultResult result = new ExecuteAndReturnResultResult
-                {
-                    RowCount = q.Batches[0].ResultSets[0].RowCount,
-                    ColumnInfo = q.Batches[0].ResultSets[0].Columns,
-                    Rows = subset.Rows
-                };
-                await requestContext.SendResult(result);
             };
 
             // handle sending error back when query fails
@@ -219,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(e);
             };
 
-            return InterServiceExecuteQuery(newParams, requestContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            return InterServiceExecuteQuery(executeStringParams, connInfo, requestContext, null, queryCreateFailureAction, queryComplete, queryFail);
         }
 
         /// <summary>
@@ -396,6 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Callback to call when query has completed execution with errors. May be <c>null</c>.
         /// </param>
         public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, 
+            ConnectionInfo connInfo,
             IEventSender queryEventSender,
             Func<Query, Task<bool>> queryCreateSuccessFunc,
             Func<string, Task> queryCreateFailFunc,
@@ -409,7 +435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 // Get a new active query
-                newQuery = CreateQuery(executeParams);
+                newQuery = CreateQuery(executeParams, connInfo);
                 if (queryCreateSuccessFunc != null && !await queryCreateSuccessFunc(newQuery))
                 {
                     // The callback doesn't want us to continue, for some reason
@@ -495,11 +521,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private Query CreateQuery(ExecuteRequestParamsBase executeParams)
+        private Query CreateQuery(ExecuteRequestParamsBase executeParams, ConnectionInfo connInfo)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
+            if (connInfo != null) {
+                connectionInfo = connInfo;
+            } else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
             }

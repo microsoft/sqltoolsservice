@@ -108,6 +108,10 @@ QueryServiceMessageSenderNotSql = Sender for OnInfoMessage event must be a SqlCo
 
 QueryServiceResultSetAddNoRows = Cannot add row to result buffer, data reader does not contain rows
 
+QueryServiceResultSetHasNoResults = Query has no results to return
+
+QueryServiceResultSetTooLarge = Result set has too many rows to be safely loaded
+
 ### Save As Requests
 
 QueryServiceSaveAsResultSetNotComplete = Result cannot be saved until query execution has completed
