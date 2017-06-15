@@ -120,6 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 Assert.True(sqlTask.Duration > 0);
             });
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
+            Thread.Sleep(1000);
             sqlTask.Cancel();
             await taskToVerify;
         }
@@ -140,6 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 Assert.True(sqlTask.Duration > 0);
             });
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
+            Thread.Sleep(1000);
             operation.FailTheOperation();
             await taskToVerify;
         }
