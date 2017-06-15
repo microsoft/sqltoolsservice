@@ -51,10 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             serviceHostMock.AddEventHandling(TaskStatusChangedNotification.Type, null);
             DatabaseOperationStub operation = new DatabaseOperationStub();
             SqlTask sqlTask = service.TaskManager.CreateTask(taskMetaData, operation.FunctionToRun);
-            sqlTask.Run().ContinueWith(task =>
-            {
-
-            });
+            sqlTask.Run();
            
             serviceHostMock.Verify(x => x.SendEvent(TaskCreatedNotification.Type,
                 It.Is<TaskInfo>(t => t.TaskId == sqlTask.TaskId.ToString() && t.ProviderName == "MSSQL")), Times.Once());
@@ -71,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             serviceHostMock.AddEventHandling(TaskStatusChangedNotification.Type, null);
             DatabaseOperationStub operation = new DatabaseOperationStub();
             SqlTask sqlTask = service.TaskManager.CreateTask(taskMetaData, operation.FunctionToRun);
-            sqlTask.Run().ContinueWith(task =>
+            Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
             {
                 serviceHostMock.Verify(x => x.SendEvent(TaskStatusChangedNotification.Type,
                            It.Is<TaskProgressInfo>(t => t.Status == SqlTaskStatus.Canceled)), Times.Once());
@@ -89,6 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
             serviceHostMock.Verify(x => x.SendEvent(TaskCreatedNotification.Type,
                 It.Is<TaskInfo>(t => t.TaskId == sqlTask.TaskId.ToString())), Times.Once());
+            await taskToVerify;
         }
 
 
