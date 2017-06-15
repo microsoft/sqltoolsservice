@@ -4,9 +4,10 @@
 //
 
 using System;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
     /// <summary>
     /// Server Types
@@ -20,7 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         Sql2014,
         Sql2016,
         Sql2017,
-        Azure,
         AzureV12
     }
 
@@ -32,11 +32,38 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Converts a server type to ValidForFlag
         /// </summary>
-        public static ValidForFlag GetValidForFlag(SqlServerType serverType)
+        public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database = null)
+        {
+            return GetValidForFlag(serverType, database != null && database.IsSqlDw);
+        }
+
+        /// <summary>
+        /// Returns true if the given valid for flag is not set or it includes the server version
+        /// </summary>
+        /// <param name="serverVersion">Server version</param>
+        /// <param name="validFor">Valid for flag</param>
+        /// <returns></returns>
+        public static bool IsValidFor(ValidForFlag serverVersion, ValidForFlag validFor)
+        {
+            return validFor == ValidForFlag.None || validFor.HasFlag(serverVersion);
+        }
+
+        /// <summary>
+        /// Converts a server type to ValidForFlag
+        /// </summary>
+        public static ValidForFlag GetValidForFlag(SqlServerType serverType, bool isSqlDw)
         {
             ValidForFlag validforFlag = ValidForFlag.All;
             if (Enum.TryParse<ValidForFlag>(serverType.ToString(), out validforFlag))
             {
+                if (isSqlDw && serverType == SqlServerType.AzureV12)
+                {
+                    validforFlag = ValidForFlag.SqlDw;
+                }
+                else
+                {
+                    //TODO: not supporting SQL DW for on prem 
+                }
                 return validforFlag;
             }
             return ValidForFlag.All;
@@ -52,14 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 
             if (serverInfo.IsCloud)
             {
-                if (serverVersion.StartsWith("11", StringComparison.Ordinal))
-                {
-                    serverType = SqlServerType.Azure;
-                }
-                else
-                {
-                    serverType = SqlServerType.AzureV12;
-                }
+                serverType = SqlServerType.AzureV12;
             }
             else if (!string.IsNullOrWhiteSpace(serverVersion))
             {

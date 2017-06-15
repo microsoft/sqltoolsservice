@@ -291,30 +291,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
              
             return szRecoveryModel;
         }
-        
-        
-        public  string  GetDefaultBackupFolder()
+
+
+        public string GetDefaultBackupFolder()
         {
             string BackupFolder = "";
-            
-            Enumerator          en  = null;
-            DataSet             ds  = new DataSet();
+
+            Enumerator en = null;
+            DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request             req = new Request();    
-                        
+            Request req = new Request();
+
             en = new Enumerator();
 
-            req.Urn             = "Server/Setting";
+            req.Urn = "Server/Setting";
 
             ds = en.Process(SqlConnection, req);
 
-            int iCount  = ds.Tables[0].Rows.Count;
+            int iCount = ds.Tables[0].Rows.Count;
 
-            if(iCount > 0)
+            if (iCount > 0)
             {
                 BackupFolder = Convert.ToString(ds.Tables[0].Rows[0]["BackupDirectory"], System.Globalization.CultureInfo.InvariantCulture);
             }
-            return BackupFolder;                        
+            return BackupFolder;
         }
 
         
