@@ -90,6 +90,57 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             VerifyCalculateServerType(serverVersion, expected);
         }
 
+        [Fact]
+        public void IsValidForShouldReturnTrueGivenSqlDwAndAll()
+        {
+            ValidForFlag serverValidFor = ValidForFlag.SqlDw;
+            ValidForFlag validFor = ValidForFlag.All;
+            bool expected = true;
+            VerifyIsValidFor(serverValidFor, validFor, expected);
+        }
+
+        [Fact]
+        public void IsValidForShouldReturnTrueGivenSqlDwAndNone()
+        {
+            ValidForFlag serverValidFor = ValidForFlag.SqlDw;
+            ValidForFlag validFor = ValidForFlag.None;
+            bool expected = true;
+            VerifyIsValidFor(serverValidFor, validFor, expected);
+        }
+
+        [Fact]
+        public void IsValidForShouldReturnTrueGivenSqlDwAndSqlDw()
+        {
+            ValidForFlag serverValidFor = ValidForFlag.SqlDw;
+            ValidForFlag validFor = ValidForFlag.SqlDw;
+            bool expected = true;
+            VerifyIsValidFor(serverValidFor, validFor, expected);
+        }
+
+        [Fact]
+        public void IsValidForShouldReturnTrueGivenSqlDwAndNotSqlDw()
+        {
+            ValidForFlag serverValidFor = ValidForFlag.SqlDw;
+            ValidForFlag validFor = ValidForFlag.NotSqlDw;
+            bool expected = false;
+            VerifyIsValidFor(serverValidFor, validFor, expected);
+        }
+
+        [Fact]
+        public void IsValidForShouldReturnTrueGivenSqlDwAndAllOnPrem()
+        {
+            ValidForFlag serverValidFor = ValidForFlag.SqlDw;
+            ValidForFlag validFor = ValidForFlag.AllOnPrem;
+            bool expected = false;
+            VerifyIsValidFor(serverValidFor, validFor, expected);
+        }
+
+        private void VerifyIsValidFor(ValidForFlag serverValidFor, ValidForFlag validFor, bool expected)
+        {
+            bool actual = ServerVersionHelper.IsValidFor(serverValidFor, validFor);
+            Assert.Equal(expected, actual);
+        }
+
         private void VerifyCalculateServerType(string serverVersion, SqlServerType expected)
         {
             ServerInfo serverInfo = new ServerInfo
