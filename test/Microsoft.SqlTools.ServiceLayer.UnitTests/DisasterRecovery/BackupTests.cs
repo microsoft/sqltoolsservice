@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.Succeeded);                 
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
                 });
 
                 await taskToVerify;
@@ -44,13 +44,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                var mockUtility = new Mock<IBackupUtilities>();
-                DisasterRecoveryService service = new DisasterRecoveryService(mockUtility.Object);
+                IBackupUtilities backupUtility = new BackupUtilitiesStub();                
+                DisasterRecoveryService service = new DisasterRecoveryService(backupUtility);
                 SqlTask sqlTask = manager.CreateTask(this.taskMetaData, service.BackupTask);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.Canceled);
+                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
                     Assert.Equal(sqlTask.IsCancelRequested, true);
                     manager.Reset();
                 });

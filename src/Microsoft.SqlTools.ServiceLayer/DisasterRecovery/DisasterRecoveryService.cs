@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
             if (completedTask == performTask)
             {
-                this.backupCompletedEvent.Reset();
+                this.backupCompletedEvent.Set();
             }
 
             sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
@@ -222,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         private async Task<TaskResult> PerformTask()
         {
-            // create a task to perform backup
+            // Create a task to perform backup
             return await Task.Factory.StartNew(() =>
             {
                 TaskResult result = new TaskResult();
@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         private async Task<TaskResult> CancelTask(SqlTask sqlTask)
         {
-            // create a task for backup cancellation request
+            // Create a task for backup cancellation request
             return await Task.Factory.StartNew(() =>
             {
                 TaskResult result = new TaskResult();

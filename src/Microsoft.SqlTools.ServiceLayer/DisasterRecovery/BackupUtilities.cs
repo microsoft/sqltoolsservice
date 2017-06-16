@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// <summary>
     /// This class implements backup operations
     /// </summary>
-    public class BackupUtilities: IBackupUtilities
+    public class BackupUtilities : IBackupUtilities
     {
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
@@ -37,12 +37,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// UI input values
         /// </summary>
         private BackupInfo backupInfo;
-        private BackupComponent backupComponent { get; set; }
-        private BackupType backupType { get; set; } // 0 for Full, 1 for Differential, 2 for Log
-        private BackupDeviceType backupDeviceType { get; set; }
+        private BackupComponent backupComponent;
+        private BackupType backupType;
+        private BackupDeviceType backupDeviceType;
         
         private BackupActionType backupActionType = BackupActionType.Database;
-        private bool IsBackupIncremental = false;
+        private bool isBackupIncremental = false;
         private bool isLocalPrimaryReplica;
 
         /// this is used when the backup dialog is launched in the context of a backup device
@@ -155,69 +155,69 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.SetBackupProps();
             backup.Database = this.backupInfo.DatabaseName;
             backup.Action = this.backupActionType;
-            backup.Incremental = this.IsBackupIncremental;
+            backup.Incremental = this.isBackupIncremental;
             if (backup.Action == BackupActionType.Files)
             {
-                IDictionaryEnumerator IEnum = this.backupInfo.SelectedFileGroup.GetEnumerator();
-                IEnum.Reset();
-                while (IEnum.MoveNext())
+                IDictionaryEnumerator filegroupEnumerator = this.backupInfo.SelectedFileGroup.GetEnumerator();
+                filegroupEnumerator.Reset();
+                while (filegroupEnumerator.MoveNext())
                 {
-                    string CurrentKey = Convert.ToString(IEnum.Key,
+                    string currentKey = Convert.ToString(filegroupEnumerator.Key,
                         System.Globalization.CultureInfo.InvariantCulture);
-                    string CurrentValue = Convert.ToString(IEnum.Value,
+                    string currentValue = Convert.ToString(filegroupEnumerator.Value,
                         System.Globalization.CultureInfo.InvariantCulture);
-                    if (CurrentKey.IndexOf(",", StringComparison.Ordinal) < 0)
+                    if (currentKey.IndexOf(",", StringComparison.Ordinal) < 0)
                     {
                         // is a file group
-                        backup.DatabaseFileGroups.Add(CurrentValue);
+                        backup.DatabaseFileGroups.Add(currentValue);
                     }
                     else
                     {
                         // is a file
-                        int Idx = CurrentValue.IndexOf(".", StringComparison.Ordinal);
-                        CurrentValue = CurrentValue.Substring(Idx + 1, CurrentValue.Length - Idx - 1);
-                        backup.DatabaseFiles.Add(CurrentValue);
+                        int idx = currentValue.IndexOf(".", StringComparison.Ordinal);
+                        currentValue = currentValue.Substring(idx + 1, currentValue.Length - idx - 1);
+                        backup.DatabaseFiles.Add(currentValue);
                     }
                 }
             }
 
-            bool bBackupToUrl = false;
+            bool isBackupToUrl = false;
             if (this.backupDeviceType == BackupDeviceType.Url)
             {
-                bBackupToUrl = true;
+                isBackupToUrl = true;
             }
 
             backup.BackupSetName = this.backupInfo.BackupsetName;
 
-            if (false == bBackupToUrl)
+            if (false == isBackupToUrl)
             {
                 for (int i = 0; i < this.backupInfo.BackupPathList.Count; i++)
                 {
-                    string DestName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
-                    int deviceType = (int)(this.backupInfo.BackupPathDevices[DestName]);
+                    string destName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
+                    int deviceType = (int)(this.backupInfo.BackupPathDevices[destName]);
                     switch (deviceType)
                     {
                         case (int)DeviceType.LogicalDevice:
                             int backupDeviceType =
-                                GetDeviceType(Convert.ToString(DestName,
+                                GetDeviceType(Convert.ToString(destName,
                                     System.Globalization.CultureInfo.InvariantCulture));
 
                             if ((this.backupDeviceType == BackupDeviceType.Disk && backupDeviceType == constDeviceTypeFile)
                                 || (this.backupDeviceType == BackupDeviceType.Tape && backupDeviceType == constDeviceTypeTape))
                             {
-                                backup.Devices.AddDevice(DestName, DeviceType.LogicalDevice);
+                                backup.Devices.AddDevice(destName, DeviceType.LogicalDevice);
                             }
                             break;
                         case (int)DeviceType.File:
                             if (this.backupDeviceType == BackupDeviceType.Disk)
                             {
-                                backup.Devices.AddDevice(DestName, DeviceType.File);
+                                backup.Devices.AddDevice(destName, DeviceType.File);
                             }
                             break;
                         case (int)DeviceType.Tape:
                             if (this.backupDeviceType == BackupDeviceType.Tape)
                             {
-                                backup.Devices.AddDevice(DestName, DeviceType.Tape);
+                                backup.Devices.AddDevice(destName, DeviceType.Tape);
                             }
                             break;
                     }
@@ -285,11 +285,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         private string GetDefaultBackupSetName()
         {
-            string bkpsetName = this.backupInfo.DatabaseName + "-" 
+            string backupName = this.backupInfo.DatabaseName + "-" 
                 + this.backupType.ToString() + " " 
                 + this.backupComponent.ToString() + " " 
                 + BackupConstants.Backup;
-            return bkpsetName;            
+            return backupName;            
         }
 
         private void SetBackupProps()
@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 switch (this.backupType)
                 {
                     case BackupType.Full:
-                        if (this.backupComponent == BackupComponent.Database) // define the value as const!!
+                        if (this.backupComponent == BackupComponent.Database)
                         {
                             this.backupActionType = BackupActionType.Database;
                         }
@@ -307,23 +307,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         {
                             this.backupActionType = BackupActionType.Files;
                         }
-                        this.IsBackupIncremental = false;
+                        this.isBackupIncremental = false;
                         break;
                     case BackupType.Differential:
                         if ((this.backupComponent == BackupComponent.Files) && (0 != this.backupInfo.SelectedFiles.Length))
                         {
                             this.backupActionType = BackupActionType.Files;
-                            this.IsBackupIncremental = true;
+                            this.isBackupIncremental = true;
                         }
                         else
                         {
                             this.backupActionType = BackupActionType.Database;
-                            this.IsBackupIncremental = true;
+                            this.isBackupIncremental = true;
                         }
                         break;
                     case BackupType.TransactionLog:
                         this.backupActionType = BackupActionType.Log;
-                        this.IsBackupIncremental = false;
+                        this.isBackupIncremental = false;
                         break;
                     default:
                         break;
@@ -337,25 +337,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         
         private int GetDeviceType(string deviceName)
         {
-            Enumerator en = new Enumerator();
-            Request req = new Request();
-            DataSet ds = new DataSet();
-            ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            int Result = -1;
-            SqlExecutionModes execMode = this.serverConnection.SqlExecutionModes;
+            Enumerator enumerator = new Enumerator();
+            Request request = new Request();
+            DataSet dataset = new DataSet();
+            dataset.Locale = System.Globalization.CultureInfo.InvariantCulture;
+            int result = -1;
+            SqlExecutionModes executionMode = this.serverConnection.SqlExecutionModes;
             this.serverConnection.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
             try
             {
-                req.Urn = "Server/BackupDevice[@Name='" + Urn.EscapeString(deviceName) + "']";
-                req.Fields = new string[1];
-                req.Fields[0] = "BackupDeviceType";
-                ds = en.Process(this.serverConnection, req);
-                int iCount = ds.Tables[0].Rows.Count;
-                if (iCount > 0)
+                request.Urn = "Server/BackupDevice[@Name='" + Urn.EscapeString(deviceName) + "']";
+                request.Fields = new string[1];
+                request.Fields[0] = "BackupDeviceType";
+                dataset = enumerator.Process(this.serverConnection, request);
+                if (dataset.Tables[0].Rows.Count > 0)
                 {
-                    Result = Convert.ToInt16(ds.Tables[0].Rows[0]["BackupDeviceType"],
+                    result = Convert.ToInt16(dataset.Tables[0].Rows[0]["BackupDeviceType"],
                         System.Globalization.CultureInfo.InvariantCulture);
-                    return Result;
+                    return result;
                 }
                 else
                 {
@@ -367,9 +366,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             finally
             {
-                this.serverConnection.SqlExecutionModes = execMode;
+                this.serverConnection.SqlExecutionModes = executionMode;
             }
-            return Result;
+            return result;
         }
     }
 }
