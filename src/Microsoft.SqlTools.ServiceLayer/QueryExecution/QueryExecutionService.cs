@@ -197,45 +197,48 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
-           
-
             ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
 
             // handle sending event back when the query completes
             Query.QueryAsyncEventHandler queryComplete = async q =>
             {
+                Query trashQ;
                 // check to make sure any results were recieved
-                if (q.Batches.Length < 0 || q.Batches[0].ResultSets.Count < 0) 
+                if (q.Batches.Length <= 0 || q.Batches[0].ResultSets.Count <= 0) 
                 {
                     await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                    ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
+                    return;
                 } 
-                else
+
+                var rowCount = q.Batches[0].ResultSets[0].RowCount;
+                // check to make sure there is a safe amount of rows to load into memory
+                if (rowCount > Int32.MaxValue) 
                 {
-                    var rowCount = q.Batches[0].ResultSets[0].RowCount;
-                    // check to make sure there is a safe amount of rows to load into memory
-                    if (rowCount > Int32.MaxValue) 
-                    {
-                        await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
-                    }
-                    else 
-                    {
-                        SubsetParams subsetRequestParams = new SubsetParams
-                        {
-                            BatchIndex = 0,
-                            ResultSetIndex = 0,
-                            RowsStartIndex = 0,
-                            RowsCount = Convert.ToInt32(rowCount)
-                        };
-                        ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
-                        SimpleExecuteResult result = new SimpleExecuteResult
-                        {
-                            RowCount = q.Batches[0].ResultSets[0].RowCount,
-                            ColumnInfo = q.Batches[0].ResultSets[0].Columns,
-                            Rows = subset.Rows
-                        };
-                        await requestContext.SendResult(result);
-                    }
+                    await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
+                    ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
+                    return;
                 }
+                
+                SubsetParams subsetRequestParams = new SubsetParams
+                {
+                    OwnerUri = executeStringParams.OwnerUri,
+                    BatchIndex = 0,
+                    ResultSetIndex = 0,
+                    RowsStartIndex = 0,
+                    RowsCount = Convert.ToInt32(rowCount)
+                };
+                // get the data to send back
+                ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
+                SimpleExecuteResult result = new SimpleExecuteResult
+                {
+                    RowCount = q.Batches[0].ResultSets[0].RowCount,
+                    ColumnInfo = q.Batches[0].ResultSets[0].Columns,
+                    Rows = subset.Rows
+                };
+                await requestContext.SendResult(result);
+                // remove the active query since we are done with it
+                ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
             };
 
             // handle sending error back when query fails
@@ -244,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(e);
             };
 
-            return InterServiceExecuteQuery(executeStringParams, connInfo, requestContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            return InterServiceExecuteQuery(executeStringParams, connInfo, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
         }
 
         /// <summary>
@@ -404,6 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// custom actions to be taken upon creation of query and failure to create query.
         /// </summary>
         /// <param name="executeParams">Parameters for execution</param>
+        /// <param name="connInfo">Connection Info to use; will try and get the connection from owneruri if not provided</param>
         /// <param name="queryEventSender">Event sender that will send progressive events during execution of the query</param>
         /// <param name="queryCreateSuccessFunc">
         /// Callback for when query has been created successfully. If result is <c>true</c>, query
