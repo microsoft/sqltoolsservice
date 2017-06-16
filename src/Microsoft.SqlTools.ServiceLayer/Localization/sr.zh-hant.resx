@@ -1,18 +1,96 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -27,278 +105,838 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ConnectionServiceConnectErrorNullParams"><value>連接參數不可為 null</value></data>
-  <data name="ConnectionServiceListDbErrorNullOwnerUri"><value>OwnerUri 不能為 null 或空白</value></data>
-  <data name="ConnectionServiceListDbErrorNotConnected"><value>SpecifiedUri '{0}' 沒有現有的連線</value></data>
-  <data name="ConnectionServiceConnStringInvalidAuthType"><value>AuthenticationType 值 "{0}" 無效。 有效值為 'Integrated' 和 'SqlLogin'。</value></data>
-  <data name="ConnectionServiceConnStringInvalidIntent"><value>'{0}' 為無效的ApplicationIntent值。 有效值為 'ReadWrite' 和 'ReadOnly'。</value></data>
-  <data name="ConnectionServiceConnectionCanceled"><value>已取消連線</value></data>
-  <data name="ConnectionParamsValidateNullOwnerUri"><value>OwnerUri 不能是 null 或空白</value></data>
-  <data name="ConnectionParamsValidateNullConnection"><value>連線詳細資料物件不能是 null</value></data>
-  <data name="ConnectionParamsValidateNullServerName"><value>ServerName 不能是 null 或空白</value></data>
-  <data name="ConnectionParamsValidateNullSqlAuth"><value>{0} 不可為空值或空白，使用 SqlLogin 驗證時</value></data>
-  <data name="QueryServiceCancelAlreadyCompleted"><value>查詢已完成，無法取消</value></data>
-  <data name="QueryServiceCancelDisposeFailed"><value>成功地取消查詢，無法處置查詢。找不到擁有者 URI 。</value></data>
-  <data name="QueryServiceQueryCancelled"><value>使用者已取消查詢</value></data>
-  <data name="QueryServiceSubsetBatchNotCompleted"><value>批次尚未完成</value></data>
-  <data name="QueryServiceSubsetBatchOutOfRange"><value>批次索引不能小於 0 或大於批次的總數</value></data>
-  <data name="QueryServiceSubsetResultSetOutOfRange"><value>結果集的索引不能小於 0 或大於結果集的總數</value></data>
-  <data name="QueryServiceDataReaderByteCountInvalid"><value>傳回的最大位元組數目必須大於零</value></data>
-  <data name="QueryServiceDataReaderCharCountInvalid"><value>傳回的最大字元數目必須大於零</value></data>
-  <data name="QueryServiceDataReaderXmlCountInvalid"><value>傳回的最大 XML 位元組數目必須大於零</value></data>
-  <data name="QueryServiceFileWrapperWriteOnly"><value>存取方法不可以設為唯寫</value></data>
-  <data name="QueryServiceFileWrapperNotInitialized"><value>執行前，必須先初始化 FileStreamWrapper</value></data>
-  <data name="QueryServiceFileWrapperReadOnly"><value>這個 FileStreamWrapper 不能用於寫入</value></data>
-  <data name="QueryServiceAffectedOneRow"><value>（1 列受影響）</value></data>
-  <data name="QueryServiceAffectedRows"><value>（{0} 個資料列受到影響）</value></data>
-  <data name="QueryServiceCompletedSuccessfully"><value>命令已順利完成。</value></data>
-  <data name="QueryServiceErrorFormat"><value>訊息 {0}，層級 {1} ，狀態 {2}，第 {3} {4} {5} 行</value></data>
-  <data name="QueryServiceQueryFailed"><value>查詢失敗︰ {0}</value></data>
-  <data name="QueryServiceColumnNull"><value>（沒有資料行名稱）</value></data>
-  <data name="QueryServiceRequestsNoQuery"><value>所要求的查詢不存在</value></data>
-  <data name="QueryServiceQueryInvalidOwnerUri"><value>這個編輯器尚未連接到資料庫</value></data>
-  <data name="QueryServiceQueryInProgress"><value>一個查詢已在這個編輯器工作階段。請取消這項查詢，或等待其完成。</value></data>
-  <data name="QueryServiceMessageSenderNotSql"><value>OnInfoMessage 事件的寄件者必須是一個 SqlConnection。</value></data>
-  <data name="QueryServiceSaveAsResultSetNotComplete"><value>完成查詢執行前無法儲存結果</value></data>
-  <data name="QueryServiceSaveAsMiscStartingError"><value>在儲存工作啟動時，發生內部錯誤</value></data>
-  <data name="QueryServiceSaveAsInProgress"><value>相同路徑的儲存要求正在進行中</value></data>
-  <data name="QueryServiceSaveAsFail"><value>無法儲存 {0}: {1}</value></data>
-  <data name="QueryServiceResultSetNotRead"><value>無法讀取子集，除非已經從伺服器讀取結果</value></data>
-  <data name="QueryServiceResultSetStartRowOutOfRange"><value>開始資料列不能小於 0 或大於結果集中的資料列總數</value></data>
-  <data name="QueryServiceResultSetRowCountOutOfRange"><value>資料列計數必須是正整數</value></data>
-  <data name="QueryServiceResultSetNoColumnSchema"><value>無法從結果集擷取資料行結構描述</value></data>
-  <data name="QueryServiceExecutionPlanNotFound"><value>無法從結果集擷取執行計劃</value></data>
-  <data name="PeekDefinitionAzureError"><value>這項功能目前不支援 Azure SQL 資料庫和資料倉儲︰ {0}</value></data>
-  <data name="PeekDefinitionError"><value>查看定義執行過程中發生未預期的錯誤︰ {0}</value></data>
-  <data name="PeekDefinitionNoResultsError"><value>找不到任何結果。</value></data>
-  <data name="PeekDefinitionDatabaseError"><value>沒有資料庫物件被擷取。</value></data>
-  <data name="PeekDefinitionNotConnectedError"><value>請連線到伺服器。</value></data>
-  <data name="PeekDefinitionTimedoutError"><value>作業逾時。</value></data>
-  <data name="PeekDefinitionTypeNotSupportedError"><value>此功能目前不支援這種物件類型。</value></data>
-  <data name="WorkspaceServicePositionLineOutOfRange"><value>位置超出檔案行範圍</value></data>
-  <data name="WorkspaceServicePositionColumnOutOfRange"><value>第 {0} 行位置超出資料行範圍</value></data>
-  <data name="WorkspaceServiceBufferPositionOutOfOrder"><value>開始位置 （{0}，{1}） 必須先於或等於結束位置 （{2}，{3}）</value></data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo"><value>訊息 {0}，層級 {1} ，狀態 {2}，第 {3} 行</value></data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>訊息 {0} 層級 {1} 狀態 {2} 程序 {3}、 第 {4} 行</value></data>
-  <data name="EE_BatchSqlMessageNoLineInfo"><value>Msg {0}，層級 {1} 狀態 {2}</value></data>
-  <data name="EE_BatchError_Exception"><value>處理批次時，發生錯誤。錯誤訊息是︰ {0}</value></data>
-  <data name="EE_BatchExecutionInfo_RowsAffected"><value>（{0} 個資料列受到影響）</value></data>
-  <data name="EE_ExecutionNotYetCompleteError"><value>前一個執行尚未完成。</value></data>
-  <data name="EE_ScriptError_Error"><value>發生指令碼的錯誤。</value></data>
-  <data name="EE_ScriptError_ParsingSyntax"><value>正在剖析 {0} 時遇到不正確的語法。</value></data>
-  <data name="EE_ScriptError_FatalError"><value>發生嚴重的錯誤。</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>已執行完成 {0} 次...</value></data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>您已取消查詢。</value></data>
-  <data name="EE_BatchExecutionError_Halting"><value>執行此批次時發生錯誤。</value></data>
-  <data name="EE_BatchExecutionError_Ignoring"><value>執行批次，但被忽略的錯誤時，就會發生錯誤。</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>正在啟動 {0} 次執行迴圈...</value></data>
-  <data name="EE_ExecutionError_CommandNotSupported"><value>不支援命令 {0}。</value></data>
-  <data name="EE_ExecutionError_VariableNotFound"><value>找不到變數 {0}。</value></data>
-  <data name="BatchParserWrapperExecutionEngineError"><value>SQL 執行錯誤︰ {0}</value></data>
-  <data name="BatchParserWrapperExecutionError"><value>批次剖析器包裝函式執行︰位於第 {1} 行: {2} 描述︰{3} 找到 {0}</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage"><value>批次剖析器包裝函式執行引擎批次所收到的訊息︰ 訊息︰ {0}，詳細的訊息︰ {1}</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing"><value>批次剖析器包裝函式執行引擎批次結果集處理︰ DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished"><value>批次剖析器包裝函式執行引擎批次結果集已完成。</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling"><value>正在取消批次剖析器包裝函式的批次執行。</value></data>
-  <data name="EE_ScriptError_Warning"><value>指令碼警告。</value></data>
-  <data name="TroubleshootingAssistanceMessage"><value>有關此錯誤的詳細資訊，請參閱產品文件中的疑難排解主題。</value></data>
-  <data name="BatchParser_CircularReference"><value>檔案 '{0}' 被遞迴方式包含。</value></data>
-  <data name="BatchParser_CommentNotTerminated"><value>遺漏結束的註解記號 ' * /'。</value></data>
-  <data name="BatchParser_StringNotTerminated"><value>未封閉的雙引號記號之後的字元字串。</value></data>
-  <data name="BatchParser_IncorrectSyntax"><value>正在剖析 {0} 時遇到不正確的語法。</value></data>
-  <data name="BatchParser_VariableNotDefined"><value>未定義變數 {0}。</value></data>
-  <data name="TestLocalizationConstant"><value>EN_LOCALIZATION</value></data>
-  <data name="ErrorEmptyStringReplacement"><value>用空白字串取代空白字串。</value></data>
-  <data name="EditDataSessionNotFound"><value>編輯工作階段不存在</value></data>
-  <data name="EditDataQueryNotCompleted"><value>查詢尚未完成</value></data>
-  <data name="EditDataQueryImproperResultSets"><value>查詢並非產生單一結果集</value></data>
-  <data name="EditDataFailedAddRow"><value>在 cashe 裡更新資料列失敗</value></data>
-  <data name="EditDataRowOutOfRange"><value>提供的資料列識別碼已超出 edit cashe 中資料列的範圍</value></data>
-  <data name="EditDataUpdatePending"><value>這個資料列已經有一個更新正在等待使用，因此它必須先恢復原狀。</value></data>
-  <data name="EditDataUpdateNotPending"><value>這個資料列識別碼並沒有正在等待更新</value></data>
-  <data name="EditDataObjectMetadataNotFound"><value>找不到資料表或檢視表中繼資料</value></data>
-  <data name="EditDataInvalidFormatBinary"><value>二進位資料欄格示錯誤</value></data>
-  <data name="EditDataInvalidFormatBoolean"><value>Boolean 欄位必須填入數字 1 或 0, 或字串 true 或 false</value></data>
-  <data name="EditDataCreateScriptMissingValue"><value>必填儲存格未填</value></data>
-  <data name="EditDataDeleteSetCell"><value>這個資料列即將被刪除，其中的儲存格無法被更新</value></data>
-  <data name="EditDataColumnIdOutOfRange"><value>資料行識別碼必須在資料行總數內才可被查詢</value></data>
-  <data name="EditDataColumnCannotBeEdited"><value>資料行無法被編輯</value></data>
-  <data name="EditDataColumnNoKeyColumns"><value>找不到索引鍵資料行</value></data>
-  <data name="EditDataScriptFilePathNull"><value>必須提供輸出檔名</value></data>
-  <data name="EditDataUnsupportedObjectType"><value>資料庫物件 {0} 無法被編輯</value></data>
-  <data name="ConnectionServiceDbErrorDefaultNotConnected"><value>指定的 URI '{0}' 沒有預設的連線</value></data>
-  <data name="EditDataCommitInProgress"><value>認可的工作正在進行，請等待它完成</value></data>
-  <data name="SqlScriptFormatterDecimalMissingPrecision"><value>十進位資料行缺少數值有效位數或小數位數</value></data>
-  <data name="EditDataComputedColumnPlaceholder"><value>&lt;TBD&gt;</value></data>
-  <data name="QueryServiceResultSetAddNoRows"><value>無法在結果緩衝區加資料列，資料讀取器不包含資料列</value></data>
-  <data name="EditDataTimeOver24Hrs"><value>TIME 欄的值範圍必須在 00:00:00.0000000 至 23:59:59.9999999 之間</value></data>
-  <data name="EditDataNullNotAllowed"><value>這欄不允許填入 NULL 值</value></data>
-  <data name="EditDataSessionAlreadyExists"><value>編輯工作階段已存在</value></data>
-  <data name="EditDataSessionNotInitialized"><value>編輯工作階段尚未初始化</value></data>
-  <data name="EditDataSessionAlreadyInitializing"><value>編輯工作階段已完成初始化或正在初始化</value></data>
-  <data name="EditDataQueryFailed"><value>查詢執行失敗, 請查看詳細資訊</value></data>
-  <data name="EditDataFilteringNegativeLimit"><value>結果限制不能為負</value></data>
-  <data name="QueryServiceCellNull"><value>NULL</value></data>
-  <data name="EditDataMetadataObjectNameRequired"><value>必須提供物件名稱</value></data>
-  <data name="SchemaHierarchy_Aggregates"><value>彙總</value></data>
-  <data name="SchemaHierarchy_ServerRoles"><value>伺服器角色</value></data>
-  <data name="SchemaHierarchy_ApplicationRoles"><value>應用程式角色</value></data>
-  <data name="SchemaHierarchy_Assemblies"><value>組件</value></data>
-  <data name="SchemaHierarchy_AssemblyFiles"><value>組件檔</value></data>
-  <data name="SchemaHierarchy_AsymmetricKeys"><value>非對稱金鑰</value></data>
-  <data name="SchemaHierarchy_DatabaseAsymmetricKeys"><value>非對稱金鑰</value></data>
-  <data name="SchemaHierarchy_DataCompressionOptions"><value>資料壓縮選項</value></data>
-  <data name="SchemaHierarchy_Certificates"><value>憑證</value></data>
-  <data name="SchemaHierarchy_FileTables"><value>FileTable</value></data>
-  <data name="SchemaHierarchy_DatabaseCertificates"><value>憑證</value></data>
-  <data name="SchemaHierarchy_CheckConstraints"><value>檢查條件約束</value></data>
-  <data name="SchemaHierarchy_Columns"><value>資料行</value></data>
-  <data name="SchemaHierarchy_Constraints"><value>條件約束</value></data>
-  <data name="SchemaHierarchy_Contracts"><value>合約</value></data>
-  <data name="SchemaHierarchy_Credentials"><value>認證</value></data>
-  <data name="SchemaHierarchy_ErrorMessages"><value>錯誤訊息</value></data>
-  <data name="SchemaHierarchy_ServerRoleMembership"><value>伺服器角色成員資格</value></data>
-  <data name="SchemaHierarchy_DatabaseOptions"><value>資料庫選項</value></data>
-  <data name="SchemaHierarchy_DatabaseRoles"><value>資料庫角色</value></data>
-  <data name="SchemaHierarchy_RoleMemberships"><value>角色成員資格</value></data>
-  <data name="SchemaHierarchy_DatabaseTriggers"><value>資料庫觸發程序</value></data>
-  <data name="SchemaHierarchy_DefaultConstraints"><value>預設條件約束</value></data>
-  <data name="SchemaHierarchy_Defaults"><value>預設</value></data>
-  <data name="SchemaHierarchy_Sequences"><value>序列</value></data>
-  <data name="SchemaHierarchy_Endpoints"><value>端點</value></data>
-  <data name="SchemaHierarchy_EventNotifications"><value>事件告知</value></data>
-  <data name="SchemaHierarchy_ServerEventNotifications"><value>伺服器事件通知</value></data>
-  <data name="SchemaHierarchy_ExtendedProperties"><value>擴充屬性</value></data>
-  <data name="SchemaHierarchy_FileGroups"><value>檔案群組</value></data>
-  <data name="SchemaHierarchy_ForeignKeys"><value>外部索引鍵</value></data>
-  <data name="SchemaHierarchy_FullTextCatalogs"><value>全文檢索目錄</value></data>
-  <data name="SchemaHierarchy_FullTextIndexes"><value>全文檢索索引</value></data>
-  <data name="SchemaHierarchy_Functions"><value>函式</value></data>
-  <data name="SchemaHierarchy_Indexes"><value>索引</value></data>
-  <data name="SchemaHierarchy_InlineFunctions"><value>內嵌函式</value></data>
-  <data name="SchemaHierarchy_Keys"><value>索引鍵</value></data>
-  <data name="SchemaHierarchy_LinkedServers"><value>連結的伺服器</value></data>
-  <data name="SchemaHierarchy_LinkedServerLogins"><value>連結的伺服器登入</value></data>
-  <data name="SchemaHierarchy_Logins"><value>登入</value></data>
-  <data name="SchemaHierarchy_MasterKey"><value>主要金鑰</value></data>
-  <data name="SchemaHierarchy_MasterKeys"><value>主要金鑰</value></data>
-  <data name="SchemaHierarchy_MessageTypes"><value>訊息類型</value></data>
-  <data name="SchemaHierarchy_MultiSelectFunctions"><value>資料表值函式</value></data>
-  <data name="SchemaHierarchy_Parameters"><value>參數</value></data>
-  <data name="SchemaHierarchy_PartitionFunctions"><value>資料分割函式</value></data>
-  <data name="SchemaHierarchy_PartitionSchemes"><value>資料分割配置</value></data>
-  <data name="SchemaHierarchy_Permissions"><value>權限</value></data>
-  <data name="SchemaHierarchy_PrimaryKeys"><value>主索引鍵</value></data>
-  <data name="SchemaHierarchy_Programmability"><value>可程式性</value></data>
-  <data name="SchemaHierarchy_Queues"><value>佇列</value></data>
-  <data name="SchemaHierarchy_RemoteServiceBindings"><value>遠端服務繫結</value></data>
-  <data name="SchemaHierarchy_ReturnedColumns"><value>傳回的資料行</value></data>
-  <data name="SchemaHierarchy_Roles"><value>角色</value></data>
-  <data name="SchemaHierarchy_Routes"><value>路由</value></data>
-  <data name="SchemaHierarchy_Rules"><value>規則</value></data>
-  <data name="SchemaHierarchy_Schemas"><value>結構描述</value></data>
-  <data name="SchemaHierarchy_Security"><value>安全性</value></data>
-  <data name="SchemaHierarchy_ServerObjects"><value>伺服器物件</value></data>
-  <data name="SchemaHierarchy_Management"><value>管理</value></data>
-  <data name="SchemaHierarchy_ServerTriggers"><value>觸發程序</value></data>
-  <data name="SchemaHierarchy_ServiceBroker"><value>Service Broker</value></data>
-  <data name="SchemaHierarchy_Services"><value>服務</value></data>
-  <data name="SchemaHierarchy_Signatures"><value>簽章</value></data>
-  <data name="SchemaHierarchy_LogFiles"><value>記錄檔</value></data>
-  <data name="SchemaHierarchy_Statistics"><value>統計資料</value></data>
-  <data name="SchemaHierarchy_Storage"><value>儲存體</value></data>
-  <data name="SchemaHierarchy_StoredProcedures"><value>預存程序</value></data>
-  <data name="SchemaHierarchy_SymmetricKeys"><value>對稱金鑰</value></data>
-  <data name="SchemaHierarchy_Synonyms"><value>同義資料表</value></data>
-  <data name="SchemaHierarchy_Tables"><value>資料表</value></data>
-  <data name="SchemaHierarchy_Triggers"><value>觸發程序</value></data>
-  <data name="SchemaHierarchy_Types"><value>型別</value></data>
-  <data name="SchemaHierarchy_UniqueKeys"><value>唯一索引鍵</value></data>
-  <data name="SchemaHierarchy_UserDefinedDataTypes"><value>使用者定義資料類型</value></data>
-  <data name="SchemaHierarchy_UserDefinedTypes"><value>使用者定義型別 (CLR)</value></data>
-  <data name="SchemaHierarchy_Users"><value>使用者</value></data>
-  <data name="SchemaHierarchy_Views"><value>檢視</value></data>
-  <data name="SchemaHierarchy_XmlIndexes"><value>XML 索引</value></data>
-  <data name="SchemaHierarchy_XMLSchemaCollections"><value>XML 結構描述集合</value></data>
-  <data name="SchemaHierarchy_UserDefinedTableTypes"><value>使用者定義資料表類型</value></data>
-  <data name="SchemaHierarchy_FilegroupFiles"><value>檔案</value></data>
-  <data name="MissingCaption"><value>遺漏標題</value></data>
-  <data name="SchemaHierarchy_BrokerPriorities"><value>Broker 優先權</value></data>
-  <data name="SchemaHierarchy_CryptographicProviders"><value>密碼編譯提供者</value></data>
-  <data name="SchemaHierarchy_DatabaseAuditSpecifications"><value>資料庫稽核規格</value></data>
-  <data name="SchemaHierarchy_DatabaseEncryptionKeys"><value>資料庫加密金鑰</value></data>
-  <data name="SchemaHierarchy_EventSessions"><value>事件工作階段</value></data>
-  <data name="SchemaHierarchy_FullTextStopLists"><value>全文檢索停用字詞表</value></data>
-  <data name="SchemaHierarchy_ResourcePools"><value>資源集區</value></data>
-  <data name="SchemaHierarchy_ServerAudits"><value>稽核</value></data>
-  <data name="SchemaHierarchy_ServerAuditSpecifications"><value>伺服器稽核規格</value></data>
-  <data name="SchemaHierarchy_SpatialIndexes"><value>空間索引</value></data>
-  <data name="SchemaHierarchy_WorkloadGroups"><value>工作負載群組</value></data>
-  <data name="SchemaHierarchy_SqlFiles"><value>SQL 檔案</value></data>
-  <data name="SchemaHierarchy_ServerFunctions"><value>伺服器函式</value></data>
-  <data name="SchemaHierarchy_SqlType"><value>SQL 類型</value></data>
-  <data name="SchemaHierarchy_ServerOptions"><value>伺服器選項</value></data>
-  <data name="SchemaHierarchy_DatabaseDiagrams"><value>資料庫圖表</value></data>
-  <data name="SchemaHierarchy_SystemTables"><value>系統資料表</value></data>
-  <data name="SchemaHierarchy_Databases"><value>資料庫</value></data>
-  <data name="SchemaHierarchy_SystemContracts"><value>系統合約</value></data>
-  <data name="SchemaHierarchy_SystemDatabases"><value>系統資料庫</value></data>
-  <data name="SchemaHierarchy_SystemMessageTypes"><value>系統訊息類型</value></data>
-  <data name="SchemaHierarchy_SystemQueues"><value>系統佇列</value></data>
-  <data name="SchemaHierarchy_SystemServices"><value>系統服務</value></data>
-  <data name="SchemaHierarchy_SystemStoredProcedures"><value>系統預存程序</value></data>
-  <data name="SchemaHierarchy_SystemViews"><value>系統檢視表</value></data>
-  <data name="SchemaHierarchy_DataTierApplications"><value>資料層應用程式</value></data>
-  <data name="SchemaHierarchy_ExtendedStoredProcedures"><value>擴充預存程序</value></data>
-  <data name="SchemaHierarchy_SystemAggregateFunctions"><value>彙總函式</value></data>
-  <data name="SchemaHierarchy_SystemApproximateNumerics"><value>近似數值</value></data>
-  <data name="SchemaHierarchy_SystemBinaryStrings"><value>二進位字串</value></data>
-  <data name="SchemaHierarchy_SystemCharacterStrings"><value>字元字串</value></data>
-  <data name="SchemaHierarchy_SystemCLRDataTypes"><value>CLR 資料型別</value></data>
-  <data name="SchemaHierarchy_SystemConfigurationFunctions"><value>組態函式</value></data>
-  <data name="SchemaHierarchy_SystemCursorFunctions"><value>資料指標函式</value></data>
-  <data name="SchemaHierarchy_SystemDataTypes"><value>系統資料型別</value></data>
-  <data name="SchemaHierarchy_SystemDateAndTime"><value>日期和時間</value></data>
-  <data name="SchemaHierarchy_SystemDateAndTimeFunctions"><value>日期和時間函式</value></data>
-  <data name="SchemaHierarchy_SystemExactNumerics"><value>精確數值</value></data>
-  <data name="SchemaHierarchy_SystemFunctions"><value>系統函式</value></data>
-  <data name="SchemaHierarchy_SystemHierarchyIdFunctions"><value>階層識別碼函式</value></data>
-  <data name="SchemaHierarchy_SystemMathematicalFunctions"><value>數學函式</value></data>
-  <data name="SchemaHierarchy_SystemMetadataFunctions"><value>中繼資料函式</value></data>
-  <data name="SchemaHierarchy_SystemOtherDataTypes"><value>其他資料型別</value></data>
-  <data name="SchemaHierarchy_SystemOtherFunctions"><value>其他函式</value></data>
-  <data name="SchemaHierarchy_SystemRowsetFunctions"><value>資料列集函式</value></data>
-  <data name="SchemaHierarchy_SystemSecurityFunctions"><value>安全性函式</value></data>
-  <data name="SchemaHierarchy_SystemSpatialDataTypes"><value>空間資料型別</value></data>
-  <data name="SchemaHierarchy_SystemStringFunctions"><value>字串函式</value></data>
-  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions"><value>系統統計函式</value></data>
-  <data name="SchemaHierarchy_SystemTextAndImageFunctions"><value>文字和影像函式</value></data>
-  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings"><value>Unicode 字元字串</value></data>
-  <data name="SchemaHierarchy_AggregateFunctions"><value>彙總函式</value></data>
-  <data name="SchemaHierarchy_ScalarValuedFunctions"><value>純量值函式</value></data>
-  <data name="SchemaHierarchy_TableValuedFunctions"><value>資料表值函式</value></data>
-  <data name="SchemaHierarchy_SystemExtendedStoredProcedures"><value>系統擴充預存程序</value></data>
-  <data name="SchemaHierarchy_BuiltInType"><value>內建型別</value></data>
-  <data name="SchemaHierarchy_BuiltInServerRole"><value>內建伺服器角色</value></data>
-  <data name="SchemaHierarchy_UserWithPassword"><value>有密碼的使用者</value></data>
-  <data name="SchemaHierarchy_SearchPropertyList"><value>搜尋屬性清單</value></data>
-  <data name="SchemaHierarchy_SecurityPolicies"><value>安全性原則</value></data>
-  <data name="SchemaHierarchy_SecurityPredicates"><value>安全性述詞</value></data>
-  <data name="SchemaHierarchy_ServerRole"><value>伺服器角色</value></data>
-  <data name="SchemaHierarchy_SearchPropertyLists"><value>搜尋屬性清單</value></data>
-  <data name="SchemaHierarchy_ColumnStoreIndexes"><value>資料行儲存索引</value></data>
-  <data name="SchemaHierarchy_TableTypeIndexes"><value>資料表類型索引</value></data>
-  <data name="SchemaHierarchy_ServerInstance"><value>ServerInstance</value></data>
-  <data name="SchemaHierarchy_SelectiveXmlIndexes"><value>選擇性 XML 索引</value></data>
-  <data name="SchemaHierarchy_XmlNamespaces"><value>XML 命名空間</value></data>
-  <data name="SchemaHierarchy_XmlTypedPromotedPaths"><value>XML 具類型的升級路徑</value></data>
-  <data name="SchemaHierarchy_SqlTypedPromotedPaths"><value>T-SQL 具類型的升級路徑</value></data>
-  <data name="SchemaHierarchy_DatabaseScopedCredentials"><value>資料庫範圍認證</value></data>
-  <data name="SchemaHierarchy_ExternalDataSources"><value>外部資料來源</value></data>
-  <data name="SchemaHierarchy_ExternalFileFormats"><value>外部檔案格式</value></data>
-  <data name="SchemaHierarchy_ExternalResources"><value>外部資源</value></data>
-  <data name="SchemaHierarchy_ExternalTables"><value>外部資料表</value></data>
-  <data name="SchemaHierarchy_AlwaysEncryptedKeys"><value>Always Encrypted 金鑰</value></data>
-  <data name="SchemaHierarchy_ColumnMasterKeys"><value>資料行主要金鑰</value></data>
-  <data name="SchemaHierarchy_ColumnEncryptionKeys"><value>資料行加密金鑰</value></data>
-  </root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>連接參數不可為 null</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri 不能為 null 或空白</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' 沒有現有的連線</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>AuthenticationType 值 "{0}" 無效。 有效值為 'Integrated' 和 'SqlLogin'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>'{0}' 為無效的ApplicationIntent值。 有效值為 'ReadWrite' 和 'ReadOnly'。</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>已取消連線</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri 不能是 null 或空白</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>連線詳細資料物件不能是 null</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName 不能是 null 或空白</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>{0} 不可為空值或空白，使用 SqlLogin 驗證時</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>查詢已完成，無法取消</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>成功地取消查詢，無法處置查詢。找不到擁有者 URI 。</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>使用者已取消查詢</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>批次尚未完成</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>批次索引不能小於 0 或大於批次的總數</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>結果集的索引不能小於 0 或大於結果集的總數</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>傳回的最大位元組數目必須大於零</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>傳回的最大字元數目必須大於零</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>傳回的最大 XML 位元組數目必須大於零</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>存取方法不可以設為唯寫</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>執行前，必須先初始化 FileStreamWrapper</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>這個 FileStreamWrapper 不能用於寫入</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>（1 列受影響）</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>（{0} 個資料列受到影響）</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>命令已順利完成。</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>訊息 {0}，層級 {1} ，狀態 {2}，第 {3} {4} {5} 行</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>查詢失敗︰ {0}</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>（沒有資料行名稱）</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>所要求的查詢不存在</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>這個編輯器尚未連接到資料庫</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>一個查詢已在這個編輯器工作階段。請取消這項查詢，或等待其完成。</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>OnInfoMessage 事件的寄件者必須是一個 SqlConnection。</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>完成查詢執行前無法儲存結果</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>在儲存工作啟動時，發生內部錯誤</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>相同路徑的儲存要求正在進行中</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>無法儲存 {0}: {1}</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>無法讀取子集，除非已經從伺服器讀取結果</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>開始資料列不能小於 0 或大於結果集中的資料列總數</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>資料列計數必須是正整數</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>無法從結果集擷取資料行結構描述</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>無法從結果集擷取執行計劃</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>這項功能目前不支援 Azure SQL 資料庫和資料倉儲︰ {0}</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>查看定義執行過程中發生未預期的錯誤︰ {0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>找不到任何結果。</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>沒有資料庫物件被擷取。</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>請連線到伺服器。</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>作業逾時。</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>此功能目前不支援這種物件類型。</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>位置超出檔案行範圍</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>第 {0} 行位置超出資料行範圍</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>開始位置 （{0}，{1}） 必須先於或等於結束位置 （{2}，{3}）</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>訊息 {0}，層級 {1} ，狀態 {2}，第 {3} 行</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>訊息 {0} 層級 {1} 狀態 {2} 程序 {3}、 第 {4} 行</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Msg {0}，層級 {1} 狀態 {2}</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>處理批次時，發生錯誤。錯誤訊息是︰ {0}</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>（{0} 個資料列受到影響）</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>前一個執行尚未完成。</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>發生指令碼的錯誤。</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>正在剖析 {0} 時遇到不正確的語法。</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>發生嚴重的錯誤。</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>已執行完成 {0} 次...</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>您已取消查詢。</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>執行此批次時發生錯誤。</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>執行批次，但被忽略的錯誤時，就會發生錯誤。</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
+    <value>正在啟動 {0} 次執行迴圈...</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>不支援命令 {0}。</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>找不到變數 {0}。</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
+    <value>SQL 執行錯誤︰ {0}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>批次剖析器包裝函式執行︰位於第 {1} 行: {2} 描述︰{3} 找到 {0}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>批次剖析器包裝函式執行引擎批次所收到的訊息︰ 訊息︰ {0}，詳細的訊息︰ {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>批次剖析器包裝函式執行引擎批次結果集處理︰ DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>批次剖析器包裝函式執行引擎批次結果集已完成。</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>正在取消批次剖析器包裝函式的批次執行。</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>指令碼警告。</value>
+  </data>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>有關此錯誤的詳細資訊，請參閱產品文件中的疑難排解主題。</value>
+  </data>
+  <data name="BatchParser_CircularReference" xml:space="preserve">
+    <value>檔案 '{0}' 被遞迴方式包含。</value>
+  </data>
+  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
+    <value>遺漏結束的註解記號 ' * /'。</value>
+  </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>未封閉的雙引號記號之後的字元字串。</value>
+  </data>
+  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
+    <value>正在剖析 {0} 時遇到不正確的語法。</value>
+  </data>
+  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
+    <value>未定義變數 {0}。</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>EN_LOCALIZATION</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>用空白字串取代空白字串。</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>編輯工作階段不存在</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>查詢尚未完成</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>查詢並非產生單一結果集</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>在 cashe 裡更新資料列失敗</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>提供的資料列識別碼已超出 edit cashe 中資料列的範圍</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>這個資料列已經有一個更新正在等待使用，因此它必須先恢復原狀。</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>這個資料列識別碼並沒有正在等待更新</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>找不到資料表或檢視表中繼資料</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>二進位資料欄格示錯誤</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Boolean 欄位必須填入數字 1 或 0, 或字串 true 或 false</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>必填儲存格未填</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>這個資料列即將被刪除，其中的儲存格無法被更新</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>資料行識別碼必須在資料行總數內才可被查詢</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>資料行無法被編輯</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>找不到索引鍵資料行</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>必須提供輸出檔名</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>資料庫物件 {0} 無法被編輯</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>指定的 URI '{0}' 沒有預設的連線</value>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>認可的工作正在進行，請等待它完成</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>十進位資料行缺少數值有效位數或小數位數</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;TBD&gt;</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>無法在結果緩衝區加資料列，資料讀取器不包含資料列</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>TIME 欄的值範圍必須在 00:00:00.0000000 至 23:59:59.9999999 之間</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>這欄不允許填入 NULL 值</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>編輯工作階段已存在</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>編輯工作階段尚未初始化</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>編輯工作階段已完成初始化或正在初始化</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>查詢執行失敗, 請查看詳細資訊</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>結果限制不能為負</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>必須提供物件名稱</value>
+  </data>
+  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
+    <value>彙總</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
+    <value>伺服器角色</value>
+  </data>
+  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
+    <value>應用程式角色</value>
+  </data>
+  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
+    <value>組件</value>
+  </data>
+  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
+    <value>組件檔</value>
+  </data>
+  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
+    <value>非對稱金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
+    <value>非對稱金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
+    <value>資料壓縮選項</value>
+  </data>
+  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
+    <value>憑證</value>
+  </data>
+  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
+    <value>FileTable</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
+    <value>憑證</value>
+  </data>
+  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
+    <value>檢查條件約束</value>
+  </data>
+  <data name="SchemaHierarchy_Columns" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
+    <value>條件約束</value>
+  </data>
+  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
+    <value>合約</value>
+  </data>
+  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
+    <value>認證</value>
+  </data>
+  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
+    <value>錯誤訊息</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
+    <value>伺服器角色成員資格</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
+    <value>資料庫選項</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
+    <value>資料庫角色</value>
+  </data>
+  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
+    <value>角色成員資格</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
+    <value>資料庫觸發程序</value>
+  </data>
+  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
+    <value>預設條件約束</value>
+  </data>
+  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
+    <value>序列</value>
+  </data>
+  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
+    <value>端點</value>
+  </data>
+  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
+    <value>事件告知</value>
+  </data>
+  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
+    <value>伺服器事件通知</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
+    <value>擴充屬性</value>
+  </data>
+  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
+    <value>檔案群組</value>
+  </data>
+  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
+    <value>外部索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
+    <value>全文檢索目錄</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
+    <value>全文檢索索引</value>
+  </data>
+  <data name="SchemaHierarchy_Functions" xml:space="preserve">
+    <value>函式</value>
+  </data>
+  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
+    <value>索引</value>
+  </data>
+  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
+    <value>內嵌函式</value>
+  </data>
+  <data name="SchemaHierarchy_Keys" xml:space="preserve">
+    <value>索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
+    <value>連結的伺服器</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
+    <value>連結的伺服器登入</value>
+  </data>
+  <data name="SchemaHierarchy_Logins" xml:space="preserve">
+    <value>登入</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
+    <value>主要金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
+    <value>主要金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
+    <value>訊息類型</value>
+  </data>
+  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
+    <value>參數</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
+    <value>資料分割函式</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
+    <value>資料分割配置</value>
+  </data>
+  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
+    <value>權限</value>
+  </data>
+  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
+    <value>主索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
+    <value>可程式性</value>
+  </data>
+  <data name="SchemaHierarchy_Queues" xml:space="preserve">
+    <value>佇列</value>
+  </data>
+  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
+    <value>遠端服務繫結</value>
+  </data>
+  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
+    <value>傳回的資料行</value>
+  </data>
+  <data name="SchemaHierarchy_Roles" xml:space="preserve">
+    <value>角色</value>
+  </data>
+  <data name="SchemaHierarchy_Routes" xml:space="preserve">
+    <value>路由</value>
+  </data>
+  <data name="SchemaHierarchy_Rules" xml:space="preserve">
+    <value>規則</value>
+  </data>
+  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="SchemaHierarchy_Security" xml:space="preserve">
+    <value>安全性</value>
+  </data>
+  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
+    <value>伺服器物件</value>
+  </data>
+  <data name="SchemaHierarchy_Management" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
+    <value>觸發程序</value>
+  </data>
+  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="SchemaHierarchy_Services" xml:space="preserve">
+    <value>服務</value>
+  </data>
+  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
+    <value>簽章</value>
+  </data>
+  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
+    <value>記錄檔</value>
+  </data>
+  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
+    <value>統計資料</value>
+  </data>
+  <data name="SchemaHierarchy_Storage" xml:space="preserve">
+    <value>儲存體</value>
+  </data>
+  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
+    <value>預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
+    <value>對稱金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
+    <value>同義資料表</value>
+  </data>
+  <data name="SchemaHierarchy_Tables" xml:space="preserve">
+    <value>資料表</value>
+  </data>
+  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
+    <value>觸發程序</value>
+  </data>
+  <data name="SchemaHierarchy_Types" xml:space="preserve">
+    <value>型別</value>
+  </data>
+  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
+    <value>唯一索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
+    <value>使用者定義資料類型</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
+    <value>使用者定義型別 (CLR)</value>
+  </data>
+  <data name="SchemaHierarchy_Users" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="SchemaHierarchy_Views" xml:space="preserve">
+    <value>檢視</value>
+  </data>
+  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
+    <value>XML 索引</value>
+  </data>
+  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
+    <value>XML 結構描述集合</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
+    <value>使用者定義資料表類型</value>
+  </data>
+  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
+    <value>檔案</value>
+  </data>
+  <data name="MissingCaption" xml:space="preserve">
+    <value>遺漏標題</value>
+  </data>
+  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
+    <value>Broker 優先權</value>
+  </data>
+  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
+    <value>密碼編譯提供者</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
+    <value>資料庫稽核規格</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
+    <value>資料庫加密金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
+    <value>事件工作階段</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
+    <value>全文檢索停用字詞表</value>
+  </data>
+  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
+    <value>資源集區</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
+    <value>稽核</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
+    <value>伺服器稽核規格</value>
+  </data>
+  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
+    <value>空間索引</value>
+  </data>
+  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
+    <value>工作負載群組</value>
+  </data>
+  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
+    <value>SQL 檔案</value>
+  </data>
+  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
+    <value>伺服器函式</value>
+  </data>
+  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
+    <value>SQL 類型</value>
+  </data>
+  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
+    <value>伺服器選項</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
+    <value>資料庫圖表</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
+    <value>系統資料表</value>
+  </data>
+  <data name="SchemaHierarchy_Databases" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
+    <value>系統合約</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
+    <value>系統資料庫</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
+    <value>系統訊息類型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
+    <value>系統佇列</value>
+  </data>
+  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
+    <value>系統服務</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
+    <value>系統預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
+    <value>系統檢視表</value>
+  </data>
+  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
+    <value>資料層應用程式</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
+    <value>擴充預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
+    <value>彙總函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
+    <value>近似數值</value>
+  </data>
+  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
+    <value>二進位字串</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
+    <value>字元字串</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
+    <value>CLR 資料型別</value>
+  </data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
+    <value>組態函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
+    <value>資料指標函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
+    <value>系統資料型別</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
+    <value>日期和時間</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
+    <value>日期和時間函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
+    <value>精確數值</value>
+  </data>
+  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
+    <value>系統函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
+    <value>階層識別碼函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
+    <value>數學函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
+    <value>中繼資料函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
+    <value>其他資料型別</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
+    <value>其他函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
+    <value>資料列集函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
+    <value>安全性函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
+    <value>空間資料型別</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
+    <value>字串函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
+    <value>系統統計函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
+    <value>文字和影像函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
+    <value>Unicode 字元字串</value>
+  </data>
+  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
+    <value>彙總函式</value>
+  </data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
+    <value>純量值函式</value>
+  </data>
+  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
+    <value>系統擴充預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
+    <value>內建型別</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
+    <value>內建伺服器角色</value>
+  </data>
+  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
+    <value>有密碼的使用者</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
+    <value>搜尋屬性清單</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
+    <value>安全性原則</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
+    <value>安全性述詞</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
+    <value>伺服器角色</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
+    <value>搜尋屬性清單</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
+    <value>資料行儲存索引</value>
+  </data>
+  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
+    <value>資料表類型索引</value>
+  </data>
+  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
+    <value>ServerInstance</value>
+  </data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
+    <value>選擇性 XML 索引</value>
+  </data>
+  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
+    <value>XML 命名空間</value>
+  </data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
+    <value>XML 具類型的升級路徑</value>
+  </data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
+    <value>T-SQL 具類型的升級路徑</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
+    <value>資料庫範圍認證</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
+    <value>外部資料來源</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
+    <value>外部檔案格式</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
+    <value>外部資源</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
+    <value>外部資料表</value>
+  </data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
+    <value>Always Encrypted 金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
+    <value>資料行主要金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
+    <value>資料行加密金鑰</value>
+  </data>
+</root>

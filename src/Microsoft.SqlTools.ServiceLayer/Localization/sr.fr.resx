@@ -1,18 +1,96 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -27,248 +105,748 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ConnectionServiceConnectErrorNullParams"><value>Les paramètres de connexion ne peuvent pas être null</value></data>
-  <data name="ConnectionServiceListDbErrorNullOwnerUri"><value>OwnerUri ne peut pas être null ou vide.</value></data>
-  <data name="ConnectionServiceListDbErrorNotConnected"><value>SpecifiedUri '{0}' n’a pas de connexion existante</value></data>
-  <data name="ConnectionServiceConnStringInvalidAuthType"><value>Valeur non valide '{0}' pour AuthenticationType.  Les valeurs valides sont « Intégré » et « SqlLogin ».</value></data>
-  <data name="ConnectionServiceConnStringInvalidIntent"><value>Valeur '{0}' non valide pour ApplicationIntent. Les valeurs valides sont 'ReadWrite' et 'ReadOnly'.</value></data>
-  <data name="ConnectionServiceConnectionCanceled"><value>Connexion annulée</value></data>
-  <data name="ConnectionParamsValidateNullOwnerUri"><value>OwnerUri ne peut pas être null ou vide.</value></data>
-  <data name="ConnectionParamsValidateNullConnection"><value>L'objet "détails de connexion" ne peut pas être null</value></data>
-  <data name="ConnectionParamsValidateNullServerName"><value>ServerName ne peut pas être null ou vide</value></data>
-  <data name="ConnectionParamsValidateNullSqlAuth"><value>{0} ne peut pas être null ou vide lors de l’utilisation de l’authentification SqlLogin</value></data>
-  <data name="QueryServiceCancelAlreadyCompleted"><value>La requête a déjà terminé, il ne peut pas être annulée</value></data>
-  <data name="QueryServiceCancelDisposeFailed"><value>Requête annulée avec succès, n’a pas pu supprimer la requête. Propriétaire d’URI non trouvé.</value></data>
-  <data name="QueryServiceQueryCancelled"><value>La requête a été annulée par l’utilisateur</value></data>
-  <data name="QueryServiceSubsetBatchNotCompleted"><value>Le lot n’a pas terminé encore</value></data>
-  <data name="QueryServiceSubsetBatchOutOfRange"><value>Index de lot ne peut pas être inférieur à 0 ou supérieur au nombre de lots</value></data>
-  <data name="QueryServiceSubsetResultSetOutOfRange"><value>Index du jeu de résultats ne peut pas être inférieur à 0 ou supérieur au nombre de jeux de résultats</value></data>
-  <data name="QueryServiceDataReaderByteCountInvalid"><value>Nombre maximal d’octets à renvoyer doit être supérieur à zéro</value></data>
-  <data name="QueryServiceDataReaderCharCountInvalid"><value>Nombre maximal de caractères à renvoyer doit être supérieur à zéro</value></data>
-  <data name="QueryServiceDataReaderXmlCountInvalid"><value>Nombre maximal d’octets XML pour renvoyer doit être supérieur à zéro</value></data>
-  <data name="QueryServiceFileWrapperWriteOnly"><value>Méthode d’accès ne peut pas être en écriture seule</value></data>
-  <data name="QueryServiceFileWrapperNotInitialized"><value>FileStreamWrapper doit être initialisée avant d’effectuer des opérations</value></data>
-  <data name="QueryServiceFileWrapperReadOnly"><value>Ce FileStreamWrapper ne peut pas être utilisé pour l’écriture</value></data>
-  <data name="QueryServiceAffectedOneRow"><value>(1 ligne affectée)</value></data>
-  <data name="QueryServiceAffectedRows"><value>({0} lignes affectées)</value></data>
-  <data name="QueryServiceCompletedSuccessfully"><value>Commandes s’est terminées correctement.</value></data>
-  <data name="QueryServiceErrorFormat"><value>Msg {0}, au niveau état {2}, {1}, ligne {3} {4} {5}</value></data>
-  <data name="QueryServiceQueryFailed"><value>La requête a échoué : {0}</value></data>
-  <data name="QueryServiceColumnNull"><value>(Aucun nom de colonne)</value></data>
-  <data name="QueryServiceRequestsNoQuery"><value>La requête demandée n’existe pas</value></data>
-  <data name="QueryServiceQueryInvalidOwnerUri"><value>Cet éditeur n’est pas connecté à une base de données</value></data>
-  <data name="QueryServiceQueryInProgress"><value>Une requête est déjà en cours pour cette session d’éditeur. Veuillez annuler cette requête, ou attendre son achèvement.</value></data>
-  <data name="QueryServiceMessageSenderNotSql"><value>L’expéditeur de l’événement de OnInfoMessage doit être un objet SqlConnection</value></data>
-  <data name="QueryServiceSaveAsResultSetNotComplete"><value>Impossible d’enregistrer les résultats jusqu'à ce que l’exécution de la requête est terminée.</value></data>
-  <data name="QueryServiceSaveAsMiscStartingError"><value>Une erreur interne s’est produite lors du démarrage d’enregistrement</value></data>
-  <data name="QueryServiceSaveAsInProgress"><value>Une demande vers le même chemin de sauvegarde est en cours</value></data>
-  <data name="QueryServiceSaveAsFail"><value>Impossible d’enregistrer {0} : {1}</value></data>
-  <data name="QueryServiceResultSetNotRead"><value>Impossible de lire le sous-ensemble, sauf si les résultats ont été lus à partir du serveur</value></data>
-  <data name="QueryServiceResultSetStartRowOutOfRange"><value>Début de la ligne ne peut pas être inférieur à 0 ou supérieur au nombre de lignes dans le jeu de résultats</value></data>
-  <data name="QueryServiceResultSetRowCountOutOfRange"><value>Nombre de lignes doit être un entier positif</value></data>
-  <data name="QueryServiceResultSetNoColumnSchema"><value>Schéma de colonne de jeu de résultats n’a pas pu être récupérer</value></data>
-  <data name="QueryServiceExecutionPlanNotFound"><value>Impossible de récupérer un plan d’exécution le jeu de résultats</value></data>
-  <data name="PeekDefinitionAzureError"><value>Cette fonctionnalité n’est actuellement pas pris en charge sur la base de données SQL Azure et entrepôt de données : {0}</value></data>
-  <data name="PeekDefinitionError"><value>Une erreur inattendue s’est produite lors de l’exécution de lire une définition : {0}</value></data>
-  <data name="PeekDefinitionNoResultsError"><value>Aucun résultat n’a été trouvé.</value></data>
-  <data name="PeekDefinitionDatabaseError"><value>Aucun objet de base de données a été récupérée.</value></data>
-  <data name="PeekDefinitionNotConnectedError"><value>Veuillez vous connecter à un serveur.</value></data>
-  <data name="PeekDefinitionTimedoutError"><value>Opération a expiré.</value></data>
-  <data name="PeekDefinitionTypeNotSupportedError"><value>Ce type d’objet n’est actuellement pas pris en charge par cette fonctionnalité.</value></data>
-  <data name="WorkspaceServicePositionLineOutOfRange"><value>Position est en dehors de la plage de ligne de fichier</value></data>
-  <data name="WorkspaceServicePositionColumnOutOfRange"><value>Position est en dehors de la plage de colonnes de la ligne {0}</value></data>
-  <data name="WorkspaceServiceBufferPositionOutOfOrder"><value>Position de début ({0}, {1}) doit précéder ou être égale à la position de fin ({2}, {3})</value></data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo"><value>Msg {0}, {1}, niveau d’état {2}, ligne {3}</value></data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>Msg {0}, {1}, niveau d’état {2}, procédure {3}, ligne {4}</value></data>
-  <data name="EE_BatchSqlMessageNoLineInfo"><value>Msg {0}, {1}, niveau d’état {2}</value></data>
-  <data name="EE_BatchError_Exception"><value>Une erreur s’est produite lors du traitement du lot. Le message d’erreur est : {0}</value></data>
-  <data name="EE_BatchExecutionInfo_RowsAffected"><value>({0} lignes affectées)</value></data>
-  <data name="EE_ExecutionNotYetCompleteError"><value>L’exécution précédente n’est pas encore terminée.</value></data>
-  <data name="EE_ScriptError_Error"><value>Une erreur de script s’est produite.</value></data>
-  <data name="EE_ScriptError_ParsingSyntax"><value>Syntaxe incorrecte a été rencontrée pendant {0} était en cours d’analyse.</value></data>
-  <data name="EE_ScriptError_FatalError"><value>Une erreur irrécupérable s’est produite.</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>L’exécution effectuée {0} fois...</value></data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Vous avez annulé la requête.</value></data>
-  <data name="EE_BatchExecutionError_Halting"><value>Une erreur s’est produite pendant le traitement par lots a été exécuté.</value></data>
-  <data name="EE_BatchExecutionError_Ignoring"><value>Une erreur s’est produite pendant le traitement par lots a été exécuté, mais que l’erreur a été ignorée.</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>Démarrage de la boucle d’exécution de {0} fois...</value></data>
-  <data name="EE_ExecutionError_CommandNotSupported"><value>La commande {0} n’est pas pris en charge.</value></data>
-  <data name="EE_ExecutionError_VariableNotFound"><value>La variable {0} est introuvable.</value></data>
-  <data name="BatchParserWrapperExecutionEngineError"><value>Erreur d’exécution de SQL : {0}</value></data>
-  <data name="BatchParserWrapperExecutionError"><value>Exécution du wrapper d’Analyseur de lot : {0} trouvé... à la ligne {1} : {2} Description : {3}</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage"><value>Lot analyseur wrapper d’exécution moteur lot message reçu : Message : {0} message détaillé : {1}</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing"><value>Traitement du moteur par lots ResultSet pour analyseur wrapper d’exécution de lot : DataReader.FieldCount : {0} DataReader.RecordsAffected : {1}</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished"><value>Lot de moteur analyseur wrapper d’exécution terminée de jeu de résultats.</value></data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling"><value>Annulation de l’exécution par lots wrapper analyseur du lot.</value></data>
-  <data name="EE_ScriptError_Warning"><value>Avertissement pour le script.</value></data>
-  <data name="TroubleshootingAssistanceMessage"><value>Pour plus d’informations sur cette erreur, consultez les rubriques de dépannage dans la documentation du produit.</value></data>
-  <data name="BatchParser_CircularReference"><value>Le fichier '{0}' inclus de manière récursive.</value></data>
-  <data name="BatchParser_CommentNotTerminated"><value>Pas de marque de fin de commentaire ' * /'.</value></data>
-  <data name="BatchParser_StringNotTerminated"><value>Ouvrez les guillemets après la chaîne de caractères.</value></data>
-  <data name="BatchParser_IncorrectSyntax"><value>Syntaxe incorrecte a été rencontrée lors de l’analyse de '{0}'.</value></data>
-  <data name="BatchParser_VariableNotDefined"><value>La variable {0} n’est pas défini.</value></data>
-  <data name="TestLocalizationConstant"><value>EN_LOCALIZATION</value></data>
-  <data name="ErrorEmptyStringReplacement"><value>Remplacement d’une chaîne vide à une chaîne vide.</value></data>
-  <data name="EditDataComputedColumnPlaceholder"><value>&lt;TBD&gt;</value></data>
-  <data name="SchemaHierarchy_Aggregates"><value>Agrégats</value></data>
-  <data name="SchemaHierarchy_ServerRoles"><value>Rôles serveur</value></data>
-  <data name="SchemaHierarchy_ApplicationRoles"><value>Rôles d'application</value></data>
-  <data name="SchemaHierarchy_Assemblies"><value>Assemblys</value></data>
-  <data name="SchemaHierarchy_AssemblyFiles"><value>Fichiers d'assembly</value></data>
-  <data name="SchemaHierarchy_AsymmetricKeys"><value>Clés asymétriques</value></data>
-  <data name="SchemaHierarchy_DatabaseAsymmetricKeys"><value>Clés asymétriques</value></data>
-  <data name="SchemaHierarchy_DataCompressionOptions"><value>Options de compression de données</value></data>
-  <data name="SchemaHierarchy_Certificates"><value>Certificats</value></data>
-  <data name="SchemaHierarchy_FileTables"><value>FileTables</value></data>
-  <data name="SchemaHierarchy_DatabaseCertificates"><value>Certificats</value></data>
-  <data name="SchemaHierarchy_CheckConstraints"><value>Contraintes de validation</value></data>
-  <data name="SchemaHierarchy_Columns"><value>Colonnes</value></data>
-  <data name="SchemaHierarchy_Constraints"><value>Contraintes</value></data>
-  <data name="SchemaHierarchy_Contracts"><value>Contrats</value></data>
-  <data name="SchemaHierarchy_Credentials"><value>Informations d'identification</value></data>
-  <data name="SchemaHierarchy_ErrorMessages"><value>Messages d'erreur</value></data>
-  <data name="SchemaHierarchy_ServerRoleMembership"><value>Appartenance au rôle de serveur</value></data>
-  <data name="SchemaHierarchy_DatabaseOptions"><value>Options de la base de données</value></data>
-  <data name="SchemaHierarchy_DatabaseRoles"><value>Rôles de base de données</value></data>
-  <data name="SchemaHierarchy_RoleMemberships"><value>Appartenances aux rôles</value></data>
-  <data name="SchemaHierarchy_DatabaseTriggers"><value>Déclencheurs de base de données</value></data>
-  <data name="SchemaHierarchy_DefaultConstraints"><value>Contraintes par défaut</value></data>
-  <data name="SchemaHierarchy_Defaults"><value>Par défaut</value></data>
-  <data name="SchemaHierarchy_Sequences"><value>Séquences</value></data>
-  <data name="SchemaHierarchy_Endpoints"><value>Points de terminaison</value></data>
-  <data name="SchemaHierarchy_EventNotifications"><value>Notifications d'événements</value></data>
-  <data name="SchemaHierarchy_ServerEventNotifications"><value>Notifications d'événements du serveur</value></data>
-  <data name="SchemaHierarchy_ExtendedProperties"><value>Propriétés étendues</value></data>
-  <data name="SchemaHierarchy_FileGroups"><value>Groupes de fichiers</value></data>
-  <data name="SchemaHierarchy_ForeignKeys"><value>Clés étrangères</value></data>
-  <data name="SchemaHierarchy_FullTextCatalogs"><value>Catalogues de recherche en texte intégral</value></data>
-  <data name="SchemaHierarchy_FullTextIndexes"><value>Index de recherche en texte intégral</value></data>
-  <data name="SchemaHierarchy_Functions"><value>Fonctions</value></data>
-  <data name="SchemaHierarchy_Indexes"><value>Index</value></data>
-  <data name="SchemaHierarchy_InlineFunctions"><value>Fonctions incluses</value></data>
-  <data name="SchemaHierarchy_Keys"><value>Clés</value></data>
-  <data name="SchemaHierarchy_LinkedServers"><value>Serveurs liés</value></data>
-  <data name="SchemaHierarchy_LinkedServerLogins"><value>Connexions de serveur lié</value></data>
-  <data name="SchemaHierarchy_Logins"><value>Connexions</value></data>
-  <data name="SchemaHierarchy_MasterKey"><value>Clé principale</value></data>
-  <data name="SchemaHierarchy_MasterKeys"><value>Clés principales</value></data>
-  <data name="SchemaHierarchy_MessageTypes"><value>Types de messages</value></data>
-  <data name="SchemaHierarchy_MultiSelectFunctions"><value>Fonctions table</value></data>
-  <data name="SchemaHierarchy_Parameters"><value>Paramètres</value></data>
-  <data name="SchemaHierarchy_PartitionFunctions"><value>Fonctions de partition</value></data>
-  <data name="SchemaHierarchy_PartitionSchemes"><value>Schémas de partition</value></data>
-  <data name="SchemaHierarchy_Permissions"><value>Autorisations</value></data>
-  <data name="SchemaHierarchy_PrimaryKeys"><value>Clés primaires</value></data>
-  <data name="SchemaHierarchy_Programmability"><value>Programmabilité</value></data>
-  <data name="SchemaHierarchy_Queues"><value>Files d'attente</value></data>
-  <data name="SchemaHierarchy_RemoteServiceBindings"><value>Liaisons de service distant</value></data>
-  <data name="SchemaHierarchy_ReturnedColumns"><value>Colonnes retournées</value></data>
-  <data name="SchemaHierarchy_Roles"><value>Rôles</value></data>
-  <data name="SchemaHierarchy_Routes"><value>Itinéraires </value></data>
-  <data name="SchemaHierarchy_Rules"><value>Règles</value></data>
-  <data name="SchemaHierarchy_Schemas"><value>Schémas</value></data>
-  <data name="SchemaHierarchy_Security"><value>Sécurité</value></data>
-  <data name="SchemaHierarchy_ServerObjects"><value>Objets serveur</value></data>
-  <data name="SchemaHierarchy_Management"><value>Gestion</value></data>
-  <data name="SchemaHierarchy_ServerTriggers"><value>Déclencheurs</value></data>
-  <data name="SchemaHierarchy_ServiceBroker"><value>Service Broker</value></data>
-  <data name="SchemaHierarchy_Services"><value>Services</value></data>
-  <data name="SchemaHierarchy_Signatures"><value>Signatures</value></data>
-  <data name="SchemaHierarchy_LogFiles"><value>Fichiers journaux</value></data>
-  <data name="SchemaHierarchy_Statistics"><value>Statistiques</value></data>
-  <data name="SchemaHierarchy_Storage"><value>Stockage</value></data>
-  <data name="SchemaHierarchy_StoredProcedures"><value>Procédures stockées</value></data>
-  <data name="SchemaHierarchy_SymmetricKeys"><value>Clés symétriques</value></data>
-  <data name="SchemaHierarchy_Synonyms"><value>Synonymes</value></data>
-  <data name="SchemaHierarchy_Tables"><value>Tables</value></data>
-  <data name="SchemaHierarchy_Triggers"><value>Déclencheurs</value></data>
-  <data name="SchemaHierarchy_Types"><value>Types</value></data>
-  <data name="SchemaHierarchy_UniqueKeys"><value>Clés uniques</value></data>
-  <data name="SchemaHierarchy_UserDefinedDataTypes"><value>Types de données définis par l'utilisateur</value></data>
-  <data name="SchemaHierarchy_UserDefinedTypes"><value>Types définis par l'utilisateur (CLR)</value></data>
-  <data name="SchemaHierarchy_Users"><value>Utilisateurs</value></data>
-  <data name="SchemaHierarchy_Views"><value>Vues</value></data>
-  <data name="SchemaHierarchy_XmlIndexes"><value>Index XML</value></data>
-  <data name="SchemaHierarchy_XMLSchemaCollections"><value>Collections de schémas XML</value></data>
-  <data name="SchemaHierarchy_UserDefinedTableTypes"><value>Types de tables définis par l'utilisateur</value></data>
-  <data name="SchemaHierarchy_FilegroupFiles"><value>Fichiers</value></data>
-  <data name="MissingCaption"><value>Légende manquante</value></data>
-  <data name="SchemaHierarchy_BrokerPriorities"><value>Priorités de Service Broker</value></data>
-  <data name="SchemaHierarchy_CryptographicProviders"><value>Fournisseurs de chiffrement</value></data>
-  <data name="SchemaHierarchy_DatabaseAuditSpecifications"><value>Spécifications de l'audit de la base de données</value></data>
-  <data name="SchemaHierarchy_DatabaseEncryptionKeys"><value>Clés de chiffrement de la base de données</value></data>
-  <data name="SchemaHierarchy_EventSessions"><value>Sessions d'événements</value></data>
-  <data name="SchemaHierarchy_FullTextStopLists"><value>Listes de mots vides de texte intégral</value></data>
-  <data name="SchemaHierarchy_ResourcePools"><value>Pools de ressources</value></data>
-  <data name="SchemaHierarchy_ServerAudits"><value>Audits</value></data>
-  <data name="SchemaHierarchy_ServerAuditSpecifications"><value>Spécifications de l'audit du serveur</value></data>
-  <data name="SchemaHierarchy_SpatialIndexes"><value>Index spatiaux</value></data>
-  <data name="SchemaHierarchy_WorkloadGroups"><value>Groupes de charges de travail</value></data>
-  <data name="SchemaHierarchy_SqlFiles"><value>Fichiers SQL</value></data>
-  <data name="SchemaHierarchy_ServerFunctions"><value>Fonctions du serveur</value></data>
-  <data name="SchemaHierarchy_SqlType"><value>Type SQL</value></data>
-  <data name="SchemaHierarchy_ServerOptions"><value>Options de serveur</value></data>
-  <data name="SchemaHierarchy_DatabaseDiagrams"><value>Schémas de base de données</value></data>
-  <data name="SchemaHierarchy_SystemTables"><value>Tables système</value></data>
-  <data name="SchemaHierarchy_Databases"><value>Bases de données</value></data>
-  <data name="SchemaHierarchy_SystemContracts"><value>Contrats système</value></data>
-  <data name="SchemaHierarchy_SystemDatabases"><value>Bases de données système</value></data>
-  <data name="SchemaHierarchy_SystemMessageTypes"><value>Types de messages système</value></data>
-  <data name="SchemaHierarchy_SystemQueues"><value>Files d'attente système</value></data>
-  <data name="SchemaHierarchy_SystemServices"><value>Services système</value></data>
-  <data name="SchemaHierarchy_SystemStoredProcedures"><value>Procédures stockées système</value></data>
-  <data name="SchemaHierarchy_SystemViews"><value>Vues système</value></data>
-  <data name="SchemaHierarchy_DataTierApplications"><value>Applications de la couche Données</value></data>
-  <data name="SchemaHierarchy_ExtendedStoredProcedures"><value>Procédures stockées étendues</value></data>
-  <data name="SchemaHierarchy_SystemAggregateFunctions"><value>Fonctions d'agrégation</value></data>
-  <data name="SchemaHierarchy_SystemApproximateNumerics"><value>Valeurs numériques approximatives</value></data>
-  <data name="SchemaHierarchy_SystemBinaryStrings"><value>Chaînes binaires</value></data>
-  <data name="SchemaHierarchy_SystemCharacterStrings"><value>Chaînes de caractères</value></data>
-  <data name="SchemaHierarchy_SystemCLRDataTypes"><value>Types de données CLR</value></data>
-  <data name="SchemaHierarchy_SystemConfigurationFunctions"><value>Fonctions de configuration</value></data>
-  <data name="SchemaHierarchy_SystemCursorFunctions"><value>Fonctions du curseur</value></data>
-  <data name="SchemaHierarchy_SystemDataTypes"><value>Types de données système</value></data>
-  <data name="SchemaHierarchy_SystemDateAndTime"><value>Date et heure</value></data>
-  <data name="SchemaHierarchy_SystemDateAndTimeFunctions"><value>Fonctions de date et d'heure</value></data>
-  <data name="SchemaHierarchy_SystemExactNumerics"><value>Valeurs numériques exactes</value></data>
-  <data name="SchemaHierarchy_SystemFunctions"><value>Fonctions système</value></data>
-  <data name="SchemaHierarchy_SystemHierarchyIdFunctions"><value>Fonctions de l'ID de hiérarchie</value></data>
-  <data name="SchemaHierarchy_SystemMathematicalFunctions"><value>Fonctions mathématiques</value></data>
-  <data name="SchemaHierarchy_SystemMetadataFunctions"><value>Fonctions de métadonnées</value></data>
-  <data name="SchemaHierarchy_SystemOtherDataTypes"><value>Autres types de données</value></data>
-  <data name="SchemaHierarchy_SystemOtherFunctions"><value>Autres fonctions</value></data>
-  <data name="SchemaHierarchy_SystemRowsetFunctions"><value>Fonctions d'ensemble de lignes</value></data>
-  <data name="SchemaHierarchy_SystemSecurityFunctions"><value>Fonctions de sécurité</value></data>
-  <data name="SchemaHierarchy_SystemSpatialDataTypes"><value>Types de données spatiales</value></data>
-  <data name="SchemaHierarchy_SystemStringFunctions"><value>Fonctions de chaîne</value></data>
-  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions"><value>Fonctions statistiques système</value></data>
-  <data name="SchemaHierarchy_SystemTextAndImageFunctions"><value>Fonctions de texte et d'image</value></data>
-  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings"><value>Chaînes de caractères Unicode</value></data>
-  <data name="SchemaHierarchy_AggregateFunctions"><value>Fonctions d'agrégation</value></data>
-  <data name="SchemaHierarchy_ScalarValuedFunctions"><value>Fonctions scalaires</value></data>
-  <data name="SchemaHierarchy_TableValuedFunctions"><value>Fonctions table</value></data>
-  <data name="SchemaHierarchy_SystemExtendedStoredProcedures"><value>Procédures stockées étendues système</value></data>
-  <data name="SchemaHierarchy_BuiltInType"><value>Types intégrés</value></data>
-  <data name="SchemaHierarchy_BuiltInServerRole"><value>Rôles serveur intégrés</value></data>
-  <data name="SchemaHierarchy_UserWithPassword"><value>Utilisateur avec mot de passe</value></data>
-  <data name="SchemaHierarchy_SearchPropertyList"><value>Liste des propriétés de recherche</value></data>
-  <data name="SchemaHierarchy_SecurityPolicies"><value>Stratégies de sécurité</value></data>
-  <data name="SchemaHierarchy_SecurityPredicates"><value>Prédicats de sécurité</value></data>
-  <data name="SchemaHierarchy_ServerRole"><value>Rôle de serveur</value></data>
-  <data name="SchemaHierarchy_SearchPropertyLists"><value>Listes des propriétés de recherche</value></data>
-  <data name="SchemaHierarchy_ColumnStoreIndexes"><value>Index de stockage de colonnes</value></data>
-  <data name="SchemaHierarchy_TableTypeIndexes"><value>Index de types de tables</value></data>
-  <data name="SchemaHierarchy_ServerInstance"><value>ServerInstance</value></data>
-  <data name="SchemaHierarchy_SelectiveXmlIndexes"><value>Index XML sélectifs</value></data>
-  <data name="SchemaHierarchy_XmlNamespaces"><value>Espaces de noms XML</value></data>
-  <data name="SchemaHierarchy_XmlTypedPromotedPaths"><value>Chemins d'accès promus typés XML</value></data>
-  <data name="SchemaHierarchy_SqlTypedPromotedPaths"><value>Chemins d'accès promus typés T-SQL</value></data>
-  <data name="SchemaHierarchy_DatabaseScopedCredentials"><value>Informations d'identification incluses dans l'étendue de la base de données</value></data>
-  <data name="SchemaHierarchy_ExternalDataSources"><value>Sources de données externes</value></data>
-  <data name="SchemaHierarchy_ExternalFileFormats"><value>Formats de fichier externes</value></data>
-  <data name="SchemaHierarchy_ExternalResources"><value>Ressources externes</value></data>
-  <data name="SchemaHierarchy_ExternalTables"><value>Tables externes</value></data>
-  <data name="SchemaHierarchy_AlwaysEncryptedKeys"><value>Clés Always Encrypted</value></data>
-  <data name="SchemaHierarchy_ColumnMasterKeys"><value>Clés principales de la colonne</value></data>
-  <data name="SchemaHierarchy_ColumnEncryptionKeys"><value>Clés de chiffrement de la colonne</value></data>
-  </root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Les paramètres de connexion ne peuvent pas être null</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri ne peut pas être null ou vide.</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' n’a pas de connexion existante</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>Valeur non valide '{0}' pour AuthenticationType.  Les valeurs valides sont « Intégré » et « SqlLogin ».</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>Valeur '{0}' non valide pour ApplicationIntent. Les valeurs valides sont 'ReadWrite' et 'ReadOnly'.</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Connexion annulée</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri ne peut pas être null ou vide.</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>L'objet "détails de connexion" ne peut pas être null</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName ne peut pas être null ou vide</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>{0} ne peut pas être null ou vide lors de l’utilisation de l’authentification SqlLogin</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>La requête a déjà terminé, il ne peut pas être annulée</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>Requête annulée avec succès, n’a pas pu supprimer la requête. Propriétaire d’URI non trouvé.</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>La requête a été annulée par l’utilisateur</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>Le lot n’a pas terminé encore</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>Index de lot ne peut pas être inférieur à 0 ou supérieur au nombre de lots</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>Index du jeu de résultats ne peut pas être inférieur à 0 ou supérieur au nombre de jeux de résultats</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>Nombre maximal d’octets à renvoyer doit être supérieur à zéro</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>Nombre maximal de caractères à renvoyer doit être supérieur à zéro</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>Nombre maximal d’octets XML pour renvoyer doit être supérieur à zéro</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>Méthode d’accès ne peut pas être en écriture seule</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>FileStreamWrapper doit être initialisée avant d’effectuer des opérations</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>Ce FileStreamWrapper ne peut pas être utilisé pour l’écriture</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 ligne affectée)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>({0} lignes affectées)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>Commandes s’est terminées correctement.</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Msg {0}, au niveau état {2}, {1}, ligne {3} {4} {5}</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>La requête a échoué : {0}</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(Aucun nom de colonne)</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>La requête demandée n’existe pas</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Cet éditeur n’est pas connecté à une base de données</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>Une requête est déjà en cours pour cette session d’éditeur. Veuillez annuler cette requête, ou attendre son achèvement.</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>L’expéditeur de l’événement de OnInfoMessage doit être un objet SqlConnection</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Impossible d’enregistrer les résultats jusqu'à ce que l’exécution de la requête est terminée.</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Une erreur interne s’est produite lors du démarrage d’enregistrement</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>Une demande vers le même chemin de sauvegarde est en cours</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Impossible d’enregistrer {0} : {1}</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>Impossible de lire le sous-ensemble, sauf si les résultats ont été lus à partir du serveur</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>Début de la ligne ne peut pas être inférieur à 0 ou supérieur au nombre de lignes dans le jeu de résultats</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>Nombre de lignes doit être un entier positif</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>Schéma de colonne de jeu de résultats n’a pas pu être récupérer</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>Impossible de récupérer un plan d’exécution le jeu de résultats</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>Cette fonctionnalité n’est actuellement pas pris en charge sur la base de données SQL Azure et entrepôt de données : {0}</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>Une erreur inattendue s’est produite lors de l’exécution de lire une définition : {0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>Aucun résultat n’a été trouvé.</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>Aucun objet de base de données a été récupérée.</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Veuillez vous connecter à un serveur.</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Opération a expiré.</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>Ce type d’objet n’est actuellement pas pris en charge par cette fonctionnalité.</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Position est en dehors de la plage de ligne de fichier</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Position est en dehors de la plage de colonnes de la ligne {0}</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Position de début ({0}, {1}) doit précéder ou être égale à la position de fin ({2}, {3})</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, {1}, niveau d’état {2}, ligne {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, {1}, niveau d’état {2}, procédure {3}, ligne {4}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Msg {0}, {1}, niveau d’état {2}</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>Une erreur s’est produite lors du traitement du lot. Le message d’erreur est : {0}</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} lignes affectées)</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>L’exécution précédente n’est pas encore terminée.</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>Une erreur de script s’est produite.</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Syntaxe incorrecte a été rencontrée pendant {0} était en cours d’analyse.</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>Une erreur irrécupérable s’est produite.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>L’exécution effectuée {0} fois...</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>Vous avez annulé la requête.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>Une erreur s’est produite pendant le traitement par lots a été exécuté.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Une erreur s’est produite pendant le traitement par lots a été exécuté, mais que l’erreur a été ignorée.</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
+    <value>Démarrage de la boucle d’exécution de {0} fois...</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>La commande {0} n’est pas pris en charge.</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>La variable {0} est introuvable.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
+    <value>Erreur d’exécution de SQL : {0}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Exécution du wrapper d’Analyseur de lot : {0} trouvé... à la ligne {1} : {2} Description : {3}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Lot analyseur wrapper d’exécution moteur lot message reçu : Message : {0} message détaillé : {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Traitement du moteur par lots ResultSet pour analyseur wrapper d’exécution de lot : DataReader.FieldCount : {0} DataReader.RecordsAffected : {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Lot de moteur analyseur wrapper d’exécution terminée de jeu de résultats.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Annulation de l’exécution par lots wrapper analyseur du lot.</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Avertissement pour le script.</value>
+  </data>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>Pour plus d’informations sur cette erreur, consultez les rubriques de dépannage dans la documentation du produit.</value>
+  </data>
+  <data name="BatchParser_CircularReference" xml:space="preserve">
+    <value>Le fichier '{0}' inclus de manière récursive.</value>
+  </data>
+  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
+    <value>Pas de marque de fin de commentaire ' * /'.</value>
+  </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Ouvrez les guillemets après la chaîne de caractères.</value>
+  </data>
+  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
+    <value>Syntaxe incorrecte a été rencontrée lors de l’analyse de '{0}'.</value>
+  </data>
+  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
+    <value>La variable {0} n’est pas défini.</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>EN_LOCALIZATION</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Remplacement d’une chaîne vide à une chaîne vide.</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;TBD&gt;</value>
+  </data>
+  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
+    <value>Agrégats</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
+    <value>Rôles serveur</value>
+  </data>
+  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
+    <value>Rôles d'application</value>
+  </data>
+  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
+    <value>Assemblys</value>
+  </data>
+  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
+    <value>Fichiers d'assembly</value>
+  </data>
+  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
+    <value>Clés asymétriques</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
+    <value>Clés asymétriques</value>
+  </data>
+  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
+    <value>Options de compression de données</value>
+  </data>
+  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
+    <value>Certificats</value>
+  </data>
+  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
+    <value>FileTables</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
+    <value>Certificats</value>
+  </data>
+  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
+    <value>Contraintes de validation</value>
+  </data>
+  <data name="SchemaHierarchy_Columns" xml:space="preserve">
+    <value>Colonnes</value>
+  </data>
+  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
+    <value>Contraintes</value>
+  </data>
+  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
+    <value>Contrats</value>
+  </data>
+  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
+    <value>Informations d'identification</value>
+  </data>
+  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
+    <value>Messages d'erreur</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
+    <value>Appartenance au rôle de serveur</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
+    <value>Options de la base de données</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
+    <value>Rôles de base de données</value>
+  </data>
+  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
+    <value>Appartenances aux rôles</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
+    <value>Déclencheurs de base de données</value>
+  </data>
+  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
+    <value>Contraintes par défaut</value>
+  </data>
+  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
+    <value>Par défaut</value>
+  </data>
+  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
+    <value>Séquences</value>
+  </data>
+  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
+    <value>Points de terminaison</value>
+  </data>
+  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
+    <value>Notifications d'événements</value>
+  </data>
+  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
+    <value>Notifications d'événements du serveur</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
+    <value>Propriétés étendues</value>
+  </data>
+  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
+    <value>Groupes de fichiers</value>
+  </data>
+  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
+    <value>Clés étrangères</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
+    <value>Catalogues de recherche en texte intégral</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
+    <value>Index de recherche en texte intégral</value>
+  </data>
+  <data name="SchemaHierarchy_Functions" xml:space="preserve">
+    <value>Fonctions</value>
+  </data>
+  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
+    <value>Index</value>
+  </data>
+  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
+    <value>Fonctions incluses</value>
+  </data>
+  <data name="SchemaHierarchy_Keys" xml:space="preserve">
+    <value>Clés</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
+    <value>Serveurs liés</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
+    <value>Connexions de serveur lié</value>
+  </data>
+  <data name="SchemaHierarchy_Logins" xml:space="preserve">
+    <value>Connexions</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
+    <value>Clé principale</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
+    <value>Clés principales</value>
+  </data>
+  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
+    <value>Types de messages</value>
+  </data>
+  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
+    <value>Fonctions table</value>
+  </data>
+  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
+    <value>Fonctions de partition</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
+    <value>Schémas de partition</value>
+  </data>
+  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
+    <value>Autorisations</value>
+  </data>
+  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
+    <value>Clés primaires</value>
+  </data>
+  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
+    <value>Programmabilité</value>
+  </data>
+  <data name="SchemaHierarchy_Queues" xml:space="preserve">
+    <value>Files d'attente</value>
+  </data>
+  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
+    <value>Liaisons de service distant</value>
+  </data>
+  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
+    <value>Colonnes retournées</value>
+  </data>
+  <data name="SchemaHierarchy_Roles" xml:space="preserve">
+    <value>Rôles</value>
+  </data>
+  <data name="SchemaHierarchy_Routes" xml:space="preserve">
+    <value>Itinéraires </value>
+  </data>
+  <data name="SchemaHierarchy_Rules" xml:space="preserve">
+    <value>Règles</value>
+  </data>
+  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
+    <value>Schémas</value>
+  </data>
+  <data name="SchemaHierarchy_Security" xml:space="preserve">
+    <value>Sécurité</value>
+  </data>
+  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
+    <value>Objets serveur</value>
+  </data>
+  <data name="SchemaHierarchy_Management" xml:space="preserve">
+    <value>Gestion</value>
+  </data>
+  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
+    <value>Déclencheurs</value>
+  </data>
+  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="SchemaHierarchy_Services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
+    <value>Signatures</value>
+  </data>
+  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
+    <value>Fichiers journaux</value>
+  </data>
+  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
+  <data name="SchemaHierarchy_Storage" xml:space="preserve">
+    <value>Stockage</value>
+  </data>
+  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
+    <value>Procédures stockées</value>
+  </data>
+  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
+    <value>Clés symétriques</value>
+  </data>
+  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
+    <value>Synonymes</value>
+  </data>
+  <data name="SchemaHierarchy_Tables" xml:space="preserve">
+    <value>Tables</value>
+  </data>
+  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
+    <value>Déclencheurs</value>
+  </data>
+  <data name="SchemaHierarchy_Types" xml:space="preserve">
+    <value>Types</value>
+  </data>
+  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
+    <value>Clés uniques</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
+    <value>Types de données définis par l'utilisateur</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
+    <value>Types définis par l'utilisateur (CLR)</value>
+  </data>
+  <data name="SchemaHierarchy_Users" xml:space="preserve">
+    <value>Utilisateurs</value>
+  </data>
+  <data name="SchemaHierarchy_Views" xml:space="preserve">
+    <value>Vues</value>
+  </data>
+  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
+    <value>Index XML</value>
+  </data>
+  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
+    <value>Collections de schémas XML</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
+    <value>Types de tables définis par l'utilisateur</value>
+  </data>
+  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
+    <value>Fichiers</value>
+  </data>
+  <data name="MissingCaption" xml:space="preserve">
+    <value>Légende manquante</value>
+  </data>
+  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
+    <value>Priorités de Service Broker</value>
+  </data>
+  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
+    <value>Fournisseurs de chiffrement</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
+    <value>Spécifications de l'audit de la base de données</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
+    <value>Clés de chiffrement de la base de données</value>
+  </data>
+  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
+    <value>Sessions d'événements</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
+    <value>Listes de mots vides de texte intégral</value>
+  </data>
+  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
+    <value>Pools de ressources</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
+    <value>Audits</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
+    <value>Spécifications de l'audit du serveur</value>
+  </data>
+  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
+    <value>Index spatiaux</value>
+  </data>
+  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
+    <value>Groupes de charges de travail</value>
+  </data>
+  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
+    <value>Fichiers SQL</value>
+  </data>
+  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
+    <value>Fonctions du serveur</value>
+  </data>
+  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
+    <value>Type SQL</value>
+  </data>
+  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
+    <value>Options de serveur</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
+    <value>Schémas de base de données</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
+    <value>Tables système</value>
+  </data>
+  <data name="SchemaHierarchy_Databases" xml:space="preserve">
+    <value>Bases de données</value>
+  </data>
+  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
+    <value>Contrats système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
+    <value>Bases de données système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
+    <value>Types de messages système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
+    <value>Files d'attente système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
+    <value>Services système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
+    <value>Procédures stockées système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
+    <value>Vues système</value>
+  </data>
+  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
+    <value>Applications de la couche Données</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
+    <value>Procédures stockées étendues</value>
+  </data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
+    <value>Fonctions d'agrégation</value>
+  </data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
+    <value>Valeurs numériques approximatives</value>
+  </data>
+  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
+    <value>Chaînes binaires</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
+    <value>Chaînes de caractères</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
+    <value>Types de données CLR</value>
+  </data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
+    <value>Fonctions de configuration</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
+    <value>Fonctions du curseur</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
+    <value>Types de données système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
+    <value>Date et heure</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
+    <value>Fonctions de date et d'heure</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
+    <value>Valeurs numériques exactes</value>
+  </data>
+  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
+    <value>Fonctions système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
+    <value>Fonctions de l'ID de hiérarchie</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
+    <value>Fonctions mathématiques</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
+    <value>Fonctions de métadonnées</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
+    <value>Autres types de données</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
+    <value>Autres fonctions</value>
+  </data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
+    <value>Fonctions d'ensemble de lignes</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
+    <value>Fonctions de sécurité</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
+    <value>Types de données spatiales</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
+    <value>Fonctions de chaîne</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
+    <value>Fonctions statistiques système</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
+    <value>Fonctions de texte et d'image</value>
+  </data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
+    <value>Chaînes de caractères Unicode</value>
+  </data>
+  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
+    <value>Fonctions d'agrégation</value>
+  </data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
+    <value>Fonctions scalaires</value>
+  </data>
+  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
+    <value>Fonctions table</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
+    <value>Procédures stockées étendues système</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
+    <value>Types intégrés</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
+    <value>Rôles serveur intégrés</value>
+  </data>
+  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
+    <value>Utilisateur avec mot de passe</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
+    <value>Liste des propriétés de recherche</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
+    <value>Stratégies de sécurité</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
+    <value>Prédicats de sécurité</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
+    <value>Rôle de serveur</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
+    <value>Listes des propriétés de recherche</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
+    <value>Index de stockage de colonnes</value>
+  </data>
+  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
+    <value>Index de types de tables</value>
+  </data>
+  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
+    <value>ServerInstance</value>
+  </data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
+    <value>Index XML sélectifs</value>
+  </data>
+  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
+    <value>Espaces de noms XML</value>
+  </data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
+    <value>Chemins d'accès promus typés XML</value>
+  </data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
+    <value>Chemins d'accès promus typés T-SQL</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
+    <value>Informations d'identification incluses dans l'étendue de la base de données</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
+    <value>Sources de données externes</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
+    <value>Formats de fichier externes</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
+    <value>Ressources externes</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
+    <value>Tables externes</value>
+  </data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
+    <value>Clés Always Encrypted</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
+    <value>Clés principales de la colonne</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
+    <value>Clés de chiffrement de la colonne</value>
+  </data>
+</root>
