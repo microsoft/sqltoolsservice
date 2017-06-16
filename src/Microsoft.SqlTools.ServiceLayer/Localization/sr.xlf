@@ -2101,6 +2101,15 @@
         <target state="new">The database {0} is not accessible.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceResultSetHasNoResults">
+        <source>Query has no results to return</source>
+        <target state="new">Query has no results to return</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetTooLarge">
+        <source>Result set has too many rows to be safely loaded</source>
+        <target state="new">Result set has too many rows to be safely loaded</target>
+      </trans-unit>
       <trans-unit id="Backup_TaskName">
         <source>Backup Database</source>
         <target state="new">Backup Database</target>
