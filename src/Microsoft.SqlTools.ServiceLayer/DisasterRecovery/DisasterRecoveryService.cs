@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
         private IBackupUtilities backupUtilities;
-        private ManualResetEvent manualResetEvent = new ManualResetEvent(initialState: false);
+        private ManualResetEvent backupCompletedEvent = new ManualResetEvent(initialState: false);
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     TaskMetadata metadata = new TaskMetadata();
                     metadata.ServerName = connInfo.ConnectionDetails.ServerName;
                     metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                    metadata.Name = DisasterRecoveryStrings.BackupTaskName;                    
+                    metadata.Name = SR.Backup_TaskName;
                     metadata.IsCancelable = true;
 
                     // create backup task and perform
@@ -197,16 +197,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <returns></returns>
         internal async Task<TaskResult> BackupTask(SqlTask sqlTask)
         {
-            sqlTask.AddMessage(DisasterRecoveryStrings.InProgress, SqlTaskStatus.InProgress, true);
+            sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
             Task<TaskResult> performTask = this.PerformTask();
             Task<TaskResult> cancelTask = this.CancelTask(sqlTask);
             Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
             if (completedTask == performTask)
             {
-                this.manualResetEvent.Reset();
+                this.backupCompletedEvent.Reset();
             }
 
-            sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : DisasterRecoveryStrings.Completed,
+            sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
                                completedTask.Result.TaskStatus);
             return completedTask.Result;
         }
@@ -245,10 +245,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 CancellationToken token = sqlTask.TokenSource.Token;
                 WaitHandle[] waitHandles = new WaitHandle[2]
                 {
-                    manualResetEvent,
+                    backupCompletedEvent,
                     token.WaitHandle
                 };
 
+                WaitHandle.WaitAny(waitHandles);
                 if (token.IsCancellationRequested)
                 {
                     try

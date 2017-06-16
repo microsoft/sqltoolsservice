@@ -3253,6 +3253,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Backup_TaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.Backup_TaskName);
+            }
+        }
+
+        public static string Task_InProgress
+        {
+            get
+            {
+                return Keys.GetString(Keys.Task_InProgress);
+            }
+        }
+
+        public static string Task_Completed
+        {
+            get
+            {
+                return Keys.GetString(Keys.Task_Completed);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4580,6 +4604,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string Backup_TaskName = "Backup_TaskName";
+
+
+            public const string Task_InProgress = "Task_InProgress";
+
+
+            public const string Task_Completed = "Task_Completed";
 
 
             private Keys()
