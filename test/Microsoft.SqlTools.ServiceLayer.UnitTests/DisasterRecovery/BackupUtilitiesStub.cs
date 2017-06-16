@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// </summary>
         public void PerformBackup()
         {
-            Thread.Sleep(2000);
+            Thread.Sleep(500);
         }
 
         /// <summary>

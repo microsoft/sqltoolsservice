@@ -58,7 +58,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 manager.CancelTask(sqlTask.TaskId);
                 await taskToVerify;
             }
-
         }
     }
 }
