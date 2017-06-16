@@ -16,6 +16,9 @@ using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
+    /// <summary>
+    /// Service for Backup and Restore
+    /// </summary>
     public class DisasterRecoveryService
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
@@ -77,6 +80,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
         }
 
+        /// <summary>
+        /// Handle request to get backup configuration info
+        /// </summary>
+        /// <param name="optionsParams"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
         public static async Task HandleBackupConfigInfoRequest(
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<BackupConfigInfoResponse> requestContext)
