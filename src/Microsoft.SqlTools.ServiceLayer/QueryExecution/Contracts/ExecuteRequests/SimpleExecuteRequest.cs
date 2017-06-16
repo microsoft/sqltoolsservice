@@ -8,7 +8,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
-    /// Parameters for executing a query from a document open in the workspace
+    /// Parameters for executing a query from a provided string
     /// </summary>
     public class SimpleExecuteParams
     {

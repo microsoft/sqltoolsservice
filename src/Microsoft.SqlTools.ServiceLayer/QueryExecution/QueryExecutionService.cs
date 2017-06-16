@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 Query trashQ;
                 // check to make sure any results were recieved
-                if (q.Batches.Length <= 0 || q.Batches[0].ResultSets.Count <= 0) 
+                if (q.Batches.Length == 0 || q.Batches[0].ResultSets.Count == 0) 
                 {
                     await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
                     ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
