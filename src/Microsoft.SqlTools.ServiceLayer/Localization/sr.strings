@@ -753,7 +753,8 @@ prototype_db_prop_brokerEnabled = Broker Enabled
 prototype_db_prop_truncateLogOnCheckpoint = Truncate Log on Checkpoint 
 prototype_db_prop_dbChaining = Cross-database Ownership Chaining Enabled
 prototype_db_prop_trustworthy = Trustworthy
-prototype_db_prop_dateCorrelationOptimization = Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization
+prototype_db_prop_dateCorrelationOptimization = Date Correlation Optimization Enabled
+prototype_db_prop_parameterization = Parameterization
 prototype_db_prop_parameterization_value_forced = Forced
 prototype_db_prop_parameterization_value_simple = Simple
 prototype_file_dataFile = ROWS Data

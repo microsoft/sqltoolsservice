@@ -1877,7 +1877,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
-        <source>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</source>
+        <source>Date Correlation Optimization Enabled</source>
         <target state="new">Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</target>
         <note></note>
       </trans-unit>
@@ -2099,6 +2099,11 @@
       <trans-unit id="DatabaseNotAccessible">
         <source>The database {0} is not accessible.</source>
         <target state="new">The database {0} is not accessible.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="new">Parameterization</target>
         <note></note>
       </trans-unit>
     </body>
