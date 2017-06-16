@@ -202,12 +202,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // handle sending event back when the query completes
             Query.QueryAsyncEventHandler queryComplete = async q =>
             {
-                Query trashQ;
+                Query removedQuery;
                 // check to make sure any results were recieved
                 if (q.Batches.Length == 0 || q.Batches[0].ResultSets.Count == 0) 
                 {
                     await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
-                    ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
+                    ActiveQueries.TryRemove(executeStringParams.OwnerUri, out removedQuery);
                     return;
                 } 
 
@@ -216,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (rowCount > Int32.MaxValue) 
                 {
                     await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
-                    ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
+                    ActiveQueries.TryRemove(executeStringParams.OwnerUri, out removedQuery);
                     return;
                 }
                 
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendResult(result);
                 // remove the active query since we are done with it
-                ActiveQueries.TryRemove(executeStringParams.OwnerUri, out trashQ);
+                ActiveQueries.TryRemove(executeStringParams.OwnerUri, out removedQuery);
             };
 
             // handle sending error back when query fails
