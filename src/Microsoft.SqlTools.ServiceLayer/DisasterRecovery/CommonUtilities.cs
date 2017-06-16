@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------
 
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,9 +12,11 @@ using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 
-
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
+    /// <summary>
+    /// Backup Type
+    /// </summary>
     public enum BackupType
     {
         Full,
@@ -23,13 +24,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         TransactionLog
     }
 
+    /// <summary>
+    /// Backup component
+    /// </summary>
     public enum BackupComponent
     {
         Database,
         Files
     }
-
-
+    
+    /// <summary>
+    /// Backup set type
+    /// </summary>
     public enum BackupsetType
     {
         BackupsetDatabase,            
@@ -38,18 +44,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         BackupsetFiles
     }
 
-    public enum   RecoveryOption
+    /// <summary>
+    /// Recovery option
+    /// </summary>
+    public enum RecoveryOption
     {
         Recovery,
         NoRecovery,
         StandBy
     }
 
+    /// <summary>
+    /// Restore item source
+    /// </summary>
     public class RestoreItemSource
     {
-        public string       RestoreItemLocation;
-        public DeviceType   RestoreItemDeviceType;        
-        public bool         IsLogicalDevice;
+        public string RestoreItemLocation { get; set; }
+        public DeviceType RestoreItemDeviceType { get; set; }
+        public bool IsLogicalDevice { get; set; }
 
         public override int GetHashCode()
         {
@@ -64,15 +76,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
     }
 
-
+    /// <summary>
+    /// Restore item
+    /// </summary>
     public class RestoreItem
     {
-        public  BackupsetType   ItemBackupsetType;
-        public  int             ItemPosition;
-        public ArrayList        ItemSources;
-        public string           ItemName;
-        public string           ItemDescription;
-        public string           ItemMediaName;
+        public BackupsetType ItemBackupsetType { get; set; }
+        public int ItemPosition { get; set; }
+        public ArrayList ItemSources { get; set; }
+        public string ItemName { get; set; }
+        public string ItemDescription { get; set; }
+        public string ItemMediaName { get; set; }
     }
 
     /// <summary>
@@ -80,33 +94,38 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// </summary>
     public class CommonUtilities
     {
-        private     CDataContainer DataContainer;
-        private     ServerConnection SqlConnection = null;
-        private ArrayList ExcludedDbs;
-        
+        private CDataContainer dataContainer;
+        private ServerConnection sqlConnection = null;
+        private ArrayList excludedDatabases;
+        private const string LocalSqlServer = "(local)";
+        private const string LocalMachineName = ".";
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="dataContainer"></param>
+        /// <param name="sqlConnection"></param>
         public CommonUtilities(CDataContainer dataContainer, ServerConnection sqlConnection)
         {           
-            DataContainer   = dataContainer;
-            this.SqlConnection  = sqlConnection;
-
-            ExcludedDbs = new ArrayList();
-            ExcludedDbs.Add("master");
-            ExcludedDbs.Add("tempdb");
+            this.dataContainer   = dataContainer;
+            this.sqlConnection  = sqlConnection;
+            this.excludedDatabases = new ArrayList();
+            this.excludedDatabases.Add("master");
+            this.excludedDatabases.Add("tempdb");
         }
-
         
         public int GetServerVersion()
         {
-            return DataContainer.Server.Information.Version.Major;            
+            return this.dataContainer.Server.Information.Version.Major;            
         }
 
         /// <summary>
         /// Maps a string devicetype to the enum Smo.DeviceType
         /// <param name="stringDeviceType">Localized device type</param>
         /// </summary>
-        public Microsoft.SqlServer.Management.Smo.DeviceType    GetDeviceType(string stringDeviceType)
+        public DeviceType GetDeviceType(string stringDeviceType)
         {
-            if(String.Compare(stringDeviceType, RestoreConstants.File, StringComparison.OrdinalIgnoreCase) == 0)
+            if (String.Compare(stringDeviceType, RestoreConstants.File, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return DeviceType.File;
             }
@@ -124,9 +143,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// Maps a integer devicetype to the enum Smo.DeviceType
         /// <param name="numDeviceType">Device type</param>
         /// </summary>
-        public Microsoft.SqlServer.Management.Smo.DeviceType    GetDeviceType(int numDeviceType)
+        public DeviceType GetDeviceType(int numDeviceType)
         {
-            if(numDeviceType == 1)
+            if (numDeviceType == 1)
             {
                 return DeviceType.File;
             }
@@ -142,43 +161,36 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         
         public BackupDeviceType GetPhisycalDeviceTypeOfLogicalDevice(string deviceName)
         {
-            Enumerator  en  = new Enumerator();
-            Request     req = new Request();
-            DataSet     ds  = new DataSet();
-            ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
+            Enumerator  enumerator = new Enumerator();
+            Request request = new Request();
+            DataSet dataset = new DataSet();
+            dataset.Locale = System.Globalization.CultureInfo.InvariantCulture;
+            request.Urn = "Server/BackupDevice[@Name='" + Urn.EscapeString(deviceName) + "']";
+            dataset = enumerator.Process(this.sqlConnection, request);
 
-            req.Urn         = "Server/BackupDevice[@Name='" + Urn.EscapeString(deviceName) + "']";
-            ds = en.Process(SqlConnection, req);
-
-            int iCount  = ds.Tables[0].Rows.Count;
-            if(iCount > 0)
+            if (dataset.Tables[0].Rows.Count > 0)
             {                    
-                BackupDeviceType ControllerType = (BackupDeviceType)(Convert.ToInt16(ds.Tables[0].Rows[0]["BackupDeviceType"], System.Globalization.CultureInfo.InvariantCulture));
-                
-                return ControllerType;
+                BackupDeviceType controllerType = (BackupDeviceType)(Convert.ToInt16(dataset.Tables[0].Rows[0]["BackupDeviceType"], System.Globalization.CultureInfo.InvariantCulture));
+                return controllerType;
             }
             else
             {
                 throw new Exception("Unexpected error");    
             }
         }
-
         
-        public bool     ServerHasTapes()
+        public bool ServerHasTapes()
         {
             try
             {
-                Enumerator  en  = new Enumerator();
-                Request     req = new Request();
-                DataSet     ds  = new DataSet();
+                Enumerator en = new Enumerator();
+                Request req = new Request();
+                DataSet ds = new DataSet();
                 ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
+                req.Urn = "Server/TapeDevice";
+                ds = en.Process(this.sqlConnection, req);
 
-                req.Urn         = "Server/TapeDevice";
-
-                ds = en.Process(SqlConnection, req);
-
-                int iCount  = ds.Tables[0].Rows.Count;
-                if(iCount > 0)
+                if (ds.Tables[0].Rows.Count > 0)
                 {             
                     return true;
                 }
@@ -191,22 +203,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
 
-        public bool     ServerHasLogicalDevices()
+        public bool ServerHasLogicalDevices()
         {
             try
             {
-                Enumerator  en  = new Enumerator();
-                Request     req = new Request();
-                DataSet     ds  = new DataSet();
+                Enumerator en = new Enumerator();
+                Request req = new Request();
+                DataSet ds = new DataSet();
                 ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-
-                req.Urn         = "Server/BackupDevice";
-                ds              = en.Process(SqlConnection,req);
-
-                int iCount  = ds.Tables[0].Rows.Count;
-                if(iCount > 0)
+                req.Urn = "Server/BackupDevice";
+                ds = en.Process(this.sqlConnection,req);
+                
+                if (ds.Tables[0].Rows.Count > 0)
                 {             
-                    return true;
+                   return true;
                 }
                 return false;
             }
@@ -215,10 +225,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return false;
             }            
         }
-        
-        
+
         /// <summary>
-        /// 
+        /// Sanitize file name
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -245,26 +254,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
         
         
-        public  RecoveryModel   GetRecoveryModel(string databaseName)
+        public RecoveryModel GetRecoveryModel(string databaseName)
         {
-            Enumerator en                   = null;
-            DataSet ds                      = new DataSet();
+            Enumerator en = null;
+            DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req                     = new Request();
+            Request req = new Request();
             RecoveryModel recoveryModel = RecoveryModel.Simple;         
 
-            en              = new Enumerator();
+            en = new Enumerator();
+            req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Option";
+            req.Fields = new string[1];
+            req.Fields[0] = "RecoveryModel";
+            ds = en.Process(this.sqlConnection, req);
 
-            req.Urn         = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Option";
-            req.Fields      = new string[1];
-            req.Fields[0]   = "RecoveryModel";
-
-
-            ds = en.Process(this.SqlConnection, req);
-
-            int iCount = ds.Tables[0].Rows.Count;
-
-            if (iCount > 0)
+            if (ds.Tables[0].Rows.Count > 0)
             {   
                 recoveryModel = (RecoveryModel)(ds.Tables[0].Rows[0]["RecoveryModel"]);         
             }                               
@@ -272,55 +276,49 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
         
 
-        public  string  GetRecoveryModelAsString(RecoveryModel recoveryModel)
+        public string GetRecoveryModelAsString(RecoveryModel recoveryModel)
         {
-            string  szRecoveryModel = string.Empty;
+            string recoveryModelString = string.Empty;
 
             if (recoveryModel == RecoveryModel.Full)
             {
-                szRecoveryModel = BackupConstants.RecoveryModelFull;
+                recoveryModelString = BackupConstants.RecoveryModelFull;
             }
             else if (recoveryModel == RecoveryModel.Simple)
             {
-                szRecoveryModel = BackupConstants.RecoveryModelSimple;
+                recoveryModelString = BackupConstants.RecoveryModelSimple;
             }
             else if (recoveryModel == RecoveryModel.BulkLogged)
             {
-                szRecoveryModel = BackupConstants.RecoveryModelBulk;
+                recoveryModelString = BackupConstants.RecoveryModelBulk;
             }
              
-            return szRecoveryModel;
+            return recoveryModelString;
         }
 
 
         public string GetDefaultBackupFolder()
         {
-            string BackupFolder = "";
+            string backupFolder = "";
 
             Enumerator en = null;
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
             Request req = new Request();
-
             en = new Enumerator();
-
             req.Urn = "Server/Setting";
+            ds = en.Process(this.sqlConnection, req);
 
-            ds = en.Process(SqlConnection, req);
-
-            int iCount = ds.Tables[0].Rows.Count;
-
-            if (iCount > 0)
+            if (ds.Tables[0].Rows.Count > 0)
             {
-                BackupFolder = Convert.ToString(ds.Tables[0].Rows[0]["BackupDirectory"], System.Globalization.CultureInfo.InvariantCulture);
+                backupFolder = Convert.ToString(ds.Tables[0].Rows[0]["BackupDirectory"], System.Globalization.CultureInfo.InvariantCulture);
             }
-            return BackupFolder;
+            return backupFolder;
         }
 
-        
-        public  int     GetMediaRetentionValue()
+        public int GetMediaRetentionValue()
         {
-            int AfterXDays = 0;
+            int afterDays = 0;
             try
             {
                 Enumerator en = new Enumerator();
@@ -328,26 +326,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 DataSet ds = new DataSet();
                 ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
 
-                req.Urn = "Server/Configuration";                
-
-                ds = en.Process(this.SqlConnection, req);               
+                req.Urn = "Server/Configuration";
+                ds = en.Process(this.sqlConnection, req);               
                 for (int i = 0 ; i < ds.Tables[0].Rows.Count; i++)
                 {
                     if (Convert.ToString(ds.Tables[0].Rows[i]["Name"], System.Globalization.CultureInfo.InvariantCulture) == "media retention")
                     {
-                        AfterXDays = Convert.ToInt32(ds.Tables[0].Rows[i]["RunValue"], System.Globalization.CultureInfo.InvariantCulture);
+                        afterDays = Convert.ToInt32(ds.Tables[0].Rows[i]["RunValue"], System.Globalization.CultureInfo.InvariantCulture);
                         break;
                     }
                 }                                                                               
-                return AfterXDays;
+                return afterDays;
             }
             catch (Exception)
             {   
-                return AfterXDays;
+                return afterDays;
             }           
         }
 
-        public bool IsDestinationPathValid(string path, ref bool IsFolder)
+        public bool IsDestinationPathValid(string path, ref bool isFolder)
         {
             Enumerator en = null;
             DataTable dt;
@@ -355,53 +352,43 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             en = new Enumerator();
             req.Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']";
-
-            dt = en.Process(this.SqlConnection, req);
-
-            int iCount = dt.Rows.Count;
-
-            if (iCount > 0)
+            dt = en.Process(this.sqlConnection, req);
+            
+            if (dt.Rows.Count > 0)
             {
-                IsFolder = !(Convert.ToBoolean(dt.Rows[0]["IsFile"], System.Globalization.CultureInfo.InvariantCulture));
+                isFolder = !(Convert.ToBoolean(dt.Rows[0]["IsFile"], System.Globalization.CultureInfo.InvariantCulture));
                 return true;
             }
             else
             {
-                IsFolder = false;
+                isFolder = false;
                 return false;
             }
         }
 
-        public string   GetMediaNameFromBackupSetId(int backupSetId)
+        public string GetMediaNameFromBackupSetId(int backupSetId)
         {
-            Enumerator          en  = null;
-            DataSet             ds  = new DataSet();
+            Enumerator en  = null;
+            DataSet ds  = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request             req = new Request();    
+            Request req = new Request();    
 
-            int mediaId             = -1;
-            string mediaName        = string.Empty;
-                        
+            int mediaId = -1;
+            string mediaName = string.Empty;
             en = new Enumerator();
-
             req.Urn = "Server/BackupSet[@ID='" + Urn.EscapeString(Convert.ToString(backupSetId, System.Globalization.CultureInfo.InvariantCulture)) + "']";
 
             try
             {
-                ds = en.Process(SqlConnection, req);
-
-                int iCount = ds.Tables[0].Rows.Count;
-
-                if (iCount > 0)
+                ds = en.Process(this.sqlConnection, req);
+                if (ds.Tables[0].Rows.Count > 0)
                 {
                     mediaId = Convert.ToInt32(ds.Tables[0].Rows[0]["MediaSetId"], System.Globalization.CultureInfo.InvariantCulture);
                     ds.Clear();
-
                     req.Urn = "Server/BackupMediaSet[@ID='" + Urn.EscapeString(Convert.ToString(mediaId, System.Globalization.CultureInfo.InvariantCulture)) + "']";
-                    ds = en.Process(SqlConnection, req);
+                    ds = en.Process(this.sqlConnection, req);
 
-                    iCount = ds.Tables[0].Rows.Count;
-                    if (iCount > 0)
+                    if (ds.Tables[0].Rows.Count > 0)
                     {
                         mediaName = Convert.ToString(ds.Tables[0].Rows[0]["Name"], System.Globalization.CultureInfo.InvariantCulture);
                     }
@@ -417,7 +404,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         public string GetFileType(string type)
         {
             string result = string.Empty;
-
             switch (type.ToUpperInvariant())
             {
                 case "D":
@@ -440,44 +426,42 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return result;
         }
         
-        public string   GetNewPhysicalRestoredFileName(string OriginalName, string dbName, bool isNewDatabase, string type, ref int fileIndex)
+        public string GetNewPhysicalRestoredFileName(string filePathParam, string dbName, bool isNewDatabase, string type, ref int fileIndex)
         {
-            if (string.IsNullOrEmpty(OriginalName))
+            if (string.IsNullOrEmpty(filePathParam))
             {
-                //shall never come here
                 return string.Empty;
             }
             
-            string  result      = string.Empty;
-            string  origfile    = OriginalName;
-            int     Idx         = origfile.LastIndexOf('\\');
-            string  origpath    = origfile.Substring(0,Idx);
-
-            //getting the filename
-            string origname = origfile.Substring(Idx + 1);
-            Idx = origname.LastIndexOf('.');
-            string origext = origname.Substring(Idx + 1);
+            string result = string.Empty;
+            string filePath = filePathParam;
+            int idx = filePath.LastIndexOf('\\');
+            string folderPath = filePath.Substring(0,idx);
+            
+            string fileName = filePath.Substring(idx + 1);
+            idx = fileName.LastIndexOf('.');
+            string fileExtension = fileName.Substring(idx + 1);
 
             bool isFolder = true;
-            bool isValidPath    = IsDestinationPathValid(origpath, ref isFolder);
+            bool isValidPath = IsDestinationPathValid(folderPath, ref isFolder);
 
             if (!isValidPath || !isFolder)
             {
-                SMO.Server server = new SMO.Server(this.SqlConnection);
+                SMO.Server server = new SMO.Server(this.sqlConnection);
                 if (type != RestoreConstants.Log)
                 {
-                    origpath = server.Settings.DefaultFile;
-                    if (origpath.Length == 0)
+                    folderPath = server.Settings.DefaultFile;
+                    if (folderPath.Length == 0)
                     {
-                        origpath = server.Information.MasterDBPath;
+                        folderPath = server.Information.MasterDBPath;
                     }
                 }
                 else 
                 {
-                    origpath = server.Settings.DefaultLog;
-                    if (origpath.Length == 0)
+                    folderPath = server.Settings.DefaultLog;
+                    if (folderPath.Length == 0)
                     {
-                        origpath = server.Information.MasterDBLogPath;
+                        folderPath = server.Information.MasterDBLogPath;
                     }
                 }
             }
@@ -485,24 +469,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 if (!isNewDatabase)
                 {
-                    return OriginalName;
+                    return filePathParam;
                 }
             }
 
             if (!isNewDatabase)
             {
-                result = origpath + "\\" + dbName + "." + origext;
+                result = folderPath + "\\" + dbName + "." + fileExtension;
             }
             else
             {
-                if (0 != string.Compare(origext, "mdf", StringComparison.OrdinalIgnoreCase))
+                if (0 != string.Compare(fileExtension, "mdf", StringComparison.OrdinalIgnoreCase))
                 {
-                    result = origpath + "\\" + dbName + "_" + Convert.ToString(fileIndex, System.Globalization.CultureInfo.InvariantCulture) + "." + origext;
+                    result = folderPath + "\\" + dbName + "_" + Convert.ToString(fileIndex, System.Globalization.CultureInfo.InvariantCulture) + "." + fileExtension;
                     fileIndex++;
                 }
                 else
                 {
-                    result = origpath + "\\" + dbName + "." + origext;
+                    result = folderPath + "\\" + dbName + "." + fileExtension;
                 }
             }
 
@@ -520,10 +504,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         public bool IsHADRDatabase(string databaseName)
         {
-            SMO.Server server = new SMO.Server(this.SqlConnection);
-
-            // TODO: SqlConnection.ServerVersion is used instead of server.ServerVersion
-            if ((this.SqlConnection.ServerVersion.Major < 11) || (!server.IsHadrEnabled))
+            SMO.Server server = new SMO.Server(this.sqlConnection);
+            if ((this.sqlConnection.ServerVersion.Major < 11) || (!server.IsHadrEnabled))
             {
                 return false;
             }
@@ -535,9 +517,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>>
         public bool IsMirroringEnabled(string databaseName)
         {
-            SMO.Server server = new SMO.Server(this.SqlConnection);
-            // TODO: SqlConnection.ServerVersion is used instead of server.ServerVersion
-            if (this.SqlConnection.ServerVersion.Major < 9)
+            SMO.Server server = new SMO.Server(this.sqlConnection);
+            if (this.sqlConnection.ServerVersion.Major < 9)
             {
                 return false;
             }
@@ -556,57 +537,54 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             //Method should be called for HADR db
             System.Diagnostics.Debug.Assert(IsHADRDatabase(hadrDb));
 
-            bool retVal = true;
+            bool result = true;
             bool localPrimaryReplica = this.IsLocalPrimaryReplica(hadrDb);
 
             if (localPrimaryReplica)
             {
-                return retVal;
+                return result;
             }
 
             //Set un-supported backuptype to false
-            if(0 == string.Compare(backupTypeStr, BackupConstants.BackupTypeFull, StringComparison.OrdinalIgnoreCase))
+            if (0 == string.Compare(backupTypeStr, BackupConstants.BackupTypeFull, StringComparison.OrdinalIgnoreCase))
             {
                 if (!copyOnly)
                 {
                     //Full
-                    retVal = false;
+                    result = false;
                 }
             }
-            else if(0 == string.Compare(backupTypeStr, BackupConstants.BackupTypeDiff, StringComparison.OrdinalIgnoreCase))
+            else if (0 == string.Compare(backupTypeStr, BackupConstants.BackupTypeDiff, StringComparison.OrdinalIgnoreCase))
             {
                 //Diff
-                retVal = false;
+                result = false;
             }
-            else if(0 == string.Compare(backupTypeStr, BackupConstants.BackupTypeTLog, StringComparison.OrdinalIgnoreCase))
+            else if (0 == string.Compare(backupTypeStr, BackupConstants.BackupTypeTLog, StringComparison.OrdinalIgnoreCase))
             {
                 //Log-CopyOnly
                 if (copyOnly)
                 {
-                    retVal = false;
+                    result = false;
                 }
             }
 
-            return retVal;
+            return result;
         }
 
                 
         public bool IsDatabaseOnServer(string databaseName)
         {
-            Enumerator          en  = new Enumerator();
-            DataSet             ds  = new DataSet();
+            Enumerator en = new Enumerator();
+            DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request             req = new Request();                                        
+            Request req = new Request();                                        
             
-            req.Urn             = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";
-            req.Fields          = new string[1];
-            req.Fields[0]       = "Name";
+            req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";
+            req.Fields = new string[1];
+            req.Fields[0] = "Name";
 
-            ds = en.Process(SqlConnection, req);
-
-            int iCount  = ds.Tables[0].Rows.Count;
-
-            return (iCount > 0) ? true : false;
+            ds = en.Process(sqlConnection, req);            
+            return (ds.Tables[0].Rows.Count > 0) ? true : false;
         }
 
         /* TODO: This is needed for Restore
@@ -690,80 +668,79 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return dict;
         }*/
 
-        public void GetBackupSetTypeAndComponent(int numType, ref string Type, ref string Component)
+        public void GetBackupSetTypeAndComponent(int numType, ref string backupType, ref string backupComponent)
         {
             switch (numType)
             {
                 case 1:
-                    Type = RestoreConstants.TypeFull;
-                    Component = RestoreConstants.ComponentDatabase;
+                    backupType = RestoreConstants.TypeFull;
+                    backupComponent = RestoreConstants.ComponentDatabase;
                     break;
                 case 2:
-                    Type = RestoreConstants.TypeTransactionLog;
-                    Component = "";
+                    backupType = RestoreConstants.TypeTransactionLog;
+                    backupComponent = "";
                     break;                
                 case 4:
-                    Type = RestoreConstants.TypeFilegroup;
-                    Component = RestoreConstants.ComponentFile;
+                    backupType = RestoreConstants.TypeFilegroup;
+                    backupComponent = RestoreConstants.ComponentFile;
                     break;
                 case 5:
-                    Type = RestoreConstants.TypeDifferential;
-                    Component = RestoreConstants.ComponentDatabase;
+                    backupType = RestoreConstants.TypeDifferential;
+                    backupComponent = RestoreConstants.ComponentDatabase;
                     break;
                 case 6:
-                    Type = RestoreConstants.TypeFilegroupDifferential;
-                    Component = RestoreConstants.ComponentFile;
+                    backupType = RestoreConstants.TypeFilegroupDifferential;
+                    backupComponent = RestoreConstants.ComponentFile;
                     break;
                 default:
-                    Type = RestoreConstants.NotKnown;
-                    Component = RestoreConstants.NotKnown;
+                    backupType = RestoreConstants.NotKnown;
+                    backupComponent = RestoreConstants.NotKnown;
                     break;
             }
-
         }
         
         
-        public void GetBackupSetTypeAndComponent(string strType, ref string Type, ref string Component)
+        public void GetBackupSetTypeAndComponent(string strType, ref string backupType, ref string backupComponent)
         {           
             string type = strType.ToUpperInvariant();
 
             if (type == "D")
             {
-                Type = RestoreConstants.TypeFull;
-                Component = RestoreConstants.ComponentDatabase;
+                backupType = RestoreConstants.TypeFull;
+                backupComponent = RestoreConstants.ComponentDatabase;
             }
             else
             {
                 if (type == "I")
                 {
-                    Type = RestoreConstants.TypeDifferential;
-                    Component = RestoreConstants.ComponentDatabase;
+                    backupType = RestoreConstants.TypeDifferential;
+                    backupComponent = RestoreConstants.ComponentDatabase;
                 }
                 else
                 {
                     if (type == "L")
                     {
-                        Type = RestoreConstants.TypeTransactionLog;
-                        Component = "";
+                        backupType = RestoreConstants.TypeTransactionLog;
+                        backupComponent = "";
                     }
                     else
                     {
                         if (type == "F")
                         {
-                            Type = RestoreConstants.TypeFilegroup;
-                            Component = RestoreConstants.ComponentFile;
+                            backupType = RestoreConstants.TypeFilegroup;
+                            backupComponent = RestoreConstants.ComponentFile;
                         }
                         else
                         {
                             if (type == "G")
                             {
-                                Type = RestoreConstants.TypeFilegroupDifferential;
-                                Component = RestoreConstants.ComponentFile;
+                                backupType = RestoreConstants.TypeFilegroupDifferential;
+                                backupComponent = RestoreConstants.ComponentFile;
                             }
                             else
                             {
-                                Type = RestoreConstants.NotKnown;
-                                Component = RestoreConstants.NotKnown;
+                                backupType = RestoreConstants.NotKnown;
+                                backupComponent = RestoreConstants.NotKnown;
                             }
                         }
                     }
@@ -792,23 +769,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         
         public BackupsetType GetBackupsetTypeFromBackupTypesOnDevice(int type)
         {            
-            BackupsetType   Result  = BackupsetType.BackupsetDatabase;
+            BackupsetType Result = BackupsetType.BackupsetDatabase;
             switch(type)
             {
                 case 1:
-                    Result  = BackupsetType.BackupsetDatabase;
+                    Result = BackupsetType.BackupsetDatabase;
                     break;
                 case 2:
-                    Result  = BackupsetType.BackupsetLog;
+                    Result = BackupsetType.BackupsetLog;
                     break;
                 case 5:
-                    Result  = BackupsetType.BackupsetDifferential;
+                    Result = BackupsetType.BackupsetDifferential;
                     break;
                 case 4:
-                    Result  = BackupsetType.BackupsetFiles;
+                    Result = BackupsetType.BackupsetFiles;
                     break;
                 default:
-                    Result  = BackupsetType.BackupsetDatabase;
+                    Result = BackupsetType.BackupsetDatabase;
                     break;
             }
             return Result;
@@ -817,34 +794,34 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         
         public BackupsetType GetBackupsetTypeFromBackupTypesOnHistory(string type)
         {
-            BackupsetType   Result  = BackupsetType.BackupsetDatabase;
+            BackupsetType result = BackupsetType.BackupsetDatabase;
             switch(type)
             {
                 case "D":
-                    Result  = BackupsetType.BackupsetDatabase;
+                    result = BackupsetType.BackupsetDatabase;
                     break;
                 case "I":
-                    Result  = BackupsetType.BackupsetDifferential;
+                    result = BackupsetType.BackupsetDifferential;
                     break;
                 case "L":
-                    Result  = BackupsetType.BackupsetLog;
+                    result = BackupsetType.BackupsetLog;
                     break;
                 case "F":
-                    Result  = BackupsetType.BackupsetFiles;
+                    result = BackupsetType.BackupsetFiles;
                     break;
                 default:
-                    Result  = BackupsetType.BackupsetDatabase;
+                    result = BackupsetType.BackupsetDatabase;
                     break;
             }
-            return Result;
+            return result;
         }
 
         
-        public DataSet  GetBackupSetFiles(int backupsetId)
+        public DataSet GetBackupSetFiles(int backupsetId)
         {
-            Enumerator  en              = new Enumerator();
-            Request     req             = new Request();
-            DataSet     backupsetfiles  = new DataSet();
+            Enumerator en = new Enumerator();
+            Request req = new Request();
+            DataSet backupsetfiles = new DataSet();
             backupsetfiles.Locale = System.Globalization.CultureInfo.InvariantCulture;
 
             if(backupsetId > 0)
@@ -853,131 +830,119 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             else
             {
-                req.Urn             = "Server/BackupSet/File";
+                req.Urn = "Server/BackupSet/File";
             }
-            backupsetfiles      = en.Process(SqlConnection, req);
+            backupsetfiles = en.Process(sqlConnection, req);
 
             return backupsetfiles;
         }
         
-        
-        public DataSet  GetBackupSetById(int backupsetId)
-        {
-            
-            SqlExecutionModes    executionMode   = SqlConnection.SqlExecutionModes;
-            SqlConnection.SqlExecutionModes      = SqlExecutionModes.ExecuteSql;
-            Enumerator  en          = new Enumerator();
-            Request     req         = new Request();
-            DataSet     backupset   = new DataSet();
+        public DataSet GetBackupSetById(int backupsetId)
+        {   
+            SqlExecutionModes executionMode = this.sqlConnection.SqlExecutionModes;
+            this.sqlConnection.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+            Enumerator en = new Enumerator();
+            Request req = new Request();
+            DataSet backupset = new DataSet();
             backupset.Locale = System.Globalization.CultureInfo.InvariantCulture;
 
             req.Urn = "Server/BackupSet[@ID='" + Urn.EscapeString(Convert.ToString(backupsetId, System.Globalization.CultureInfo.InvariantCulture)) + "']";
-            backupset           = en.Process(SqlConnection, req);
+            backupset = en.Process(this.sqlConnection, req);
 
-            SqlConnection.SqlExecutionModes      = executionMode;
-
+            this.sqlConnection.SqlExecutionModes = executionMode;
             return backupset;
-
         }
         
         
         public ArrayList GetBackupSetPhysicalSources(int backupsetId)
-        {
-            
-            SqlExecutionModes    executionMode   = SqlConnection.SqlExecutionModes;
-            SqlConnection.SqlExecutionModes      = SqlExecutionModes.ExecuteSql;
+        {            
+            SqlExecutionModes executionMode = this.sqlConnection.SqlExecutionModes;
+            this.sqlConnection.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
 
-            ArrayList Sources   = new ArrayList();
-
-            DataSet     BackupSet   = GetBackupSetById(backupsetId);
-            if(BackupSet.Tables[0].Rows.Count == 1)
+            ArrayList sources = new ArrayList();
+            DataSet backupSet = GetBackupSetById(backupsetId);
+            if(backupSet.Tables[0].Rows.Count == 1)
             {
-                string MediaSetID = Convert.ToString(BackupSet.Tables[0].Rows[0]["MediaSetId"], System.Globalization.CultureInfo.InvariantCulture);
+                string mediaSetID = Convert.ToString(backupSet.Tables[0].Rows[0]["MediaSetId"], System.Globalization.CultureInfo.InvariantCulture);
 
-                Enumerator  en          = new Enumerator();
-                Request     req         = new Request();
-                DataSet     mediafamily = new DataSet();
+                Enumerator en = new Enumerator();
+                Request req = new Request();
+                DataSet mediafamily = new DataSet();
                 mediafamily.Locale = System.Globalization.CultureInfo.InvariantCulture;            
 
-                req.Urn             = "Server/BackupMediaSet[@ID='"+Urn.EscapeString(MediaSetID)+"']/MediaFamily";
-                mediafamily         = en.Process(SqlConnection, req);
+                req.Urn = "Server/BackupMediaSet[@ID='"+Urn.EscapeString(mediaSetID)+"']/MediaFamily";
+                mediafamily = en.Process(this.sqlConnection, req);
 
-                if(mediafamily.Tables[0].Rows.Count > 0)
+                if (mediafamily.Tables[0].Rows.Count > 0)
                 {
-                    for(int j = 0 ; j < mediafamily.Tables[0].Rows.Count; j ++)
+                    for (int j = 0 ; j < mediafamily.Tables[0].Rows.Count; j ++)
                     {
+                        RestoreItemSource itemSource = new RestoreItemSource();
+                        itemSource.RestoreItemLocation = Convert.ToString(mediafamily.Tables[0].Rows[j]["PhysicalDeviceName"], System.Globalization.CultureInfo.InvariantCulture);
+                        BackupDeviceType backupDeviceType = (BackupDeviceType)Enum.Parse(typeof(BackupDeviceType), mediafamily.Tables[0].Rows[j]["BackupDeviceType"].ToString());
                         
-                        RestoreItemSource   ItemSource  = new RestoreItemSource();
-
-                        ItemSource.RestoreItemLocation = Convert.ToString(mediafamily.Tables[0].Rows[j]["PhysicalDeviceName"], System.Globalization.CultureInfo.InvariantCulture);
-
-                        BackupDeviceType  backupDeviceType = (BackupDeviceType)Enum.Parse(typeof(BackupDeviceType), mediafamily.Tables[0].Rows[j]["BackupDeviceType"].ToString());
-                        
-                        if (BackupDeviceType.Disk == backupDeviceType )
+                        if (BackupDeviceType.Disk == backupDeviceType)
                         {
-                            ItemSource.RestoreItemDeviceType = DeviceType.File;                                    
+                            itemSource.RestoreItemDeviceType = DeviceType.File;                                    
                         }
                         else if (BackupDeviceType.Url == backupDeviceType)
                         {
-                            ItemSource.RestoreItemDeviceType = DeviceType.Url;
+                            itemSource.RestoreItemDeviceType = DeviceType.Url;
                         }                                
                         else
                         {
-                            ItemSource.RestoreItemDeviceType = DeviceType.Tape;                                    
+                            itemSource.RestoreItemDeviceType = DeviceType.Tape;                                    
                         }                                
-                        Sources.Add(ItemSource);                        
+                        sources.Add(itemSource);                        
                     }
                 }
             }
 
-            SqlConnection.SqlExecutionModes      = executionMode;
-            return Sources;
+            this.sqlConnection.SqlExecutionModes = executionMode;
+            return sources;
         }
         
         
-        public  RestoreActionType   GetRestoreTaskFromBackupSetType(BackupsetType type)
+        public RestoreActionType GetRestoreTaskFromBackupSetType(BackupsetType type)
         {
-            RestoreActionType   Result  = RestoreActionType.Database;
+            RestoreActionType result = RestoreActionType.Database;
             
-            switch(type)
+            switch (type)
             {
                 case BackupsetType.BackupsetDatabase:
-                    Result  = RestoreActionType.Database;
+                    result = RestoreActionType.Database;
                     break;
                 case BackupsetType.BackupsetDifferential:
-                    Result  = RestoreActionType.Database;
+                    result = RestoreActionType.Database;
                     break;
                 case BackupsetType.BackupsetLog:
-                    Result  = RestoreActionType.Log;
+                    result = RestoreActionType.Log;
                     break;
                 case BackupsetType.BackupsetFiles:
-                    Result  = RestoreActionType.Files;
+                    result = RestoreActionType.Files;
                     break;
                 default:
-                    Result  = RestoreActionType.Database;
+                    result = RestoreActionType.Database;
                     break;
             }
-            return Result;
+            return result;
         }
-
         
-        public  int GetLatestBackup(string DatabaseName,string BackupSetName)
+        public int GetLatestBackup(string databaseName, string backupSetName)
         {
-            Enumerator  en          = new Enumerator();
-            Request     req         = new Request();
-            DataSet     backupSets  = new DataSet();
+            Enumerator en = new Enumerator();
+            Request req = new Request();
+            DataSet backupSets = new DataSet();
             backupSets.Locale = System.Globalization.CultureInfo.InvariantCulture;            
-            OrderBy     ob;
+            OrderBy orderByBackupDate;
 
-            req.Urn             = "Server/BackupSet[@Name='"+Urn.EscapeString(BackupSetName)+"' and @DatabaseName='"+ Urn.EscapeString(DatabaseName)+"']";
-            
-            req.OrderByList     = new OrderBy[1];
-            ob                  = new OrderBy("BackupFinishDate", OrderBy.Direction.Desc);
-            req.OrderByList[0]  = ob;
+            req.Urn = "Server/BackupSet[@Name='"+Urn.EscapeString(backupSetName)+"' and @DatabaseName='"+ Urn.EscapeString(databaseName)+"']";
+            req.OrderByList = new OrderBy[1];
+            orderByBackupDate = new OrderBy("BackupFinishDate", OrderBy.Direction.Desc);
+            req.OrderByList[0] = orderByBackupDate;
+            backupSets = en.Process(this.sqlConnection, req);
 
-            backupSets          = en.Process(SqlConnection, req);
-
-            if(backupSets.Tables[0].Rows.Count > 0)
+            if (backupSets.Tables[0].Rows.Count > 0)
             {
                 return Convert.ToInt32(backupSets.Tables[0].Rows[0]["Position"], System.Globalization.CultureInfo.InvariantCulture);
             }
@@ -986,17 +951,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return -1;
             }
         }
-
         
         public List<RestoreItemSource> GetLatestBackupLocations(string DatabaseName)
         {
-            List<RestoreItemSource>  LatestLocations   = new List<RestoreItemSource>();
-
+            List<RestoreItemSource> latestLocations = new List<RestoreItemSource>();
             Enumerator en = null;
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req = new Request();    
-                        
+            Request req = new Request();
             en = new Enumerator();
 
             req.Urn = "Server/BackupSet[@DatabaseName='" + Urn.EscapeString(DatabaseName) + "']";
@@ -1007,23 +969,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             try
             {
-                ds = en.Process(SqlConnection, req);
-
-                int iCount = ds.Tables[0].Rows.Count;
-                if (iCount > 0)
+                ds = en.Process(this.sqlConnection, req);
+                if (ds.Tables[0].Rows.Count > 0)
                 {
-                    string MediaSetID = Convert.ToString(ds.Tables[0].Rows[0]["MediaSetId"], System.Globalization.CultureInfo.InvariantCulture);
+                    string mediaSetID = Convert.ToString(ds.Tables[0].Rows[0]["MediaSetId"], System.Globalization.CultureInfo.InvariantCulture);
                     ds.Clear();
                     req = new Request();
-                    req.Urn = "Server/BackupMediaSet[@ID='" + Urn.EscapeString(MediaSetID) + "']/MediaFamily";
-                    ds = en.Process(SqlConnection, req);
-                    iCount = ds.Tables[0].Rows.Count;
-                    if (iCount > 0)
+                    req.Urn = "Server/BackupMediaSet[@ID='" + Urn.EscapeString(mediaSetID) + "']/MediaFamily";
+                    ds = en.Process(this.sqlConnection, req);
+                    int count = ds.Tables[0].Rows.Count;
+                    if (count > 0)
                     {
-                        for (int i = 0; i < iCount; i++)
+                        for (int i = 0; i < count; i++)
                         {
-                            RestoreItemSource Location = new RestoreItemSource();
-
+                            RestoreItemSource restoreItemSource = new RestoreItemSource();
                             DeviceType deviceType = (DeviceType)(Convert.ToInt16(ds.Tables[0].Rows[i]["BackupDeviceType"], System.Globalization.CultureInfo.InvariantCulture));
                             string location = Convert.ToString(ds.Tables[0].Rows[i]["LogicalDeviceName"], System.Globalization.CultureInfo.InvariantCulture);
                             bool isLogical = (location.Length > 0);
@@ -1041,10 +1000,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                                     location = location.Substring(0, pos);
                                 }
                             }
-                            Location.RestoreItemDeviceType = deviceType;
-                            Location.RestoreItemLocation = location;
-                            Location.IsLogicalDevice = isLogical;
-                            LatestLocations.Add(Location);
+                            restoreItemSource.RestoreItemDeviceType = deviceType;
+                            restoreItemSource.RestoreItemLocation = location;
+                            restoreItemSource.IsLogicalDevice = isLogical;
+                            latestLocations.Add(restoreItemSource);
                         }
                     }
                 }
@@ -1053,14 +1012,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             catch (Exception)
             {                
             }            
-            return LatestLocations;            
+            return latestLocations;            
         }                       
         
-        public string   GetDefaultDatabaseForLogin(string LoginName)
-        {
-            
-            string DefaultDatabase  = string.Empty;
-
+        public string GetDefaultDatabaseForLogin(string LoginName)
+        {   
+            string defaultDatabase  = string.Empty;
             Enumerator en = new Enumerator();
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
@@ -1069,84 +1026,67 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             req.Urn = "Server/Login[@Name='"+Urn.EscapeString(LoginName)+"']";
             req.Fields = new string[1];
             req.Fields[0] = "DefaultDatabase";
+            ds = en.Process(this.sqlConnection, req);
 
-            ds = en.Process(SqlConnection, req);
-
-            int iCount = ds.Tables[0].Rows.Count;
-            if (iCount > 0)
+            if (ds.Tables[0].Rows.Count > 0)
             {
-                DefaultDatabase = Convert.ToString(ds.Tables[0].Rows[0]["DefaultDatabase"], System.Globalization.CultureInfo.InvariantCulture);
+                defaultDatabase = Convert.ToString(ds.Tables[0].Rows[0]["DefaultDatabase"], System.Globalization.CultureInfo.InvariantCulture);
             }
-            return DefaultDatabase;   
-
+            return defaultDatabase;
         }
 
-        
-        public bool     IsPathExisting(string path,ref bool IsFolder)
+        public bool IsPathExisting(string path, ref bool isFolder)
         {
-            Enumerator en   = new Enumerator();
-            DataSet ds      = new DataSet();
+            Enumerator en = new Enumerator();
+            DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req     = new Request();
-                        
+            Request req = new Request();
             req.Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']";
+            ds = en.Process(this.sqlConnection, req);
 
-            ds = en.Process(SqlConnection, req);
-
-            int iCount = ds.Tables[0].Rows.Count;
-
-            if (iCount > 0)
+            if (ds.Tables[0].Rows.Count > 0)
             {
-                IsFolder = !(Convert.ToBoolean(ds.Tables[0].Rows[0]["IsFile"], System.Globalization.CultureInfo.InvariantCulture));
+                isFolder = !(Convert.ToBoolean(ds.Tables[0].Rows[0]["IsFile"], System.Globalization.CultureInfo.InvariantCulture));
                 return true;
             }
             else
             {
-                IsFolder = false;
+                isFolder = false;
                 return false;
             }
         }
 
-
-        public ArrayList    IsPhysicalPathInLogicalDevice(string physicalPath)
-        {
-            
-            Enumerator en   = new Enumerator();
-            DataSet ds      = new DataSet();
+        public ArrayList IsPhysicalPathInLogicalDevice(string physicalPath)
+        {   
+            Enumerator en = new Enumerator();
+            DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req     = new Request();
-            ArrayList Result= null;            
-            
-            int iCount      = 0;            
-                                               
-            req.Urn             = "Server/BackupDevice[@PhysicalLocation='" +Urn.EscapeString(physicalPath)+ "']";
+            Request req = new Request();
+            ArrayList result = null;
+            int count = 0;               
+            req.Urn = "Server/BackupDevice[@PhysicalLocation='" +Urn.EscapeString(physicalPath)+ "']";
 
-            ds          = en.Process(SqlConnection, req);           
-            iCount      = ds.Tables[0].Rows.Count;
+            ds = en.Process(this.sqlConnection, req);           
+            count = ds.Tables[0].Rows.Count;
             
-            if(iCount > 0)
+            if (count > 0)
             {
-                Result  = new ArrayList(iCount);
-                for(int i =0 ; i < iCount ; i++)
+                result = new ArrayList(count);
+                for(int i = 0; i < count; i++)
                 {
-                    Result.Add(Convert.ToString(ds.Tables[0].Rows[0]["Name"], System.Globalization.CultureInfo.InvariantCulture));
+                    result.Add(Convert.ToString(ds.Tables[0].Rows[0]["Name"], System.Globalization.CultureInfo.InvariantCulture));
                 }
             }               
-            return Result;
+            return result;
         }
 
-        #region Implementation - HelperFunctions - Machine Name
-        private const string cLocalSqlServer = "(local)";
-        private const string cLocalMachineName = ".";
-        public string   GetMachineName(string sqlServerName)
+        public string GetMachineName(string sqlServerName)
         {
             System.Diagnostics.Debug.Assert(sqlServerName != null);
 
             // special case (local) which is accepted SQL(MDAC) but by OS
-            if (
-                (sqlServerName.ToLowerInvariant().Trim() == cLocalSqlServer) ||
-                (sqlServerName.ToLowerInvariant().Trim() == cLocalMachineName)
-                )
+            if ((sqlServerName.ToLowerInvariant().Trim() == LocalSqlServer) ||
+                (sqlServerName.ToLowerInvariant().Trim() == LocalMachineName))
             {
                 return System.Environment.MachineName;
             }
@@ -1163,7 +1103,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return machineName;
             }
         }
-        
-        #endregion
     }
 }

@@ -1803,4 +1803,16 @@
     <value>No Applicable Filegroup</value>
     <comment></comment>
   </data>
+  <data name="Backup_TaskName" xml:space="preserve">
+    <value>Backup Database</value>
+    <comment></comment>
+  </data>
+  <data name="Task_InProgress" xml:space="preserve">
+    <value>In progress</value>
+    <comment></comment>
+  </data>
+  <data name="Task_Completed" xml:space="preserve">
+    <value>Completed</value>
+    <comment></comment>
+  </data>
 </root>
