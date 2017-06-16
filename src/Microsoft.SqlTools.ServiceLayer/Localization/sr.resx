@@ -1624,7 +1624,11 @@
     <comment></comment>
   </data>
   <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</value>
+    <value>Date Correlation Optimization Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parameterization</value>
     <comment></comment>
   </data>
   <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
