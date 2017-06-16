@@ -2909,6 +2909,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string prototype_db_prop_parameterization
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_parameterization);
+            }
+        }
+
         public static string prototype_db_prop_parameterization_value_forced
         {
             get
@@ -4475,6 +4483,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_db_prop_dateCorrelationOptimization = "prototype_db_prop_dateCorrelationOptimization";
+
+
+            public const string prototype_db_prop_parameterization = "prototype_db_prop_parameterization";
 
 
             public const string prototype_db_prop_parameterization_value_forced = "prototype_db_prop_parameterization_value_forced";

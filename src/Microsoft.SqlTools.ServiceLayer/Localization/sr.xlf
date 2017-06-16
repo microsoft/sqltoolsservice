@@ -1877,7 +1877,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
-        <source>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</source>
+        <source>Date Correlation Optimization Enabled</source>
         <target state="new">Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</target>
         <note></note>
       </trans-unit>
@@ -2114,6 +2114,10 @@
       <trans-unit id="Task_Completed">
         <source>Completed</source>
         <target state="new">Completed</target>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="new">Parameterization</target>
         <note></note>
       </trans-unit>
     </body>
