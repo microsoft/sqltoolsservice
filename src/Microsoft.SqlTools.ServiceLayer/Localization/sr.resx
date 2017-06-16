@@ -1632,7 +1632,11 @@
     <comment></comment>
   </data>
   <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</value>
+    <value>Date Correlation Optimization Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parameterization</value>
     <comment></comment>
   </data>
   <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
@@ -1805,6 +1809,18 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>No Applicable Filegroup</value>
+    <comment></comment>
+  </data>
+  <data name="Backup_TaskName" xml:space="preserve">
+    <value>Backup Database</value>
+    <comment></comment>
+  </data>
+  <data name="Task_InProgress" xml:space="preserve">
+    <value>In progress</value>
+    <comment></comment>
+  </data>
+  <data name="Task_Completed" xml:space="preserve">
+    <value>Completed</value>
     <comment></comment>
   </data>
 </root>

@@ -299,7 +299,16 @@ WHERE do.database_id = @DbID
 
                 ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
-                this.owner = db.Owner;
+                try
+                {
+                    this.owner = db.Owner;
+                }
+                catch (Exception)
+                {
+                    // TODO: fix the exception in SMO
+                    this.owner = string.Empty;
+                }
+
 
                 // Databases that are restored from other servers might not have valid owners.
                 // If the logged in user is an administrator and the owner is not valid, show

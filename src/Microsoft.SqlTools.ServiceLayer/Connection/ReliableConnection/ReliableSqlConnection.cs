@@ -404,7 +404,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             switch (e.CurrentState)
             {
                 case ConnectionState.Open:
-                    RetreiveSessionId();
+                    RetrieveSessionId();
                     break;
                 case ConnectionState.Broken:
                 case ConnectionState.Closed:
@@ -418,20 +418,24 @@ SET NUMERIC_ROUNDABORT OFF;";
             }
         }
 
-        private void RetreiveSessionId()
+        private void RetrieveSessionId()
         {
             try
             {
                 using (IDbCommand command = CreateReliableCommand())
                 {
-                    command.CommandText = QueryAzureSessionId;
-                    object result = command.ExecuteScalar();
-
-                    // Only returns a session id for SQL Azure
-                    if (DBNull.Value != result)
+                    IDbConnection connection = command.Connection;
+                    if (!IsSqlDwConnection(connection))
                     {
-                        string sessionId = (string)command.ExecuteScalar();
-                        _azureSessionId = new Guid(sessionId);
+                        command.CommandText = QueryAzureSessionId;
+                        object result = command.ExecuteScalar();
+
+                        // Only returns a session id for SQL Azure
+                        if (DBNull.Value != result)
+                        {
+                            string sessionId = (string)command.ExecuteScalar();
+                            _azureSessionId = new Guid(sessionId);
+                        }
                     }
                 }
             }

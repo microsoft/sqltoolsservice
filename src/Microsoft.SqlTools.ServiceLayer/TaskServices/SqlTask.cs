@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
 using Microsoft.SqlTools.Utility;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -37,17 +38,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Creates new instance of SQL task
         /// </summary>
         /// <param name="taskMetdata">Task Metadata</param>
-        /// <param name="testToRun">The function to run to start the task</param>
-        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> testToRun)
+        /// <param name="taskToRun">The function to run to start the task</param>
+        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> taskToRun)
         {
             Validate.IsNotNull(nameof(taskMetdata), taskMetdata);
-            Validate.IsNotNull(nameof(testToRun), testToRun);
+            Validate.IsNotNull(nameof(taskToRun), taskToRun);
 
             TaskMetadata = taskMetdata;
-            TaskToRun = testToRun;
+            TaskToRun = taskToRun;
             StartTime = DateTime.UtcNow;
             TaskId = Guid.NewGuid();
+            TokenSource = new CancellationTokenSource();
         }
+
+        /// <summary>
+        /// Cancellation token
+        /// </summary>
+        public CancellationTokenSource TokenSource { get; private set; }
 
         /// <summary>
         /// Task Metadata
@@ -71,12 +78,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Starts the task and monitor the task progress
         /// </summary>
-        public async Task Run()
+        public async Task RunAsync()
         {
             TaskStatus = SqlTaskStatus.InProgress;
             await TaskToRun(this).ContinueWith(task =>
             {
-                if (task.IsCompleted)
+                if (task.IsCompleted && !task.IsCanceled && !task.IsFaulted)
                 {
                     TaskResult taskResult = task.Result;
                     TaskStatus = taskResult.TaskStatus;
@@ -94,6 +101,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                     }
                 }
             });
+        }
+
+        //Run Task synchronously 
+        public void Run()
+        {
+            Task.Run(() => RunAsync());
         }
 
         /// <summary>
@@ -246,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
-        /// Try to cancel the task, and even to cancel the task will be raised 
+        /// Try to cancel the task, and event to cancel the task will be raised 
         /// but the status won't change until that task actually get canceled by it's owner
         /// </summary>
         public void Cancel()
@@ -368,6 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         private void OnTaskCancelRequested()
         {
+            TokenSource.Cancel();
             var handler = TaskCanceled;
             if (handler != null)
             {
@@ -379,9 +393,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             //Dispose 
             isDisposed = true;
+            TokenSource.Dispose();
         }
-
-       
 
         protected void ValidateNotDisposed()
         {

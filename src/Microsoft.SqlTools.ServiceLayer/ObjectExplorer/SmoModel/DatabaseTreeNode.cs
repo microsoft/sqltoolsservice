@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -35,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     context.Database = db;
                 }
+                context.ValidFor = ServerVersionHelper.GetValidForFlag(context.SqlServerType, db);
             }
         }
 

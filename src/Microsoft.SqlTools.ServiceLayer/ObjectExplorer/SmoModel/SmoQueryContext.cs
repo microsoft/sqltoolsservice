@@ -24,6 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private Database database;
         private SmoObjectBase parent;
         private SmoWrapper smoWrapper;
+        private ValidForFlag validFor = 0;
 
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
@@ -137,9 +138,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 database = this.Database,
                 Parent = parent,
-                SqlServerType = this.SqlServerType
+                SqlServerType = this.SqlServerType,
+                ValidFor = ValidFor
             };
             return context;
+        }
+
+        /// <summary>
+        /// Indicates which platforms the server and database is valid for
+        /// </summary>
+        public ValidForFlag ValidFor
+        {
+            get
+            {
+                if(validFor == 0)
+                {
+                    validFor = ServerVersionHelper.GetValidForFlag(SqlServerType, Database);
+                }
+                return validFor;
+            }
+            set
+            {
+                validFor = value;
+            }
         }
 
         private T GetObjectWithOpenedConnection<T>(T smoObj)
