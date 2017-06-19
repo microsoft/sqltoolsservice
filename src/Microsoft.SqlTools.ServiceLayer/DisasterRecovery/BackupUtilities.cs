@@ -24,7 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
         private CommonUtilities backupRestoreUtil = null;
-        private Backup backup = null;
 
         /// <summary>
         /// Constants
@@ -147,11 +146,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         /// <summary>
+        /// Create backup instance
+        /// </summary>
+        /// <returns>the backup instance</returns>
+        public Backup CreateBackupInstance()
+        {
+            Backup backup = new Backup();
+            return backup;
+        }
+
+        /// <summary>
         /// Execute backup
         /// </summary>
-        public void PerformBackup()
+        public void PerformBackup(Backup backup)
         {
-            this.backup = new Backup();
+            System.Threading.Thread.Sleep(10000);
+
             this.SetBackupProps();
             backup.Database = this.backupInfo.DatabaseName;
             backup.Action = this.backupActionType;
@@ -239,11 +249,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Cancel backup
         /// </summary>
-        public void CancelBackup()
+        public void CancelBackup(Backup backup)
         {
-            if (this.backup != null)
+            if (backup != null)
             {
-                this.backup.Abort();
+                backup.Abort();
             }
         }
 

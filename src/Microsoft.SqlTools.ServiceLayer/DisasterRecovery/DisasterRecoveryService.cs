@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Threading;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -191,7 +192,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         internal void PerformBackup()
         {
-            this.backupUtilities.PerformBackup();
+            // TODO: remove this method. 
+            this.backupUtilities.PerformBackup(null);
         }
 
         internal BackupConfigInfo GetBackupConfigInfo(string databaseName)
@@ -207,8 +209,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal async Task<TaskResult> BackupTask(SqlTask sqlTask)
         {
             sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
-            Task<TaskResult> performTask = this.PerformTask();
-            Task<TaskResult> cancelTask = this.CancelTask(sqlTask);
+            Backup backup = this.backupUtilities.CreateBackupInstance();
+            Task<TaskResult> performTask = this.PerformTask(backup);
+            Task<TaskResult> cancelTask = this.CancelTask(sqlTask, backup);
             Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
             if (completedTask == performTask)
             {
@@ -220,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return completedTask.Result;
         }
 
-        private async Task<TaskResult> PerformTask()
+        private async Task<TaskResult> PerformTask(Backup backup)
         {
             // Create a task to perform backup
             return await Task.Factory.StartNew(() =>
@@ -228,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 TaskResult result = new TaskResult();
                 try
                 {
-                    this.backupUtilities.PerformBackup();
+                    this.backupUtilities.PerformBackup(backup);
                     result.TaskStatus = SqlTaskStatus.Succeeded;
                 }
                 catch (Exception ex)
@@ -244,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             });
         }
 
-        private async Task<TaskResult> CancelTask(SqlTask sqlTask)
+        private async Task<TaskResult> CancelTask(SqlTask sqlTask, Backup backup)
         {
             // Create a task for backup cancellation request
             return await Task.Factory.StartNew(() =>
@@ -263,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     try
                     {
-                        this.backupUtilities.CancelBackup();
+                        this.backupUtilities.CancelBackup(backup);
                         result.TaskStatus = SqlTaskStatus.Canceled;
                     }
                     catch (Exception ex)

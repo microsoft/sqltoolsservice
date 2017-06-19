@@ -40,6 +40,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
+        public async Task VerifyCreateAndRunningMultipleBackupTask()
+        {
+            using (SqlTaskManager manager = new SqlTaskManager())
+            {
+                var mockUtility = new Mock<IBackupUtilities>();
+                DisasterRecoveryService service = new DisasterRecoveryService(mockUtility.Object);
+                SqlTask sqlTask = manager.CreateTask(this.taskMetaData, service.BackupTask);
+                Assert.NotNull(sqlTask);
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                });
+
+                await taskToVerify;
+            }
+        }
+
+        [Fact]
         public async Task CancelBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
