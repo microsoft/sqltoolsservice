@@ -44,6 +44,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         public List<ScriptingObject> ExcludeObjectCriteria { get; set; }
 
         /// <summary>
+        /// Gets or sets a list of schema name of objects to script.
+        /// </summary>
+        public List<string> IncludeSchema { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of schema name of objects to not script.
+        /// </summary>
+        public List<string> ExcludeSchema { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of type name of objects to script.
+        /// </summary>
+        public List<string> IncludeType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of type name of objects to not script
+        /// </summary>
+        public List<string> ExcludeType { get; set; }
+
+        /// <summary>
         /// Gets or sets the scripting options.
         /// </summary>
         public ScriptOptions ScriptOptions { get; set; }
