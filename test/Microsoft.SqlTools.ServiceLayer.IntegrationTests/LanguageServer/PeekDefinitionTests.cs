@@ -828,17 +828,29 @@ GO";
         /// </summary>
         private void Cleanup(Location[] locations)
         {
-            Uri fileUri = new Uri(locations[0].Uri);
-            if (File.Exists(fileUri.LocalPath))
+            try
             {
-                try
+                string filePath = locations[0].Uri;
+                Uri fileUri = null;
+                if (Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
                 {
-                    File.Delete(fileUri.LocalPath);
+                    fileUri = new Uri(filePath);
                 }
-                catch (Exception)
+                else 
                 {
-
+                    filePath = filePath.Replace("file:/", "file://");
+                    if (Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
+                    {
+                        fileUri = new Uri(filePath);
+                    }
                 }
+                if (fileUri != null && File.Exists(fileUri.LocalPath))
+                {
+                    File.Delete(fileUri.LocalPath);                    
+                }
+            }
+            catch (Exception)
+            {
             }
         }
 

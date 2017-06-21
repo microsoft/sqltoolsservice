@@ -54,8 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
 
         private string _baselineSubDir = string.Empty;
 
-        public const string TestScriptDirectory = @"Testscripts\";
-        public const string BaselineDirectory = @"Baselines\";
+        public const string TestScriptDirectory = @"Testscripts";
+        public const string BaselineDirectory = @"Baselines";
 
         /// <summary>
         /// Gets/Sets the extension for the Testscript files
