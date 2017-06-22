@@ -605,6 +605,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             {
                 // Remove filename from the filePath
                 Uri pathUri;
+                if (!Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
+                {
+                    // In linux "file://" is required otehrwise the Uri cannot parse the path
+                    //this should be fixed in dotenet core 2.0
+                    filePath = $"file://{filePath}";
+                }
                 if (!Uri.TryCreate(filePath, UriKind.Absolute, out pathUri))
                 {
                     // Invalid Uri
