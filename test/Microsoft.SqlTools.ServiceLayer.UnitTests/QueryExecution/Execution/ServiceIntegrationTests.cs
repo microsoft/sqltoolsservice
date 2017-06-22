@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I call the inter-service API to execute with a null execute params
             // Then: It should throw
             await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(null, eventSender, null, null, null, null));
+                () => qes.InterServiceExecuteQuery(null, null, eventSender, null, null, null, null));
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I call the inter-service API to execute a query with a a null event sender
             // Then: It should throw
             await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null));
+                () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null, null));
         }
 
         [Fact]
@@ -432,6 +432,48 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
+        [Fact]
+        public async Task SimpleExecuteErrorWithNoResultsTest()
+        {
+            var queryService = Common.GetPrimedExecutionService(null, true, false, null);
+            var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
+            var efv = new EventFlowValidator<SimpleExecuteResult>()
+                .AddSimpleExecuteErrorValidator(SR.QueryServiceResultSetHasNoResults)
+                .Complete();
+            await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
+
+            Query q;
+            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out q);
+
+            // wait on the task to finish
+            q.ExecutionTask.Wait();
+
+            efv.Validate();
+
+            Assert.Equal(0, queryService.ActiveQueries.Count);
+        }
+        
+        [Fact]
+        public async Task SimpleExecuteVerifyResultsTest()
+        {
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, null);
+            var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
+            var efv = new EventFlowValidator<SimpleExecuteResult>()
+                .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
+                .Complete();
+            await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
+
+            Query q;
+            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out q);
+
+            // wait on the task to finish
+            q.ExecutionTask.Wait();
+            
+            efv.Validate();
+
+            Assert.Equal(0, queryService.ActiveQueries.Count);
+        }
+
         #endregion
 
         private static WorkspaceService<SqlToolsSettings> GetDefaultWorkspaceService(string query)
@@ -444,6 +486,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
     public static class QueryExecutionEventFlowValidatorExtensions
     {
+
+        public static EventFlowValidator<SimpleExecuteResult> AddSimpleExecuteQueryResultValidator(
+            this EventFlowValidator<SimpleExecuteResult> efv, TestResultSet[] testData)
+        {
+            return efv.AddResultValidation(p => 
+            {
+                Assert.Equal(p.RowCount, testData[0].Rows.Count);
+            });
+        }
+
+        public static EventFlowValidator<SimpleExecuteResult> AddSimpleExecuteErrorValidator(
+            this EventFlowValidator<SimpleExecuteResult> efv, string expectedMessage)
+        {
+            return efv.AddSimpleErrorValidation((m, e) => 
+            {
+                Assert.Equal(m, expectedMessage);
+            });
+        }
+
         public static EventFlowValidator<ExecuteRequestResult> AddStandardQueryResultValidator(
             this EventFlowValidator<ExecuteRequestResult> efv)
         {

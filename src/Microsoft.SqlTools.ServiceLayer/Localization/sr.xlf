@@ -1877,7 +1877,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
-        <source>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</source>
+        <source>Date Correlation Optimization Enabled</source>
         <target state="new">Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</target>
         <note></note>
       </trans-unit>
@@ -2099,6 +2099,34 @@
       <trans-unit id="DatabaseNotAccessible">
         <source>The database {0} is not accessible.</source>
         <target state="new">The database {0} is not accessible.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetHasNoResults">
+        <source>Query has no results to return</source>
+        <target state="new">Query has no results to return</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetTooLarge">
+        <source>Result set has too many rows to be safely loaded</source>
+        <target state="new">Result set has too many rows to be safely loaded</target>
+      </trans-unit>
+      <trans-unit id="Backup_TaskName">
+        <source>Backup Database</source>
+        <target state="new">Backup Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Task_InProgress">
+        <source>In progress</source>
+        <target state="new">In progress</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Task_Completed">
+        <source>Completed</source>
+        <target state="new">Completed</target>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="new">Parameterization</target>
         <note></note>
       </trans-unit>
     </body>

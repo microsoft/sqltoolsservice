@@ -404,7 +404,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             switch (e.CurrentState)
             {
                 case ConnectionState.Open:
-                    RetreiveSessionId();
+                    RetrieveSessionId();
                     break;
                 case ConnectionState.Broken:
                 case ConnectionState.Closed:
@@ -418,20 +418,24 @@ SET NUMERIC_ROUNDABORT OFF;";
             }
         }
 
-        private void RetreiveSessionId()
+        private void RetrieveSessionId()
         {
             try
             {
                 using (IDbCommand command = CreateReliableCommand())
                 {
-                    command.CommandText = QueryAzureSessionId;
-                    object result = command.ExecuteScalar();
-
-                    // Only returns a session id for SQL Azure
-                    if (DBNull.Value != result)
+                    IDbConnection connection = command.Connection;
+                    if (!IsSqlDwConnection(connection))
                     {
-                        string sessionId = (string)command.ExecuteScalar();
-                        _azureSessionId = new Guid(sessionId);
+                        command.CommandText = QueryAzureSessionId;
+                        object result = command.ExecuteScalar();
+
+                        // Only returns a session id for SQL Azure
+                        if (DBNull.Value != result)
+                        {
+                            string sessionId = (string)command.ExecuteScalar();
+                            _azureSessionId = new Guid(sessionId);
+                        }
                     }
                 }
             }
@@ -512,25 +516,34 @@ SET NUMERIC_ROUNDABORT OFF;";
             Tuple<string,bool>[] sessionSettings = new Tuple<string,bool>[2];
 
             IDbConnection connection = originalCommand.Connection;
-            using (IDbCommand localCommand = connection.CreateCommand())
+            if (IsSqlDwConnection(connection))
             {
-                // Executing a reader requires preservation of any pending transaction created by the calling command
-                localCommand.Transaction = originalCommand.Transaction;
-                localCommand.CommandText = "SELECT ISNULL(SESSIONPROPERTY ('ANSI_NULLS'), 0), ISNULL(SESSIONPROPERTY ('QUOTED_IDENTIFIER'), 1)";
-                using (IDataReader reader = localCommand.ExecuteReader())
+                // SESSIONPROPERTY is not supported. Use default values for now
+                sessionSettings[0] = Tuple.Create("ANSI_NULLS", true);
+                sessionSettings[1] = Tuple.Create("QUOTED_IDENTIFIER", true);
+            }
+            else
+            {
+                using (IDbCommand localCommand = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    // Executing a reader requires preservation of any pending transaction created by the calling command
+                    localCommand.Transaction = originalCommand.Transaction;
+                    localCommand.CommandText = "SELECT ISNULL(SESSIONPROPERTY ('ANSI_NULLS'), 0), ISNULL(SESSIONPROPERTY ('QUOTED_IDENTIFIER'), 1)";
+                    using (IDataReader reader = localCommand.ExecuteReader())
                     {
-                        sessionSettings[0] = Tuple.Create("ANSI_NULLS", ((int)reader[0] == 1));
-                        sessionSettings[1] = Tuple.Create("QUOTED_IDENTIFIER", ((int)reader[1] ==1));
-                    }
-                    else
-                    {
-                        Debug.Assert(false, "Reader cannot be empty");
+                        if (reader.Read())
+                        {
+                            sessionSettings[0] = Tuple.Create("ANSI_NULLS", ((int)reader[0] == 1));
+                            sessionSettings[1] = Tuple.Create("QUOTED_IDENTIFIER", ((int)reader[1] ==1));
+                        }
+                        else
+                        {
+                            Debug.Assert(false, "Reader cannot be empty");
+                        }
                     }
                 }
-                return sessionSettings;
             }
+            return sessionSettings;
         }
 
         private void SetSessionSettings(IDbConnection connection, params  Tuple<string, bool>[] settings)

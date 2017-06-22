@@ -375,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     VerifyMetadata(child);
                     if (stringBuilder != null && child.NodeType != "Folder" && child.NodeType != "FileGroupFile")
                     {
-                        stringBuilder.AppendLine($"NodeType: {child.NodeType} Label: {child.Label} SubType:{child.NodeSubType} Status:{child.NodeStatus}");
+                        stringBuilder.Append($"NodeType: {child.NodeType} Label: {child.Label} SubType:{child.NodeSubType} Status:{child.NodeStatus}{Environment.NewLine}");
                     }
                     if (!verifySystemObjects && (child.Label == SR.SchemaHierarchy_SystemStoredProcedures ||
                         child.Label == SR.SchemaHierarchy_SystemViews ||

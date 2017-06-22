@@ -4,23 +4,29 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
 using System;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting;
+using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Utility;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
-    public class TaskService
+    public class TaskService: HostedService<TaskService>, IComposableService
     {
         private static readonly Lazy<TaskService> instance = new Lazy<TaskService>(() => new TaskService());
+        private SqlTaskManager taskManager = SqlTaskManager.Instance;
+        private IProtocolEndpoint serviceHost;
+
 
         /// <summary>
         /// Default, parameterless constructor.
         /// </summary>
-        internal TaskService()
+        public TaskService()
         {
+            taskManager.TaskAdded += OnTaskAdded;
         }
 
         /// <summary>
@@ -32,21 +38,129 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
+        /// Task Manager Instance to use for testing
+        /// </summary>
+        internal SqlTaskManager TaskManager
+        {
+            get
+            {
+                return taskManager;
+            }
+        }
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+        public override void InitializeService(IProtocolEndpoint serviceHost)
         {
+            this.serviceHost = serviceHost;
+            Logger.Write(LogLevel.Verbose, "TaskService initialized");
             serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest);
+            serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest);
         }
 
         /// <summary>
         /// Handles a list tasks request
         /// </summary>
-        internal static async Task HandleListTasksRequest(
+        internal async Task HandleListTasksRequest(
             ListTasksParams listTasksParams,
-            RequestContext<ListTasksResponse> requestContext)
+            RequestContext<ListTasksResponse> context)
         {
-            await requestContext.SendResult(new ListTasksResponse());
+            Logger.Write(LogLevel.Verbose, "HandleListTasksRequest");
+
+            Func<Task<ListTasksResponse>> getAllTasks = () =>
+            {
+                Validate.IsNotNull(nameof(listTasksParams), listTasksParams);
+                return Task.Factory.StartNew(() =>
+                {
+                    ListTasksResponse response = new ListTasksResponse();
+                    response.Tasks = taskManager.Tasks.Select(x => x.ToTaskInfo()).ToArray();
+
+                    return response;
+                });
+
+            };
+
+            await HandleRequestAsync(getAllTasks, context, "HandleListTasksRequest");
+        }
+
+        internal async Task HandleCancelTaskRequest(CancelTaskParams cancelTaskParams, RequestContext<bool> context)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleCancelTaskRequest");
+            Func<Task<bool>> cancelTask = () =>
+            {
+                Validate.IsNotNull(nameof(cancelTaskParams), cancelTaskParams);
+
+                return Task.Factory.StartNew(() =>
+                {
+                    Guid taskId;
+                    if (Guid.TryParse(cancelTaskParams.TaskId, out taskId))
+                    {
+                        taskManager.CancelTask(taskId);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+            };
+
+            await HandleRequestAsync(cancelTask, context, "HandleCancelTaskRequest");
+        }
+
+        private async void OnTaskAdded(object sender, TaskEventArgs<SqlTask> e)
+        {
+            SqlTask sqlTask = e.TaskData;
+            if (sqlTask != null)
+            {
+                TaskInfo taskInfo = sqlTask.ToTaskInfo();
+                sqlTask.MessageAdded += OnTaskMessageAdded;
+                sqlTask.StatusChanged += OnTaskStatusChanged;
+                await serviceHost.SendEvent(TaskCreatedNotification.Type, taskInfo);
+            }
+        }
+
+        private async void OnTaskStatusChanged(object sender, TaskEventArgs<SqlTaskStatus> e)
+        {
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
+            {
+                TaskProgressInfo progressInfo = new TaskProgressInfo
+                {
+                    TaskId = sqlTask.TaskId.ToString(),
+                    Status = e.TaskData
+
+                };
+
+                if (sqlTask.IsCompleted)
+                {
+                    progressInfo.Duration = sqlTask.Duration;
+                }
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
+            }
+        }
+
+        private async void OnTaskMessageAdded(object sender, TaskEventArgs<TaskMessage> e)
+        {
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
+            {
+                TaskProgressInfo progressInfo = new TaskProgressInfo
+                {
+                    TaskId = sqlTask.TaskId.ToString(),
+                    Message = e.TaskData.Description,
+                    Status = sqlTask.TaskStatus
+                };
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
+            }
+        }
+
+        public void Dispose()
+        {
+            taskManager.TaskAdded -= OnTaskAdded;
+            taskManager.Dispose();
         }
     }
 }

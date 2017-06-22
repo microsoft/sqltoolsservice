@@ -245,6 +245,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceResultSetHasNoResults
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceResultSetHasNoResults);
+            }
+        }
+
+        public static string QueryServiceResultSetTooLarge
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceResultSetTooLarge);
+            }
+        }
+
         public static string QueryServiceSaveAsResultSetNotComplete
         {
             get
@@ -2909,6 +2925,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string prototype_db_prop_parameterization
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_parameterization);
+            }
+        }
+
         public static string prototype_db_prop_parameterization_value_forced
         {
             get
@@ -3253,6 +3277,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Backup_TaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.Backup_TaskName);
+            }
+        }
+
+        public static string Task_InProgress
+        {
+            get
+            {
+                return Keys.GetString(Keys.Task_InProgress);
+            }
+        }
+
+        public static string Task_Completed
+        {
+            get
+            {
+                return Keys.GetString(Keys.Task_Completed);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3434,6 +3482,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetAddNoRows = "QueryServiceResultSetAddNoRows";
+
+
+            public const string QueryServiceResultSetHasNoResults = "QueryServiceResultSetHasNoResults";
+
+
+            public const string QueryServiceResultSetTooLarge = "QueryServiceResultSetTooLarge";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";
@@ -4453,6 +4507,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string prototype_db_prop_dateCorrelationOptimization = "prototype_db_prop_dateCorrelationOptimization";
 
 
+            public const string prototype_db_prop_parameterization = "prototype_db_prop_parameterization";
+
+
             public const string prototype_db_prop_parameterization_value_forced = "prototype_db_prop_parameterization_value_forced";
 
 
@@ -4580,6 +4637,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string Backup_TaskName = "Backup_TaskName";
+
+
+            public const string Task_InProgress = "Task_InProgress";
+
+
+            public const string Task_Completed = "Task_Completed";
 
 
             private Keys()

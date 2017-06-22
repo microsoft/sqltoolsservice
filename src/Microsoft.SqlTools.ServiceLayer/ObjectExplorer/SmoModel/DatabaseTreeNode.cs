@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -35,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     context.Database = db;
                 }
+                context.ValidFor = ServerVersionHelper.GetValidForFlag(context.SqlServerType, db);
             }
         }
 
@@ -47,7 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             else
             {
-                ErrorMessage = string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, context.Database.Name);
+                if (string.IsNullOrEmpty(ErrorMessage))
+                {
+                    // Write error message if it wasn't already set during IsAccessible check
+                    ErrorMessage = string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, context.Database.Name);
+                }
             }
         }
 
@@ -63,11 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch (Exception ex)
             {
-                return true;
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(LogLevel.Error, error);
                 ErrorMessage = ex.Message;
+                return false;
             }
         }
     }

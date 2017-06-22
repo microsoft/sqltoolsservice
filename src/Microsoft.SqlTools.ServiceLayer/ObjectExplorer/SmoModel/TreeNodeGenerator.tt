@@ -369,9 +369,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			flags.Add("ValidForFlag.Sql2016");
        }
 
-	   if (validForStr.Contains("AzureV11"))
+	   if (validForStr.Contains("Sql2017"))
 	   {
-			flags.Add("ValidForFlag.Azure");
+			flags.Add("ValidForFlag.Sql2017");
        }
 
 	   if (validForStr.Contains("AzureV12"))
@@ -383,11 +383,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	   {
 			flags.Add("ValidForFlag.AllOnPrem");
        }
-	    if (validForStr.Contains("AllAzure"))
+	   if (validForStr.Contains("AllAzure"))
 	   {
 			flags.Add("ValidForFlag.AllAzure");
        }
-	    if (validForStr == "All")
+	   if (validForStr.Contains("NotSqlDw"))
+	   {
+			flags.Add("ValidForFlag.NotSqlDw");
+       }
+	   if (validForStr == "All")
 	   {
 			flags.Add("ValidForFlag.All");
        }

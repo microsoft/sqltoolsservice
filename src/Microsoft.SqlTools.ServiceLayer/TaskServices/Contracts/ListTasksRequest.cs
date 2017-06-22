@@ -4,22 +4,18 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
 {
 
     public class ListTasksParams
     {
-        bool ListActiveTasksOnly { get; set; }        
+        bool ListActiveTasksOnly { get; set; }
     }
 
     public class ListTasksResponse
     {
-        TaskInfo[] Tasks { get; set; }
+        public TaskInfo[] Tasks { get; set; }
     }
 
     public class ListTasksRequest

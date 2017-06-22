@@ -26,10 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
-        private const int PrepopulateBindTimeout = 60000;
-
-        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
-
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
         private static readonly string[] DefaultCompletionText = new string[]
@@ -355,26 +351,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Gets or sets the current workspace service instance
-        /// Setter for internal testing purposes only
-        /// </summary>
-        internal static WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
-        {
-            get
-            {
-                if (AutoCompleteHelper.workspaceServiceInstance == null)
-                {
-                    AutoCompleteHelper.workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
-                }
-                return AutoCompleteHelper.workspaceServiceInstance;
-            }
-            set
-            {
-                AutoCompleteHelper.workspaceServiceInstance = value;
-            }
-        }        
-
-        /// <summary>
         /// Get the default completion list from hard-coded list
         /// </summary>
         /// <param name="row"></param>
@@ -489,93 +465,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return completions.ToArray();
-        }
-
-        /// <summary>
-        /// Preinitialize the parser and binder with common metadata.
-        /// This should front load the long binding wait to the time the
-        /// connection is established.  Once this is completed other binding
-        /// requests should be faster.
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="scriptInfo"></param>
-        internal static void PrepopulateCommonMetadata(
-            ConnectionInfo info, 
-            ScriptParseInfo scriptInfo, 
-            ConnectedBindingQueue bindingQueue)
-        {
-            if (scriptInfo.IsConnected)
-            {
-                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);
-                if (scriptFile == null)
-                {
-                    return;
-                }
-                
-                LanguageService.Instance.ParseAndBind(scriptFile, info);
-
-                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
-                {
-                    try
-                    {
-                        QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                            key: scriptInfo.ConnectionKey,
-                            bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
-                            waitForLockTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
-                            bindOperation: (bindingContext, cancelToken) =>
-                            {
-                                // parse a simple statement that returns common metadata
-                                ParseResult parseResult = Parser.Parse(
-                                    "select ", 
-                                    bindingContext.ParseOptions);
-
-                                List<ParseResult> parseResults = new List<ParseResult>();
-                                parseResults.Add(parseResult);
-                                bindingContext.Binder.Bind(
-                                    parseResults, 
-                                    info.ConnectionDetails.DatabaseName, 
-                                    BindMode.Batch);
-
-                                // get the completion list from SQL Parser
-                                var suggestions = Resolver.FindCompletions(
-                                    parseResult, 1, 8, 
-                                    bindingContext.MetadataDisplayInfoProvider); 
-
-                                // this forces lazy evaluation of the suggestion metadata
-                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
-
-                                parseResult = Parser.Parse(
-                                    "exec ", 
-                                    bindingContext.ParseOptions);
-
-                                parseResults = new List<ParseResult>();
-                                parseResults.Add(parseResult);
-                                bindingContext.Binder.Bind(
-                                    parseResults, 
-                                    info.ConnectionDetails.DatabaseName, 
-                                    BindMode.Batch);
-
-                                // get the completion list from SQL Parser
-                                suggestions = Resolver.FindCompletions(
-                                    parseResult, 1, 6, 
-                                    bindingContext.MetadataDisplayInfoProvider); 
-
-                                // this forces lazy evaluation of the suggestion metadata
-                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6); 
-                                return null;
-                            });   
-                
-                        queueItem.ItemProcessed.WaitOne();                     
-                    }
-                    catch
-                    {
-                    }
-                    finally
-                    {
-                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
-                    }
-                }
-            }
         }
 
         /// <summary>
