@@ -54,27 +54,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Fact]
-        public void HandleSignatureHelpRequestNonMssqlFile()
+        public async Task HandleSignatureHelpRequestNonMssqlFile()
         {
             InitializeTestObjects();
 
             // setup the mock for SendResult
             var signatureRequestContext = new Mock<RequestContext<SignatureHelp>>();
+            SignatureHelp result = null;
             signatureRequestContext.Setup(rc => rc.SendResult(It.IsAny<SignatureHelp>()))
-                .Returns(Task.FromResult(0));
+            .Returns<SignatureHelp>((signature) => {
+                result = signature;
+                return Task.FromResult(0);
+            });
             signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
 
 
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams {
+            await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams {
                 Uri = textDocument.TextDocument.Uri,
                 Language = LanguageService.SQL_LANG.ToLower(),
                 Flavor = "NotMSSQL"
             }, null);
-            Assert.NotNull(langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object));
-            
-            // verify that no events were sent
-            signatureRequestContext.Verify(m => m.SendResult(It.IsAny<SignatureHelp>()), Times.Never());
+            await langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object);
+            // verify that the response was sent with a null response value
+            signatureRequestContext.Verify(m => m.SendResult(It.IsAny<SignatureHelp>()), Times.Once());
+            Assert.Null(result);
             signatureRequestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never());
         }               
 
