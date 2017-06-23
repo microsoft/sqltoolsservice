@@ -212,7 +212,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
             if (completedTask == performTask)
             {
+                // Send event signal to allow the waiting CancelTask to proceed 
                 this.backupCompletedEvent.Set();
+                // Reset the event signal
+                this.backupCompletedEvent.Reset();
             }
 
             sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
