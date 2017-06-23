@@ -389,14 +389,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
         {
-            await requestContext.SendResult(null);;
+            await requestContext.SendResult(null);
         }
 
         private async Task HandleDocumentHighlightRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
         {
-            await requestContext.SendResult(null);;
+            await requestContext.SendResult(null);
         }
 #endif
 
