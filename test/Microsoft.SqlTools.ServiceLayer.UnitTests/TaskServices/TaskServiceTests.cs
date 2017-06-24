@@ -4,6 +4,7 @@
 //
 
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -56,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             serviceHostMock.Verify(x => x.SendEvent(TaskCreatedNotification.Type,
                 It.Is<TaskInfo>(t => t.TaskId == sqlTask.TaskId.ToString() && t.ProviderName == "MSSQL")), Times.Once());
             operation.Stop();
+            Thread.Sleep(2000);
 
             serviceHostMock.Verify(x => x.SendEvent(TaskStatusChangedNotification.Type,
                 It.Is<TaskProgressInfo>(t => t.TaskId == sqlTask.TaskId.ToString())), Times.AtLeastOnce());

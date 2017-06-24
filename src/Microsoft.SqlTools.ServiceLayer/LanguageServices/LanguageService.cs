@@ -73,6 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
+        private ServiceHost serviceHostInstance;
+
         private object parseMapLock = new object();
 
         private ScriptParseInfo currentCompletionParseInfo;
@@ -178,6 +180,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        internal ServiceHost ServiceHostInstance
+        {
+            get
+            {
+                if (this.serviceHostInstance == null)
+                {
+                    this.serviceHostInstance = ServiceHost.Instance;
+                }
+                return this.serviceHostInstance;
+            }
+            set
+            {
+                this.serviceHostInstance = value;
+            }
+        }
+
         /// <summary>
         /// Gets the current settings
         /// </summary>
@@ -233,6 +251,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await Task.FromResult(0);
             });
 
+            ServiceHostInstance = serviceHost;
+
             // Register the configuration update handler
             WorkspaceServiceInstance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
 
@@ -270,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // check if Intellisense suggestions are enabled
             if (ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
-                await Task.FromResult(true);
+                await requestContext.SendResult(null);
             }
             else
             {
@@ -283,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     scriptFile.ClientFilePath,
                     out connInfo);
 
-                var completionItems = Instance.GetCompletionItems(
+                var completionItems = GetCompletionItems(
                     textDocumentPosition, scriptFile, connInfo);
 
                    await requestContext.SendResult(completionItems);
@@ -305,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Note: Do not know file, so no need to check for MSSQL flavor
             if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
             {
-                await Task.FromResult(true);
+                await requestContext.SendResult(completionItem);
             }
             else
             {
@@ -369,14 +389,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
         {
-            await Task.FromResult(true);
+            await requestContext.SendResult(null);
         }
 
         private async Task HandleDocumentHighlightRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
         {
-            await Task.FromResult(true);
+            await requestContext.SendResult(null);
         }
 #endif
 
@@ -387,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // check if Intellisense suggestions are enabled
             if (ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                await Task.FromResult(true);
+                await requestContext.SendResult(null);
             }
             else
             {
@@ -528,19 +548,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
 
                         // Send a notification to signal that autocomplete is ready
-                        ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
+                        ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
                     });
                 }
                 else
                 {
                     // Send a notification to signal that autocomplete is ready
-                    await ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
                 }
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
-                await ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
             }
         }
 
@@ -721,7 +741,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
-                ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = info.OwnerUri});
+                ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = info.OwnerUri});
             });
         }
 

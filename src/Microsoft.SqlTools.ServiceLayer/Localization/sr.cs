@@ -245,6 +245,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceResultSetHasNoResults
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceResultSetHasNoResults);
+            }
+        }
+
+        public static string QueryServiceResultSetTooLarge
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceResultSetTooLarge);
+            }
+        }
+
         public static string QueryServiceSaveAsResultSetNotComplete
         {
             get
@@ -3466,6 +3482,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetAddNoRows = "QueryServiceResultSetAddNoRows";
+
+
+            public const string QueryServiceResultSetHasNoResults = "QueryServiceResultSetHasNoResults";
+
+
+            public const string QueryServiceResultSetTooLarge = "QueryServiceResultSetTooLarge";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";

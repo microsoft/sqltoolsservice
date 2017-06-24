@@ -71,6 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             EventType<SessionCreatedParameters> Type =
-            EventType<SessionCreatedParameters>.Create("objectexplorer/sessionCreated");
+            EventType<SessionCreatedParameters>.Create("objectexplorer/sessioncreated");
     }
 }
