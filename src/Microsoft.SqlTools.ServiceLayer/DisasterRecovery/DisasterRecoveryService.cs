@@ -207,12 +207,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal async Task<TaskResult> BackupTask(SqlTask sqlTask)
         {
             sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
-            Backup backup = this.backupUtilities.CreateBackupInstance();
             AutoResetEvent backupCompletedEvent = new AutoResetEvent(initialState: false);
+            Backup backup = this.backupUtilities.CreateBackupInstance();
             Task<TaskResult> performTask = this.PerformTask(backup);
-            Task<TaskResult> cancelTask = this.CancelTask(sqlTask, backup, backupCompletedEvent);
+            Task<TaskResult> cancelTask = this.CancelTask(backup, sqlTask.TokenSource.Token, backupCompletedEvent);
             Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
-
+            
+            // Release the cancelTask
             if (completedTask == performTask)
             {
                 backupCompletedEvent.Set();
@@ -247,14 +248,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             });
         }
 
-        private async Task<TaskResult> CancelTask(SqlTask sqlTask, Backup backup, AutoResetEvent backupCompletedEvent)
+        private async Task<TaskResult> CancelTask(Backup backup, CancellationToken token, AutoResetEvent backupCompletedEvent)
         {
             // Create a task for backup cancellation request
             return await Task.Factory.StartNew(() =>
             {
                 TaskResult result = new TaskResult();
-
-                CancellationToken token = sqlTask.TokenSource.Token;
                 WaitHandle[] waitHandles = new WaitHandle[2]
                 {
                     backupCompletedEvent,
