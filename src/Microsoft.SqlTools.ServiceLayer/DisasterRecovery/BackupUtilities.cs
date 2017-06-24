@@ -146,13 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         /// <summary>
-        /// Create backup instance
+        /// Creates a new backup instance
         /// </summary>
         /// <returns>the backup instance</returns>
         public Backup CreateBackupInstance()
         {
-            Backup backup = new Backup();
-            return backup;
+            return new Backup();
         }
 
         /// <summary>
@@ -160,8 +159,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         public void PerformBackup(Backup backup)
         {
-            System.Threading.Thread.Sleep(10000);
-
             this.SetBackupProps();
             backup.Database = this.backupInfo.DatabaseName;
             backup.Action = this.backupActionType;
@@ -292,15 +289,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         #endregion
-
-        private string GetDefaultBackupSetName()
-        {
-            string backupName = this.backupInfo.DatabaseName + "-" 
-                + this.backupType.ToString() + " " 
-                + this.backupComponent.ToString() + " " 
-                + BackupConstants.Backup;
-            return backupName;            
-        }
 
         private void SetBackupProps()
         {

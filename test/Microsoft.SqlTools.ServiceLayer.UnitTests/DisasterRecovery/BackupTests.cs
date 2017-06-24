@@ -21,6 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             IsCancelable = true
         };
 
+        private TaskMetadata taskMetaData2 = new TaskMetadata
+        {
+            ServerName = "server name2",
+            DatabaseName = "database name2",
+            Name = "Backup Database2",
+            IsCancelable = true
+        };
+
         [Fact]
         public async Task VerifyCreateAndRunningBackupTask()
         {
@@ -40,25 +48,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
-        public async Task VerifyCreateAndRunningMultipleBackupTask()
+        public async Task VerifyCreateAndRunningMultipleBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
                 var mockUtility = new Mock<IBackupUtilities>();
                 DisasterRecoveryService service = new DisasterRecoveryService(mockUtility.Object);
                 SqlTask sqlTask = manager.CreateTask(this.taskMetaData, service.BackupTask);
+                SqlTask sqlTask2 = manager.CreateTask(this.taskMetaData2, service.BackupTask);
                 Assert.NotNull(sqlTask);
+                Assert.NotNull(sqlTask2);
+
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
                 });
 
-                await taskToVerify;
+                Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                });
+
+                await Task.WhenAll(taskToVerify, taskToVerify2);
             }
         }
 
         [Fact]
-        public async Task CancelBackupTask()
+        public async Task VerifyCancelBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
