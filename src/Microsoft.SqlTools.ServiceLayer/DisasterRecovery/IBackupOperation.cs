@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// <summary>
     /// Interface for backup operations
     /// </summary>
-    public interface IBackupUtilities
+    public interface IBackupOperation
     {
         /// <summary>
         /// Initialize 
@@ -33,21 +33,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="input"></param>
         void SetBackupInput(BackupInfo input);
-
-        /// <summary>
-        /// Create a backup instance
-        /// </summary>
-        /// <returns></returns>
-        Backup CreateBackupInstance();
-
+        
         /// <summary>
         /// Execute backup
         /// </summary>
-        void PerformBackup(Backup backup);
+        void PerformBackup();
         
         /// <summary>
         /// Cancel backup
         /// </summary>
-        void CancelBackup(Backup backup);
+        void CancelBackup();
     }
 }

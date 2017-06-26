@@ -57,10 +57,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             // Initialize backup service
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
-            DisasterRecoveryService.Instance.InitializeBackupUtilities(helper.DataContainer, sqlConn);
-
+            
             // Get default backup path
-            BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(sqlConn.Database);
+            BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
             string backupPath = backupConfigInfo.DefaultBackupFolder + "\\" + databaseName + ".bak";
             
             var backupInfo = new BackupInfo();
@@ -81,8 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             };
 
             // Backup the database
-            DisasterRecoveryService.Instance.SetBackupInput(backupParams.BackupInfo);
-            DisasterRecoveryService.Instance.PerformBackup(new Backup());
+            BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+            DisasterRecoveryService.Instance.PerformBackup(backupOperation);
             
             // Remove the backup file
             if (File.Exists(backupPath))

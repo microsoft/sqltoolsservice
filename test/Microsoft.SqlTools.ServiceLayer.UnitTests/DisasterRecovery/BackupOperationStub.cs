@@ -13,9 +13,9 @@ using System.Threading;
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     /// <summary>
-    /// Stub class that implements IBackupUtilities
+    /// Stub class that implements IBackupOperation
     /// </summary>
-    public class BackupUtilitiesStub : IBackupUtilities
+    public class BackupOperationStub : IBackupOperation
     {
         /// <summary>
         /// Initialize 
@@ -44,15 +44,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
         }
 
-        public Backup CreateBackupInstance()
-        {
-            return null;
-        }
-
         /// <summary>
         /// Execute backup
         /// </summary>
-        public void PerformBackup(Backup backup)
+        public void PerformBackup()
         {
             Thread.Sleep(500);
         }
@@ -60,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// <summary>
         /// Cancel backup
         /// </summary>
-        public void CancelBackup(Backup backup)
+        public void CancelBackup()
         {
         }
     }
