@@ -268,6 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private void  RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
+            Logger.Write(LogLevel.Normal, "Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {
@@ -278,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     ObjectExplorerTaskResult result = await RunTaskWithTimeout(task, 
                         settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
 
-                    if (result != null && !result.IsComplete)
+                    if (result != null && !result.IsCompleted)
                     {
                         cancellationTokenSource.Cancel();
                         SessionCreatedParameters response = new SessionCreatedParameters
@@ -359,20 +360,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <returns><see cref="ObjectExplorerSession"/> object if successful, null if unsuccessful</returns>
         internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
         {
-            ObjectExplorerSession session;
-            connectionDetails.PersistSecurityInfo = true;
-            ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
-
-            ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
-            if (connectionResult == null)
+            try
             {
-                // Connection failed and notification is already sent
+                ObjectExplorerSession session;
+                connectionDetails.PersistSecurityInfo = true;
+                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
+
+                ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
+                if (connectionResult == null)
+                {
+                    // Connection failed and notification is already sent
+                    return null;
+                }
+
+                session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider);
+                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
+                return session;
+            }
+            catch(Exception ex)
+            {
+                await SendSessionFailedNotification(uri, ex.Message);
                 return null;
             }
-
-            session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider);
-            sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
-            return session;
         }
         
 
@@ -390,28 +399,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error: {connectionErrorMessage}");
-                    await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, new SessionCreatedParameters
-                    {
-                        ErrorMessage = result.ErrorMessage,
-                        SessionId = uri
-                    });
+                    await SendSessionFailedNotification(uri, result.ErrorMessage);
                     return null;
                 }
                
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Warning, $"Connection Failed for OE. connection error:{connectionErrorMessage} error: {ex.Message}");
-                // Send a connection failed error message in this case.
-                SessionCreatedParameters result = new SessionCreatedParameters()
-                {
-                    ErrorMessage = ex.ToString(),
-                    SessionId = uri
-                };
-                await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
+                await SendSessionFailedNotification(uri, ex.ToString());
                 return null;
             }
+        }
+
+        private async Task SendSessionFailedNotification(string uri, string errorMessage)
+        {
+            Logger.Write(LogLevel.Warning, $"Failed To create OE session: {errorMessage}");
+            SessionCreatedParameters result = new SessionCreatedParameters()
+            {
+                Success = false,
+                ErrorMessage = errorMessage,
+                SessionId = uri
+            };
+            await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
         }
 
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
@@ -424,7 +433,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
-                if (result != null && !result.IsComplete)
+                if (result != null && !result.IsCompleted)
                 {
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
@@ -440,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerTaskResult result = new ObjectExplorerTaskResult();
             TimeSpan timeout = TimeSpan.FromSeconds(timeoutInSec);
             await Task.WhenAny(task, Task.Delay(timeout));
-            result.IsComplete = task.IsCompleted;
+            result.IsCompleted = task.IsCompleted;
             if(task.Exception != null)
             {
                 result.Exception = task.Exception;
@@ -563,7 +572,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal class ObjectExplorerTaskResult
         {
-            public bool IsComplete { get; set; }
+            public bool IsCompleted { get; set; }
             public Exception Exception { get; set; }
         }
 
@@ -601,7 +610,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);
                     session.Root = databaseNode;
                 }
-               
+
                 return session;
             }
             
