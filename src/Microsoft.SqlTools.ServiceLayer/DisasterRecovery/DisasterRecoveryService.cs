@@ -13,7 +13,6 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Threading;
-using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -90,14 +89,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                 SqlConnection sqlConn = GetSqlConnection(connInfo);
-                if ((sqlConn != null) && !connInfo.IsSqlDW)
+                if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
                 {
                     BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
                     backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
-                    response.BackupConfigInfo = backupConfigInfo;                    
+                    response.BackupConfigInfo = backupConfigInfo;
                 }
             }
-            
+
             await requestContext.SendResult(response);
         }
 
@@ -117,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                 SqlConnection sqlConn = GetSqlConnection(connInfo);
-                if (sqlConn != null)
+                if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
                 {
                     BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
 
