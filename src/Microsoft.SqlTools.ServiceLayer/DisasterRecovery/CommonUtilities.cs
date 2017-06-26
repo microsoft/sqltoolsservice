@@ -107,8 +107,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="sqlConnection"></param>
         public CommonUtilities(CDataContainer dataContainer, ServerConnection sqlConnection)
         {           
-            this.dataContainer   = dataContainer;
-            this.sqlConnection  = sqlConnection;
+            this.dataContainer = dataContainer;
+            this.sqlConnection = sqlConnection;
             this.excludedDatabases = new ArrayList();
             this.excludedDatabases.Add("master");
             this.excludedDatabases.Add("tempdb");
@@ -202,7 +202,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-
         public bool ServerHasLogicalDevices()
         {
             try
@@ -253,7 +252,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return new string(result);
         }
         
-        
         public RecoveryModel GetRecoveryModel(string databaseName)
         {
             Enumerator en = null;
@@ -274,7 +272,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }                               
             return recoveryModel;
         }
-        
 
         public string GetRecoveryModelAsString(RecoveryModel recoveryModel)
         {
@@ -295,7 +292,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
              
             return recoveryModelString;
         }
-
 
         public string GetDefaultBackupFolder()
         {
@@ -570,7 +566,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             return result;
         }
-
                 
         public bool IsDatabaseOnServer(string databaseName)
         {
@@ -699,7 +694,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
         
-        
         public void GetBackupSetTypeAndComponent(string strType, ref string backupType, ref string backupComponent)
         {           
             string type = strType.ToUpperInvariant();
@@ -815,7 +809,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             return result;
         }
-
         
         public DataSet GetBackupSetFiles(int backupsetId)
         {
@@ -852,7 +845,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.sqlConnection.SqlExecutionModes = executionMode;
             return backupset;
         }
-        
         
         public ArrayList GetBackupSetPhysicalSources(int backupsetId)
         {            
@@ -901,7 +893,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.sqlConnection.SqlExecutionModes = executionMode;
             return sources;
         }
-        
         
         public RestoreActionType GetRestoreTaskFromBackupSetType(BackupsetType type)
         {
