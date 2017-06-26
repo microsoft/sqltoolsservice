@@ -178,7 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             backupOperation.SetBackupInput(input);
             return backupOperation;
         }
-                
+
+        /// <summary>
+        /// For testing purpose only
+        /// </summary>
         internal void PerformBackup(BackupOperation backupOperation)
         {
             backupOperation.PerformBackup();
@@ -192,22 +195,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal async Task<TaskResult> BackupTaskAsync(SqlTask sqlTask)
         {
             sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
-
             IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
-            AutoResetEvent backupCompletedEvent = new AutoResetEvent(initialState: false);
-            Task<TaskResult> performTask = this.PerformTaskAsync(backupOperation);
-            Task<TaskResult> cancelTask = this.CancelTaskAsync(backupOperation, sqlTask.TokenSource.Token, backupCompletedEvent);
-            Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
-            
-            // Release the cancelTask
-            if (completedTask == performTask)
+            TaskResult taskResult = null;
+
+            if (backupOperation != null)
             {
-                backupCompletedEvent.Set();
+                AutoResetEvent backupCompletedEvent = new AutoResetEvent(initialState: false);
+                Task<TaskResult> performTask = PerformTaskAsync(backupOperation);
+                Task<TaskResult> cancelTask = CancelTaskAsync(backupOperation, sqlTask.TokenSource.Token, backupCompletedEvent);
+                Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
+
+                // Release the cancelTask
+                if (completedTask == performTask)
+                {
+                    backupCompletedEvent.Set();
+                }
+
+                sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
+                                   completedTask.Result.TaskStatus);
+                taskResult = completedTask.Result;
+            }
+            else
+            {
+                taskResult = new TaskResult();
+                taskResult.TaskStatus = SqlTaskStatus.Failed;
             }
 
-            sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
-                               completedTask.Result.TaskStatus);
-            return completedTask.Result;
+            return taskResult;
         }
 
         /// <summary>
