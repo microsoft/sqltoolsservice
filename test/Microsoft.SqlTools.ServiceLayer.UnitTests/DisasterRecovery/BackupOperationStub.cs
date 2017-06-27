@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
@@ -12,9 +13,9 @@ using System.Threading;
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     /// <summary>
-    /// Stub class that implements IBackupUtilities
+    /// Stub class that implements IBackupOperation
     /// </summary>
-    public class BackupUtilitiesStub : IBackupUtilities
+    public class BackupOperationStub : IBackupOperation
     {
         /// <summary>
         /// Initialize 
