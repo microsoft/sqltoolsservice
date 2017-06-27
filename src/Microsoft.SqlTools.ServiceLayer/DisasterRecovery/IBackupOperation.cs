@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using System.Data.SqlClient;
@@ -11,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// <summary>
     /// Interface for backup operations
     /// </summary>
-    public interface IBackupUtilities
+    public interface IBackupOperation
     {
         /// <summary>
         /// Initialize 
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="input"></param>
         void SetBackupInput(BackupInfo input);
-
+        
         /// <summary>
         /// Execute backup
         /// </summary>

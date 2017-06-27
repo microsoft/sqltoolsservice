@@ -37,5 +37,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Database name this task is created for
         /// </summary>
         public string DatabaseName { get; set; }
+
+        /// <summary>
+        /// Data required to perform the task
+        /// </summary>
+        public object Data { get; set; }
     }
 }
