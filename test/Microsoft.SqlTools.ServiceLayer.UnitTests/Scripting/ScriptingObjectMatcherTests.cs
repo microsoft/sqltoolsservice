@@ -72,10 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject[0],
                 excludeCriteria: new ScriptingObject[0],
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(6, results.Count());
@@ -87,10 +87,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject(),
                 excludeCriteria: new ScriptingObject(),
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(0, results.Count());
@@ -102,10 +102,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Name = "Table1"},
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(2, results.Count());
@@ -117,10 +117,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Name = "*" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(6, results.Count());
@@ -131,10 +131,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Name = "Tab*" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -146,10 +146,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S2" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(2, results.Count());
@@ -161,10 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "*" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(6, results.Count());
@@ -176,10 +176,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S*" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(6, results.Count());
@@ -191,10 +191,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S*" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: "Table",
-                excludeType: "View",
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: "Table",
+                excludeTypes: "View",
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -206,10 +206,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Type="Table" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -221,10 +221,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S1", Name = "Table1" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(1, results.Count());
@@ -236,10 +236,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Type="View", Schema = "S1" },
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(2, results.Count());
@@ -251,10 +251,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "Table1" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -266,10 +266,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "*" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(0, results.Count());
@@ -280,10 +280,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "Tab*" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -295,10 +295,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "S2" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -310,10 +310,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "*" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(0, results.Count());
@@ -325,10 +325,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "S*" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(0, results.Count());
@@ -340,10 +340,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Type = "Table" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(2, results.Count());
@@ -355,10 +355,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "S1", Name = "Table1" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(5, results.Count());
@@ -370,10 +370,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "Table1" },
-                includeSchema: null,
-                excludeSchema: "S1",
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: "S1",
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(1, results.Count());
@@ -385,10 +385,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Type = "View", Schema = "S1" },
-                includeSchema: null,
-                excludeSchema: null,
-                includeType: null,
-                excludeType: null,
+                includeSchemas: null,
+                excludeSchemas: null,
+                includeTypes: null,
+                excludeTypes: null,
                 candidates: TestData);
 
             Assert.Equal<int>(4, results.Count());
@@ -400,10 +400,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: null,
-                includeSchema: null,
-                excludeSchema: "S1",
-                includeType: null,
-                excludeType: "View",
+                includeSchemas: null,
+                excludeSchemas: "S1",
+                includeTypes: null,
+                excludeTypes: "View",
                 candidates: TestData);
 
             Assert.Equal<int>(2, results.Count());

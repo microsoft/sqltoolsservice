@@ -178,12 +178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any();
             bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any();
             bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-            bool hasIncludeSchema = this.Parameters.IncludeSchema != null && this.Parameters.IncludeSchema.Any();
-            bool hasExcludeSchema = this.Parameters.ExcludeSchema != null && this.Parameters.ExcludeSchema.Any();
-            bool hasIncludeType = this.Parameters.IncludeType != null && this.Parameters.IncludeType.Any();
-            bool hasExcludeType = this.Parameters.ExcludeType != null && this.Parameters.ExcludeType.Any();
+            bool hasIncludeSchemas = this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any();
+            bool hasExcludeSchemas = this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any();
+            bool hasIncludeTypes = this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any();
+            bool hasExcludeTypes = this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any();
             bool scriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified || 
-                                        hasIncludeSchema || hasExcludeSchema || hasIncludeType || hasExcludeType);
+                                        hasIncludeSchemas || hasExcludeSchemas || hasIncludeTypes || hasExcludeTypes);
             if (scriptAllObjects)
             {
                 Logger.Write(LogLevel.Verbose, "ScriptAllObjects is True");
@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
             //
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
-            if (hasIncludeCriteria || hasExcludeCriteria || hasIncludeSchema || hasExcludeSchema || hasIncludeType || hasExcludeType)
+            if (hasIncludeCriteria || hasExcludeCriteria || hasIncludeSchemas || hasExcludeSchemas || hasIncludeTypes || hasExcludeTypes)
             {
                 // This is an expensive remote call to load all objects from the database.
                 List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
@@ -207,10 +207,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 selectedObjects = ScriptingObjectMatcher.Match(
                     this.Parameters.IncludeObjectCriteria,
                     this.Parameters.ExcludeObjectCriteria,
-                    this.Parameters.IncludeSchema,
-                    this.Parameters.ExcludeSchema,
-                    this.Parameters.IncludeType,
-                    this.Parameters.ExcludeType,
+                    this.Parameters.IncludeSchemas,
+                    this.Parameters.ExcludeSchemas,
+                    this.Parameters.IncludeTypes,
+                    this.Parameters.ExcludeTypes,
                     allObjects);
             }
 

@@ -52,28 +52,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         /// <param name="includeCriteria">The include object criteria.</param>
         /// <param name="excludeCriteria">The exclude object criteria.</param>
-        /// <param name="includeSchema">The include schema filter.</param>
-        /// <param name="excludeSchema">The exclude schema filter.</param>
-        /// <param name="includeType">The include type filter.</param>
-        /// <param name="excludeType">The exclude type filter.</param>
+        /// <param name="includeSchemas">The include schema filter.</param>
+        /// <param name="excludeSchemas">The exclude schema filter.</param>
+        /// <param name="includeTypes">The include type filter.</param>
+        /// <param name="excludeTypes">The exclude type filter.</param>
         /// <param name="candidates">The candidate object to filter.</param>
         /// <returns>The matching scripting objects.</returns>
         public static IEnumerable<ScriptingObject> Match(
             ScriptingObject includeCriteria,
             ScriptingObject excludeCriteria,
-            string includeSchema,
-            string excludeSchema,
-            string includeType,
-            string excludeType,
+            string includeSchemas,
+            string excludeSchemas,
+            string includeTypes,
+            string excludeTypes,
             IEnumerable<ScriptingObject> candidates)
         {
             return Match(
                 includeCriteria == null ? new ScriptingObject[0] : new[] { includeCriteria },
                 excludeCriteria == null ? new ScriptingObject[0] : new[] { excludeCriteria },
-                includeSchema == null ? new List<string>(): new List<string> { includeSchema },
-                excludeSchema == null ? new List<string>(): new List<string> { excludeSchema },
-                includeType == null ? new List<string>(): new List<string> { includeType },
-                excludeType == null ? new List<string>(): new List<string> { excludeType },
+                includeSchemas == null ? new List<string>(): new List<string> { includeSchemas },
+                excludeSchemas == null ? new List<string>(): new List<string> { excludeSchemas },
+                includeTypes == null ? new List<string>(): new List<string> { includeTypes },
+                excludeTypes == null ? new List<string>(): new List<string> { excludeTypes },
                 candidates);
         }
 
@@ -83,19 +83,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         /// <param name="includeCriteria">The collection of include object criteria items.</param>
         /// <param name="excludeCriteria">The collection of exclude object criteria items.</param>
-        /// <param name="includeSchema">The collection of include schema items.</param>
-        /// <param name="excludeSchema">The collection of exclude schema items.</param>
-        /// <param name="includeType">The collection of include type items.</param>
-        /// <param name="excludeType">The collection of exclude type items.</param>
+        /// <param name="includeSchemas">The collection of include schema items.</param>
+        /// <param name="excludeSchemas">The collection of exclude schema items.</param>
+        /// <param name="includeTypes">The collection of include type items.</param>
+        /// <param name="excludeTypes">The collection of exclude type items.</param>
         /// <param name="candidates">The candidate object to filter.</param>
         /// <returns>The matching scripting objects.</returns>
         public static IEnumerable<ScriptingObject> Match(
             IEnumerable<ScriptingObject> includeCriteria,
             IEnumerable<ScriptingObject> excludeCriteria,
-            IEnumerable<string> includeSchema,
-            IEnumerable<string> excludeSchema,
-            IEnumerable<string> includeType,
-            IEnumerable<string> excludeType,
+            IEnumerable<string> includeSchemas,
+            IEnumerable<string> excludeSchemas,
+            IEnumerable<string> includeTypes,
+            IEnumerable<string> excludeTypes,
             IEnumerable<ScriptingObject> candidates)
         {
             Validate.IsNotNull("candidates", candidates);
@@ -125,31 +125,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
 
             // Apply additional filters if included.
-            matchedObjects = ExcludeSchemaAndOrType(excludeSchema, excludeType, matchedObjects);
-            matchedObjects = IncludeSchemaAndOrType(includeSchema, includeType, matchedObjects);
+            matchedObjects = ExcludeSchemaAndOrType(excludeSchemas, excludeTypes, matchedObjects);
+            matchedObjects = IncludeSchemaAndOrType(includeSchemas, includeTypes, matchedObjects);
 
             return matchedObjects;
         }
 
-        private static IEnumerable<ScriptingObject> ExcludeSchemaAndOrType(IEnumerable<string> excludeSchema, IEnumerable<string> excludeType, 
+        private static IEnumerable<ScriptingObject> ExcludeSchemaAndOrType(IEnumerable<string> excludeSchemas, IEnumerable<string> excludeTypes, 
             IEnumerable<ScriptingObject> candidates)
         {
             // Given a list of candidates, we remove any objects that match the excluded schema and/or type.
             IEnumerable<ScriptingObject> remainingObjects = candidates;
             IEnumerable<ScriptingObject> matches = null;
 
-            if (excludeSchema != null && excludeSchema.Any())
+            if (excludeSchemas != null && excludeSchemas.Any())
             {            
-                foreach (string exclude_schema in excludeSchema)
+                foreach (string exclude_schema in excludeSchemas)
                 {
                     matches = MatchCriteria(exclude_schema, (candidate) => { return candidate.Schema; }, candidates);
                     remainingObjects = remainingObjects.Except(matches);
                 }
             }
 
-            if (excludeType != null && excludeType.Any())
+            if (excludeTypes != null && excludeTypes.Any())
             {
-                foreach (string exclude_type in excludeType)
+                foreach (string exclude_type in excludeTypes)
                 {
                     matches = remainingObjects.Where(o => string.Equals(exclude_type, o.Type, StringComparison.OrdinalIgnoreCase));
                     remainingObjects = remainingObjects.Except(matches);           
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return remainingObjects;
         }
 
-        private static IEnumerable<ScriptingObject> IncludeSchemaAndOrType(IEnumerable<string> includeSchema, IEnumerable<string> includeType, 
+        private static IEnumerable<ScriptingObject> IncludeSchemaAndOrType(IEnumerable<string> includeSchemas, IEnumerable<string> includeTypes, 
             IEnumerable<ScriptingObject> candidates)
         {
             // Given a list of candidates, we return a new list of scripting objects that match
@@ -169,9 +169,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             IEnumerable<ScriptingObject> matchedObjects = new List<ScriptingObject>();
             IEnumerable<ScriptingObject> matches = null;
 
-            if (includeSchema != null && includeSchema.Any())
+            if (includeSchemas != null && includeSchemas.Any())
             {            
-                foreach (string include_schema in includeSchema)
+                foreach (string include_schema in includeSchemas)
                 {
                     matches = MatchCriteria(include_schema, (candidate) => { return candidate.Schema; }, candidates);
                     matchedSchema = matchedSchema.Union(matches);
@@ -183,9 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 matchedObjects = candidates;
             }
 
-            if (includeType != null && includeType.Any())
+            if (includeTypes != null && includeTypes.Any())
             {
-                foreach (string include_type in includeType)
+                foreach (string include_type in includeTypes)
                 {
                     matches = matchedObjects.Where(o => string.Equals(include_type, o.Type, StringComparison.OrdinalIgnoreCase));
                     matchedType = matchedType.Union(matches);
