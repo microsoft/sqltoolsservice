@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// Script the full-text indexes for each table or indexed view scripted.
         /// </summary>
-        public bool? ScriptFullTextIndexes { get; set; } = false;
+        public bool? ScriptFullTextIndexes { get; set; } = true;
 
         /// <summary>
         /// Script the indexes (including XML and clustered indexes) for each table or indexed view scripted.
@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// Script the triggers for each table or view scripted
         /// </summary>
-        public bool? ScriptTriggers { get; set; } = false;
+        public bool? ScriptTriggers { get; set; } = true;
 
         /// <summary>
         /// Script the unique keys for each table or view scripted.
