@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -28,10 +29,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         [Fact]
         public void ValidateFormatSettingsParsedFromJson()
         {
-            const string settingsJson = @"
+            ValidateFormatSettings("mssql");
+            ValidateFormatSettings("sql");
+        }
+
+        private static void ValidateFormatSettings(string settingsPropertyName)
+        {
+            string settingsJson = @"
 {
     ""params"": {
-        ""mssql"": {
+        """ + settingsPropertyName + @""": {
             ""format"": {
                 useBracketForIdentifiers: true,
                 placeCommasBeforeNextStatement: true,
@@ -46,9 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
             JObject message = JObject.Parse(settingsJson);
             JToken messageParams = null;
-            message.TryGetValue("params", out messageParams);            
+            message.TryGetValue("params", out messageParams);
             SqlToolsSettings sqlToolsSettings = messageParams.ToObject<SqlToolsSettings>();
-            
+
             Assert.True(sqlToolsSettings.SqlTools.Format.AlignColumnDefinitionsInColumns);
             Assert.Equal(CasingOptions.Lowercase, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
             Assert.Equal(CasingOptions.Uppercase, sqlToolsSettings.SqlTools.Format.KeywordCasing);
@@ -56,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.True(sqlToolsSettings.SqlTools.Format.PlaceSelectStatementReferencesOnNewLine);
             Assert.True(sqlToolsSettings.SqlTools.Format.UseBracketForIdentifiers);
         }
-        
+
         [Fact]
         public void FormatOptionsMatchDefaultSettings()
         {

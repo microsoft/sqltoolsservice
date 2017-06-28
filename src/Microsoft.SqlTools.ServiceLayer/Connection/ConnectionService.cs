@@ -709,9 +709,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
-
-            // Register the configuration update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
         /// <summary> 
@@ -844,15 +841,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendError(ex.ToString());
             }
         }
-        
-        public Task HandleDidChangeConfigurationNotification(
-            SqlToolsSettings newSettings, 
-            SqlToolsSettings oldSettings, 
-            EventContext eventContext)
-        {
-            return Task.FromResult(true);
-        }
-        
+                
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>

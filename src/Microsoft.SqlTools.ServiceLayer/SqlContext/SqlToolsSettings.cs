@@ -3,6 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -12,21 +16,59 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// </summary>
     public class SqlToolsSettings
     {
-        private SqlToolsSettingsValues sqlTools = null; 
+        private ISqlToolsSettingsValues sqlTools = null; 
+        private SqlToolsSettingsValues mssqlTools = null; 
+        private SqlToolsSettingsValues allSqlTools = null; 
 
-        /// <summary>
-        /// Gets or sets the underlying settings value object
-        /// </summary>
-        [JsonProperty("mssql")]
-        public SqlToolsSettingsValues SqlTools 
+        public ISqlToolsSettingsValues SqlTools 
         { 
             get
             {
                 if (this.sqlTools == null)
                 {
-                    this.sqlTools = new SqlToolsSettingsValues();
+                    this.sqlTools = new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
                 }
                 return this.sqlTools;
+            } 
+            set
+            {
+                this.sqlTools = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the underlying settings value object
+        /// </summary>
+        [JsonProperty("mssql")]
+        public SqlToolsSettingsValues MssqlTools 
+        { 
+            get
+            {
+                if (this.mssqlTools == null)
+                {
+                    this.mssqlTools = new SqlToolsSettingsValues(false);
+                }
+                return this.mssqlTools;
+            } 
+            set
+            {
+                this.mssqlTools = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the underlying settings value object
+        /// </summary>
+        [JsonProperty("sql")]
+        public SqlToolsSettingsValues AllSqlTools 
+        { 
+            get
+            {
+                if (this.allSqlTools == null)
+                {
+                    this.allSqlTools = new SqlToolsSettingsValues(false);
+                }
+                return this.allSqlTools;
             } 
             set
             {
@@ -50,7 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             if (settings != null)
             {
-                this.SqlTools.IntelliSense.EnableIntellisense = settings.SqlTools.IntelliSense.EnableIntellisense;
                 this.SqlTools.IntelliSense.Update(settings.SqlTools.IntelliSense);
             }
         }
@@ -103,19 +144,116 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
     }
 
+    public interface ISqlToolsSettingsValues
+    {
+        IntelliSenseSettings IntelliSense { get; set; }
+        QueryExecutionSettings QueryExecutionSettings { get; set; }
+        FormatterSettings Format { get; set; }
+        ObjectExplorerSettings ObjectExplorer { get; set; }
+    }
+
+    public class CompoundToolsSettingsValues: ISqlToolsSettingsValues
+    {
+        private List<ISqlToolsSettingsValues> priorityList = new List<ISqlToolsSettingsValues>();
+        private SqlToolsSettingsValues defaultValues;
+        public CompoundToolsSettingsValues(ISqlToolsSettingsValues mssql, ISqlToolsSettingsValues all)
+        {
+            Validate.IsNotNull(nameof(mssql), mssql);
+            Validate.IsNotNull(nameof(all), all);
+            priorityList.Add(mssql);
+            priorityList.Add(all);
+            // Always add in a fallback which has default values to be used.
+            defaultValues = new SqlToolsSettingsValues(createDefaults: true);
+            priorityList.Add(defaultValues);
+        }
+
+        private T GetSettingOrDefault<T>(Func<ISqlToolsSettingsValues, T> lookup)
+            where T : new()
+        {
+            T value = priorityList.Select( (settings) => lookup(settings)).Where(val => val != null).FirstOrDefault();
+            return value != null ? value : new T();
+        }
+
+        /// <summary>
+        /// Gets or sets the detailed IntelliSense settings
+        /// </summary>
+        public IntelliSenseSettings IntelliSense
+        { 
+            get
+            {
+                return GetSettingOrDefault((settings) => settings.IntelliSense);
+            } 
+            set
+            {
+                priorityList[0].IntelliSense = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the query execution settings
+        /// </summary>
+        [JsonProperty("query")]
+        public QueryExecutionSettings QueryExecutionSettings
+        { 
+            get
+            {
+                return GetSettingOrDefault((settings) => settings.QueryExecutionSettings);
+            } 
+            set
+            {
+                priorityList[0].QueryExecutionSettings = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the formatter settings
+        /// </summary>
+        [JsonProperty("format")]
+        public FormatterSettings Format
+        { 
+            get
+            {
+                return GetSettingOrDefault((settings) => settings.Format);
+            } 
+            set
+            {
+                priorityList[0].Format = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the formatter settings
+        /// </summary>
+        [JsonProperty("objectExplorer")]
+        public ObjectExplorerSettings ObjectExplorer
+        { 
+            get
+            {
+                return GetSettingOrDefault((settings) => settings.ObjectExplorer);
+            } 
+            set
+            {
+                priorityList[0].ObjectExplorer = value;
+            }
+        }
+
+    }
     /// <summary>
     /// Class that is used to serialize and deserialize SQL Tools settings
     /// </summary>
-    public class SqlToolsSettingsValues
+    public class SqlToolsSettingsValues : ISqlToolsSettingsValues
     {
         /// <summary>
         /// Initializes the Sql Tools settings values
         /// </summary>
-        public SqlToolsSettingsValues()
+        public SqlToolsSettingsValues(bool createDefaults = true)
         {
-            IntelliSense = new IntelliSenseSettings();
-            QueryExecutionSettings = new QueryExecutionSettings();
-            Format = new FormatterSettings();
+            if (createDefaults)
+            {
+                IntelliSense = new IntelliSenseSettings();
+                QueryExecutionSettings = new QueryExecutionSettings();
+                Format = new FormatterSettings();
+            }
         }
 
         /// <summary>
