@@ -161,69 +161,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
 
-            // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
-            // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
-            // of when SqlScriptPublishModel.ScriptAllObjects is set.  To workaround this, we initialize with 
-            // SqlScriptPublishModel.ScriptAllObjects to true.  If we need to set SqlScriptPublishModel.ScriptAllObjects 
-            // to false, it must the last thing we do after setting all SqlScriptPublishModel.AdvancedOptions values.  
-            // If we call the SqlScriptPublishModel.AdvancedOptions getter afterwards, all options will be reset.
-            //
-
             // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
             // criteria should include the target objects to script.
             //
-            bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any();
-            bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any();
             bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-            bool hasIncludeSchemas = this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any();
-            bool hasExcludeSchemas = this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any();
-            bool hasIncludeTypes = this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any();
-            bool hasExcludeTypes = this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any();
-            bool scriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified || 
-                                        hasIncludeSchemas || hasExcludeSchemas || hasIncludeTypes || hasExcludeTypes);
+            bool scriptAllObjects = 
+                !(hasObjectsSpecified ||
+                (this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any()) ||
+                (this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any()) ||
+                (this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any()) ||
+                (this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any()) ||
+                (this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any()) ||
+                (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any()));
+
+            // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
+            // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
+            // of when SqlScriptPublishModel.ScriptAllObjects is set.  
+            //
+            publishModel.ScriptAllObjects = scriptAllObjects;
             if (scriptAllObjects)
             {
-                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is True");
-                
-                // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
-                // or all SqlScriptPublishModel.AdvancedOptions will be reset.
-                publishModel.ScriptAllObjects = true;
+                // Due to the getter logic within publishModel.AdvancedOptions, we explicitly populate the options
+                // after we determine what objects we are scripting.
+                //
                 PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
                 return publishModel;
             }
 
-            // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
+            // This is an expensive remote call to load all objects from the database.
             //
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
-            if (hasIncludeCriteria || hasExcludeCriteria || hasIncludeSchemas || hasExcludeSchemas || hasIncludeTypes || hasExcludeTypes)
-            {
-                // This is an expensive remote call to load all objects from the database.
-                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
-
-                selectedObjects = ScriptingObjectMatcher.Match(
-                    this.Parameters.IncludeObjectCriteria,
-                    this.Parameters.ExcludeObjectCriteria,
-                    this.Parameters.IncludeSchemas,
-                    this.Parameters.ExcludeSchemas,
-                    this.Parameters.IncludeTypes,
-                    this.Parameters.ExcludeTypes,
-                    allObjects);
-
-                // Calling GetDatabaseObjects seems to reset the advanced options, so we must set the options here when using filters.
-                // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
-                // or all SqlScriptPublishModel.AdvancedOptions will be reset.
-                publishModel.ScriptAllObjects = false;
-                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is False");
-                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
-            }
-
-            // If specific objects are specified, include them.
-            //
+            List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
+            IEnumerable<ScriptingObject> selectedObjects = ScriptingObjectMatcher.Match(
+                this.Parameters.IncludeObjectCriteria,
+                this.Parameters.ExcludeObjectCriteria,
+                this.Parameters.IncludeSchemas,
+                this.Parameters.ExcludeSchemas,
+                this.Parameters.IncludeTypes,
+                this.Parameters.ExcludeTypes,
+                allObjects);
+            
             if (hasObjectsSpecified)
             {
                 selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
             }
 
+            // Populating advanced options after we select our objects in question, otherwise we lose all
+            // advanced options.
+            // After this call to publishModel.AdvancedOptions, DO NOT call the publishModel.AdvancedOptions again, 
+            //  as it will reset the options in the model.
+            //
+            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
+            
             Logger.Write(
                 LogLevel.Normal,
                 string.Format(
