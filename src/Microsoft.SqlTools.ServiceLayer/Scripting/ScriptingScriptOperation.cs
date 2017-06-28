@@ -168,9 +168,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // to false, it must the last thing we do after setting all SqlScriptPublishModel.AdvancedOptions values.  
             // If we call the SqlScriptPublishModel.AdvancedOptions getter afterwards, all options will be reset.
             //
-            publishModel.ScriptAllObjects = true;
-
-            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
 
             // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
             // criteria should include the target objects to script.
@@ -187,14 +184,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             if (scriptAllObjects)
             {
                 Logger.Write(LogLevel.Verbose, "ScriptAllObjects is True");
+                
+                // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
+                // or all SqlScriptPublishModel.AdvancedOptions will be reset.
+                publishModel.ScriptAllObjects = true;
+                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
                 return publishModel;
             }
-
-            // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
-            // or all SqlScriptPublishModel.AdvancedOptions will be reset.
-            //
-            publishModel.ScriptAllObjects = false;
-            Logger.Write(LogLevel.Verbose, "ScriptAllObjects is False");
 
             // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
             //
@@ -212,6 +208,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     this.Parameters.IncludeTypes,
                     this.Parameters.ExcludeTypes,
                     allObjects);
+
+                // Calling GetDatabaseObjects seems to reset the advanced options, so we must set the options here when using filters.
+                // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
+                // or all SqlScriptPublishModel.AdvancedOptions will be reset.
+                publishModel.ScriptAllObjects = false;
+                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is False");
+                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
             }
 
             // If specific objects are specified, include them.
