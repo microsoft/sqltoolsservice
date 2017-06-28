@@ -54,5 +54,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// </summary>        
         public List<string> BackupPathList { get; set; }
         
+        /// <summary>
+        /// Indicates if the backup should be copy-only
+        /// </summary>
+        public bool IsCopyOnly { get; set; }
     }
 }
