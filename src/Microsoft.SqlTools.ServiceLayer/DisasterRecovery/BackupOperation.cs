@@ -225,6 +225,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 }
             }
 
+            this.backup.CopyOnly = this.backupInfo.IsCopyOnly;
+
             //TODO: This should be changed to get user inputs
             this.backup.FormatMedia = false;
             this.backup.Initialize = false;
@@ -232,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.backup.Checksum = false;
             this.backup.ContinueAfterError = false;
             this.backup.LogTruncation = BackupTruncateLogType.Truncate;
-
+            
             // Execute backup
             this.backup.SqlBackup(this.dataContainer.Server);
         }
