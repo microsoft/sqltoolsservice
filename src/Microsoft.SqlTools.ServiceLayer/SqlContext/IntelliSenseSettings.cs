@@ -57,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             if (settings != null)
             {
+                this.EnableIntellisense = settings.EnableIntellisense;
                 this.EnableSuggestions = settings.EnableSuggestions;
                 this.LowerCaseSuggestions = settings.LowerCaseSuggestions;
                 this.EnableErrorChecking = settings.EnableErrorChecking;
