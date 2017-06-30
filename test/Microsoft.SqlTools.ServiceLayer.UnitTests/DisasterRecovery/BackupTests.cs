@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             ServerName = "server name",
             DatabaseName = "database name",
-            Name = "Backup Database", 
+            Name = "backup database", 
             IsCancelable = true
         };
 

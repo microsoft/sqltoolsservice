@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// </summary>
         public void PerformBackup()
         {
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
         }
 
         /// <summary>

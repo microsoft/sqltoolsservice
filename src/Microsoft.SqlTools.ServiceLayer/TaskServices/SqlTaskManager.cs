@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             {
                 tasks.TryGetValue(taskId, out taskToCancel);
             }
-           if(taskToCancel != null)
+            if (taskToCancel != null)
             {
                 taskToCancel.Cancel();
             }
