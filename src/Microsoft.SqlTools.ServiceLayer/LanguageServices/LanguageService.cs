@@ -24,6 +24,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -297,6 +298,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // get the current list of completion items and return to client
                 var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
+                if (scriptFile == null)
+                {
+                    await requestContext.SendResult(null);
+                    return;
+                }
 
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
@@ -343,9 +349,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
                 var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                bool isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                bool isConnected = false;
                 bool succeeded = false;
-                DefinitionResult definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                DefinitionResult definitionResult = null;
+                if (scriptFile != null)
+                {
+                    isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                }
+                
                 if (definitionResult != null)
                 {
                     if (definitionResult.IsErrorResult)
@@ -413,8 +425,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 ScriptFile scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
-
-                SignatureHelp help = GetSignatureHelp(textDocumentPosition, scriptFile);
+                SignatureHelp help = null;
+                if (scriptFile != null)
+                {
+                    help = GetSignatureHelp(textDocumentPosition, scriptFile);
+                }
                 if (help != null)
                 {
                     await requestContext.SendResult(help);
@@ -437,7 +452,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var scriptFile = CurrentWorkspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
 
-                var hover = GetHoverItem(textDocumentPosition, scriptFile);
+                Hover hover = null;
+                if (scriptFile != null)
+                {
+                    hover = GetHoverItem(textDocumentPosition, scriptFile);
+                }
                 if (hover != null)
                 {
                     await requestContext.SendResult(hover);
