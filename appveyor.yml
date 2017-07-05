@@ -21,13 +21,13 @@ before_build:
 - ps: (New-Object System.Net.WebClient).DownloadFile($urlCurrent, $tempFileCurrent)
 - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFileCurrent, $env:DOTNET_INSTALL_DIR)
 - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
-- appveyor-retry dotnet restore -v Minimal
+- ps: "$env:DOTNET_INSTALL_DIR\dotnet" restore -v Minimal
 
 build_script:
-  - dotnet build src/Microsoft.SqlTools.ServiceLayer
+  - ps:  "$env:DOTNET_INSTALL_DIR\dotnet" build src/Microsoft.SqlTools.ServiceLayer
 
 test_script:
-  - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  - ps:  "$env:DOTNET_INSTALL_DIR\dotnet" test test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 after_test:
   - cd test/CodeCoverage
