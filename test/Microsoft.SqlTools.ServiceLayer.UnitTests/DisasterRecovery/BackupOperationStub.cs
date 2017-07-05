@@ -7,6 +7,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using System;
 using System.Data.SqlClient;
 using System.Threading;
 
@@ -17,6 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
     /// </summary>
     public class BackupOperationStub : IBackupOperation
     {
+        public SemaphoreSlim BackupSemaphore { get; set; }
+
+        public BackupOperationStub()
+        {
+            this.BackupSemaphore = new SemaphoreSlim(0, 2);
+        }
+        
+
         /// <summary>
         /// Initialize 
         /// </summary>
@@ -49,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// </summary>
         public void PerformBackup()
         {
-            Thread.Sleep(1000);
+            this.BackupSemaphore.Wait(TimeSpan.FromSeconds(5));
         }
 
         /// <summary>
