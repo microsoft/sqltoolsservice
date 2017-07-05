@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                     manager.Reset();
                 });
 
-                manager.CancelTask(sqlTask.TaskId);                
+                manager.CancelTask(sqlTask.TaskId);
                 manager.CancelTask(sqlTask2.TaskId);
                 await Task.WhenAll(taskToVerify, taskToVerify2);
             }
@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
                 Assert.NotNull(sqlTask);
                 Assert.NotNull(sqlTask2);
-                
+
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
-                
+
                 Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);

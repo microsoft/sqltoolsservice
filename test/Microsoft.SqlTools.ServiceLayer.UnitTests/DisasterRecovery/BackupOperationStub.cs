@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
         public BackupOperationStub()
         {
-            this.BackupSemaphore = new SemaphoreSlim(0, 2);
+            this.BackupSemaphore = new SemaphoreSlim(0, 1);
         }
         
 
