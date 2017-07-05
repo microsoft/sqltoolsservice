@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
     /// The APIs used for this are modeled closely on the VSCode TreeExplorerNodeProvider API.
     /// </summary>
     [Export(typeof(IHostedService))]
-    public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService
+    public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService
     {
         internal const string uriPrefix = "objectexplorer://";
         

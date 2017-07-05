@@ -1,13 +1,12 @@
 {
   "version": "1.0.0-*",
   "buildOptions": {
+    "debugType": "portable",
     "emitEntryPoint": true
   },
-
   "dependencies": {
-    "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*"
+    "Microsoft.SqlServer.Smo": "140.17053.0"
   },
-  "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
@@ -16,10 +15,7 @@
           "version": "1.0.0"
         }
       },
-      "imports": [
-        "dotnet5.4",
-        "portable-net451+win8"
-      ]
+      "imports": "dnxcore50"
     }
   }
 }
