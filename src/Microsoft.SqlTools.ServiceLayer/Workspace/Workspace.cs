@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
@@ -67,8 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
 
             // Resolve the full file path 
-            string resolvedFilePath = this.ResolveFilePath(filePath);
-            string keyName = resolvedFilePath.ToLower();
+            ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
+            string keyName = resolvedFile.LowercaseFilePath;
 
             ScriptFile scriptFile = null;
             return this.workspaceFiles.TryGetValue(keyName, out scriptFile);
@@ -95,36 +96,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
             
             // Resolve the full file path 
-            string resolvedFilePath = this.ResolveFilePath(filePath);
-            string keyName = resolvedFilePath.ToLower();
+            ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
+            string keyName = resolvedFile.LowercaseFilePath;
 
             // Make sure the file isn't already loaded into the workspace
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
-                if (IsUntitled(resolvedFilePath))
+                if (IsUntitled(resolvedFile.FilePath)
+                    || !resolvedFile.CanReadFromDisk)
                 {
-                    // It's not a registered untitled file, so any attempt to read from disk will fail as it's in memory
+                    // It's either not a registered untitled file, or not a valid file on disk
+                    // so any attempt to read from disk will fail.
                     return null;
                 }
                 // This method allows FileNotFoundException to bubble up 
                 // if the file isn't found.
-                using (FileStream fileStream = new FileStream(resolvedFilePath, FileMode.Open, FileAccess.Read))
+                using (FileStream fileStream = new FileStream(resolvedFile.FilePath, FileMode.Open, FileAccess.Read))
                 using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    scriptFile = new ScriptFile(resolvedFilePath, filePath,streamReader);
+                    scriptFile = new ScriptFile(resolvedFile.FilePath, filePath,streamReader);
 
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
 
-                Logger.Write(LogLevel.Verbose, "Opened file on disk: " + resolvedFilePath);
+                Logger.Write(LogLevel.Verbose, "Opened file on disk: " + resolvedFile.FilePath);
             }
 
             return scriptFile;
         }
         
-        private string ResolveFilePath(string filePath)
+        private ResolvedFile ResolveFilePath(string filePath)
         {
+            bool canReadFromDisk = false;
             if (!IsPathInMemoryOrNonFileUri(filePath))
             {
                 if (filePath.StartsWith(@"file://"))
@@ -151,12 +155,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 }
 
                 // Get the absolute file path
-                filePath = Path.GetFullPath(filePath);
+                ResolvedFile resolvedFile = FileUtilities.TryGetFullPath(filePath);
+                filePath = resolvedFile.FilePath;
+                canReadFromDisk = resolvedFile.CanReadFromDisk;
             }
 
             Logger.Write(LogLevel.Verbose, "Resolved path: " + filePath);
 
-            return filePath;
+            return new ResolvedFile(filePath, canReadFromDisk);
         }
         
         /// <summary>
@@ -191,18 +197,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             }
 
             // Resolve the full file path 
-            string resolvedFilePath = this.ResolveFilePath(filePath);
-            string keyName = resolvedFilePath.ToLower();
+            ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
+            string keyName = resolvedFile.LowercaseFilePath;
 
             // Make sure the file isn't already loaded into the workspace
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
-                scriptFile = new ScriptFile(resolvedFilePath, filePath, initialBuffer);
+                scriptFile = new ScriptFile(resolvedFile.FilePath, filePath, initialBuffer);
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 
-                Logger.Write(LogLevel.Verbose, "Opened file as in-memory buffer: " + resolvedFilePath);
+                Logger.Write(LogLevel.Verbose, "Opened file as in-memory buffer: " + resolvedFile.FilePath);
             }
 
             return scriptFile;

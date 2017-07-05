@@ -149,12 +149,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         [Fact]
         public async Task DontProcessGitFileEvents()
         {
-            // setup test workspace
+            await VerifyFileIsNotAddedOnDocOpened("git:/myfile.sql");
+        }
+
+        [Fact]
+        public async Task DontProcessPerforceFileEvents()
+        {
+            await VerifyFileIsNotAddedOnDocOpened("perforce:/myfile.sql");
+        }
+
+        private async Task VerifyFileIsNotAddedOnDocOpened(string filePath)
+        {
+             // setup test workspace
             var workspace = new ServiceLayer.Workspace.Workspace();
             var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
 
             // send a document open event with git:/ prefix URI
-            string filePath = "git:/myfile.sql";
             var openParams = new DidOpenTextDocumentNotification
             {
                 TextDocument = new TextDocumentItem { Uri = filePath }
@@ -176,6 +186,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
             // this is not that interesting validation since the open is ignored
             // the main validation is that close doesn't raise an exception
             Assert.False(workspaceService.Workspace.ContainsFile(filePath));
+        }
+
+        [Fact]
+        public void GetFileReturnsNullForPerforceFile()
+        {
+            // when I ask for a non-file object in the workspace, it should return null
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            ScriptFile file = workspace.GetFile("perforce:myfile.sql");            
+            Assert.Null(file);
         }
 
         [Fact]
