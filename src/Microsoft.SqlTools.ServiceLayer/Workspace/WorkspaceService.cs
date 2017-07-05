@@ -216,13 +216,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     msg.AppendLine(string.Format("  File: {0}", fileUri));
 
                     ScriptFile changedFile = Workspace.GetFile(fileUri);
+                    if (changedFile != null)
+                    {
+                        changedFile.ApplyChange(
+                            GetFileChangeDetails(
+                                textChange.Range.Value,
+                                textChange.Text));
 
-                    changedFile.ApplyChange(
-                        GetFileChangeDetails(
-                            textChange.Range.Value,
-                            textChange.Text));
-
-                    changedFiles.Add(changedFile);
+                        changedFiles.Add(changedFile);
+                    }
                 }
 
                 Logger.Write(LogLevel.Verbose, msg.ToString());
@@ -244,14 +246,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
 
-            if (IsScmEvent(openParams.TextDocument.Uri)) 
+            if (IsScmEvent(openParams.TextDocument.Uri))
             {
                 return;
             }
 
             // read the SQL file contents into the ScriptFile 
             ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
-
+            if (openedFile == null)
+            {
+                return;
+            }
              // Propagate the changes to the event handlers
             var textDocOpenTasks = TextDocOpenCallbacks.Select(
                 t => t(openedFile, eventContext));

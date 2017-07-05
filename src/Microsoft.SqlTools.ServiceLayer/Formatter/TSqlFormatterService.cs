@@ -107,6 +107,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             {
                 var range = docFormatParams.Range;
                 ScriptFile scriptFile = GetFile(docFormatParams);
+                if (scriptFile == null)
+                {
+                    return new TextEdit[0];
+                }
                 TextEdit textEdit = new TextEdit { Range = range };
                 string text = scriptFile.GetTextInRange(range.ToBufferRange());
                 return DoFormat(docFormatParams, textEdit, text);
@@ -118,7 +122,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return await Task.Factory.StartNew(() =>
             {
                 var scriptFile = GetFile(docFormatParams);
-                if (scriptFile.FileLines.Count == 0)
+                if (scriptFile == null
+                    || scriptFile.FileLines.Count == 0)
                 {
                     return new TextEdit[0];
                 }

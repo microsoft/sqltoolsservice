@@ -4,7 +4,7 @@
 //
 using System;
 using System.IO;
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class FileUtilities
     {
@@ -136,8 +136,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 File.SetAttributes(fullFilePath, FileAttributes.Normal);
             }
         }
+
+        internal static ResolvedFile TryGetFullPath(string filePath)
+        {
+            try
+            {
+                return new ResolvedFile(Path.GetFullPath(filePath), true);
+            }
+            catch(NotSupportedException)
+            {
+                // This is not a standard path. 
+                return new ResolvedFile(filePath, false);
+            }
+        }
     }
-
-
-    
 }
