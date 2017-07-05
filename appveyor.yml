@@ -10,24 +10,16 @@ environment:
 branches:
   only:
     - master
+    - dev
 
 before_build:
-# Download .NET Core 2.0 Preview 1 SDK and add to PATH
-- ps: Write-Host 'Install .Net Core 2.0'
-- ps: $urlCurrent = "https://download.microsoft.com/download/0/6/5/0656B047-5F2F-4281-A851-F30776F8616D/dotnet-dev-win-x64.2.0.0-preview1-005977.zip"
-- ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
-- ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
-- ps: $tempFileCurrent = [System.IO.Path]::GetTempFileName()
-- ps: (New-Object System.Net.WebClient).DownloadFile($urlCurrent, $tempFileCurrent)
-- ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFileCurrent, $env:DOTNET_INSTALL_DIR)
-- ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
-- ps: "$env:DOTNET_INSTALL_DIR\dotnet" restore -v Minimal
+- appveyor-retry dotnet restore -v Minimal
 
 build_script:
-  - ps:  "$env:DOTNET_INSTALL_DIR\dotnet" build src/Microsoft.SqlTools.ServiceLayer
+  - dotnet build src/Microsoft.SqlTools.ServiceLayer
 
 test_script:
-  - ps:  "$env:DOTNET_INSTALL_DIR\dotnet" test test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 after_test:
   - cd test/CodeCoverage
