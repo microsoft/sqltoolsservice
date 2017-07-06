@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+	<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170427-09" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+	<PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.1" />
+	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+	<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+	<ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+	<ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
+  </ItemGroup>
+</Project>

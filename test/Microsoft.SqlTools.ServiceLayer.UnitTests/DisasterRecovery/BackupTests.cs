@@ -13,22 +13,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     public class BackupTests
     {
-        private TaskMetadata taskMetaData = new TaskMetadata
-        {
-            ServerName = "server name",
-            DatabaseName = "database name",
-            Name = "Backup Database", 
-            IsCancelable = true
-        };
-
+        /// <summary>
+        /// Create and run a backup task
+        /// </summary>
+        /// <returns></returns>
         [Fact]
-        public async Task VerifyCreateAndRunningBackupTask()
+        public async Task VerifyRunningBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                var mockUtility = new Mock<IBackupUtilities>();
-                DisasterRecoveryService service = new DisasterRecoveryService(mockUtility.Object);
-                SqlTask sqlTask = manager.CreateTask(this.taskMetaData, service.BackupTask);
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                var mockBackupOperation = new Mock<IBackupOperation>();
+                TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupTaskAsync);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
@@ -38,26 +35,161 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 await taskToVerify;
             }
         }
-
+        
+        /// <summary>
+        /// Create and run multiple backup tasks
+        /// </summary>
+        /// <returns></returns>
         [Fact]
-        public async Task CancelBackupTask()
+        public async Task VerifyRunningMultipleBackupTasks()
+        {
+            using (SqlTaskManager manager = new SqlTaskManager())
+            {   
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                var mockBackupOperation = new Mock<IBackupOperation>();
+                TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
+
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupTaskAsync);
+                SqlTask sqlTask2 = manager.CreateTask(taskMetaData, service.BackupTaskAsync);
+                Assert.NotNull(sqlTask);
+                Assert.NotNull(sqlTask2);
+
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                });
+
+                Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);
+                });
+
+                await Task.WhenAll(taskToVerify, taskToVerify2);
+            }
+        }
+
+        /// <summary>
+        /// Cancel a backup task
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task VerifyCancelBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                IBackupUtilities backupUtility = new BackupUtilitiesStub();                
-                DisasterRecoveryService service = new DisasterRecoveryService(backupUtility);
-                SqlTask sqlTask = manager.CreateTask(this.taskMetaData, service.BackupTask);
+                IBackupOperation backupOperation = new BackupOperationStub();                
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupTaskAsync);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
                     Assert.Equal(sqlTask.IsCancelRequested, true);
+                    ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
 
                 manager.CancelTask(sqlTask.TaskId);
                 await taskToVerify;
             }
+        }
+
+        /// <summary>
+        /// Cancel multiple backup tasks
+        /// </summary>
+        /// <returns></returns>
+        /// Test is failing unreliably in AppVeyor runs so disabling for. 
+        ///[Fact]
+        public async Task VerifyCancelMultipleBackupTasks()
+        {
+            using (SqlTaskManager manager = new SqlTaskManager())
+            {
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                IBackupOperation backupOperation = new BackupOperationStub();
+                IBackupOperation backupOperation2 = new BackupOperationStub();
+                TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
+                TaskMetadata taskMetaData2 = this.CreateTaskMetaData(backupOperation2);
+
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupTaskAsync);
+                SqlTask sqlTask2 = manager.CreateTask(taskMetaData2, service.BackupTaskAsync);
+                Assert.NotNull(sqlTask);
+                Assert.NotNull(sqlTask2);
+
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
+                    Assert.Equal(sqlTask.IsCancelRequested, true);
+                    ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
+                    manager.Reset();
+                });
+
+                Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask2.TaskStatus);
+                    Assert.Equal(sqlTask2.IsCancelRequested, true);
+                    ((BackupOperationStub)backupOperation2).BackupSemaphore.Release();
+                    manager.Reset();
+                });
+
+                manager.CancelTask(sqlTask.TaskId);
+                manager.CancelTask(sqlTask2.TaskId);
+                await Task.WhenAll(taskToVerify, taskToVerify2);
+            }
+        }
+
+        /// <summary>
+        /// Create two backup tasks and cancel one task
+        /// </summary>
+        /// <returns></returns>
+        /// Test is failing in AppVeyor unreliabily..disabling for now.  please reenalbe when test is stable in AppVeyor builds.
+        /// [Fact]
+        public async Task VerifyCombinationRunAndCancelBackupTasks()
+        {
+            using (SqlTaskManager manager = new SqlTaskManager())
+            {
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                IBackupOperation backupOperation = new BackupOperationStub();
+                TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupTaskAsync);
+
+                var mockBackupOperation = new Mock<IBackupOperation>();
+                TaskMetadata taskMetaData2 = this.CreateTaskMetaData(mockBackupOperation.Object);
+                SqlTask sqlTask2 = manager.CreateTask(taskMetaData2, service.BackupTaskAsync);
+
+                Assert.NotNull(sqlTask);
+                Assert.NotNull(sqlTask2);
+
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
+                    Assert.Equal(sqlTask.IsCancelRequested, true);
+                    ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
+                    manager.Reset();
+                });
+
+                Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);
+                });
+
+                manager.CancelTask(sqlTask.TaskId);
+                await Task.WhenAll(taskToVerify, taskToVerify2); 
+            }
+        }
+
+        private TaskMetadata CreateTaskMetaData(object data)
+        {
+            TaskMetadata taskMetaData = new TaskMetadata
+            {
+                ServerName = "server name",
+                DatabaseName = "database name",
+                Name = "backup database",
+                IsCancelable = true,
+                Data = data
+            };
+
+            return taskMetaData;
         }
     }
 }

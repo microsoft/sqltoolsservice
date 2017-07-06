@@ -107,8 +107,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="sqlConnection"></param>
         public CommonUtilities(CDataContainer dataContainer, ServerConnection sqlConnection)
         {           
-            this.dataContainer   = dataContainer;
-            this.sqlConnection  = sqlConnection;
+            this.dataContainer = dataContainer;
+            this.sqlConnection = sqlConnection;
             this.excludedDatabases = new ArrayList();
             this.excludedDatabases.Add("master");
             this.excludedDatabases.Add("tempdb");
@@ -202,7 +202,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-
         public bool ServerHasLogicalDevices()
         {
             try
@@ -253,7 +252,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return new string(result);
         }
         
-        
         public RecoveryModel GetRecoveryModel(string databaseName)
         {
             Enumerator en = null;
@@ -274,7 +272,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }                               
             return recoveryModel;
         }
-        
 
         public string GetRecoveryModelAsString(RecoveryModel recoveryModel)
         {
@@ -295,7 +292,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
              
             return recoveryModelString;
         }
-
 
         public string GetDefaultBackupFolder()
         {
@@ -483,7 +479,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             return result;
         }
-
                 
         public bool IsDatabaseOnServer(string databaseName)
         {
@@ -612,7 +607,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
         
-        
         public void GetBackupSetTypeAndComponent(string strType, ref string backupType, ref string backupComponent)
         {           
             string type = strType.ToUpperInvariant();
@@ -728,7 +722,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             return result;
         }
-
         
         public DataSet GetBackupSetFiles(int backupsetId)
         {
@@ -765,7 +758,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.sqlConnection.SqlExecutionModes = executionMode;
             return backupset;
         }
-        
         
         public ArrayList GetBackupSetPhysicalSources(int backupsetId)
         {            
@@ -814,7 +806,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.sqlConnection.SqlExecutionModes = executionMode;
             return sources;
         }
-        
         
         public RestoreActionType GetRestoreTaskFromBackupSetType(BackupsetType type)
         {
@@ -865,7 +856,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
         
-        public List<RestoreItemSource> GetLatestBackupLocations(string DatabaseName)
+        public List<RestoreItemSource> GetLatestBackupLocations(string databaseName)
         {
             List<RestoreItemSource> latestLocations = new List<RestoreItemSource>();
             Enumerator en = null;
@@ -874,7 +865,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             Request req = new Request();
             en = new Enumerator();
 
-            req.Urn = "Server/BackupSet[@DatabaseName='" + Urn.EscapeString(DatabaseName) + "']";
+            req.Urn = "Server/BackupSet[@DatabaseName='" + Urn.EscapeString(databaseName) + "']";
             req.OrderByList = new OrderBy[1];
             req.OrderByList[0] = new OrderBy();
             req.OrderByList[0].Field = "BackupFinishDate";
@@ -928,7 +919,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return latestLocations;            
         }                       
         
-        public string GetDefaultDatabaseForLogin(string LoginName)
+        public string GetDefaultDatabaseForLogin(string loginName)
         {   
             string defaultDatabase  = string.Empty;
             Enumerator en = new Enumerator();
@@ -936,7 +927,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
             Request req = new Request();                                        
             
-            req.Urn = "Server/Login[@Name='"+Urn.EscapeString(LoginName)+"']";
+            req.Urn = "Server/Login[@Name='"+Urn.EscapeString(loginName)+"']";
             req.Fields = new string[1];
             req.Fields[0] = "DefaultDatabase";
             ds = en.Process(this.sqlConnection, req);

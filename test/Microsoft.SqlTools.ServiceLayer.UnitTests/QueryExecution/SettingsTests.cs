@@ -32,10 +32,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         [Fact]
         public void ValidateSettingsParsedFromJson()
         {
+            ValidateSettings("mssql");
+            ValidateSettings("sql");
+        }
+
+        private static void ValidateSettings(string settingsPropertyName)
+        {
             // NOTE: Only testing displayBitAsNumber for now because it is the only one piped through
-            const string settingsJson = @"{"
+            string settingsJson = @"{"
                                         + @"""params"": {"
-                                        + @"""mssql"": {"
+                                        + @""""+settingsPropertyName+@""": {"
                                         + @"""query"": {"
                                         + @"displayBitAsNumber: false"
                                         + @"}"

@@ -3,19 +3,29 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using System;
 using System.Data.SqlClient;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     /// <summary>
-    /// Stub class that implements IBackupUtilities
+    /// Stub class that implements IBackupOperation
     /// </summary>
-    public class BackupUtilitiesStub : IBackupUtilities
+    public class BackupOperationStub : IBackupOperation
     {
+        public SemaphoreSlim BackupSemaphore { get; set; }
+
+        public BackupOperationStub()
+        {
+            this.BackupSemaphore = new SemaphoreSlim(0, 1);
+        }
+        
+
         /// <summary>
         /// Initialize 
         /// </summary>
@@ -48,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// </summary>
         public void PerformBackup()
         {
-            Thread.Sleep(500);
+            this.BackupSemaphore.Wait(TimeSpan.FromSeconds(5));
         }
 
         /// <summary>
