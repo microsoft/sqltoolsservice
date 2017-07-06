@@ -50,6 +50,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
+        public ConnectionService ConnectionService
+        {
+            get
+            {
+                return ConnectionService.Instance;
+            }
+        }
+
         public ObjectExplorerService ObjectExplorerService
         {
             get
