@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
                 {
-                    Assert.Equal(sqlTask.TaskStatus, expectedStatus);
+                    Assert.Equal(expectedStatus, sqlTask.TaskStatus);
                     Assert.Equal(sqlTask.IsCancelRequested, true);
                     manager.Reset();
 

@@ -32,7 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         public event EventHandler<TaskEventArgs<TaskMessage>> MessageAdded;
         public event EventHandler<TaskEventArgs<SqlTaskStatus>> StatusChanged;
-        public event EventHandler<TaskEventArgs<SqlTaskStatus>> TaskCanceled;
 
         /// <summary>
         /// Creates new instance of SQL task
@@ -237,7 +236,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 if (isCancelRequested != value)
                 {
                     isCancelRequested = value;
-                    OnTaskCancelRequested();
+                    if (isCancelRequested)
+                    {
+                        TokenSource.Cancel();
+                    }
                 }
             }
         }
@@ -472,16 +474,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         private void OnStatusChanged()
         {
             var handler = StatusChanged;
-            if (handler != null)
-            {
-                handler(this, new TaskEventArgs<SqlTaskStatus>(TaskStatus, this));
-            }
-        }
-
-        private void OnTaskCancelRequested()
-        {
-            TokenSource.Cancel();
-            var handler = TaskCanceled;
             if (handler != null)
             {
                 handler(this, new TaskEventArgs<SqlTaskStatus>(TaskStatus, this));
