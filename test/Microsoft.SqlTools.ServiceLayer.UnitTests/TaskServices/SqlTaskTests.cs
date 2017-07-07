@@ -16,18 +16,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         [Fact]
         public void CreateSqlTaskGivenInvalidArgumentShouldThrowException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqlTask(null, new DatabaseOperationStub().FunctionToRun));
-            Assert.Throws<ArgumentNullException>(() => new SqlTask(new TaskMetadata(), null));
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+
+            Assert.Throws<ArgumentNullException>(() => new SqlTask(null, operation.FunctionToRun, operation.FunctionToCancel));
+            Assert.Throws<ArgumentNullException>(() => new SqlTask(new TaskMetadata(), null, null));
         }
 
         [Fact]
         public void CreateSqlTaskShouldGenerateANewId()
         {
-            SqlTask sqlTask = new SqlTask(new TaskMetadata(), new DatabaseOperationStub().FunctionToRun);
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), new DatabaseOperationStub().FunctionToRun, null);
             Assert.NotNull(sqlTask.TaskId);
             Assert.True(sqlTask.TaskId != Guid.Empty);
 
-            SqlTask sqlTask2 = new SqlTask(new TaskMetadata(), new DatabaseOperationStub().FunctionToRun);
+            SqlTask sqlTask2 = new SqlTask(new TaskMetadata(), new DatabaseOperationStub().FunctionToRun, null);
             Assert.False(sqlTask.TaskId.CompareTo(sqlTask2.TaskId) == 0);
         }
 
@@ -40,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
                 TaskStatus = expectedStatus
             };
-            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun);
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
@@ -67,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
                 ServerName = "server name",
                 DatabaseName = "database name"
-            }, operation.FunctionToRun);
+            }, operation.FunctionToRun, operation.FunctionToCancel);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
             {
@@ -89,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
                 TaskStatus = expectedStatus
             };
-            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun);
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
@@ -111,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             operation.TaskResult = new TaskResult
             {
             };
-            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun);
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
@@ -133,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             operation.TaskResult = new TaskResult
             {
             };
-            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun);
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
             Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {

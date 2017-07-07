@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             serviceHostMock.AddEventHandling(TaskCreatedNotification.Type, null);
             serviceHostMock.AddEventHandling(TaskStatusChangedNotification.Type, null);
             DatabaseOperationStub operation = new DatabaseOperationStub();
-            SqlTask sqlTask = service.TaskManager.CreateTask(taskMetaData, operation.FunctionToRun);
+            SqlTask sqlTask = service.TaskManager.CreateTask(taskMetaData, operation.FunctionToRun, operation.FunctionToCancel);
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
             {
                 serviceHostMock.Verify(x => x.SendEvent(TaskStatusChangedNotification.Type,

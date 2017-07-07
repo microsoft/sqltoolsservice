@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     {
         public bool Result { get; set; }
 
-        public int TaskId { get; set; }
+        public string TaskId { get; set; }
 
         public string ErrorMessage { get; set; }
     }
@@ -56,10 +56,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
                 RequestType<RestoreParams, RestoreResponse>.Create("disasterrecovery/restore");
     }
 
-    public class RestoreDbFilesRequest
+    public class RestorePlanRequest
     {
         public static readonly
             RequestType<RestoreParams, RestorePlanResponse> Type =
-                RequestType<RestoreParams, RestorePlanResponse>.Create("disasterrecovery/restoreDbFiles");
+                RequestType<RestoreParams, RestorePlanResponse>.Create("disasterrecovery/restorePlan");
     }
 }

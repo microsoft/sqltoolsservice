@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -37,6 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             //the server will send events in intervals of 5 percent
             this.restoreOptions.PercentCompleteNotification = 5;
         }
+
+        public RestoreParams RestoreParams { get; set; }
 
         /// <summary>
         /// Database names includes in the restore plan

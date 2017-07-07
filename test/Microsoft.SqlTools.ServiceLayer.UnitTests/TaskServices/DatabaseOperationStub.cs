@@ -39,7 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                     //Just keep running
                     if (cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        throw new OperationCanceledException();
+                        //throw new OperationCanceledException();
+                        break;
                     }
                     if (Failed)
                     {
@@ -50,6 +51,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 sqlTask.AddMessage("done!", SqlTaskStatus.Succeeded);
 
                 return TaskResult;
+            });
+        }
+
+        public async Task<TaskResult> FunctionToCancel(SqlTask sqlTask)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                return new TaskResult
+                {
+                    TaskStatus = SqlTaskStatus.Canceled
+                };
             });
         }
 

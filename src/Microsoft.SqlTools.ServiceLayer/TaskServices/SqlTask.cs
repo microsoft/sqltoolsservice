@@ -39,13 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// </summary>
         /// <param name="taskMetdata">Task Metadata</param>
         /// <param name="taskToRun">The function to run to start the task</param>
-        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> taskToRun)
+        public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
         {
             Validate.IsNotNull(nameof(taskMetdata), taskMetdata);
             Validate.IsNotNull(nameof(taskToRun), taskToRun);
 
             TaskMetadata = taskMetdata;
             TaskToRun = taskToRun;
+            TaskToCancel = taskToCancel;
             StartTime = DateTime.UtcNow;
             TaskId = Guid.NewGuid();
             TokenSource = new CancellationTokenSource();
@@ -71,6 +72,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
+        /// The function to cancel the operation 
+        /// </summary>
+        private Func<SqlTask, Task<TaskResult>> TaskToCancel
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Task unique id
         /// </summary>
         public Guid TaskId { get; private set; }
@@ -81,21 +91,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public async Task RunAsync()
         {
             TaskStatus = SqlTaskStatus.InProgress;
-            await TaskToRun(this).ContinueWith(task =>
+            await RunAndCancel().ContinueWith(task =>
             {
                 if (task.IsCompleted && !task.IsCanceled && !task.IsFaulted)
                 {
                     TaskResult taskResult = task.Result;
                     TaskStatus = taskResult.TaskStatus;
                 }
-                else if(task.IsCanceled)
+                else if (task.IsCanceled)
                 {
                     TaskStatus = SqlTaskStatus.Canceled;
                 }
-                else if(task.IsFaulted)
+                else if (task.IsFaulted)
                 {
                     TaskStatus = SqlTaskStatus.Failed;
-                    if(task.Exception != null)
+                    if (task.Exception != null)
                     {
                         AddMessage(task.Exception.Message);
                     }
@@ -103,6 +113,95 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             });
         }
 
+        /// <summary>
+        /// Create a backup task for execution and cancellation
+        /// </summary>
+        /// <param name="sqlTask"></param>
+        /// <returns></returns>
+        internal async Task<TaskResult> RunAndCancel()
+        {
+            AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
+
+            TaskResult taskResult = new TaskResult();
+            Task<TaskResult> performTask = TaskToRun(this);
+            Task<TaskResult> completedTask = null;
+
+            try
+            {
+                if (TaskToCancel != null)
+                {
+                    AutoResetEvent backupCompletedEvent = new AutoResetEvent(initialState: false);
+                    Task<TaskResult> cancelTask = Task.Run(() => CancelTaskAsync(TokenSource.Token, backupCompletedEvent));
+
+                    completedTask = await Task.WhenAny(performTask, cancelTask);
+
+                    // Release the cancelTask
+                    if (completedTask == performTask)
+                    {
+                        backupCompletedEvent.Set();
+                    }
+                }
+                else
+                {
+                    completedTask = await Task.WhenAny(performTask);
+                }
+
+                AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
+                                   completedTask.Result.TaskStatus);
+                taskResult = completedTask.Result;
+
+            }
+            catch (OperationCanceledException)
+            {
+                taskResult.TaskStatus = SqlTaskStatus.Canceled;
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException != null && ex.InnerException is OperationCanceledException)
+                {
+                    taskResult.TaskStatus = SqlTaskStatus.Canceled;
+                }
+                else
+                {
+                    taskResult.TaskStatus = SqlTaskStatus.Failed;
+                    AddMessage(ex.Message);
+                }
+            }
+            return taskResult;
+        }
+
+        /// <summary>
+        /// Async task to cancel backup
+        /// </summary>
+        /// <param name="backupOperation"></param>
+        /// <param name="token"></param>
+        /// <param name="backupCompletedEvent"></param>
+        /// <returns></returns>
+        private async Task<TaskResult> CancelTaskAsync(CancellationToken token, AutoResetEvent backupCompletedEvent)
+        {
+            // Create a task for backup cancellation request
+
+            TaskResult result = new TaskResult();
+            WaitHandle[] waitHandles = new WaitHandle[2]
+            {
+                    backupCompletedEvent,
+                    token.WaitHandle
+            };
+
+            WaitHandle.WaitAny(waitHandles);
+            try
+            {
+                await this.TaskToCancel(this);
+                result.TaskStatus = SqlTaskStatus.Canceled;
+            }
+            catch (Exception ex)
+            {
+                result.TaskStatus = SqlTaskStatus.Failed;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
         //Run Task synchronously 
         public void Run()
         {

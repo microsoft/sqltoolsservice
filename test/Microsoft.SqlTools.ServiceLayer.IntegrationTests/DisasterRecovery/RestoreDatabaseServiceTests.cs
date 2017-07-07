@@ -6,6 +6,7 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -72,7 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     OwnerUri = queryTempFile.FilePath
                 };
 
-                var response = service.CreateRestorePlan(request);
+                var restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
+                var response = service.CreateRestorePlanResponse(restoreDataObject);
 
                 Assert.NotNull(response);
                 Assert.Equal(response.CanRestore, canRestore);
@@ -87,9 +89,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                         await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
                         request.RelocateDbFiles = response.RelocateFilesNeeded;
-                        service.ExecuteRestore(request);
+                        service.ExecuteRestore(restoreDataObject);
                         Server server = new Server(new ServerConnection(connectionResult.ConnectionInfo.ConnectionDetails.ServerName));
                         Assert.True(server.Databases.Contains(response.DatabaseName));
+                        await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
+
                     }
                 }
 

@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 operation.TaskResult = new TaskResult
                 {
                 };
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, operation.FunctionToRun);
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, operation.FunctionToRun, operation.FunctionToCancel);
                 Assert.NotNull(sqlTask);
 
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
