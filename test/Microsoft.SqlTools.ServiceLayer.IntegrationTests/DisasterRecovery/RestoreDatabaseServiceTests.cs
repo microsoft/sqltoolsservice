@@ -6,24 +6,37 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests;
+using Moq;
 using Xunit;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 {
-    public class RestoreDatabaseServiceTests
+    public class RestoreDatabaseServiceTests : ServiceTestBase
     {
         private ConnectionService _connectService = TestServiceProvider.Instance.ConnectionService;
+        private Mock<IProtocolEndpoint> serviceHostMock;
+        private DisasterRecoveryService service;
 
+        public RestoreDatabaseServiceTests()
+        {
+            serviceHostMock = new Mock<IProtocolEndpoint>();
+            service = CreateService();
+            service.InitializeService(serviceHostMock.Object);
+        }
 
         [Fact]
         public async void RestorePlanShouldCreatedSuccessfullyForFullBackup()
@@ -57,10 +70,69 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             await VerifyRestore(backupFileName, canRestore);
         }
 
+        [Fact]
+        public async Task RestorePlanRequestShouldReturnResponseWithDbFiles()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                string filePath = GetBackupFilePath("FullBackup.bak");
+
+                RestoreParams restoreParams = new RestoreParams
+                {
+                    BackupFilePath = filePath,
+                    OwnerUri = queryTempFile.FilePath
+                };
+
+                await RunAndVerify<RestorePlanResponse>(
+                    test: (requestContext) => service.HandleRestorePlanRequest(restoreParams, requestContext),
+                    verify: ((result) =>
+                    {
+                        Assert.True(result.DbFiles.Any());
+                        Assert.Equal(result.DatabaseName, "BackupTestDb");
+                    }));
+            }
+        }
+
+        [Fact]
+        public async Task CancelTaskShouldCancelTheOperationAndSendNotification()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                string filePath = GetBackupFilePath("FullBackup.bak");
+
+                RestoreParams restoreParams = new RestoreParams
+                {
+                    BackupFilePath = filePath,
+                    OwnerUri = queryTempFile.FilePath
+                };
+
+                await RunAndVerify<RestoreResponse>(
+                    test: (requestContext) => service.HandleRestoreRequest(restoreParams, requestContext),
+                    verify: ((result) =>
+                    {
+                        string taskId = result.TaskId;
+                        var task = SqlTaskManager.Instance.Tasks.FirstOrDefault(x => x.TaskId.ToString() == taskId);
+                        Assert.NotNull(task);
+
+                    }));
+            }
+        }
+
+        private async Task DropDatabase(string databaseName)
+        {
+            string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
+                       Scripts.DropDatabaseIfExist, databaseName);
+
+            await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
+        }
+
         private async Task<RestorePlanResponse> VerifyRestore(string backupFileName, bool canRestore, bool execute = false)
         {
             string filePath = GetBackupFilePath(backupFileName);
-            string uri = string.Empty;
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
@@ -84,15 +156,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     Assert.Equal(response.DatabaseName, "BackupTestDb");
                     if(execute)
                     {
-                        string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
-                        Scripts.DropDatabaseIfExist, response.DatabaseName);
-
-                        await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
+                        await DropDatabase(response.DatabaseName);
                         request.RelocateDbFiles = response.RelocateFilesNeeded;
                         service.ExecuteRestore(restoreDataObject);
                         Server server = new Server(new ServerConnection(connectionResult.ConnectionInfo.ConnectionDetails.ServerName));
                         Assert.True(server.Databases.Contains(response.DatabaseName));
-                        await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
+                        await DropDatabase(response.DatabaseName);
+
 
                     }
                 }
@@ -127,6 +197,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             FileInfo inputFile = GetBackupFile(fileName);
             return inputFile.FullName;
+        }
+
+        protected DisasterRecoveryService CreateService()
+        {
+            CreateServiceProviderWithMinServices();
+
+            // Create the service using the service provider, which will initialize dependencies
+            return ServiceProvider.GetService<DisasterRecoveryService>();
+        }
+
+        protected override RegisteredServiceProvider CreateServiceProviderWithMinServices()
+        {
+            return CreateProvider()
+               .RegisterSingleService(new DisasterRecoveryService());
         }
     }
 }

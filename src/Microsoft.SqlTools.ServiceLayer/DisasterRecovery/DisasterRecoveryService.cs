@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Get database info
             serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest);

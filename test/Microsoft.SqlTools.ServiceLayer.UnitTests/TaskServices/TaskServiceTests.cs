@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
             {
                 serviceHostMock.Verify(x => x.SendEvent(TaskStatusChangedNotification.Type,
-                           It.Is<TaskProgressInfo>(t => t.Status == SqlTaskStatus.Canceled)), Times.Once());
+                           It.Is<TaskProgressInfo>(t => t.Status == SqlTaskStatus.Canceled)), Times.AtMostOnce());
             });
             CancelTaskParams cancelParams = new CancelTaskParams
             {
