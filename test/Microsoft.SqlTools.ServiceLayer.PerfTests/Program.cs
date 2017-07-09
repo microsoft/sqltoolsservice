@@ -8,6 +8,8 @@ using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.Utility;
 
+// disable entry point since this is xUnit test project
+#if false
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class Program
@@ -29,3 +31,4 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         }
     }
 }
+#endif

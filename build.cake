@@ -195,10 +195,8 @@ Task("Restore")
     .IsDependentOn("Setup")
     .Does(() =>
 {
-    RunRestore(dotnetcli, "restore", sourceFolder)
+    RunRestore(dotnetcli, "restore", workingDirectory)
         .ExceptionOnError("Failed to restore projects under source code folder.");
-    RunRestore(dotnetcli, "restore --infer-runtimes", testFolder)
-        .ExceptionOnError("Failed to restore projects under test code folder.");
 });
 
 /// <summary>
@@ -250,9 +248,9 @@ Task("TestCore")
 
     foreach (var testProject in testProjects)
     {
-        var logFile = System.IO.Path.Combine(logFolder, $"{testProject}-core-result.xml");
+        var logFile = System.IO.Path.Combine(logFolder, $"{testProject}-core-result.trx");
         var testWorkingDir = System.IO.Path.Combine(testFolder, testProject);
-        Run(dotnetcli, $"test -f netcoreapp1.0 -xml \"{logFile}\" -notrait category=failing", testWorkingDir)
+        Run(dotnetcli, $"test -f netcoreapp2.0 --logger \"trx;LogFileName={logFile}\"", testWorkingDir)
             .ExceptionOnError($"Test {testProject} failed for .NET Core.");
     }
 });
@@ -289,7 +287,7 @@ Task("Test")
             System.IO.File.Copy(System.IO.Path.Combine(xunitToolsFolder, "xunit.runner.utility.desktop.dll"), System.IO.Path.Combine(instanceFolder, "xunit.runner.utility.desktop.dll"), true);
             var targetPath = System.IO.Path.Combine(instanceFolder, $"{project}.dll");
             var logFile = System.IO.Path.Combine(logFolder, $"{project}-{framework}-result.xml");
-            var arguments = $"\"{targetPath}\" -parallel none -xml \"{logFile}\" -notrait category=failing";
+            var arguments = $"\"{targetPath}\" -parallel none --logger \"trx;LogFileName={logFile}\"";
             if (IsRunningOnWindows())
             {
                 Run(xunitInstancePath, arguments, instanceFolder)
@@ -335,7 +333,7 @@ Task("OnlyPublish")
                 //Setting the rpath for System.Security.Cryptography.Native.dylib library
                 //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
                 //If that's not the case user has to run the command manually
-                if (!IsRunningOnWindows() && runtime.Contains("osx"))
+                if (!IsRunningOnWindows() && !IsRunningOnUnix() && runtime.Contains("osx"))
                 {    
                     Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
                 }
@@ -535,7 +533,7 @@ Task("SRGen")
             continue;
         }
 
-        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
+        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp2.0", "srgen.dll");
         var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
         var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
         var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");

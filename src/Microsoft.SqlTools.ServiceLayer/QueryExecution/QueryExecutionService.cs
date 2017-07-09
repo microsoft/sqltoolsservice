@@ -693,7 +693,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 // Get the document from the parameters
                 ScriptFile queryFile = WorkspaceService.Workspace.GetFile(docRequest.OwnerUri);
-
+                if (queryFile == null)
+                {
+                    return string.Empty;
+                }
                 // If a selection was not provided, use the entire document
                 if (docRequest.QuerySelection == null)
                 {

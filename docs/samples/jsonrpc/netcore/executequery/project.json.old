@@ -1,28 +1,18 @@
 {
-  "name": "Microsoft.SqlTools.ServiceLayer",
+  "name": "Microsoft.SqlTools.JsonRpcTest.ExecuteQuery",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true,
-    "preserveCompilationContext": true,
-    "allowUnsafe": true
-  },  
-  "configurations": {
-    "Integration": {
-      "buildOptions": {
-        "define": [
-          "WINDOWS_ONLY_BUILD"
-        ],
-        "emitEntryPoint": true
-      }
-    }
+    "emitEntryPoint": true    
   },
   "dependencies": {
+    "Microsoft.SqlTools.ServiceLayer": {
+      "target": "project"
+    },
     "Newtonsoft.Json": "9.0.1",
     "System.Data.Common": "4.1.0",
     "System.Data.SqlClient": "4.4.0-sqltools-24613-04",
-    "Microsoft.SqlServer.Smo": "140.17055.0",
-    "Microsoft.SqlServer.Management.SqlScriptPublishModel": "140.17049.0",
+    "Microsoft.SqlServer.Smo": "140.17053.0",
     "System.Security.SecureString": "4.0.0",
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.TypeConverter": "4.1.0",
@@ -31,19 +21,8 @@
     "NETStandard.Library": "1.6.0",
     "Microsoft.NETCore.Runtime.CoreCLR": "1.0.2",
     "Microsoft.NETCore.DotNetHostPolicy": "1.0.1",
-    "Microsoft.DiaSymReader.Native": "1.4.1",
     "System.Diagnostics.Process": "4.1.0",
-    "System.Threading.Thread": "4.0.0",
-    "System.Runtime.Loader": "4.0.0",
-    "System.Xml.XmlDocument": "4.0.1",
-    "System.Composition": "1.0.31-beta-24326-02",
-    "Microsoft.Extensions.DependencyModel": "1.0.0",
-    "Microsoft.SqlTools.Hosting": {
-      "target": "project"
-    },
-    "Microsoft.SqlTools.Credentials": {
-      "target": "project"
-    }    
+    "System.Threading.Thread": "4.0.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
