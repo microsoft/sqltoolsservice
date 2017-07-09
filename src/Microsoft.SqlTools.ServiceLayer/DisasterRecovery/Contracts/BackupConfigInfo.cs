@@ -13,11 +13,34 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     /// </summary>
     public class BackupConfigInfo
     {
+        /// <summary>
+        /// Gets or sets default database info
+        /// </summary>
         public DatabaseInfo DatabaseInfo { get; set; }
+
+        /// <summary>
+        /// Gets or sets recovery model of a database
+        /// </summary>
         public string RecoveryModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the latest backup set of a database
+        /// </summary>
         public List<RestoreItemSource> LatestBackups { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default backup folder
+        /// </summary>
         public string DefaultBackupFolder { get; set; }
 
+        /// <summary>
+        /// Gets or sets backup encryptors
+        /// </summary>
+        public List<string> BackupEncryptors { get; set; }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
         public BackupConfigInfo()
         {
         }

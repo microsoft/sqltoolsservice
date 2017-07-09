@@ -139,11 +139,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <returns></returns>
         public BackupConfigInfo GetBackupConfigInfo(string databaseName)
         {
-            BackupConfigInfo databaseInfo = new BackupConfigInfo();
-            databaseInfo.RecoveryModel = this.GetRecoveryModel(databaseName);
-            databaseInfo.DefaultBackupFolder = this.GetDefaultBackupFolder();
-            databaseInfo.LatestBackups = this.GetLatestBackupLocations(databaseName);
-            return databaseInfo;
+            BackupConfigInfo configInfo = new BackupConfigInfo();
+            configInfo.RecoveryModel = GetRecoveryModel(databaseName);
+            configInfo.DefaultBackupFolder = GetDefaultBackupFolder();
+            configInfo.LatestBackups = GetLatestBackupLocations(databaseName);
+            configInfo.BackupEncryptors = GetBackupEncryptors();
+            return configInfo;
         }
 
         /// <summary>
@@ -226,17 +227,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
 
             this.backup.CopyOnly = this.backupInfo.IsCopyOnly;
+            this.backup.FormatMedia = this.backupInfo.FormatMedia;
+            this.backup.Initialize = this.backupInfo.Initialize;
+            this.backup.SkipTapeHeader = this.backupInfo.SkipTapeHeader;
+            this.backup.MediaName = this.backupInfo.MediaName;
+            this.backup.MediaDescription = this.backupInfo.MediaDescription;
+            this.backup.Checksum = this.backupInfo.Checksum;
+            this.backup.ContinueAfterError = this.backupInfo.ContinueAfterError;
+            this.backup.LogTruncation = (BackupTruncateLogType)this.backupInfo.LogTruncation;
+            // TODO: do we need "backup the tail of the log"? if so, need to check for Hadr, Mirrored and then set this.bk.NoRecovery
 
-            //TODO: This should be changed to get user inputs
-            this.backup.FormatMedia = false;
-            this.backup.Initialize = false;
-            this.backup.SkipTapeHeader = true;
-            this.backup.Checksum = false;
-            this.backup.ContinueAfterError = false;
-            this.backup.LogTruncation = BackupTruncateLogType.Truncate;
-            
+            this.backup.BackupSetDescription = this.backupInfo.BackupSetDescription;
+            this.backup.RetainDays = this.backupInfo.RetainDays;
+            this.backup.ExpirationDate = this.backupInfo.ExpirationDate;
+            this.backup.CompressionOption = (BackupCompressionOptions)this.backupInfo.CompressionOption;
+            this.backup.EncryptionOption = new BackupEncryptionOptions((BackupEncryptionAlgorithm)this.backupInfo.EncryptionAlgorithm, 
+                (BackupEncryptorType)this.backupInfo.EncryptorType, 
+                this.backupInfo.EncryptorName);
+
             // Execute backup
             this.backup.SqlBackup(this.dataContainer.Server);
+
+            // TODO: execute Restore if VerifyBackupRequired is selected
         }
 
         /// <summary>
@@ -277,11 +289,40 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         /// <summary>
-        /// Return true if backup to URL is supported in the current SQL Server version
+        /// Returns the certificates and asymmetric keys from master for encryption
         /// </summary>
-        private bool BackupToUrlSupported()
+        public List<string> GetBackupEncryptors()
         {
-            return BackupRestoreBase.IsBackupUrlDeviceSupported(this.dataContainer.Server.PingSqlServerVersion(this.dataContainer.ServerName));
+            List<string> encryptorNames = new List<string>();
+            if (this.dataContainer.Server.Databases.Contains("master"))
+            {
+                CertificateCollection certificates = this.dataContainer.Server.Databases["master"].Certificates;
+                DateTime currentUtcDateTime = DateTime.UtcNow;
+                foreach (Certificate item in certificates)
+                {
+                    if ((item.Name.StartsWith("##", StringComparison.InvariantCulture) && item.Name.EndsWith("##", StringComparison.InvariantCulture)) ||
+                        DateTime.Compare(item.ExpirationDate, currentUtcDateTime) < 0)
+                    {
+                        continue;
+                    }
+                    encryptorNames.Add(this.FormatEncryptorNames(item.Name, SR.ServerCertificate));
+                }
+                AsymmetricKeyCollection keys = this.dataContainer.Server.Databases["master"].AsymmetricKeys;
+                foreach (AsymmetricKey item in keys)
+                {
+                    if (item.KeyEncryptionAlgorithm == AsymmetricKeyEncryptionAlgorithm.CryptographicProviderDefined)
+                    {
+                        encryptorNames.Add(this.FormatEncryptorNames(item.Name, SR.ServerAsymmetricKey));
+                    }
+                }
+                encryptorNames.Sort();
+            }
+            return encryptorNames;
+        }
+
+        private string FormatEncryptorNames(string name, string type)
+        {
+            return string.Format(CultureInfo.CurrentUICulture, "{0} ({1})", name, type).Trim();
         }
 
         #endregion
