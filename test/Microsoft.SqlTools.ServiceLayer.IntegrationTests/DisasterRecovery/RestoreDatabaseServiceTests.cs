@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             {
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                RestoreDatabaseService service = new RestoreDatabaseService();
+                RestoreDatabaseHelper service = new RestoreDatabaseHelper();
                 var request = new RestoreParams
                 {
                     BackupFilePath = filePath,

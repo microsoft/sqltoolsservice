@@ -818,3 +818,5 @@ Task_Completed = Completed
 ConflictWithNoRecovery = Specifying this option when restoring a backup with the NORECOVERY option is not permitted.
 InvalidPathForDatabaseFile = Invalid path for database file: '{0}'
 Log = Log
+RestorePlanFailed = Failed to create restore plan
+RestoreNotSupported = Restore database is not supported

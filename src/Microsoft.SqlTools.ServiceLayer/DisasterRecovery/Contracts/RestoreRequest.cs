@@ -18,12 +18,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
 
-
         /// <summary>
         /// The backup file path
         /// </summary>
         public string BackupFilePath { get; set; }
-
 
         /// <summary>
         /// Database name to restore from (either the back file path or database name can be used for restore operation, 
@@ -105,7 +103,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// </summary>
         public string DefaultDataFolder { get; set; }
 
-
         /// <summary>
         /// Default log folder path in the target server
         /// </summary>
@@ -123,6 +120,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     {
         public static readonly
             RequestType<RestoreParams, RestorePlanResponse> Type =
-                RequestType<RestoreParams, RestorePlanResponse>.Create("disasterrecovery/restorePlan");
+                RequestType<RestoreParams, RestorePlanResponse>.Create("disasterrecovery/restoreplan");
     }
 }

@@ -39,6 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             this.restoreOptions.PercentCompleteNotification = 5;
         }
 
+        public bool IsValid
+        {
+            get
+            {
+                return this.Server != null && this.RestorePlanner != null;
+            }
+        }
+
         public RestoreParams RestoreParams { get; set; }
 
         /// <summary>

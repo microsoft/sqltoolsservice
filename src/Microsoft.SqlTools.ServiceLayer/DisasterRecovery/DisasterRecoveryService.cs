@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
-        private RestoreDatabaseService restoreDatabaseService = new RestoreDatabaseService();
+        private RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -162,9 +162,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         metadata.Data = restoreDataObject;
 
 
-                        // create backup task and perform
-                        SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
-                        sqlTask.Run();
+                        // create restore task and perform
+                        SqlTask sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
                         response.TaskId = sqlTask.TaskId.ToString();
                     }
                     else
@@ -248,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return null;
         }
 
-        public bool IsBackupRestoreOperationSupported(RestoreParams restoreParams, out ConnectionInfo connectionInfo)
+        private bool IsBackupRestoreOperationSupported(RestoreParams restoreParams, out ConnectionInfo connectionInfo)
         {
             SqlConnection sqlConn = null;
             try

@@ -4,9 +4,7 @@
 //
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -19,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
     /// <summary>
     /// Includes method to all restore operations
     /// </summary>
-    public class RestoreDatabaseService
+    public class RestoreDatabaseHelper
     {
 
         /// <summary>
@@ -76,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             TaskResult taskResult = null;
 
 
-            if (restoreDataObject != null)
+            if (restoreDataObject != null && restoreDataObject.IsValid)
             {
                 // Create a task for backup cancellation request
                 return await Task.Factory.StartNew(() =>
@@ -116,11 +114,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 DatabaseName = restoreDataObject.RestoreParams.DatabaseName
             };
-            if (restoreDataObject != null)
+            if (restoreDataObject != null && restoreDataObject.IsValid)
             {
                 UpdateRestorePlan(restoreDataObject);
 
-                if (restoreDataObject != null)
+                if (restoreDataObject != null && restoreDataObject.IsValid)
                 {
                     response.DatabaseName = restoreDataObject.RestorePlanner.DatabaseName;
                     response.DbFiles = restoreDataObject.DbFiles.Select(x => x.PhysicalName);
@@ -152,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <summary>
         /// Returns true if the restoring the restoreDataObject is supported in the service
         /// </summary>
-        private bool CanRestore(RestoreDatabaseTaskDataObject restoreDataObject)
+        private static bool CanRestore(RestoreDatabaseTaskDataObject restoreDataObject)
         {
             if (restoreDataObject != null)
             {
@@ -162,6 +160,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return false;
         }
 
+        /// <summary>
+        /// Creates anew restore task object to do the restore operations
+        /// </summary>
+        /// <param name="restoreParams">Restore request parameters</param>
+        /// <returns>Restore task object</returns>
         public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams)
         {
             ConnectionInfo connInfo;

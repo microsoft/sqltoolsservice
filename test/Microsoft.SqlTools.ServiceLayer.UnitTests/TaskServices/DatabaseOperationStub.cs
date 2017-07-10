@@ -38,7 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                     //Just keep running
                     if (sqlTask.TaskStatus == SqlTaskStatus.Canceled)
                     {
-                        //throw new OperationCanceledException();
                         break;
                     }
                     if (Failed)

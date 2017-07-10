@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <summary>
         /// Current sql server instance
         /// </summary>
-        public readonly Server server;
+        private readonly Server server;
         private readonly IList<string> excludedDB;
 
         public List<string> GetTargetDbNamesForPageRestore()
@@ -56,6 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         internal DateTime GetServerCurrentDateTime()
         {
             DateTime dt = DateTime.MinValue;
+
+            //TODO: the code is moved from ssms and used for restore differential backups
+            //Uncomment when restore operation for differential backups is supported
             /*
             string query = "SELECT GETDATE()";
             DataSet dataset = this.server.ExecutionManager.ExecuteWithResults(query);
@@ -67,6 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return dt;
         }
 
+        //TODO: the code is moved from ssms and used for restore differential backups
+        //Uncomment when restore operation for differential backups is supported
         /*
         /// <summary>
         /// Queries msdb for source database names
@@ -136,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             bool found = false;
                             foreach (string str in databaseNames)
                             {
-                                if (StrEqual(str, dbName))
+                                if (StringComparer.OrdinalIgnoreCase.Compare(str, dbName) == 0)
                                 {
                                     found = true;
                                     break;
@@ -151,15 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 }
             }
             return databaseNames;
-        }
-
-        public bool StrEqual(string strA, string strB)
-        {
-            if (StringComparer.OrdinalIgnoreCase.Compare(strA, strB) == 0)
-            {
-                return true;
-            }
-            return false;
         }
 
         public string GetNewPhysicalRestoredFileName(string filePathParam, string dbName, bool isNewDatabase, string type, ref int fileIndex)
@@ -287,6 +283,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return ret;
         }
 
+        //TODO: the code is moved from ssms and used for other typs of restore operation
+        //Uncomment when restore operation for those types are supported
         /*
         public List<DbFile> GetDbFiles(BackupSet bkSet)
         {
@@ -547,6 +545,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return PathWrapper.Combine(folderpath, filename);
         }
 
+        //TODO: the code is moved from ssms and used for other typs of restore operation
+        //Uncomment when restore operation for those types are supported
         /*
         internal DateTime GetLastBackupDate(DatabaseRestorePlanner planner)
         {
@@ -585,6 +585,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return new string(result);
         }
 
+        //TODO: the code is moved from ssms and used for other typs of restore operation
+        //Uncomment when restore operation for those types are supported
         /*
         internal void MarkDuplicateSuspectPages(List<SuspectPageTaskDataObject> suspectPageObjList)
         {
@@ -606,50 +608,50 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
         */
 
-            /*
-        internal void VerifyChecksumWorker(RestorePlan plan, IBackgroundOperationContext backgroundContext, EventHandler cancelEventHandler)
+        /*
+    internal void VerifyChecksumWorker(RestorePlan plan, IBackgroundOperationContext backgroundContext, EventHandler cancelEventHandler)
+    {
+        if (plan == null || plan.RestoreOperations.Count() == 0)
         {
-            if (plan == null || plan.RestoreOperations.Count() == 0)
+            return;
+        }
+        backgroundContext.IsCancelable = true;
+        backgroundContext.CancelRequested += cancelEventHandler;
+        try
+        {
+            foreach (Restore res in plan.RestoreOperations)
             {
-                return;
-            }
-            backgroundContext.IsCancelable = true;
-            backgroundContext.CancelRequested += cancelEventHandler;
-            try
-            {
-                foreach (Restore res in plan.RestoreOperations)
+                if (!backgroundContext.IsCancelRequested && res.backupSet != null)
                 {
-                    if (!backgroundContext.IsCancelRequested && res.backupSet != null)
+                    StringBuilder bkMediaNames = new StringBuilder();
+                    foreach (BackupDeviceItem item in res.Devices)
                     {
-                        StringBuilder bkMediaNames = new StringBuilder();
-                        foreach (BackupDeviceItem item in res.Devices)
+                        backgroundContext.Status = SR.Verifying + ":" + item.Name;
+                        try
                         {
-                            backgroundContext.Status = SR.Verifying + ":" + item.Name;
-                            try
+                            // Use the Restore public API to do the Restore VerifyOnly query
+                            Restore restore = new Restore();
+                            restore.CredentialName = res.CredentialName;
+                            restore.Devices.Add(item);
+                            if (!res.SqlVerify(this.server))
                             {
-                                // Use the Restore public API to do the Restore VerifyOnly query
-                                Restore restore = new Restore();
-                                restore.CredentialName = res.CredentialName;
-                                restore.Devices.Add(item);
-                                if (!res.SqlVerify(this.server))
-                                {
-                                    throw new Exception(SR.BackupDeviceItemVerificationFailed(item.Name));
-                                }
+                                throw new Exception(SR.BackupDeviceItemVerificationFailed(item.Name));
                             }
-                            catch (Exception ex)
-                            {
-                                throw new Exception(SR.BackupDeviceItemVerificationFailed(item.Name), ex);
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(SR.BackupDeviceItemVerificationFailed(item.Name), ex);
                         }
                     }
                 }
             }
-            finally
-            {
-                backgroundContext.CancelRequested -= cancelEventHandler;
-            }
         }
-        */
+        finally
+        {
+            backgroundContext.CancelRequested -= cancelEventHandler;
+        }
+    }
+    */
 
         private BackupMedia GetFirstBackupMedia(RestorePlan restorePlan)
         {
