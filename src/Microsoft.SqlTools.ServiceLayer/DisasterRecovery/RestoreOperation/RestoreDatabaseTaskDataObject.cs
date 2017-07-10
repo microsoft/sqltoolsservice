@@ -744,7 +744,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
-        internal void CheckDbFilesLocation()
+        internal bool DbFilesLocationAreValid()
         {
             foreach (DbFile dbFile in this.DbFiles)
             {
@@ -755,10 +755,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     bool isValidPath = Util.IsDestinationPathValid(Path.GetDirectoryName(newPhysicalPath), ref isValidFolder);
                     if (!(isValidFolder && isValidPath))
                     {
-                        throw new Exception("Invalid path for database file:" + dbFile.PhysicalName) ;//TODO SR.InvalidPathForDatabaseFile(dbFile.PhysicalNameRelocate));
+                        return false;
                     }
                 }
             }
+            return true;
         }
     }
 

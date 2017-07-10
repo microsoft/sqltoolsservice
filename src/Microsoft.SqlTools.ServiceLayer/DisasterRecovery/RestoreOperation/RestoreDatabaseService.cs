@@ -116,37 +116,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 DatabaseName = restoreDataObject.RestoreParams.DatabaseName
             };
-            UpdateRestorePlan(restoreDataObject);
-
             if (restoreDataObject != null)
             {
-                response.DatabaseName = restoreDataObject.RestorePlanner.DatabaseName;
-                response.DbFiles = restoreDataObject.DbFiles.Select(x => x.PhysicalName);
-                response.CanRestore = CanRestore(restoreDataObject);
-                
-                if (!response.CanRestore)
-                {
-                    response.ErrorMessage = "Backup not supported.";
-                }
+                UpdateRestorePlan(restoreDataObject);
 
-                try
+                if (restoreDataObject != null)
                 {
-                    restoreDataObject.CheckDbFilesLocation();
+                    response.DatabaseName = restoreDataObject.RestorePlanner.DatabaseName;
+                    response.DbFiles = restoreDataObject.DbFiles.Select(x => x.PhysicalName);
+                    response.CanRestore = CanRestore(restoreDataObject);
+
+                    if (!response.CanRestore)
+                    {
+                        response.ErrorMessage = "Backup not supported.";
+                    }
+
+                    response.RelocateFilesNeeded = !restoreDataObject.DbFilesLocationAreValid();
+                    response.DefaultDataFolder = restoreDataObject.DefaultDataFileFolder;
+                    response.DefaultLogFolder = restoreDataObject.DefaultLogFileFolder;
                 }
-                catch(Exception ex)
+                else
                 {
-                    response.RelocateFilesNeeded = true;
+                    response.ErrorMessage = "Failed to create restore plan";
+                    response.CanRestore = false;
                 }
-                response.DefaultDataFolder = restoreDataObject.DefaultDataFileFolder;
-                response.DefaultLogFolder = restoreDataObject.DefaultLogFileFolder;
             }
             else
             {
-                response.ErrorMessage = "Failed to create restore plan";
-                response.CanRestore = false;
+                response.ErrorMessage = "Failed to create restore database plan";
             }
-
             return response;
+
         }
 
         /// <summary>

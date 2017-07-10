@@ -147,25 +147,39 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             if (supported && connInfo != null)
             {
-                RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
+                try
+                {
+                    RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
 
-                // create task metadata
-                TaskMetadata metadata = new TaskMetadata();
-                metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                metadata.Name = SR.Backup_TaskName;
-                metadata.IsCancelable = true;
-                metadata.Data = restoreDataObject;
+                    if (restoreDataObject != null)
+                    {
+                        // create task metadata
+                        TaskMetadata metadata = new TaskMetadata();
+                        metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                        metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
+                        metadata.Name = SR.Backup_TaskName;
+                        metadata.IsCancelable = true;
+                        metadata.Data = restoreDataObject;
 
-                
-                // create backup task and perform
-                SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
-                sqlTask.Run();
-                response.TaskId = sqlTask.TaskId.ToString();
+
+                        // create backup task and perform
+                        SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
+                        sqlTask.Run();
+                        response.TaskId = sqlTask.TaskId.ToString();
+                    }
+                    else
+                    {
+                        response.ErrorMessage = "Failed to create restore task";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response.ErrorMessage = ex.Message;
+                }
             }
             else
             {
-                response.ErrorMessage = "Restore is not supported"; //TOOD: have a better error message
+                response.ErrorMessage = "Restore database is not supported"; //TOOD: have a better error message
             }
 
             await requestContext.SendResult(response);

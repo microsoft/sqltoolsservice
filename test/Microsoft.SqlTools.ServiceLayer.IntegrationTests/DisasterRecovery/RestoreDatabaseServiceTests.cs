@@ -6,9 +6,8 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -96,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         [Fact]
-        public async Task CancelTaskShouldCancelTheOperationAndSendNotification()
+        public async Task RestoreDatabaseRequestShouldStartTheRestoreTask()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -157,13 +156,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     if(execute)
                     {
                         await DropDatabase(response.DatabaseName);
+                        Thread.Sleep(2000);
                         request.RelocateDbFiles = response.RelocateFilesNeeded;
                         service.ExecuteRestore(restoreDataObject);
-                        Server server = new Server(new ServerConnection(connectionResult.ConnectionInfo.ConnectionDetails.ServerName));
-                        Assert.True(server.Databases.Contains(response.DatabaseName));
+                        Assert.True(restoreDataObject.Server.Databases.Contains(response.DatabaseName));
                         await DropDatabase(response.DatabaseName);
-
-
                     }
                 }
 
