@@ -517,7 +517,7 @@ Task("SetPackageVersions")
 Task("SRGen")
 	.Does(() =>
 {
-    var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
+    var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
     var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
 
     foreach(var project in projects) {
@@ -533,7 +533,7 @@ Task("SRGen")
             continue;
         }
 
-        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp2.0", "srgen.dll");
+        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
         var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
         var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
         var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
