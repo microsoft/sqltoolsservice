@@ -40,7 +40,7 @@ dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\
 dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG% 
 
 SET TEST_SERVER=localhost
-SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp2.0\win7-x64\Microsoft.SqlTools.ServiceLayer.exe
+SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Debug\netcoreapp2.0\win7-x64\MicrosoftSqlToolsServiceLayer.exe
 SET SERVICECODECOVERAGE=True
 SET CODECOVERAGETOOL="%WORKINGDIR%packages\OpenCover.4.6.684\tools\OpenCover.Console.exe"
 SET CODECOVERAGEOUTPUT=coverage.xml

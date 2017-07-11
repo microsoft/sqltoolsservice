@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         public static string TypeFilegroupDifferential = "Filegroup Differential";
         public static string ComponentDatabase = "Database";
         public static string ComponentFile = "File";
+        public static string ComponentLog = "Log";
 
     }
 }

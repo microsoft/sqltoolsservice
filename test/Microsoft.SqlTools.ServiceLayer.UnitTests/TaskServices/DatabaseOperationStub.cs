@@ -31,15 +31,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
         public async Task<TaskResult> FunctionToRun(SqlTask sqlTask)
         {
-            sqlTask.TaskCanceled += OnTaskCanceled;
             return await Task.Factory.StartNew(() =>
             {
                 while (!IsStopped)
                 {
                     //Just keep running
-                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                    if (sqlTask.TaskStatus == SqlTaskStatus.Canceled)
                     {
-                        throw new OperationCanceledException();
+                        break;
                     }
                     if (Failed)
                     {
@@ -53,9 +52,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             });
         }
 
-        private void OnTaskCanceled(object sender, TaskEventArgs<SqlTaskStatus> e)
+        public async Task<TaskResult> FunctionToCancel(SqlTask sqlTask)
         {
-            cancellationTokenSource.Cancel();
+            return await Task.Factory.StartNew(() =>
+            {
+                return new TaskResult
+                {
+                    TaskStatus = SqlTaskStatus.Canceled
+                };
+            });
         }
     }
 }
