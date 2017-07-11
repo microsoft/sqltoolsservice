@@ -82,12 +82,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// </summary>
         /// <param name="taskMetadata">Task Metadata</param>
         /// <param name="taskToRun">The function to run the operation</param>
+        /// <param name="taskToCancel">The function to cancel the operation</param>
         /// <returns></returns>
-        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun)
+        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
         {
             ValidateNotDisposed();
 
-            var newtask = new SqlTask(taskMetadata, taskToRun );
+            var newtask = new SqlTask(taskMetadata, taskToRun, taskToCancel);
 
             lock (lockObject)
             {
@@ -95,6 +96,31 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
             OnTaskAdded(new TaskEventArgs<SqlTask>(newtask));
             return newtask;
+        }
+
+        /// <summary>
+        /// Creates a new task
+        /// </summary>
+        /// <param name="taskMetadata">Task Metadata</param>
+        /// <param name="taskToRun">The function to run the operation</param>
+        /// <returns></returns>
+        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun)
+        {
+            return CreateTask(taskMetadata, taskToRun, null);
+        }
+
+        /// <summary>
+        /// Creates a new task and starts the task
+        /// </summary>
+        /// <param name="taskMetadata">Task Metadata</param>
+        /// <param name="taskToRun">The function to run the operation</param>
+        /// <param name="taskToCancel">The function to cancel the operation</param>
+        /// <returns></returns>
+        public SqlTask CreateAndRun(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
+        {
+            var sqlTask = CreateTask(taskMetadata, taskToRun, null);
+            sqlTask.Run();
+            return sqlTask;
         }
 
         public void Dispose()

@@ -340,28 +340,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }           
         }
 
-        public bool IsDestinationPathValid(string path, ref bool isFolder)
-        {
-            Enumerator en = null;
-            DataTable dt;
-            Request req = new Request();
-
-            en = new Enumerator();
-            req.Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']";
-            dt = en.Process(this.sqlConnection, req);
-            
-            if (dt.Rows.Count > 0)
-            {
-                isFolder = !(Convert.ToBoolean(dt.Rows[0]["IsFile"], System.Globalization.CultureInfo.InvariantCulture));
-                return true;
-            }
-            else
-            {
-                isFolder = false;
-                return false;
-            }
-        }
-
         public string GetMediaNameFromBackupSetId(int backupSetId)
         {
             Enumerator en  = null;
@@ -422,72 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return result;
         }
         
-        public string GetNewPhysicalRestoredFileName(string filePathParam, string dbName, bool isNewDatabase, string type, ref int fileIndex)
-        {
-            if (string.IsNullOrEmpty(filePathParam))
-            {
-                return string.Empty;
-            }
-            
-            string result = string.Empty;
-            string filePath = filePathParam;
-            int idx = filePath.LastIndexOf('\\');
-            string folderPath = filePath.Substring(0,idx);
-            
-            string fileName = filePath.Substring(idx + 1);
-            idx = fileName.LastIndexOf('.');
-            string fileExtension = fileName.Substring(idx + 1);
-
-            bool isFolder = true;
-            bool isValidPath = IsDestinationPathValid(folderPath, ref isFolder);
-
-            if (!isValidPath || !isFolder)
-            {
-                SMO.Server server = new SMO.Server(this.sqlConnection);
-                if (type != RestoreConstants.Log)
-                {
-                    folderPath = server.Settings.DefaultFile;
-                    if (folderPath.Length == 0)
-                    {
-                        folderPath = server.Information.MasterDBPath;
-                    }
-                }
-                else 
-                {
-                    folderPath = server.Settings.DefaultLog;
-                    if (folderPath.Length == 0)
-                    {
-                        folderPath = server.Information.MasterDBLogPath;
-                    }
-                }
-            }
-            else
-            {
-                if (!isNewDatabase)
-                {
-                    return filePathParam;
-                }
-            }
-
-            if (!isNewDatabase)
-            {
-                result = folderPath + "\\" + dbName + "." + fileExtension;
-            }
-            else
-            {
-                if (0 != string.Compare(fileExtension, "mdf", StringComparison.OrdinalIgnoreCase))
-                {
-                    result = folderPath + "\\" + dbName + "_" + Convert.ToString(fileIndex, System.Globalization.CultureInfo.InvariantCulture) + "." + fileExtension;
-                    fileIndex++;
-                }
-                else
-                {
-                    result = folderPath + "\\" + dbName + "." + fileExtension;
-                }
-            }
-
-            return result;
-        }
+       
 
         // TODO: This is implemented as internal property in SMO. 
         public bool IsLocalPrimaryReplica(string databaseName)
@@ -663,29 +576,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return dict;
         }*/
 
-        public void GetBackupSetTypeAndComponent(int numType, ref string backupType, ref string backupComponent)
+        public static void GetBackupSetTypeAndComponent(BackupSetType backupSetType, out string backupType, out string backupComponent)
         {
-            switch (numType)
+            switch (backupSetType)
             {
-                case 1:
+                case BackupSetType.Database:
                     backupType = RestoreConstants.TypeFull;
                     backupComponent = RestoreConstants.ComponentDatabase;
                     break;
-                case 2:
+                case BackupSetType.Differential:
                     backupType = RestoreConstants.TypeTransactionLog;
-                    backupComponent = "";
+                    backupComponent = RestoreConstants.ComponentDatabase;
                     break;                
-                case 4:
+                case BackupSetType.FileOrFileGroup:
                     backupType = RestoreConstants.TypeFilegroup;
                     backupComponent = RestoreConstants.ComponentFile;
                     break;
-                case 5:
+                case BackupSetType.FileOrFileGroupDifferential:
                     backupType = RestoreConstants.TypeDifferential;
                     backupComponent = RestoreConstants.ComponentDatabase;
                     break;
-                case 6:
-                    backupType = RestoreConstants.TypeFilegroupDifferential;
-                    backupComponent = RestoreConstants.ComponentFile;
+                case BackupSetType.Log:
+                    backupType = RestoreConstants.Log;
+                    backupComponent = RestoreConstants.ComponentLog;
                     break;
                 default:
                     backupType = RestoreConstants.NotKnown;
