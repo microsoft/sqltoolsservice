@@ -2129,6 +2129,36 @@
         <target state="new">Parameterization</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ConflictWithNoRecovery">
+        <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
+        <target state="new">Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidPathForDatabaseFile">
+        <source>Invalid path for database file: '{0}'</source>
+        <target state="new">Invalid path for database file: '{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Log">
+        <source>Log</source>
+        <target state="new">Log</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestorePlanFailed">
+        <source>Failed to create restore plan</source>
+        <target state="new">Failed to create restore plan</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreNotSupported">
+        <source>Restore database is not supported</source>
+        <target state="new">Restore database is not supported</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreTaskName">
+        <source>Restore Database</source>
+        <target state="new">Restore Database</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

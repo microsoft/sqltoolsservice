@@ -39,8 +39,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     TaskResult result = new TaskResult();
                     try
                     {
-                        ExecuteRestore(restoreDataObject);
-                        result.TaskStatus = SqlTaskStatus.Succeeded;
+                        if (CanRestore(restoreDataObject))
+                        {
+                            ExecuteRestore(restoreDataObject);
+                            result.TaskStatus = SqlTaskStatus.Succeeded;
+                        }
+                        else
+                        {
+                            result.ErrorMessage = SR.RestoreNotSupported;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -48,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         result.ErrorMessage = ex.Message;
                         if (ex.InnerException != null)
                         {
-                            result.ErrorMessage += System.Environment.NewLine + ex.InnerException.Message;
+                            result.ErrorMessage += Environment.NewLine + ex.InnerException.Message;
                         }
                     }
                     return result;
@@ -126,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                     if (!response.CanRestore)
                     {
-                        response.ErrorMessage = "Backup not supported.";
+                        response.ErrorMessage = SR.RestoreNotSupported;
                     }
 
                     response.RelocateFilesNeeded = !restoreDataObject.DbFilesLocationAreValid();
@@ -135,13 +142,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 }
                 else
                 {
-                    response.ErrorMessage = "Failed to create restore plan";
+                    response.ErrorMessage = SR.RestorePlanFailed;
                     response.CanRestore = false;
                 }
             }
             else
             {
-                response.ErrorMessage = "Failed to create restore database plan";
+                response.ErrorMessage = SR.RestorePlanFailed;
             }
             return response;
 
@@ -190,8 +197,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private void UpdateRestorePlan(RestoreDatabaseTaskDataObject restoreDataObject)
         {
-            // Server server = new Server(new ServerConnection(connInfo.ConnectionDetails.ServerName));
-            //RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(server, requestParam.DatabaseName);
             if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePath))
             {
                 restoreDataObject.AddFile(restoreDataObject.RestoreParams.BackupFilePath);

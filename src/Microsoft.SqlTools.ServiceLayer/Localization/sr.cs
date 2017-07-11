@@ -3301,6 +3301,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConflictWithNoRecovery
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConflictWithNoRecovery);
+            }
+        }
+
+        public static string InvalidPathForDatabaseFile
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidPathForDatabaseFile);
+            }
+        }
+
+        public static string Log
+        {
+            get
+            {
+                return Keys.GetString(Keys.Log);
+            }
+        }
+
+        public static string RestorePlanFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestorePlanFailed);
+            }
+        }
+
+        public static string RestoreNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreNotSupported);
+            }
+        }
+
+        public static string RestoreTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreTaskName);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4646,6 +4694,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string Task_Completed = "Task_Completed";
+
+
+            public const string ConflictWithNoRecovery = "ConflictWithNoRecovery";
+
+
+            public const string InvalidPathForDatabaseFile = "InvalidPathForDatabaseFile";
+
+
+            public const string Log = "Log";
+
+
+            public const string RestorePlanFailed = "RestorePlanFailed";
+
+
+            public const string RestoreNotSupported = "RestoreNotSupported";
+
+
+            public const string RestoreTaskName = "RestoreTaskName";
 
 
             private Keys()
