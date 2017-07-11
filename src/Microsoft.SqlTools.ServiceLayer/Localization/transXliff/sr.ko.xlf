@@ -495,7 +495,7 @@
       </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
-        <target state="new">EN_LOCALIZATION</target>
+        <target state="new">테스트</target>
         
         <note/>
       </trans-unit>
@@ -625,6 +625,7 @@ votes
       </trans-unit>
       <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
         <source>Decimal column is missing numeric precision or numeric scale</source>
+        <target state="new">Decimal 형식 열에 전체 자릿수 또는 소수 자릿수가 없습니다.</target>
         
         <note/>
       </trans-unit>
@@ -636,6 +637,7 @@ votes
       </trans-unit>
       <trans-unit id="QueryServiceResultSetAddNoRows">
         <source>Cannot add row to result buffer, data reader does not contain rows</source>
+        <target state="new">결과 버퍼에 새로운 행을 추가할 수 없거나 데이터 리더에 행이 없습니다.</target>
         
         <note/>
       </trans-unit>
@@ -719,11 +721,13 @@ votes
       </trans-unit>
       <trans-unit id="TreeNodeError">
         <source>Error expanding: {0}</source>
+        <target state="new">오류 확장: {0}</target>
         
         <note/>
       </trans-unit>
       <trans-unit id="ServerNodeConnectionError">
         <source>Error connecting to {0}</source>
+        <target state="new">{0}에 연결하는 동안 오류가 발생했습니다.</target>
         
         <note/>
       </trans-unit>
@@ -1615,12 +1619,6 @@ votes
         
         <note/>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerInstance">
-        <source>ServerInstance</source>
-        <target state="new">ServerInstance</target>
-        
-        <note/>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
         <source>Selective XML Indexes</source>
         <target state="new">선택적 XML 인덱스</target>
@@ -1690,6 +1688,868 @@ votes
       <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
         <source>Column Encryption Keys</source>
         <target state="new">열 암호화 키</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Server">
+        <source>Server</source>
+        <target state="new">서버</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingParams.ConnectionString property.</source>
+        <target state="new">ScriptingParams.ConnectionString 속성 분석을 하는 동안 오류가 발생했습니다.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
+        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
+        <target state="new">ScriptingParams.FilePath 속성에 잘못된 디렉터리 지정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="new">ScriptingListObjectsCompleteParams.ConnectionSring 속성을 분석할때 오류가 생겼습니다.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterLabelFormatString">
+        <source>{0} ({1}, {2}, {3})</source>
+        <target state="new">{0}({1}, {2}, {3})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterNoDefaultLabel">
+        <source>No default</source>
+        <target state="new">기본값 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputLabel">
+        <source>Input</source>
+        <target state="new">입력</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputLabel">
+        <source>Input/Output</source>
+        <target state="new">입/출력</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel">
+        <source>Input/ReadOnly</source>
+        <target state="new">입력/읽기 전용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel">
+        <source>Input/Output/ReadOnly</source>
+        <target state="new">입/출력/읽기 전용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SubroutineParameterDefaultLabel">
+        <source>Default</source>
+        <target state="new">기본값</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_NullColumn_Label">
+        <source>null</source>
+        <target state="new">Null</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_NotNullColumn_Label">
+        <source>not null</source>
+        <target state="new">Not Null</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UDDTLabelWithType">
+        <source>{0} ({1}, {2})</source>
+        <target state="new">{0}({1}, {2})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UDDTLabelWithoutType">
+        <source>{0} ({1})</source>
+        <target state="new">{0}({1})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithType">
+        <source>{0} ({1}Computed, {2}, {3})</source>
+        <target state="new">{0}({1}계산됨, {2}, {3})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithoutType">
+        <source>{0} ({1}Computed)</source>
+        <target state="new">{0}({1}계산됨)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithoutType">
+        <source>{0} (Column Set, {1})</source>
+        <target state="new">{0}(열 집합, {1})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithType">
+        <source>{0} (Column Set, {1}{2}, {3})</source>
+        <target state="new">{0}(열 집합, {1}{2}, {3})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString">
+        <source>{0} (Column Set, {1}, {2}, {3})</source>
+        <target state="new">{0}(열 집합, {1}, {2}, {3})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="UniqueIndex_LabelPart">
+        <source>Unique</source>
+        <target state="new">고유</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="NonUniqueIndex_LabelPart">
+        <source>Non-Unique</source>
+        <target state="new">고유하지 않음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ClusteredIndex_LabelPart">
+        <source>Clustered</source>
+        <target state="new">클러스터형</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="NonClusteredIndex_LabelPart">
+        <source>Non-Clustered</source>
+        <target state="new">비클러스터형</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="History_LabelPart">
+        <source>History</source>
+        <target state="new">기록</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SystemVersioned_LabelPart">
+        <source>System-Versioned</source>
+        <target state="new">시스템 버전 관리</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="unavailable">
+        <source>Unavailable</source>
+        <target state="new">사용할 수 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroup_dialog_defaultFilegroup">
+        <source>Current default filegroup: {0}</source>
+        <target state="new">현재 기본 파일 그룹: {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroup_dialog_title">
+        <source>New Filegroup for {0}</source>
+        <target state="new">{0}에 대한 새 파일 그룹</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroups_default">
+        <source>Default</source>
+        <target state="new">기본값</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroups_files">
+        <source>Files</source>
+        <target state="new">파일</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroups_name">
+        <source>Name</source>
+        <target state="new">이름</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroups_readonly">
+        <source>Read-Only</source>
+        <target state="new">읽기 전용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_autogrowth">
+        <source>Autogrowth / Maxsize</source>
+        <target state="new">자동 증가 / 최대 크기</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_builderText">
+        <source>...</source>
+        <target state="new">...</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_default">
+        <source>&lt;default&gt;</source>
+        <target state="new">&lt;기본값&gt;</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_fileGroup">
+        <source>Filegroup</source>
+        <target state="new">파일 그룹</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_fileName">
+        <source>Logical Name</source>
+        <target state="new">논리적 이름</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_fileType">
+        <source>File Type</source>
+        <target state="new">파일 형식</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_initialSize">
+        <source>Initial Size (MB)</source>
+        <target state="new">처음 크기 (MB)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_newFilegroup">
+        <source>&lt;new filegroup&gt;</source>
+        <target state="new">&lt;새 파일 그룹&gt;</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_path">
+        <source>Path</source>
+        <target state="new">경로</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_physicalFileName">
+        <source>File Name</source>
+        <target state="new">파일 이름</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_rawDevice">
+        <source>&lt;raw device&gt;</source>
+        <target state="new">&lt;원시 장치&gt;</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_bulkLogged">
+        <source>Bulk-logged</source>
+        <target state="new">대량 로그</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_full">
+        <source>Full</source>
+        <target state="new">전체</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_simple">
+        <source>Simple</source>
+        <target state="new">단순</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_titleSearchOwner">
+        <source>Select Database Owner</source>
+        <target state="new">데이터베이스 소유자 선택</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_disabled">
+        <source>None</source>
+        <target state="new">없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_restrictedGrowthByMB">
+        <source>By {0} MB, Limited to {1} MB</source>
+        <target state="new">{0} MB 단위로 {1} MB까지 제한됨</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_restrictedGrowthByPercent">
+        <source>By {0} percent, Limited to {1} MB</source>
+        <target state="new">{0} % 단위로 {1} MB까지 제한됨</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByMB">
+        <source>By {0} MB, Unlimited</source>
+        <target state="new">{0} MB 단위로, 제한 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByPercent">
+        <source>By {0} percent, Unlimited</source>
+        <target state="new">{0} % 단위로, 제한 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unlimitedfilestream">
+        <source>Unlimited</source>
+        <target state="new">제한 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_limitedfilestream">
+        <source>Limited to {0} MB</source>
+        <target state="new">{0} MB로 제한됨</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_automatic">
+        <source>Automatic</source>
+        <target state="new">자동</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_servicebroker">
+        <source>Service Broker</source>
+        <target state="new">Service Broker</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_collation">
+        <source>Collation</source>
+        <target state="new">데이터 정렬</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_cursor">
+        <source>Cursor</source>
+        <target state="new">커서</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_misc">
+        <source>Miscellaneous</source>
+        <target state="new">기타</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_recovery">
+        <source>Recovery</source>
+        <target state="new">복구</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_state">
+        <source>State</source>
+        <target state="new">상태</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiNullDefault">
+        <source>ANSI NULL Default</source>
+        <target state="new">ANSI NULL 기본값</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiNulls">
+        <source>ANSI NULLS Enabled</source>
+        <target state="new">ANSI NULLS 사용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiPadding">
+        <source>ANSI Padding Enabled </source>
+        <target state="new">ANSI 패딩 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiWarnings">
+        <source>ANSI Warnings Enabled</source>
+        <target state="new">ANSI Warnings 사용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_arithabort">
+        <source>Arithmetic Abort Enabled </source>
+        <target state="new">산술 연산 중단 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoClose">
+        <source>Auto Close</source>
+        <target state="new">자동 닫기</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoCreateStatistics">
+        <source>Auto Create Statistics</source>
+        <target state="new">통계 자동 작성</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoShrink">
+        <source>Auto Shrink</source>
+        <target state="new">자동 축소</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoUpdateStatistics">
+        <source>Auto Update Statistics </source>
+        <target state="new">통계 자동 업데이트</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoUpdateStatisticsAsync">
+        <source>Auto Update Statistics Asynchronously</source>
+        <target state="new">통계를 비동기적으로 자동 업데이트</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_caseSensitive">
+        <source>Case Sensitive</source>
+        <target state="new">대/소문자 구분</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_closeCursorOnCommit">
+        <source>Close Cursor on Commit Enabled </source>
+        <target state="new">커밋 시 커서 닫기 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_collation">
+        <source>Collation</source>
+        <target state="new">데이터 정렬</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_concatNullYieldsNull">
+        <source>Concatenate Null Yields Null </source>
+        <target state="new">Null 연결 시 Null 생성</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseCompatibilityLevel">
+        <source>Database Compatibility Level</source>
+        <target state="new">데이터베이스 호환성 수준</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState">
+        <source>Database State </source>
+        <target state="new">데이터베이스 상태</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor">
+        <source>Default Cursor</source>
+        <target state="new">기본 커서</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_fullTextIndexing">
+        <source>Full-Text Indexing Enabled </source>
+        <target state="new">전체 텍스트 인덱싱 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_numericRoundAbort">
+        <source>Numeric Round-Abort </source>
+        <target state="new">숫자 반올림 시 중단</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify">
+        <source>Page Verify </source>
+        <target state="new">페이지 확인</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_quotedIdentifier">
+        <source>Quoted Identifiers Enabled </source>
+        <target state="new">따옴표 붙은 식별자 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_readOnly">
+        <source>Database Read-Only</source>
+        <target state="new">데이터베이스 읽기 전용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_recursiveTriggers">
+        <source>Recursive Triggers Enabled </source>
+        <target state="new">재귀적 트리거 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess">
+        <source>Restrict Access</source>
+        <target state="new">액세스 제한</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_selectIntoBulkCopy">
+        <source>Select Into/Bulk Copy</source>
+        <target state="new">SELECT INTO/대량 복사</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_honorBrokerPriority">
+        <source>Honor Broker Priority</source>
+        <target state="new">Broker 우선 순위 인식</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_serviceBrokerGuid">
+        <source>Service Broker Identifier</source>
+        <target state="new">Service Broker 식별자</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_brokerEnabled">
+        <source>Broker Enabled</source>
+        <target state="new">Broker 활성화</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_truncateLogOnCheckpoint">
+        <source>Truncate Log on Checkpoint </source>
+        <target state="new">검사점에서 로그 자름</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_dbChaining">
+        <source>Cross-database Ownership Chaining Enabled</source>
+        <target state="new">데이터베이스 간 소유권 체인 사용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_trustworthy">
+        <source>Trustworthy</source>
+        <target state="new">신뢰</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
+        <source>Date Correlation Optimization Enabled</source>
+        <target state="new">날짜 상관관계 최적화 설정</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization_value_forced">
+        <source>Forced</source>
+        <target state="new">강제</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization_value_simple">
+        <source>Simple</source>
+        <target state="new">단순</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_file_dataFile">
+        <source>ROWS Data</source>
+        <target state="new">ROWS 데이터</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_file_logFile">
+        <source>LOG</source>
+        <target state="new">로그</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_file_filestreamFile">
+        <source>FILESTREAM Data</source>
+        <target state="new">FILESTREAM 데이터</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_file_noFileGroup">
+        <source>Not Applicable</source>
+        <target state="new">해당 사항 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_file_defaultpathstring">
+        <source>&lt;default path&gt;</source>
+        <target state="new">&lt;기본 경로&gt;</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="title_openConnectionsMustBeClosed">
+        <source>Open Connections</source>
+        <target state="new">연결 열기</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="warning_openConnectionsMustBeClosed">
+        <source>To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</source>
+        <target state="new">데이터베이스 속성을 변경하기 위해, SQL Server가 database_ 에  다른 연결을 모두 닫아야 합니다. 속성을 변경하고 다른 연결을 모두 닫으시겠습니까?</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_autoClosed">
+        <source>AUTO_CLOSED</source>
+        <target state="new">AUTO_CLOSED</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_emergency">
+        <source>EMERGENCY</source>
+        <target state="new">긴급</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_inaccessible">
+        <source>INACCESSIBLE</source>
+        <target state="new">INACCESSIBLE</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_normal">
+        <source>NORMAL</source>
+        <target state="new">NORMAL</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_offline">
+        <source>OFFLINE</source>
+        <target state="new">오프라인</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_recovering">
+        <source>RECOVERING</source>
+        <target state="new">복구 중</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_recoveryPending">
+        <source>RECOVERY PENDING</source>
+        <target state="new">복구 보류 중</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_restoring">
+        <source>RESTORING</source>
+        <target state="new">RESTORING</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_shutdown">
+        <source>SHUTDOWN</source>
+        <target state="new">SHUTDOWN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_standby">
+        <source>STANDBY</source>
+        <target state="new">STANDBY</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_suspect">
+        <source>SUSPECT</source>
+        <target state="new">SUSPECT</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor_value_global">
+        <source>GLOBAL</source>
+        <target state="new">GLOBAL</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor_value_local">
+        <source>LOCAL</source>
+        <target state="new">LOCAL</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_multiple">
+        <source>MULTI_USER</source>
+        <target state="new">MULTI_USER</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_restricted">
+        <source>RESTRICTED_USER</source>
+        <target state="new">RESTRICTED_USER</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_single">
+        <source>SINGLE_USER</source>
+        <target state="new">SINGLE_USER</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_checksum">
+        <source>CHECKSUM</source>
+        <target state="new">CHECKSUM</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_none">
+        <source>NONE</source>
+        <target state="new">NONE</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_tornPageDetection">
+        <source>TORN_PAGE_DETECTION</source>
+        <target state="new">TORN_PAGE_DETECTION</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_varDecimalEnabled">
+        <source>VarDecimal Storage Format Enabled</source>
+        <target state="new">VarDecimal 저장소 형식 사용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_katmai">
+        <source>SQL Server 2008 (100)</source>
+        <target state="new">SQL Server 2008 (100)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_encryptionEnabled">
+        <source>Encryption Enabled</source>
+        <target state="new">암호화 사용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_off">
+        <source>OFF</source>
+        <target state="new">OFF</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_on">
+        <source>ON</source>
+        <target state="new">ON</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
+        <source>PRIMARY</source>
+        <target state="new">PRIMARY</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_db_prop_invalidleadingColumns">
+        <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </source>
+        <target state="new">배포 정책이 HASH인 경우 선행 해시 열 수는 선택 사항이지만, 선택할 경우 1개에서 16개 사이의 열로 지정해야 합니다.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_denali">
+        <source>SQL Server 2012 (110)</source>
+        <target state="new">SQL Server 2012 (110)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql14">
+        <source>SQL Server 2014 (120)</source>
+        <target state="new">SQL Server 2014 (120)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql15">
+        <source>SQL Server 2016 (130)</source>
+        <target state="new">SQL Server 2016 (130)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sqlvNext">
+        <source>SQL Server vNext (140)</source>
+        <target state="new">SQL Server vNext (140)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_containmentType_None">
+        <source>None</source>
+        <target state="new">없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="general_containmentType_Partial">
+        <source>Partial</source>
+        <target state="new">부분</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="filegroups_filestreamFiles">
+        <source>FILESTREAM Files</source>
+        <target state="new">FILESTREAM 파일</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="prototype_file_noApplicableFileGroup">
+        <source>No Applicable Filegroup</source>
+        <target state="new">해당 파일 그룹 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="DatabaseNotAccessible">
+        <source>The database {0} is not accessible.</source>
+        <target state="new">{0} 데이터베이스에 액세스할 수 없습니다.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetHasNoResults">
+        <source>Query has no results to return</source>
+        <target state="new">쿼리 반환 결과 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetTooLarge">
+        <source>Result set has too many rows to be safely loaded</source>
+        <target state="new">결과 집합의 행 수가 너무 많아서 안전하게 불러들일 수 없습니다.</target>
+        
+      </trans-unit>
+      <trans-unit id="Backup_TaskName">
+        <source>Backup Database</source>
+        <target state="new">데이터베이스 백업</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Task_InProgress">
+        <source>In progress</source>
+        <target state="new">진행 중</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Task_Completed">
+        <source>Completed</source>
+        <target state="new">완료됨</target>
+        
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="new">매개 변수화</target>
         
         <note/>
       </trans-unit>
