@@ -39,14 +39,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     TaskResult result = new TaskResult();
                     try
                     {
-                        if (CanRestore(restoreDataObject))
+                        if (restoreDataObject.IsValid && CanRestore(restoreDataObject))
                         {
                             ExecuteRestore(restoreDataObject);
                             result.TaskStatus = SqlTaskStatus.Succeeded;
                         }
                         else
                         {
-                            result.ErrorMessage = SR.RestoreNotSupported;
+                            if (restoreDataObject.ActiveException != null)
+                            {
+                                result.ErrorMessage = restoreDataObject.ActiveException.Message;
+                            }
+                            else
+                            {
+                                result.ErrorMessage = SR.RestoreNotSupported;
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -142,7 +149,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 }
                 else
                 {
-                    response.ErrorMessage = SR.RestorePlanFailed;
+                    if (restoreDataObject.ActiveException != null)
+                    {
+                        response.ErrorMessage = restoreDataObject.ActiveException.Message;
+                    }
+                    else
+                    {
+                        response.ErrorMessage = SR.RestorePlanFailed;
+                    }
                     response.CanRestore = false;
                 }
             }
