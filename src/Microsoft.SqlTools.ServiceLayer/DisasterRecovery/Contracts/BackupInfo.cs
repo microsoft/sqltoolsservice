@@ -96,10 +96,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public bool ContinueAfterError { get; set; }
 
         /// <summary>
-        /// Gets or sets the method used to truncate the database log as part of the backup operation.
-        /// This should be converted to BackupTruncateLogType when setting it to Backup object.
+        /// Gets or sets a Boolean property value that determines whether to truncate the database log.
         /// </summary>
-        public int LogTruncation { get; set; }
+        public bool LogTruncation { get; set; }
+
+        /// <summary>
+        /// Gets or sets a Boolean property value that determines whether to backup the tail of the log
+        /// </summary>
+        public bool TailLogBackup { get; set; }
 
         /// <summary>
         /// Gets or sets a textual description for a particular backup set. 

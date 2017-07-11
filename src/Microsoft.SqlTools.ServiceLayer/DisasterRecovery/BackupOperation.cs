@@ -231,25 +231,62 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.backup.FormatMedia = this.backupInfo.FormatMedia;
             this.backup.Initialize = this.backupInfo.Initialize;
             this.backup.SkipTapeHeader = this.backupInfo.SkipTapeHeader;
-            this.backup.MediaName = this.backupInfo.MediaName;
-            this.backup.MediaDescription = this.backupInfo.MediaDescription;
             this.backup.Checksum = this.backupInfo.Checksum;
             this.backup.ContinueAfterError = this.backupInfo.ContinueAfterError;
-            this.backup.LogTruncation = (BackupTruncateLogType)this.backupInfo.LogTruncation;
-            // TODO: do we need "backup the tail of the log"? if so, need to check for Hadr, Mirrored and then set this.bk.NoRecovery
 
-            this.backup.BackupSetDescription = this.backupInfo.BackupSetDescription;
-            this.backup.RetainDays = this.backupInfo.RetainDays;
-            this.backup.ExpirationDate = this.backupInfo.ExpirationDate;
+            if (!string.IsNullOrEmpty(this.backupInfo.MediaName))
+            {
+                this.backup.MediaName = this.backupInfo.MediaName;
+            }
+
+            if (!string.IsNullOrEmpty(this.backupInfo.MediaDescription))
+            {
+                this.backup.MediaDescription = this.backupInfo.MediaDescription;
+            }
+            
+            if (this.backupInfo.TailLogBackup 
+                && !this.backupRestoreUtil.IsHADRDatabase(this.backupInfo.DatabaseName) 
+                && !this.backupRestoreUtil.IsMirroringEnabled(this.backupInfo.DatabaseName))
+            {
+                this.backup.NoRecovery = true;
+            }
+
+            if (this.backupInfo.LogTruncation)
+            {
+                this.backup.LogTruncation = BackupTruncateLogType.Truncate;
+            }
+            else
+            {
+                this.backup.LogTruncation = BackupTruncateLogType.NoTruncate;
+            }
+            
+            if (!string.IsNullOrEmpty(this.backupInfo.BackupSetDescription))
+            {
+                this.backup.BackupSetDescription = this.backupInfo.BackupSetDescription;
+            }
+
+            if (this.backupInfo.RetainDays >= 0)
+            {
+                this.backup.RetainDays = this.backupInfo.RetainDays;
+            }
+            else
+            {
+                this.backup.ExpirationDate = this.backupInfo.ExpirationDate;
+            }
+
             this.backup.CompressionOption = (BackupCompressionOptions)this.backupInfo.CompressionOption;
-            this.backup.EncryptionOption = new BackupEncryptionOptions((BackupEncryptionAlgorithm)this.backupInfo.EncryptionAlgorithm, 
-                (BackupEncryptorType)this.backupInfo.EncryptorType, 
-                this.backupInfo.EncryptorName);
+
+            if (!string.IsNullOrEmpty(this.backupInfo.EncryptorName))
+            {
+                this.backup.EncryptionOption = new BackupEncryptionOptions((BackupEncryptionAlgorithm)this.backupInfo.EncryptionAlgorithm,
+                    (BackupEncryptorType)this.backupInfo.EncryptorType,
+                    this.backupInfo.EncryptorName);
+            }
 
             // Execute backup
             this.backup.SqlBackup(this.dataContainer.Server);
 
-            // TODO: execute Restore if VerifyBackupRequired is selected
+            // TODO: if VerifyBackupRequired is selected, execute Restore
         }
 
         /// <summary>
