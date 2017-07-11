@@ -1815,14 +1815,6 @@
     <value>Backup Database</value>
     <comment></comment>
   </data>
-  <data name="Backup_ServerCertificate" xml:space="preserve">
-    <value>ServerCertificate;</value>
-    <comment></comment>
-  </data>
-  <data name="Backup_ServerAsymmetricKey" xml:space="preserve">
-    <value>ServerAsymmetricKey;</value>
-    <comment></comment>
-  </data>
   <data name="Task_InProgress" xml:space="preserve">
     <value>In progress</value>
     <comment></comment>

@@ -55,6 +55,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     }
 
     /// <summary>
+    /// Class for backup encryptor
+    /// </summary>
+    public class BackupEncryptor
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="encryptorType"></param>
+        /// <param name="encryptorName"></param>
+        public BackupEncryptor(int encryptorType, string encryptorName)
+        {
+            this.EncryptorType = encryptorType;
+            this.EncryptorName = encryptorName;
+        }
+
+        /// <summary>
+        /// Encryptor type - certificate or asymetric key
+        /// </summary>
+        public int EncryptorType { get; set; }
+
+        /// <summary>
+        /// Encryptor name
+        /// </summary>
+        public string EncryptorName { get; set; }
+    }
+
+    /// <summary>
     /// Restore item source
     /// </summary>
     public class RestoreItemSource

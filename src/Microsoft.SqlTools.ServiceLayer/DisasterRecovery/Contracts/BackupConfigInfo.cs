@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// <summary>
         /// Gets or sets backup encryptors
         /// </summary>
-        public List<string> BackupEncryptors { get; set; }
+        public List<BackupEncryptor> BackupEncryptors { get; set; }
 
         /// <summary>
         /// Ctor

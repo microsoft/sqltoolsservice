@@ -2129,16 +2129,6 @@
         <target state="new">Parameterization</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="Backup_ServerCertificate">
-        <source>ServerCertificate;</source>
-        <target state="new">ServerCertificate;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Backup_ServerAsymmetricKey">
-        <source>ServerAsymmetricKey;</source>
-        <target state="new">ServerAsymmetricKey;</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ConflictWithNoRecovery">
         <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
         <target state="new">Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</target>

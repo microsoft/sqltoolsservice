@@ -16,17 +16,17 @@ using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 {
-    public class BackupTests
+    public class BackupServiceTests
     {
         // Query format to create master key and certificate for backup encryption
         private const string CreateCertificateQueryFormat = @"USE master;
 IF NOT EXISTS(SELECT * FROM sys.symmetric_keys WHERE symmetric_key_id = 101)
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Yukon900';
-IF NOT EXISTS(SELECT * FROM sys.certificates WHERE name = '{0}')
-CREATE CERTIFICATE {0} WITH SUBJECT = 'Backup Encryption Certificate'; ";
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '{0}';
+IF NOT EXISTS(SELECT * FROM sys.certificates WHERE name = '{1}')
+CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
 
         // Query format to clean up master key and certificate
-        private const string CleanupCertificateQueryFormat = @"DROP CERTIFICATE {0}; DROP MASTER KEY";
+        private const string CleanupCertificateQueryFormat = @"USE master; DROP CERTIFICATE {0}; DROP MASTER KEY";
 
         /// <summary>
         /// Get backup configuration info
@@ -72,12 +72,12 @@ CREATE CERTIFICATE {0} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             
             // Get default backup path
             BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-            string backupPath = backupConfigInfo.DefaultBackupFolder + "\\" + databaseName + ".bak";
+            string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + ".bak");
 
-            BackupInfo backupInfo = createBackupInfo(databaseName,
+            BackupInfo backupInfo = CreateBackupInfo(databaseName,
                 BackupType.Full,
-                new List<string>(new string[] { backupPath }),
-                new Dictionary<string, int>() { { backupPath, (int)DeviceType.File } });
+                new List<string>(){ backupPath },
+                new Dictionary<string, int>(){{ backupPath, (int)DeviceType.File }});
 
             var backupParams = new BackupParams
             {
@@ -108,11 +108,14 @@ CREATE CERTIFICATE {0} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
             string certificateName = "backupcertificate" + new Random().Next(10000000, 99999999);
-            string createCertificateQuery = string.Format(CreateCertificateQueryFormat, certificateName);
+            string masterkeyPassword = Guid.NewGuid().ToString();
+            string createCertificateQuery = string.Format(CreateCertificateQueryFormat, masterkeyPassword, certificateName);
             string cleanupCertificateQuery = string.Format(CleanupCertificateQueryFormat, certificateName);
 
             // create master key and certificate
+            Console.WriteLine("Create master key and certificate..");
             testDb.RunQuery(createCertificateQuery);
+            
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
 
             // Initialize backup service
@@ -120,13 +123,14 @@ CREATE CERTIFICATE {0} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
 
             // Get default backup path
+            Console.WriteLine("Get default backup path..");
             BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-            string backupPath = backupConfigInfo.DefaultBackupFolder + "\\" + databaseName + ".bak";
+            string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + ".bak");
 
-            BackupInfo backupInfo = createBackupInfo(databaseName, 
+            BackupInfo backupInfo = CreateBackupInfo(databaseName, 
                 BackupType.Full, 
-                new List<string>(new string[] { backupPath }), 
-                new Dictionary<string, int>() {{ backupPath, (int)DeviceType.File }});
+                new List<string>(){ backupPath }, 
+                new Dictionary<string, int>(){{ backupPath, (int)DeviceType.File }});
             
             // Set advanced options
             backupInfo.ContinueAfterError = true;
@@ -150,6 +154,7 @@ CREATE CERTIFICATE {0} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             };
 
             // Backup the database
+            Console.WriteLine("Perform backup operation..");
             BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
             DisasterRecoveryService.Instance.PerformBackup(backupOperation);
             
@@ -157,19 +162,22 @@ CREATE CERTIFICATE {0} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             Assert.True(File.Exists(backupPath));
 
             // Remove the backup file
+            Console.WriteLine("Remove backup file..");
             if (File.Exists(backupPath))
             {
                 File.Delete(backupPath);
             }
-            
+
             // Delete certificate and master key
+            Console.WriteLine("Remove certificate and master key..");
             testDb.RunQuery(cleanupCertificateQuery);
             
             // Clean up the database
+            Console.WriteLine("Clean up database..");
             testDb.Cleanup();
         }
 
-        private BackupInfo createBackupInfo(string databaseName, BackupType backupType, List<string> backupPathList, Dictionary<string, int> backupPathDevices)
+        private BackupInfo CreateBackupInfo(string databaseName, BackupType backupType, List<string> backupPathList, Dictionary<string, int> backupPathDevices)
         {
             BackupInfo backupInfo = new BackupInfo();
             backupInfo.BackupComponent = (int)BackupComponent.Database;

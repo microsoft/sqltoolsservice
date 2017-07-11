@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             BackupOperation backupOperation = new BackupOperation();
             backupOperation.Initialize(dataContainer, sqlConnection);
-            return backupOperation.GetBackupConfigInfo(databaseName);
+            return backupOperation.CreateBackupConfigInfo(databaseName);
         }
 
         internal BackupOperation SetBackupInput(CDataContainer dataContainer, SqlConnection sqlConnection, BackupInfo input)

@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="databaseName"></param>
         /// <returns></returns>
-        public BackupConfigInfo GetBackupConfigInfo(string databaseName)
+        public BackupConfigInfo CreateBackupConfigInfo(string databaseName)
         {
             BackupConfigInfo configInfo = new BackupConfigInfo();
             configInfo.RecoveryModel = GetRecoveryModel(databaseName);
@@ -342,9 +342,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Returns the certificates and asymmetric keys from master for encryption
         /// </summary>
-        public List<string> GetBackupEncryptors()
+        public List<BackupEncryptor> GetBackupEncryptors()
         {
-            List<string> encryptorNames = new List<string>();
+            List<BackupEncryptor> encryptors = new List<BackupEncryptor>();
             if (this.dataContainer.Server.Databases.Contains("master"))
             {
                 CertificateCollection certificates = this.dataContainer.Server.Databases["master"].Certificates;
@@ -356,24 +356,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     {
                         continue;
                     }
-                    encryptorNames.Add(this.FormatEncryptorNames(item.Name, SR.Backup_ServerCertificate));
+                    encryptors.Add(new BackupEncryptor((int)BackupEncryptorType.ServerCertificate, item.Name));
                 }
                 AsymmetricKeyCollection keys = this.dataContainer.Server.Databases["master"].AsymmetricKeys;
                 foreach (AsymmetricKey item in keys)
                 {
                     if (item.KeyEncryptionAlgorithm == AsymmetricKeyEncryptionAlgorithm.CryptographicProviderDefined)
                     {
-                        encryptorNames.Add(this.FormatEncryptorNames(item.Name, SR.Backup_ServerAsymmetricKey));
+                        encryptors.Add(new BackupEncryptor((int)BackupEncryptorType.ServerAsymmetricKey, item.Name));
                     }
                 }
-                encryptorNames.Sort();
             }
-            return encryptorNames;
-        }
-
-        private string FormatEncryptorNames(string name, string type)
-        {
-            return string.Format(CultureInfo.CurrentUICulture, "{0} ({1})", name, type).Trim();
+            return encryptors;
         }
 
         #endregion

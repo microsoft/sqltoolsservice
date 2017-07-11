@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// </summary>
         /// <param name="databaseName"></param>
         /// <returns></returns>
-        public BackupConfigInfo GetBackupConfigInfo(string databaseName)
+        public BackupConfigInfo CreateBackupConfigInfo(string databaseName)
         {
             return null;
         }
