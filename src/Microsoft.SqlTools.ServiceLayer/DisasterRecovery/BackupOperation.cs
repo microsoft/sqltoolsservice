@@ -286,7 +286,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             // Execute backup
             this.backup.SqlBackup(this.dataContainer.Server);
 
-            // TODO: if VerifyBackupRequired is selected, execute Restore
+            // Verify backup if required
+            if (this.backupInfo.VerifyBackupRequired)
+            {   
+                Restore restore = new Restore();
+                restore.Devices.AddRange(this.backup.Devices);
+                restore.Database = this.backup.Database;
+
+                string errorMessage = null;
+                restore.SqlVerifyLatest(this.dataContainer.Server, out errorMessage);
+                if (errorMessage != null)
+                {
+                    throw new Exception(errorMessage);
+                }             
+            }
         }
 
         /// <summary>
