@@ -3285,6 +3285,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Backup_ServerCertificate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Backup_ServerCertificate);
+            }
+        }
+
+        public static string Backup_ServerAsymmetricKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.Backup_ServerAsymmetricKey);
+            }
+        }
+
         public static string Task_InProgress
         {
             get
@@ -3298,6 +3314,46 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.Task_Completed);
+            }
+        }
+
+        public static string ConflictWithNoRecovery
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConflictWithNoRecovery);
+            }
+        }
+
+        public static string InvalidPathForDatabaseFile
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidPathForDatabaseFile);
+            }
+        }
+
+        public static string Log
+        {
+            get
+            {
+                return Keys.GetString(Keys.Log);
+            }
+        }
+
+        public static string RestorePlanFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestorePlanFailed);
+            }
+        }
+
+        public static string RestoreNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreNotSupported);
             }
         }
 
@@ -4642,10 +4698,31 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string Backup_TaskName = "Backup_TaskName";
 
 
+            public const string Backup_ServerCertificate = "Backup_ServerCertificate";
+
+
+            public const string Backup_ServerAsymmetricKey = "Backup_ServerAsymmetricKey";
+
+
             public const string Task_InProgress = "Task_InProgress";
 
 
             public const string Task_Completed = "Task_Completed";
+
+
+            public const string ConflictWithNoRecovery = "ConflictWithNoRecovery";
+
+
+            public const string InvalidPathForDatabaseFile = "InvalidPathForDatabaseFile";
+
+
+            public const string Log = "Log";
+
+
+            public const string RestorePlanFailed = "RestorePlanFailed";
+
+
+            public const string RestoreNotSupported = "RestoreNotSupported";
 
 
             private Keys()

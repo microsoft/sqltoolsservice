@@ -343,14 +343,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     {
                         continue;
                     }
-                    encryptorNames.Add(this.FormatEncryptorNames(item.Name, "ServerCertificate")); // change to use SR
+                    encryptorNames.Add(this.FormatEncryptorNames(item.Name, SR.Backup_ServerCertificate));
                 }
                 AsymmetricKeyCollection keys = this.dataContainer.Server.Databases["master"].AsymmetricKeys;
                 foreach (AsymmetricKey item in keys)
                 {
                     if (item.KeyEncryptionAlgorithm == AsymmetricKeyEncryptionAlgorithm.CryptographicProviderDefined)
                     {
-                        encryptorNames.Add(this.FormatEncryptorNames(item.Name, "ServerAsymmetricKey")); // change to use SR
+                        encryptorNames.Add(this.FormatEncryptorNames(item.Name, SR.Backup_ServerAsymmetricKey));
                     }
                 }
                 encryptorNames.Sort();

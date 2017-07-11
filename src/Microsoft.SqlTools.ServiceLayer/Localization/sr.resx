@@ -1815,12 +1815,40 @@
     <value>Backup Database</value>
     <comment></comment>
   </data>
+  <data name="Backup_ServerCertificate" xml:space="preserve">
+    <value>ServerCertificate;</value>
+    <comment></comment>
+  </data>
+  <data name="Backup_ServerAsymmetricKey" xml:space="preserve">
+    <value>ServerAsymmetricKey;</value>
+    <comment></comment>
+  </data>
   <data name="Task_InProgress" xml:space="preserve">
     <value>In progress</value>
     <comment></comment>
   </data>
   <data name="Task_Completed" xml:space="preserve">
     <value>Completed</value>
+    <comment></comment>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Invalid path for database file: '{0}'</value>
+    <comment></comment>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+    <comment></comment>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Failed to create restore plan</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Restore database is not supported</value>
     <comment></comment>
   </data>
 </root>
