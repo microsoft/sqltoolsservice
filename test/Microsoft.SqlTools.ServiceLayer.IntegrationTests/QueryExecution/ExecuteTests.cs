@@ -4,6 +4,7 @@ using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -13,6 +14,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 {
     public class ExecuteTests
     {
+        [Fact]
+        public async void GetDefaultDatebaseInfoTest()
+        {
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            
+            
+            var queryParam = new ExecuteDocumentStatementParams()
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                Line = 0,
+                Column = 0
+            }
+
+
+            // var requestContext = new Mock<RequestContext<DefaultDatabaseInfoResponse>>();
+            // requestContext.Setup(x => x.SendResult(It.IsAny<DefaultDatabaseInfoResponse>())).Returns(Task.FromResult(new object()));
+
+            // var dbParams = new DefaultDatabaseInfoParams
+            // {
+            //     OwnerUri = result.ConnectionInfo.OwnerUri
+            // };
+
+            // await AdminService.HandleDefaultDatabaseInfoRequest(dbParams, requestContext.Object);
+
+            // requestContext.VerifyAll();
+        }
+
+
         [Fact]
         public void RollbackTransactionFailsWithoutBeginTransaction()
         {

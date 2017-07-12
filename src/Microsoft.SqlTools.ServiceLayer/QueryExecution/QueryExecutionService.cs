@@ -129,6 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Register handlers for requests
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
+            serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
@@ -682,7 +683,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await errorHandler(saveParams, e.Message);
             }
-        }
+        }        
 
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
@@ -691,32 +692,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ExecuteDocumentSelectionParams docRequest = request as ExecuteDocumentSelectionParams;
             if (docRequest != null)
             {
-                // Get the document from the parameters
-                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(docRequest.OwnerUri);
-                if (queryFile == null)
-                {
-                    return string.Empty;
-                }
-                // If a selection was not provided, use the entire document
-                if (docRequest.QuerySelection == null)
-                {
-                    return queryFile.Contents;
-                }
+                return GetSqlTextFromSelectionData(docRequest.OwnerUri, docRequest.QuerySelection);
+            }
 
-                // A selection was provided, so get the lines in the selected range
-                string[] queryTextArray = queryFile.GetLinesInRange(
-                    new BufferRange(
-                        new BufferPosition(
-                            docRequest.QuerySelection.StartLine + 1,
-                            docRequest.QuerySelection.StartColumn + 1
-                        ),
-                        new BufferPosition(
-                            docRequest.QuerySelection.EndLine + 1,
-                            docRequest.QuerySelection.EndColumn + 1
-                        )
-                    )
-                );
-                return string.Join(Environment.NewLine, queryTextArray);
+             // If it is a document statement, we'll retrieve the text from the document
+            ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
+            if (docRequest != null)
+            {
+                return GetSqlStatementFromPosition(stmtRequest.OwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
@@ -728,6 +711,47 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Note, this shouldn't be possible due to inheritance rules
             throw new InvalidCastException("Invalid request type");
+        }
+
+        /// <summary>
+        /// Return portion of document corresponding to the selection range
+        /// </summary>
+        internal string GetSqlTextFromSelectionData(string ownerUri, SelectionData selection)
+        {
+            // Get the document from the parameters
+            ScriptFile queryFile = WorkspaceService.Workspace.GetFile(ownerUri);
+            if (queryFile == null)
+            {
+                return string.Empty;
+            }
+            // If a selection was not provided, use the entire document
+            if (selection == null)
+            {
+                return queryFile.Contents;
+            }
+
+            // A selection was provided, so get the lines in the selected range
+            string[] queryTextArray = queryFile.GetLinesInRange(
+                new BufferRange(
+                    new BufferPosition(
+                        selection.StartLine + 1,
+                        selection.StartColumn + 1
+                    ),
+                    new BufferPosition(
+                        selection.EndLine + 1,
+                        selection.EndColumn + 1
+                    )
+                )
+            );
+            return string.Join(Environment.NewLine, queryTextArray);
+        }
+
+        /// <summary>
+        /// Return portion of document corresponding to the statement at the line and column
+        /// </summary>
+        internal string GetSqlStatementFromPosition(string ownerUri, int line, int column)
+        {
+            return string.Empty;
         }
 
         /// Internal for testing purposes
