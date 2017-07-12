@@ -1843,4 +1843,8 @@
     <value>Restore database is not supported</value>
     <comment></comment>
   </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Restore Database</value>
+    <comment></comment>
+  </data>
 </root>

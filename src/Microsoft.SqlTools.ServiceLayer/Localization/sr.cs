@@ -3341,6 +3341,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string RestoreTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreTaskName);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4701,6 +4709,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string RestoreNotSupported = "RestoreNotSupported";
+
+
+            public const string RestoreTaskName = "RestoreTaskName";
 
 
             private Keys()

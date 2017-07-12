@@ -2154,6 +2154,11 @@
         <target state="new">Restore database is not supported</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="RestoreTaskName">
+        <source>Restore Database</source>
+        <target state="new">Restore Database</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
