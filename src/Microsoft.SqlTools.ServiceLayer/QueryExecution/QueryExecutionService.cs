@@ -683,7 +683,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await errorHandler(saveParams, e.Message);
             }
-        }        
+        }
 
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
@@ -699,7 +699,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
             if (stmtRequest != null)
             {
-                return GetSqlStatementFromPosition(stmtRequest.OwnerUri, stmtRequest.Line, stmtRequest.Column);
+                return GetSqlStatementAtPosition(stmtRequest.OwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
@@ -749,7 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Return portion of document corresponding to the statement at the line and column
         /// </summary>
-        internal string GetSqlStatementFromPosition(string ownerUri, int line, int column)
+        internal string GetSqlStatementAtPosition(string ownerUri, int line, int column)
         {
             // Get the document from the parameters
             ScriptFile queryFile = WorkspaceService.Workspace.GetFile(ownerUri);
