@@ -342,6 +342,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
+                // Verify the request hasn't been cancelled
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // Mark that result has been read
                 hasBeenRead = true;
 
@@ -359,6 +362,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Columns = dataReader.Columns;
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
+                        // Make sure we haven't cancelled
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
