@@ -22,22 +22,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         #region Get SQL Tests
 
          [Fact]
-        public void GetSqlTextFromDocumentRequestFull()
-        {
-            // Setup:
-            // ... Create a workspace service with a multi-line constructed query
-            // ... Create a query execution service without a connection service (we won't be
-            //     executing queries), and the previously created workspace service
+        public void ExecuteDocumentStatementTest()
+        {            
             string query = string.Format("{0}{1}GO{1}{0}", Constants.StandardQuery, Environment.NewLine);
             var workspaceService = GetDefaultWorkspaceService(query);
             var queryService = new QueryExecutionService(null, workspaceService);
 
-            // If: I attempt to get query text from execute document params (entire document)
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentStatementParams { OwnerUri = Constants.OwnerUri, Line = 0, Column = 0 };
             var queryText = queryService.GetSqlText(queryParams);
 
-            // Then: The text should match the constructed query
-            Assert.Equal(query, queryText);
+            // The text should match the standard query
+            Assert.Equal(queryText, Constants.StandardQuery);
         }
 
         [Fact]

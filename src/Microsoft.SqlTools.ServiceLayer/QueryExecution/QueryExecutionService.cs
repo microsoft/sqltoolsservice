@@ -697,7 +697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
              // If it is a document statement, we'll retrieve the text from the document
             ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
-            if (docRequest != null)
+            if (stmtRequest != null)
             {
                 return GetSqlStatementFromPosition(stmtRequest.OwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
@@ -751,7 +751,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal string GetSqlStatementFromPosition(string ownerUri, int line, int column)
         {
-            return string.Empty;
+            // Get the document from the parameters
+            ScriptFile queryFile = WorkspaceService.Workspace.GetFile(ownerUri);
+            if (queryFile == null)
+            {
+                return string.Empty;
+            }
+
+            return LanguageServices.LanguageService.Instance.ParseStatementAtPosition(
+                queryFile.Contents, line, column);
         }
 
         /// Internal for testing purposes
