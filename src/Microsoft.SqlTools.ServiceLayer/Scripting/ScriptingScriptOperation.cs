@@ -72,6 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
                 
+                // SMO is currently hardcoded to produce UTF-8 encoding when running on dotnet core.
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
@@ -218,9 +219,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
             
-            // Get the server name explicitly after connecting to the server.
-            // This is required to catch the actual server name when targeting sql server on docker in linux.
-            //
             string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
             string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
 
@@ -235,34 +233,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private string GetServerNameFromLiveInstance(string connectionString)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = null;
             string serverName = string.Empty;
+            try
+            {
+                using(SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    
+                    using(SqlCommand cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = "SELECT @@servername";
 
-            try {
-                connection.Open();
-            
-                cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT @@servername";
-
-                object retValue = cmd.ExecuteScalar();  
-                serverName = retValue as string;
+                        object retValue = cmd.ExecuteScalar();  
+                        serverName = retValue as string;
+                    }
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Write(LogLevel.Error, string.Format("Error during SQL query for server name. Message: {0}", e.Message));
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Dispose();
-                }
-                connection.Close();
-            }
+                throw e;
+            }           
 
-            return serverName;
+            return serverName;                    
         }
+
         private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
         {
             if (scriptOptionsParameters == null)
