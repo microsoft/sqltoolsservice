@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             get
             {
-                return this.Server != null && this.RestorePlanner != null;
+                return this.Server != null && this.RestorePlanner != null && ActiveException == null;
             }
         }
 

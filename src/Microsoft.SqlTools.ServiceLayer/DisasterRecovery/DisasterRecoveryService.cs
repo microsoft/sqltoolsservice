@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             else
             {
                 response.CanRestore = false;
-                response.ErrorMessage = "Restore is not supported"; //TOOD: have a better error message
+                response.ErrorMessage = SR.RestoreNotSupported;
             }
             await requestContext.SendResult(response);
 
@@ -157,10 +157,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         TaskMetadata metadata = new TaskMetadata();
                         metadata.ServerName = connInfo.ConnectionDetails.ServerName;
                         metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                        metadata.Name = SR.Backup_TaskName;
+                        metadata.Name = SR.RestoreTaskName;
                         metadata.IsCancelable = true;
                         metadata.Data = restoreDataObject;
-
 
                         // create restore task and perform
                         SqlTask sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
@@ -168,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     }
                     else
                     {
-                        response.ErrorMessage = "Failed to create restore task";
+                        response.ErrorMessage = SR.RestorePlanFailed;
                     }
                 }
                 catch (Exception ex)
@@ -178,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             else
             {
-                response.ErrorMessage = "Restore database is not supported"; //TOOD: have a better error message
+                response.ErrorMessage = SR.RestoreNotSupported;
             }
 
             await requestContext.SendResult(response);
