@@ -218,13 +218,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
             
-            
-            SqlConnectionStringBuilder connectionString = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-            string database = connectionString.InitialCatalog;
             // Get the server name explicitly after connecting to the server.
             // This is required to catch the actual server name when targeting sql server on docker in linux.
             //
             string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
+            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+
 
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
