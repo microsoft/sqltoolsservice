@@ -92,6 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public static Urn ToUrn(this ScriptingObject scriptingObject, string server, string database)
         {
             Validate.IsNotNull("scriptingObject", scriptingObject);
+            Validate.IsNotNullOrEmptyString("server", server);
             Validate.IsNotNullOrWhitespaceString("database", database);
 
             Validate.IsNotNullOrWhitespaceString("scriptingObject.Name", scriptingObject.Name);

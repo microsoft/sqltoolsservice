@@ -248,13 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         serverName = retValue as string;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.Write(LogLevel.Error, string.Format("Error during SQL query for server name. Message: {0}", e.Message));
-                throw e;
-            }           
-
+            }   
             return serverName;                    
         }
 
