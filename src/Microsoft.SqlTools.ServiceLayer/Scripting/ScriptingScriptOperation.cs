@@ -211,17 +211,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             //  as it will reset the options in the model.
             //
             PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
-            
+
             Logger.Write(
                 LogLevel.Normal,
                 string.Format(
                     "Scripting object count {0}, objects: {1}",
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
-            
+
             string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
             string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
-
 
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
@@ -233,23 +232,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private string GetServerNameFromLiveInstance(string connectionString)
         {
-            string serverName = string.Empty;
-            try
+            using(SqlConnection connection = new SqlConnection(connectionString))
             {
-                using(SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    
-                    using(SqlCommand cmd = connection.CreateCommand())
-                    {
-                        cmd.CommandText = "SELECT @@servername";
+                connection.Open();
 
-                        object retValue = cmd.ExecuteScalar();  
-                        serverName = retValue as string;
-                    }
+                using(SqlCommand cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT @@servername";
+                    object retValue = cmd.ExecuteScalar();  
+                    return retValue as string;
                 }
-            }   
-            return serverName;                    
+            }
         }
 
         private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
