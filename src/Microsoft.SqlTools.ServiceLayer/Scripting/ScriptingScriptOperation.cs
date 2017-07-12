@@ -75,13 +75,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
-                    SaveFileType = ScriptFileType.Unicode,          // UTF-16
                     SaveFileName = this.Parameters.FilePath,
                     ScriptDestination = (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
                 };
 
                 this.CancellationToken.ThrowIfCancellationRequested();
-                //TODO: Look into generating unique objects if include dependencies is specified
+
                 publishModel.GenerateScript(outputOptions);
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -225,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // Get the server name explicitly after connecting to the server.
             // This is required to catch the actual server name when targeting sql server on docker in linux.
             //
-            string server = GetServerName(this.Parameters.ConnectionString);
+            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
 
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
@@ -235,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return publishModel;
         }
 
-        private string GetServerName(string connectionString)
+        private string GetServerNameFromLiveInstance(string connectionString)
         {
             SqlConnection connection = new SqlConnection(connectionString);
             SqlCommand cmd = null;

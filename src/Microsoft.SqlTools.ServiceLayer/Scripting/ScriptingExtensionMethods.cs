@@ -117,9 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public static ScriptingObject ToScriptingObject(this Urn urn)
         {
             Validate.IsNotNull("urn", urn);
-            Logger.Write(
-                LogLevel.Error,
-                string.Format("Schema: {0} Name: {1}", urn.GetAttribute("Schema"), urn.GetAttribute("Name")));
+
             return new ScriptingObject
             {
                 Type = urn.Type,
