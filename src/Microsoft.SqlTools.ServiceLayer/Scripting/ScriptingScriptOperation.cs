@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 };
 
                 this.CancellationToken.ThrowIfCancellationRequested();
-
+                //TODO: Look into generating unique objects if include dependencies is specified
                 publishModel.GenerateScript(outputOptions);
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -218,16 +218,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     "Scripting object count {0}, objects: {1}",
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
+            
+            
+            SqlConnectionStringBuilder connectionString = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
+            string database = connectionString.InitialCatalog;
+            // Get the server name explicitly after connecting to the server.
+            // This is required to catch the actual server name when targeting sql server on docker in linux.
+            //
+            string server = GetServerName(this.Parameters.ConnectionString);
 
-            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
-                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(database));
+                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
             }
 
             return publishModel;
         }
 
+        private string GetServerName(string connectionString)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            SqlCommand cmd = null;
+            string serverName = string.Empty;
+
+            try {
+                connection.Open();
+            
+                cmd = connection.CreateCommand();
+                cmd.CommandText = "SELECT @@servername";
+
+                object retValue = cmd.ExecuteScalar();  
+                serverName = retValue as string;
+            }
+            catch(Exception e)
+            {
+                Logger.Write(LogLevel.Error, string.Format("Error during SQL query for server name. Message: {0}", e.Message));
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Dispose();
+                }
+                connection.Close();
+            }
+
+            return serverName;
+        }
         private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
         {
             if (scriptOptionsParameters == null)
