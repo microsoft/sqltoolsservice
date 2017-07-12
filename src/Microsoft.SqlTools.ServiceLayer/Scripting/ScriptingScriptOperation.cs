@@ -72,10 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
                 
+                // SMO is currently hardcoded to produce UTF-8 encoding when running on dotnet core.
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
-                    SaveFileType = ScriptFileType.Unicode,          // UTF-16
                     SaveFileName = this.Parameters.FilePath,
                     ScriptDestination = (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
                 };
@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             //  as it will reset the options in the model.
             //
             PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
-            
+
             Logger.Write(
                 LogLevel.Normal,
                 string.Format(
@@ -219,13 +219,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
 
+            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
             string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
-                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(database));
+                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
             }
 
             return publishModel;
+        }
+
+        private string GetServerNameFromLiveInstance(string connectionString)
+        {
+            using(SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using(SqlCommand cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT @@servername";
+                    object retValue = cmd.ExecuteScalar();  
+                    return retValue as string;
+                }
+            }
         }
 
         private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)

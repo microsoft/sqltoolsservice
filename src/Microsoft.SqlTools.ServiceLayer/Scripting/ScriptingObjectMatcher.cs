@@ -226,9 +226,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 if (property.EndsWith(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
-                    matchedObjects = candidates.Where(o => propertySelector(o).StartsWith(
-                        propertySelector(o).Substring(0, propertySelector(o).Length - 1),
-                        StringComparison.OrdinalIgnoreCase));
+                    matchedObjects = candidates.Where(
+                        o => 
+                            propertySelector(o) != null && 
+                            propertySelector(o).StartsWith(
+                                propertySelector(o).Substring(0, propertySelector(o).Length - 1),
+                                StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
