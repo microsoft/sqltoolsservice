@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             EventContext eventContext)
         {
             // update the current settings to reflect any changes (assuming formatter settings exist)
-            settings = newSettings.SqlTools.Format ?? settings;
+            settings = newSettings?.SqlTools?.Format ?? settings;
             return Task.FromResult(true);
         }
 
