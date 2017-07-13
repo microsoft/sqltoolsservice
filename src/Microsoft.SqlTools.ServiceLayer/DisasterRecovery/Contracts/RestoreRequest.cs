@@ -24,8 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public string BackupFilePath { get; set; }
 
         /// <summary>
-        /// Database name to restore from (either the back file path or database name can be used for restore operation, 
-        /// If the backup file is set, the database name will be ignored)
+        /// Target Database name to restore to
         /// </summary>
         public string DatabaseName { get; set; }
 

@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <returns></returns>
         public SqlTask CreateAndRun(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
         {
-            var sqlTask = CreateTask(taskMetadata, taskToRun, null);
+            var sqlTask = CreateTask(taskMetadata, taskToRun, taskToCancel);
             sqlTask.Run();
             return sqlTask;
         }

@@ -54,6 +54,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         [Fact]
+        public async void RestoreToAnotherDatabaseShouldExecuteSuccessfullyForFullBackup()
+        {
+            string backupFileName = "FullBackup.bak";
+            bool canRestore = true;
+            var restorePlan = await VerifyRestore(backupFileName, canRestore, true, "NewRestoredDatabase");
+        }
+
+        [Fact]
         public async void RestorePlanShouldFailForDiffBackup()
         {
             string backupFileName = "DiffBackup.bak";
@@ -101,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             {
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                string filePath = GetBackupFilePath("FullBackup.bak");
+                string filePath = GetBackupFilePath("SomeFile.bak");
 
                 RestoreParams restoreParams = new RestoreParams
                 {
@@ -121,6 +129,31 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
+        [Fact]
+        public async Task RestorePlanRequestShouldReturnErrorMessageGivenInvalidFilePath()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                string filePath = GetBackupFilePath("InvalidFilePath");
+
+                RestoreParams restoreParams = new RestoreParams
+                {
+                    BackupFilePath = filePath,
+                    OwnerUri = queryTempFile.FilePath
+                };
+
+                await RunAndVerify<RestorePlanResponse>(
+                    test: (requestContext) => service.HandleRestorePlanRequest(restoreParams, requestContext),
+                    verify: ((result) =>
+                    {
+                        Assert.False(string.IsNullOrEmpty(result.ErrorMessage));
+                        Assert.False(result.CanRestore);
+                    }));
+            }
+        }
+
         private async Task DropDatabase(string databaseName)
         {
             string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
@@ -129,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
         }
 
-        private async Task<RestorePlanResponse> VerifyRestore(string backupFileName, bool canRestore, bool execute = false)
+        private async Task<RestorePlanResponse> VerifyRestore(string backupFileName, bool canRestore, bool execute = false, string targetDatabase = null)
         {
             string filePath = GetBackupFilePath(backupFileName);
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -140,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 var request = new RestoreParams
                 {
                     BackupFilePath = filePath,
-                    DatabaseName = string.Empty,
+                    DatabaseName = targetDatabase,
                     OwnerUri = queryTempFile.FilePath
                 };
 
@@ -153,14 +186,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 {
                     Assert.True(response.DbFiles.Any());
                     Assert.Equal(response.DatabaseName, "BackupTestDb");
+                    if (string.IsNullOrEmpty(targetDatabase))
+                    {
+                        targetDatabase = response.DatabaseName;
+                    }
                     if(execute)
                     {
-                        await DropDatabase(response.DatabaseName);
+                        await DropDatabase(targetDatabase);
                         Thread.Sleep(2000);
                         request.RelocateDbFiles = response.RelocateFilesNeeded;
                         service.ExecuteRestore(restoreDataObject);
-                        Assert.True(restoreDataObject.Server.Databases.Contains(response.DatabaseName));
-                        await DropDatabase(response.DatabaseName);
+                        Assert.True(restoreDataObject.Server.Databases.Contains(targetDatabase));
+                        await DropDatabase(targetDatabase);
                     }
                 }
 

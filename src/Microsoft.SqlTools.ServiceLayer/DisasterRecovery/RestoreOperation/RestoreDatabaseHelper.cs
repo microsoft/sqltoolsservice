@@ -39,8 +39,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     TaskResult result = new TaskResult();
                     try
                     {
-                        ExecuteRestore(restoreDataObject);
-                        result.TaskStatus = SqlTaskStatus.Succeeded;
+                        if (restoreDataObject.IsValid)
+                        {
+                            ExecuteRestore(restoreDataObject);
+                            result.TaskStatus = SqlTaskStatus.Succeeded;
+                        }
+                        else
+                        {
+                            result.TaskStatus = SqlTaskStatus.Failed;
+                            if (restoreDataObject.ActiveException != null)
+                            {
+                                result.ErrorMessage = restoreDataObject.ActiveException.Message;
+                            }
+                            else
+                            {
+                                result.ErrorMessage = SR.RestoreNotSupported;
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -48,7 +63,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         result.ErrorMessage = ex.Message;
                         if (ex.InnerException != null)
                         {
-                            result.ErrorMessage += System.Environment.NewLine + ex.InnerException.Message;
+                            result.ErrorMessage += Environment.NewLine + ex.InnerException.Message;
+                        }
+                        if (restoreDataObject != null && restoreDataObject.ActiveException != null)
+                        {
+                            result.ErrorMessage += Environment.NewLine + restoreDataObject.ActiveException.Message;
                         }
                     }
                     return result;
@@ -114,34 +133,54 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 DatabaseName = restoreDataObject.RestoreParams.DatabaseName
             };
-            if (restoreDataObject != null && restoreDataObject.IsValid)
+            try
             {
-                UpdateRestorePlan(restoreDataObject);
-
                 if (restoreDataObject != null && restoreDataObject.IsValid)
                 {
-                    response.DatabaseName = restoreDataObject.RestorePlanner.DatabaseName;
-                    response.DbFiles = restoreDataObject.DbFiles.Select(x => x.PhysicalName);
-                    response.CanRestore = CanRestore(restoreDataObject);
+                    UpdateRestorePlan(restoreDataObject);
 
-                    if (!response.CanRestore)
+                    if (restoreDataObject != null && restoreDataObject.IsValid)
                     {
-                        response.ErrorMessage = "Backup not supported.";
-                    }
+                        response.DatabaseName = restoreDataObject.RestorePlanner.DatabaseName;
+                        response.DbFiles = restoreDataObject.DbFiles.Select(x => x.PhysicalName);
+                        response.CanRestore = CanRestore(restoreDataObject);
 
-                    response.RelocateFilesNeeded = !restoreDataObject.DbFilesLocationAreValid();
-                    response.DefaultDataFolder = restoreDataObject.DefaultDataFileFolder;
-                    response.DefaultLogFolder = restoreDataObject.DefaultLogFileFolder;
+                        if (!response.CanRestore)
+                        {
+                            response.ErrorMessage = SR.RestoreNotSupported;
+                        }
+
+                        response.RelocateFilesNeeded = !restoreDataObject.DbFilesLocationAreValid();
+                        response.DefaultDataFolder = restoreDataObject.DefaultDataFileFolder;
+                        response.DefaultLogFolder = restoreDataObject.DefaultLogFileFolder;
+                    }
+                    else
+                    {
+                        if (restoreDataObject.ActiveException != null)
+                        {
+                            response.ErrorMessage = restoreDataObject.ActiveException.Message;
+                        }
+                        else
+                        {
+                            response.ErrorMessage = SR.RestorePlanFailed;
+                        }
+                        response.CanRestore = false;
+                    }
                 }
                 else
                 {
-                    response.ErrorMessage = "Failed to create restore plan";
-                    response.CanRestore = false;
+                    response.ErrorMessage = SR.RestorePlanFailed;
                 }
             }
-            else
+            catch(Exception ex)
             {
-                response.ErrorMessage = "Failed to create restore database plan";
+                response.ErrorMessage = ex.Message;
+
+                if (ex.InnerException != null)
+                {
+                    response.ErrorMessage += Environment.NewLine;
+                    response.ErrorMessage += ex.InnerException.Message;
+                }
             }
             return response;
 
@@ -190,8 +229,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private void UpdateRestorePlan(RestoreDatabaseTaskDataObject restoreDataObject)
         {
-            // Server server = new Server(new ServerConnection(connInfo.ConnectionDetails.ServerName));
-            //RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(server, requestParam.DatabaseName);
             if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePath))
             {
                 restoreDataObject.AddFile(restoreDataObject.RestoreParams.BackupFilePath);
@@ -214,6 +251,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             if (restoreDataObject != null && CanRestore(restoreDataObject))
             {
                 restoreDataObject.RestorePlan.Execute();
+            }
+            else
+            {
+                throw new InvalidOperationException(SR.RestoreNotSupported);
             }
         }
     }

@@ -820,3 +820,4 @@ InvalidPathForDatabaseFile = Invalid path for database file: '{0}'
 Log = Log
 RestorePlanFailed = Failed to create restore plan
 RestoreNotSupported = Restore database is not supported
+RestoreTaskName = Restore Database
