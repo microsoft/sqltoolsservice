@@ -287,34 +287,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal async Task HandleCompletionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
-        {
-            // check if Intellisense suggestions are enabled
-            if (ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
-            {
-                await requestContext.SendResult(null);
-            }
-            else
-            {
-                // get the current list of completion items and return to client
-                var scriptFile = CurrentWorkspace.GetFile(
-                    textDocumentPosition.TextDocument.Uri);
-                if (scriptFile == null)
+        {            
+            try
+            {            
+                // check if Intellisense suggestions are enabled
+                if (ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
                 {
                     await requestContext.SendResult(null);
-                    return;
                 }
+                else
+                {
+                    // get the current list of completion items and return to client
+                    var scriptFile = CurrentWorkspace.GetFile(
+                        textDocumentPosition.TextDocument.Uri);
+                    if (scriptFile == null)
+                    {
+                        await requestContext.SendResult(null);
+                        return;
+                    }
 
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientFilePath,
-                    out connInfo);
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        scriptFile.ClientFilePath,
+                        out connInfo);
 
-                var completionItems = GetCompletionItems(
-                    textDocumentPosition, scriptFile, connInfo);
+                    var completionItems = GetCompletionItems(
+                        textDocumentPosition, scriptFile, connInfo);
 
-                   await requestContext.SendResult(completionItems);
+                    await requestContext.SendResult(completionItems);       
                 }
             }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
 
         /// <summary>
         /// Handle the resolve completion request event to provide additional
@@ -327,59 +334,73 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
-            // check if Intellisense suggestions are enabled
-            // Note: Do not know file, so no need to check for MSSQL flavor
-            if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
+            try
             {
-                await requestContext.SendResult(completionItem);
+                // check if Intellisense suggestions are enabled
+                // Note: Do not know file, so no need to check for MSSQL flavor
+                if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
+                {
+                    await requestContext.SendResult(completionItem);
+                }
+                else
+                {
+                    completionItem = ResolveCompletionItem(completionItem);
+                    await requestContext.SendResult(completionItem);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                completionItem = ResolveCompletionItem(completionItem);
-                await requestContext.SendResult(completionItem);
+                await requestContext.SendError(ex.ToString());
             }
         }
 
         internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
-
-            if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
+            try 
             {
-                // Retrieve document and connection
-                ConnectionInfo connInfo;
-                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                bool isConnected = false;
-                bool succeeded = false;
-                DefinitionResult definitionResult = null;
-                if (scriptFile != null)
+                DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
+                if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
                 {
-                    isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                }
-                
-                if (definitionResult != null)
-                {
-                    if (definitionResult.IsErrorResult)
+                    // Retrieve document and connection
+                    ConnectionInfo connInfo;
+                    var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                    bool isConnected = false;
+                    bool succeeded = false;
+                    DefinitionResult definitionResult = null;
+                    if (scriptFile != null)
                     {
-                        await requestContext.SendError(definitionResult.Message);
+                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                        definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                    }
+                    
+                    if (definitionResult != null)
+                    {
+                        if (definitionResult.IsErrorResult)
+                        {
+                            await requestContext.SendError(definitionResult.Message);
+                        }
+                        else
+                        {
+                            await requestContext.SendResult(definitionResult.Locations);
+                            succeeded = true;
+                        }
                     }
                     else
                     {
-                        await requestContext.SendResult(definitionResult.Locations);
-                        succeeded = true;
+                        // Send an empty result so that processing does not hang
+                        await requestContext.SendResult(Array.Empty<Location>());
                     }
-                }
-                else
-                {
-                    // Send an empty result so that processing does not hang
-                    await requestContext.SendResult(Array.Empty<Location>());
+
+                    DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
                 }
 
-                DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
+                DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
             }
-
-            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         private static TelemetryProperties CreatePeekTelemetryProps(bool succeeded, bool connected)
@@ -416,28 +437,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            // check if Intellisense suggestions are enabled
-            if (ShouldSkipNonMssqlFile(textDocumentPosition))
+            try
             {
-                await requestContext.SendResult(null);
-            }
-            else
-            {
-                ScriptFile scriptFile = CurrentWorkspace.GetFile(
-                    textDocumentPosition.TextDocument.Uri);
-                SignatureHelp help = null;
-                if (scriptFile != null)
+                // check if Intellisense suggestions are enabled
+                if (ShouldSkipNonMssqlFile(textDocumentPosition))
                 {
-                    help = GetSignatureHelp(textDocumentPosition, scriptFile);
-                }
-                if (help != null)
-                {
-                    await requestContext.SendResult(help);
+                    await requestContext.SendResult(null);
                 }
                 else
                 {
-                    await requestContext.SendResult(new SignatureHelp());
+                    ScriptFile scriptFile = CurrentWorkspace.GetFile(
+                        textDocumentPosition.TextDocument.Uri);
+                    SignatureHelp help = null;
+                    if (scriptFile != null)
+                    {
+                        help = GetSignatureHelp(textDocumentPosition, scriptFile);
+                    }
+                    if (help != null)
+                    {
+                        await requestContext.SendResult(help);
+                    }
+                    else
+                    {
+                        await requestContext.SendResult(new SignatureHelp());
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
             }
         }
 
@@ -445,25 +473,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            // check if Quick Info hover tooltips are enabled
-            if (CurrentWorkspaceSettings.IsQuickInfoEnabled
-                && !ShouldSkipNonMssqlFile(textDocumentPosition))
+            try
             {
-                var scriptFile = CurrentWorkspace.GetFile(
-                    textDocumentPosition.TextDocument.Uri);
+                // check if Quick Info hover tooltips are enabled
+                if (CurrentWorkspaceSettings.IsQuickInfoEnabled
+                    && !ShouldSkipNonMssqlFile(textDocumentPosition))
+                {
+                    var scriptFile = CurrentWorkspace.GetFile(
+                        textDocumentPosition.TextDocument.Uri);
 
-                Hover hover = null;
-                if (scriptFile != null)
-                {
-                    hover = GetHoverItem(textDocumentPosition, scriptFile);
+                    Hover hover = null;
+                    if (scriptFile != null)
+                    {
+                        hover = GetHoverItem(textDocumentPosition, scriptFile);
+                    }
+                    if (hover != null)
+                    {
+                        await requestContext.SendResult(hover);
+                    }
                 }
-                if (hover != null)
-                {
-                    await requestContext.SendResult(hover);
-                }
+
+                await requestContext.SendResult(new Hover());
             }
-
-            await requestContext.SendResult(new Hover());
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         #endregion
@@ -480,16 +515,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile,
             EventContext eventContext)
         {
-            // if not in the preview window and diagnostics are enabled then run diagnostics
-            if (!IsPreviewWindow(scriptFile)
-                && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+            try
             {
-                await RunScriptDiagnostics(
-                    new ScriptFile[] { scriptFile },
-                    eventContext);
-            }
+                // if not in the preview window and diagnostics are enabled then run diagnostics
+                if (!IsPreviewWindow(scriptFile)
+                    && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                {
+                    await RunScriptDiagnostics(
+                        new ScriptFile[] { scriptFile },
+                        eventContext);
+                }
 
-            await Task.FromResult(true);
+                await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // TODO: need mechanism return errors from event handlers
+            }
         }
 
         /// <summary>
@@ -499,15 +542,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext)
         {
-            if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+            try
             {
-                // Only process files that are MSSQL flavor
-                await this.RunScriptDiagnostics(
-                    changedFiles.ToArray(),
-                    eventContext);
-            }
+                if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                {
+                    // Only process files that are MSSQL flavor
+                    await this.RunScriptDiagnostics(
+                        changedFiles.ToArray(),
+                        eventContext);
+                }
 
-            await Task.FromResult(true);
+                await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // TODO: need mechanism return errors from event handlers
+            }
         }
 
         /// <summary>
@@ -594,31 +645,77 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             SqlToolsSettings oldSettings,
             EventContext eventContext)
         {
-            bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
-            bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
-
-            // update the current settings to reflect any changes
-            CurrentWorkspaceSettings.Update(newSettings);
-
-            // if script analysis settings have changed we need to clear the current diagnostic markers
-            if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
-                || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking)
+            try
             {
-                // if the user just turned off diagnostics then send an event to clear the error markers
-                if (!newSettings.IsDiagnosticsEnabled)
-                {
-                    ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
+                bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
+                bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
 
-                    foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
+                // update the current settings to reflect any changes
+                CurrentWorkspaceSettings.Update(newSettings);
+
+                // if script analysis settings have changed we need to clear the current diagnostic markers
+                if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
+                    || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking)
+                {
+                    // if the user just turned off diagnostics then send an event to clear the error markers
+                    if (!newSettings.IsDiagnosticsEnabled)
                     {
-                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
+                        ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
+
+                        foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
+                        {
+                            await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
+                        }
+                    }
+                    // otherwise rerun diagnostic analysis on all opened SQL files
+                    else
+                    {
+                        await this.RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
                     }
                 }
-                // otherwise rerun diagnostic analysis on all opened SQL files
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // TODO: need mechanism return errors from event handlers
+            }
+        }
+
+        /// <summary>
+        /// Handles language flavor changes by disabling intellisense on a file if it does not match the specific
+        /// "MSSQL" language flavor returned by our service
+        /// </summary>
+        /// <param name="info"></param>
+        public async Task HandleDidChangeLanguageFlavorNotification(
+            LanguageFlavorChangeParams changeParams,
+            EventContext eventContext) 
+        {
+            try
+            {
+                Validate.IsNotNull(nameof(changeParams), changeParams);
+                Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
+                bool shouldBlock = false;
+                if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase)) {
+                    shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
+                }
+
+                if (shouldBlock) {
+                    this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
+                    if (CurrentWorkspace.ContainsFile(changeParams.Uri))
+                    {
+                        await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
+                    }
+                }
                 else
                 {
-                    await this.RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
+                    bool value;
+                    this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // TODO: need mechanism return errors from event handlers
             }
         }
 
@@ -849,36 +946,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Handles language flavor changes by disabling intellisense on a file if it does not match the specific
-        /// "MSSQL" language flavor returned by our service
-        /// </summary>
-        /// <param name="info"></param>
-        public async Task HandleDidChangeLanguageFlavorNotification(
-            LanguageFlavorChangeParams changeParams,
-            EventContext eventContext) 
-        {
-            Validate.IsNotNull(nameof(changeParams), changeParams);
-            Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
-            bool shouldBlock = false;
-            if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase)) {
-                shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
-            }
-
-            if (shouldBlock) {
-                this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
-                if (CurrentWorkspace.ContainsFile(changeParams.Uri))
-                {
-                    await DiagnosticsHelper.ClearScriptDiagnostics(changeParams.Uri, eventContext);
-                }
-            }
-            else
-            {
-                bool value;
-                this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
             }
         }
 
