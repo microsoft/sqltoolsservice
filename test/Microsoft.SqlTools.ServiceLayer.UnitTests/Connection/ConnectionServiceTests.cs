@@ -1214,6 +1214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public async Task ConnectionWithConnectionStringSucceeds()
         {
+            // If I connect using a connection string instead of the normal parameters, the connection succeeds
             var connectionParameters = TestObjects.GetTestConnectionParams(true);
             var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
 
@@ -1223,6 +1224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public async Task ConnectionWithBadConnectionStringFails()
         {
+            // If I try to connect using an invalid connection string, the connection fails
             var connectionParameters = TestObjects.GetTestConnectionParams(true);
             connectionParameters.Connection.ConnectionString = "thisisnotavalidconnectionstring";
             var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
@@ -1231,16 +1233,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Fact]
-        public async Task ConnectionWithConnectionStringOverridesParameters()
+        public async Task ConnectionWithConnectionStringOverridesServerInfo()
         {
+            // If I try to connect using a connection string, it overrides the server name and username for the connection
             var connectionParameters = TestObjects.GetTestConnectionParams();
-            connectionParameters.Connection.ServerName = "overriddenServerName";
+            var serverName = "overriddenServerName";
+            var userName = "overriddenUserName";
+            connectionParameters.Connection.ServerName = serverName;
+            connectionParameters.Connection.UserName = userName;
             var connectionString = TestObjects.GetTestConnectionParams(true).Connection.ConnectionString;
             connectionParameters.Connection.ConnectionString = connectionString;
 
-            // Connect and verify that the server name has been overridden
+            // Connect and verify that the connectionParameters object's server name and username have been overridden
             var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
-            Assert.NotEqual(connectionParameters.Connection.ServerName, connectionResult.ConnectionSummary.ServerName);
+            Assert.NotEqual(serverName, connectionResult.ConnectionSummary.ServerName);
+            Assert.NotEqual(userName, connectionResult.ConnectionSummary.UserName);
+        }
+
+        [Fact]
+        public async Task OtherParametersOverrideConnectionString()
+        {
+            // If I try to connect using a connection string, and set parameters other than the server name, username, or password,
+            // they override the values in the connection string.
+            var connectionParameters = TestObjects.GetTestConnectionParams();
+            var databaseName = "overriddenDatabaseName";
+            connectionParameters.Connection.DatabaseName = databaseName;
+            var connectionString = TestObjects.GetTestConnectionParams(true).Connection.ConnectionString;
+            connectionParameters.Connection.ConnectionString = connectionString;
+
+            // Connect and verify that the connection string's database name has been overridden
+            var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
+            Assert.Equal(databaseName, connectionResult.ConnectionSummary.DatabaseName);
         }
     }
 }
