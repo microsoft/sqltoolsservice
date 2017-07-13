@@ -134,31 +134,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             EventContext eventContext)
         {
             // update the current settings to reflect any changes (assuming formatter settings exist)
-            settings = newSettings.SqlTools.ObjectExplorer ?? settings;
+            settings = newSettings?.SqlTools?.ObjectExplorer ?? settings;
             return Task.FromResult(true);
         }
 
 
         internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
         {
-            Logger.Write(LogLevel.Verbose, "HandleCreateSessionRequest");
-
-            Func<Task<CreateSessionResponse>> doCreateSession = async () =>
+            try
             {
-                Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-                Validate.IsNotNull(nameof(context), context);
-                return await Task.Factory.StartNew(() =>
+                Logger.Write(LogLevel.Verbose, "HandleCreateSessionRequest");
+                Func<Task<CreateSessionResponse>> doCreateSession = async () =>
                 {
-                    string uri = GenerateUri(connectionDetails);
+                    Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+                    Validate.IsNotNull(nameof(context), context);
+                    return await Task.Factory.StartNew(() =>
+                    {
+                        string uri = GenerateUri(connectionDetails);
 
-                    return new CreateSessionResponse { SessionId = uri };
-                });
-            };
+                        return new CreateSessionResponse { SessionId = uri };
+                    });
+                };
 
-            CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
-            if (response != null)
+                CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+                if (response != null)
+                {
+                    RunCreateSessionTask(connectionDetails, response.SessionId);
+                }
+            }
+            catch (Exception ex)
             {
-                RunCreateSessionTask(connectionDetails, response.SessionId);
+                await context.SendError(ex.ToString());
             }
 
         }
@@ -191,32 +197,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     return true;
                 }
             };
-            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
+            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");          
         }
 
         internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
         {
-            Logger.Write(LogLevel.Verbose, "HandleRefreshRequest");
-            Validate.IsNotNull(nameof(refreshParams), refreshParams);
-            Validate.IsNotNull(nameof(context), context);
+            try
+            {
+                Logger.Write(LogLevel.Verbose, "HandleRefreshRequest");
+                Validate.IsNotNull(nameof(refreshParams), refreshParams);
+                Validate.IsNotNull(nameof(context), context);
 
-            string uri = refreshParams.SessionId;
-            ObjectExplorerSession session = null;
-            if (!sessionMap.TryGetValue(uri, out session))
-            {
-                Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
-                await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                string uri = refreshParams.SessionId;
+                ObjectExplorerSession session = null;
+                if (!sessionMap.TryGetValue(uri, out session))
                 {
-                    SessionId = refreshParams.SessionId,
-                    NodePath = refreshParams.NodePath,
-                    ErrorMessage = $"Couldn't find session for session: {uri}"
-                });
+                    Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                    {
+                        SessionId = refreshParams.SessionId,
+                        NodePath = refreshParams.NodePath,
+                        ErrorMessage = $"Couldn't find session for session: {uri}"
+                    });
+                }
+                else
+                {
+                    RunExpandTask(session, refreshParams, true);
+                }
+                await context.SendResult(true);
             }
-            else
+            catch (Exception ex)
             {
-                RunExpandTask(session, refreshParams, true);
+                await context.SendError(ex.ToString());
             }
-            await context.SendResult(true);
         }
 
         internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)

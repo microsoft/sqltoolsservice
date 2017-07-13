@@ -82,10 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
                 TextDocument = new TextDocumentItem {Uri = TestObjects.ScriptUri}
             };
             // Then:
-            // ... There should be a file not found exception thrown
-            // TODO: This logic should be changed to not create the ScriptFile
-            await Assert.ThrowsAnyAsync<IOException>(
-                () => workspaceService.HandleDidCloseTextDocumentNotification(requestParams, eventContext));
+            await workspaceService.HandleDidCloseTextDocumentNotification(requestParams, eventContext);
 
             // ... There should still be no open files
             // ... The callback should not have been called

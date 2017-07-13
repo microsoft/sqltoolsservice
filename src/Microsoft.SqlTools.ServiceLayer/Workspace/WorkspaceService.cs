@@ -232,8 +232,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
                 return Task.WhenAll(handlers);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return Task.FromResult(true);
@@ -244,50 +245,70 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
-
-            if (IsScmEvent(openParams.TextDocument.Uri))
+            try
             {
+                Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
+
+                if (IsScmEvent(openParams.TextDocument.Uri))
+                {
+                    return;
+                }
+
+                // read the SQL file contents into the ScriptFile 
+                ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
+                if (openedFile == null)
+                {
+                    return;
+                }
+                // Propagate the changes to the event handlers
+                var textDocOpenTasks = TextDocOpenCallbacks.Select(
+                    t => t(openedFile, eventContext));
+
+                await Task.WhenAll(textDocOpenTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;
             }
-
-            // read the SQL file contents into the ScriptFile 
-            ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
-            if (openedFile == null)
-            {
-                return;
-            }
-             // Propagate the changes to the event handlers
-            var textDocOpenTasks = TextDocOpenCallbacks.Select(
-                t => t(openedFile, eventContext));
-
-            await Task.WhenAll(textDocOpenTasks);
         }
 
         internal async Task HandleDidCloseTextDocumentNotification(
            DidCloseTextDocumentParams closeParams,
            EventContext eventContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
-
-            if (IsScmEvent(closeParams.TextDocument.Uri)) 
+            try
             {
+                Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
+
+                if (IsScmEvent(closeParams.TextDocument.Uri)) 
+                {
+                    return;
+                }
+
+                // Skip closing this file if the file doesn't exist
+                var closedFile = Workspace.GetFile(closeParams.TextDocument.Uri);
+                if (closedFile == null)
+                {
+                    return;
+                }
+
+                // Trash the existing document from our mapping
+                Workspace.CloseFile(closedFile);
+
+                // Send out a notification to other services that have subscribed to this event
+                var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closedFile, eventContext));
+                await Task.WhenAll(textDocClosedTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;
             }
-
-            // Skip closing this file if the file doesn't exist
-            var closedFile = Workspace.GetFile(closeParams.TextDocument.Uri);
-            if (closedFile == null)
-            {
-                return;
-            }
-
-            // Trash the existing document from our mapping
-            Workspace.CloseFile(closedFile);
-
-            // Send out a notification to other services that have subscribed to this event
-            var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closedFile, eventContext));
-            await Task.WhenAll(textDocClosedTasks);
         }
 
         /// <summary>
@@ -297,12 +318,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             DidChangeConfigurationParams<TConfig> configChangeParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDidChangeConfigurationNotification");
+            try
+            {
+                Logger.Write(LogLevel.Verbose, "HandleDidChangeConfigurationNotification");
 
-            // Propagate the changes to the event handlers
-            var configUpdateTasks = ConfigChangeCallbacks.Select(
-                t => t(configChangeParams.Settings, CurrentSettings, eventContext));
-            await Task.WhenAll(configUpdateTasks);
+                // Propagate the changes to the event handlers
+                var configUpdateTasks = ConfigChangeCallbacks.Select(
+                    t => t(configChangeParams.Settings, CurrentSettings, eventContext));
+                await Task.WhenAll(configUpdateTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return;
+            }
         }  
 
         #endregion
