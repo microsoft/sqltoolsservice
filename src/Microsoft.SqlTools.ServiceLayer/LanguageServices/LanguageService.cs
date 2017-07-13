@@ -1699,17 +1699,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     // check if the batch matches parameters
                     if (batch.StartLocation.LineNumber <= parserLine 
-                        && batch.EndLocation.LineNumber >= parserLine
-                        && batch.StartLocation.ColumnNumber <= parserColumn
-                        && batch.EndLocation.ColumnNumber >= parserColumn)
+                        && batch.EndLocation.LineNumber >= parserLine)
                     {
                         foreach (var statement in batch.Statements)
                         {
                             // check if the statement matches parameters
                             if (statement.StartLocation.LineNumber <= parserLine 
-                                && statement.EndLocation.LineNumber >= parserLine
-                                && statement.StartLocation.ColumnNumber <= parserColumn
-                                && statement.EndLocation.ColumnNumber >= parserColumn)
+                                && statement.EndLocation.LineNumber >= parserLine)
                             {
                                 return statement.Sql;
                             }
