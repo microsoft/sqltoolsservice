@@ -21,10 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             origContext = context;
         }
 
-        public virtual async Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
+        public virtual Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
         {
             // no op to swallow events
             // in the future this could be used to roll up events and send them back in the result
+            return Task.FromResult(true);
         }
     }
 }
