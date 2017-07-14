@@ -67,13 +67,13 @@ namespace Microsoft.SqlTools.Hosting
             }
         }
 
-        protected async Task<T> HandleRequestAsync<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        protected async Task<THandler> HandleRequestAsync<THandler>(Func<Task<THandler>> handler, RequestContext<THandler> requestContext, string requestType)
         {
             Logger.Write(LogLevel.Verbose, requestType);
 
             try
             {
-                T result = await handler();
+                THandler result = await handler();
                 await requestContext.SendResult(result);
                 return result;
             }
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.Hosting
             {
                 await requestContext.SendError(ex.ToString());
             }
-            return default(T);
+            return default(THandler);
         }
 
         public abstract void InitializeService(IProtocolEndpoint serviceHost);

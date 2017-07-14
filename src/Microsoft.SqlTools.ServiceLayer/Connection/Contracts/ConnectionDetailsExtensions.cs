@@ -42,7 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 MultiSubnetFailover = details.MultiSubnetFailover,
                 MultipleActiveResultSets = details.MultipleActiveResultSets,
                 PacketSize = details.PacketSize,
-                TypeSystemVersion = details.TypeSystemVersion
+                TypeSystemVersion = details.TypeSystemVersion,
+                ConnectionString = details.ConnectionString
             };
         }
     }

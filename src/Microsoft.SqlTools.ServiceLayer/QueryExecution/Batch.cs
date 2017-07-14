@@ -241,6 +241,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
+                // Make sure we haven't cancelled yet
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
@@ -279,6 +282,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         int resultSetOrdinal = 0;
                         do
                         {
+                            // Verify that the cancellation token hasn't benn cancelled
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
@@ -297,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(reader, cancellationToken).ConfigureAwait(false);
+                            await resultSet.ReadResultToEnd(reader, cancellationToken);
 
                         } while (await reader.NextResultAsync(cancellationToken));
 

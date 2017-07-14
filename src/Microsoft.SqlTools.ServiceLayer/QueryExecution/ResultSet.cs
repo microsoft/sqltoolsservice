@@ -342,6 +342,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
+                // Verify the request hasn't been cancelled
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // Mark that result has been read
                 hasBeenRead = true;
 
