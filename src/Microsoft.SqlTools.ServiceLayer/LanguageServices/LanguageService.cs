@@ -1679,5 +1679,42 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
             }
         }
+
+        internal string ParseStatementAtPosition(string sql, int line, int column)
+        {
+            // adjust from 0-based to 1-based index
+            int parserLine = line + 1;
+            int parserColumn = column + 1;
+
+            // parse current SQL file contents to retrieve a list of errors
+            ParseResult parseResult = Parser.Parse(sql, this.DefaultParseOptions);
+            if (parseResult != null && parseResult.Script != null && parseResult.Script.Batches != null)
+            {
+                foreach (var batch in parseResult.Script.Batches)
+                {
+                    if (batch.Statements == null)
+                    {
+                        continue;
+                    }
+
+                    // check if the batch matches parameters
+                    if (batch.StartLocation.LineNumber <= parserLine 
+                        && batch.EndLocation.LineNumber >= parserLine)
+                    {
+                        foreach (var statement in batch.Statements)
+                        {
+                            // check if the statement matches parameters
+                            if (statement.StartLocation.LineNumber <= parserLine 
+                                && statement.EndLocation.LineNumber >= parserLine)
+                            {
+                                return statement.Sql;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
     }
 }

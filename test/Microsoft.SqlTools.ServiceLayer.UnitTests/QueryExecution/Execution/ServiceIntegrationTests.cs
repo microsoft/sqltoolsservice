@@ -21,6 +21,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         #region Get SQL Tests
 
+         [Fact]
+        public void ExecuteDocumentStatementTest()
+        {            
+            string query = string.Format("{0}{1}GO{1}{0}", Constants.StandardQuery, Environment.NewLine);
+            var workspaceService = GetDefaultWorkspaceService(query);
+            var queryService = new QueryExecutionService(null, workspaceService);
+
+            var queryParams = new ExecuteDocumentStatementParams { OwnerUri = Constants.OwnerUri, Line = 0, Column = 0 };
+            var queryText = queryService.GetSqlText(queryParams);
+
+            // The text should match the standard query
+            Assert.Equal(queryText, Constants.StandardQuery);
+        }
+
         [Fact]
         public void GetSqlTextFromDocumentRequestFull()
         {
