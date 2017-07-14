@@ -39,6 +39,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             this.restoreOptions.PercentCompleteNotification = 5;
         }
 
+        public string TargetDatabase
+        {
+            get
+            {
+                return string.IsNullOrEmpty(targetDbName) ? DefaultDbName : targetDbName;
+            }
+            set
+            {
+                this.targetDbName = value;
+            }
+        }
+
         public bool IsValid
         {
             get
@@ -130,7 +142,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         public string DataFilesFolder
         {
-            get { return this.dataFilesFolder; }
+            get
+            {
+                if (string.IsNullOrEmpty(this.dataFilesFolder))
+                {
+                    this.dataFilesFolder = this.DefaultDataFileFolder;
+                }
+                return this.dataFilesFolder;
+            }
             set
             {
                 if (this.dataFilesFolder == null || !this.dataFilesFolder.Equals(value))
@@ -158,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         this.ActiveException = ex;
                     }
 
-                    this.RelocateDbFiles();
+                    this.UpdateDbFiles();
                 }
             }
         }
@@ -170,7 +189,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         public string LogFilesFolder
         {
-            get { return this.logFilesFolder; }
+            get
+            {
+                if (string.IsNullOrEmpty(this.logFilesFolder))
+                {
+                    this.logFilesFolder = this.DefaultLogFileFolder;
+                }
+                return this.logFilesFolder;
+
+            }
             set
             {
                 if (this.logFilesFolder == null || !this.logFilesFolder.Equals(value))
@@ -197,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         this.ActiveException = ex;
                     }
-                    this.RelocateDbFiles();
+                    this.UpdateDbFiles();
                 }
             }
         }
@@ -210,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </value>
         public bool PromptBeforeEachBackup { get; set; }
 
-        private void RelocateDbFiles()
+        private void UpdateDbFiles()
         {
             try
             {
@@ -219,9 +246,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     string fileName = this.GetTargetDbFilePhysicalName(dbFile.PhysicalName);
                     if (!dbFile.DbFileType.Equals("Log"))
                     {
-                        if (!string.IsNullOrEmpty(this.dataFilesFolder))
+                        if (!string.IsNullOrEmpty(this.DataFilesFolder))
                         {
-                            dbFile.PhysicalNameRelocate = PathWrapper.Combine(this.dataFilesFolder, fileName);
+                            dbFile.PhysicalNameRelocate = PathWrapper.Combine(this.DataFilesFolder, fileName);
                         }
                         else
                         {
@@ -230,9 +257,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(this.logFilesFolder))
+                        if (!string.IsNullOrEmpty(this.LogFilesFolder))
                         {
-                            dbFile.PhysicalNameRelocate = PathWrapper.Combine(this.logFilesFolder, fileName);
+                            dbFile.PhysicalNameRelocate = PathWrapper.Combine(this.LogFilesFolder, fileName);
                         }
                         else
                         {
@@ -244,6 +271,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             catch (Exception ex)
             {
                 this.ActiveException = ex;
+            }
+        }
+
+        /// <summary>
+        /// Updates the Restore folder location of those db files whose orginal directory location
+        /// is not present in the destination computer.
+        /// </summary>
+        internal void UpdateDBFilesPhysicalRelocate()
+        {
+            foreach (DbFile item in DbFiles)
+            {
+                string fileName = this.GetTargetDbFilePhysicalName(item.PhysicalName);
+                item.PhysicalNameRelocate = PathWrapper.Combine(PathWrapper.GetDirectoryName(item.PhysicalName),
+                    fileName);
+                Uri pathUri;
+                bool fUriCreated = Uri.TryCreate(item.PhysicalNameRelocate, UriKind.Absolute, out pathUri);
+                if ((!fUriCreated || pathUri.Scheme != Uri.UriSchemeHttps) &&
+                    !Directory.Exists(Path.GetDirectoryName(item.PhysicalNameRelocate)))
+                {
+                    string directoryPath = string.Empty;
+                    if (string.Compare(item.DbFileType, SR.Log, StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        directoryPath = Util.GetDefaultLogFileFolder();
+                    }
+                    else
+                    {
+                        directoryPath = Util.GetDefaultDataFileFolder();
+                    }
+
+                    item.PhysicalNameRelocate = PathWrapper.Combine(directoryPath, fileName);
+                }
             }
         }
 
@@ -286,9 +344,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public string targetDbName = string.Empty;
 
         /// <summary>
-        /// The database used to restore from
+        /// The database from the backup file used to restore to by default
         /// </summary>
-        public string sourceDbName = string.Empty;
+        public string DefaultDbName
+        {
+            get
+            {
+                var dbNames = GetSourceDbNames();
+                string dbName = dbNames.First();
+                return dbName;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether [close existing connections].
@@ -393,10 +459,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private string GetTargetDbFilePhysicalName(string sourceDbFilePhysicalLocation)
         {
             string fileName = Path.GetFileName(sourceDbFilePhysicalLocation);
-            if (!string.IsNullOrEmpty(this.sourceDbName) && !string.IsNullOrEmpty(this.targetDbName))
+            if (!string.IsNullOrEmpty(this.DefaultDbName) && !string.IsNullOrEmpty(this.targetDbName))
             {
                 string sourceFilename = fileName;
-                fileName = sourceFilename.Replace(this.sourceDbName, this.targetDbName);
+                fileName = sourceFilename.Replace(this.DefaultDbName, this.targetDbName);
             }
             return fileName;
         }
@@ -503,20 +569,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             if (String.IsNullOrEmpty(this.RestorePlanner.DatabaseName))
             {
                 this.RestorePlan = new RestorePlan(this.Server);
-                // this.LaunchAzureConnectToStorageDialog();
                 this.Util.AddCredentialNameForUrlBackupSet(this.RestorePlan, this.CredentialName);
             }
             else
             {
-
                 this.RestorePlan = this.CreateRestorePlan(this.RestorePlanner, this.RestoreOptions);
                 this.Util.AddCredentialNameForUrlBackupSet(this.restorePlan, this.CredentialName);
                 if (this.ActiveException == null)
                 {
                     this.dbFiles = this.GetDbFiles();
-                    if(relocateAllFiles)
+                    UpdateDBFilesPhysicalRelocate();
+
+                    if (relocateAllFiles)
                     {
-                        RelocateDbFiles();
+                        UpdateDbFiles();
                     }
                     this.SetRestorePlanProperties(this.restorePlan);
                 }

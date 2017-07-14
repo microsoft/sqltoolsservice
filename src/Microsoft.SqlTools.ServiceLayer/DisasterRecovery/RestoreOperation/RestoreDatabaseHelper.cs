@@ -141,8 +141,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                     if (restoreDataObject != null && restoreDataObject.IsValid)
                     {
-                        response.DatabaseName = restoreDataObject.RestorePlanner.DatabaseName;
-                        response.DbFiles = restoreDataObject.DbFiles.Select(x => x.PhysicalName);
+                        response.DatabaseName = restoreDataObject.TargetDatabase;
+                        response.DbFiles = restoreDataObject.DbFiles.Select(x => new RestoreDatabaseFileInfo
+                        {
+                            FileType = x.DbFileType,
+                            LogicalFileName = x.LogicalName,
+                            OriginalFileName = x.PhysicalName,
+                            RestoreAsFileName = x.PhysicalNameRelocate
+                        });
                         response.CanRestore = CanRestore(restoreDataObject);
 
                         if (!response.CanRestore)
@@ -234,9 +240,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 restoreDataObject.AddFile(restoreDataObject.RestoreParams.BackupFilePath);
             }
             restoreDataObject.RestorePlanner.ReadHeaderFromMedia = !string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePath);
-            var dbNames = restoreDataObject.GetSourceDbNames();
-            string dbName = dbNames.First();
-            restoreDataObject.RestorePlanner.DatabaseName = dbName;
+           
+            restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
+            restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.DatabaseName;
+            //TODO: used for other types of restore
+            /*bool isTailLogBackupPossible = restoreDataObject.RestorePlanner.IsTailLogBackupPossible(restoreDataObject.RestorePlanner.DatabaseName);
+            restoreDataObject.RestorePlanner.BackupTailLog = isTailLogBackupPossible;
+            restoreDataObject.TailLogBackupFile = restoreDataObject.Util.GetDefaultTailLogbackupFile(dbName);
+            restoreDataObject.RestorePlanner.TailLogBackupFile = restoreDataObject.TailLogBackupFile;
+            */
+
             restoreDataObject.UpdateRestorePlan(restoreDataObject.RestoreParams.RelocateDbFiles);
         }
 

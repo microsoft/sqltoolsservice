@@ -56,6 +56,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public string ErrorMessage { get; set; }
     }
 
+    public class RestoreDatabaseFileInfo
+    {
+        /// <summary>
+        /// File type (Rows Data, Log ...)
+        /// </summary>
+        public string FileType { get; set; }
+
+        /// <summary>
+        /// Logical Name
+        /// </summary>
+        public string LogicalFileName { get; set; }
+
+        /// <summary>
+        /// Original location of the file to restore to
+        /// </summary>
+        public string OriginalFileName { get; set; }
+
+        /// <summary>
+        /// The file to restore to
+        /// </summary>
+        public string RestoreAsFileName { get; set; }
+    }
+
     /// <summary>
     /// Restore Plan Response
     /// </summary>
@@ -79,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// <summary>
         /// The db files included in the backup file
         /// </summary>
-        public IEnumerable<string> DbFiles { get; set; }
+        public IEnumerable<RestoreDatabaseFileInfo> DbFiles { get; set; }
 
         /// <summary>
         /// Server name
