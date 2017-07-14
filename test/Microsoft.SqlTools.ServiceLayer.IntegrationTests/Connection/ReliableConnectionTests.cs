@@ -933,8 +933,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Fact]
         public void StatementCompletedTests()
         {
-            bool handlerCalled = false;
-            StatementCompletedEventHandler handler = (s, e) => handlerCalled = true; 
+            StatementCompletedEventHandler handler = (s, e) => { }; 
             var command = new DbCommandWrapper(new SqlCommand());
             command.StatementCompleted += handler;
             command.StatementCompleted -= handler;
