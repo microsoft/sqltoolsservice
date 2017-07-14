@@ -88,25 +88,32 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<BackupConfigInfoResponse> requestContext)
         {
-            var response = new BackupConfigInfoResponse();
-            ConnectionInfo connInfo;
-            DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                    optionsParams.OwnerUri,
-                    out connInfo);
-
-            if (connInfo != null)
+            try
             {
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                SqlConnection sqlConn = GetSqlConnection(connInfo);
-                if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
-                {
-                    BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-                    backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
-                    response.BackupConfigInfo = backupConfigInfo;
-                }
-            }
+                var response = new BackupConfigInfoResponse();
+                ConnectionInfo connInfo;
+                DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
+                        optionsParams.OwnerUri,
+                        out connInfo);
 
-            await requestContext.SendResult(response);
+                if (connInfo != null)
+                {
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    SqlConnection sqlConn = GetSqlConnection(connInfo);
+                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    {
+                        BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                        backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
+                        response.BackupConfigInfo = backupConfigInfo;
+                    }
+                }
+
+                await requestContext.SendResult(response);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -116,22 +123,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             RestoreParams restoreParams,
             RequestContext<RestorePlanResponse> requestContext)
         {
-            RestorePlanResponse response = new RestorePlanResponse();
-            ConnectionInfo connInfo;
-            bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
-
-            if (supported && connInfo != null)
+            try
             {
-                RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
-                response = this.restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
-            }
-            else
-            {
-                response.CanRestore = false;
-                response.ErrorMessage = SR.RestoreNotSupported;
-            }
-            await requestContext.SendResult(response);
+                RestorePlanResponse response = new RestorePlanResponse();
+                ConnectionInfo connInfo;
+                bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
 
+                if (supported && connInfo != null)
+                {
+                    RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
+                    response = this.restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
+                }
+                else
+                {
+                    response.CanRestore = false;
+                    response.ErrorMessage = SR.RestoreNotSupported;
+                }
+                await requestContext.SendResult(response);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -141,46 +154,53 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             RestoreParams restoreParams,
             RequestContext<RestoreResponse> requestContext)
         {
-            RestoreResponse response = new RestoreResponse();
-            ConnectionInfo connInfo;
-            bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
-
-            if (supported && connInfo != null)
+            try
             {
-                try
+                RestoreResponse response = new RestoreResponse();
+                ConnectionInfo connInfo;
+                bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
+
+                if (supported && connInfo != null)
                 {
-                    RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
-
-                    if (restoreDataObject != null)
+                    try
                     {
-                        // create task metadata
-                        TaskMetadata metadata = new TaskMetadata();
-                        metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                        metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                        metadata.Name = SR.RestoreTaskName;
-                        metadata.IsCancelable = true;
-                        metadata.Data = restoreDataObject;
+                        RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
 
-                        // create restore task and perform
-                        SqlTask sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
-                        response.TaskId = sqlTask.TaskId.ToString();
+                        if (restoreDataObject != null)
+                        {
+                            // create task metadata
+                            TaskMetadata metadata = new TaskMetadata();
+                            metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                            metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
+                            metadata.Name = SR.RestoreTaskName;
+                            metadata.IsCancelable = true;
+                            metadata.Data = restoreDataObject;
+
+                            // create restore task and perform
+                            SqlTask sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
+                            response.TaskId = sqlTask.TaskId.ToString();
+                        }
+                        else
+                        {
+                            response.ErrorMessage = SR.RestorePlanFailed;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        response.ErrorMessage = SR.RestorePlanFailed;
+                        response.ErrorMessage = ex.Message;
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    response.ErrorMessage = ex.Message;
+                    response.ErrorMessage = SR.RestoreNotSupported;
                 }
-            }
-            else
-            {
-                response.ErrorMessage = SR.RestoreNotSupported;
-            }
 
-            await requestContext.SendResult(response);
+                await requestContext.SendResult(response);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -189,35 +209,42 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal static async Task HandleBackupRequest(
             BackupParams backupParams,
             RequestContext<BackupResponse> requestContext)
-        {            
-            ConnectionInfo connInfo;
-            DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                    backupParams.OwnerUri,
-                    out connInfo);
+        {     
+            try
+            {       
+                ConnectionInfo connInfo;
+                DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
+                        backupParams.OwnerUri,
+                        out connInfo);
 
-            if (connInfo != null)
-            {
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                SqlConnection sqlConn = GetSqlConnection(connInfo);
-                if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                if (connInfo != null)
                 {
-                    BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    SqlConnection sqlConn = GetSqlConnection(connInfo);
+                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    {
+                        BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
 
-                    // create task metadata
-                    TaskMetadata metadata = new TaskMetadata();
-                    metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                    metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                    metadata.Name = SR.Backup_TaskName;
-                    metadata.IsCancelable = true;
-                    metadata.Data = backupOperation;
-                    
-                    // create backup task and perform
-                    SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupTaskAsync);
-                    sqlTask.Run();
+                        // create task metadata
+                        TaskMetadata metadata = new TaskMetadata();
+                        metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                        metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
+                        metadata.Name = SR.Backup_TaskName;
+                        metadata.IsCancelable = true;
+                        metadata.Data = backupOperation;
+                        
+                        // create backup task and perform
+                        SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupTaskAsync);
+                        sqlTask.Run();
+                    }
                 }
+            
+                await requestContext.SendResult(new BackupResponse());
             }
-         
-            await requestContext.SendResult(new BackupResponse());
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         internal static SqlConnection GetSqlConnection(ConnectionInfo connInfo)
@@ -281,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             BackupOperation backupOperation = new BackupOperation();
             backupOperation.Initialize(dataContainer, sqlConnection);
-            return backupOperation.GetBackupConfigInfo(databaseName);
+            return backupOperation.CreateBackupConfigInfo(databaseName);
         }
 
         internal BackupOperation SetBackupInput(CDataContainer dataContainer, SqlConnection sqlConnection, BackupInfo input)

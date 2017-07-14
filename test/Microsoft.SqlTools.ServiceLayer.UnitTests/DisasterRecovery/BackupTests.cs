@@ -99,8 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Cancel multiple backup tasks
         /// </summary>
         /// <returns></returns>
-        /// Test is failing unreliably in AppVeyor runs so disabling for. 
-        ///[Fact]
+        [Fact]
         public async Task VerifyCancelMultipleBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -142,8 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Create two backup tasks and cancel one task
         /// </summary>
         /// <returns></returns>
-        /// Test is failing in AppVeyor unreliabily..disabling for now.  please reenalbe when test is stable in AppVeyor builds.
-        /// [Fact]
+        [Fact]
         public async Task VerifyCombinationRunAndCancelBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())

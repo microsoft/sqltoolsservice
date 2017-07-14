@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="databaseName"></param>
         /// <returns></returns>
-        BackupConfigInfo GetBackupConfigInfo(string databaseName);
+        BackupConfigInfo CreateBackupConfigInfo(string databaseName);
 
         /// <summary>
         /// Set backup input properties
