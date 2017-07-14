@@ -850,19 +850,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             SqlConnectionStringBuilder connectionBuilder;
 
-            // If connectionDetails has a connection string already, just validate and return it
+            // If connectionDetails has a connection string already, use it to initialize the connection builder, then override any provided options.
+            // Otherwise use the server name, username, and password from the connection details.
             if (!string.IsNullOrEmpty(connectionDetails.ConnectionString))
             {
                 connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
-                return connectionBuilder.ToString();
             }
-
-            connectionBuilder = new SqlConnectionStringBuilder
-            {
-                ["Data Source"] = connectionDetails.ServerName,
-                ["User Id"] = connectionDetails.UserName,
-                ["Password"] = connectionDetails.Password
-            };
+            else {
+                connectionBuilder = new SqlConnectionStringBuilder
+                {
+                    ["Data Source"] = connectionDetails.ServerName,
+                    ["User Id"] = connectionDetails.UserName,
+                    ["Password"] = connectionDetails.Password
+                };
+            }
 
             // Check for any optional parameters
             if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
