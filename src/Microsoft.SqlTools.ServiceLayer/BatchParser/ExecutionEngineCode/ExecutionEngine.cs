@@ -1050,7 +1050,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </remarks>
         public void ParseScript(string script, IBatchEventsHandler batchEventsHandler)
         {
-            Validate.IsNotNullOrEmptyString(nameof(script), script);
+            Validate.IsNotNull(nameof(script), script);
             Validate.IsNotNull(nameof(batchEventsHandler), batchEventsHandler);
 
 
