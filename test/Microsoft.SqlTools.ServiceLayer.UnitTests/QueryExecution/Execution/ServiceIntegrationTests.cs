@@ -397,31 +397,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
-        public async Task QueryExecuteMissingSelectionTest()
-        {
-            // Given:
-            // ... A workspace with a standard query is configured
-            var workspaceService = Common.GetPrimedWorkspaceService(string.Empty);
-
-            // If:
-            // ... I request to execute a query with a missing query string
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = null};
-
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleExecuteRequest(queryParams, efv.Object);
-
-            // Then:
-            // ... Am error should have been sent
-            efv.Validate();
-
-            // ... There should not be an active query
-            Assert.Empty(queryService.ActiveQueries);
-        }
-
-        [Fact]
         public async Task QueryExecuteInvalidQueryTest()
         {
             // If:

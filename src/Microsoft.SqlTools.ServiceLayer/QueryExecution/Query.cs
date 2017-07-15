@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory)
         {
             // Sanity check for input
-            Validate.IsNotNullOrEmptyString(nameof(queryText), queryText);
+            Validate.IsNotNull(nameof(queryText), queryText);
             Validate.IsNotNull(nameof(connection), connection);
             Validate.IsNotNull(nameof(settings), settings);
             Validate.IsNotNull(nameof(outputFactory), outputFactory);
