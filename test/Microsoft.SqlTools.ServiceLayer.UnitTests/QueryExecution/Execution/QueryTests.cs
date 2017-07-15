@@ -36,17 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
-        public void QueryExecuteNoQueryText()
-        {
-            // If:
-            // ... I create a query that has a null query text
-            // Then:
-            // ... It should throw an exception
-            Assert.Throws<ArgumentException>(() =>
-                new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory()));
-        }
-
-        [Fact]
         public void QueryExecuteNoConnectionInfo()
         {
             // If:
