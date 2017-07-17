@@ -833,7 +833,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                ListDatabasesResponse result = Instance.ListDatabases(listDatabasesParams);
+                ListDatabasesResponse result = ListDatabases(listDatabasesParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)
