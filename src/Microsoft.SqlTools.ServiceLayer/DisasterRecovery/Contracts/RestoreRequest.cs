@@ -56,6 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public string ErrorMessage { get; set; }
     }
 
+    /// <summary>
+    /// Database file info
+    /// </summary>
     public class RestoreDatabaseFileInfo
     {
         /// <summary>

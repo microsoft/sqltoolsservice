@@ -351,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             get
             {
                 var dbNames = GetSourceDbNames();
-                string dbName = dbNames.First();
+                string dbName = dbNames.FirstOrDefault();
                 return dbName;
             }
         }
@@ -635,8 +635,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 // For XStore path, we don't want to try the getFullPath.
                 string newPhysicalPath;
                 Uri pathUri;
-                bool fUriCreated = Uri.TryCreate(dbFile.PhysicalNameRelocate, UriKind.Absolute, out pathUri);
-                if (fUriCreated && pathUri.Scheme == "https")
+                bool uriCreated = Uri.TryCreate(dbFile.PhysicalNameRelocate, UriKind.Absolute, out pathUri);
+                if (uriCreated && pathUri.Scheme == "https")
                 {
                     newPhysicalPath = dbFile.PhysicalNameRelocate;
                 }
