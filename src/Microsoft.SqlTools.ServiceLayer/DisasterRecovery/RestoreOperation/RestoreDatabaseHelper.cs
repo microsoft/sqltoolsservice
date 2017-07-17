@@ -5,12 +5,16 @@
 
 using System;
 using System.Linq;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -219,7 +223,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (connInfo != null)
             {
-                Server server = new Server(new ServerConnection(connInfo.ConnectionDetails.ServerName));
+                SqlConnection connection;
+                DbConnection dbConnection = connInfo.AllConnections.First();
+                ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
+                SqlConnection sqlConnection = dbConnection as SqlConnection;
+                if (reliableSqlConnection != null)
+                {
+                    connection = reliableSqlConnection.GetUnderlyingConnection();
+                }
+                else if (sqlConnection != null)
+                {
+                    connection = sqlConnection;
+                }
+                else
+                {
+                    Logger.Write(LogLevel.Warning, "Cannot find any sql connection for restore operation");
+                    return null;
+                }
+                Server server = new Server(new ServerConnection(connection));
 
                 RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(server, restoreParams.DatabaseName);
                 restoreDataObject.RestoreParams = restoreParams;

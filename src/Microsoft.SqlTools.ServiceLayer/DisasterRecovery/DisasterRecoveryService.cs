@@ -123,9 +123,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             RestoreParams restoreParams,
             RequestContext<RestorePlanResponse> requestContext)
         {
+            RestorePlanResponse response = new RestorePlanResponse();
+
             try
             {
-                RestorePlanResponse response = new RestorePlanResponse();
                 ConnectionInfo connInfo;
                 bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
 
@@ -143,7 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                response.CanRestore = false;
+                response.ErrorMessage = ex.Message;
+                await requestContext.SendResult(response);
             }
         }
 
@@ -154,9 +157,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             RestoreParams restoreParams,
             RequestContext<RestoreResponse> requestContext)
         {
+            RestoreResponse response = new RestoreResponse();
+
             try
             {
-                RestoreResponse response = new RestoreResponse();
                 ConnectionInfo connInfo;
                 bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
 
@@ -199,7 +203,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                response.Result = false;
+                response.ErrorMessage = ex.Message;
+                await requestContext.SendResult(response);
             }
         }
 
