@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -236,6 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 }
                 else
                 {
+                    Logger.Write(LogLevel.Warning, "Cannot find any sql connection for restore operation");
                     return null;
                 }
                 Server server = new Server(new ServerConnection(connection));

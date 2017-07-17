@@ -185,11 +185,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 if (canRestore)
                 {
                     Assert.True(response.DbFiles.Any());
-                    Assert.Equal(response.DatabaseName, "BackupTestDb");
                     if (string.IsNullOrEmpty(targetDatabase))
                     {
                         targetDatabase = response.DatabaseName;
                     }
+                    Assert.Equal(response.DatabaseName, targetDatabase);
+                   
                     if(execute)
                     {
                         await DropDatabase(targetDatabase);
