@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "server",
-                        DisplayName = "Server Name",
+                        DisplayName = "Server name",
                         Description = "Name of the SQL Server instance",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueServerName,
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "database",
-                        DisplayName = "Database Name",
+                        DisplayName = "Database name",
                         Description = "The name of the initial catalog or database int the data source",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueDatabaseName,
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "authenticationType",
-                        DisplayName = "Authentication Type",
+                        DisplayName = "Authentication type",
                         Description = "Specifies the method of authenticating with SQL Server",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         SpecialValueType = ConnectionOption.SpecialValueAuthType,
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "user",
-                        DisplayName = "User Name",
+                        DisplayName = "User name",
                         Description = "Indicates the user ID to be used when connecting to the data source",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueUserName,
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "applicationIntent",
-                        DisplayName = "Application Intent",
+                        DisplayName = "Application intent",
                         Description = "Declares the application workload type when connecting to a server",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         CategoryValues = new CategoryValue[] {
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "connectTimeout",
-                        DisplayName = "Connect Timeout",
+                        DisplayName = "Connect timeout",
                         Description =
                         "The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error",
                         ValueType = ConnectionOption.ValueTypeNumber,
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "currentLanguage",
-                        DisplayName = "Current Language",
+                        DisplayName = "Current language",
                         Description = "The SQL Server language record name",
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Initialization"
@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "columnEncryptionSetting",
-                        DisplayName = "Column Encryption Setting",
+                        DisplayName = "Column encryption setting",
                         Description = "Default column encryption setting for all the commands on the connection",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "persistSecurityInfo",
-                        DisplayName = "Persist Security Info",
+                        DisplayName = "Persist security info",
                         Description = "When false, security-sensitive information, such as the password, is not returned as part of the connection",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "trustServerCertificate",
-                        DisplayName = "Trust Server Certificate",
+                        DisplayName = "Trust server certificate",
                         Description = "When true (and encrypt=true), SQL Server uses SSL encryption for all data sent between the client and server without validating the server certificate",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "attachedDBFileName",
-                        DisplayName = "Attached DB File Name",
+                        DisplayName = "Attached DB file name",
                         Description = "The name of the primary file, including the full path name, of an attachable database",
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Source"
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "contextConnection",
-                        DisplayName = "Context Connection",
+                        DisplayName = "Context connection",
                         Description = "When true, indicates the connection should be from the SQL server context. Available only when running in the SQL Server process",
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Source"
@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "connectRetryCount",
-                        DisplayName = "Connect Retry Count",
+                        DisplayName = "Connect retry count",
                         Description = "Number of attempts to restore connection",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "1",
@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "connectRetryInterval",
-                        DisplayName = "Connect Retry Interval",
+                        DisplayName = "Connect retry interval",
                         Description = "Delay between attempts to restore connection",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "10",
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "applicationName",
-                        DisplayName = "Application Name",
+                        DisplayName = "Application name",
                         Description = "The name of the application",
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Context",
@@ -221,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "maxPoolSize",
-                        DisplayName = "Max Pool Size",
+                        DisplayName = "Max pool size",
                         Description = "The maximum number of connections allowed in the pool",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Pooling"
@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "minPoolSize",
-                        DisplayName = "Min Pool Size",
+                        DisplayName = "Min pool size",
                         Description = "The minimum number of connections allowed in the pool",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Pooling"
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "loadBalanceTimeout",
-                        DisplayName = "Load Balance Timeout",
+                        DisplayName = "Load balance timeout",
                         Description = "The minimum amount of time (in seconds) for this connection to live in the pool before being destroyed",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Pooling"
@@ -253,13 +253,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "attachDbFilename",
-                        DisplayName = "Attach Db Filename",
+                        DisplayName = "Attach DB filename",
                         ValueType = ConnectionOption.ValueTypeString
                     },
                     new ConnectionOption
                     {
                         Name = "failoverPartner",
-                        DisplayName = "Failover Partner",
+                        DisplayName = "Failover partner",
                         Description = "the name or network address of the instance of SQL Server that acts as a failover partner",
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = " Source"
@@ -267,13 +267,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "multiSubnetFailover",
-                        DisplayName = "Multi Subnet Failover",
+                        DisplayName = "Multi subnet failover",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
                         Name = "multipleActiveResultSets",
-                        DisplayName = "Multiple Active ResultSets",
+                        DisplayName = "Multiple active result sets",
                         Description = "When true, multiple result sets can be returned and read from one connection",
                         ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Advanced"
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "packetSize",
-                        DisplayName = "Packet Size",
+                        DisplayName = "Packet size",
                         Description = "Size in bytes of the network packets used to communicate with an instance of SQL Server",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         GroupName = "Advanced"
@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "typeSystemVersion",
-                        DisplayName = "Type System Version",
+                        DisplayName = "Type system version",
                         Description = "Indicates which server type system then provider will expose through the DataReader",
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Advanced"
