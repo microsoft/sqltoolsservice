@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private const char BackupMediaNameSeparator = ',';
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
+            PlanUpdateRequired = true;
             this.Server = server;
             this.Util = new RestoreUtil(server);
             restorePlanner = new DatabaseRestorePlanner(server);
@@ -102,6 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <param name="filePaths"></param>
         public void AddFiles(string filePaths)
         {
+            PlanUpdateRequired = true;
             if (!string.IsNullOrWhiteSpace(filePaths))
             {
                 string[] files = filePaths.Split(BackupMediaNameSeparator);
@@ -160,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 {
                     if (SqlTask != null)
                     {
-                        SqlTask.AddMessage(e.Message + e.Percent, SqlTaskStatus.InProgress);
+                        SqlTask.AddMessage($"{e.Percent}%", SqlTaskStatus.InProgress);
                     }
                 };
                 restorePlan.Execute();
@@ -180,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
         private string tailLogBackupFile;
-        private bool planUpdateRequired = false;
+        public bool PlanUpdateRequired { get; private set; }
 
         /// <summary>
         /// File to backup tail log before doing the restore
@@ -193,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 if (tailLogBackupFile == null || !tailLogBackupFile.Equals(value))
                 {
                     this.RestorePlanner.TailLogBackupFile = value;
-                    this.planUpdateRequired = true;
+                    this.PlanUpdateRequired = true;
                     this.tailLogBackupFile = value;
                 }
             }
@@ -588,7 +590,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                                          //Clear any existing exceptions as new plan is getting recreated.
             this.CreateOrUpdateRestorePlanException = null;
             this.DbFiles.Clear();
-            this.planUpdateRequired = false;
+            this.PlanUpdateRequired = false;
             this.restorePlan = null;
             if (String.IsNullOrEmpty(this.RestorePlanner.DatabaseName))
             {
@@ -690,7 +692,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 if (this.RestorePlanner.BackupTailLog != value)
                 {
                     this.RestorePlanner.BackupTailLog = value;
-                    this.planUpdateRequired = true;
+                    this.PlanUpdateRequired = true;
                 }
             }
         }
@@ -709,7 +711,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 if (this.RestorePlanner.TailLogWithNoRecovery != value)
                 {
                     this.RestorePlanner.TailLogWithNoRecovery = value;
-                    this.planUpdateRequired = true;
+                    this.PlanUpdateRequired = true;
                 }
             }
         }

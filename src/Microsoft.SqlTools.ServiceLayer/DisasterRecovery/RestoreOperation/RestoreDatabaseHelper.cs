@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         if (restoreDataObject.IsValid)
                         {
-                            ExecuteRestore(restoreDataObject);
+                            ExecuteRestore(restoreDataObject, sqlTask);
                             result.TaskStatus = SqlTaskStatus.Succeeded;
                         }
                         else
@@ -297,29 +297,32 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private void UpdateRestorePlan(RestoreDatabaseTaskDataObject restoreDataObject)
         {
-            if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths))
+            if (restoreDataObject.PlanUpdateRequired)
             {
-                restoreDataObject.AddFiles(restoreDataObject.RestoreParams.BackupFilePaths);
-            }
-            restoreDataObject.RestorePlanner.ReadHeaderFromMedia = !string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths);
+                if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths))
+                {
+                    restoreDataObject.AddFiles(restoreDataObject.RestoreParams.BackupFilePaths);
+                }
+                restoreDataObject.RestorePlanner.ReadHeaderFromMedia = !string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths);
 
-            if (string.IsNullOrWhiteSpace(restoreDataObject.RestoreParams.SourceDatabaseName))
-            {
-                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
-            }
-            else
-            {
-                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
-            }
-            restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
-            //TODO: used for other types of restore
-            /*bool isTailLogBackupPossible = restoreDataObject.RestorePlanner.IsTailLogBackupPossible(restoreDataObject.RestorePlanner.DatabaseName);
-            restoreDataObject.RestorePlanner.BackupTailLog = isTailLogBackupPossible;
-            restoreDataObject.TailLogBackupFile = restoreDataObject.Util.GetDefaultTailLogbackupFile(dbName);
-            restoreDataObject.RestorePlanner.TailLogBackupFile = restoreDataObject.TailLogBackupFile;
-            */
+                if (string.IsNullOrWhiteSpace(restoreDataObject.RestoreParams.SourceDatabaseName))
+                {
+                    restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
+                }
+                else
+                {
+                    restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
+                }
+                restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
+                //TODO: used for other types of restore
+                /*bool isTailLogBackupPossible = restoreDataObject.RestorePlanner.IsTailLogBackupPossible(restoreDataObject.RestorePlanner.DatabaseName);
+                restoreDataObject.RestorePlanner.BackupTailLog = isTailLogBackupPossible;
+                restoreDataObject.TailLogBackupFile = restoreDataObject.Util.GetDefaultTailLogbackupFile(dbName);
+                restoreDataObject.RestorePlanner.TailLogBackupFile = restoreDataObject.TailLogBackupFile;
+                */
 
-            restoreDataObject.UpdateRestorePlan(restoreDataObject.RestoreParams.RelocateDbFiles);
+                restoreDataObject.UpdateRestorePlan(restoreDataObject.RestoreParams.RelocateDbFiles);
+            }
         }
 
         /// <summary>
@@ -329,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public void ExecuteRestore(RestoreDatabaseTaskDataObject restoreDataObject, SqlTask sqlTask = null)
         {
             // Restore Plan should be already created and updated at this point
-            //UpdateRestorePlan(restoreDataObject);
+            UpdateRestorePlan(restoreDataObject);
 
             if (restoreDataObject != null && CanRestore(restoreDataObject))
             {

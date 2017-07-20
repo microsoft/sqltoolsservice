@@ -190,8 +190,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             WaitHandle.WaitAny(waitHandles);
             try
             {
-                await this.TaskToCancel(this);
-                result.TaskStatus = SqlTaskStatus.Canceled;
+                if (token.IsCancellationRequested)
+                {
+                    await this.TaskToCancel(this);
+                    result.TaskStatus = SqlTaskStatus.Canceled;
+                }
             }
             catch (Exception ex)
             {
