@@ -5,33 +5,106 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
     /// Restore request parameters
     /// </summary>
-    public class RestoreParams
+    public class RestoreParams : GeneralRequestDetails
     {
+        public string SessionId
+        {
+            get
+            {
+                return GetOptionValue<string>("sessionId");
+            }
+            set
+            {
+                SetOptionValue("sessionId", value);
+            }
+        }
+
         /// <summary>
         /// The Uri to find the connection to do the restore operations
         /// </summary>
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// The backup file path
+        /// Comma delimited list of backup files
         /// </summary>
-        public string BackupFilePath { get; set; }
+        public string BackupFilePaths
+        {
+            get
+            {
+                return GetOptionValue<string>("backupFilePaths");
+            }
+            set
+            {
+                SetOptionValue("backupFilePaths", value);
+            }
+        }
 
         /// <summary>
         /// Target Database name to restore to
         /// </summary>
-        public string DatabaseName { get; set; }
+        public string TargetDatabaseName
+        {
+            get
+            {
+                return GetOptionValue<string>("targetDatabaseName");
+            }
+            set
+            {
+                SetOptionValue("targetDatabaseName", value);
+            }
+        }
+
+        /// <summary>
+        /// Source Database name to restore from
+        /// </summary>
+        public string SourceDatabaseName
+        {
+            get
+            {
+                return GetOptionValue<string>("sourceDatabaseName");
+            }
+            set
+            {
+                SetOptionValue("sourceDatabaseName", value);
+            }
+        }
 
         /// <summary>
         /// If set to true, the db files will be relocated to default data location in the server
         /// </summary>
-        public bool RelocateDbFiles { get; set; }
+        public bool RelocateDbFiles
+        {
+            get
+            {
+                return GetOptionValue<bool>("relocateDbFiles");
+            }
+            set
+            {
+                SetOptionValue("relocateDbFiles", value);
+            }
+        }
+
+        /// <summary>
+        /// Ids of the backup set to restore
+        /// </summary>
+        public string[] SelectedBackupSets
+        {
+            get
+            {
+                return GetOptionValue<string[]>("selectedBackupSets");
+            }
+            set
+            {
+                SetOptionValue("selectedBackupSets", value);
+            }
+        }
     }
 
     /// <summary>
@@ -87,10 +160,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     /// </summary>
     public class RestorePlanResponse
     {
-        /// <summary>
-        /// The backup file path
-        /// </summary>
-        public string BackupFilePath { get; set; }
+        public string RestoreSessionId { get; set; }
+
+        public DatabaseFileInfo[] BackupSetsToRestore { get; set; }
 
         /// <summary>
         /// Indicates whether the restore operation is supported 
@@ -106,6 +178,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// The db files included in the backup file
         /// </summary>
         public IEnumerable<RestoreDatabaseFileInfo> DbFiles { get; set; }
+
+        /// <summary>
+        /// Database names extracted from backup sets
+        /// </summary>
+        public string[] DatabaseNamesFromBackupSets { get; set; }
 
         /// <summary>
         /// Server name

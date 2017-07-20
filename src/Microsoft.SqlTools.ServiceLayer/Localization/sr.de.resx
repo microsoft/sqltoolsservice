@@ -154,7 +154,7 @@
     <value>Abfrage wurde erfolgreich abgebrochen, Fehler beim Abfrage verfügen. Benutzer-URI nicht gefunden.</value>
   </data>
   <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>Abfrage wurde vom Benutzer abgebrochen.</value>
+    <value>Die Abfrage wurde vom Benutzer abgebrochen.</value>
   </data>
   <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
     <value>Die Stapelverarbeitung ist noch nicht abgeschlossen</value>
@@ -358,7 +358,7 @@
     <value>Variable {0} ist nicht definiert.</value>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>EN_LOCALIZATION</value>
+    <value>Test</value>
   </data>
   <data name="ErrorEmptyStringReplacement" xml:space="preserve">
     <value>Ersatz einer leeren Zeichenfolge durch eine leere Zeichenfolge.</value>
@@ -417,11 +417,23 @@
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
     <value>Spezifizierte URI '{0}' hat keine Standardverbindung</value>
   </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>Eine Commit-Anweisung wird ausgeführt. Bitte warten Sie bis zur Fertigstellung</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Für die Decimal-Spalte fehlt die Angabe der Genauigkeit und Dezimalstellenanzahl</value>
+  </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
     <value>&lt;TBD&gt;</value>
   </data>
   <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
     <value>Kann Zeile nicht an Ergebnisbuffer anhängen, da keine Zeilen im Datareader enthalten sind.</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>Der Wert für eine Spalte vom Typ TIME muss zwischen 00:00:00.0000000 und 23:59:59.9999999 liegen</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>NULL ist für diese Spalte nicht erlaubt</value>
   </data>
   <data name="EditDataSessionAlreadyExists" xml:space="preserve">
     <value>Es gibt bereits eine Session</value>
@@ -452,6 +464,15 @@
   </data>
   <data name="EditDataMetadataNotExtended" xml:space="preserve">
     <value>Die Metadaten der Tabelle enthält keine erweiterten EIgenschaften.</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>Tabelle oder Sicht zur Bearbeitung konnte nicht gefunden werden</value>
+  </data>
+  <data name="TreeNodeError" xml:space="preserve">
+    <value>Fehler beim Erweitern von: {0}</value>
+  </data>
+  <data name="ServerNodeConnectionError" xml:space="preserve">
+    <value>Fehler bei der Verbindung zu {0}</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
     <value>Aggregate</value>
@@ -897,9 +918,6 @@
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
     <value>Tabellentypindex</value>
   </data>
-  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
-    <value>ServerInstance</value>
-  </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
     <value>Selektive XML-Indexe</value>
   </data>
@@ -935,5 +953,438 @@
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
     <value>Spaltenverschlüsselungsschlüssel</value>
+  </data>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Fehler beim Analysieren der Eigenschaft ScriptingParams.ConnectionString.</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>Ungültiges Verzeichnis angeben in der Eigenschaft ScriptingParams.FilePath.</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Fehler beim Analysieren der Eigenschaft ScriptingListObjectsCompleteParams.ConnectionString</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
+    <value>{0} ({1}, {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
+    <value>Kein Standard</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
+    <value>Eingabe</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
+    <value>Eingabe/Ausgabe</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
+    <value>Eingabe/schreibgeschützt</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
+    <value>Eingabe/Ausgabe/schreibgeschützt</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
+    <value>nicht NULL</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
+    <value>{0} ({1}, {2})</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
+    <value>{0} ({1}berechnet, {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1}berechnet)</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
+    <value>{0} (Spaltensatz, {1})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
+    <value>{0} (Spaltensatz, {1} {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
+    <value>{0} (Spaltensatz, {1}, {2}, {3})</value>
+  </data>
+  <data name="UniqueIndex_LabelPart" xml:space="preserve">
+    <value>Eindeutig</value>
+  </data>
+  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
+    <value>Nicht eindeutig</value>
+  </data>
+  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
+    <value>Gruppiert</value>
+  </data>
+  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
+    <value>Nicht gruppiert</value>
+  </data>
+  <data name="History_LabelPart" xml:space="preserve">
+    <value>Verlauf</value>
+  </data>
+  <data name="SystemVersioned_LabelPart" xml:space="preserve">
+    <value>System-Mit Versionsangabe</value>
+  </data>
+  <data name="unavailable" xml:space="preserve">
+    <value>Nicht verfügbar</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Aktuelle Standarddateigruppe: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>Neue Dateigruppe für "{0}"</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Dateien</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Schreibgeschützt</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Automatische Vergrößerung/Maximale Größe</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;Standard&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Dateigruppe</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Logischer Name</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>Dateityp</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>Anfangsgröße (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;neue Dateigruppe&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Pfad</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>Dateiname</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;unformatiertes Medium&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>Massenprotokolliert</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Vollständig</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Einfach</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Datenbankbesitzer auswählen</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>Kein(e)</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>Um {0} MB, auf {1} MB beschränkt</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>Um {0} Prozent, auf {1} MB beschränkt </value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>Um {0} MB, unbegrenzt</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>Um {0} Prozent, unbegrenzt</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Unbegrenzt</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>Auf {0} MB beschränkt</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Sortierung</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>Cursor</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Verschiedenes</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Wiederherstellung</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL Default</value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULLS aktiviert</value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI-Auffüllung aktiviert </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>ANSI Warnings aktiviert</value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Abbruch bei arithmetischem Fehler aktiviert </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Automatisch schließen</value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Statistik automatisch erstellen</value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Automatisch verkleinern</value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Statistiken automatisch aktualisieren </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>Statistik automatisch asynchron aktualisieren</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>Unterscheidung nach Groß-/Kleinschreibung</value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>Schließen des Cursors nach Commit aktiviert </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Sortierung</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Verketten von NULL-Werten ergibt NULL </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Datenbank-Kompatibilitätsgrad </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Datenbankstatus </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Standardcursor</value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Volltextindizierung aktiviert </value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Abbruch bei numerischem Runden </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Seitenüberprüfung </value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Bezeichner in Anführungszeichen aktiviert </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>Datenbank schreibgeschützt</value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Rekursive Trigger aktiviert </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Zugriff beschränken</value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Select Into/Bulk Copy</value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Brokerpriorität berücksichtigen</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Service Broker-Bezeichner</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker aktiviert</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Protokoll bei Prüfpunkt abschneiden </value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Datenbankübergreifende Besitzverkettung aktiviert</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>Vertrauenswürdig</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Optimierung der Datumskorrelation aktiviert:
+prototype_db_prop_parameterization = Parameterization</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Erzwungen</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Einfach</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>ROWS (Daten)</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>LOG</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM-Daten</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>Nicht zutreffend</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;Standardpfad&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Geöffnete Verbindungen</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Zum Ändern der Datenbankeigenschaften muss SQL Server alle anderen Verbindungen mit der Datenbank schließen. Möchten Sie wirklich die Eigenschaften ändern und alle anderen Verbindungen schließen?</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>EMERGENCY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>INACCESSIBLE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>OFFLINE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>RECOVERING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>RECOVERY PENDING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>RESTORING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>SHUTDOWN</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>STANDBY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>SUSPECT</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBAL</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOCAL</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>CHECKSUM</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>NONE</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>VarDecimal-Speicherformat aktiviert</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Verschlüsselung aktiviert</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>AUS</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>EIN</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>PRIMÄR</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>Die Anzahl führender Hashspalten ist bei der HASH-Verteilungsrichtlinie optional, sollte aber zwischen 1 und 16 Spalten liegen.</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
+    <value>SQL Server vNext (140)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>Kein(e)</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Teilweise</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>FILESTREAM-Dateien</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>Keine anwendbare Dateigruppe</value>
+  </data>
+  <data name="DatabaseNotAccessible" xml:space="preserve">
+    <value>Auf die Datenbank "{0}" kann nicht zugegriffen werden.</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>Abfrage hat keine Ergebnis zum Zurückgeben</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>Ergebnismenge ist zu groß, um sicher geladen zu werden</value>
+  </data>
+  <data name="Backup_TaskName" xml:space="preserve">
+    <value>Datenbank sichern</value>
+  </data>
+  <data name="Task_InProgress" xml:space="preserve">
+    <value>In Bearbeitung</value>
+  </data>
+  <data name="Task_Completed" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parametrisierung</value>
   </data>
 </root>

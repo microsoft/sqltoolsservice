@@ -46,11 +46,51 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         [Fact]
+        public async void RestoreShouldCreatedSuccessfullyGivenTowBackupFiles()
+        {
+            string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
+            bool canRestore = true;
+            var response = await VerifyRestore(backupFileNames, canRestore, true, "RestoredFromTwoBackupFile");
+            Assert.True(response.BackupSetsToRestore.Count() == 2);
+        }
+
+        [Fact]
+        public async void RestoreShouldFailGivenTowBackupFilesButFilterFullBackup()
+        {
+            string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
+            bool canRestore = true;
+            var response = await VerifyRestore(backupFileNames, canRestore, false, "RestoredFromTwoBackupFile");
+            Assert.True(response.BackupSetsToRestore.Count() == 2);
+            var fileInfo = response.BackupSetsToRestore.FirstOrDefault(x => x.GetPropertyValueAsString(BackupSetInfo.BackupTypePropertyName) != RestoreConstants.TypeFull);
+            if(fileInfo != null)
+            {
+                var selectedBackupSets = new string[] { fileInfo.Id };
+                await VerifyRestore(backupFileNames, false, false, "RestoredFromTwoBackupFile", selectedBackupSets);
+            }
+        }
+
+        [Fact]
+        public async void RestoreShouldCompletedSuccessfullyGivenTowBackupFilesButFilterDifferentialBackup()
+        {
+            string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
+            bool canRestore = true;
+            var response = await VerifyRestore(backupFileNames, canRestore, false, "RestoredFromTwoBackupFile");
+            Assert.True(response.BackupSetsToRestore.Count() == 2);
+            var fileInfo = response.BackupSetsToRestore.FirstOrDefault(x => x.GetPropertyValueAsString(BackupSetInfo.BackupTypePropertyName) == RestoreConstants.TypeFull);
+            if (fileInfo != null)
+            {
+                var selectedBackupSets = new string[] { fileInfo.Id };
+                await VerifyRestore(backupFileNames, true, true, "RestoredFromTwoBackupFile2", selectedBackupSets);
+            }
+        }
+
+        [Fact]
         public async void RestoreShouldExecuteSuccessfullyForFullBackup()
         {
             string backupFileName = "FullBackup.bak";
             bool canRestore = true;
             var restorePlan = await VerifyRestore(backupFileName, canRestore, true);
+            Assert.NotNull(restorePlan.BackupSetsToRestore);
         }
 
         [Fact]
@@ -88,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                 RestoreParams restoreParams = new RestoreParams
                 {
-                    BackupFilePath = filePath,
+                    BackupFilePaths = filePath,
                     OwnerUri = queryTempFile.FilePath
                 };
 
@@ -113,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                 RestoreParams restoreParams = new RestoreParams
                 {
-                    BackupFilePath = filePath,
+                    BackupFilePaths = filePath,
                     OwnerUri = queryTempFile.FilePath
                 };
 
@@ -140,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                 RestoreParams restoreParams = new RestoreParams
                 {
-                    BackupFilePath = filePath,
+                    BackupFilePaths = filePath,
                     OwnerUri = queryTempFile.FilePath
                 };
 
@@ -164,7 +204,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private async Task<RestorePlanResponse> VerifyRestore(string backupFileName, bool canRestore, bool execute = false, string targetDatabase = null)
         {
-            string filePath = GetBackupFilePath(backupFileName);
+            return await VerifyRestore(new string[] { backupFileName }, canRestore, execute, targetDatabase);
+        }
+
+        private async Task<RestorePlanResponse> VerifyRestore(string[] backupFileNames, bool canRestore, bool execute = false, string targetDatabase = null, string[] selectedBackupSets = null)
+        {
+            var filePaths = backupFileNames.Select(x => GetBackupFilePath(x));
+            string backUpFilePath = filePaths.Aggregate((current, next) => current + " ," + next);
+
+
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
@@ -172,15 +220,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 RestoreDatabaseHelper service = new RestoreDatabaseHelper();
                 var request = new RestoreParams
                 {
-                    BackupFilePath = filePath,
-                    DatabaseName = targetDatabase,
-                    OwnerUri = queryTempFile.FilePath
+                    BackupFilePaths = backUpFilePath,
+                    TargetDatabaseName = targetDatabase,
+                    OwnerUri = queryTempFile.FilePath,
+                    SelectedBackupSets = selectedBackupSets
                 };
 
                 var restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
                 var response = service.CreateRestorePlanResponse(restoreDataObject);
 
                 Assert.NotNull(response);
+                Assert.False(string.IsNullOrWhiteSpace(response.RestoreSessionId));
                 Assert.Equal(response.CanRestore, canRestore);
                 if (canRestore)
                 {
@@ -193,11 +243,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                    
                     if(execute)
                     {
+                        request.SessionId = response.RestoreSessionId;
+                        restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
+                        Assert.Equal(response.RestoreSessionId, restoreDataObject.SessionId);
                         await DropDatabase(targetDatabase);
                         Thread.Sleep(2000);
                         request.RelocateDbFiles = response.RelocateFilesNeeded;
                         service.ExecuteRestore(restoreDataObject);
                         Assert.True(restoreDataObject.Server.Databases.Contains(targetDatabase));
+                        if(selectedBackupSets != null)
+                        {
+                            Assert.Equal(selectedBackupSets.Count(), restoreDataObject.RestorePlan.RestoreOperations.Count());
+                        }
                         await DropDatabase(targetDatabase);
                     }
                 }

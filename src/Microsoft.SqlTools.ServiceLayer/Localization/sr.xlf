@@ -2159,6 +2159,86 @@
         <target state="new">Restore Database</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="RestoreCopyOnly">
+        <source>(Copy Only)</source>
+        <target state="new">(Copy Only)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetComponent">
+        <source>Component</source>
+        <target state="new">Component</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetType">
+        <source>Type</source>
+        <target state="new">Type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetServer">
+        <source>Server</source>
+        <target state="new">Server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetDatabase">
+        <source>Database</source>
+        <target state="new">Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetPosition">
+        <source>Position</source>
+        <target state="new">Position</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFirstLsn">
+        <source>First LSN</source>
+        <target state="new">First LSN</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetLastLsn">
+        <source>Last LSN</source>
+        <target state="new">Last LSN</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetCheckpointLsn">
+        <source>Checkpoint LSN</source>
+        <target state="new">Checkpoint LSN</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFullLsn">
+        <source>Full LSN</source>
+        <target state="new">Full LSN</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetStartDate">
+        <source>Start Date</source>
+        <target state="new">Start Date</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFinishDate">
+        <source>Finish Date</source>
+        <target state="new">Finish Date</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetSize">
+        <source>Size</source>
+        <target state="new">Size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetUserName">
+        <source>User Name</source>
+        <target state="new">User Name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetExpiration">
+        <source>Expiration</source>
+        <target state="new">Expiration</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetName">
+        <source>Name</source>
+        <target state="new">Name</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

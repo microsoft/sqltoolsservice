@@ -124,7 +124,7 @@
     <value>OwnerUri 不能为 null 或为空</value>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri"{0} 没有现有的连接</value>
+    <value>SpecifiedUri '{0}' 没有已有的连接</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
     <value>AuthenticationType 值"{0}" 无效。 有效值为 'Integrated' 和 'SqlLogin'。</value>
@@ -358,7 +358,7 @@
     <value>未定义变量 {0}。</value>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>EN_LOCALIZATION</value>
+    <value>测试</value>
   </data>
   <data name="ErrorEmptyStringReplacement" xml:space="preserve">
     <value>用空字符串取代空字符串。</value>
@@ -434,6 +434,45 @@
   </data>
   <data name="EditDataNullNotAllowed" xml:space="preserve">
     <value>该列不允许Null 值</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>编辑会话已存在</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>编辑会话尚未初始化</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>编辑会话已被初始化</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>编辑会话已被初始化或正在初始化中</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>执行查询失败，查看消息了解更多详情</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>结果集的限制值不能为负数</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>空</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>必须提供对象名称</value>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>不支持显式指定服务器或者数据库</value>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>数据表的元数据没有扩展属性</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>找不到请求编辑的数据表或视图</value>
+  </data>
+  <data name="TreeNodeError" xml:space="preserve">
+    <value>扩展数据库时出错: {0}</value>
+  </data>
+  <data name="ServerNodeConnectionError" xml:space="preserve">
+    <value>连接到 {0} 时出错</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
     <value>聚合</value>
@@ -879,9 +918,6 @@
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
     <value>表类型索引</value>
   </data>
-  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
-    <value>ServerInstance</value>
-  </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
     <value>选择性 XML 索引</value>
   </data>
@@ -917,5 +953,437 @@
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
     <value>列加密密钥</value>
+  </data>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>服务器</value>
+  </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>解析属性 ScriptingParams.ConnectionString 时出错</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath 属性指定的路径是无效目录</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>解析属性 ScriptingListObjectsCompleteParams.ConnectionString 时出错</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
+    <value>{0} ({1}, {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
+    <value>无默认值</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
+    <value>输入</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
+    <value>输入/输出</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
+    <value>输入/只读</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
+    <value>输入/输出/只读</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
+    <value>默认值</value>
+  </data>
+  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
+    <value>Null</value>
+  </data>
+  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
+    <value>非 Null</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
+    <value>{0} ({1}, {2})</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
+    <value>{0} ({1}Computed, {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1}Computed)</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
+    <value>{0} (列集，{1})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
+    <value>{0} (列集，{1}{2}，{3})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
+    <value>{0} (列集，{1}，{2}，{3})</value>
+  </data>
+  <data name="UniqueIndex_LabelPart" xml:space="preserve">
+    <value>唯一</value>
+  </data>
+  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
+    <value>非唯一</value>
+  </data>
+  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
+    <value>聚集</value>
+  </data>
+  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
+    <value>非聚集</value>
+  </data>
+  <data name="History_LabelPart" xml:space="preserve">
+    <value>历史记录</value>
+  </data>
+  <data name="SystemVersioned_LabelPart" xml:space="preserve">
+    <value>带有系统版本</value>
+  </data>
+  <data name="unavailable" xml:space="preserve">
+    <value>不可用</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>当前默认文件组: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>{0} 的新文件组</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>默认值</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>只读</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>自动增长/最大大小</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;默认值&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>文件组</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>逻辑名</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>文件类型</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>初始大小 (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;新文件组&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>路径</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;原始设备&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>批量记录的</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>满</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>简单</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>选择数据库所有者</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>增量为 {0} MB，限制为 {1} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>增量为 {0}%，限制为 {1} MB</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>增量为 {0} MB，增长无限制</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>增量为 {0}%，增长无限制</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>无限制</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>不超过{0} MB</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>排序规则</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>游标</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>杂项</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>恢复</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL 默认值</value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>启用 ANSI NULLS</value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI 填充已启用 </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>启用 ANSI 警告</value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>算术中止已启用</value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>自动关闭</value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>自动创建统计信息</value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>自动收缩</value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>自动更新统计信息</value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>自动异步更新统计信息</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>区分大小写的</value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>已启用“提交时关闭游标”</value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>排序规则</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>串联 Null 时得到 Null</value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>数据库兼容级别</value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>数据库状态</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>默认游标</value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>已启用全文索引</value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>数值舍入 —— 中止</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>页验证</value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>已启用 Quoted Identifiers</value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>数据库为只读的</value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>已启用 Recursive Triggers</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>限制访问</value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Select Into/Bulk Copy</value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>优先处理 Broker 优先级</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Service Broker Identifier</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>已启用 Broker</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>在检查点删除日志</value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>启用跨数据库所有权链接</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>可信</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Date Correlation Optimization 已启用 prototype_db_prop_parameterization = Parameterization</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>强迫的</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>简单</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>行数据</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>日志</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM 数据</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>不适用</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;默认路径&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>开着的连接</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>SQL Server 需要关闭所有其它连接来改变数据库属性——你确认要改变属性并关闭所有其它连接吗？</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>紧急</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>不可访问</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>离线</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>恢复中</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>等待恢复</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>恢复中</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>关机</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>待机</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>怀疑</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>全局</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>ju</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>校验码</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>没有</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>启用 VarDecimal 存储格式</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>启用加密</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>首要的</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>对于分配政策HASH，开始的哈希列的数量是可选的，但是应在1到16之间</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
+    <value>SQL Server vNext (140)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>部分</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>FILESTREAM 文件</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>没有可用的文件组</value>
+  </data>
+  <data name="DatabaseNotAccessible" xml:space="preserve">
+    <value>数据库 {0} 无法访问。</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>无查询结果</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>资料行因结果集太长而可能无法加载</value>
+  </data>
+  <data name="Backup_TaskName" xml:space="preserve">
+    <value>备份数据库</value>
+  </data>
+  <data name="Task_InProgress" xml:space="preserve">
+    <value>正在进行</value>
+  </data>
+  <data name="Task_Completed" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>参数化</value>
   </data>
 </root>

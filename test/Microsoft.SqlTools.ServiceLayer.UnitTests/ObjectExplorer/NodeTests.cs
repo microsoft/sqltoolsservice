@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             defaultConnParams = new ConnectionCompleteParams()
             {
                 ServerInfo = defaultServerInfo,
-                ConnectionSummary = defaultConnectionDetails,
+                ConnectionSummary = defaultConnectionDetails != null ? ((IConnectionSummary)defaultConnectionDetails).Clone(): null,
                 OwnerUri = defaultOwnerUri
             };
 
