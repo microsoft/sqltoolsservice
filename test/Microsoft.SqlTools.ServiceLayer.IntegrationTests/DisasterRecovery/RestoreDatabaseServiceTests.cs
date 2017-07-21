@@ -3,13 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
@@ -29,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         private ConnectionService _connectService = TestServiceProvider.Instance.ConnectionService;
         private Mock<IProtocolEndpoint> serviceHostMock;
         private DisasterRecoveryService service;
+        private string fullBackUpDatabase;
 
         public RestoreDatabaseServiceTests()
         {
@@ -37,26 +42,36 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             service.InitializeService(serviceHostMock.Object);
         }
 
-        [Fact]
-        public async void RestorePlanShouldCreatedSuccessfullyForFullBackup()
+        private async Task VerifyBackupFileCreated()
         {
-            string backupFileName = "FullBackup.bak";
-            bool canRestore = true;
-            await VerifyRestore(backupFileName, canRestore);
+            if(fullBackUpDatabase == null)
+            {
+                fullBackUpDatabase = await CreateBackupFile();
+            }
         }
 
         [Fact]
-        public async void RestoreShouldCreatedSuccessfullyGivenTowBackupFiles()
+        public async void RestorePlanShouldCreatedSuccessfullyForFullBackup()
         {
+            await VerifyBackupFileCreated();
+            bool canRestore = true;
+            await VerifyRestore(fullBackUpDatabase, canRestore);
+        }
+
+        [Fact]
+        public async void RestoreShouldCreatedSuccessfullyGivenTwoBackupFiles()
+        {
+
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
             bool canRestore = true;
-            var response = await VerifyRestore(backupFileNames, canRestore, true, "RestoredFromTwoBackupFile");
+            var response = await VerifyRestore(backupFileNames, canRestore, false, "RestoredFromTwoBackupFile");
             Assert.True(response.BackupSetsToRestore.Count() == 2);
         }
 
         [Fact]
-        public async void RestoreShouldFailGivenTowBackupFilesButFilterFullBackup()
+        public async void RestoreShouldFailGivenTwoBackupFilesButFilterFullBackup()
         {
+
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
             bool canRestore = true;
             var response = await VerifyRestore(backupFileNames, canRestore, false, "RestoredFromTwoBackupFile");
@@ -72,6 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         [Fact]
         public async void RestoreShouldCompletedSuccessfullyGivenTowBackupFilesButFilterDifferentialBackup()
         {
+
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
             bool canRestore = true;
             var response = await VerifyRestore(backupFileNames, canRestore, false, "RestoredFromTwoBackupFile");
@@ -80,14 +96,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             if (fileInfo != null)
             {
                 var selectedBackupSets = new string[] { fileInfo.Id };
-                await VerifyRestore(backupFileNames, true, true, "RestoredFromTwoBackupFile2", selectedBackupSets);
+                await VerifyRestore(backupFileNames, true, false, "RestoredFromTwoBackupFile2", selectedBackupSets);
             }
         }
 
         [Fact]
         public async void RestoreShouldExecuteSuccessfullyForFullBackup()
         {
-            string backupFileName = "FullBackup.bak";
+            await VerifyBackupFileCreated();
+
+            string backupFileName = fullBackUpDatabase;
             bool canRestore = true;
             var restorePlan = await VerifyRestore(backupFileName, canRestore, true);
             Assert.NotNull(restorePlan.BackupSetsToRestore);
@@ -96,7 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         [Fact]
         public async void RestoreToAnotherDatabaseShouldExecuteSuccessfullyForFullBackup()
         {
-            string backupFileName = "FullBackup.bak";
+            await VerifyBackupFileCreated();
+
+            string backupFileName = fullBackUpDatabase;
             bool canRestore = true;
             var restorePlan = await VerifyRestore(backupFileName, canRestore, true, "NewRestoredDatabase");
         }
@@ -120,11 +140,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         [Fact]
         public async Task RestorePlanRequestShouldReturnResponseWithDbFiles()
         {
+            await VerifyBackupFileCreated();
+
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                string filePath = GetBackupFilePath("FullBackup.bak");
+                string filePath = GetBackupFilePath(fullBackUpDatabase);
 
                 RestoreParams restoreParams = new RestoreParams
                 {
@@ -137,7 +159,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     verify: ((result) =>
                     {
                         Assert.True(result.DbFiles.Any());
-                        Assert.Equal(result.DatabaseName, "BackupTestDb");
                     }));
             }
         }
@@ -287,8 +308,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private string GetBackupFilePath(string fileName)
         {
-            FileInfo inputFile = GetBackupFile(fileName);
-            return inputFile.FullName;
+            if (!Path.IsPathRooted(fileName))
+            {
+                FileInfo inputFile = GetBackupFile(fileName);
+                return inputFile.FullName;
+            }
+            else
+            {
+                return fileName;
+            }
         }
 
         protected DisasterRecoveryService CreateService()
@@ -303,6 +331,57 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             return CreateProvider()
                .RegisterSingleService(new DisasterRecoveryService());
+        }
+
+        public async Task<string> CreateBackupFile()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName, queryTempFile.FilePath);
+
+                // Initialize backup service
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
+                SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
+
+                // Get default backup path
+                BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, testDb.DatabaseName + ".bak");
+
+                BackupInfo backupInfo = CreateBackupInfo(testDb.DatabaseName,
+                    BackupType.Full,
+                    new List<string>() { backupPath },
+                    new Dictionary<string, int>() { { backupPath, (int)DeviceType.File } });
+
+                var backupParams = new BackupParams
+                {
+                    OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
+                    BackupInfo = backupInfo
+                };
+
+                // Backup the database
+                BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+                DisasterRecoveryService.Instance.PerformBackup(backupOperation);
+
+                // Clean up the database
+                testDb.Cleanup();
+                return backupPath;
+            }
+        }
+
+        private BackupInfo CreateBackupInfo(string databaseName, BackupType backupType, List<string> backupPathList, Dictionary<string, int> backupPathDevices)
+        {
+            BackupInfo backupInfo = new BackupInfo();
+            backupInfo.BackupComponent = (int)BackupComponent.Database;
+            backupInfo.BackupDeviceType = (int)BackupDeviceType.Disk;
+            backupInfo.BackupPathDevices = backupPathDevices;
+            backupInfo.BackupPathList = backupPathList;
+            backupInfo.BackupsetName = "default_backup";
+            backupInfo.BackupType = (int)backupType;
+            backupInfo.DatabaseName = databaseName;
+            backupInfo.SelectedFileGroup = null;
+            backupInfo.SelectedFiles = "";
+            return backupInfo;
         }
     }
 }

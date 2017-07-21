@@ -175,7 +175,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
         {
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo, databaseExists);
-            char[] passwordArray = connInfo.ConnectionDetails.Password.ToCharArray();
+            string password = connInfo.ConnectionDetails.Password;
+            password = password == null ? string.Empty : password;
+            char[] passwordArray = password.ToCharArray();
             CDataContainer dataContainer;
 
             // check if the connection is using SQL Auth or Integrated Auth
