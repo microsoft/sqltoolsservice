@@ -107,6 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             if (!string.IsNullOrWhiteSpace(filePaths))
             {
                 string[] files = filePaths.Split(BackupMediaNameSeparator);
+                files = files.Select(x => x.Trim()).ToArray();
                 foreach (var file in files)
                 {
                     if (!this.RestorePlanner.BackupMediaList.Any(x => x.Name == file))
