@@ -3349,6 +3349,134 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string RestoreCopyOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreCopyOnly);
+            }
+        }
+
+        public static string RestoreBackupSetComponent
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetComponent);
+            }
+        }
+
+        public static string RestoreBackupSetName
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetName);
+            }
+        }
+
+        public static string RestoreBackupSetType
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetType);
+            }
+        }
+
+        public static string RestoreBackupSetServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetServer);
+            }
+        }
+
+        public static string RestoreBackupSetDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetDatabase);
+            }
+        }
+
+        public static string RestoreBackupSetPosition
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetPosition);
+            }
+        }
+
+        public static string RestoreBackupSetFirstLsn
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetFirstLsn);
+            }
+        }
+
+        public static string RestoreBackupSetLastLsn
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetLastLsn);
+            }
+        }
+
+        public static string RestoreBackupSetCheckpointLsn
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetCheckpointLsn);
+            }
+        }
+
+        public static string RestoreBackupSetFullLsn
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetFullLsn);
+            }
+        }
+
+        public static string RestoreBackupSetStartDate
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetStartDate);
+            }
+        }
+
+        public static string RestoreBackupSetFinishDate
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetFinishDate);
+            }
+        }
+
+        public static string RestoreBackupSetSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetSize);
+            }
+        }
+
+        public static string RestoreBackupSetUserName
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetUserName);
+            }
+        }
+
+        public static string RestoreBackupSetExpiration
+        {
+            get
+            {
+                return Keys.GetString(Keys.RestoreBackupSetExpiration);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4712,6 +4840,54 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string RestoreTaskName = "RestoreTaskName";
+
+
+            public const string RestoreCopyOnly = "RestoreCopyOnly";
+
+
+            public const string RestoreBackupSetComponent = "RestoreBackupSetComponent";
+
+
+            public const string RestoreBackupSetName = "RestoreBackupSetName";
+
+
+            public const string RestoreBackupSetType = "RestoreBackupSetType";
+
+
+            public const string RestoreBackupSetServer = "RestoreBackupSetServer";
+
+
+            public const string RestoreBackupSetDatabase = "RestoreBackupSetDatabase";
+
+
+            public const string RestoreBackupSetPosition = "RestoreBackupSetPosition";
+
+
+            public const string RestoreBackupSetFirstLsn = "RestoreBackupSetFirstLsn";
+
+
+            public const string RestoreBackupSetLastLsn = "RestoreBackupSetLastLsn";
+
+
+            public const string RestoreBackupSetCheckpointLsn = "RestoreBackupSetCheckpointLsn";
+
+
+            public const string RestoreBackupSetFullLsn = "RestoreBackupSetFullLsn";
+
+
+            public const string RestoreBackupSetStartDate = "RestoreBackupSetStartDate";
+
+
+            public const string RestoreBackupSetFinishDate = "RestoreBackupSetFinishDate";
+
+
+            public const string RestoreBackupSetSize = "RestoreBackupSetSize";
+
+
+            public const string RestoreBackupSetUserName = "RestoreBackupSetUserName";
+
+
+            public const string RestoreBackupSetExpiration = "RestoreBackupSetExpiration";
 
 
             private Keys()

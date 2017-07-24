@@ -358,7 +358,7 @@
     <value>{0} 변수가 정의되지 않았습니다.</value>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>EN_LOCALIZATION</value>
+    <value>테스트</value>
   </data>
   <data name="ErrorEmptyStringReplacement" xml:space="preserve">
     <value>
@@ -422,8 +422,14 @@ votes
   <data name="EditDataCommitInProgress" xml:space="preserve">
     <value>커밋 작업이 진행 중입니다. 완료될 때까지 기다리세요.</value>
   </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Decimal 형식 열에 전체 자릿수 또는 소수 자릿수가 없습니다.</value>
+  </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
     <value>&lt;TBD&gt;</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>결과 버퍼에 새로운 행을 추가할 수 없거나 데이터 리더에 행이 없습니다.</value>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
     <value>TIME 열의 값은 00:00:00.0000000과 23:59:59.9999999 사이의 값만 허용됩니다.</value>
@@ -463,6 +469,12 @@ votes
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>편집하려는 테이블이나 뷰를 찾을 수 없습니다</value>
+  </data>
+  <data name="TreeNodeError" xml:space="preserve">
+    <value>오류 확장: {0}</value>
+  </data>
+  <data name="ServerNodeConnectionError" xml:space="preserve">
+    <value>{0}에 연결하는 동안 오류가 발생했습니다.</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
     <value>집계</value>
@@ -908,9 +920,6 @@ votes
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
     <value>테이블 형식 인덱스</value>
   </data>
-  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
-    <value>ServerInstance</value>
-  </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
     <value>선택적 XML 인덱스</value>
   </data>
@@ -946,5 +955,437 @@ votes
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
     <value>열 암호화 키</value>
+  </data>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>서버</value>
+  </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.ConnectionString 속성 분석을 하는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath 속성에 잘못된 디렉터리 지정</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>ScriptingListObjectsCompleteParams.ConnectionSring 속성을 분석할때 오류가 생겼습니다.</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
+    <value>{0}({1}, {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
+    <value>기본값 없음</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
+    <value>입력</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
+    <value>입/출력</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
+    <value>입력/읽기 전용</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
+    <value>입/출력/읽기 전용</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
+    <value>Null</value>
+  </data>
+  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
+    <value>Not Null</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
+    <value>{0}({1}, {2})</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
+    <value>{0}({1})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
+    <value>{0}({1}계산됨, {2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
+    <value>{0}({1}계산됨)</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
+    <value>{0}(열 집합, {1})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
+    <value>{0}(열 집합, {1}{2}, {3})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
+    <value>{0}(열 집합, {1}, {2}, {3})</value>
+  </data>
+  <data name="UniqueIndex_LabelPart" xml:space="preserve">
+    <value>고유</value>
+  </data>
+  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
+    <value>고유하지 않음</value>
+  </data>
+  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
+    <value>클러스터형</value>
+  </data>
+  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
+    <value>비클러스터형</value>
+  </data>
+  <data name="History_LabelPart" xml:space="preserve">
+    <value>기록</value>
+  </data>
+  <data name="SystemVersioned_LabelPart" xml:space="preserve">
+    <value>시스템 버전 관리</value>
+  </data>
+  <data name="unavailable" xml:space="preserve">
+    <value>사용할 수 없음</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>현재 기본 파일 그룹: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>{0}에 대한 새 파일 그룹</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>파일</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>읽기 전용</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>자동 증가 / 최대 크기</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;기본값&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>파일 그룹</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>논리적 이름</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>파일 형식</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>처음 크기 (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;새 파일 그룹&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>경로</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>파일 이름</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;원시 장치&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>대량 로그</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>단순</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>데이터베이스 소유자 선택</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>없음</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>{0} MB 단위로 {1} MB까지 제한됨</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>{0} % 단위로 {1} MB까지 제한됨</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>{0} MB 단위로, 제한 없음</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>{0} % 단위로, 제한 없음</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>제한 없음</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>{0} MB로 제한됨</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>자동</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>데이터 정렬</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>커서</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>기타</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>복구</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>상태</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL 기본값</value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULLS 사용</value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI 패딩 설정</value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>ANSI Warnings 사용</value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>산술 연산 중단 설정</value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>자동 닫기</value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>통계 자동 작성</value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>자동 축소</value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>통계 자동 업데이트</value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>통계를 비동기적으로 자동 업데이트</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>대/소문자 구분</value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>커밋 시 커서 닫기 설정</value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>데이터 정렬</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Null 연결 시 Null 생성</value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>데이터베이스 호환성 수준</value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>데이터베이스 상태</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>기본 커서</value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>전체 텍스트 인덱싱 설정</value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>숫자 반올림 시 중단</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>페이지 확인</value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>따옴표 붙은 식별자 설정</value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>데이터베이스 읽기 전용</value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>재귀적 트리거 설정</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>액세스 제한</value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>SELECT INTO/대량 복사</value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Broker 우선 순위 인식</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Service Broker 식별자</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker 활성화</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>검사점에서 로그 자름</value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>데이터베이스 간 소유권 체인 사용</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>신뢰</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>날짜 상관관계 최적화 설정</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>강제</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>단순</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>ROWS 데이터</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>로그</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM 데이터</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>해당 사항 없음</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;기본 경로&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>연결 열기</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>데이터베이스 속성을 변경하기 위해, SQL Server가 database_ 에  다른 연결을 모두 닫아야 합니다. 속성을 변경하고 다른 연결을 모두 닫으시겠습니까?</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>긴급</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>INACCESSIBLE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>오프라인</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>복구 중</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>복구 보류 중</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>RESTORING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>SHUTDOWN</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>STANDBY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>SUSPECT</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBAL</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOCAL</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>CHECKSUM</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>NONE</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>VarDecimal 저장소 형식 사용</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>암호화 사용</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>OFF</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>ON</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>PRIMARY</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>배포 정책이 HASH인 경우 선행 해시 열 수는 선택 사항이지만, 선택할 경우 1개에서 16개 사이의 열로 지정해야 합니다.</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
+    <value>SQL Server vNext (140)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>없음</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>부분</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>FILESTREAM 파일</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>해당 파일 그룹 없음</value>
+  </data>
+  <data name="DatabaseNotAccessible" xml:space="preserve">
+    <value>{0} 데이터베이스에 액세스할 수 없습니다.</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>쿼리 반환 결과 없음</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>결과 집합의 행 수가 너무 많아서 안전하게 불러들일 수 없습니다.</value>
+  </data>
+  <data name="Backup_TaskName" xml:space="preserve">
+    <value>데이터베이스 백업</value>
+  </data>
+  <data name="Task_InProgress" xml:space="preserve">
+    <value>진행 중</value>
+  </data>
+  <data name="Task_Completed" xml:space="preserve">
+    <value>완료됨</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>매개 변수화</value>
   </data>
 </root>

@@ -1847,4 +1847,68 @@
     <value>Restore Database</value>
     <comment></comment>
   </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Copy Only)</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Component</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Type</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Server</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Database</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Position</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>First LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Last LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Checkpoint LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Full LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Start Date</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Finish Date</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Size</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>User Name</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Expiration</value>
+    <comment></comment>
+  </data>
 </root>

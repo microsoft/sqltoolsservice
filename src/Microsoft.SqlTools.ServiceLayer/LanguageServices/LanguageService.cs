@@ -729,7 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// it is the last URI connected to a particular connection,
         /// then remove the cache.
         /// </summary>
-        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary, string ownerUri)
+        public async Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
         {
             RemoveScriptParseInfo(ownerUri);
 

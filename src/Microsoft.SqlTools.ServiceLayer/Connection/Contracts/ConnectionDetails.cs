@@ -3,10 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
@@ -16,17 +13,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     /// <remarks>
     /// If this contract is ever changed, be sure to update ConnectionDetailsExtensions methods.
     /// </remarks>
-    public class ConnectionDetails : ConnectionSummary
+    public class ConnectionDetails : GeneralRequestDetails, IConnectionSummary
     {
-        public ConnectionDetails()
+        public ConnectionDetails() : base()
         {
-            Options = new Dictionary<string, object>();
         }
-
-        /// <summary>
-        /// Gets or Sets the connection options
-        /// </summary>
-        public Dictionary<string, object> Options { get; set; }
 
         /// <summary>
         /// Gets or sets the connection password
@@ -46,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection server name
         /// </summary>
-        public override string ServerName
+        public string ServerName
         {
             get
             {
@@ -62,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection database name
         /// </summary>
-        public override string DatabaseName
+        public string DatabaseName
         {
             get
             {
@@ -78,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection user name
         /// </summary>
-        public override string UserName
+        public string UserName
         {
             get
             {
@@ -459,49 +450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
-        private T GetOptionValue<T>(string name)
-        {
-            T result = default(T);
-            if (Options != null && Options.ContainsKey(name))
-            {
-                object value = Options[name];
-                try
-                {
-                    if (value != null && (typeof(T) != value.GetType()))
-                    {
-                        if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
-                        {
-                            value = Convert.ToInt32(value);
-                        }
-                        else if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
-                        {
-                            value = Convert.ToBoolean(value);
-                        }
-                    }
-                    result = value != null ? (T)value : default(T);
-                }
-                catch
-                {
-                    result = default(T);
-                    Logger.Write(LogLevel.Warning, string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
-                }
-            }
-            return result;
-        }
-
-        private void SetOptionValue<T>(string name, T value) 
-        {
-            Options = Options ?? new Dictionary<string, object>();
-            if (Options.ContainsKey(name))
-            {
-                Options[name] = value;
-            }
-            else
-            {
-                Options.Add(name, value);
-            }
-        }
+       
 
         public bool IsComparableTo(ConnectionDetails other)
         {

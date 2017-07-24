@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
-        private RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
+        private RestoreDatabaseHelper restoreDatabaseService = RestoreDatabaseHelper.Instance;
 
         /// <summary>
         /// Default, parameterless constructor.

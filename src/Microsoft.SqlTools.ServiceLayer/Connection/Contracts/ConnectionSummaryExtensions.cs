@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Create a copy of a ConnectionSummary object
         /// </summary>
-        public static ConnectionSummary Clone(this ConnectionSummary summary)
+        public static ConnectionSummary Clone(this IConnectionSummary summary)
         {
             return new ConnectionSummary()
             {

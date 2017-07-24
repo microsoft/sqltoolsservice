@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             defaultConnParams = new ConnectionCompleteParams()
             {
                 ServerInfo = defaultServerInfo,
-                ConnectionSummary = defaultConnectionDetails,
+                ConnectionSummary = defaultConnectionDetails != null ? ((IConnectionSummary)defaultConnectionDetails).Clone(): null,
                 OwnerUri = defaultOwnerUri
             };
 
@@ -119,6 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // But given a server node for a cloud DB that's not master
             defaultConnectionDetails.DatabaseName = "NotMaster";
+            defaultConnParams.ConnectionSummary.DatabaseName = defaultConnectionDetails.DatabaseName;
             node = new ServerNode(defaultConnParams, ServiceProvider);
 
             // Then expect label to include db name 

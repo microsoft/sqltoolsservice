@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Callback for ondisconnect handler
         /// </summary>
-        public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
+        public delegate Task OnDisconnectHandler(IConnectionSummary summary, string ownerUri);
 
         /// <summary>
         /// List of onconnection handlers
@@ -1007,7 +1007,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                     // Fire a connection changed event
                     ConnectionChangedParams parameters = new ConnectionChangedParams();
-                    ConnectionSummary summary = info.ConnectionDetails;
+                    IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
                     ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
