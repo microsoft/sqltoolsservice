@@ -4,9 +4,12 @@
 //
 using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
@@ -173,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles a request to execute a string and return the result
         /// </summary>
-        internal Task HandleSimpleExecuteRequest(SimpleExecuteParams executeParams,
+        internal async Task HandleSimpleExecuteRequest(SimpleExecuteParams executeParams,
             RequestContext<SimpleExecuteResult> requestContext)
         {
              ExecuteStringParams executeStringParams = new ExecuteStringParams
@@ -187,14 +190,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ConnectionInfo connInfo;
             if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
             {
-                return requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                return;
             }
+            
+            ConnectParams connectParams = new ConnectParams
+            {
+                OwnerUri = executeStringParams.OwnerUri,
+                Connection = connInfo.ConnectionDetails,
+                Type = ConnectionType.Default
+            };
 
-            if (connInfo.ConnectionDetails.MultipleActiveResultSets == null || connInfo.ConnectionDetails.MultipleActiveResultSets == false) {
-                // if multipleActive result sets is not allowed, don't specific a connection and make the ownerURI the true owneruri
-                connInfo = null;
-                executeStringParams.OwnerUri = executeParams.OwnerUri;
-            }
+            await ConnectionService.Connect(connectParams);
+
+            connectParams = new ConnectParams
+            {
+                OwnerUri = executeStringParams.OwnerUri,
+                Connection = connInfo.ConnectionDetails,
+                Type = ConnectionType.Query
+            };
+
+            await ConnectionService.Connect(connectParams);
+
+            ConnectionInfo newConn;
+            ConnectionService.TryFindConnection(executeStringParams.OwnerUri, out newConn);
 
             Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
@@ -209,6 +228,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
                     ActiveQueries.TryRemove(executeStringParams.OwnerUri, out removedQuery);
+                    ConnectionService.Disconnect(new DisconnectParams(){
+                        OwnerUri = executeStringParams.OwnerUri,
+                        Type = null
+                    });
                     return;
                 } 
 
@@ -218,6 +241,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
                     ActiveQueries.TryRemove(executeStringParams.OwnerUri, out removedQuery);
+                    ConnectionService.Disconnect(new DisconnectParams(){
+                        OwnerUri = executeStringParams.OwnerUri,
+                        Type = null
+                    });
                     return;
                 }
                 
@@ -240,6 +267,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendResult(result);
                 // remove the active query since we are done with it
                 ActiveQueries.TryRemove(executeStringParams.OwnerUri, out removedQuery);
+                ConnectionService.Disconnect(new DisconnectParams(){
+                    OwnerUri = executeStringParams.OwnerUri,
+                    Type = null
+                });
             };
 
             // handle sending error back when query fails
@@ -248,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(e);
             };
 
-            return InterServiceExecuteQuery(executeStringParams, connInfo, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
         }
 
         /// <summary>
