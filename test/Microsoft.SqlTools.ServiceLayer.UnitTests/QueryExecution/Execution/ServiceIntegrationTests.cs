@@ -464,6 +464,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(0, queryService.ActiveQueries.Count);
         }
 
+        [Fact]
+        public async Task SimpleExecuteMultipleQueriesTest()
+        {
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, null);
+            var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
+            var efv1 = new EventFlowValidator<SimpleExecuteResult>()
+                .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
+                .Complete();
+            var efv2 = new EventFlowValidator<SimpleExecuteResult>()
+                .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
+                .Complete();
+            Task qT1 = queryService.HandleSimpleExecuteRequest(queryParams, efv1.Object);
+            Task qT2 = queryService.HandleSimpleExecuteRequest(queryParams, efv2.Object);
+
+            await Task.WhenAll(qT1, qT2);
+
+            var queries = queryService.ActiveQueries.Values.Take(2).ToArray();
+            Query q1 = queries[0];
+            Query q2 = queries[1];
+
+            Assert.NotNull(q1);
+            Assert.NotNull(q2);
+
+            // wait on the task to finish
+            await Task.WhenAll(q1.ExecutionTask, q2.ExecutionTask);
+            
+            efv1.Validate();
+            efv2.Validate();
+
+            Assert.Equal(0, queryService.ActiveQueries.Count);
+        }
+
         #endregion
 
         private static WorkspaceService<SqlToolsSettings> GetDefaultWorkspaceService(string query)
