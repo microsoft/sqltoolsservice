@@ -203,15 +203,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             await ConnectionService.Connect(connectParams);
 
-            connectParams = new ConnectParams
-            {
-                OwnerUri = executeStringParams.OwnerUri,
-                Connection = connInfo.ConnectionDetails,
-                Type = ConnectionType.Query
-            };
-
-            await ConnectionService.Connect(connectParams);
-
             ConnectionInfo newConn;
             ConnectionService.TryFindConnection(executeStringParams.OwnerUri, out newConn);
 
