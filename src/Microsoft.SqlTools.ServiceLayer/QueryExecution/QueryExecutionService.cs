@@ -179,95 +179,102 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSimpleExecuteRequest(SimpleExecuteParams executeParams,
             RequestContext<SimpleExecuteResult> requestContext)
         {
-            string randomUri = Guid.NewGuid().ToString();
-            ExecuteStringParams executeStringParams = new ExecuteStringParams
+            try
             {
-                Query = executeParams.QueryString,
-                // generate guid as the owner uri to make sure every query is unique
-                OwnerUri = randomUri
-            };
-
-            // get connection
-            ConnectionInfo connInfo;
-            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
-            {
-                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
-                return;
-            }
-            
-            ConnectParams connectParams = new ConnectParams
-            {
-                OwnerUri = randomUri,
-                Connection = connInfo.ConnectionDetails,
-                Type = ConnectionType.Default
-            };
-
-            await ConnectionService.Connect(connectParams);
-
-            ConnectionInfo newConn;
-            ConnectionService.TryFindConnection(randomUri, out newConn);
-
-            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
-
-            ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
-
-            // handle sending event back when the query completes
-            Query.QueryAsyncEventHandler queryComplete = async q =>
-            {
-                try
+                string randomUri = Guid.NewGuid().ToString();
+                ExecuteStringParams executeStringParams = new ExecuteStringParams
                 {
-                    // check to make sure any results were recieved
-                    if (q.Batches.Length == 0 || q.Batches[0].ResultSets.Count == 0) 
-                    {
-                        await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
-                        return;
-                    } 
+                    Query = executeParams.QueryString,
+                    // generate guid as the owner uri to make sure every query is unique
+                    OwnerUri = randomUri
+                };
 
-                    var rowCount = q.Batches[0].ResultSets[0].RowCount;
-                    // check to make sure there is a safe amount of rows to load into memory
-                    if (rowCount > Int32.MaxValue) 
-                    {
-                        await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
-                        return;
-                    }
-                    
-                    SubsetParams subsetRequestParams = new SubsetParams
-                    {
-                        OwnerUri = randomUri,
-                        BatchIndex = 0,
-                        ResultSetIndex = 0,
-                        RowsStartIndex = 0,
-                        RowsCount = Convert.ToInt32(rowCount)
-                    };
-                    // get the data to send back
-                    ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
-                    SimpleExecuteResult result = new SimpleExecuteResult
-                    {
-                        RowCount = q.Batches[0].ResultSets[0].RowCount,
-                        ColumnInfo = q.Batches[0].ResultSets[0].Columns,
-                        Rows = subset.Rows
-                    };
-                    await requestContext.SendResult(result);
-                } 
-                finally 
+                // get connection
+                ConnectionInfo connInfo;
+                if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
                 {
-                    Query removedQuery;
-                    // remove the active query since we are done with it
-                    ActiveQueries.TryRemove(randomUri, out removedQuery);
-                    ConnectionService.Disconnect(new DisconnectParams(){
-                        OwnerUri = randomUri,
-                        Type = null
-                    });
+                    await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                    return;
                 }
-            };
+                
+                ConnectParams connectParams = new ConnectParams
+                {
+                    OwnerUri = randomUri,
+                    Connection = connInfo.ConnectionDetails,
+                    Type = ConnectionType.Default
+                };
 
-            // handle sending error back when query fails
-            Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
+                await ConnectionService.Connect(connectParams);
+
+                ConnectionInfo newConn;
+                ConnectionService.TryFindConnection(randomUri, out newConn);
+
+                Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+
+                ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
+
+                // handle sending event back when the query completes
+                Query.QueryAsyncEventHandler queryComplete = async q =>
+                {
+                    try
+                    {
+                        // check to make sure any results were recieved
+                        if (q.Batches.Length == 0 || q.Batches[0].ResultSets.Count == 0) 
+                        {
+                            await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                            return;
+                        } 
+
+                        var rowCount = q.Batches[0].ResultSets[0].RowCount;
+                        // check to make sure there is a safe amount of rows to load into memory
+                        if (rowCount > Int32.MaxValue) 
+                        {
+                            await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
+                            return;
+                        }
+                        
+                        SubsetParams subsetRequestParams = new SubsetParams
+                        {
+                            OwnerUri = randomUri,
+                            BatchIndex = 0,
+                            ResultSetIndex = 0,
+                            RowsStartIndex = 0,
+                            RowsCount = Convert.ToInt32(rowCount)
+                        };
+                        // get the data to send back
+                        ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
+                        SimpleExecuteResult result = new SimpleExecuteResult
+                        {
+                            RowCount = q.Batches[0].ResultSets[0].RowCount,
+                            ColumnInfo = q.Batches[0].ResultSets[0].Columns,
+                            Rows = subset.Rows
+                        };
+                        await requestContext.SendResult(result);
+                    } 
+                    finally 
+                    {
+                        Query removedQuery;
+                        // remove the active query since we are done with it
+                        ActiveQueries.TryRemove(randomUri, out removedQuery);
+                        ConnectionService.Disconnect(new DisconnectParams(){
+                            OwnerUri = randomUri,
+                            Type = null
+                        });
+                    }
+                };
+
+                // handle sending error back when query fails
+                Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
+                {
+                    await requestContext.SendError(e);
+                };
+
+                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            }
+            catch(Exception ex) 
             {
-                await requestContext.SendError(e);
-            };
-
-            await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
