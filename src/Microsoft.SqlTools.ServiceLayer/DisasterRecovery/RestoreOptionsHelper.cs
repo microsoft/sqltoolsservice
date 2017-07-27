@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
-    public class RestoreOprtionsHelper
+    public class RestoreOptionsHelper
     {
         internal const string KeepReplication = "KeepReplication";
         internal const string ReplaceDatabase = "ReplaceDatabase";
@@ -17,6 +17,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal const string TailLogBackupFile = "TailLogBackupFile";
         internal const string TailLogWithNoRecovery = "TailLogWithNoRecovery";
         internal const string CloseExistingConnections = "CloseExistingConnections";
+        internal const string RelocateDbFiles = "RelocateDbFiles";
+        internal const string DataFileFolder = "DataFileFolder";
+        internal const string LogFileFolder = "LogFileFolder";
+        internal const string SessionId = "sessionId";
+        internal const string BackupFilePaths = "backupFilePaths";
+        internal const string TargetDatabaseName = "targetDatabaseName";
+        internal const string SourceDatabaseName = "sourceDatabaseName";
+        internal const string SelectedBackupSets = "selectedBackupSets";
 
         /// <summary>
         /// Creates the options metadata available for restore operations
@@ -29,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.KeepReplication,
+                    Name = RestoreOptionsHelper.KeepReplication,
                     DisplayName = "Keep Replication",
                     Description = "Preserve the replication settings (WITH KEEP_REPLICATION)",
                     ValueType = ServiceOption.ValueTypeBoolean,
@@ -38,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.ReplaceDatabase,
+                    Name = RestoreOptionsHelper.ReplaceDatabase,
                     DisplayName = "ReplaceDatabase",
                     Description = "Overwrite the existing database (WITH REPLACE)",
                     ValueType = ServiceOption.ValueTypeBoolean,
@@ -47,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.SetRestrictedUser,
+                    Name = RestoreOptionsHelper.SetRestrictedUser,
                     DisplayName = "SetRestrictedUser",
                     Description = "Restrict access to the restored database (WITH RESTRICTED_USER)",
                     ValueType = ServiceOption.ValueTypeBoolean,
@@ -56,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.RecoveryState,
+                    Name = RestoreOptionsHelper.RecoveryState,
                     DisplayName = "Recovery State",
                     Description = "Recovery State",
                     ValueType = ServiceOption.ValueTypeCategory,
@@ -83,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.BackupTailLog,
+                    Name = RestoreOptionsHelper.BackupTailLog,
                     DisplayName = "Backup Tail Log",
                     Description = "Take tail-log backup before restore",
                     ValueType = ServiceOption.ValueTypeBoolean,
@@ -93,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.BackupTailLog,
+                    Name = RestoreOptionsHelper.BackupTailLog,
                     DisplayName = "Backup Tail Log",
                     Description = "Take tail-log backup before restore",
                     ValueType = ServiceOption.ValueTypeBoolean,
@@ -103,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.TailLogBackupFile,
+                    Name = RestoreOptionsHelper.TailLogBackupFile,
                     DisplayName = "Tail Log Backup File",
                     Description = "Tail Log Backup File",
                     ValueType = ServiceOption.ValueTypeString,
@@ -112,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.TailLogWithNoRecovery,
+                    Name = RestoreOptionsHelper.TailLogWithNoRecovery,
                     DisplayName = "Tail Log With NoRecovery",
                     Description = "Leave source database in the restoring state(WITH NORECOVERTY)",
                     ValueType = ServiceOption.ValueTypeBoolean,
@@ -121,12 +129,39 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 },
                 new ServiceOption
                 {
-                    Name = RestoreOprtionsHelper.CloseExistingConnections,
+                    Name = RestoreOptionsHelper.CloseExistingConnections,
                     DisplayName = "Close Existing Connections",
                     Description = "Close existing connections to destination database",
                     ValueType = ServiceOption.ValueTypeBoolean,
                     IsRequired = false,
                     GroupName = "Server connections"
+                },
+                new ServiceOption
+                {
+                    Name = RestoreOptionsHelper.RelocateDbFiles,
+                    DisplayName = "Relocate all files",
+                    Description = "Relocate all files",
+                    ValueType = ServiceOption.ValueTypeBoolean,
+                    IsRequired = false,
+                    GroupName = "Restore database files as"
+                },
+                new ServiceOption
+                {
+                    Name = RestoreOptionsHelper.DataFileFolder,
+                    DisplayName = "Data file folder",
+                    Description = "Data file folder",
+                    ValueType = ServiceOption.ValueTypeString,
+                    IsRequired = false,
+                    GroupName = "Restore database files as"
+                },
+                new ServiceOption
+                {
+                    Name = RestoreOptionsHelper.LogFileFolder,
+                    DisplayName = "Log file folder",
+                    Description = "Log file folder",
+                    ValueType = ServiceOption.ValueTypeString,
+                    IsRequired = false,
+                    GroupName = "Restore database files as"
                 }
             };
 

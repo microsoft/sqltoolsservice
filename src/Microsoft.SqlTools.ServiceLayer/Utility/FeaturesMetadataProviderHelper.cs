@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 FeatureName = "Restore",
                 Enabled = true,
-                OptionsMetadata = RestoreOprtionsHelper.CreateRestoreOptions()
+                OptionsMetadata = RestoreOptionsHelper.CreateRestoreOptions()
             });
 
             return featues.ToArray();

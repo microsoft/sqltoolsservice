@@ -304,6 +304,40 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
         /// <summary>
+        /// Determines whether [is tail log backup possible].
+        /// </summary>
+        /// <returns>
+        /// 	<c>true</c> if [is tail log backup possible]; otherwise, <c>false</c>.
+        /// </returns>
+        internal bool IsTailLogBackupPossible(string databaseName)
+        {
+            if (this.Server.Version.Major < 9 || String.IsNullOrEmpty(this.restorePlanner.DatabaseName))
+            {
+                return false;
+            }
+
+            Database db = this.Server.Databases[databaseName];
+            if (db == null)
+            {
+                return false;
+            }
+            else
+            {
+                db.Refresh();
+            }
+
+            if (db.Status != DatabaseStatus.Normal && db.Status != DatabaseStatus.Suspect && db.Status != DatabaseStatus.EmergencyMode)
+            {
+                return false;
+            }
+            if (db.RecoveryModel == RecoveryModel.Full || db.RecoveryModel == RecoveryModel.BulkLogged)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether [prompt before each backup].
         /// </summary>
         /// <value>
