@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
@@ -431,15 +432,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .Complete();
             await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
 
-            Query q;
-            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out q);
-
-            // wait on the task to finish
+            Query q = queryService.ActiveQueries.Values.First();
+            Assert.NotNull(q);
             q.ExecutionTask.Wait();
 
             efv.Validate();
 
             Assert.Equal(0, queryService.ActiveQueries.Count);
+            
         }
         
         [Fact]
@@ -452,8 +452,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .Complete();
             await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
 
-            Query q;
-            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out q);
+            Query q = queryService.ActiveQueries.Values.First();
+
+            Assert.NotNull(q);
 
             // wait on the task to finish
             q.ExecutionTask.Wait();
