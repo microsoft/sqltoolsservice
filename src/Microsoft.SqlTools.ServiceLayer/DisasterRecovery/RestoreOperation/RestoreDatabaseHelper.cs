@@ -321,6 +321,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 restoreDataObject.RestorePlanner.TailLogBackupFile = restoreDataObject.TailLogBackupFile;
                 */
 
+                restoreDataObject.RestoreOptions.KeepReplication = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOprtionsHelper.KeepReplication);
+                restoreDataObject.RestoreOptions.ReplaceDatabase = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOprtionsHelper.ReplaceDatabase);
+                restoreDataObject.RestoreOptions.SetRestrictedUser = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOprtionsHelper.SetRestrictedUser);
+                string recoveryState = restoreDataObject.RestoreParams.GetOptionValue<string>(RestoreOprtionsHelper.RecoveryState);
+                object databaseRecoveryState;
+                if (Enum.TryParse(typeof(DatabaseRecoveryState), recoveryState, out databaseRecoveryState))
+                {
+                    restoreDataObject.RestoreOptions.RecoveryState = (DatabaseRecoveryState)databaseRecoveryState;
+                }
+                restoreDataObject.RestorePlanner.BackupTailLog = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOprtionsHelper.BackupTailLog);
+                restoreDataObject.TailLogBackupFile = restoreDataObject.RestoreParams.GetOptionValue<string>(RestoreOprtionsHelper.TailLogBackupFile);
+                restoreDataObject.TailLogWithNoRecovery = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOprtionsHelper.TailLogWithNoRecovery);
+                restoreDataObject.CloseExistingConnections = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOprtionsHelper.CloseExistingConnections);
+
                 restoreDataObject.UpdateRestorePlan(restoreDataObject.RestoreParams.RelocateDbFiles);
             }
         }
