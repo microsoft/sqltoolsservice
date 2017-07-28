@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
@@ -20,6 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
     {
 
         private const char BackupMediaNameSeparator = ',';
+        private DatabaseRestorePlanner restorePlanner;
+        private string tailLogBackupFile;
+
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
             PlanUpdateRequired = true;
@@ -148,6 +152,35 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
         /// <summary>
+        /// Returns the last backup taken
+        /// </summary>
+        /// <returns></returns>
+        public string GetLastBackupTaken()
+        {
+            string lastBackup = string.Empty;
+            int lastIndexSel = 0; //TODO: find the selected backup set
+            if (this.RestorePlanner.RestoreToLastBackup &&
+                this.RestorePlan.RestoreOperations[lastIndexSel] != null &&
+                this.RestorePlan.RestoreOperations.Count > 0 &&
+                this.RestorePlan.RestoreOperations[lastIndexSel].BackupSet != null)
+            {
+                int lastIndex = this.RestorePlan.RestoreOperations.Count - 1;
+                DateTime backupTime = this.RestorePlan.RestoreOperations[lastIndexSel].BackupSet.BackupStartDate;
+                string backupTimeStr = backupTime.ToLongDateString() + " " + backupTime.ToLongTimeString();
+                lastBackup = (lastIndexSel == lastIndex) ?
+                    string.Format(CultureInfo.CurrentCulture, SR.TheLastBackupTaken, (backupTimeStr)) : backupTimeStr;
+            }
+            //TODO: find the selected one
+            else if (this.RestoreSelected[0] && !this.RestorePlanner.RestoreToLastBackup)
+            {
+                lastBackup = this.CurrentRestorePointInTime.Value.ToLongDateString() +
+                        " " + this.CurrentRestorePointInTime.Value.ToLongTimeString();
+            }
+            return lastBackup;
+
+        }
+
+        /// <summary>
         /// Executes the restore operations
         /// </summary>
         public void Execute()
@@ -170,9 +203,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
+        /// <summary>
+        /// Restore Util
+        /// </summary>
         public RestoreUtil Util { get; set; }
 
-        private DatabaseRestorePlanner restorePlanner;
 
         /// <summary>
         /// SMO database restore planner used to create a restore plan
@@ -182,7 +217,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             get { return restorePlanner; }
         }
 
-        private string tailLogBackupFile;
         public bool PlanUpdateRequired { get; private set; }
 
         /// <summary>

@@ -200,16 +200,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         internal string DatabaseName { get; set; }
 
         /// <summary>
-        /// Default Data folder path in the target server
-        /// </summary>
-        public string DefaultDataFolder { get; set; }
-
-        /// <summary>
-        /// Default log folder path in the target server
-        /// </summary>
-        public string DefaultLogFolder { get; set; }
-
-        /// <summary>
         /// Plan details
         /// </summary>
         public Dictionary<string, object> PlanDetails { get; set; }

@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
     /// </summary>
     public class RestoreDatabaseHelper
     {
-
+        public const string LastBackupTaken = "lastBackupTaken";
         private static RestoreDatabaseHelper instance = new RestoreDatabaseHelper();
         private ConcurrentDictionary<string, RestoreDatabaseTaskDataObject> restoreSessions = new ConcurrentDictionary<string, RestoreDatabaseTaskDataObject>();
 
@@ -179,16 +179,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             response.ErrorMessage = SR.RestoreNotSupported;
                         }
 
+                        response.PlanDetails.Add(LastBackupTaken, restoreDataObject.GetLastBackupTaken());
+
                         response.BackupSetsToRestore = restoreDataObject.GetBackupSetInfo().Select(x => new DatabaseFileInfo(x.ConvertPropertiesToArray())).ToArray();
                         var dbNames = restoreDataObject.GetSourceDbNames();
                         response.DatabaseNamesFromBackupSets = dbNames == null ? new string[] { } : dbNames.ToArray();
-                        response.DefaultDataFolder = restoreDataObject.DefaultDataFileFolder;
-                        response.DefaultLogFolder = restoreDataObject.DefaultLogFileFolder;
-                       
+                        
+                        // Adding the default values for some of the options in the plan details 
                         bool isTailLogBackupPossible = restoreDataObject.IsTailLogBackupPossible(restoreDataObject.RestorePlanner.DatabaseName);
-                        response.PlanDetails.Add(RestoreOptionsHelper.BackupTailLog, isTailLogBackupPossible);
-                        response.PlanDetails.Add(RestoreOptionsHelper.TailLogBackupFile, 
-                            restoreDataObject.Util.GetDefaultTailLogbackupFile(restoreDataObject.RestoreParams.TargetDatabaseName));
+                        // Default backup tail-log. It's true when tail-log backup is possible for the source database
+                        response.PlanDetails.Add(RestoreOptionsHelper.DefaultBackupTailLog, isTailLogBackupPossible);
+                        // Default backup file for tail-log bacup when  Tail-Log bachup is set to true
+                        response.PlanDetails.Add(RestoreOptionsHelper.DefaultTailLogBackupFile, 
+                            restoreDataObject.Util.GetDefaultTailLogbackupFile(restoreDataObject.RestorePlan.DatabaseName));
+                        // Default stand by file path for when RESTORE WITH STANDBY is selected
+                        response.PlanDetails.Add(RestoreOptionsHelper.DefaultStandbyFile, restoreDataObject.Util.GetDefaultStandbyFile(restoreDataObject.RestorePlan.DatabaseName));
+                        // Default Data folder path in the target server
+                        response.PlanDetails.Add(RestoreOptionsHelper.DefaultDataFileFolder, restoreDataObject.DefaultDataFileFolder);
+                        // Default log folder path in the target server
+                        response.PlanDetails.Add(RestoreOptionsHelper.DefaultLogFileFolder, restoreDataObject.DefaultLogFileFolder);
                     }
                     else
                     {

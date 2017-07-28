@@ -323,6 +323,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         targetDatabase = response.DatabaseName;
                     }
                     Assert.Equal(response.DatabaseName, targetDatabase);
+                    Assert.NotNull(response.PlanDetails);
+                    Assert.True(response.PlanDetails.Any());
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultBackupTailLog]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultTailLogBackupFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultDataFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultLogFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultStandbyFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultStandbyFile]);
                    
                     if(execute)
                     {

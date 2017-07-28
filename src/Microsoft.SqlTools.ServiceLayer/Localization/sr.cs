@@ -3477,6 +3477,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TheLastBackupTaken
+        {
+            get
+            {
+                return Keys.GetString(Keys.TheLastBackupTaken);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4888,6 +4896,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string RestoreBackupSetExpiration = "RestoreBackupSetExpiration";
+
+
+            public const string TheLastBackupTaken = "TheLastBackupTaken";
 
 
             private Keys()

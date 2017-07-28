@@ -9,22 +9,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
     public class RestoreOptionsHelper
     {
-        internal const string KeepReplication = "KeepReplication";
-        internal const string ReplaceDatabase = "ReplaceDatabase";
-        internal const string SetRestrictedUser = "SetRestrictedUser";
-        internal const string RecoveryState = "RecoveryState";
-        internal const string BackupTailLog = "BackupTailLog";
-        internal const string TailLogBackupFile = "TailLogBackupFile";
-        internal const string TailLogWithNoRecovery = "TailLogWithNoRecovery";
-        internal const string CloseExistingConnections = "CloseExistingConnections";
-        internal const string RelocateDbFiles = "RelocateDbFiles";
-        internal const string DataFileFolder = "DataFileFolder";
-        internal const string LogFileFolder = "LogFileFolder";
+        internal const string KeepReplication = "keepReplication";
+        internal const string ReplaceDatabase = "replaceDatabase";
+        internal const string SetRestrictedUser = "setRestrictedUser";
+        internal const string RecoveryState = "eecoveryState";
+        internal const string BackupTailLog = "backupTailLog";
+        internal const string DefaultBackupTailLog = "defaultBackupTailLog";
+        internal const string TailLogBackupFile = "tailLogBackupFile";
+        internal const string DefaultTailLogBackupFile = "defaultTailLogBackupFile";
+        internal const string TailLogWithNoRecovery = "tailLogWithNoRecovery";
+        internal const string CloseExistingConnections = "closeExistingConnections";
+        internal const string RelocateDbFiles = "relocateDbFiles";
+        internal const string DataFileFolder = "dataFileFolder";
+        internal const string DefaultDataFileFolder = "defaultDataFileFolder";
+        internal const string LogFileFolder = "logFileFolder";
+        internal const string DefaultLogFileFolder = "defaultLogFileFolder";
         internal const string SessionId = "sessionId";
         internal const string BackupFilePaths = "backupFilePaths";
         internal const string TargetDatabaseName = "targetDatabaseName";
         internal const string SourceDatabaseName = "sourceDatabaseName";
         internal const string SelectedBackupSets = "selectedBackupSets";
+        internal const string StandbyFile = "standbyFile";
+        internal const string DefaultStandbyFile = "defaultStandbyFile";
 
         /// <summary>
         /// Creates the options metadata available for restore operations
@@ -88,6 +94,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             DisplayName = "RESTORE WITH STANDBY"
                         }
                     }
+                },
+                new ServiceOption
+                {
+                    Name = RestoreOptionsHelper.StandbyFile,
+                    DisplayName = "Standby file",
+                    Description = "Standby file",
+                    ValueType = ServiceOption.ValueTypeString,
+                    IsRequired = false,
+                    GroupName = "Restore options"
                 },
                 new ServiceOption
                 {
