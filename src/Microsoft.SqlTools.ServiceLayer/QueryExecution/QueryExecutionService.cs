@@ -121,6 +121,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal SqlToolsSettings Settings { get; set; }
 
+        /// <summary>
+        /// Holds a map from the simple execute unique GUID and the underlying task that is being ran
+        /// </summary>
+        private readonly Lazy<ConcurrentDictionary<string, Task>> simpleExecuteRequests = 
+            new Lazy<ConcurrentDictionary<string, Task>>(() => new ConcurrentDictionary<string, Task>());
+
+        /// <summary>
+        /// Holds a map from the simple execute unique GUID and the underlying task that is being ran
+        /// </summary>
+        internal ConcurrentDictionary<string, Task> ActiveSimpleExecuteRequests => simpleExecuteRequests.Value;
+
         #endregion
 
         /// <summary>
@@ -203,73 +214,79 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Connection = connInfo.ConnectionDetails,
                     Type = ConnectionType.Default
                 };
+                
+                Task workTask = Task.Run(async () => {
+                    await ConnectionService.Connect(connectParams);
 
-                await ConnectionService.Connect(connectParams);
+                    ConnectionInfo newConn;
+                    ConnectionService.TryFindConnection(randomUri, out newConn);
 
-                ConnectionInfo newConn;
-                ConnectionService.TryFindConnection(randomUri, out newConn);
+                    Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
-                Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+                    ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
 
-                ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
-
-                // handle sending event back when the query completes
-                Query.QueryAsyncEventHandler queryComplete = async q =>
-                {
-                    try
+                    // handle sending event back when the query completes
+                    Query.QueryAsyncEventHandler queryComplete = async query =>
                     {
-                        // check to make sure any results were recieved
-                        if (q.Batches.Length == 0 || q.Batches[0].ResultSets.Count == 0) 
+                        try
                         {
-                            await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
-                            return;
+                            // check to make sure any results were recieved
+                            if (query.Batches.Length == 0 || query.Batches[0].ResultSets.Count == 0) 
+                            {
+                                await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                                return;
+                            } 
+
+                            var rowCount = query.Batches[0].ResultSets[0].RowCount;
+                            // check to make sure there is a safe amount of rows to load into memory
+                            if (rowCount > Int32.MaxValue) 
+                            {
+                                await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
+                                return;
+                            }
+                            
+                            SubsetParams subsetRequestParams = new SubsetParams
+                            {
+                                OwnerUri = randomUri,
+                                BatchIndex = 0,
+                                ResultSetIndex = 0,
+                                RowsStartIndex = 0,
+                                RowsCount = Convert.ToInt32(rowCount)
+                            };
+                            // get the data to send back
+                            ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
+                            SimpleExecuteResult result = new SimpleExecuteResult
+                            {
+                                RowCount = query.Batches[0].ResultSets[0].RowCount,
+                                ColumnInfo = query.Batches[0].ResultSets[0].Columns,
+                                Rows = subset.Rows
+                            };
+                            await requestContext.SendResult(result);
                         } 
-
-                        var rowCount = q.Batches[0].ResultSets[0].RowCount;
-                        // check to make sure there is a safe amount of rows to load into memory
-                        if (rowCount > Int32.MaxValue) 
+                        finally 
                         {
-                            await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
-                            return;
+                            Query removedQuery;
+                            Task removedTask;
+                            // remove the active query since we are done with it
+                            ActiveQueries.TryRemove(randomUri, out removedQuery);
+                            ActiveSimpleExecuteRequests.TryRemove(randomUri, out removedTask);
+                            ConnectionService.Disconnect(new DisconnectParams(){
+                                OwnerUri = randomUri,
+                                Type = null
+                            });
                         }
-                        
-                        SubsetParams subsetRequestParams = new SubsetParams
-                        {
-                            OwnerUri = randomUri,
-                            BatchIndex = 0,
-                            ResultSetIndex = 0,
-                            RowsStartIndex = 0,
-                            RowsCount = Convert.ToInt32(rowCount)
-                        };
-                        // get the data to send back
-                        ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
-                        SimpleExecuteResult result = new SimpleExecuteResult
-                        {
-                            RowCount = q.Batches[0].ResultSets[0].RowCount,
-                            ColumnInfo = q.Batches[0].ResultSets[0].Columns,
-                            Rows = subset.Rows
-                        };
-                        await requestContext.SendResult(result);
-                    } 
-                    finally 
+                    };
+
+                    // handle sending error back when query fails
+                    Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
                     {
-                        Query removedQuery;
-                        // remove the active query since we are done with it
-                        ActiveQueries.TryRemove(randomUri, out removedQuery);
-                        ConnectionService.Disconnect(new DisconnectParams(){
-                            OwnerUri = randomUri,
-                            Type = null
-                        });
-                    }
-                };
+                        await requestContext.SendError(e);
+                    };
 
-                // handle sending error back when query fails
-                Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
-                {
-                    await requestContext.SendError(e);
-                };
+                    await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+                });
 
-                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+                ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
             }
             catch(Exception ex) 
             {

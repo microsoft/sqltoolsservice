@@ -432,6 +432,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .Complete();
             await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
 
+            await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
+
             Query q = queryService.ActiveQueries.Values.First();
             Assert.NotNull(q);
             q.ExecutionTask.Wait();
@@ -451,6 +453,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
                 .Complete();
             await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
+
+            await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
 
             Query q = queryService.ActiveQueries.Values.First();
 
@@ -480,6 +484,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             await Task.WhenAll(qT1, qT2);
 
+            await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
+
             var queries = queryService.ActiveQueries.Values.Take(2).ToArray();
             Query q1 = queries[0];
             Query q2 = queries[1];
@@ -488,7 +494,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.NotNull(q2);
 
             // wait on the task to finish
-            await Task.WhenAll(q1.ExecutionTask, q2.ExecutionTask);
+            q1.ExecutionTask.Wait();
+            q2.ExecutionTask.Wait();
             
             efv1.Validate();
             efv2.Validate();
