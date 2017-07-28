@@ -16,6 +16,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
 {
@@ -208,7 +209,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         ProviderName = ServiceHost.ProviderName,
                         ProviderDisplayName = ServiceHost.ProviderDescription,
                         ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions(),
-                        AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions()
+                        AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(),
+                        Features = FeaturesMetadataProviderHelper.CreateFratureMetadataProviders()
                     }
                 }
             );            

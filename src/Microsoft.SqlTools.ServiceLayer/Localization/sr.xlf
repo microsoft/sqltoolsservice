@@ -2239,6 +2239,11 @@
         <target state="new">Name</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TheLastBackupTaken">
+        <source>The last backup taken ({0})</source>
+        <target state="new">The last backup taken ({0})</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

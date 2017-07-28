@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.Hosting.Hosting.Contracts;
+
 namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
@@ -19,5 +21,10 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public ConnectionProviderOptions ConnectionProvider { get; set; }
 
         public AdminServicesProviderOptions AdminServicesProvider { get; set; }
+
+        /// <summary>
+        /// List of features
+        /// </summary>
+        public FeatureMetadataProvider[] Features { get; set; }
     }
 }
