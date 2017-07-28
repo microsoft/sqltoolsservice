@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
@@ -431,15 +432,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .Complete();
             await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
 
-            Query q;
-            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out q);
+            await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
 
-            // wait on the task to finish
+            Query q = queryService.ActiveQueries.Values.First();
+            Assert.NotNull(q);
             q.ExecutionTask.Wait();
 
             efv.Validate();
 
             Assert.Equal(0, queryService.ActiveQueries.Count);
+            
         }
         
         [Fact]
@@ -452,13 +454,51 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .Complete();
             await queryService.HandleSimpleExecuteRequest(queryParams, efv.Object);
 
-            Query q;
-            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out q);
+            await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
+
+            Query q = queryService.ActiveQueries.Values.First();
+
+            Assert.NotNull(q);
 
             // wait on the task to finish
             q.ExecutionTask.Wait();
             
             efv.Validate();
+
+            Assert.Equal(0, queryService.ActiveQueries.Count);
+        }
+
+        [Fact]
+        public async Task SimpleExecuteMultipleQueriesTest()
+        {
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, null);
+            var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
+            var efv1 = new EventFlowValidator<SimpleExecuteResult>()
+                .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
+                .Complete();
+            var efv2 = new EventFlowValidator<SimpleExecuteResult>()
+                .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
+                .Complete();
+            Task qT1 = queryService.HandleSimpleExecuteRequest(queryParams, efv1.Object);
+            Task qT2 = queryService.HandleSimpleExecuteRequest(queryParams, efv2.Object);
+
+            await Task.WhenAll(qT1, qT2);
+
+            await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
+
+            var queries = queryService.ActiveQueries.Values.Take(2).ToArray();
+            Query q1 = queries[0];
+            Query q2 = queries[1];
+
+            Assert.NotNull(q1);
+            Assert.NotNull(q2);
+
+            // wait on the task to finish
+            q1.ExecutionTask.Wait();
+            q2.ExecutionTask.Wait();
+            
+            efv1.Validate();
+            efv2.Validate();
 
             Assert.Equal(0, queryService.ActiveQueries.Count);
         }
