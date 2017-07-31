@@ -836,3 +836,4 @@ RestoreBackupSetFinishDate = Finish Date
 RestoreBackupSetSize = Size
 RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
+TheLastBackupTaken = The last backup taken ({0})

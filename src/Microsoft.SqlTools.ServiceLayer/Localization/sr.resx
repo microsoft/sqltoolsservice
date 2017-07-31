@@ -1911,4 +1911,8 @@
     <value>Expiration</value>
     <comment></comment>
   </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>The last backup taken ({0})</value>
+    <comment></comment>
+  </data>
 </root>

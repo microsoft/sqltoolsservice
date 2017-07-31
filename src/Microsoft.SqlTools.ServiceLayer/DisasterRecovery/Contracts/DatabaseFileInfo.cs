@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
                 var idProperty = this.Properties.FirstOrDefault(x => x.PropertyName == IdPropertyName);
                 Id = idProperty == null || idProperty.PropertyValue == null ? string.Empty : idProperty.PropertyValue.ToString();
             }
+            IsSelected = true;
         }
 
         /// <summary>

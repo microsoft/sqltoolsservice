@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             Options = new Dictionary<string, object>();
         }
 
-        protected T GetOptionValue<T>(string name)
+        internal T GetOptionValue<T>(string name)
         {
             T result = default(T);
             if (Options != null && Options.ContainsKey(name))

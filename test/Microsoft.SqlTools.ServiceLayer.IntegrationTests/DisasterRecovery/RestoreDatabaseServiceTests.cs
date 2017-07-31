@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
@@ -56,6 +55,52 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             await VerifyBackupFileCreated();
             bool canRestore = true;
             await VerifyRestore(fullBackUpDatabase, canRestore);
+        }
+
+        [Fact]
+        public async void RestorePlanShouldCreatedSuccessfullyOnExistingDatabaseGivenReplaceOption()
+        {
+            SqlTestDb testDb = null;
+            try
+            {
+                testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+                //Create a backup from a test db but don't delete the database
+                await VerifyBackupFileCreated();
+                bool canRestore = true;
+                Dictionary<string, object> options = new Dictionary<string, object>();
+                options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
+
+                await VerifyRestore(new string[] { fullBackUpDatabase }, canRestore, true, testDb.DatabaseName, null, options);
+            }
+            finally
+            {
+                if (testDb != null)
+                {
+                    testDb.Cleanup();
+                }
+            }
+        }
+
+        [Fact]
+        public async void RestorePlanShouldFailOnExistingDatabaseNotGivenReplaceOption()
+        {
+            SqlTestDb testDb = null;
+            try
+            {
+                testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+                //Create a backup from a test db but don't delete the database
+                await VerifyBackupFileCreated();
+                bool canRestore = true;
+
+                await VerifyRestore(new string[] { fullBackUpDatabase }, canRestore, false, testDb.DatabaseName, null, null);
+            }
+            finally
+            {
+                if (testDb != null)
+                {
+                    testDb.Cleanup();
+                }
+            }
         }
 
         [Fact]
@@ -228,7 +273,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             return await VerifyRestore(new string[] { backupFileName }, canRestore, execute, targetDatabase);
         }
 
-        private async Task<RestorePlanResponse> VerifyRestore(string[] backupFileNames, bool canRestore, bool execute = false, string targetDatabase = null, string[] selectedBackupSets = null)
+        private async Task<RestorePlanResponse> VerifyRestore(
+            string[] backupFileNames, 
+            bool canRestore, 
+            bool execute = false, 
+            string targetDatabase = null, 
+            string[] selectedBackupSets = null,
+            Dictionary<string, object> options = null)
         {
             var filePaths = backupFileNames.Select(x => GetBackupFilePath(x));
             string backUpFilePath = filePaths.Aggregate((current, next) => current + " ," + next);
@@ -247,11 +298,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     SelectedBackupSets = selectedBackupSets
                 };
 
+                if(options != null)
+                {
+                    foreach (var item in options)
+                    {
+                        if (!request.Options.ContainsKey(item.Key))
+                        {
+                            request.Options.Add(item.Key, item.Value);
+                        }
+                    }
+                }
+
                 var restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
                 var response = service.CreateRestorePlanResponse(restoreDataObject);
 
                 Assert.NotNull(response);
-                Assert.False(string.IsNullOrWhiteSpace(response.RestoreSessionId));
+                Assert.False(string.IsNullOrWhiteSpace(response.SessionId));
                 Assert.Equal(response.CanRestore, canRestore);
                 if (canRestore)
                 {
@@ -261,15 +323,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         targetDatabase = response.DatabaseName;
                     }
                     Assert.Equal(response.DatabaseName, targetDatabase);
+                    Assert.NotNull(response.PlanDetails);
+                    Assert.True(response.PlanDetails.Any());
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultBackupTailLog]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultTailLogBackupFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultDataFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultLogFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultStandbyFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultStandbyFile]);
                    
                     if(execute)
                     {
-                        request.SessionId = response.RestoreSessionId;
+                        request.SessionId = response.SessionId;
                         restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
-                        Assert.Equal(response.RestoreSessionId, restoreDataObject.SessionId);
-                        await DropDatabase(targetDatabase);
-                        Thread.Sleep(2000);
-                        request.RelocateDbFiles = response.RelocateFilesNeeded;
+                        Assert.Equal(response.SessionId, restoreDataObject.SessionId);
+                        //await DropDatabase(targetDatabase);
+                        //Thread.Sleep(2000);
+                        request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
                         service.ExecuteRestore(restoreDataObject);
                         Assert.True(restoreDataObject.Server.Databases.Contains(targetDatabase));
                         if(selectedBackupSets != null)
