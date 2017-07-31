@@ -64,7 +64,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         }
 
         /// Test is failing in code coverage runs. Reenable when stable.
-        ///[Fact]
+        [Fact]
         public void CreateBackupTest()
         {
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);

@@ -286,6 +286,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             // Execute backup
             this.backup.SqlBackup(this.dataContainer.Server);
 
+            // todo: test code
+            string scriptResult = this.backup.Script(this.dataContainer.Server);
+
             // Verify backup if required
             if (this.backupInfo.VerifyBackupRequired)
             {   
