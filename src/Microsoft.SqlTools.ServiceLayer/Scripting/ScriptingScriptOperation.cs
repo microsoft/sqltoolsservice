@@ -71,13 +71,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
-                
+
+                ScriptDestination destination = !string.IsNullOrWhiteSpace(this.Parameters.ScriptDestination)
+                    ? (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
+                    : ScriptDestination.ToSingleFile;
+
                 // SMO is currently hardcoded to produce UTF-8 encoding when running on dotnet core.
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
                     SaveFileName = this.Parameters.FilePath,
-                    ScriptDestination = (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
+                    ScriptDestination = destination,
                 };
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -165,14 +169,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // criteria should include the target objects to script.
             //
             bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-            bool scriptAllObjects = 
-                !(hasObjectsSpecified ||
+            bool hasCriteriaSpecified = 
                 (this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any()) ||
                 (this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any()) ||
                 (this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any()) ||
                 (this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any()) ||
                 (this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any()) ||
-                (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any()));
+                (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any());
+            bool scriptAllObjects = !hasObjectsSpecified && !hasCriteriaSpecified;
 
             // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
             // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
@@ -188,27 +192,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 return publishModel;
             }
 
-            // This is an expensive remote call to load all objects from the database.
-            //
-            List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
-            IEnumerable<ScriptingObject> selectedObjects = ScriptingObjectMatcher.Match(
-                this.Parameters.IncludeObjectCriteria,
-                this.Parameters.ExcludeObjectCriteria,
-                this.Parameters.IncludeSchemas,
-                this.Parameters.ExcludeSchemas,
-                this.Parameters.IncludeTypes,
-                this.Parameters.ExcludeTypes,
-                allObjects);
-            
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+
+            if (hasCriteriaSpecified)
+            {
+                // This is an expensive remote call to load all objects from the database.
+                //
+                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
+                selectedObjects = ScriptingObjectMatcher.Match(
+                    this.Parameters.IncludeObjectCriteria,
+                    this.Parameters.ExcludeObjectCriteria,
+                    this.Parameters.IncludeSchemas,
+                    this.Parameters.ExcludeSchemas,
+                    this.Parameters.IncludeTypes,
+                    this.Parameters.ExcludeTypes,
+                    allObjects);
+            }
+
             if (hasObjectsSpecified)
             {
                 selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
             }
 
             // Populating advanced options after we select our objects in question, otherwise we lose all
-            // advanced options.
-            // After this call to publishModel.AdvancedOptions, DO NOT call the publishModel.AdvancedOptions again, 
-            //  as it will reset the options in the model.
+            // advanced options.  After this call to PopulateAdvancedScriptOptions, DO NOT reference the
+            // publishModel.AdvancedOptions getter as it will reset the options in the model.
             //
             PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
 
