@@ -240,17 +240,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private string GetServerNameFromLiveInstance(string connectionString)
         {
+            string serverName = null;
             using(SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlCommand cmd = connection.CreateCommand())
             {
                 connection.Open();
 
-                using(SqlCommand cmd = connection.CreateCommand())
+                try
                 {
-                    cmd.CommandText = "SELECT @@servername";
-                    object retValue = cmd.ExecuteScalar();  
-                    return retValue as string;
+                    cmd.CommandText = "select @@servername";
+                    serverName = (string)cmd.ExecuteScalar();
+                }
+                catch (SqlException e)
+                {
+                    //
+                    // Azure SQL Data Warehouse does not support @@servername, so fallback to SERVERPROPERTY.
+                    //
+
+                    Logger.Write(
+                        LogLevel.Verbose, 
+                        string.Format("Exception running query 'SELECT @@servername' {0}, fallback to SERVERPROPERTY query", e));
+
+                    cmd.CommandText = "select SERVERPROPERTY('ServerName') AS ServerName";
+                    serverName = (string)cmd.ExecuteScalar();
                 }
             }
+
+            Logger.Write(LogLevel.Verbose, string.Format("Resolved server name '{0}'", serverName));
+            return serverName;
         }
 
         private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
