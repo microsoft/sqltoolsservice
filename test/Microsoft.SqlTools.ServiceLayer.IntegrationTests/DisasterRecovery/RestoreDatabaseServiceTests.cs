@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         [Fact]
-        public async void RestoreShouldCompletedSuccessfullyGivenTowBackupFilesButFilterDifferentialBackup()
+        public async void RestoreShouldCompletedSuccessfullyGivenTwoBackupFilesButFilterDifferentialBackup()
         {
 
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             if (fileInfo != null)
             {
                 var selectedBackupSets = new string[] { fileInfo.Id };
-                await VerifyRestore(backupFileNames, true, true, "RestoredFromTwoBackupFile2", selectedBackupSets);
+                await VerifyRestore(backupFileNames, true, false, "RestoredFromTwoBackupFile2", selectedBackupSets);
             }
         }
 

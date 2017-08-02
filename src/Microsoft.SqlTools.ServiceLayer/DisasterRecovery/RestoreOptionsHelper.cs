@@ -48,7 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     Description = "Preserve the replication settings (WITH KEEP_REPLICATION)",
                     ValueType = ServiceOption.ValueTypeBoolean,
                     IsRequired = false,
-                    GroupName = "Restore options"
+                    GroupName = "Restore options",
+                    DefaultValue = "false"
                 },
                 new ServiceOption
                 {
@@ -57,7 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     Description = "Overwrite the existing database (WITH REPLACE)",
                     ValueType = ServiceOption.ValueTypeBoolean,
                     IsRequired = false,
-                    GroupName = "Restore options"
+                    GroupName = "Restore options",
+                    DefaultValue = "false"
                 },
                 new ServiceOption
                 {
@@ -66,7 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     Description = "Restrict access to the restored database (WITH RESTRICTED_USER)",
                     ValueType = ServiceOption.ValueTypeBoolean,
                     IsRequired = false,
-                    GroupName = "Restore options"
+                    GroupName = "Restore options",
+                    DefaultValue = "false"
                 },
                 new ServiceOption
                 {
@@ -93,7 +96,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             Name = "WithStandBy",
                             DisplayName = "RESTORE WITH STANDBY"
                         }
-                    }
+                    },
+                    DefaultValue = "WithRecovery"
                 },
                 new ServiceOption
                 {
@@ -158,7 +162,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     Description = "Relocate all files",
                     ValueType = ServiceOption.ValueTypeBoolean,
                     IsRequired = false,
-                    GroupName = "Restore database files as"
+                    GroupName = "Restore database files as",
+                    DefaultValue = "false"
                 },
                 new ServiceOption
                 {

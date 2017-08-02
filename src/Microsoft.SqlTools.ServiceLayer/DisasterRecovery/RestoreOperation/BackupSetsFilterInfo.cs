@@ -10,11 +10,16 @@ using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
+    /// <summary>
+    /// Class include info about selected back sets
+    /// </summary>
     public class BackupSetsFilterInfo
     {
         private HashSet<Guid> selectedBackupSets = new HashSet<Guid>();
 
-
+        /// <summary>
+        /// Returns true if given backup set is selected
+        /// </summary>
         public bool IsBackupSetSelected(Guid backupGuid)
         {
             bool isSelected = false;
@@ -25,11 +30,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return isSelected;
         }
 
+        /// <summary>
+        /// Returns true if given backup set is selected
+        /// </summary>
         public bool IsBackupSetSelected(BackupSet backupSet)
         {
             return IsBackupSetSelected(backupSet != null ? backupSet.BackupSetGuid : Guid.Empty);
         }
 
+        /// <summary>
+        /// Returns true if any backup set is selected
+        /// </summary>
         public bool AnySelected
         {
             get
@@ -38,6 +49,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
+        /// <summary>
+        /// Adds backup set to selected list if not added aleady 
+        /// </summary>
+        /// <param name="backupSet"></param>
         public void Add(BackupSet backupSet)
         {
             if (backupSet != null)
@@ -49,6 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
+        /// <summary>
+        /// Clears the list
+        /// </summary>
         public void Clear()
         {
             this.selectedBackupSets.Clear();
