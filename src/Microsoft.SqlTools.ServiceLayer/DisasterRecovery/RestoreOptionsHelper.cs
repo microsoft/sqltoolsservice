@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal const string KeepReplication = "keepReplication";
         internal const string ReplaceDatabase = "replaceDatabase";
         internal const string SetRestrictedUser = "setRestrictedUser";
-        internal const string RecoveryState = "eecoveryState";
+        internal const string RecoveryState = "recoveryState";
         internal const string BackupTailLog = "backupTailLog";
         internal const string DefaultBackupTailLog = "defaultBackupTailLog";
         internal const string TailLogBackupFile = "tailLogBackupFile";

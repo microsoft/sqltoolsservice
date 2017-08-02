@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
                         response.PlanDetails.Add(LastBackupTaken, restoreDataObject.GetLastBackupTaken());
 
-                        response.BackupSetsToRestore = restoreDataObject.GetBackupSetInfo().Select(x => new DatabaseFileInfo(x.ConvertPropertiesToArray())).ToArray();
+                        response.BackupSetsToRestore = restoreDataObject.GetSelectedBakupSets();
                         var dbNames = restoreDataObject.GetSourceDbNames();
                         response.DatabaseNamesFromBackupSets = dbNames == null ? new string[] { } : dbNames.ToArray();
                         
@@ -236,14 +236,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         private static bool CanRestore(RestoreDatabaseTaskDataObject restoreDataObject)
         {
-            if (restoreDataObject != null)
-            {
-                var backupTypes = restoreDataObject.GetBackupSetInfo();
-                var selectedBackupSets = restoreDataObject.RestoreParams.SelectedBackupSets;
-                return backupTypes.Any(x => (selectedBackupSets == null || selectedBackupSets.Contains(x.GetPropertyValueAsString(DatabaseFileInfo.IdPropertyName))) 
-                && x.BackupType.StartsWith(RestoreConstants.TypeFull));
-            }
-            return false;
+            return restoreDataObject != null && restoreDataObject.RestorePlan != null && restoreDataObject.RestorePlan.RestoreOperations != null
+                && restoreDataObject.RestorePlan.RestoreOperations.Count > 0;
         }
 
         /// <summary>
@@ -265,6 +259,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 string sessionId = string.IsNullOrWhiteSpace(restoreParams.SessionId) ? Guid.NewGuid().ToString() : restoreParams.SessionId;
                 this.restoreSessions.AddOrUpdate(sessionId, restoreTaskObject, (key, oldSession) => restoreTaskObject);
                 restoreTaskObject.SessionId = sessionId;
+            }
+            else
+            {
+                restoreTaskObject.RestoreParams = restoreParams;
             }
             return restoreTaskObject;
         }
@@ -311,49 +309,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private void UpdateRestorePlan(RestoreDatabaseTaskDataObject restoreDataObject)
         {
-            if (restoreDataObject.PlanUpdateRequired)
+            if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths))
             {
-                if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths))
-                {
-                    restoreDataObject.AddFiles(restoreDataObject.RestoreParams.BackupFilePaths);
-                }
-                restoreDataObject.RestorePlanner.ReadHeaderFromMedia = !string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths);
-
-                if (string.IsNullOrWhiteSpace(restoreDataObject.RestoreParams.SourceDatabaseName))
-                {
-                    restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
-                }
-                else
-                {
-                    restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
-                }
-                restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
-
-                restoreDataObject.RestoreOptions.KeepReplication = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication);
-                restoreDataObject.RestoreOptions.ReplaceDatabase = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.ReplaceDatabase);
-                restoreDataObject.RestoreOptions.SetRestrictedUser = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.SetRestrictedUser);
-                string recoveryState = restoreDataObject.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.RecoveryState);
-                object databaseRecoveryState;
-                if (Enum.TryParse(typeof(DatabaseRecoveryState), recoveryState, out databaseRecoveryState))
-                {
-                    restoreDataObject.RestoreOptions.RecoveryState = (DatabaseRecoveryState)databaseRecoveryState;
-                }
-                bool isTailLogBackupPossible = restoreDataObject.IsTailLogBackupPossible(restoreDataObject.RestorePlanner.DatabaseName);
-                if (isTailLogBackupPossible)
-                {
-                    restoreDataObject.RestorePlanner.BackupTailLog = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog);
-                    restoreDataObject.TailLogBackupFile = restoreDataObject.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.TailLogBackupFile);
-                    restoreDataObject.TailLogWithNoRecovery = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.TailLogWithNoRecovery);
-                }
-                else
-                {
-                    restoreDataObject.RestorePlanner.BackupTailLog = false;
-                }
-                
-                restoreDataObject.CloseExistingConnections = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.CloseExistingConnections);
-
-                restoreDataObject.UpdateRestorePlan(restoreDataObject.RestoreParams.RelocateDbFiles);
+                restoreDataObject.AddFiles(restoreDataObject.RestoreParams.BackupFilePaths);
             }
+            restoreDataObject.RestorePlanner.ReadHeaderFromMedia = !string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths);
+
+            if (string.IsNullOrWhiteSpace(restoreDataObject.RestoreParams.SourceDatabaseName))
+            {
+                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
+            }
+            else
+            {
+                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
+            }
+            restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
+
+            restoreDataObject.RestoreOptions.KeepReplication = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication);
+            restoreDataObject.RestoreOptions.ReplaceDatabase = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.ReplaceDatabase);
+            restoreDataObject.RestoreOptions.SetRestrictedUser = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.SetRestrictedUser);
+            string recoveryState = restoreDataObject.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.RecoveryState);
+            object databaseRecoveryState;
+            if (Enum.TryParse(typeof(DatabaseRecoveryState), recoveryState, out databaseRecoveryState))
+            {
+                restoreDataObject.RestoreOptions.RecoveryState = (DatabaseRecoveryState)databaseRecoveryState;
+            }
+            bool isTailLogBackupPossible = restoreDataObject.IsTailLogBackupPossible(restoreDataObject.RestorePlanner.DatabaseName);
+            if (isTailLogBackupPossible)
+            {
+                restoreDataObject.RestorePlanner.BackupTailLog = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog);
+                restoreDataObject.TailLogBackupFile = restoreDataObject.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.TailLogBackupFile);
+                restoreDataObject.TailLogWithNoRecovery = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.TailLogWithNoRecovery);
+            }
+            else
+            {
+                restoreDataObject.RestorePlanner.BackupTailLog = false;
+            }
+
+            restoreDataObject.CloseExistingConnections = restoreDataObject.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.CloseExistingConnections);
+
+            restoreDataObject.UpdateRestorePlan(restoreDataObject.RestoreParams.RelocateDbFiles);
         }
 
         /// <summary>
