@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -32,7 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         private ConnectionService _connectService = TestServiceProvider.Instance.ConnectionService;
         private Mock<IProtocolEndpoint> serviceHostMock;
         private DisasterRecoveryService service;
-        private string fullBackUpDatabase;
+        private string fullBackupFilePath;
+        private string[] backupFilesToRecoverDatabase;
+
+        //The table names used in the script to create backup files for a database
+        //Each table is created after a backup script to verify recovering to different states
+        private string[] tableNames = new string[] { "tb1", "tb2", "tb3", "tb4", "tb5" };
 
         public RestoreDatabaseServiceTests()
         {
@@ -43,10 +49,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private async Task VerifyBackupFileCreated()
         {
-            if(fullBackUpDatabase == null)
+            if(fullBackupFilePath == null)
             {
-                fullBackUpDatabase = await CreateBackupFile();
+                fullBackupFilePath = await CreateBackupFile();
             }
+        }
+
+        private async Task<string[]> GetBackupFilesToRecoverDatabaseCreated()
+        {
+            if(backupFilesToRecoverDatabase == null)
+            {
+                backupFilesToRecoverDatabase = await CreateBackupSetsToRecoverDatabase();
+            }
+            return backupFilesToRecoverDatabase;
         }
 
         [Fact]
@@ -54,7 +69,90 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             await VerifyBackupFileCreated();
             bool canRestore = true;
-            await VerifyRestore(fullBackUpDatabase, canRestore);
+            await VerifyRestore(fullBackupFilePath, canRestore);
+        }
+
+        [Fact]
+        public async void RestoreShouldNotRestoreAnyBackupSetsIfFullNotSelected()
+        {
+            var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
+            //Remove the full backupset
+            int indexToDelete = 0;
+            //Verify that all backupsets are restored
+            int[] expectedTable = new int[] { };
+
+            await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable);
+        }
+
+        [Fact]
+        public async void RestoreShouldRestoreTheBackupSetsThatAreSelected()
+        {
+            var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
+            //Remove the last backupset
+            int indexToDelete = 4;
+            //Verify that backupset is not restored
+            int[] expectedTable = new int[] { 0, 1, 2, 3 };
+
+            await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable);
+        }
+
+        [Fact]
+        public async void RestoreShouldNotRestoreTheLogBackupSetsIfOneNotSelected()
+        {
+            var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
+            //Remove the one of the log backup sets
+            int indexToDelete = 3;
+            //Verify the logs backup set that's removed and all logs after that are not restored
+            int[] expectedTable = new int[] { 0, 1, 2 };
+            await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable);
+        }
+
+        private async Task VerifyRestoreMultipleBackupSets(string[] backupFiles, int backupSetIndexToDelete, int[] expectedSelectedIndexes)
+        {
+            var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+            try
+            {
+                string targetDbName = testDb.DatabaseName;
+                bool canRestore = true;
+                var response = await VerifyRestore(backupFiles, canRestore, false, targetDbName, null, null);
+                Assert.True(response.BackupSetsToRestore.Count() >= 2);
+                var allIds = response.BackupSetsToRestore.Select(x => x.Id).ToList();
+                if (backupSetIndexToDelete >= 0)
+                {
+                    allIds.RemoveAt(backupSetIndexToDelete);
+                }
+                string[] selectedIds = allIds.ToArray();
+                Dictionary<string, object> options = new Dictionary<string, object>();
+                options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
+                response = await VerifyRestore(backupFiles, canRestore, true, targetDbName, selectedIds, options, (database) =>
+                {
+                    bool tablesFound = true;
+                    for (int i = 0; i < tableNames.Length; i++)
+                    {
+                        string tableName = tableNames[i];
+                        if (!database.Tables.Contains(tableName) && expectedSelectedIndexes.Contains(i))
+                        {
+                            tablesFound = false;
+                            break;
+                        }
+                    }
+                    bool numberOfTableCreatedIsCorrect = database.Tables.Count == expectedSelectedIndexes.Length;
+                    return numberOfTableCreatedIsCorrect && tablesFound;
+                });
+
+                for (int i = 0; i < response.BackupSetsToRestore.Count(); i++)
+                {
+                    DatabaseFileInfo databaseInfo = response.BackupSetsToRestore[i];
+                    Assert.Equal(databaseInfo.IsSelected, expectedSelectedIndexes.Contains(i));
+                }
+            }
+            finally
+            {
+                if (testDb != null)
+                {
+                   testDb.Cleanup();
+                }
+            }
         }
 
         [Fact]
@@ -70,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 Dictionary<string, object> options = new Dictionary<string, object>();
                 options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
 
-                await VerifyRestore(new string[] { fullBackUpDatabase }, canRestore, true, testDb.DatabaseName, null, options);
+                await VerifyRestore(new string[] { fullBackupFilePath }, canRestore, true, testDb.DatabaseName, null, options);
             }
             finally
             {
@@ -92,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 await VerifyBackupFileCreated();
                 bool canRestore = true;
 
-                await VerifyRestore(new string[] { fullBackUpDatabase }, canRestore, false, testDb.DatabaseName, null, null);
+                await VerifyRestore(new string[] { fullBackupFilePath }, canRestore, false, testDb.DatabaseName, null, null);
             }
             finally
             {
@@ -125,12 +223,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             if(fileInfo != null)
             {
                 var selectedBackupSets = new string[] { fileInfo.Id };
-                await VerifyRestore(backupFileNames, false, false, "RestoredFromTwoBackupFile", selectedBackupSets);
+                await VerifyRestore(backupFileNames, true, false, "RestoredFromTwoBackupFile", selectedBackupSets);
             }
         }
 
         [Fact]
-        public async void RestoreShouldCompletedSuccessfullyGivenTowBackupFilesButFilterDifferentialBackup()
+        public async void RestoreShouldCompletedSuccessfullyGivenTwoBackupFilesButFilterDifferentialBackup()
         {
 
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
@@ -150,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             await VerifyBackupFileCreated();
 
-            string backupFileName = fullBackUpDatabase;
+            string backupFileName = fullBackupFilePath;
             bool canRestore = true;
             var restorePlan = await VerifyRestore(backupFileName, canRestore, true);
             Assert.NotNull(restorePlan.BackupSetsToRestore);
@@ -161,24 +259,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             await VerifyBackupFileCreated();
 
-            string backupFileName = fullBackUpDatabase;
+            string backupFileName = fullBackupFilePath;
             bool canRestore = true;
             var restorePlan = await VerifyRestore(backupFileName, canRestore, true, "NewRestoredDatabase");
         }
 
         [Fact]
-        public async void RestorePlanShouldFailForDiffBackup()
+        public async void RestorePlanShouldCreatedSuccessfullyForDiffBackup()
         {
             string backupFileName = "DiffBackup.bak";
-            bool canRestore = false;
+            bool canRestore = true;
             await VerifyRestore(backupFileName, canRestore);
         }
 
         [Fact]
-        public async void RestorePlanShouldFailForTransactionLogBackup()
+        public async void RestorePlanShouldCreatedSuccessfullyForTransactionLogBackup()
         {
             string backupFileName = "TransactionLogBackup.bak";
-            bool canRestore = false;
+            bool canRestore = true;
             await VerifyRestore(backupFileName, canRestore);
         }
 
@@ -191,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             {
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                string filePath = GetBackupFilePath(fullBackUpDatabase);
+                string filePath = GetBackupFilePath(fullBackupFilePath);
 
                 RestoreParams restoreParams = new RestoreParams
                 {
@@ -279,7 +377,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             bool execute = false, 
             string targetDatabase = null, 
             string[] selectedBackupSets = null,
-            Dictionary<string, object> options = null)
+            Dictionary<string, object> options = null,
+            Func<Database, bool> verifyDatabase = null)
         {
             var filePaths = backupFileNames.Select(x => GetBackupFilePath(x));
             string backUpFilePath = filePaths.Aggregate((current, next) => current + " ," + next);
@@ -337,15 +436,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         request.SessionId = response.SessionId;
                         restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
                         Assert.Equal(response.SessionId, restoreDataObject.SessionId);
-                        //await DropDatabase(targetDatabase);
-                        //Thread.Sleep(2000);
                         request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
                         service.ExecuteRestore(restoreDataObject);
                         Assert.True(restoreDataObject.Server.Databases.Contains(targetDatabase));
-                        if(selectedBackupSets != null)
+
+                        if(verifyDatabase != null)
                         {
-                            Assert.Equal(selectedBackupSets.Count(), restoreDataObject.RestorePlan.RestoreOperations.Count());
+                            Assert.True(verifyDatabase(restoreDataObject.Server.Databases[targetDatabase]));
                         }
+
+                        //To verify the backupset that are restored, verifying the database is a better options.
+                        //Some tests still verify the number of backup sets that are executed which in some cases can be less than the selected list
+                        if (verifyDatabase == null && selectedBackupSets != null)
+                        {
+                            Assert.Equal(selectedBackupSets.Count(), restoreDataObject.RestorePlanToExecute.RestoreOperations.Count());
+                        }
+                     
                         await DropDatabase(targetDatabase);
                     }
                 }
@@ -401,6 +507,60 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             return CreateProvider()
                .RegisterSingleService(new DisasterRecoveryService());
+        }
+
+        public async Task<string[]> CreateBackupSetsToRecoverDatabase()
+        {
+            List<string> backupFiles = new List<string>();
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                string query = $"create table {tableNames[0]} (c1 int)";
+                SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "RestoreTest");
+                string databaseName = testDb.DatabaseName;
+                // Initialize backup service
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName, queryTempFile.FilePath);
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
+                SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
+                BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+
+                string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_full.bak");
+                query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                backupFiles.Add(backupPath);
+
+                query = $"create table {tableNames[1]} (c1 int)";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_diff.bak");
+                query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                backupFiles.Add(backupPath);
+
+                query = $"create table {tableNames[2]} (c1 int)";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log1.bak");
+                query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                backupFiles.Add(backupPath);
+
+                query = $"create table {tableNames[3]} (c1 int)";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log2.bak");
+                query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                backupFiles.Add(backupPath);
+
+                query = $"create table {tableNames[4]} (c1 int)";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log3.bak");
+                query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                backupFiles.Add(backupPath);
+
+                // Clean up the database
+                testDb.Cleanup();
+            }
+            return backupFiles.ToArray();
+
         }
 
         public async Task<string> CreateBackupFile()

@@ -612,7 +612,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     backupComponent = RestoreConstants.ComponentDatabase;
                     break;
                 case BackupSetType.Differential:
-                    backupType = RestoreConstants.TypeTransactionLog;
+                    backupType = RestoreConstants.TypeDifferential;
                     backupComponent = RestoreConstants.ComponentDatabase;
                     break;                
                 case BackupSetType.FileOrFileGroup:
