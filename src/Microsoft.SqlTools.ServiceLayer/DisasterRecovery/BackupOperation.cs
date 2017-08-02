@@ -283,26 +283,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     this.backupInfo.EncryptorName);
             }
 
-            // Execute backup
-            this.backup.SqlBackup(this.dataContainer.Server);
+            //
+            if (this.dataContainer.Server.ConnectionContext != null)
+            {
+               // this.dataContainer.Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
 
-            // todo: test code
-            string scriptResult = this.backup.Script(this.dataContainer.Server);
+                // Execute backup
+                this.backup.SqlBackup(this.dataContainer.Server);
 
-            // Verify backup if required
-            if (this.backupInfo.VerifyBackupRequired)
-            {   
-                Restore restore = new Restore();
-                restore.Devices.AddRange(this.backup.Devices);
-                restore.Database = this.backup.Database;
-
-                string errorMessage = null;
-                restore.SqlVerifyLatest(this.dataContainer.Server, out errorMessage);
-                if (errorMessage != null)
+                // Verify backup if required
+                if (this.backupInfo.VerifyBackupRequired)
                 {
-                    throw new Exception(errorMessage);
-                }             
+                    Restore restore = new Restore();
+                    restore.Devices.AddRange(this.backup.Devices);
+                    restore.Database = this.backup.Database;
+
+                    string errorMessage = null;
+                    restore.SqlVerifyLatest(this.dataContainer.Server, out errorMessage);
+                    if (errorMessage != null)
+                    {
+                        throw new Exception(errorMessage);
+                    }
+                }
+
+                //
+                string s = "";
+                foreach (String p_s in this.dataContainer.Server.ConnectionContext.CapturedSql.Text)
+                {
+                    s = s + p_s;
+                }
             }
+
         }
 
         /// <summary>
