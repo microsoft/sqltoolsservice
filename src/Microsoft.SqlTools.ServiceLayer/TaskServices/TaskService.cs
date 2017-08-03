@@ -131,8 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
                     TaskId = sqlTask.TaskId.ToString(),
-                    Status = e.TaskData,                    
-                    TaskType = sqlTask.TaskMetadata.TaskType,
+                    Status = e.TaskData                    
                 };
 
                 if (sqlTask.IsCompleted)
@@ -151,7 +150,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
                     TaskId = sqlTask.TaskId.ToString(),
-                    TaskType = sqlTask.TaskMetadata.TaskType,
                     Status = e.TaskData.Status,
                     Script = e.TaskData.Script,
                     Message = e.TaskData.ErrorMessage,
@@ -170,8 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 {
                     TaskId = sqlTask.TaskId.ToString(),
                     Message = e.TaskData.Description,
-                    Status = sqlTask.TaskStatus,                    
-                    TaskType = sqlTask.TaskMetadata.TaskType,
+                    Status = sqlTask.TaskStatus
                 };
                 await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }

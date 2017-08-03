@@ -3277,27 +3277,27 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string Backup_TaskName
+        public static string BackupTaskName
         {
             get
             {
-                return Keys.GetString(Keys.Backup_TaskName);
+                return Keys.GetString(Keys.BackupTaskName);
             }
         }
 
-        public static string Task_InProgress
+        public static string TaskInProgress
         {
             get
             {
-                return Keys.GetString(Keys.Task_InProgress);
+                return Keys.GetString(Keys.TaskInProgress);
             }
         }
 
-        public static string Task_Completed
+        public static string TaskCompleted
         {
             get
             {
-                return Keys.GetString(Keys.Task_Completed);
+                return Keys.GetString(Keys.TaskCompleted);
             }
         }
 
@@ -3482,6 +3482,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.TheLastBackupTaken);
+            }
+        }
+
+        public static string ScriptTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptTaskName);
             }
         }
 
@@ -4823,13 +4831,13 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
 
 
-            public const string Backup_TaskName = "Backup_TaskName";
+            public const string BackupTaskName = "BackupTaskName";
 
 
-            public const string Task_InProgress = "Task_InProgress";
+            public const string TaskInProgress = "TaskInProgress";
 
 
-            public const string Task_Completed = "Task_Completed";
+            public const string TaskCompleted = "TaskCompleted";
 
 
             public const string ConflictWithNoRecovery = "ConflictWithNoRecovery";
@@ -4899,6 +4907,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TheLastBackupTaken = "TheLastBackupTaken";
+
+
+            public const string ScriptTaskName = "ScriptTaskName";
 
 
             private Keys()

@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     /// <summary>
     /// Task type
     /// </summary>
-    public enum SqlTaskType
+    public enum TaskExecutionMode
     {
         Execute,
         Script

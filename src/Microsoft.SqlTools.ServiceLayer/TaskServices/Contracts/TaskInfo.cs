@@ -21,9 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public SqlTaskStatus Status { get;  set; }
 
         /// <summary>
-        /// Task type
+        /// Task execution mode
         /// </summary>
-        public SqlTaskType TaskType { get; set; }
+        public TaskExecutionMode TaskExecutionMode { get; set; }
 
         /// <summary>
         /// Database server name this task is created for
@@ -34,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// Database name this task is created for
         /// </summary>
         public string DatabaseName { get; set; }
-
 
         /// <summary>
         /// Task name which defines the type of the task (e.g. CreateDatabase, Backup)

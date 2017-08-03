@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <returns></returns>
         internal async Task<TaskResult> RunAndCancel()
         {
-            AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
+            AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
 
             TaskResult taskResult = new TaskResult();
             Task<TaskResult> performTask = TaskToRun(this);
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                     completedTask = await Task.WhenAny(performTask);
                 }
 
-                AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
+                AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.TaskCompleted,
                                    completedTask.Result.TaskStatus);
                 taskResult = completedTask.Result;
 
@@ -379,10 +379,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="errorMessage"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public void AddScript(string script, string errorMessage, SqlTaskStatus status)
+        public void AddScript(SqlTaskStatus status, string script, string errorMessage = null)
         {
             var newScript = new TaskScript
             {
+                Status = status,
                 Script = script,
                 ErrorMessage = errorMessage
             };
@@ -449,7 +450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 ServerName = TaskMetadata.ServerName,
                 Name = TaskMetadata.Name,
                 Description = TaskMetadata.Description,
-                TaskType = TaskMetadata.TaskType,
+                TaskExecutionMode = TaskMetadata.TaskExecutionMode,
             };
         }
 

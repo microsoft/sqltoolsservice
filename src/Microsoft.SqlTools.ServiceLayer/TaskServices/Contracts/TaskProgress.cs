@@ -18,17 +18,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public SqlTaskStatus Status { get;  set; }
 
         /// <summary>
-        /// Task type
-        /// </summary>
-        public SqlTaskType TaskType { get; set; }
-
-        /// <summary>
         /// Progress message
         /// </summary>
         public string Message { get; set; }
 
         /// <summary>
-        /// Script for the operation(generate script or execution)
+        /// Script for the task execution
         /// </summary>
         public string Script { get; set; }
 

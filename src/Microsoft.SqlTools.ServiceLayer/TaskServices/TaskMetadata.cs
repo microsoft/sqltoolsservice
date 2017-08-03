@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Task operation type (e.g. execute or script)
         /// </summary>
-        public SqlTaskType TaskType { get; set; }
+        public TaskExecutionMode TaskExecutionMode { get; set; }
 
         /// <summary>
         /// The number of seconds to wait before canceling the task. 

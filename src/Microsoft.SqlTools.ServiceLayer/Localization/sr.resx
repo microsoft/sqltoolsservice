@@ -1811,15 +1811,15 @@
     <value>No Applicable Filegroup</value>
     <comment></comment>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
+  <data name="BackupTaskName" xml:space="preserve">
     <value>Backup Database</value>
     <comment></comment>
   </data>
-  <data name="Task_InProgress" xml:space="preserve">
+  <data name="TaskInProgress" xml:space="preserve">
     <value>In progress</value>
     <comment></comment>
   </data>
-  <data name="Task_Completed" xml:space="preserve">
+  <data name="TaskCompleted" xml:space="preserve">
     <value>Completed</value>
     <comment></comment>
   </data>
@@ -1913,6 +1913,10 @@
   </data>
   <data name="TheLastBackupTaken" xml:space="preserve">
     <value>The last backup taken ({0})</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>scripting</value>
     <comment></comment>
   </data>
 </root>

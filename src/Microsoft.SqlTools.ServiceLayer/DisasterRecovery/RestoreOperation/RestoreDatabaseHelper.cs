@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         internal async Task<TaskResult> RestoreTaskAsync(SqlTask sqlTask)
         {
-            sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
+            sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
             RestoreDatabaseTaskDataObject restoreDataObject = sqlTask.TaskMetadata.Data as RestoreDatabaseTaskDataObject;
             TaskResult taskResult = null;
 

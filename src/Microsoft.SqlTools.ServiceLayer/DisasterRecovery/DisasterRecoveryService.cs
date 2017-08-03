@@ -235,19 +235,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         // create task metadata
                         TaskMetadata metadata = new TaskMetadata();
                         metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                        metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                        metadata.Name = SR.Backup_TaskName;                        
+                        metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;                        
                         metadata.Data = backupOperation;
 
                         if (backupParams.IsScripting)
                         {
-                            metadata.TaskType = SqlTaskType.Script;
+                            metadata.Name = string.Format("{0} {1}", SR.BackupTaskName, SR.ScriptTaskName);
+                            metadata.TaskExecutionMode = TaskExecutionMode.Script;
                             metadata.IsCancelable = false;
                             sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupScriptTaskAsync);
                         }
                         else
                         {
-                            metadata.TaskType = SqlTaskType.Execute;
+                            metadata.Name = SR.BackupTaskName;
+                            metadata.TaskExecutionMode = TaskExecutionMode.Execute;
                             metadata.IsCancelable = true;
                             sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupTaskAsync);
                         }
@@ -354,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <returns></returns>
         internal async Task<TaskResult> BackupTaskAsync(SqlTask sqlTask)
         {
-            sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
+            sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
             IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
             TaskResult taskResult = null;
 
@@ -371,7 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     backupCompletedEvent.Set();
                 }
 
-                sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
+                sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.TaskCompleted,
                                    completedTask.Result.TaskStatus);
                 taskResult = completedTask.Result;
             }
@@ -391,9 +392,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <returns></returns>
         internal async Task<TaskResult> BackupScriptTaskAsync(SqlTask sqlTask)
         {
-            sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
+            sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
             IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
-            TaskResult taskResult = null;
+            TaskResult taskResult = new TaskResult();
             string script = "";
 
             if (backupOperation != null)
@@ -403,8 +404,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     try
                     {
                         script = backupOperation.ScriptBackup();
-                        taskResult.TaskStatus = SqlTaskStatus.Succeeded;
-                        sqlTask.AddScript(script, "error haha", SqlTaskStatus.Succeeded);
+                        taskResult.TaskStatus = SqlTaskStatus.Succeeded;                        
+                        sqlTask.AddScript(taskResult.TaskStatus, script);
                     }
                     catch (Exception ex)
                     {
@@ -414,16 +415,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         {
                             taskResult.ErrorMessage += System.Environment.NewLine + ex.InnerException.Message;
                         }
-                        sqlTask.AddMessage(taskResult.TaskStatus == SqlTaskStatus.Failed ? taskResult.ErrorMessage : SR.Task_Completed,
+                        sqlTask.AddMessage(taskResult.TaskStatus == SqlTaskStatus.Failed ? taskResult.ErrorMessage : SR.TaskCompleted,
                                    taskResult.TaskStatus);
                     }                    
-                });     
-
-                
+                });                
             }
             else
             {
-                taskResult = new TaskResult();
                 taskResult.TaskStatus = SqlTaskStatus.Failed;
             }
 
