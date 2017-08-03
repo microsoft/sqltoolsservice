@@ -30,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         private SqlTaskStatus status = SqlTaskStatus.NotStarted;
         private DateTime stopTime;
 
+        public event EventHandler<TaskEventArgs<TaskScript>> ScriptAdded;
         public event EventHandler<TaskEventArgs<TaskMessage>> MessageAdded;
         public event EventHandler<TaskEventArgs<SqlTaskStatus>> StatusChanged;
 
@@ -129,15 +130,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             {
                 if (TaskToCancel != null)
                 {
-                    AutoResetEvent backupCompletedEvent = new AutoResetEvent(initialState: false);
-                    Task<TaskResult> cancelTask = Task.Run(() => CancelTaskAsync(TokenSource.Token, backupCompletedEvent));
+                    AutoResetEvent onCompletedEvent = new AutoResetEvent(initialState: false);
+                    Task<TaskResult> cancelTask = Task.Run(() => CancelTaskAsync(TokenSource.Token, onCompletedEvent));
 
                     completedTask = await Task.WhenAny(performTask, cancelTask);
 
                     // Release the cancelTask
                     if (completedTask == performTask)
                     {
-                        backupCompletedEvent.Set();
+                        onCompletedEvent.Set();
                     }
                 }
                 else
@@ -174,16 +175,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// </summary>
         /// <param name="backupOperation"></param>
         /// <param name="token"></param>
-        /// <param name="backupCompletedEvent"></param>
+        /// <param name="onCompletedEvent"></param>
         /// <returns></returns>
-        private async Task<TaskResult> CancelTaskAsync(CancellationToken token, AutoResetEvent backupCompletedEvent)
+        private async Task<TaskResult> CancelTaskAsync(CancellationToken token, AutoResetEvent onCompletedEvent)
         {
             // Create a task for backup cancellation request
 
             TaskResult result = new TaskResult();
             WaitHandle[] waitHandles = new WaitHandle[2]
             {
-                    backupCompletedEvent,
+                    onCompletedEvent,
                     token.WaitHandle
             };
 
@@ -372,6 +373,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="errorMessage"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public void AddScript(string script, string errorMessage, SqlTaskStatus status)
+        {
+            var newScript = new TaskScript
+            {
+                Script = script,
+                ErrorMessage = errorMessage
+            };
+
+            OnScriptAdded(new TaskEventArgs<TaskScript>(newScript, this));
+        }
+
+        /// <summary>
         /// Adds a new message to the task messages
         /// </summary>
         /// <param name="description">Message description</param>
@@ -430,6 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 ServerName = TaskMetadata.ServerName,
                 Name = TaskMetadata.Name,
                 Description = TaskMetadata.Description,
+                TaskType = TaskMetadata.TaskType,
             };
         }
 
@@ -462,6 +482,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
                     message.Status = success.Value ? SqlTaskStatus.Succeeded : SqlTaskStatus.Failed;
                 }
+            }
+        }
+
+        private void OnScriptAdded(TaskEventArgs<TaskScript> e)
+        {
+            var handler = ScriptAdded;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 

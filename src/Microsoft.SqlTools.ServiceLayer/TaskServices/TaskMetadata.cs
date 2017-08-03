@@ -18,6 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public string Name { get; set; }
 
         /// <summary>
+        /// Task operation type (e.g. execute or script)
+        /// </summary>
+        public SqlTaskType TaskType { get; set; }
+
+        /// <summary>
         /// The number of seconds to wait before canceling the task. 
         /// This is a optional field and 0 or negative numbers means no timeout
         /// </summary>
@@ -41,6 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Data required to perform the task
         /// </summary>
-        public object Data { get; set; }
+        public object Data { get; set; }                
     }
 }

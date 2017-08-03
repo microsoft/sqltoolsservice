@@ -18,9 +18,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public SqlTaskStatus Status { get;  set; }
 
         /// <summary>
-        /// Database server name this task is created for
+        /// Task type
+        /// </summary>
+        public SqlTaskType TaskType { get; set; }
+
+        /// <summary>
+        /// Progress message
         /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// Script for the operation(generate script or execution)
+        /// </summary>
+        public string Script { get; set; }
 
         /// <summary>
         /// The number of millisecond the task was running

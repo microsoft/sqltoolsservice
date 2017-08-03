@@ -116,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             if (sqlTask != null)
             {
                 TaskInfo taskInfo = sqlTask.ToTaskInfo();
+                sqlTask.ScriptAdded += OnTaskScriptAdded;
                 sqlTask.MessageAdded += OnTaskMessageAdded;
                 sqlTask.StatusChanged += OnTaskStatusChanged;
                 await serviceHost.SendEvent(TaskCreatedNotification.Type, taskInfo);
@@ -130,14 +131,32 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
                     TaskId = sqlTask.TaskId.ToString(),
-                    Status = e.TaskData
-
+                    Status = e.TaskData,                    
+                    TaskType = sqlTask.TaskMetadata.TaskType,
                 };
 
                 if (sqlTask.IsCompleted)
                 {
                     progressInfo.Duration = sqlTask.Duration;
                 }
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
+            }
+        }
+        
+        private async void OnTaskScriptAdded(object sender, TaskEventArgs<TaskScript> e)
+        {
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
+            {
+                TaskProgressInfo progressInfo = new TaskProgressInfo
+                {
+                    TaskId = sqlTask.TaskId.ToString(),
+                    TaskType = sqlTask.TaskMetadata.TaskType,
+                    Status = e.TaskData.Status,
+                    Script = e.TaskData.Script,
+                    Message = e.TaskData.ErrorMessage,
+                };
+
                 await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }
         }
@@ -151,7 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 {
                     TaskId = sqlTask.TaskId.ToString(),
                     Message = e.TaskData.Description,
-                    Status = sqlTask.TaskStatus
+                    Status = sqlTask.TaskStatus,                    
+                    TaskType = sqlTask.TaskMetadata.TaskType,
                 };
                 await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }

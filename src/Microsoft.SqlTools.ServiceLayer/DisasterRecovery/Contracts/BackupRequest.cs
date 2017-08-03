@@ -12,6 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public string OwnerUri { get; set; }
 
         public BackupInfo BackupInfo { get; set; }
+
+        public bool IsScripting { get; set; }
     }
 
     public class BackupResponse

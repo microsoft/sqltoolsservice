@@ -21,6 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public SqlTaskStatus Status { get;  set; }
 
         /// <summary>
+        /// Task type
+        /// </summary>
+        public SqlTaskType TaskType { get; set; }
+
+        /// <summary>
         /// Database server name this task is created for
         /// </summary>
         public string ServerName { get; set; }
