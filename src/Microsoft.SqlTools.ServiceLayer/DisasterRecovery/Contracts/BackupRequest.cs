@@ -7,15 +7,30 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
+    /// <summary>
+    /// Backup parameters passed for execution and scripting
+    /// </summary>
     public class BackupParams
     {
+        /// <summary>
+        /// Connection uri
+        /// </summary>
         public string OwnerUri { get; set; }
 
+        /// <summary>
+        /// Backup metrics selected from the UI
+        /// </summary>
         public BackupInfo BackupInfo { get; set; }
 
+        /// <summary>
+        /// True for generating script, false for execution
+        /// </summary>
         public bool IsScripting { get; set; }
     }
 
+    /// <summary>
+    /// Response class for backup execution
+    /// </summary>
     public class BackupResponse
     {
         public bool Result { get; set; }
@@ -23,6 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public int TaskId { get; set; }
     }
 
+    /// <summary>
+    /// Request class for backup execution
+    /// </summary>
     public class BackupRequest
     {
         public static readonly

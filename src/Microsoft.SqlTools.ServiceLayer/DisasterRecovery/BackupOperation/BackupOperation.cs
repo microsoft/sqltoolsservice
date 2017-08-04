@@ -163,7 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             foreach (String s in this.dataContainer.Server.ConnectionContext.CapturedSql.Text)
             {
-                sb.AppendLine(s);
+                sb.Append(s);
+                sb.Append(Environment.NewLine);
             }
             this.dataContainer.Server.ConnectionContext.CapturedSql.Clear();
             this.dataContainer.Server.ConnectionContext.SqlExecutionModes = oldExecutionMode;
