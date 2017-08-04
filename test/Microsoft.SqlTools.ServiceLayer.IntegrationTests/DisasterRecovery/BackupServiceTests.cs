@@ -87,7 +87,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             var backupParams = new BackupParams
             {
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                BackupInfo = backupInfo
+                BackupInfo = backupInfo,
+                IsScripting = false
             };
 
             // Backup the database
@@ -155,7 +156,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             var backupParams = new BackupParams
             {
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                BackupInfo = backupInfo
+                BackupInfo = backupInfo,
+                IsScripting = false
             };
 
             // Backup the database

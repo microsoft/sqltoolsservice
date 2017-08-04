@@ -426,7 +426,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 var backupParams = new BackupParams
                 {
                     OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                    BackupInfo = backupInfo
+                    BackupInfo = backupInfo,
+                    IsScripting = false
                 };
 
                 // Backup the database
