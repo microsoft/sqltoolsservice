@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             this.dataContainer = dataContainer;
             this.serverConnection = new ServerConnection(sqlConnection);
-            this.backupRestoreUtil = new CommonUtilities(this.dataContainer, this.serverConnection);        
+            this.backupRestoreUtil = new CommonUtilities(this.dataContainer, this.serverConnection);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             this.backupInfo = input;
 
-            // convert the types            
+            // convert the types
             this.backupComponent = (BackupComponent)input.BackupComponent;
             this.backupType = (BackupType)input.BackupType;
             this.backupDeviceType = (BackupDeviceType)input.BackupDeviceType;
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         public string ScriptBackup()
         {
-            StringBuilder sb = new StringBuilder();            
+            StringBuilder sb = new StringBuilder();
             SqlExecutionModes oldExecutionMode = this.dataContainer.Server.ConnectionContext.SqlExecutionModes;
             this.dataContainer.Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
             this.dataContainer.Server.ConnectionContext.CapturedSql.Clear();
@@ -469,7 +469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 }
             }
             catch
-            {                
+            {
             }
             finally
             {

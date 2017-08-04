@@ -237,18 +237,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         metadata.ServerName = connInfo.ConnectionDetails.ServerName;
                         metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
                         metadata.Data = backupOperation;
+                        metadata.IsCancelable = true;
 
                         if (backupParams.IsScripting)
                         {
                             metadata.Name = string.Format("{0} {1}", SR.BackupTaskName, SR.ScriptTaskName);
-                            metadata.TaskExecutionMode = TaskExecutionMode.Script;                            
+                            metadata.TaskExecutionMode = TaskExecutionMode.Script;
                             sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupScriptTaskAsync);
                             sqlTask.Run();
                         }
                         else
                         {
                             metadata.Name = SR.BackupTaskName;
-                            metadata.TaskExecutionMode = TaskExecutionMode.Execute;                            
+                            metadata.TaskExecutionMode = TaskExecutionMode.Execute;
                             sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, Instance.PerformBackupTaskAsync, Instance.CancelBackupTaskAsync);
                         }
                     }
@@ -355,13 +356,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             string script = "";
 
             if (backupOperation != null)
-            {                
+            {
                 await Task.Factory.StartNew(() =>
                 {
                     try
                     {
                         script = backupOperation.ScriptBackup();
-                        taskResult.TaskStatus = SqlTaskStatus.Succeeded;                        
+                        taskResult.TaskStatus = SqlTaskStatus.Succeeded;
                         sqlTask.AddScript(taskResult.TaskStatus, script);
                     }
                     catch (Exception ex)
@@ -374,8 +375,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         }
                         sqlTask.AddMessage(taskResult.TaskStatus == SqlTaskStatus.Failed ? taskResult.ErrorMessage : SR.TaskCompleted,
                                    taskResult.TaskStatus);
-                    }                    
-                });                
+                    }
+                });
             }
             else
             {

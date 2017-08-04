@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
                     TaskId = sqlTask.TaskId.ToString(),
-                    Status = e.TaskData                    
+                    Status = e.TaskData
                 };
 
                 if (sqlTask.IsCompleted)
