@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private const char BackupMediaNameSeparator = ',';
         private DatabaseRestorePlanner restorePlanner;
         private string tailLogBackupFile;
+        private BackupSetsFilterInfo backupSetsFilterInfo = new BackupSetsFilterInfo();
 
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
@@ -132,25 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
-        /// <summary>
-        /// Removes the backup sets that are filtered in the request
-        /// </summary>
-        public void RemoveFilteredBackupSets()
-        {
-            var backupSetIdsToRestore = RestoreParams.SelectedBackupSets;
-            if (backupSetIdsToRestore != null)
-            {
-                var ids = backupSetIdsToRestore.Select(x =>
-                {
-                    Guid guid;
-                    Guid.TryParse(x, out guid);
-                    return guid;
-                }
-                );
-                restorePlan.RestoreOperations.RemoveAll(x => !ids.Contains(x.BackupSet.BackupSetGuid));
-            }
-        }
-
+        
         /// <summary>
         /// Returns the last backup taken
         /// </summary>
@@ -158,20 +141,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public string GetLastBackupTaken()
         {
             string lastBackup = string.Empty;
-            int lastIndexSel = 0; //TODO: find the selected backup set
+            int lastSelectedIndex = GetLastSelectedBackupSetIndex();
+            BackupSet lastSelectedBackupSet = lastSelectedIndex >= 0 && this.RestorePlan.RestoreOperations != null && this.RestorePlan.RestoreOperations.Count > 0 ? 
+                this.RestorePlan.RestoreOperations[lastSelectedIndex].BackupSet : null;
             if (this.RestorePlanner.RestoreToLastBackup &&
-                this.RestorePlan.RestoreOperations[lastIndexSel] != null &&
+                lastSelectedBackupSet != null &&
                 this.RestorePlan.RestoreOperations.Count > 0 &&
-                this.RestorePlan.RestoreOperations[lastIndexSel].BackupSet != null)
+                lastSelectedBackupSet != null)
             {
-                int lastIndex = this.RestorePlan.RestoreOperations.Count - 1;
-                DateTime backupTime = this.RestorePlan.RestoreOperations[lastIndexSel].BackupSet.BackupStartDate;
+                bool isTheLastOneSelected = lastSelectedIndex == this.RestorePlan.RestoreOperations.Count - 1;
+                DateTime backupTime = lastSelectedBackupSet.BackupStartDate;
                 string backupTimeStr = backupTime.ToLongDateString() + " " + backupTime.ToLongTimeString();
-                lastBackup = (lastIndexSel == lastIndex) ?
+                lastBackup = isTheLastOneSelected ?
                     string.Format(CultureInfo.CurrentCulture, SR.TheLastBackupTaken, (backupTimeStr)) : backupTimeStr;
             }
             //TODO: find the selected one
-            else if (this.RestoreSelected[0] && !this.RestorePlanner.RestoreToLastBackup)
+            else if (GetFirstSelectedBackupSetIndex() == 0 && !this.RestorePlanner.RestoreToLastBackup)
             {
                 lastBackup = this.CurrentRestorePointInTime.Value.ToLongDateString() +
                         " " + this.CurrentRestorePointInTime.Value.ToLongTimeString();
@@ -185,13 +170,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         public void Execute()
         {
-            RestorePlan restorePlan = RestorePlan;
+            RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
             // ssms creates a new restore plan by calling GetRestorePlanForExecutionAndScript and
             // Doens't use the plan already created here. not sure why, using the existing restore plan doesn't make
             // any issue so far so keeping in it for now but we might want to double check later
             if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
             {
-                RemoveFilteredBackupSets();
                 restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                 {
                     if (SqlTask != null)
@@ -202,6 +186,49 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 restorePlan.Execute();
             }
         }
+
+        /// <summary>
+        /// Gets RestorePlan to perform restore and to script
+        /// </summary>
+        public RestorePlan GetRestorePlanForExecutionAndScript()
+        {
+            this.ActiveException = null; //Clear any existing exceptions as the plan is getting recreated. 
+            //Clear any existing exceptions as new plan is getting recreated.
+            this.CreateOrUpdateRestorePlanException = null;
+            bool tailLogBackup = this.RestorePlanner.BackupTailLog;
+            if (this.PlanUpdateRequired)
+            {
+                this.RestorePlan = this.RestorePlanner.CreateRestorePlan(this.RestoreOptions);
+                
+                this.Util.AddCredentialNameForUrlBackupSet(this.RestorePlan, this.CredentialName);
+            }
+            RestorePlan rp = new RestorePlan(this.Server);
+            rp.RestoreAction = RestoreActionType.Database;
+            if (this.RestorePlan != null)
+            {
+                if (this.RestorePlan.TailLogBackupOperation != null && tailLogBackup)
+                {
+                    rp.TailLogBackupOperation = this.RestorePlan.TailLogBackupOperation;
+                }
+                int i = 0;
+                foreach (Restore res in this.RestorePlan.RestoreOperations)
+                {
+                    if (this.backupSetsFilterInfo.IsBackupSetSelected(res.BackupSet))
+                    {
+                        rp.RestoreOperations.Add(res);
+                    }
+                    i++;
+                }
+            }
+            this.SetRestorePlanProperties(rp);
+            RestorePlanToExecute = rp;
+            return rp;
+        }
+
+        /// <summary>
+        /// For test purpose only. The restore plan that's used to execute
+        /// </summary>
+        internal RestorePlan RestorePlanToExecute { get; set; }
 
         /// <summary>
         /// Restore Util
@@ -478,8 +505,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
-        public bool[] RestoreSelected;
-
         /// <summary>
         /// The database being restored
         /// </summary>
@@ -527,34 +552,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         internal string ContainerSharedAccessPolicy = string.Empty;
 
         /// <summary>
-        /// Updates the RestoreSelected Array to hold information about updated Restore Plan
-        /// </summary>
-        private void UpdateRestoreSelected()
-        {
-            int operationsCount = this.RestorePlan.RestoreOperations.Count;
-            // The given condition will return true only if new backup has been added on database during lifetime of restore dialog.
-            // This will happen when tail log backup is taken successfully and subsequent restores have failed.
-            if (operationsCount > this.RestoreSelected.Length)
-            {
-                bool[] tempRestoreSel = new bool[this.RestorePlan.RestoreOperations.Count];
-                for (int i = 0; i < operationsCount; i++)
-                {
-                    if (i < RestoreSelected.Length)
-                    {
-                        //Retain all the old values.
-                        tempRestoreSel[i] = RestoreSelected[i];
-                    }
-                    else
-                    {
-                        //Do not add the newly added backupset into Restore plan by default.
-                        tempRestoreSel[i] = false;
-                    }
-                }
-                this.RestoreSelected = tempRestoreSel;
-            }
-        }
-
-        /// <summary>
         /// Returns the physical name for the target Db file.
         /// It is the sourceDbName replaced with targetDbName in sourceFilename.
         /// If either sourceDbName or TargetDbName is empty, the source Db filename is returned.
@@ -577,10 +574,36 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             List<BackupSetInfo> result = new List<BackupSetInfo>();
             foreach (Restore restore in RestorePlan.RestoreOperations)
             {
-                result.Add(BackupSetInfo.Create(restore, Server));
+                BackupSetInfo backupSetInfo = BackupSetInfo.Create(restore, Server);
+                if (this.backupSetsFilterInfo.IsBackupSetSelected(restore.BackupSet))
+                {
+                   
+                }
+                result.Add(backupSetInfo);
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// List of selected backupsets
+        /// </summary>
+        public DatabaseFileInfo[] GetSelectedBakupSets()
+        {
+            List<DatabaseFileInfo> result = new List<DatabaseFileInfo>();
+            IEnumerable<BackupSetInfo> backupSetInfos = GetBackupSetInfo();
+            foreach (var backupSetInfo in backupSetInfos)
+            {
+                var item = new DatabaseFileInfo(backupSetInfo.ConvertPropertiesToArray());
+                Guid backupSetGuid;
+                if(!Guid.TryParse(item.Id, out backupSetGuid))
+                {
+                    backupSetGuid = Guid.Empty;
+                }
+                item.IsSelected = this.backupSetsFilterInfo.IsBackupSetSelected(backupSetGuid);
+                result.Add(item);
+            }
+            return result.ToArray();
         }
 
         /// <summary>
@@ -682,23 +705,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     this.SetRestorePlanProperties(this.restorePlan);
                 }
             }
-            if (this.restorePlan != null)
-            {
-                this.RestoreSelected = new bool[this.restorePlan.RestoreOperations.Count];
-                for (int i = 0; i < this.restorePlan.RestoreOperations.Count; i++)
-                {
-                    this.RestoreSelected[i] = true;
-                }
-            }
-            else
+            if (this.restorePlan == null)
             {
                 this.RestorePlan = new RestorePlan(this.Server);
                 this.Util.AddCredentialNameForUrlBackupSet(this.RestorePlan, this.CredentialName);
-                this.RestoreSelected = new bool[0];
             }
+
+            UpdateSelectedBackupSets();
         }
 
-        
         /// <summary>
         /// Determine if restore plan of selected database does have Url
         /// </summary>
@@ -720,9 +735,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             rp.SetRestoreOptions(this.RestoreOptions);
             rp.CloseExistingConnections = this.CloseExistingConnections;
-            if (this.targetDbName != null && !this.targetDbName.Equals(string.Empty))
+            if (this.TargetDatabase != null && !this.TargetDatabase.Equals(string.Empty))
             {
-                rp.DatabaseName = targetDbName;
+                rp.DatabaseName = TargetDatabase;
             }
             rp.RestoreOperations[0].RelocateFiles.Clear();
             foreach (DbFile dbFile in this.DbFiles)
@@ -789,109 +804,150 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             get
             {
-                if (this.RestorePlan == null || this.RestorePlan.RestoreOperations.Count == 0
-                    || this.RestoreSelected.Length == 0 || !this.RestoreSelected[0])
+                if (!IsAnyFullBackupSetSelected())
                 {
                     return null;
                 }
                 for (int i = this.RestorePlan.RestoreOperations.Count - 1; i >= 0; i--)
                 {
-                    if (this.RestoreSelected[i])
+                    BackupSet backupSet = this.RestorePlan.RestoreOperations[i].BackupSet;
+                    if (this.backupSetsFilterInfo.IsBackupSetSelected(backupSet))
                     {
-                        if (this.RestorePlan.RestoreOperations[i].BackupSet == null
-                            || (this.RestorePlan.RestoreOperations[i].BackupSet.BackupSetType == BackupSetType.Log &&
+                        if (backupSet == null
+                            || (backupSet.BackupSetType == BackupSetType.Log &&
                                 this.RestorePlan.RestoreOperations[i].ToPointInTime != null))
                         {
                             return this.RestorePlanner.RestoreToPointInTime;
                         }
-                        return this.RestorePlan.RestoreOperations[i].BackupSet.BackupStartDate;
+                        return backupSet.BackupStartDate;
                     }
                 }
                 return null;
             }
         }
 
-        public void ToggleSelectRestore(int index)
+
+
+       
+
+        private bool IsAnyFullBackupSetSelected()
         {
-            RestorePlan rp = this.restorePlan;
-            if (rp == null || rp.RestoreOperations.Count <= index)
+            bool isSelected = false;
+
+            if (this.RestorePlan != null && this.RestorePlan.RestoreOperations.Any() && this.backupSetsFilterInfo.AnySelected)
             {
-                return;
+                var fullBackupSet = this.RestorePlan.RestoreOperations.FirstOrDefault(x => x.BackupSet.BackupSetType == BackupSetType.Database);
+                isSelected = fullBackupSet != null && this.backupSetsFilterInfo.IsBackupSetSelected(fullBackupSet.BackupSet.BackupSetGuid);
             }
-            //the last index - this will include tail-Log restore operation if present
-            if (index == rp.RestoreOperations.Count - 1)
+
+            return isSelected;
+        }
+
+        private int GetLastSelectedBackupSetIndex()
+        {
+            if (this.RestorePlan != null && this.RestorePlan.RestoreOperations.Any() && this.backupSetsFilterInfo.AnySelected)
             {
-                if (this.RestoreSelected[index])
+                for (int i = this.RestorePlan.RestoreOperations.Count -1; i >= 0; i--)
                 {
-                    this.RestoreSelected[index] = false;
-                }
-                else
-                {
-                    for (int i = 0; i <= index; i++)
+                    BackupSet backupSet = this.RestorePlan.RestoreOperations[i].BackupSet;
+                    if (this.backupSetsFilterInfo.IsBackupSetSelected(backupSet))
                     {
-                        this.RestoreSelected[i] = true;
+                        return i;
                     }
                 }
-                return;
             }
-            if (index == 0)
+            return -1;
+        }
+
+        private int GetFirstSelectedBackupSetIndex()
+        {
+            if (this.RestorePlan != null && this.RestorePlan.RestoreOperations.Any() && this.backupSetsFilterInfo.AnySelected)
             {
-                if (!this.RestoreSelected[index])
+                for (int i = 0; i < this.RestorePlan.RestoreOperations.Count - 1; i++)
                 {
-                    this.RestoreSelected[index] = true;
-                }
-                else
-                {
-                    for (int i = index; i < rp.RestoreOperations.Count; i++)
+                    BackupSet backupSet = this.RestorePlan.RestoreOperations[i].BackupSet;
+                    if (this.backupSetsFilterInfo.IsBackupSetSelected(backupSet))
                     {
-                        this.RestoreSelected[i] = false;
+                        return i;
                     }
                 }
-                return;
             }
-            
-            if (index == 1 && rp.RestoreOperations[index].BackupSet.BackupSetType == BackupSetType.Differential)
+            return -1;
+        }
+
+
+        public void UpdateSelectedBackupSets()
+        {
+            this.backupSetsFilterInfo.Clear();
+            var selectedBackupSetsFromClient = this.RestoreParams.SelectedBackupSets;
+
+            if (this.RestorePlan != null && this.RestorePlan.RestoreOperations != null)
             {
-                if (!this.RestoreSelected[index])
+                for (int index = 0; index < this.RestorePlan.RestoreOperations.Count; index++)
                 {
-                    this.RestoreSelected[0] = true;
-                    this.RestoreSelected[index] = true;
-                }
-                else if (rp.RestoreOperations[2].BackupSet == null)
-                {
-                    this.RestoreSelected[index] = false;
-                    this.RestoreSelected[2] = false;
-                }
-                else if (this.Server.Version.Major < 9 || BackupSet.IsBackupSetsInSequence(rp.RestoreOperations[0].BackupSet, rp.RestoreOperations[2].BackupSet))
-                {
-                    this.RestoreSelected[index] = false;
-                }
-                else
-                {
-                    for (int i = index; i < rp.RestoreOperations.Count; i++)
+                    BackupSet backupSet = this.RestorePlan.RestoreOperations[index].BackupSet;
+                    if (backupSet != null)
                     {
-                        this.RestoreSelected[i] = false;
+                        // If the collection client sent is null, select everything; otherwise select the items that are selected in client
+                        bool backupSetSelected = selectedBackupSetsFromClient == null || selectedBackupSetsFromClient.Any(x => BackUpSetGuidEqualsId(backupSet, x));
+
+                        if (backupSetSelected)
+                        {
+                            AddBackupSetsToSelected(index, index);
+
+                            //the last index - this will include tail-Log restore operation if present
+                            //If the last item is selected, select all the items before that because the last item
+                            //is tail-log
+                            if (index == this.RestorePlan.RestoreOperations.Count - 1)
+                            {
+                                AddBackupSetsToSelected(0, index);
+                            }
+
+                            //If the second item is selected and it's a diff backup, the fist item (full backup) has to be selected
+                            if (index == 1 && backupSet.BackupSetType == BackupSetType.Differential)
+                            {
+                                AddBackupSetsToSelected(0, 0);
+                            }
+
+                            //If the selected item is a log backup, select all the items before that
+                            if (backupSet.BackupSetType == BackupSetType.Log)
+                            {
+                                AddBackupSetsToSelected(0, index);
+                            }
+                        }
+                        else
+                        {
+                            // If the first item is not selected which is always the full backup, other backupsets cannot be selected
+                            if (index == 0)
+                            {
+                                selectedBackupSetsFromClient = new string[] { };
+                            }
+
+                            //The a log is not selected, the logs after that cannot be selected
+                            if (backupSet.BackupSetType == BackupSetType.Log)
+                            {
+                                break;
+                            }
+                        }
                     }
                 }
-                return;
             }
-            if (rp.RestoreOperations[index].BackupSet.BackupSetType == BackupSetType.Log)
+        }
+
+        private bool BackUpSetGuidEqualsId(BackupSet backupSet, string id)
+        {
+           return backupSet != null && string.Compare(backupSet.BackupSetGuid.ToString(), id, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
+        private void AddBackupSetsToSelected(int from, int to)
+        {
+            if (this.RestorePlan != null && this.RestorePlan.RestoreOperations != null 
+                && from < this.RestorePlan.RestoreOperations.Count && to < this.RestorePlan.RestoreOperations.Count)
             {
-                if (this.RestoreSelected[index])
+                for (int i = from; i <= to; i++)
                 {
-                    for (int i = index; i < rp.RestoreOperations.Count; i++)
-                    {
-                        this.RestoreSelected[i] = false;
-                    }
-                    return;
-                }
-                else
-                {
-                    for (int i = 0; i <= index; i++)
-                    {
-                        this.RestoreSelected[i] = true;
-                    }
-                    return;
+                    BackupSet backupSet = this.RestorePlan.RestoreOperations[i].BackupSet;
+                    this.backupSetsFilterInfo.Add(backupSet);
                 }
             }
         }
