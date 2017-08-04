@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
     /// <summary>
-    /// Task type
+    /// Task execution mode
     /// </summary>
     public enum TaskExecutionMode
     {

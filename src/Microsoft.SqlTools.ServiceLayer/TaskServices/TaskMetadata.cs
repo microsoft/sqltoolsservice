@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public string Name { get; set; }
 
         /// <summary>
-        /// Task operation type (e.g. execute or script)
+        /// Task execution mode (e.g. execute or script)
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
 

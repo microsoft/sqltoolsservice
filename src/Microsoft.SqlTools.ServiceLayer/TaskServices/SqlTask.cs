@@ -373,11 +373,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         }
 
         /// <summary>
-        /// 
+        /// Add script result of the operation
         /// </summary>
-        /// <param name="script"></param>
-        /// <param name="errorMessage"></param>
-        /// <param name="status"></param>
+        /// <param name="script">Script content</param>
+        /// <param name="errorMessage">Error occured during script</param>
+        /// <param name="status">Status of the script</param>
         /// <returns></returns>
         public void AddScript(SqlTaskStatus status, string script, string errorMessage = null)
         {
