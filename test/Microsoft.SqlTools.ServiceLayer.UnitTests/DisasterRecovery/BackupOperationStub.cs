@@ -62,6 +62,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         /// <summary>
+        /// Generate script for backup
+        /// </summary>
+        public string ScriptBackup()
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Cancel backup
         /// </summary>
         public void CancelBackup()
