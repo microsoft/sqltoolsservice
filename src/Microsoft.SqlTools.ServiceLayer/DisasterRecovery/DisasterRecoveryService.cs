@@ -391,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="sqlTask"></param>
         /// <returns></returns>
-        private async Task<TaskResult> PerformBackupTaskAsync(SqlTask sqlTask)
+        internal async Task<TaskResult> PerformBackupTaskAsync(SqlTask sqlTask)
         {
             sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
             IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
@@ -431,7 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="sqlTask"></param>
         /// <returns></returns>
-        private async Task<TaskResult> CancelBackupTaskAsync(SqlTask sqlTask)
+        internal async Task<TaskResult> CancelBackupTaskAsync(SqlTask sqlTask)
         {
             IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
             TaskResult result = new TaskResult();
