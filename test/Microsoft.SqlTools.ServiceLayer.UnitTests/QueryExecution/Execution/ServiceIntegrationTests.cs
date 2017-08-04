@@ -486,16 +486,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             await Task.WhenAll(queryService.ActiveSimpleExecuteRequests.Values);
 
-            var queries = queryService.ActiveQueries.Values.Take(2).ToArray();
-            Query q1 = queries[0];
-            Query q2 = queries[1];
-
-            Assert.NotNull(q1);
-            Assert.NotNull(q2);
-
-            // wait on the task to finish
-            q1.ExecutionTask.Wait();
-            q2.ExecutionTask.Wait();
+            var queries = queryService.ActiveQueries.Values.ToArray();
+            var queryTasks = queries.Select(query => query.ExecutionTask);
+            
+            await Task.WhenAll(queryTasks);
             
             efv1.Validate();
             efv2.Validate();
