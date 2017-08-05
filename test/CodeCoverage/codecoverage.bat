@@ -28,6 +28,8 @@ dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools
 dotnet build %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj %DOTNETCONFIG% -r win7-x64
 
 REM run the tests through OpenCover and generate a report
+dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.csproj
+dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.csproj %DOTNETCONFIG% -r win7-x64
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj
 dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj %DOTNETCONFIG% 
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.csproj
@@ -39,7 +41,7 @@ dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Mi
 
 SET TEST_SERVER=localhost
 SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp2.0\win7-x64\MicrosoftSqlToolsServiceLayer.exe
-SET SERVICECODECOVERAGE=True
+SET SERVICECODECOVERAGE=False
 SET CODECOVERAGETOOL="%WORKINGDIR%packages\OpenCover.4.6.684\tools\OpenCover.Console.exe"
 SET CODECOVERAGEOUTPUT=coverage.xml
 
