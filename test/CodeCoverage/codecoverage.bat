@@ -41,19 +41,19 @@ dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Mi
 
 SET TEST_SERVER=localhost
 SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp2.0\win7-x64\MicrosoftSqlToolsServiceLayer.exe
-SET SERVICECODECOVERAGE=False
+SET SERVICECODECOVERAGE=True
 SET CODECOVERAGETOOL="%WORKINGDIR%packages\OpenCover.4.6.684\tools\OpenCover.Console.exe"
 SET CODECOVERAGEOUTPUT=coverage.xml
 
-dotnet.exe test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG%"
+REM dotnet.exe test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG%"
 
 SET SERVICECODECOVERAGE=FALSE
 
-%CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]*" -output:coverage.xml -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\bin\Debug\netcoreapp2.0
+%CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* +[MicrosoftSqlToolsServiceLayer*]* +[MicrosoftSqlToolsCredentials*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]*" -output:coverage.xml -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\bin\Debug\netcoreapp2.0
 
-%CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]*" -output:coverage.xml -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\bin\Debug\netcoreapp2.0
+%CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* +[MicrosoftSqlToolsServiceLayer*]* +[MicrosoftSqlToolsCredentials*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]*" -output:coverage.xml -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\bin\Debug\netcoreapp2.0
 
-%CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]*" -output:coverage.xml -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\netcoreapp2.0
+%CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* +[MicrosoftSqlToolsServiceLayer*]* +[MicrosoftSqlToolsCredentials*]* [Microsoft.SqlTools.*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]*" -output:coverage.xml -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\netcoreapp2.0
 
 REM Generate the report
 "%WORKINGDIR%packages\OpenCoverToCoberturaConverter.0.2.4.0\tools\OpenCoverToCoberturaConverter.exe"  -input:coverage.xml -output:outputCobertura.xml -sources:%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer
