@@ -171,9 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public void Execute()
         {
             RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
-            // ssms creates a new restore plan by calling GetRestorePlanForExecutionAndScript and
-            // Doens't use the plan already created here. not sure why, using the existing restore plan doesn't make
-            // any issue so far so keeping in it for now but we might want to double check later
+            
             if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
             {
                 restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
@@ -192,6 +190,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         public RestorePlan GetRestorePlanForExecutionAndScript()
         {
+            // One of the reasons the existing plan is not used and a new plan is created to execute is the order of the backupsets and
+            // the last backupset is important. User can choose specific backupset in the plan to restore and
+            // if the last backup set is not selected from the list, it means the item before that should be the real last item
+            // with simply removing the item from the list, the order won't work correctlly. Smo considered the last item removed and 
+            // doesn't consider the previous item as the last item. Creating a new list and adding backpsets is the only way to make it work
+            // and the reason the last backup set is important is that it has to restore with recovery mode while the others are restored with no recovery
+
             this.ActiveException = null; //Clear any existing exceptions as the plan is getting recreated. 
             //Clear any existing exceptions as new plan is getting recreated.
             this.CreateOrUpdateRestorePlanException = null;
