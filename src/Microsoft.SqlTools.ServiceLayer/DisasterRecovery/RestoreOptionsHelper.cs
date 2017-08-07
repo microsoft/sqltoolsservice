@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal const string SetRestrictedUser = "setRestrictedUser";
         internal const string RecoveryState = "recoveryState";
         internal const string BackupTailLog = "backupTailLog";
-        internal const string DefaultBackupTailLog = "defaultBackupTailLog";
+        internal const string EnableBackupTailLog = "enableBackupTailLog";
         internal const string TailLogBackupFile = "tailLogBackupFile";
         internal const string DefaultTailLogBackupFile = "defaultTailLogBackupFile";
         internal const string TailLogWithNoRecovery = "tailLogWithNoRecovery";
@@ -31,6 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal const string SelectedBackupSets = "selectedBackupSets";
         internal const string StandbyFile = "standbyFile";
         internal const string DefaultStandbyFile = "defaultStandbyFile";
+        internal const string SourceDatabaseNamesWithBackupSets = "sourceDatabaseNamesWithBackupSets";
+        internal const string ReadHeaderFromMedia = "readHeaderFromMedia";
 
         /// <summary>
         /// Creates the options metadata available for restore operations

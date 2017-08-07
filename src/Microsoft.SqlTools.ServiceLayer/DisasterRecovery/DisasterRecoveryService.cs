@@ -10,12 +10,9 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -26,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
-        private RestoreDatabaseHelper restoreDatabaseService = RestoreDatabaseHelper.Instance;
+        private RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -128,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             try
             {
                 ConnectionInfo connInfo;
-                bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
+                bool supported = IsBackupRestoreOperationSupported(restoreParams.OwnerUri, out connInfo);
 
                 if (supported && connInfo != null)
                 {
@@ -151,6 +148,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         /// <summary>
+        /// Handles a restore config info request
+        /// </summary>
+        internal async Task HandleRestoreConfigInfoRequest(
+            RestoreConfigInfoRequestParams restoreConfigInfoParams,
+            RequestContext<RestoreConfigInfoResponse> requestContext)
+        {
+            RestoreConfigInfoResponse response = new RestoreConfigInfoResponse();
+
+            try
+            {
+                ConnectionInfo connInfo;
+                bool supported = IsBackupRestoreOperationSupported(restoreConfigInfoParams.OwnerUri, out connInfo);
+
+                if (supported && connInfo != null)
+                {
+                    response = this.restoreDatabaseService.CreateConfigInfoResponse(restoreConfigInfoParams);
+                }
+                else
+                {
+                    response.ErrorMessage = SR.RestoreNotSupported;
+                }
+                await requestContext.SendResult(response);
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
+                await requestContext.SendResult(response);
+            }
+        }
+
+        /// <summary>
         /// Handles a restore request
         /// </summary>
         internal async Task HandleRestoreRequest(
@@ -162,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             try
             {
                 ConnectionInfo connInfo;
-                bool supported = IsBackupRestoreOperationSupported(restoreParams, out connInfo);
+                bool supported = IsBackupRestoreOperationSupported(restoreParams.OwnerUri, out connInfo);
 
                 if (supported && connInfo != null)
                 {
@@ -175,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             // create task metadata
                             TaskMetadata metadata = new TaskMetadata();
                             metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                            metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
+                            metadata.DatabaseName = restoreParams.TargetDatabaseName;
                             metadata.Name = SR.RestoreTaskName;
                             metadata.IsCancelable = true;
                             metadata.Data = restoreDataObject;
@@ -279,14 +307,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return null;
         }
 
-        private bool IsBackupRestoreOperationSupported(RestoreParams restoreParams, out ConnectionInfo connectionInfo)
+        private bool IsBackupRestoreOperationSupported(string ownerUri, out ConnectionInfo connectionInfo)
         {
             SqlConnection sqlConn = null;
             try
             {
                 ConnectionInfo connInfo;
                 DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                        restoreParams.OwnerUri,
+                        ownerUri,
                         out connInfo);
 
                 if (connInfo != null)

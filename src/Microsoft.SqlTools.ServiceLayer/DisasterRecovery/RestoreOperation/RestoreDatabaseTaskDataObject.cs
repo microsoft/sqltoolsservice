@@ -90,6 +90,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
         /// <summary>
+        /// Returns the db names that have backupsets
+        /// </summary>
+        /// <returns></returns>
+        public List<String> GetDatabaseNamesWithBackupSets()
+        {
+            return Util.GetSourceDbNames();
+        }
+
+        /// <summary>
         /// Current sqlserver instance
         /// </summary>
         public Server Server;
@@ -991,48 +1000,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             return true;
         }
-    }
-
-    public class RestoreDatabaseRecoveryState
-    {
-        public RestoreDatabaseRecoveryState(DatabaseRecoveryState recoveryState)
-        {
-            this.RecoveryState = recoveryState;
-        }
-
-        public DatabaseRecoveryState RecoveryState;
-        private static string RestoreWithRecovery = "RESTORE WITH RECOVERY";
-        private static string RestoreWithNoRecovery = "RESTORE WITH NORECOVERY";
-        private static string RestoreWithStandby = "RESTORE WITH STANDBY";
-
-        public override string ToString()
-        {
-            switch (this.RecoveryState)
-            {
-                case DatabaseRecoveryState.WithRecovery:
-                    return RestoreDatabaseRecoveryState.RestoreWithRecovery;
-                case DatabaseRecoveryState.WithNoRecovery:
-                    return RestoreDatabaseRecoveryState.RestoreWithNoRecovery;
-                case DatabaseRecoveryState.WithStandBy:
-                    return RestoreDatabaseRecoveryState.RestoreWithStandby;
-            }
-            return RestoreDatabaseRecoveryState.RestoreWithRecovery;
-        }
-
-        /*
-        public string Info()
-        {
-            switch (this.RecoveryState)
-            {
-                case DatabaseRecoveryState.WithRecovery:
-                    return SR.RestoreWithRecoveryInfo;
-                case DatabaseRecoveryState.WithNoRecovery:
-                    return SR.RestoreWithNoRecoveryInfo;
-                case DatabaseRecoveryState.WithStandBy:
-                    return SR.RestoreWithStandbyInfo;
-            }
-            return SR.RestoreWithRecoveryInfo;
-        }
-        */
     }
 }
