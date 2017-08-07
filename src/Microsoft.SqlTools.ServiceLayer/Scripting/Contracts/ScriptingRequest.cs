@@ -19,6 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         public string FilePath { get; set; }
 
         /// <summary>
+        /// Gets or sets whether scripting to a single file or file per object.
+        /// </summary>
+        public string ScriptDestination { get; set; }
+
+        /// <summary>
         /// Gets or sets connection string of the target database the scripting operation will run against.
         /// </summary>
         public string ConnectionString { get; set; }
@@ -39,6 +44,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         public List<ScriptingObject> ExcludeObjectCriteria { get; set; }
 
         /// <summary>
+        /// Gets or sets a list of schema name of objects to script.
+        /// </summary>
+        public List<string> IncludeSchemas { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of schema name of objects to not script.
+        /// </summary>
+        public List<string> ExcludeSchemas { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of type name of objects to script.
+        /// </summary>
+        public List<string> IncludeTypes { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of type name of objects to not script
+        /// </summary>
+        public List<string> ExcludeTypes { get; set; }
+
+        /// <summary>
         /// Gets or sets the scripting options.
         /// </summary>
         public ScriptOptions ScriptOptions { get; set; }
@@ -57,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
     /// </summary>
     public class ScriptingRequest
     {
-        public static readonly RequestType<ScriptingParams, ScriptingResult> Type = 
+        public static readonly RequestType<ScriptingParams, ScriptingResult> Type =
             RequestType<ScriptingParams, ScriptingResult>.Create("scripting/script");
     }
 }

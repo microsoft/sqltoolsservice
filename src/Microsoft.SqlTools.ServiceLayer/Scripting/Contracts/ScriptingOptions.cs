@@ -131,6 +131,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         public string ScriptCompatibilityOption { get; set; } = "Script140Compat";
 
         /// <summary>
+        /// Script only features compatible with the specified SQL Server database engine type.
+        /// Possible Values:
+        ///   SingleInstance
+        ///   SqlAzure
+        /// </summary>
+        public string TargetDatabaseEngineType { get; set; } = "SingleInstance";
+        
+        /// <summary>
         /// Script only features compatible with the specified SQL Server database engine edition.
         /// Possible Values:
         ///   SqlServerPersonalEdition
@@ -142,14 +150,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   SqlServerStretchEdition 
         /// </summary>
         public string TargetDatabaseEngineEdition { get; set; } = "SqlServerEnterpriseEdition";
-
-        /// <summary>
-        /// Script only features compatible with the specified SQL Server database engine type.
-        /// Possible Values:
-        ///   SingleInstance
-        ///   SqlAzure
-        /// </summary>
-        public string TargetDatabaseEngineType { get; set; } = "SingleInstance";
 
         /// <summary>
         /// Script all logins available on the server. Passwords will not be scripted.

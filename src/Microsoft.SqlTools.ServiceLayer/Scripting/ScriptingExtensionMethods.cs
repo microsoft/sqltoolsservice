@@ -89,9 +89,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="scriptingObject">The scripting object instance.</param>
         /// <param name="database">The name of the database referenced by the Urn.</param>
         /// <returns>The Urn instance.</returns>
-        public static Urn ToUrn(this ScriptingObject scriptingObject, string database)
+        public static Urn ToUrn(this ScriptingObject scriptingObject, string server, string database)
         {
             Validate.IsNotNull("scriptingObject", scriptingObject);
+            Validate.IsNotNullOrEmptyString("server", server);
             Validate.IsNotNullOrWhitespaceString("database", database);
 
             Validate.IsNotNullOrWhitespaceString("scriptingObject.Name", scriptingObject.Name);
@@ -99,7 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
             string urn = string.Format(
-                "Server/Database[@Name='{0}']/{1}[@Name='{2}' {3}]",
+                "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
+                server.ToUpper(),
                 database,
                 scriptingObject.Type,
                 scriptingObject.Name,

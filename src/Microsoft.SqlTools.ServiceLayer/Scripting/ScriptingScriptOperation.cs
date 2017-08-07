@@ -72,11 +72,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
 
+                ScriptDestination destination = !string.IsNullOrWhiteSpace(this.Parameters.ScriptDestination)
+                    ? (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
+                    : ScriptDestination.ToSingleFile;
+
+                // SMO is currently hardcoded to produce UTF-8 encoding when running on dotnet core.
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
-                    SaveFileType = ScriptFileType.Unicode,          // UTF-16
                     SaveFileName = this.Parameters.FilePath,
+                    ScriptDestination = destination,
                 };
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -164,86 +169,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // criteria should include the target objects to script.
             //
             bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-<<<<<<< HEAD
-            bool scriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
-            if (scriptAllObjects)
-            {
-                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is True");
-                
-                // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
-                // or all SqlScriptPublishModel.AdvancedOptions will be reset.
-                publishModel.ScriptAllObjects = true;
-                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
-                return publishModel;
-            }
-=======
-            bool scriptAllObjects = 
-                !(hasObjectsSpecified ||
+            bool hasCriteriaSpecified = 
                 (this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any()) ||
                 (this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any()) ||
                 (this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any()) ||
                 (this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any()) ||
                 (this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any()) ||
-                (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any()));
->>>>>>> e1289db... Refactoring publish model building code block.
+                (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any());
+            bool scriptAllObjects = !hasObjectsSpecified && !hasCriteriaSpecified;
 
             // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
             // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
             // of when SqlScriptPublishModel.ScriptAllObjects is set.  
             //
-<<<<<<< HEAD
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
-            if (hasIncludeCriteria || hasExcludeCriteria)
-            {
-                // This is an expensive remote call to load all objects from the database.
-                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
-
-                selectedObjects = ScriptingObjectMatcher.Match(
-                    this.Parameters.IncludeObjectCriteria,
-                    this.Parameters.ExcludeObjectCriteria,
-                    allObjects);
-
-                // Calling GetDatabaseObjects seems to reset the advanced options, so we must set the options here when using filters.
-                // After setting this property, SqlScriptPublishModel.AdvancedOptions should NOT be referenced again
-                // or all SqlScriptPublishModel.AdvancedOptions will be reset.
-                publishModel.ScriptAllObjects = false;
-                Logger.Write(LogLevel.Verbose, "ScriptAllObjects is False");
-=======
             publishModel.ScriptAllObjects = scriptAllObjects;
             if (scriptAllObjects)
             {
                 // Due to the getter logic within publishModel.AdvancedOptions, we explicitly populate the options
                 // after we determine what objects we are scripting.
                 //
->>>>>>> e1289db... Refactoring publish model building code block.
                 PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
                 return publishModel;
             }
 
-            // This is an expensive remote call to load all objects from the database.
-            //
-            List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
-            IEnumerable<ScriptingObject> selectedObjects = ScriptingObjectMatcher.Match(
-                this.Parameters.IncludeObjectCriteria,
-                this.Parameters.ExcludeObjectCriteria,
-                this.Parameters.IncludeSchemas,
-                this.Parameters.ExcludeSchemas,
-                this.Parameters.IncludeTypes,
-                this.Parameters.ExcludeTypes,
-                allObjects);
-            
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+
+            if (hasCriteriaSpecified)
+            {
+                // This is an expensive remote call to load all objects from the database.
+                //
+                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
+                selectedObjects = ScriptingObjectMatcher.Match(
+                    this.Parameters.IncludeObjectCriteria,
+                    this.Parameters.ExcludeObjectCriteria,
+                    this.Parameters.IncludeSchemas,
+                    this.Parameters.ExcludeSchemas,
+                    this.Parameters.IncludeTypes,
+                    this.Parameters.ExcludeTypes,
+                    allObjects);
+            }
+
             if (hasObjectsSpecified)
             {
                 selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
             }
 
             // Populating advanced options after we select our objects in question, otherwise we lose all
-            // advanced options.
-            // After this call to publishModel.AdvancedOptions, DO NOT call the publishModel.AdvancedOptions again, 
-            //  as it will reset the options in the model.
+            // advanced options.  After this call to PopulateAdvancedScriptOptions, DO NOT reference the
+            // publishModel.AdvancedOptions getter as it will reset the options in the model.
             //
             PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
-            
+
             Logger.Write(
                 LogLevel.Normal,
                 string.Format(
@@ -251,13 +227,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
 
+            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
             string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
-                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(database));
+                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
             }
 
             return publishModel;
+        }
+
+        private string GetServerNameFromLiveInstance(string connectionString)
+        {
+            string serverName = null;
+            using(SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlCommand cmd = connection.CreateCommand())
+            {
+                connection.Open();
+
+                try
+                {
+                    cmd.CommandText = "select @@servername";
+                    serverName = (string)cmd.ExecuteScalar();
+                }
+                catch (SqlException e)
+                {
+                    //
+                    // Azure SQL Data Warehouse does not support @@servername, so fallback to SERVERPROPERTY.
+                    //
+
+                    Logger.Write(
+                        LogLevel.Verbose, 
+                        string.Format("Exception running query 'SELECT @@servername' {0}, fallback to SERVERPROPERTY query", e));
+
+                    cmd.CommandText = "select SERVERPROPERTY('ServerName') AS ServerName";
+                    serverName = (string)cmd.ExecuteScalar();
+                }
+            }
+
+            Logger.Write(LogLevel.Verbose, string.Format("Resolved server name '{0}'", serverName));
+            return serverName;
         }
 
         private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
