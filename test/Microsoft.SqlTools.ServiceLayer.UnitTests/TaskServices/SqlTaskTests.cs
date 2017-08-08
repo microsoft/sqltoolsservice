@@ -147,5 +147,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             operation.FailTheOperation();
             await taskToVerify;
         }
+
+        [Fact]
+        public async Task RunScriptShouldReturnScriptContent()
+        {
+            SqlTaskStatus expectedStatus = SqlTaskStatus.Succeeded;
+            DatabaseOperationStub operation = new DatabaseOperationStub();
+            operation.TaskResult = new TaskResult
+            {
+                TaskStatus = expectedStatus
+            };
+            SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToScript, null);
+            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
+
+            Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
+                Assert.Equal(sqlTask.TaskStatus, expectedStatus);
+                Assert.Equal(sqlTask.IsCompleted, true);
+                Assert.NotNull(operation.TaskScript);
+                Assert.True(!string.IsNullOrEmpty(operation.TaskScript.Script));
+            });
+            await taskToVerify;
+        }
     }
 }

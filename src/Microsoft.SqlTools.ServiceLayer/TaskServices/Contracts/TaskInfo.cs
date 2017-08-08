@@ -56,5 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Defines if the task can be canceled
+        /// </summary>
+        public bool IsCancelable { get; set; }
     }
 }

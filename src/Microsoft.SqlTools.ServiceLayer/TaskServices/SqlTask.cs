@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="errorMessage">Error occured during script</param>
         /// <param name="status">Status of the script</param>
         /// <returns></returns>
-        public void AddScript(SqlTaskStatus status, string script, string errorMessage = null)
+        public TaskScript AddScript(SqlTaskStatus status, string script, string errorMessage = null)
         {
             var newScript = new TaskScript
             {
@@ -389,6 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             };
 
             OnScriptAdded(new TaskEventArgs<TaskScript>(newScript, this));
+            return newScript;
         }
 
         /// <summary>
@@ -451,6 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 Name = TaskMetadata.Name,
                 Description = TaskMetadata.Description,
                 TaskExecutionMode = TaskMetadata.TaskExecutionMode,
+                IsCancelable = TaskMetadata.IsCancelable,
             };
         }
 

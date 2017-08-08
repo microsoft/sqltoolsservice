@@ -23,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             Failed = true;
         }
 
+        public TaskScript TaskScript { get; set; }
+
         public TaskResult TaskResult { get; set; }
 
         public bool IsStopped { get; set; }
@@ -59,6 +61,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 return new TaskResult
                 {
                     TaskStatus = SqlTaskStatus.Canceled
+                };
+            });
+        }
+
+        public async Task<TaskResult> FunctionToScript(SqlTask sqlTask)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                sqlTask.AddMessage("start scripting", SqlTaskStatus.InProgress, true);
+                TaskScript = sqlTask.AddScript(SqlTaskStatus.Succeeded, "script generated!");
+                sqlTask.AddMessage("done", SqlTaskStatus.Succeeded);
+
+                return new TaskResult
+                {
+                    TaskStatus = SqlTaskStatus.Succeeded,
+                    
                 };
             });
         }

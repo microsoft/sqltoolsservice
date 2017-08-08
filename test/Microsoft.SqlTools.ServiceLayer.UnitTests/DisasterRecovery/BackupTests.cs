@@ -35,7 +35,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 await taskToVerify;
             }
         }
-        
+
+        /// <summary>
+        /// Generate script for backup task
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task VerifyScriptBackupTask()
+        {
+            using (SqlTaskManager manager = new SqlTaskManager())
+            {
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                var mockBackupOperation = new Mock<IBackupOperation>();
+                TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
+                taskMetaData.TaskExecutionMode = TaskExecutionMode.Script;
+
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupScriptTaskAsync);
+                Assert.NotNull(sqlTask);
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
+                {
+                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                });
+
+                await taskToVerify;
+            }
+        }
+
         /// <summary>
         /// Create and run multiple backup tasks
         /// </summary>

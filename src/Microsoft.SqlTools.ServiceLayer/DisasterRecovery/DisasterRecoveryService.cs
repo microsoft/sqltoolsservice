@@ -237,12 +237,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         metadata.ServerName = connInfo.ConnectionDetails.ServerName;
                         metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
                         metadata.Data = backupOperation;
-                        metadata.IsCancelable = true;
 
                         if (backupParams.IsScripting)
                         {
                             metadata.Name = string.Format("{0} {1}", SR.BackupTaskName, SR.ScriptTaskName);
                             metadata.TaskExecutionMode = TaskExecutionMode.Script;
+                            metadata.IsCancelable = false;
                             sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupScriptTaskAsync);
                             sqlTask.Run();
                         }
@@ -250,6 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         {
                             metadata.Name = SR.BackupTaskName;
                             metadata.TaskExecutionMode = TaskExecutionMode.Execute;
+                            metadata.IsCancelable = true;
                             sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, Instance.PerformBackupTaskAsync, Instance.CancelBackupTaskAsync);
                         }
                     }
@@ -341,6 +342,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal void PerformBackup(BackupOperation backupOperation)
         {
             backupOperation.PerformBackup();
+        }
+
+        /// <summary>
+        /// For testing purpose only
+        /// </summary>
+        internal string ScriptBackup(BackupOperation backupOperation)
+        {
+            return backupOperation.ScriptBackup();
         }
 
         /// <summary>
