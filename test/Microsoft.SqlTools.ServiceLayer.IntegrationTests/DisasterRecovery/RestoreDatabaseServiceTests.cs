@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     for (int i = 0; i < tableNames.Length; i++)
                     {
                         string tableName = tableNames[i];
-                        if (!database.Tables.Contains(tableName) && expectedSelectedIndexes.Contains(i))
+                        if (!database.Tables.Contains(tableName, "test") && expectedSelectedIndexes.Contains(i))
                         {
                             tablesFound = false;
                             break;
@@ -514,7 +514,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             List<string> backupFiles = new List<string>();
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                string query = $"create table {tableNames[0]} (c1 int)";
+
+
+                string query = $"CREATE SCHEMA [test]";
                 SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "RestoreTest");
                 string databaseName = testDb.DatabaseName;
                 // Initialize backup service
@@ -523,33 +525,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
                 BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
 
+                query = $"create table [test].[{tableNames[0]}] (c1 int)";
+                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
                 string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_full.bak");
                 query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
                 backupFiles.Add(backupPath);
 
-                query = $"create table {tableNames[1]} (c1 int)";
+                query = $"create table [test].[{tableNames[1]}] (c1 int)";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
                 backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_diff.bak");
                 query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
                 backupFiles.Add(backupPath);
 
-                query = $"create table {tableNames[2]} (c1 int)";
+                query = $"create table [test].[{tableNames[2]}] (c1 int)";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
                 backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log1.bak");
                 query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
                 backupFiles.Add(backupPath);
 
-                query = $"create table {tableNames[3]} (c1 int)";
+                query = $"create table [test].[{tableNames[3]}] (c1 int)";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
                 backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log2.bak");
                 query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
                 backupFiles.Add(backupPath);
 
-                query = $"create table {tableNames[4]} (c1 int)";
+                query = $"create table [test].[{tableNames[4]}] (c1 int)";
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
                 backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log3.bak");
                 query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
