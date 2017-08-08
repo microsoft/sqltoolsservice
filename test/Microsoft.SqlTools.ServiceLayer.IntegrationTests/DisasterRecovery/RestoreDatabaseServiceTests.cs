@@ -489,12 +489,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     Assert.Equal(response.DatabaseName, targetDatabase);
                     Assert.NotNull(response.PlanDetails);
                     Assert.True(response.PlanDetails.Any());
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.EnableBackupTailLog]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultTailLogBackupFile]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultDataFileFolder]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultLogFileFolder]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultStandbyFile]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DefaultStandbyFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.BackupTailLog]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.TailLogBackupFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DataFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.LogFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.StandbyFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.StandbyFile]);
                    
                     if(execute)
                     {

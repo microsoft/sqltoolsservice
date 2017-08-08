@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// <summary>
         /// Plan details
         /// </summary>
-        public Dictionary<string, object> PlanDetails { get; set; }
+        public Dictionary<string, RestorePlanDetailInfo> PlanDetails { get; set; }
     }
 
     public class RestorePlanRequest
