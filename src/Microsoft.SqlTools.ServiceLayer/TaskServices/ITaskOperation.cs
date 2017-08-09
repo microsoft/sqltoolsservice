@@ -26,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     /// </summary>
     public interface IScriptableTaskOperation: ITaskOperation
     {
+        /// <summary>
+        /// Script for the task operation
+        /// </summary>
         string ScriptContent { get; set; }
     }
 }

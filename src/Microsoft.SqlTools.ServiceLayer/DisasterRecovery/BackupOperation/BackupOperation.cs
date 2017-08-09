@@ -323,10 +323,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-    /// <summary>
-    /// Cancel backup
-    /// </summary>
-    public void Cancel()
+        /// <summary>
+        /// Cancel backup
+        /// </summary>
+        public void Cancel()
         {
             if (this.backup != null)
             {

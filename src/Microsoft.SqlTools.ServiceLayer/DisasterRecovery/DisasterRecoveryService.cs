@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        internal static SqlTaskManager SqlTaskManagerInstance
+        private SqlTaskManager SqlTaskManagerInstance
         {
             get
             {
@@ -255,21 +255,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         metadata.ServerName = connInfo.ConnectionDetails.ServerName;
                         metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
                         metadata.Data = backupOperation;
+                        metadata.IsCancelable = true;
 
                         if (backupParams.IsScripting)
                         {
                             metadata.Name = string.Format("{0} {1}", SR.BackupTaskName, SR.ScriptTaskName);
                             metadata.TaskExecutionMode = TaskExecutionMode.Script;
-                            metadata.IsCancelable = false;
-                            sqlTask = SqlTaskManagerInstance.CreateAndRun(metadata, this.PerformBackupTaskAsync, null);
                         }
                         else
                         {
                             metadata.Name = SR.BackupTaskName;
                             metadata.TaskExecutionMode = TaskExecutionMode.ExecuteAndScript;
-                            metadata.IsCancelable = true;
-                            sqlTask = SqlTaskManagerInstance.CreateAndRun(metadata, this.PerformBackupTaskAsync, this.CancelBackupTaskAsync);
                         }
+
+                        sqlTask = SqlTaskManagerInstance.CreateAndRun(metadata, this.PerformBackupTaskAsync, this.CancelBackupTaskAsync);
                     }
                 }
 
