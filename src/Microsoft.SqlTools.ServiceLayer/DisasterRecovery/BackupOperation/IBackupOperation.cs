@@ -5,6 +5,7 @@
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
@@ -12,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// <summary>
     /// Interface for backup operations
     /// </summary>
-    public interface IBackupOperation
+    public interface IBackupOperation: IScriptableTaskOperation
     {
         /// <summary>
         /// Initialize 
@@ -33,20 +34,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         /// <param name="input"></param>
         void SetBackupInput(BackupInfo input);
-        
-        /// <summary>
-        /// Execute backup
-        /// </summary>
-        void PerformBackup();
-
-        /// <summary>
-        /// Generate script for backup
-        /// </summary>
-        string ScriptBackup();
-
-        /// <summary>
-        /// Cancel backup
-        /// </summary>
-        void CancelBackup();
     }
 }

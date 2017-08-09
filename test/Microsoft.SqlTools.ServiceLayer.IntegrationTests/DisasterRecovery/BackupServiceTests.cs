@@ -53,7 +53,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri
             };
 
-            await DisasterRecoveryService.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
+            await DisasterRecoveryService.Instance.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
 
             requestContext.Verify(x => x.SendResult(It.Is<BackupConfigInfoResponse>
                 (p => p.BackupConfigInfo.RecoveryModel != string.Empty
@@ -107,7 +107,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             BackupOperation backupOperation = CreateBackupOperation(liveConnection.ConnectionInfo.OwnerUri, backupInfo, helper.DataContainer, sqlConn);
 
             // Generate script for backup
-            string script = DisasterRecoveryService.Instance.ScriptBackup(backupOperation);
+            DisasterRecoveryService.Instance.ScriptBackup(backupOperation);
+            string script = backupOperation.ScriptContent;
             Assert.True(!string.IsNullOrEmpty(script));
 
             // Execute the script
@@ -202,7 +203,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
 
             // Backup the database
             Console.WriteLine("Generate script for backup operation..");
-            string script = DisasterRecoveryService.Instance.ScriptBackup(backupOperation);
+            DisasterRecoveryService.Instance.ScriptBackup(backupOperation);
+            string script = backupOperation.ScriptContent;
 
             // Run the script
             Console.WriteLine("Execute the script..");
@@ -263,7 +265,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 BackupInfo = backupInfo,
             };
 
-            return DisasterRecoveryService.Instance.SetBackupInput(dataContainer, sqlConn, backupParams.BackupInfo);
+            return DisasterRecoveryService.Instance.CreateBackupOperation(dataContainer, sqlConn, backupParams.BackupInfo);
         }
 
         private void VerifyAndCleanBackup(string backupPath)

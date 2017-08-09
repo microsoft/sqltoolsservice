@@ -10,7 +10,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     /// </summary>
     public enum TaskExecutionMode
     {
+        /// <summary>
+        /// Execute task
+        /// </summary>
         Execute,
-        Script
+
+        /// <summary>
+        /// Script task
+        /// </summary>
+        Script,
+
+        /// <summary>
+        /// Execute and script task
+        /// Needed for tasks that will show the script when execution completes
+        /// </summary>
+        ExecuteAndScript
     }
 }

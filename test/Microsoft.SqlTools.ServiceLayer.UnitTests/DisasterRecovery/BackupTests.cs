@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
                 taskMetaData.TaskExecutionMode = TaskExecutionMode.Script;
 
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.BackupScriptTaskAsync);
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {

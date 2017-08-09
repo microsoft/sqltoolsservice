@@ -591,7 +591,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 };
 
                 // Backup the database
-                BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+                BackupOperation backupOperation = DisasterRecoveryService.Instance.CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
                 DisasterRecoveryService.Instance.PerformBackup(backupOperation);
 
                 // Clean up the database
