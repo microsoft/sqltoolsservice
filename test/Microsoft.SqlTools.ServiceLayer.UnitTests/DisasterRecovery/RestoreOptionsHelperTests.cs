@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         public void StandbyFileShouldNotBeReadOnlyGivenRecoveryStateWithStandBy()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
-            optionValues.Options["RecoveryState"] = DatabaseRecoveryState.WithStandBy;
+            optionValues.Options[RestoreOptionsHelper.RecoveryState] = DatabaseRecoveryState.WithStandBy;
             Mock<IRestoreDatabaseTaskDataObject> restoreDatabaseTaskDataObject = CreateRestoreDatabaseTaskDataObject(optionValues);
 
             Dictionary<string, RestorePlanDetailInfo> result = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDatabaseTaskDataObject.Object);
@@ -80,10 +80,57 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.False(result[RestoreOptionsHelper.StandbyFile].IsReadOnly);
         }
 
-
-        private GeneralRequestDetails CreateOptionsTestData()
+        [Fact]
+        public void KeppReplicationShouldNotBeReadOnlyGivenRecoveryStateWithNoRecovery()
         {
-            GeneralRequestDetails optionValues = new GeneralRequestDetails();
+            GeneralRequestDetails optionValues = CreateOptionsTestData();
+            optionValues.Options[RestoreOptionsHelper.RecoveryState] = DatabaseRecoveryState.WithNoRecovery;
+            Mock<IRestoreDatabaseTaskDataObject> restoreDatabaseTaskDataObject = CreateRestoreDatabaseTaskDataObject(optionValues);
+
+            Dictionary<string, RestorePlanDetailInfo> result = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDatabaseTaskDataObject.Object);
+            Assert.NotNull(result);
+            VerifyOptions(result, optionValues);
+            Assert.True(result[RestoreOptionsHelper.KeepReplication].IsReadOnly);
+        }
+
+        [Fact]
+        public void KeppReplicationShouldSetToDefaultValueGivenRecoveryStateWithNoRecovery()
+        {
+            RestoreParams restoreParams = CreateOptionsTestData();
+            restoreParams.Options[RestoreOptionsHelper.RecoveryState] = DatabaseRecoveryState.WithNoRecovery;
+
+            Mock<IRestoreDatabaseTaskDataObject> restoreDatabaseTaskDataObject = CreateRestoreDatabaseTaskDataObject(restoreParams);
+            Dictionary<string, RestorePlanDetailInfo> options = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDatabaseTaskDataObject.Object);
+
+            restoreParams.Options[RestoreOptionsHelper.KeepReplication] = true;
+
+            bool actual = RestoreOptionsHelper.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication, options, restoreDatabaseTaskDataObject.Object);
+            bool expected = (bool)options[RestoreOptionsHelper.KeepReplication].DefaultValue;
+
+            Assert.Equal(actual, expected);
+        }
+
+        [Fact]
+        public void KeppReplicationShouldSetToValueInRequestGivenRecoveryStateWithRecovery()
+        {
+            RestoreParams restoreParams = CreateOptionsTestData();
+           
+            restoreParams.Options[RestoreOptionsHelper.RecoveryState] = DatabaseRecoveryState.WithRecovery;
+            Mock<IRestoreDatabaseTaskDataObject> restoreDatabaseTaskDataObject = CreateRestoreDatabaseTaskDataObject(restoreParams);
+            Dictionary<string, RestorePlanDetailInfo> options = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDatabaseTaskDataObject.Object);
+
+            restoreParams.Options[RestoreOptionsHelper.KeepReplication] = true;
+
+            bool actual = RestoreOptionsHelper.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication, options, restoreDatabaseTaskDataObject.Object);
+            bool expected = true;
+            Assert.Equal(actual, expected);
+
+        }
+
+
+        private RestoreParams CreateOptionsTestData()
+        {
+            RestoreParams optionValues = new RestoreParams();
             optionValues.Options.Add(RestoreOptionsHelper.CloseExistingConnections, false);
             optionValues.Options.Add(RestoreOptionsHelper.DataFileFolder, "Data file folder");
             optionValues.Options.Add("DbFiles", new List<DbFile>() { new DbFile("", '1', "") });
@@ -98,11 +145,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             optionValues.Options.Add("TailLogBackupFile", "tail log backup file");
             optionValues.Options.Add("TailLogWithNoRecovery", false);
             optionValues.Options.Add("BackupTailLog", false);
-            optionValues.Options.Add("KeepReplication", false);
+            optionValues.Options.Add(RestoreOptionsHelper.KeepReplication, false);
             optionValues.Options.Add("ReplaceDatabase", false);
             optionValues.Options.Add("SetRestrictedUser", false);
             optionValues.Options.Add("StandbyFile", "Stand by file");
-            optionValues.Options.Add("RecoveryState", DatabaseRecoveryState.WithNoRecovery.ToString());
+            optionValues.Options.Add(RestoreOptionsHelper.RecoveryState, DatabaseRecoveryState.WithNoRecovery.ToString());
             return optionValues;
         }
 
@@ -123,13 +170,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             restoreDataObject.Setup(x => x.TailLogBackupFile).Returns(optionValues.GetOptionValue<string>("TailLogBackupFile"));
             restoreDataObject.Setup(x => x.TailLogWithNoRecovery).Returns(optionValues.GetOptionValue<bool>("TailLogWithNoRecovery"));
             restoreDataObject.Setup(x => x.BackupTailLog).Returns(optionValues.GetOptionValue<bool>("BackupTailLog"));
+            restoreDataObject.Setup(x => x.RestoreParams).Returns(optionValues as RestoreParams);
             restoreDataObject.Setup(x => x.RestorePlan).Returns(() => null);
             RestoreOptions restoreOptions = new RestoreOptions();
-            restoreOptions.KeepReplication = optionValues.GetOptionValue<bool>("KeepReplication");
+            restoreOptions.KeepReplication = optionValues.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication);
             restoreOptions.ReplaceDatabase = optionValues.GetOptionValue<bool>("ReplaceDatabase");
             restoreOptions.SetRestrictedUser = optionValues.GetOptionValue<bool>("SetRestrictedUser");
             restoreOptions.StandByFile = optionValues.GetOptionValue<string>("StandbyFile");
-            restoreOptions.RecoveryState = optionValues.GetOptionValue<DatabaseRecoveryState>("RecoveryState");
+            restoreOptions.RecoveryState = optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState);
             restoreDataObject.Setup(x => x.RestoreOptions).Returns(restoreOptions);
 
 
@@ -168,8 +216,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.KeepReplication];
             Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.KeepReplication);
-            Assert.Equal(planDetailInfo.IsReadOnly, false);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>("KeepReplication"));
+            Assert.Equal(planDetailInfo.IsReadOnly, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState) == DatabaseRecoveryState.WithNoRecovery);
+            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication));
             Assert.Equal(planDetailInfo.DefaultValue, false);
             Assert.Equal(planDetailInfo.IsVisiable, true);
 
@@ -183,13 +231,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             planDetailInfo = optionInResponse[RestoreOptionsHelper.RecoveryState];
             Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.RecoveryState);
             Assert.Equal(planDetailInfo.IsReadOnly, false);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<DatabaseRecoveryState>("RecoveryState").ToString());
+            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState).ToString());
             Assert.Equal(planDetailInfo.DefaultValue, DatabaseRecoveryState.WithRecovery.ToString());
             Assert.Equal(planDetailInfo.IsVisiable, true);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.StandbyFile];
             Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.StandbyFile);
-            Assert.Equal(planDetailInfo.IsReadOnly, optionValues.GetOptionValue<DatabaseRecoveryState>("RecoveryState") != DatabaseRecoveryState.WithStandBy);
+            Assert.Equal(planDetailInfo.IsReadOnly, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState) != DatabaseRecoveryState.WithStandBy);
             Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>("StandbyFile"));
             Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("GetDefaultStandbyFile"));
             Assert.Equal(planDetailInfo.IsVisiable, true);

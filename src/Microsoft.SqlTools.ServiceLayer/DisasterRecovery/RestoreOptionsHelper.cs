@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 name: RestoreOptionsHelper.KeepReplication,
                 currentValue: restoreDataObject.RestoreOptions.KeepReplication,
                 defaultValue: false,
-                isReadOnly: false,
+                isReadOnly: restoreDataObject.RestoreOptions.RecoveryState == DatabaseRecoveryState.WithNoRecovery,
                 isVisible: true
                 ));
 
@@ -333,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        private static T GetOptionValue<T>(string optionkey, Dictionary<string, RestorePlanDetailInfo> optionsMetadata, IRestoreDatabaseTaskDataObject restoreDataObject)
+        internal static T GetOptionValue<T>(string optionkey, Dictionary<string, RestorePlanDetailInfo> optionsMetadata, IRestoreDatabaseTaskDataObject restoreDataObject)
         {
             RestorePlanDetailInfo optionMetadata = null;
             if(optionsMetadata.TryGetValue(optionkey, out optionMetadata))
@@ -366,17 +366,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             restoreDataObject.RelocateAllFiles = GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles, options, restoreDataObject);
 
             //Options
+            object databaseRecoveryState;
+
+            string recoveryState = GetOptionValue<string>(RestoreOptionsHelper.RecoveryState, options, restoreDataObject);
+            if (Enum.TryParse(typeof(DatabaseRecoveryState), recoveryState, out databaseRecoveryState))
+            {
+                restoreDataObject.RestoreOptions.RecoveryState = (DatabaseRecoveryState)databaseRecoveryState;
+            }
             restoreDataObject.RestoreOptions.KeepReplication = GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication, options, restoreDataObject);
             restoreDataObject.RestoreOptions.ReplaceDatabase = GetOptionValue<bool>(RestoreOptionsHelper.ReplaceDatabase, options, restoreDataObject);
             restoreDataObject.RestoreOptions.SetRestrictedUser = GetOptionValue<bool>(RestoreOptionsHelper.SetRestrictedUser, options, restoreDataObject);
             restoreDataObject.RestoreOptions.StandByFile = GetOptionValue<string>(RestoreOptionsHelper.StandbyFile, options, restoreDataObject);
 
-            string recoveryState = GetOptionValue<string>(RestoreOptionsHelper.RecoveryState, options, restoreDataObject);
-            object databaseRecoveryState;
-            if (Enum.TryParse(typeof(DatabaseRecoveryState), recoveryState, out databaseRecoveryState))
-            {
-                restoreDataObject.RestoreOptions.RecoveryState = (DatabaseRecoveryState)databaseRecoveryState;
-            }
+           
 
             restoreDataObject.BackupTailLog = GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog, options, restoreDataObject);
             restoreDataObject.TailLogBackupFile = GetOptionValue<string>(RestoreOptionsHelper.TailLogBackupFile, options, restoreDataObject);

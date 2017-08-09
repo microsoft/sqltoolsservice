@@ -3,7 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
@@ -111,11 +113,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// <summary>
         /// Ids of the backup set to restore
         /// </summary>
-        internal string[] SelectedBackupSets
+        internal IEnumerable<string> SelectedBackupSets
         {
             get
             {
-                return GetOptionValue<string[]>(RestoreOptionsHelper.SelectedBackupSets);
+                var selectedBackupSets = GetOptionValue<object>(RestoreOptionsHelper.SelectedBackupSets);
+                if (selectedBackupSets != null)
+                {
+                    JArray array = selectedBackupSets as JArray;
+                    if(array != null)
+                    {
+                        return array.ToObject<IEnumerable<string>>();
+                    }
+                }
+                return null;
             }
             set
             {
