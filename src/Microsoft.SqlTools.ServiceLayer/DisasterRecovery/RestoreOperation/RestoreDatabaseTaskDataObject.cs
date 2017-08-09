@@ -8,16 +8,46 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
+    public interface IRestoreDatabaseTaskDataObject
+    {
+        string DataFilesFolder { get; set; }
+        string DefaultDataFileFolder { get; }
+        bool RelocateAllFiles { get; set; }
+        string LogFilesFolder { get; set; }
+        string DefaultLogFileFolder { get; }
+        List<DbFile> DbFiles { get; }
+
+        RestoreOptions RestoreOptions { get; }
+
+        string GetDefaultStandbyFile(string databaseName);
+        bool IsTailLogBackupPossible(string databaseName);
+        bool IsTailLogBackupWithNoRecoveryPossible(string databaseName);
+
+        bool TailLogWithNoRecovery { get; set; }
+
+        string TailLogBackupFile { get; set; }
+
+        string GetDefaultTailLogbackupFile(string databaseName);
+
+        RestorePlan RestorePlan { get; }
+
+        bool CloseExistingConnections { get; set; }
+
+        RestoreParams RestoreParams { get; set; }
+
+        bool BackupTailLog { get; set; }
+    }
     /// <summary>
     /// Includes the plan with all the data required to do a restore operation on server
     /// </summary>
-    public class RestoreDatabaseTaskDataObject
+    public class RestoreDatabaseTaskDataObject : IRestoreDatabaseTaskDataObject
     {
 
         private const char BackupMediaNameSeparator = ',';
@@ -48,6 +78,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             this.restoreOptions.PercentCompleteNotification = 5;
         }
 
+        /// <summary>
+        /// Boolean indicating whether the relocate all files checkbox was checked
+        /// </summary>
+        public bool RelocateAllFiles { get; set; }
+        
         /// <summary>
         /// Restore session id
         /// </summary>
@@ -87,6 +122,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public List<String> GetSourceDbNames()
         {
             return Util.GetSourceDbNames(this.restorePlanner.BackupMediaList, this.CredentialName);
+        }
+
+        /// <summary>
+        /// Returns the db names that have backupsets
+        /// </summary>
+        /// <returns></returns>
+        public List<String> GetDatabaseNamesWithBackupSets()
+        {
+            return Util.GetSourceDbNames();
         }
 
         /// <summary>
@@ -375,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns>
         /// 	<c>true</c> if [is tail log backup possible]; otherwise, <c>false</c>.
         /// </returns>
-        internal bool IsTailLogBackupPossible(string databaseName)
+        public bool IsTailLogBackupPossible(string databaseName)
         {
             if (this.Server.Version.Major < 9 || String.IsNullOrEmpty(this.restorePlanner.DatabaseName))
             {
@@ -401,6 +445,45 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Determines whether [is tail log backup with NORECOVERY possible].
+        /// </summary>
+        /// <returns>
+        /// 	<c>true</c> if [is tail log backup with NORECOVERY possible]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsTailLogBackupWithNoRecoveryPossible(string databaseName)
+        {
+            if (!IsTailLogBackupPossible(databaseName))
+            {
+                return false;
+            }
+
+            Database db = this.Server.Databases[databaseName];
+            if (db == null)
+            {
+                return false;
+            }
+            if (Server.Version.Major > 10 && db.DatabaseEngineType == DatabaseEngineType.Standalone && !String.IsNullOrEmpty(db.AvailabilityGroupName))
+            {
+                return false;
+            }
+            if (db.DatabaseEngineType == DatabaseEngineType.Standalone && db.IsMirroringEnabled)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public string GetDefaultStandbyFile(string databaseName)
+        {
+            return Util.GetDefaultStandbyFile(databaseName);
+        }
+
+        public string GetDefaultTailLogbackupFile(string databaseName)
+        {
+            return Util.GetDefaultTailLogbackupFile(databaseName);
         }
 
         /// <summary>
@@ -500,7 +583,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 if (this.restorePlan == null)
                 {
-                    this.UpdateRestorePlan(false);
+                    this.UpdateRestorePlan();
                 }
                 return this.restorePlan;
             }
@@ -681,7 +764,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <summary>
         /// Updates restore plan
         /// </summary>
-        public void UpdateRestorePlan(bool relocateAllFiles = false)
+        public void UpdateRestorePlan()
         {
             this.ActiveException = null; //Clear any existing exceptions as the plan is getting recreated. 
                                          //Clear any existing exceptions as new plan is getting recreated.
@@ -703,7 +786,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     this.dbFiles = this.GetDbFiles();
                     UpdateDBFilesPhysicalRelocate();
 
-                    if (relocateAllFiles)
+                    if (RelocateAllFiles)
                     {
                         UpdateDbFiles();
                     }
@@ -991,48 +1074,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             return true;
         }
-    }
-
-    public class RestoreDatabaseRecoveryState
-    {
-        public RestoreDatabaseRecoveryState(DatabaseRecoveryState recoveryState)
-        {
-            this.RecoveryState = recoveryState;
-        }
-
-        public DatabaseRecoveryState RecoveryState;
-        private static string RestoreWithRecovery = "RESTORE WITH RECOVERY";
-        private static string RestoreWithNoRecovery = "RESTORE WITH NORECOVERY";
-        private static string RestoreWithStandby = "RESTORE WITH STANDBY";
-
-        public override string ToString()
-        {
-            switch (this.RecoveryState)
-            {
-                case DatabaseRecoveryState.WithRecovery:
-                    return RestoreDatabaseRecoveryState.RestoreWithRecovery;
-                case DatabaseRecoveryState.WithNoRecovery:
-                    return RestoreDatabaseRecoveryState.RestoreWithNoRecovery;
-                case DatabaseRecoveryState.WithStandBy:
-                    return RestoreDatabaseRecoveryState.RestoreWithStandby;
-            }
-            return RestoreDatabaseRecoveryState.RestoreWithRecovery;
-        }
-
-        /*
-        public string Info()
-        {
-            switch (this.RecoveryState)
-            {
-                case DatabaseRecoveryState.WithRecovery:
-                    return SR.RestoreWithRecoveryInfo;
-                case DatabaseRecoveryState.WithNoRecovery:
-                    return SR.RestoreWithNoRecoveryInfo;
-                case DatabaseRecoveryState.WithStandBy:
-                    return SR.RestoreWithStandbyInfo;
-            }
-            return SR.RestoreWithRecoveryInfo;
-        }
-        */
     }
 }
