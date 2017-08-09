@@ -416,7 +416,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
             TaskResult result = new TaskResult();
-            string script = "";
 
             // Create a task to perform backup
             await Task.Factory.StartNew(() =>
@@ -436,7 +435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         // Send generated script to client
                         if (!String.IsNullOrEmpty(backupOperation.ScriptContent))
                         {
-                            sqlTask.AddScript(result.TaskStatus, script);
+                            sqlTask.AddScript(result.TaskStatus, backupOperation.ScriptContent);
                         }
                     }
                     catch (Exception ex)
