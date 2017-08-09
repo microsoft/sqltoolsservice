@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(2, planEvent.Count);
+                Assert.Equal<int>(1, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(2, planEvent.Count);
+                Assert.Equal<int>(1, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(2, planEvent.Count);
+                Assert.Equal<int>(1, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }

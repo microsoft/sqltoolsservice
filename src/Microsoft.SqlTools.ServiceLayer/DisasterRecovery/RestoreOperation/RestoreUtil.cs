@@ -70,9 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return dt;
         }
 
-        //TODO: the code is moved from ssms and used for restore differential backups
-        //Uncomment when restore operation for differential backups is supported
-        /*
+       
         /// <summary>
         /// Queries msdb for source database names
         /// </summary>
@@ -87,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             req.OrderByList[0] = new OrderBy();
             req.OrderByList[0].Field = "DatabaseName";
             req.OrderByList[0].Dir = OrderBy.Direction.Asc;
-            DataTable dt = server.ExecutionManager.GetEnumeratorData(req);
+            DataTable dt = GetEnumeratorData(req);
             string last = "";
             foreach (DataRow row in dt.Rows)
             {
@@ -97,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     bool found = false;
                     foreach (string str in databaseNames)
                     {
-                        if (StrEqual(str, dbName))
+                        if (string.Compare(str, dbName, StringComparison.InvariantCultureIgnoreCase) == 0)
                         {
                             found = true;
                             break;
@@ -112,7 +110,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             return databaseNames;
         }
-        */
+
+        /// <summary>
+        /// make enumerator data request
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        internal DataTable GetEnumeratorData(Request req)
+        {
+            return new Enumerator().Process(this.server.ConnectionContext.SqlConnectionObject, req);
+        }
 
         /// <summary>
         /// Reads backup file header to get source database names
