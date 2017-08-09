@@ -15,24 +15,63 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
     public class RestoreOptionsHelper
     {
+        //The key names of restore info in the resquest of response
+
+        //Option name keepReplication
         internal const string KeepReplication = "keepReplication";
+
+        //Option name replaceDatabase
         internal const string ReplaceDatabase = "replaceDatabase";
+
+        //Option name setRestrictedUser
         internal const string SetRestrictedUser = "setRestrictedUser";
+
+        //Option name recoveryState
         internal const string RecoveryState = "recoveryState";
+
+        //Option name backupTailLog
         internal const string BackupTailLog = "backupTailLog";
+
+        //Option name tailLogBackupFile
         internal const string TailLogBackupFile = "tailLogBackupFile";
+
+        //Option name tailLogWithNoRecovery
         internal const string TailLogWithNoRecovery = "tailLogWithNoRecovery";
+
+        //Option name closeExistingConnections
         internal const string CloseExistingConnections = "closeExistingConnections";
+
+        //Option name relocateDbFiles
         internal const string RelocateDbFiles = "relocateDbFiles";
+
+        //Option name dataFileFolder
         internal const string DataFileFolder = "dataFileFolder";
+
+        //Option name logFileFolder
         internal const string LogFileFolder = "logFileFolder";
+
+        //The key name to use to set the session id in the request
         internal const string SessionId = "sessionId";
+
+        //The key name to use to set the backup file paths in the request
         internal const string BackupFilePaths = "backupFilePaths";
+
+        //The key name to use to set the target database name in the request
         internal const string TargetDatabaseName = "targetDatabaseName";
+
+        //The key name to use to set the source database name in the request
         internal const string SourceDatabaseName = "sourceDatabaseName";
+
+        //The key name to use to set the selected backup sets in the request
         internal const string SelectedBackupSets = "selectedBackupSets";
+
+        //The key name to use to set the standby file sets in the request
         internal const string StandbyFile = "standbyFile";
+
+        //The key name to use to set source db names in restore response
         internal const string SourceDatabaseNamesWithBackupSets = "sourceDatabaseNamesWithBackupSets";
+
+        //The key name to use to set in the requst. If set to true, the backup files will be used to restore otherwise the source database name 
         internal const string ReadHeaderFromMedia = "readHeaderFromMedia";
 
         /// <summary>

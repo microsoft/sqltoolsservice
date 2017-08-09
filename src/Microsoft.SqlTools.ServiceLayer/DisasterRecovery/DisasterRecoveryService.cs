@@ -71,8 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             // Create respore task
             serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest);
+
             // Create respore plan
             serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
+
+            // Create respore config
+            serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
         }
 
         /// <summary>

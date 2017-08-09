@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
-        public void KeppReplicationShouldNotBeReadOnlyGivenRecoveryStateWithNoRecovery()
+        public void KeepReplicationShouldNotBeReadOnlyGivenRecoveryStateWithNoRecovery()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
             optionValues.Options[RestoreOptionsHelper.RecoveryState] = DatabaseRecoveryState.WithNoRecovery;
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
-        public void KeppReplicationShouldSetToDefaultValueGivenRecoveryStateWithNoRecovery()
+        public void KeepReplicationShouldSetToDefaultValueGivenRecoveryStateWithNoRecovery()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             restoreParams.Options[RestoreOptionsHelper.RecoveryState] = DatabaseRecoveryState.WithNoRecovery;
@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
-        public void KeppReplicationShouldSetToValueInRequestGivenRecoveryStateWithRecovery()
+        public void KeepReplicationShouldSetToValueInRequestGivenRecoveryStateWithRecovery()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
            

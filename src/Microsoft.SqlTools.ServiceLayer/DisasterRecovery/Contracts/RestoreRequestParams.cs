@@ -111,7 +111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         }
 
         /// <summary>
-        /// Ids of the backup set to restore
+        /// Ids of the selected backup set to restore. If null, all backup sets will be selected. If empty list,
+        /// no backup sets will be selected
         /// </summary>
         internal IEnumerable<string> SelectedBackupSets
         {
@@ -125,6 +126,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
                     {
                         return array.ToObject<IEnumerable<string>>();
                     }
+                    else
+                    {
+                        IEnumerable<string> list = selectedBackupSets as IEnumerable<string>;
+                        return list;
+                    }
+
                 }
                 return null;
             }
