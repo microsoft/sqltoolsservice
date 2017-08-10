@@ -116,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             if (sqlTask != null)
             {
                 TaskInfo taskInfo = sqlTask.ToTaskInfo();
+                sqlTask.ScriptAdded += OnTaskScriptAdded;
                 sqlTask.MessageAdded += OnTaskMessageAdded;
                 sqlTask.StatusChanged += OnTaskStatusChanged;
                 await serviceHost.SendEvent(TaskCreatedNotification.Type, taskInfo);
@@ -131,13 +132,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 {
                     TaskId = sqlTask.TaskId.ToString(),
                     Status = e.TaskData
-
                 };
 
                 if (sqlTask.IsCompleted)
                 {
                     progressInfo.Duration = sqlTask.Duration;
                 }
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
+            }
+        }
+        
+        private async void OnTaskScriptAdded(object sender, TaskEventArgs<TaskScript> e)
+        {
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
+            {
+                TaskProgressInfo progressInfo = new TaskProgressInfo
+                {
+                    TaskId = sqlTask.TaskId.ToString(),
+                    Status = e.TaskData.Status,
+                    Script = e.TaskData.Script,
+                    Message = e.TaskData.ErrorMessage,
+                };
+
                 await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }
         }

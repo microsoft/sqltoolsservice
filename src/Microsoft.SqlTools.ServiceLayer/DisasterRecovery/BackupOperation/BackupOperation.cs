@@ -14,6 +14,8 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using System.Globalization;
+using System.Text;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -26,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private ServerConnection serverConnection;
         private CommonUtilities backupRestoreUtil = null;
         private Backup backup = null;
+        private string scriptContent = "";
 
         /// <summary>
         /// Constants
@@ -111,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             this.dataContainer = dataContainer;
             this.serverConnection = new ServerConnection(sqlConnection);
-            this.backupRestoreUtil = new CommonUtilities(this.dataContainer, this.serverConnection);        
+            this.backupRestoreUtil = new CommonUtilities(this.dataContainer, this.serverConnection);
         }
 
         /// <summary>
@@ -122,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             this.backupInfo = input;
 
-            // convert the types            
+            // convert the types
             this.backupComponent = (BackupComponent)input.BackupComponent;
             this.backupType = (BackupType)input.BackupType;
             this.backupDeviceType = (BackupDeviceType)input.BackupDeviceType;
@@ -148,52 +151,62 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return configInfo;
         }
 
+        public string ScriptContent
+        {
+            get
+            {
+                return this.scriptContent;
+            }
+            set
+            {
+                this.scriptContent = value;
+            }
+        }
+
         /// <summary>
         /// Execute backup
         /// </summary>
-        public void PerformBackup()
+        public void Execute(TaskExecutionMode mode)
         {
+            StringBuilder sb = new StringBuilder();
+            SqlExecutionModes oldExecutionMode = this.dataContainer.Server.ConnectionContext.SqlExecutionModes;
+            this.dataContainer.Server.ConnectionContext.SqlExecutionModes = (mode == TaskExecutionMode.Script) ? SqlExecutionModes.CaptureSql: SqlExecutionModes.ExecuteAndCaptureSql;
+            this.dataContainer.Server.ConnectionContext.CapturedSql.Clear();
             this.backup = new Backup();
             this.backup.Database = this.backupInfo.DatabaseName;
             this.backup.Action = this.backupActionType;
             this.backup.Incremental = this.isBackupIncremental;
             this.SetBackupProps();
 
-            if (this.backup.Action == BackupActionType.Files)
+            try
             {
-                IDictionaryEnumerator filegroupEnumerator = this.backupInfo.SelectedFileGroup.GetEnumerator();
-                filegroupEnumerator.Reset();
-                while (filegroupEnumerator.MoveNext())
+                if (this.backup.Action == BackupActionType.Files)
                 {
-                    string currentKey = Convert.ToString(filegroupEnumerator.Key,
-                        System.Globalization.CultureInfo.InvariantCulture);
-                    string currentValue = Convert.ToString(filegroupEnumerator.Value,
-                        System.Globalization.CultureInfo.InvariantCulture);
-                    if (currentKey.IndexOf(",", StringComparison.Ordinal) < 0)
+                    IDictionaryEnumerator filegroupEnumerator = this.backupInfo.SelectedFileGroup.GetEnumerator();
+                    filegroupEnumerator.Reset();
+                    while (filegroupEnumerator.MoveNext())
                     {
-                        // is a file group
-                        this.backup.DatabaseFileGroups.Add(currentValue);
-                    }
-                    else
-                    {
-                        // is a file
-                        int idx = currentValue.IndexOf(".", StringComparison.Ordinal);
-                        currentValue = currentValue.Substring(idx + 1, currentValue.Length - idx - 1);
-                        this.backup.DatabaseFiles.Add(currentValue);
+                        string currentKey = Convert.ToString(filegroupEnumerator.Key,
+                            System.Globalization.CultureInfo.InvariantCulture);
+                        string currentValue = Convert.ToString(filegroupEnumerator.Value,
+                            System.Globalization.CultureInfo.InvariantCulture);
+                        if (currentKey.IndexOf(",", StringComparison.Ordinal) < 0)
+                        {
+                            // is a file group
+                            this.backup.DatabaseFileGroups.Add(currentValue);
+                        }
+                        else
+                        {
+                            // is a file
+                            int idx = currentValue.IndexOf(".", StringComparison.Ordinal);
+                            currentValue = currentValue.Substring(idx + 1, currentValue.Length - idx - 1);
+                            this.backup.DatabaseFiles.Add(currentValue);
+                        }
                     }
                 }
-            }
 
-            bool isBackupToUrl = false;
-            if (this.backupDeviceType == BackupDeviceType.Url)
-            {
-                isBackupToUrl = true;
-            }
+                this.backup.BackupSetName = this.backupInfo.BackupsetName;
 
-            this.backup.BackupSetName = this.backupInfo.BackupsetName;
-
-            if (false == isBackupToUrl)
-            {
                 for (int i = 0; i < this.backupInfo.BackupPathList.Count; i++)
                 {
                     string destName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
@@ -205,8 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                                 GetDeviceType(Convert.ToString(destName,
                                     System.Globalization.CultureInfo.InvariantCulture));
 
-                            if ((this.backupDeviceType == BackupDeviceType.Disk && backupDeviceType == constDeviceTypeFile)
-                                || (this.backupDeviceType == BackupDeviceType.Tape && backupDeviceType == constDeviceTypeTape))
+                            if (this.backupDeviceType == BackupDeviceType.Disk && backupDeviceType == constDeviceTypeFile)
                             {
                                 this.backup.Devices.AddDevice(destName, DeviceType.LogicalDevice);
                             }
@@ -217,95 +229,104 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                                 this.backup.Devices.AddDevice(destName, DeviceType.File);
                             }
                             break;
-                        case (int)DeviceType.Tape:
-                            if (this.backupDeviceType == BackupDeviceType.Tape)
-                            {
-                                this.backup.Devices.AddDevice(destName, DeviceType.Tape);
-                            }
-                            break;
                     }
                 }
-            }
 
-            this.backup.CopyOnly = this.backupInfo.IsCopyOnly;
-            this.backup.FormatMedia = this.backupInfo.FormatMedia;
-            this.backup.Initialize = this.backupInfo.Initialize;
-            this.backup.SkipTapeHeader = this.backupInfo.SkipTapeHeader;
-            this.backup.Checksum = this.backupInfo.Checksum;
-            this.backup.ContinueAfterError = this.backupInfo.ContinueAfterError;
+                this.backup.CopyOnly = this.backupInfo.IsCopyOnly;
+                this.backup.FormatMedia = this.backupInfo.FormatMedia;
+                this.backup.Initialize = this.backupInfo.Initialize;
+                this.backup.SkipTapeHeader = this.backupInfo.SkipTapeHeader;
+                this.backup.Checksum = this.backupInfo.Checksum;
+                this.backup.ContinueAfterError = this.backupInfo.ContinueAfterError;
 
-            if (!string.IsNullOrEmpty(this.backupInfo.MediaName))
-            {
-                this.backup.MediaName = this.backupInfo.MediaName;
-            }
-
-            if (!string.IsNullOrEmpty(this.backupInfo.MediaDescription))
-            {
-                this.backup.MediaDescription = this.backupInfo.MediaDescription;
-            }
-            
-            if (this.backupInfo.TailLogBackup 
-                && !this.backupRestoreUtil.IsHADRDatabase(this.backupInfo.DatabaseName) 
-                && !this.backupRestoreUtil.IsMirroringEnabled(this.backupInfo.DatabaseName))
-            {
-                this.backup.NoRecovery = true;
-            }
-
-            if (this.backupInfo.LogTruncation)
-            {
-                this.backup.LogTruncation = BackupTruncateLogType.Truncate;
-            }
-            else
-            {
-                this.backup.LogTruncation = BackupTruncateLogType.NoTruncate;
-            }
-            
-            if (!string.IsNullOrEmpty(this.backupInfo.BackupSetDescription))
-            {
-                this.backup.BackupSetDescription = this.backupInfo.BackupSetDescription;
-            }
-
-            if (this.backupInfo.RetainDays >= 0)
-            {
-                this.backup.RetainDays = this.backupInfo.RetainDays;
-            }
-            else
-            {
-                this.backup.ExpirationDate = this.backupInfo.ExpirationDate;
-            }
-
-            this.backup.CompressionOption = (BackupCompressionOptions)this.backupInfo.CompressionOption;
-
-            if (!string.IsNullOrEmpty(this.backupInfo.EncryptorName))
-            {
-                this.backup.EncryptionOption = new BackupEncryptionOptions((BackupEncryptionAlgorithm)this.backupInfo.EncryptionAlgorithm,
-                    (BackupEncryptorType)this.backupInfo.EncryptorType,
-                    this.backupInfo.EncryptorName);
-            }
-
-            // Execute backup
-            this.backup.SqlBackup(this.dataContainer.Server);
-
-            // Verify backup if required
-            if (this.backupInfo.VerifyBackupRequired)
-            {   
-                Restore restore = new Restore();
-                restore.Devices.AddRange(this.backup.Devices);
-                restore.Database = this.backup.Database;
-
-                string errorMessage = null;
-                restore.SqlVerifyLatest(this.dataContainer.Server, out errorMessage);
-                if (errorMessage != null)
+                if (!string.IsNullOrEmpty(this.backupInfo.MediaName))
                 {
-                    throw new Exception(errorMessage);
-                }             
+                    this.backup.MediaName = this.backupInfo.MediaName;
+                }
+
+                if (!string.IsNullOrEmpty(this.backupInfo.MediaDescription))
+                {
+                    this.backup.MediaDescription = this.backupInfo.MediaDescription;
+                }
+
+                if (this.backupInfo.TailLogBackup
+                    && !this.backupRestoreUtil.IsHADRDatabase(this.backupInfo.DatabaseName)
+                    && !this.backupRestoreUtil.IsMirroringEnabled(this.backupInfo.DatabaseName))
+                {
+                    this.backup.NoRecovery = true;
+                }
+
+                if (this.backupInfo.LogTruncation)
+                {
+                    this.backup.LogTruncation = BackupTruncateLogType.Truncate;
+                }
+                else
+                {
+                    this.backup.LogTruncation = BackupTruncateLogType.NoTruncate;
+                }
+
+                if (!string.IsNullOrEmpty(this.backupInfo.BackupSetDescription))
+                {
+                    this.backup.BackupSetDescription = this.backupInfo.BackupSetDescription;
+                }
+
+                if (this.backupInfo.RetainDays >= 0)
+                {
+                    this.backup.RetainDays = this.backupInfo.RetainDays;
+                }
+                else
+                {
+                    this.backup.ExpirationDate = this.backupInfo.ExpirationDate;
+                }
+
+                this.backup.CompressionOption = (BackupCompressionOptions)this.backupInfo.CompressionOption;
+
+                if (!string.IsNullOrEmpty(this.backupInfo.EncryptorName))
+                {
+                    this.backup.EncryptionOption = new BackupEncryptionOptions((BackupEncryptionAlgorithm)this.backupInfo.EncryptionAlgorithm,
+                        (BackupEncryptorType)this.backupInfo.EncryptorType,
+                        this.backupInfo.EncryptorName);
+                }
+
+                if (this.dataContainer.Server.ConnectionContext != null)
+                {
+                    // Execute backup
+                    this.backup.SqlBackup(this.dataContainer.Server);
+
+                    // Verify backup if required
+                    if (this.backupInfo.VerifyBackupRequired)
+                    {
+                        Restore restore = new Restore();
+                        restore.Devices.AddRange(this.backup.Devices);
+                        restore.Database = this.backup.Database;
+
+                        string errorMessage = null;
+                        restore.SqlVerifyLatest(this.dataContainer.Server, out errorMessage);
+                        if (errorMessage != null)
+                        {
+                            throw new DisasterRecoveryException(errorMessage);
+                        }
+                    }
+                }
+
+                foreach (String s in this.dataContainer.Server.ConnectionContext.CapturedSql.Text)
+                {
+                    sb.Append(s);
+                    sb.Append(Environment.NewLine);
+                }
+                this.ScriptContent = sb.ToString();
+            }
+            finally
+            {
+                this.dataContainer.Server.ConnectionContext.CapturedSql.Clear();
+                this.dataContainer.Server.ConnectionContext.SqlExecutionModes = oldExecutionMode;
             }
         }
 
         /// <summary>
         /// Cancel backup
         /// </summary>
-        public void CancelBackup()
+        public void Cancel()
         {
             if (this.backup != null)
             {
@@ -374,43 +395,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         private void SetBackupProps()
         {
-            try
+            switch (this.backupType)
             {
-                switch (this.backupType)
-                {
-                    case BackupType.Full:
-                        if (this.backupComponent == BackupComponent.Database)
-                        {
-                            this.backupActionType = BackupActionType.Database;
-                        }
-                        else if ((this.backupComponent == BackupComponent.Files) && (null != this.backupInfo.SelectedFileGroup) && (this.backupInfo.SelectedFileGroup.Count > 0))
-                        {
-                            this.backupActionType = BackupActionType.Files;
-                        }
-                        this.isBackupIncremental = false;
-                        break;
-                    case BackupType.Differential:
-                        if ((this.backupComponent == BackupComponent.Files) && (0 != this.backupInfo.SelectedFiles.Length))
-                        {
-                            this.backupActionType = BackupActionType.Files;
-                            this.isBackupIncremental = true;
-                        }
-                        else
-                        {
-                            this.backupActionType = BackupActionType.Database;
-                            this.isBackupIncremental = true;
-                        }
-                        break;
-                    case BackupType.TransactionLog:
-                        this.backupActionType = BackupActionType.Log;
-                        this.isBackupIncremental = false;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch
-            {
+                case BackupType.Full:
+                    if (this.backupComponent == BackupComponent.Database)
+                    {
+                        this.backupActionType = BackupActionType.Database;
+                    }
+                    else if ((this.backupComponent == BackupComponent.Files) && (this.backupInfo.SelectedFileGroup != null) && (this.backupInfo.SelectedFileGroup.Count > 0))
+                    {
+                        this.backupActionType = BackupActionType.Files;
+                    }
+                    this.isBackupIncremental = false;
+                    break;
+                case BackupType.Differential:
+                    if ((this.backupComponent == BackupComponent.Files) && (this.backupInfo.SelectedFiles != null) && (this.backupInfo.SelectedFiles.Length > 0))
+                    {
+                        this.backupActionType = BackupActionType.Files;
+                        this.isBackupIncremental = true;
+                    }
+                    else
+                    {
+                        this.backupActionType = BackupActionType.Database;
+                        this.isBackupIncremental = true;
+                    }
+                    break;
+                case BackupType.TransactionLog:
+                    this.backupActionType = BackupActionType.Log;
+                    this.isBackupIncremental = false;
+                    break;
+                default:
+                    break;
             }
         }
         
@@ -433,20 +448,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     result = Convert.ToInt16(dataset.Tables[0].Rows[0]["BackupDeviceType"],
                         System.Globalization.CultureInfo.InvariantCulture);
-                    return result;
                 }
                 else
                 {
-                    return constDeviceTypeMediaSet;
+                    result = constDeviceTypeMediaSet;
                 }
             }
-            catch
-            {                
+            catch (Exception ex)
+            {
+                throw ex;
             }
             finally
             {
                 this.serverConnection.SqlExecutionModes = executionMode;
             }
+
             return result;
         }
     }

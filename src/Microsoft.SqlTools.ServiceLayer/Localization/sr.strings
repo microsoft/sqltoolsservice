@@ -805,12 +805,12 @@ prototype_file_noApplicableFileGroup = No Applicable Filegroup
 
 ############################################################################
 # Backup Service
-Backup_TaskName = Backup Database
+BackupTaskName = Backup Database
 
 ############################################################################
 # Task Service
-Task_InProgress = In progress
-Task_Completed = Completed
+TaskInProgress = In progress
+TaskCompleted = Completed
 
 ###########################################################################
 # Restore
@@ -837,3 +837,7 @@ RestoreBackupSetSize = Size
 RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
+
+############################################################################
+# Generate Script
+ScriptTaskName = scripting

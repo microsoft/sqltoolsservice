@@ -53,7 +53,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri
             };
 
-            await DisasterRecoveryService.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
+            DisasterRecoveryService service = new DisasterRecoveryService();
+            await service.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
 
             requestContext.Verify(x => x.SendResult(It.Is<BackupConfigInfoResponse>
                 (p => p.BackupConfigInfo.RecoveryModel != string.Empty
@@ -63,46 +64,63 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             testDb.Cleanup();
         }
 
-        /// Test is failing in code coverage runs. Reenable when stable.
-        ///[Fact]
+        /// <summary>
+        /// Create simple backup test
+        /// </summary>
+        [Fact]
         public void CreateBackupTest()
         {
+            DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-            
-            // Initialize backup service
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
-            
-            // Get default backup path
-            BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-            string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + ".bak");
 
-            BackupInfo backupInfo = CreateBackupInfo(databaseName,
+            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+
+            BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
                 BackupType.Full,
-                new List<string>(){ backupPath },
-                new Dictionary<string, int>(){{ backupPath, (int)DeviceType.File }});
-
-            var backupParams = new BackupParams
-            {
-                OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                BackupInfo = backupInfo
-            };
+                new List<string>() { backupPath },
+                new Dictionary<string, int>() { { backupPath, (int)DeviceType.File } });
+            BackupOperation backupOperation = CreateBackupOperation(service, liveConnection.ConnectionInfo.OwnerUri, backupInfo, helper.DataContainer, sqlConn);
 
             // Backup the database
-            BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
-            DisasterRecoveryService.Instance.PerformBackup(backupOperation);
-            
-            // Remove the backup file
-            if (File.Exists(backupPath))
-            {
-                File.Delete(backupPath);
-            }
+            service.PerformBackup(backupOperation);
 
-            // Clean up the database
+            VerifyAndCleanBackup(backupPath);
             testDb.Cleanup();
         }
+
+        [Fact]
+        public void ScriptBackupTest()
+        {
+            DisasterRecoveryService service = new DisasterRecoveryService();
+            string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
+            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
+            SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
+            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+
+            BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
+                BackupType.Full,
+                new List<string>() { backupPath },
+                new Dictionary<string, int>() { { backupPath, (int)DeviceType.File } });
+            BackupOperation backupOperation = CreateBackupOperation(service, liveConnection.ConnectionInfo.OwnerUri, backupInfo, helper.DataContainer, sqlConn);
+
+            // Generate script for backup
+            service.ScriptBackup(backupOperation);
+            string script = backupOperation.ScriptContent;
+            Assert.True(!string.IsNullOrEmpty(script));
+
+            // Execute the script
+            testDb.RunQuery(script);
+
+            VerifyAndCleanBackup(backupPath);
+            testDb.Cleanup();
+        }
+
 
         /// <summary>
         /// Test creating backup with advanced options set.
@@ -110,68 +128,42 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         [Fact]
         public void CreateBackupWithAdvancedOptionsTest()
         {
+            DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
-            string certificateName = "backupcertificate" + new Random().Next(10000000, 99999999);
-            string masterkeyPassword = Guid.NewGuid().ToString();
-            string createCertificateQuery = string.Format(CreateCertificateQueryFormat, masterkeyPassword, certificateName);
-            string cleanupCertificateQuery = string.Format(CleanupCertificateQueryFormat, certificateName);
-
-            // create master key and certificate
-            Console.WriteLine("Create master key and certificate..");
-            testDb.RunQuery(createCertificateQuery);
-            
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-
-            // Initialize backup service
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
+            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
 
-            // Get default backup path
-            Console.WriteLine("Get default backup path..");
-            BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-            string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + ".bak");
+            string certificateName = CreateCertificate(testDb);
+            string cleanupCertificateQuery = string.Format(CleanupCertificateQueryFormat, certificateName);
 
-            BackupInfo backupInfo = CreateBackupInfo(databaseName, 
+            BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName, 
                 BackupType.Full, 
                 new List<string>(){ backupPath }, 
                 new Dictionary<string, int>(){{ backupPath, (int)DeviceType.File }});
-            
-            // Set advanced options
             backupInfo.ContinueAfterError = true;
             backupInfo.FormatMedia = true;
             backupInfo.SkipTapeHeader = true;
             backupInfo.Initialize = true;
             backupInfo.MediaName = "backup test media";
             backupInfo.MediaDescription = "backup test";
-            backupInfo.RetainDays = 90;            
+            backupInfo.RetainDays = 90;
             backupInfo.CompressionOption = (int)BackupCompressionOptions.On;
-
-            // Set encryption
             backupInfo.EncryptionAlgorithm = (int)BackupEncryptionAlgorithm.Aes128;
             backupInfo.EncryptorType = (int)BackupEncryptorType.ServerCertificate;
             backupInfo.EncryptorName = certificateName;
 
-            var backupParams = new BackupParams
-            {
-                OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                BackupInfo = backupInfo
-            };
-
+            BackupOperation backupOperation = CreateBackupOperation(service, liveConnection.ConnectionInfo.OwnerUri, backupInfo, helper.DataContainer, sqlConn);
+            
             // Backup the database
             Console.WriteLine("Perform backup operation..");
-            BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
-            DisasterRecoveryService.Instance.PerformBackup(backupOperation);
-            
-            // Verify backup file is created
-            Assert.True(File.Exists(backupPath));
+            service.PerformBackup(backupOperation);
 
             // Remove the backup file
-            Console.WriteLine("Remove backup file..");
-            if (File.Exists(backupPath))
-            {
-                File.Delete(backupPath);
-            }
+            Console.WriteLine("Verify the backup file exists and remove..");
+            VerifyAndCleanBackup(backupPath);
 
             // Delete certificate and master key
             Console.WriteLine("Remove certificate and master key..");
@@ -182,7 +174,76 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             testDb.Cleanup();
         }
 
-        private BackupInfo CreateBackupInfo(string databaseName, BackupType backupType, List<string> backupPathList, Dictionary<string, int> backupPathDevices)
+        /// <summary>
+        /// Test creating backup with advanced options set.
+        /// </summary>
+        [Fact]
+        public void ScriptBackupWithAdvancedOptionsTest()
+        {
+            DisasterRecoveryService service = new DisasterRecoveryService();
+            string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
+            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
+            SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
+            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+
+            string certificateName = CreateCertificate(testDb);
+            string cleanupCertificateQuery = string.Format(CleanupCertificateQueryFormat, certificateName);
+
+            BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
+                BackupType.Full,
+                new List<string>() { backupPath },
+                new Dictionary<string, int>() { { backupPath, (int)DeviceType.File } });
+            backupInfo.FormatMedia = true;
+            backupInfo.SkipTapeHeader = true;
+            backupInfo.Initialize = true;
+            backupInfo.MediaName = "backup test media";
+            backupInfo.MediaDescription = "backup test";
+            backupInfo.EncryptionAlgorithm = (int)BackupEncryptionAlgorithm.Aes128;
+            backupInfo.EncryptorType = (int)BackupEncryptorType.ServerCertificate;
+            backupInfo.EncryptorName = certificateName;
+
+            BackupOperation backupOperation = CreateBackupOperation(service, liveConnection.ConnectionInfo.OwnerUri, backupInfo, helper.DataContainer, sqlConn);
+
+            // Backup the database
+            Console.WriteLine("Generate script for backup operation..");
+            service.ScriptBackup(backupOperation);
+            string script = backupOperation.ScriptContent;
+
+            // Run the script
+            Console.WriteLine("Execute the script..");
+            testDb.RunQuery(script);
+
+            // Remove the backup file
+            Console.WriteLine("Verify the backup file exists and remove..");
+            VerifyAndCleanBackup(backupPath);
+
+            // Delete certificate and master key
+            Console.WriteLine("Remove certificate and master key..");
+            testDb.RunQuery(cleanupCertificateQuery);
+
+            // Clean up the database
+            Console.WriteLine("Clean up database..");
+            testDb.Cleanup();
+        }
+
+        #region private methods
+
+        private string CreateCertificate(SqlTestDb testDb)
+        {
+            string certificateName = "backupcertificate" + new Random().Next(10000000, 99999999);
+            string masterkeyPassword = Guid.NewGuid().ToString();
+            string createCertificateQuery = string.Format(CreateCertificateQueryFormat, masterkeyPassword, certificateName);
+            
+            // create master key and certificate
+            Console.WriteLine("Create master key and certificate..");
+            testDb.RunQuery(createCertificateQuery);
+
+            return certificateName;
+        }
+
+        private BackupInfo CreateDefaultBackupInfo(string databaseName, BackupType backupType, List<string> backupPathList, Dictionary<string, int> backupPathDevices)
         {
             BackupInfo backupInfo = new BackupInfo();
             backupInfo.BackupComponent = (int)BackupComponent.Database;
@@ -196,5 +257,36 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             backupInfo.SelectedFiles = "";
             return backupInfo;
         }
+
+        private string GetDefaultBackupPath(DisasterRecoveryService service, string databaseName, CDataContainer dataContainer, SqlConnection sqlConn)
+        {
+            BackupConfigInfo backupConfigInfo = service.GetBackupConfigInfo(dataContainer, sqlConn, sqlConn.Database);
+            return Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + ".bak");
+        }
+
+        private BackupOperation CreateBackupOperation(DisasterRecoveryService service, string uri, BackupInfo backupInfo, CDataContainer dataContainer, SqlConnection sqlConn)
+        {
+            var backupParams = new BackupParams
+            {
+                OwnerUri = uri,
+                BackupInfo = backupInfo,
+            };
+
+            return service.CreateBackupOperation(dataContainer, sqlConn, backupParams.BackupInfo);
+        }
+
+        private void VerifyAndCleanBackup(string backupPath)
+        {
+            // Verify it created backup
+            Assert.True(File.Exists(backupPath));
+
+            // Remove the backup file
+            if (File.Exists(backupPath))
+            {
+                File.Delete(backupPath);
+            }
+        }
+
+        #endregion
     }
 }

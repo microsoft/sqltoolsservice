@@ -664,11 +664,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 var backupParams = new BackupParams
                 {
                     OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                    BackupInfo = backupInfo
+                    BackupInfo = backupInfo,
+                    IsScripting = false
                 };
 
                 // Backup the database
-                BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+                BackupOperation backupOperation = DisasterRecoveryService.Instance.CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
                 DisasterRecoveryService.Instance.PerformBackup(backupOperation);
 
                 // Clean up the database

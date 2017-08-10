@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -23,6 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     {
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
+        private SqlTaskManager sqlTaskManagerInstance = null;
         private RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
 
         /// <summary>
@@ -59,6 +61,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
+        private SqlTaskManager SqlTaskManagerInstance
+        {
+            get
+            {
+                if (sqlTaskManagerInstance == null)
+                {
+                    sqlTaskManagerInstance = SqlTaskManager.Instance;
+                }
+                return sqlTaskManagerInstance;
+            }
+            set
+            {
+                sqlTaskManagerInstance = value;
+            }
+        }
+
         /// <summary>
         /// Initializes the service instance
         /// </summary>
@@ -66,6 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             // Get database info
             serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest);
+
             // Create backup
             serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
 
@@ -85,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="optionsParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        public static async Task HandleBackupConfigInfoRequest(
+        internal async Task HandleBackupConfigInfoRequest(
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<BackupConfigInfoResponse> requestContext)
         {
@@ -103,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     SqlConnection sqlConn = GetSqlConnection(connInfo);
                     if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
-                        BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                        BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
                         backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
                         response.BackupConfigInfo = backupConfigInfo;
                     }
@@ -213,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             metadata.Data = restoreDataObject;
 
                             // create restore task and perform
-                            SqlTask sqlTask = SqlTaskManager.Instance.CreateAndRun(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
+                            SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun(metadata, this.restoreDatabaseService.RestoreTaskAsync, restoreDatabaseService.CancelTaskAsync);
                             response.TaskId = sqlTask.TaskId.ToString();
                         }
                         else
@@ -244,40 +263,50 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <summary>
         /// Handles a backup request
         /// </summary>
-        internal static async Task HandleBackupRequest(
+        internal async Task HandleBackupRequest(
             BackupParams backupParams,
             RequestContext<BackupResponse> requestContext)
-        {     
+        {
             try
-            {       
+            {
+                BackupResponse response = new BackupResponse();
                 ConnectionInfo connInfo;
-                DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                        backupParams.OwnerUri,
-                        out connInfo);
+                bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
 
-                if (connInfo != null)
+                if (supported && connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     SqlConnection sqlConn = GetSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
-                    {
-                        BackupOperation backupOperation = DisasterRecoveryService.Instance.SetBackupInput(helper.DataContainer, sqlConn, backupParams.BackupInfo);
 
-                        // create task metadata
-                        TaskMetadata metadata = new TaskMetadata();
-                        metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                        metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                        metadata.Name = SR.Backup_TaskName;
-                        metadata.IsCancelable = true;
-                        metadata.Data = backupOperation;
-                        
-                        // create backup task and perform
-                        SqlTask sqlTask = SqlTaskManager.Instance.CreateTask(metadata, Instance.BackupTaskAsync);
-                        sqlTask.Run();
+                    BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
+                    SqlTask sqlTask = null;
+
+                    // create task metadata
+                    TaskMetadata metadata = new TaskMetadata();
+                    metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                    metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
+                    metadata.Data = backupOperation;
+                    metadata.IsCancelable = true;
+
+                    if (backupParams.IsScripting)
+                    {
+                        metadata.Name = string.Format("{0} {1}", SR.BackupTaskName, SR.ScriptTaskName);
+                        metadata.TaskExecutionMode = TaskExecutionMode.Script;
                     }
+                    else
+                    {
+                        metadata.Name = SR.BackupTaskName;
+                        metadata.TaskExecutionMode = TaskExecutionMode.ExecuteAndScript;
+                    }
+
+                    sqlTask = SqlTaskManagerInstance.CreateAndRun(metadata, this.PerformBackupTaskAsync, this.CancelBackupTaskAsync);
                 }
-            
-                await requestContext.SendResult(new BackupResponse());
+                else
+                {
+                    response.Result = false;
+                }
+
+                await requestContext.SendResult(response);
             }
             catch (Exception ex)
             {
@@ -342,19 +371,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return false;
         }
 
-        internal BackupConfigInfo GetBackupConfigInfo(CDataContainer dataContainer, SqlConnection sqlConnection, string databaseName)
+        private BackupOperation CreateBackupOperation(CDataContainer dataContainer, SqlConnection sqlConnection)
         {
             BackupOperation backupOperation = new BackupOperation();
             backupOperation.Initialize(dataContainer, sqlConnection);
-            return backupOperation.CreateBackupConfigInfo(databaseName);
+            return backupOperation;
         }
 
-        internal BackupOperation SetBackupInput(CDataContainer dataContainer, SqlConnection sqlConnection, BackupInfo input)
+        internal BackupOperation CreateBackupOperation(CDataContainer dataContainer, SqlConnection sqlConnection, BackupInfo input)
         {
-            BackupOperation backupOperation = new BackupOperation();
-            backupOperation.Initialize(dataContainer, sqlConnection);
+            BackupOperation backupOperation = CreateBackupOperation(dataContainer, sqlConnection);
             backupOperation.SetBackupInput(input);
             return backupOperation;
+        }
+
+        internal BackupConfigInfo GetBackupConfigInfo(CDataContainer dataContainer, SqlConnection sqlConnection, string databaseName)
+        {
+            BackupOperation backupOperation = CreateBackupOperation(dataContainer, sqlConnection);
+            return backupOperation.CreateBackupConfigInfo(databaseName);
         }
 
         /// <summary>
@@ -362,108 +396,98 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         internal void PerformBackup(BackupOperation backupOperation)
         {
-            backupOperation.PerformBackup();
+            backupOperation.Execute(TaskExecutionMode.ExecuteAndScript);
         }
-        
+
         /// <summary>
-        /// Create a backup task for execution and cancellation
+        /// For testing purpose only
         /// </summary>
-        /// <param name="sqlTask"></param>
-        /// <returns></returns>
-        internal async Task<TaskResult> BackupTaskAsync(SqlTask sqlTask)
+        internal void ScriptBackup(BackupOperation backupOperation)
         {
-            sqlTask.AddMessage(SR.Task_InProgress, SqlTaskStatus.InProgress, true);
-            IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
-            TaskResult taskResult = null;
-
-            if (backupOperation != null)
-            {
-                AutoResetEvent backupCompletedEvent = new AutoResetEvent(initialState: false);
-                Task<TaskResult> performTask = PerformTaskAsync(backupOperation);
-                Task<TaskResult> cancelTask = CancelTaskAsync(backupOperation, sqlTask.TokenSource.Token, backupCompletedEvent);
-                Task<TaskResult> completedTask = await Task.WhenAny(performTask, cancelTask);
-
-                // Release the cancelTask
-                if (completedTask == performTask)
-                {
-                    backupCompletedEvent.Set();
-                }
-
-                sqlTask.AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.Task_Completed,
-                                   completedTask.Result.TaskStatus);
-                taskResult = completedTask.Result;
-            }
-            else
-            {
-                taskResult = new TaskResult();
-                taskResult.TaskStatus = SqlTaskStatus.Failed;
-            }
-
-            return taskResult;
+            backupOperation.Execute(TaskExecutionMode.Script);
         }
 
         /// <summary>
         /// Async task to execute backup
         /// </summary>
-        /// <param name="backupOperation"></param>
+        /// <param name="sqlTask"></param>
         /// <returns></returns>
-        private async Task<TaskResult> PerformTaskAsync(IBackupOperation backupOperation)
+        internal async Task<TaskResult> PerformBackupTaskAsync(SqlTask sqlTask)
         {
+            IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
+            TaskResult result = new TaskResult();
+
             // Create a task to perform backup
-            return await Task.Factory.StartNew(() =>
+            await Task.Factory.StartNew(() =>
             {
-                TaskResult result = new TaskResult();
-                try
+                if (backupOperation != null)
                 {
-                    backupOperation.PerformBackup();
-                    result.TaskStatus = SqlTaskStatus.Succeeded;
-                }
-                catch (Exception ex)
-                {
-                    result.TaskStatus = SqlTaskStatus.Failed;
-                    result.ErrorMessage = ex.Message;
-                    if (ex.InnerException != null)
+                    try
                     {
-                        result.ErrorMessage += System.Environment.NewLine + ex.InnerException.Message;
+                        sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
+
+                        // Execute backup
+                        backupOperation.Execute(sqlTask.TaskMetadata.TaskExecutionMode);
+
+                        // Set result
+                        result.TaskStatus = SqlTaskStatus.Succeeded;
+
+                        // Send generated script to client
+                        if (!String.IsNullOrEmpty(backupOperation.ScriptContent))
+                        {
+                            sqlTask.AddScript(result.TaskStatus, backupOperation.ScriptContent);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.TaskStatus = SqlTaskStatus.Failed;
+                        result.ErrorMessage = string.Format(CultureInfo.InvariantCulture, "error:{0} inner:{1} stacktrace:{2}",
+                            ex.Message,
+                            ex.InnerException != null ? ex.InnerException.Message : "",
+                            ex.StackTrace);
                     }
                 }
-                return result;
+                else
+                {
+                    result.TaskStatus = SqlTaskStatus.Failed;
+                }
             });
+
+            return result;
         }
 
         /// <summary>
         /// Async task to cancel backup
         /// </summary>
-        /// <param name="backupOperation"></param>
-        /// <param name="token"></param>
-        /// <param name="backupCompletedEvent"></param>
+        /// <param name="sqlTask"></param>
         /// <returns></returns>
-        private async Task<TaskResult> CancelTaskAsync(IBackupOperation backupOperation, CancellationToken token, AutoResetEvent backupCompletedEvent)
+        internal async Task<TaskResult> CancelBackupTaskAsync(SqlTask sqlTask)
         {
-            // Create a task for backup cancellation request
-            return await Task.Factory.StartNew(() =>
-            {
-                TaskResult result = new TaskResult();
-                WaitHandle[] waitHandles = new WaitHandle[2]
-                {
-                    backupCompletedEvent,
-                    token.WaitHandle
-                };
+            IBackupOperation backupOperation = sqlTask.TaskMetadata.Data as IBackupOperation;
+            TaskResult result = new TaskResult();
 
-                WaitHandle.WaitAny(waitHandles);
-                try
+            await Task.Factory.StartNew(() =>
+            {
+                if (backupOperation != null)
                 {
-                    backupOperation.CancelBackup();
-                    result.TaskStatus = SqlTaskStatus.Canceled;
+                    try
+                    {
+                        backupOperation.Cancel();
+                        result.TaskStatus = SqlTaskStatus.Canceled;
+                    }
+                    catch (Exception ex)
+                    {
+                        result.TaskStatus = SqlTaskStatus.Failed;
+                        result.ErrorMessage = ex.Message;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
                     result.TaskStatus = SqlTaskStatus.Failed;
-                    result.ErrorMessage = ex.Message;
                 }
-                
-                return result;
             });
+
+            return result;
         }
     }
 }

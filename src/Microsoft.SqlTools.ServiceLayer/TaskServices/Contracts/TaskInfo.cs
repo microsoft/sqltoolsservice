@@ -21,6 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public SqlTaskStatus Status { get;  set; }
 
         /// <summary>
+        /// Task execution mode
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
+
+        /// <summary>
         /// Database server name this task is created for
         /// </summary>
         public string ServerName { get; set; }
@@ -29,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// Database name this task is created for
         /// </summary>
         public string DatabaseName { get; set; }
-
 
         /// <summary>
         /// Task name which defines the type of the task (e.g. CreateDatabase, Backup)
@@ -52,5 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Defines if the task can be canceled
+        /// </summary>
+        public bool IsCancelable { get; set; }
     }
 }

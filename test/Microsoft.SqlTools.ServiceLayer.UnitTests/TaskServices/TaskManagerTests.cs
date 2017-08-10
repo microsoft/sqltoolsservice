@@ -86,5 +86,40 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             }
 
         }
+
+        [Fact]
+        public async Task VerifyScriptTask()
+        {
+            using (SqlTaskManager manager = new SqlTaskManager())
+            {
+                DatabaseOperationStub operation = new DatabaseOperationStub();
+                operation.TaskResult = new TaskResult
+                {
+                    TaskStatus = SqlTaskStatus.Succeeded
+                };
+                SqlTask sqlTask = manager.CreateTask(taskMetaData, operation.FunctionToScript);
+
+                bool scriptAddedEventRaised = false;
+                string script = null;
+                sqlTask.ScriptAdded += (object sender, TaskEventArgs<TaskScript> e) =>
+                {
+                    scriptAddedEventRaised = true;
+                    script = e.TaskData.Script;
+                };
+
+                Assert.NotNull(sqlTask);
+                
+                Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
+                {
+                    Assert.True(scriptAddedEventRaised);
+                    Assert.True(!string.IsNullOrEmpty(script));
+                    Assert.True(manager.HasCompletedTasks());
+                    manager.RemoveCompletedTask(sqlTask);
+                });
+                operation.Stop();
+                await taskToVerify;
+            }
+
+        }
     }
 }

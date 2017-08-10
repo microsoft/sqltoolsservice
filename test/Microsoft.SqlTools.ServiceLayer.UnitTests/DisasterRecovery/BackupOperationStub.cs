@@ -7,6 +7,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Data.SqlClient;
 using System.Threading;
@@ -25,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             this.BackupSemaphore = new SemaphoreSlim(0, 1);
         }
         
+        public string ScriptContent { get; set; }
 
         /// <summary>
         /// Initialize 
@@ -56,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// <summary>
         /// Execute backup
         /// </summary>
-        public void PerformBackup()
+        public void Execute(TaskExecutionMode mode)
         {
             this.BackupSemaphore.Wait(TimeSpan.FromSeconds(5));
         }
@@ -64,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// <summary>
         /// Cancel backup
         /// </summary>
-        public void CancelBackup()
+        public void Cancel()
         {
         }
     }
