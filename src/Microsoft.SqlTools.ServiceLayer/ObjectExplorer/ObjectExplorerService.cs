@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 
@@ -617,7 +618,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 ServerNode rootNode = new ServerNode(response, serviceProvider);
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
-                if (!ObjectExplorerUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
+                if (!DatabaseUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
                 {
                     // Assuming the databases are in a folder under server node
                     DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);

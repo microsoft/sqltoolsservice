@@ -25,18 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 object value = Options[name];
                 try
                 {
-                    if (value != null && (typeof(T) != value.GetType()))
-                    {
-                        if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
-                        {
-                            value = Convert.ToInt32(value);
-                        }
-                        else if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
-                        {
-                            value = Convert.ToBoolean(value);
-                        }
-                    }
-                    result = value != null ? (T)value : default(T);
+                    result = GetValueAs<T>(value);
                 }
                 catch
                 {
@@ -45,6 +34,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                         "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
                 }
             }
+            return result;
+        }
+
+        internal static T GetValueAs<T>(object value)
+        {
+            T result = default(T);
+
+            if (value != null && (typeof(T) != value.GetType()))
+            {
+                if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
+                {
+                    value = Convert.ToInt32(value);
+                }
+                else if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
+                {
+                    value = Convert.ToBoolean(value);
+                }
+                else if (typeof(T).IsEnum)
+                {
+                    object enumValue;
+                    if (Enum.TryParse(typeof(T), value.ToString(), out enumValue))
+                    {
+                        value = (T)enumValue;
+                    }
+                }
+            }
+            else if (value != null && (typeof(T).IsEnum))
+            {
+                object enumValue;
+                if (Enum.TryParse(typeof(T), value.ToString(), out enumValue))
+                {
+                    value = enumValue;
+                }
+            }
+            result = value != null ? (T)value : default(T);
+
             return result;
         }
 
