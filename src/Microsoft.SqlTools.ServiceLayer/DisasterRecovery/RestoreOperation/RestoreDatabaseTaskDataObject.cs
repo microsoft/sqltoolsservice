@@ -696,10 +696,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             foreach (Restore restore in RestorePlan.RestoreOperations)
             {
                 BackupSetInfo backupSetInfo = BackupSetInfo.Create(restore, Server);
-                if (this.backupSetsFilterInfo.IsBackupSetSelected(restore.BackupSet))
-                {
-                   
-                }
                 result.Add(backupSetInfo);
             }
 

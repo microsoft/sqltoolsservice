@@ -176,6 +176,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             name: RestoreOptionsHelper.TargetDatabaseName,
                             currentValue: restoreDataObject.TargetDatabase, 
                             isReadOnly: !CanChangeTargetDatabase(restoreDataObject)));
+                        response.PlanDetails.Add(RestoreOptionsHelper.SourceDatabaseName, RestorePlanDetailInfo.Create(
+                            name: RestoreOptionsHelper.SourceDatabaseName,
+                            currentValue: restoreDataObject.RestorePlanner.DatabaseName));
+                        response.PlanDetails.Add(RestoreOptionsHelper.ReadHeaderFromMedia, RestorePlanDetailInfo.Create(
+                           name: RestoreOptionsHelper.ReadHeaderFromMedia,
+                           currentValue: restoreDataObject.RestorePlanner.ReadHeaderFromMedia));
                         response.DbFiles = restoreDataObject.DbFiles.Select(x => new RestoreDatabaseFileInfo
                         {
                             FileType = x.DbFileType,
@@ -319,16 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (CanChangeTargetDatabase(restoreDataObject))
             {
-                var dbNames = restoreDataObject.GetPossibleTargerDbNames();
-                if (dbNames != null &&
-                    !dbNames.Any(x => string.Compare(x, restoreDataObject.RestoreParams.TargetDatabaseName, StringComparison.InvariantCultureIgnoreCase) == 0))
-                {
-                    restoreDataObject.TargetDatabase = dbNames[0];
-                }
-                else
-                {
-                    restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
-                }
+                restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
             }
             else
             {
