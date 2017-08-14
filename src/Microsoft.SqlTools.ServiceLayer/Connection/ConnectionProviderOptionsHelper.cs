@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         SpecialValueType = ConnectionOption.SpecialValueAuthType,
                         CategoryValues = new CategoryValue[]
                         { new CategoryValue {DisplayName = "SQL Login", Name = "SqlLogin" },
-                          new CategoryValue {DisplayName =  "Integrated Auth", Name= "Integrated" }
+                          new CategoryValue {DisplayName =  "Windows Authentication", Name= "Integrated" }
                         },
                         IsIdentity = true,
                         IsRequired = true,
