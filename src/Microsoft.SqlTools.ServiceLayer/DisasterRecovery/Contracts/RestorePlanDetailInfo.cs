@@ -35,6 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// </summary>
         public object DefaultValue { get; set; }
 
+        /// <summary>
+        /// Error message if the current value is not valid
+        /// </summary>
+        public object ErrorMessage { get; set; }
+
         internal static RestorePlanDetailInfo Create(string name, object currentValue, bool isReadOnly = false, bool isVisible = true, object defaultValue = null)
         {
             return new RestorePlanDetailInfo

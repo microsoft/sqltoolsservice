@@ -15,6 +15,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
+using System.Collections.Concurrent;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -24,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
     public class RestoreDatabaseHelper
     {
         public const string LastBackupTaken = "lastBackupTaken";
+        private ConcurrentDictionary<string, RestoreDatabaseTaskDataObject> sessions = new ConcurrentDictionary<string, RestoreDatabaseTaskDataObject>(); 
 
         /// <summary>
         /// Create a backup task for execution and cancellation
@@ -169,6 +172,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         response.SessionId = restoreDataObject.SessionId;
                         response.DatabaseName = restoreDataObject.TargetDatabase;
+                        response.PlanDetails.Add(RestoreOptionsHelper.TargetDatabaseName, RestorePlanDetailInfo.Create(
+                            name: RestoreOptionsHelper.TargetDatabaseName,
+                            currentValue: restoreDataObject.TargetDatabase, 
+                            isReadOnly: !CanChangeTargetDatabase(restoreDataObject)));
+                        response.PlanDetails.Add(RestoreOptionsHelper.SourceDatabaseName, RestorePlanDetailInfo.Create(
+                            name: RestoreOptionsHelper.SourceDatabaseName,
+                            currentValue: restoreDataObject.RestorePlanner.DatabaseName));
+                        response.PlanDetails.Add(RestoreOptionsHelper.ReadHeaderFromMedia, RestorePlanDetailInfo.Create(
+                           name: RestoreOptionsHelper.ReadHeaderFromMedia,
+                           currentValue: restoreDataObject.RestorePlanner.ReadHeaderFromMedia));
                         response.DbFiles = restoreDataObject.DbFiles.Select(x => new RestoreDatabaseFileInfo
                         {
                             FileType = x.DbFileType,
@@ -183,10 +196,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             response.ErrorMessage = SR.RestoreNotSupported;
                         }
 
-                        response.PlanDetails.Add(LastBackupTaken, RestorePlanDetailInfo.Create(LastBackupTaken, restoreDataObject.GetLastBackupTaken()));
+                        response.PlanDetails.Add(LastBackupTaken, 
+                            RestorePlanDetailInfo.Create(name: LastBackupTaken, currentValue: restoreDataObject.GetLastBackupTaken(), isReadOnly: true));
 
                         response.BackupSetsToRestore = restoreDataObject.GetSelectedBakupSets();
-                        var dbNames = restoreDataObject.GetSourceDbNames();
+                        var dbNames = restoreDataObject.GetPossibleTargerDbNames();
                         response.DatabaseNamesFromBackupSets = dbNames == null ? new string[] { } : dbNames.ToArray();
 
                         RestoreOptionsHelper.AddOptions(response, restoreDataObject);
@@ -241,10 +255,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams)
         {
             RestoreDatabaseTaskDataObject restoreTaskObject = null;
-            restoreTaskObject = CreateRestoreForNewSession(restoreParams.OwnerUri, restoreParams.TargetDatabaseName);
             string sessionId = string.IsNullOrWhiteSpace(restoreParams.SessionId) ? Guid.NewGuid().ToString() : restoreParams.SessionId;
+            if (!sessions.TryGetValue(sessionId, out restoreTaskObject))
+            {
+                restoreTaskObject = CreateRestoreForNewSession(restoreParams.OwnerUri, restoreParams.TargetDatabaseName);
+            }
             restoreTaskObject.SessionId = sessionId;
             restoreTaskObject.RestoreParams = restoreParams;
+            restoreTaskObject.TargetDatabase = restoreParams.TargetDatabaseName;
+            restoreTaskObject.RestorePlanner.DatabaseName = restoreParams.TargetDatabaseName;
             return restoreTaskObject;
         }
 
@@ -303,11 +322,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
             }
-            restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
 
-            RestoreOptionsHelper.UpdateOptionsInPlan(restoreDataObject);
+            if (CanChangeTargetDatabase(restoreDataObject))
+            {
+                restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
+            }
+            else
+            {
+                restoreDataObject.TargetDatabase = restoreDataObject.Server.ConnectionContext.DatabaseName;
+            }
+
+            
 
             restoreDataObject.UpdateRestorePlan();
+        }
+
+        private bool CanChangeTargetDatabase(RestoreDatabaseTaskDataObject restoreDataObject)
+        {
+            return DatabaseUtils.IsSystemDatabaseConnection(restoreDataObject.Server.ConnectionContext.DatabaseName);
         }
 
         /// <summary>

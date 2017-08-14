@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             // TODO Consider adding IsAuthenticatingDatabaseMaster check in the code and
             // referencing result here
-            if (!ObjectExplorerUtils.IsSystemDatabaseConnection(connectionSummary.DatabaseName))
+            if (!DatabaseUtils.IsSystemDatabaseConnection(connectionSummary.DatabaseName))
             {
                 // We either have an azure with a database specified or a Denali database using a contained user
                 if (string.IsNullOrWhiteSpace(userName))
