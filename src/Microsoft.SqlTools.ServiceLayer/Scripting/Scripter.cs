@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Table smoObject = string.IsNullOrEmpty(schemaName) ? new Table(this.Database, objectName) : new Table(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 View smoObject = string.IsNullOrEmpty(schemaName) ? new View(this.Database, objectName) : new View(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 StoredProcedure smoObject = string.IsNullOrEmpty(schemaName) ? new StoredProcedure(this.Database, objectName) : new StoredProcedure(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Schema smoObject = new Schema(this.Database, objectName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Database smoObject = new Database(new Server(this.serverConnection), objectName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 UserDefinedDataType smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedDataType(this.Database, objectName) : new UserDefinedDataType(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 UserDefinedTableType smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedTableType(this.Database, objectName) : new UserDefinedTableType(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Synonym smoObject = string.IsNullOrEmpty(schemaName) ? new Synonym(this.Database, objectName) : new Synonym(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 UserDefinedFunction smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedFunction(this.Database, objectName) : new UserDefinedFunction(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 UserDefinedFunction smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedFunction(this.Database, objectName) : new UserDefinedFunction(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);
+                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
             }
             catch (Exception ex)
             {

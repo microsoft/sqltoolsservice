@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 					PushIndent(indent);
 					WriteLine(statement);
 					WriteLine("smoObject.Refresh();");
-					WriteLine("return smoObject.Script(scriptingOptions);");
+					WriteLine("return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);");
 					PopIndent();
 					WriteLine("}");
 
