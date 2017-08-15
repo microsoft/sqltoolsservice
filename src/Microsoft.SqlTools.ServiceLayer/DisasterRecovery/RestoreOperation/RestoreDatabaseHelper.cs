@@ -316,7 +316,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             if (shouldCreateNewPlan)
             {
                 restoreDataObject.CreateNewRestorePlan();
-                restoreDataObject.RestoreParams.SelectedBackupSets = null;
             }
 
             restoreDataObject.UpdateRestorePlan();
