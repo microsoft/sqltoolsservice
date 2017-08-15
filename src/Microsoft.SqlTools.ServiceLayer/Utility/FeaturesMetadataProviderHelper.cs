@@ -11,18 +11,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     public class FeaturesMetadataProviderHelper
     {
-        public static FeatureMetadataProvider[] CreateFratureMetadataProviders()
+        public static FeatureMetadataProvider[] CreateFeatureMetadataProviders()
         {
-            List<FeatureMetadataProvider> featues = new List<FeatureMetadataProvider>();
+            List<FeatureMetadataProvider> features = new List<FeatureMetadataProvider>();
 
-            featues.Add(new FeatureMetadataProvider
+            features.Add(new FeatureMetadataProvider
             {
                 FeatureName = "Restore",
                 Enabled = true,
                 OptionsMetadata = RestoreOptionsHelper.CreateRestoreOptions()
             });
 
-            return featues.ToArray();
+            features.Add(new FeatureMetadataProvider
+            {
+                FeatureName = "serializationService",
+                Enabled = true,
+                OptionsMetadata = null
+            });
+
+            return features.ToArray();
         }
     }
 }
