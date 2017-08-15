@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
     public class RestoreOptionsHelper
     {
-        //The list of name that service sends to client as options
+        //The list of names service uses to sends restore options to client
         private static string[] optionNames = new string[] { KeepReplication, ReplaceDatabase , SetRestrictedUser, RecoveryState ,
             BackupTailLog , TailLogBackupFile, TailLogWithNoRecovery, CloseExistingConnections, RelocateDbFiles, DataFileFolder, LogFileFolder,
             StandbyFile,
@@ -241,6 +241,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             Dictionary<string, RestorePlanDetailInfo> options = new Dictionary<string, RestorePlanDetailInfo>();
             RestoreOptionFactory restoreOptionFactory = RestoreOptionFactory.Instance;
+
+            //Create the options using the current values
             foreach (var optionKey in optionNames)
             {
                 var optionInfo = restoreOptionFactory.CreateOptionInfo(optionKey, restoreDataObject);
@@ -248,6 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
 
             // After all options are set verify them all again to set the read only 
+            // Becuase some options can change the readnly mode of other options.( e.g Recovery state can affect StandBy to be readyonly)
             foreach (var optionKey in optionNames)
             {
                 restoreOptionFactory.UpdateOption(optionKey, restoreDataObject, options[optionKey]);
@@ -292,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 string error = restoreOptionFactory.ValidateOption(optionKey, restoreDataObject);
                 if (!string.IsNullOrEmpty(error))
                 {
-                    //TODO: we could send back the error message so client knows the option is set incorrectly 
+                    //TODO: we could send back the error message so client knows the option is set incorrectly
                 }
             }
             

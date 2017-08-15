@@ -41,5 +41,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         public string DefaultStandbyFile { get; set; }
 
         public string DefaultTailLogbackupFile { get; set; }
+
+        public string DefaultSourceDbName { get; set; }
+        public string SourceDatabaseName { get; set; }
+
+        public List<string> SourceDbNames { get; set; }
+
+        public bool CanChangeTargetDatabase { get; set; }
+
+        public string DefaultTargetDbName { get; set; }
+
+        public string TargetDatabaseName { get; set; }
     }
 }
