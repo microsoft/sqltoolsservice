@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -30,6 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 return instance;
             }
+        }
+
+        public RestorePlanDetailInfo CreateAndValidate(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
+        {
+            RestorePlanDetailInfo restorePlanDetailInfo = CreateOptionInfo(optionKey, restoreDataObject);
+            UpdateOption(optionKey, restoreDataObject, restorePlanDetailInfo);
+            return restorePlanDetailInfo;
         }
 
         /// <summary>
@@ -74,13 +82,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
         /// <summary>
-        /// Set the option value if restore tak object using the values in the restore request
+        /// Set the option value in restore task object using the values in the restore request
+        /// </summary>
+        /// <param name="optionKey"></param>
+        /// <param name="restoreDataObject"></param>
+        public void SetAndValidate(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
+        {
+            this.SetValue(optionKey, restoreDataObject);
+            this.ValidateOption(optionKey, restoreDataObject);
+        }
+
+        /// <summary>
+        /// Set the option value in restore task object using the values in the restore request
         /// </summary>
         /// <param name="optionKey"></param>
         /// <param name="restoreDataObject"></param>
         public void SetValue(string optionKey, IRestoreDatabaseTaskDataObject restoreDataObject)
         {
-            if(restoreDataObject != null)
+            if (restoreDataObject != null)
             {
                 if (optionBuilders.ContainsKey(optionKey))
                 {
@@ -107,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             var defaultValue = builder.DefaultValueFunction(restoreDataObject);
                             builder.SetValueFunction(restoreDataObject, defaultValue);
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
                             Logger.Write(LogLevel.Warning, $"Failed to set restore option  {optionKey} to default value");
                         }
@@ -143,10 +162,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         errorMessage = $"{optionKey} is ready only and cannot be modified";
                     }
                 }
+                if (!string.IsNullOrEmpty(result.ErrorMessage))
+                {
+                    errorMessage = result.ErrorMessage;
+                    builder.SetValueFunction(restoreDataObject, defaultValue);
+                }
             }
             else
             {
-                errorMessage = "cannot find restore option builder for {optionKey}";
+                errorMessage = $"cannot find restore option builder for {optionKey}";
                 Logger.Write(LogLevel.Warning, errorMessage);
             }
 
@@ -469,6 +493,64 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         return true;
                     }
                 });
+            Register(RestoreOptionsHelper.SourceDatabaseName,
+               new OptionBuilder
+               {
+                   DefaultValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject) =>
+                   {
+                       return restoreDataObject.DefaultSourceDbName;
+                   },
+                   CurrentValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject) =>
+                   {
+                       return restoreDataObject.SourceDatabaseName;
+                   },
+                   ValidateFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object currentValue, object defaultValue) =>
+                   {
+                       string errorMessage = string.Empty;
+                       var sourceDbNames = restoreDataObject.SourceDbNames;
+                       if (currentValue == null || (sourceDbNames != null && 
+                            !sourceDbNames.Any(x => string.Compare(x, currentValue.ToString(), StringComparison.InvariantCultureIgnoreCase) == 0)))
+                       {
+                           errorMessage = "Source database name is not valid";
+                       }
+                       return new OptionValidationResult()
+                       {
+                          ErrorMessage = errorMessage
+                       };
+                   },
+                   SetValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object value) =>
+                   {
+
+                       restoreDataObject.SourceDatabaseName = GetValueAs<string>(value);
+                       return true;
+                   }
+               });
+            Register(RestoreOptionsHelper.TargetDatabaseName,
+               new OptionBuilder
+               {
+                   DefaultValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject) =>
+                   {
+                       return restoreDataObject.CanChangeTargetDatabase ? restoreDataObject.DefaultSourceDbName : restoreDataObject.DefaultTargetDbName;
+                   },
+                   CurrentValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject) =>
+                   {
+                       return restoreDataObject.TargetDatabaseName;
+                   },
+                   ValidateFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object currentValue, object defaultValue) =>
+                   {
+
+                       return new OptionValidationResult()
+                       {
+                           IsReadOnly = !restoreDataObject.CanChangeTargetDatabase
+                       };
+                   },
+                   SetValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object value) =>
+                   {
+
+                       restoreDataObject.TargetDatabaseName = GetValueAs<string>(value);
+                       return true;
+                   }
+               });
         }
 
         internal T GetValueAs<T>(object value)

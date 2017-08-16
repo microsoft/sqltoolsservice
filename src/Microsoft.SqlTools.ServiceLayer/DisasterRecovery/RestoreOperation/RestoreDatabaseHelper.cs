@@ -171,14 +171,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     if (restoreDataObject != null && restoreDataObject.IsValid)
                     {
                         response.SessionId = restoreDataObject.SessionId;
-                        response.DatabaseName = restoreDataObject.TargetDatabase;
-                        response.PlanDetails.Add(RestoreOptionsHelper.TargetDatabaseName, RestorePlanDetailInfo.Create(
-                            name: RestoreOptionsHelper.TargetDatabaseName,
-                            currentValue: restoreDataObject.TargetDatabase, 
-                            isReadOnly: !CanChangeTargetDatabase(restoreDataObject)));
-                        response.PlanDetails.Add(RestoreOptionsHelper.SourceDatabaseName, RestorePlanDetailInfo.Create(
-                            name: RestoreOptionsHelper.SourceDatabaseName,
-                            currentValue: restoreDataObject.RestorePlanner.DatabaseName));
+                        response.DatabaseName = restoreDataObject.TargetDatabaseName;
+
+                        response.PlanDetails.Add(RestoreOptionsHelper.TargetDatabaseName, 
+                            RestoreOptionFactory.Instance.CreateAndValidate(RestoreOptionsHelper.TargetDatabaseName, restoreDataObject));
+                        response.PlanDetails.Add(RestoreOptionsHelper.SourceDatabaseName, 
+                            RestoreOptionFactory.Instance.CreateAndValidate(RestoreOptionsHelper.SourceDatabaseName, restoreDataObject));
+
                         response.PlanDetails.Add(RestoreOptionsHelper.ReadHeaderFromMedia, RestorePlanDetailInfo.Create(
                            name: RestoreOptionsHelper.ReadHeaderFromMedia,
                            currentValue: restoreDataObject.RestorePlanner.ReadHeaderFromMedia));
@@ -191,16 +190,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         });
                         response.CanRestore = CanRestore(restoreDataObject);
 
-                        if (!response.CanRestore)
-                        {
-                            response.ErrorMessage = SR.RestoreNotSupported;
-                        }
-
                         response.PlanDetails.Add(LastBackupTaken, 
                             RestorePlanDetailInfo.Create(name: LastBackupTaken, currentValue: restoreDataObject.GetLastBackupTaken(), isReadOnly: true));
 
                         response.BackupSetsToRestore = restoreDataObject.GetSelectedBakupSets();
-                        var dbNames = restoreDataObject.GetPossibleTargerDbNames();
+                        var dbNames = restoreDataObject.SourceDbNames;
                         response.DatabaseNamesFromBackupSets = dbNames == null ? new string[] { } : dbNames.ToArray();
 
                         RestoreOptionsHelper.AddOptions(response, restoreDataObject);
@@ -259,11 +253,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             if (!sessions.TryGetValue(sessionId, out restoreTaskObject))
             {
                 restoreTaskObject = CreateRestoreForNewSession(restoreParams.OwnerUri, restoreParams.TargetDatabaseName);
+                sessions.AddOrUpdate(sessionId, restoreTaskObject, (key, old) => restoreTaskObject);
             }
             restoreTaskObject.SessionId = sessionId;
             restoreTaskObject.RestoreParams = restoreParams;
-            restoreTaskObject.TargetDatabase = restoreParams.TargetDatabaseName;
-            restoreTaskObject.RestorePlanner.DatabaseName = restoreParams.TargetDatabaseName;
+            
             return restoreTaskObject;
         }
 
@@ -308,33 +302,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private void UpdateRestorePlan(RestoreDatabaseTaskDataObject restoreDataObject)
         {
+            bool shouldCreateNewPlan = restoreDataObject.ShouldCreateNewPlan();
+            
             if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths))
             {
                 restoreDataObject.AddFiles(restoreDataObject.RestoreParams.BackupFilePaths);
             }
             restoreDataObject.RestorePlanner.ReadHeaderFromMedia = restoreDataObject.RestoreParams.ReadHeaderFromMedia;
 
-            if (string.IsNullOrWhiteSpace(restoreDataObject.RestoreParams.SourceDatabaseName))
-            {
-                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
-            }
-            else
-            {
-                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
-            }
+            RestoreOptionFactory.Instance.SetAndValidate(RestoreOptionsHelper.SourceDatabaseName, restoreDataObject);
+            RestoreOptionFactory.Instance.SetAndValidate(RestoreOptionsHelper.TargetDatabaseName, restoreDataObject);
 
-            if (CanChangeTargetDatabase(restoreDataObject))
+            if (shouldCreateNewPlan)
             {
-                restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
+                restoreDataObject.CreateNewRestorePlan();
             }
-            else
-            {
-                restoreDataObject.TargetDatabase = restoreDataObject.Server.ConnectionContext.DatabaseName;
-            }
-
-            
 
             restoreDataObject.UpdateRestorePlan();
+
         }
 
         private bool CanChangeTargetDatabase(RestoreDatabaseTaskDataObject restoreDataObject)
