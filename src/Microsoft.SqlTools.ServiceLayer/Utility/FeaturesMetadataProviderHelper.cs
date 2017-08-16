@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 FeatureName = "serializationService",
                 Enabled = true,
-                OptionsMetadata = null
+                OptionsMetadata = new SqlTools.Hosting.Contracts.ServiceOption[0]
             });
 
             return features.ToArray();
