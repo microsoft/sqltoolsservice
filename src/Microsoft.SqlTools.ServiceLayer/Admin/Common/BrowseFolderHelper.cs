@@ -13,7 +13,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.Data.Tools.DataSets;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -50,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     Request     request     = new Request();    
                     request.Urn             = "Server/Database[@Name='model']/FileGroup[@Name='PRIMARY']/File";
                     request.Fields          = new string[1] {"FileName"};
-                    Microsoft.Data.Tools.DataSets.DataSet     dataSet     = enumerator.Process(serverConnection, request);
+                    DataSet     dataSet     = enumerator.Process(serverConnection, request);
 
                     if (0 < dataSet.Tables[0].Rows.Count)
                     {

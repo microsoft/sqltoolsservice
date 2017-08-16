@@ -18,9 +18,9 @@
 	<Reference Include="System.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
-	<PackageReference Include="System.Data.SqlClient" Version="4.4.0-preview1-25305-02" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.3" />
-	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.2.3" />
+	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.4" />
+	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.2.4" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="**\*.cs" />

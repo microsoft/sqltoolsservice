@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -18,7 +19,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Assembly = System.Reflection.Assembly;
 using System.Xml.Linq;
-using Microsoft.Data.Tools.DataSets;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
