@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 FeatureName = "serializationService",
                 Enabled = true,
-                OptionsMetadata = new SqlTools.Hosting.Contracts.ServiceOption[0]
+                OptionsMetadata = new ServiceOption[0]
             });
 
             return features.ToArray();
