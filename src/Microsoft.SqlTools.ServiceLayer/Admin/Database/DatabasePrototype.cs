@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data;
 using System.Resources;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -16,7 +17,6 @@ using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
-using Microsoft.Data.Tools.DataSets;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {

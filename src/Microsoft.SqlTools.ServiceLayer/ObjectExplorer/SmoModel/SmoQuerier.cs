@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.Tools.DataSets;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 
@@ -52,14 +51,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                
                 reader = data as IDataReader;
             }
-            else if(data is Data.Tools.DataSets.DataTable)
+            else if(data is DataTable)
             {
-                reader = ((Data.Tools.DataSets.DataTable)data).CreateDataReader();
+                reader = ((DataTable)data).CreateDataReader();
             }
            
-            else if (data is Microsoft.Data.Tools.DataSets.DataSet)
+            else if (data is DataSet)
             {
-                reader = ((Microsoft.Data.Tools.DataSets.DataSet)data).Tables[0].CreateDataReader();
+                reader = ((DataSet)data).Tables[0].CreateDataReader();
             }
 
             return reader;
