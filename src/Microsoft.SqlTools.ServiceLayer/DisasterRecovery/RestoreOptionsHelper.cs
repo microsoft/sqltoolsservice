@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
 
             // After all options are set verify them all again to set the read only 
-            // Becuase some options can change the readnly mode of other options.( e.g Recovery state can affect StandBy to be readyonly)
+            // Because some options can change the readonly mode of other options.( e.g Recovery state can affect StandBy to be readyonly)
             foreach (var optionKey in optionNames)
             {
                 restoreOptionFactory.UpdateOption(optionKey, restoreDataObject, options[optionKey]);

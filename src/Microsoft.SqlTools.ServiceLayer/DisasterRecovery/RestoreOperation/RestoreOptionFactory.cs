@@ -74,11 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 var defaultValue = builder.DefaultValueFunction(restoreDataObject);
                 var validateResult = builder.ValidateFunction(restoreDataObject, currentValue, defaultValue);
                 optionInfo.IsReadOnly = validateResult.IsReadOnly;
-                if (optionInfo.IsReadOnly)
-                {
-                    //TODO: should we set the current value to default if the option is read only?
-                    //optionInfo.CurrentValue = defaultValue;
-                }
             }
             else
             {
@@ -514,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                        string errorMessage = string.Empty;
                        var sourceDbNames = restoreDataObject.SourceDbNames;
                        if (currentValue == null || (sourceDbNames != null && 
-                       !sourceDbNames.Any(x => string.Compare(x, currentValue.ToString(), StringComparison.InvariantCultureIgnoreCase) == 0)))
+                            !sourceDbNames.Any(x => string.Compare(x, currentValue.ToString(), StringComparison.InvariantCultureIgnoreCase) == 0)))
                        {
                            errorMessage = "Source database name is not valid";
                        }
