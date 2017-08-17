@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Execute the operation for given execution mode
         /// </summary>
         /// <param name="mode"></param>
-        public void Execute(TaskExecutionMode mode)
+        public virtual void Execute(TaskExecutionMode mode)
         {
             var currentExecutionMode = Server.ConnectionContext.SqlExecutionModes;
             if (Server != null)
@@ -96,14 +96,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
 
             Execute();
-            if(mode.HasFlag(TaskExecutionMode.Script))
+            if(mode == TaskExecutionMode.Script || mode == TaskExecutionMode.ExecuteAndScript)
             {
                 this.ScriptContent = GetScriptContent();
                 if(SqlTask != null)
                 {
                     OnScriptAdded(new TaskScript
                     {
-                        Status = SqlTask.TaskStatus,
+                        Status = SqlTaskStatus.Succeeded,
                         Script = this.ScriptContent
                     });
                 }

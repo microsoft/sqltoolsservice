@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
 
             IScriptableRequestParams scriptableRequestParams = requestParam as IScriptableRequestParams;
-            if (scriptableRequestParams != null && scriptableRequestParams.TaskExecutionMode.HasFlag(TaskExecutionMode.Script))
+            if (scriptableRequestParams != null && scriptableRequestParams.TaskExecutionMode != TaskExecutionMode.Execute)
             {
                 taskMetadata.Name = string.Format("{0} {1}", taskName, SR.ScriptTaskName);
             }
@@ -85,8 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             {
                 taskMetadata.Name = taskName;
             }
-            taskMetadata.TaskExecutionMode = scriptableRequestParams.TaskExecutionMode == TaskExecutionMode.None ? TaskExecutionMode.Execute : 
-                scriptableRequestParams.TaskExecutionMode;
+            taskMetadata.TaskExecutionMode = scriptableRequestParams.TaskExecutionMode;
 
             taskMetadata.TaskOperation = taskOperation;
             return taskMetadata;

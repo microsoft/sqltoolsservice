@@ -38,18 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 if(taskManager == null)
                 {
                     taskManager = SqlTaskManager.Instance;
-                    taskManager.TaskAdded += OnTaskAdded;
                 }
                 return taskManager;
             }
             set
             {
-                if(taskManager != null)
-                {
-                    taskManager.TaskAdded -= OnTaskAdded;
-                }
                 taskManager = value;
-                taskManager.TaskAdded += OnTaskAdded;
             }
         }
 
@@ -62,6 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             Logger.Write(LogLevel.Verbose, "TaskService initialized");
             serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest);
             serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest);
+            TaskManager.TaskAdded += OnTaskAdded;
         }
 
         /// <summary>

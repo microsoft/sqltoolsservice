@@ -93,14 +93,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                     {
                         if (!makeTaskFail)
                         {
-                            if (executionMode.HasFlag(TaskExecutionMode.Script))
+                            if (executionMode == TaskExecutionMode.Script || executionMode == TaskExecutionMode.ExecuteAndScript)
                             {
                                 serviceHostMock.Verify(x => x.SendEvent(TaskStatusChangedNotification.Type,
                                            It.Is<TaskProgressInfo>(t => !string.IsNullOrEmpty(t.Script))), Times.AtLeastOnce());
                             }
 
                             //Verify if the table created if execution mode includes execute
-                            bool expected = executionMode.HasFlag(TaskExecutionMode.Execute);
+                            bool expected = executionMode == TaskExecutionMode.Execute || executionMode == TaskExecutionMode.ExecuteAndScript;
                             Server serverToverfiy = CreateServerObject(connectionResult.ConnectionInfo);
                             bool actual = serverToverfiy.Databases[testDb.DatabaseName].Tables.Contains(taskOperation.TableName, "test");
                             Assert.Equal(expected, actual);

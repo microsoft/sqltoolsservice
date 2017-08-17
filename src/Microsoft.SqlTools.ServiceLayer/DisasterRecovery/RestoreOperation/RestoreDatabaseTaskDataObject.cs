@@ -256,6 +256,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         }
 
+        public override void Execute(TaskExecutionMode mode)
+        {
+            UpdateRestoreTaskObject();
+
+            base.Execute(mode);
+        }
+
         /// <summary>
         /// Executes the restore operations
         /// </summary>
@@ -264,7 +271,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
             {
                 // Restore Plan should be already created and updated at this point
-                UpdateRestoreTaskObject();
 
                 RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
 
