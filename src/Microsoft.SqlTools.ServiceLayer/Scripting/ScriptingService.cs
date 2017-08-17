@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -231,19 +232,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
             StringCollection results = null;
-            if (metadata.MetadataType == MetadataType.Table)
+            switch(metadata.MetadataTypeName)
             {
-                results = scripter.GetTableScripts(metadata.Name, metadata.Schema);
+                case ("Table"):
+                    results = scripter.GetTableScripts(metadata.Name, metadata.Schema);
+                    break;
+                case ("View"):
+                    results = scripter.GetViewScripts(metadata.Name, metadata.Schema);
+                    break;
+                case("StoredProcedure"):
+                    results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema);
+                    break;
+                case("Schema"):
+                    results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema);
+                    break;
+                case("Database"):
+                    results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema);
+                    break;
+                default:
+                    results = null;
+                    break;
             }
-            else if (metadata.MetadataType == MetadataType.SProc)
-            {
-                results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema);
-            }
-            else if (metadata.MetadataType == MetadataType.View)
-            {
-                results = scripter.GetViewScripts(metadata.Name, metadata.Schema);
-            }
-
             StringBuilder builder = null;
             if (results != null) 
             {                                
@@ -287,7 +296,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ConnectionInfo connInfo,
             ObjectMetadata metadata)
         {
-            return null;
+            Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
+            StringCollection results = null;
+            ScriptingOptions options = new ScriptingOptions();
+            options.ScriptDrops = true;
+            switch(metadata.MetadataTypeName)
+            {
+                case ("Table"):
+                    results = scripter.GetTableScripts(metadata.Name, metadata.Schema, options);
+                    break;
+                case ("View"):
+                    results = scripter.GetViewScripts(metadata.Name, metadata.Schema, options);
+                    break;
+                case("StoredProcedure"):
+                    results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema, options);
+                    break;
+                case("Schema"):
+                    results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema, options);
+                    break;
+                case("Database"):
+                    results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema, options);
+                    break;
+                default:
+                    results = null;
+                    break;
+            }
+            StringBuilder builder = null;
+            if (results != null) 
+            {                                
+                builder = new StringBuilder();                             
+                foreach (var result in results)
+                {
+                    builder.AppendLine(result);
+                    builder.AppendLine();
+                }
+            }
+            return builder != null ? builder.ToString() : null;            
         }
 
         /// <summary>

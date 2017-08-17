@@ -22,6 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
     {
         private const string SchemaName = "dbo";
         private const string TableName = "spt_monitor";
+        private const string ViewName = "test";
+        private const string DatabaseName = "test-db";
+        private const string StoredProcName = "test-sp";
+        private string[] objects = new string[5] {"Table", "View", "Schema", "Database", "SProc"};
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -40,8 +44,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             return result;
         }
 
+        private static ObjectMetadata GenerateMetadata(string objectType)
+        {
+            var metadata = new ObjectMetadata()
+            {
+                Schema = SchemaName,
+                Name = objectType
+            };
+            switch(objectType)
+            {
+                case("Table"):
+                    metadata.MetadataType = MetadataType.Table;
+                    metadata.Name = TableName;
+                    break;
+                case("View"):
+                    metadata.MetadataType = MetadataType.View;
+                    metadata.Name = ViewName;
+                    break;
+                case("Database"):
+                    metadata.MetadataType = MetadataType.Database;
+                    metadata.Name = DatabaseName;
+                    break;
+                case("Schema"):
+                    metadata.MetadataType = MetadataType.Schema;
+                    metadata.MetadataTypeName = SchemaName;
+                    break;
+                case("SProc"):
+                    metadata.MetadataType = MetadataType.SProc;
+                    metadata.MetadataTypeName = StoredProcName;
+                    break;
+                default:
+                    metadata.MetadataType = MetadataType.Table;
+                    metadata.Name = TableName;
+                    break;                    
+            }
+            return metadata;
+        }
 
-        private async Task<Mock<RequestContext<ScriptingScriptAsResult>>> SendAndValidateScriptRequest(ScriptOperation operation)
+        private async Task<Mock<RequestContext<ScriptingScriptAsResult>>> SendAndValidateScriptRequest(ScriptOperation operation, string objectType)
         {
             var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<ScriptingScriptAsResult>>();
@@ -51,13 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
                 Operation = operation,
-                Metadata = new ObjectMetadata()
-                {
-                    MetadataType = MetadataType.Table,
-                    MetadataTypeName = "Table",
-                    Schema = SchemaName,
-                    Name = TableName
-                }
+                Metadata = GenerateMetadata(objectType)
             };
 
             await ScriptingService.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
@@ -71,7 +105,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void ScriptingScriptAsSelect()
         {
-            await SendAndValidateScriptRequest(ScriptOperation.Select);
+            foreach (string obj in objects)
+            {
+                Assert.NotNull(await SendAndValidateScriptRequest(ScriptOperation.Select, obj));
+            }
         }
 
         /// <summary>
@@ -80,7 +117,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void ScriptingScriptAsCreate()
         {
-            await SendAndValidateScriptRequest(ScriptOperation.Create);
+            foreach (string obj in objects)
+            {
+                Assert.NotNull(await SendAndValidateScriptRequest(ScriptOperation.Create, obj));
+            }
         }
 
         /// <summary>
@@ -89,7 +129,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void ScriptingScriptAsInsert()
         {
-            await SendAndValidateScriptRequest(ScriptOperation.Insert);
+            foreach (string obj in objects)
+            {
+                Assert.NotNull(await SendAndValidateScriptRequest(ScriptOperation.Insert, obj));
+            }
         }
 
         /// <summary>
@@ -98,7 +141,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void ScriptingScriptAsUpdate()
         {
-            await SendAndValidateScriptRequest(ScriptOperation.Update);
+            foreach (string obj in objects)
+            {
+                Assert.NotNull(await SendAndValidateScriptRequest(ScriptOperation.Select, obj));
+            }
         }
 
         /// <summary>
@@ -107,7 +153,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void ScriptingScriptAsDelete()
         {
-            await SendAndValidateScriptRequest(ScriptOperation.Delete);
+            foreach (string obj in objects)
+            {
+                Assert.NotNull(await SendAndValidateScriptRequest(ScriptOperation.Select, obj));
+            }
         }
     }
 }

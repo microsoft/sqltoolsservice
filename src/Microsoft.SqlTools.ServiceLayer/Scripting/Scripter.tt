@@ -79,12 +79,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 					}
 					else
 					{
-						statement = string.Format("{0} smoObject = new {0}(this.Database, objectName);", typeProperty["Name"]);
+						// If it's a database
+						if (typeProperty["AccessClass"] == "Database")
+						{
+							statement = string.Format("{0} smoObject = new {0}(new Server(this.serverConnection), objectName);", typeProperty["Name"]);
+						}
+						else 
+						{
+							statement = string.Format("{0} smoObject = new {0}(this.Database, objectName);", typeProperty["Name"]);
+						}
 					}
 					PushIndent(indent);
 					WriteLine(statement);
 					WriteLine("smoObject.Refresh();");
-					WriteLine("return smoObject.Script();");
+					WriteLine("return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);");
 					PopIndent();
 					WriteLine("}");
 
