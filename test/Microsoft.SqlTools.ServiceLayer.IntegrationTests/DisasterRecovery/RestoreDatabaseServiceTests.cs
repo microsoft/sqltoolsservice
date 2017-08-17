@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             //Verify that all backupsets are restored
             int[] expectedTable = new int[] { };
 
-            await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable);
+            await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable, TaskExecutionModeFlag.Execute);
         }
 
         [Fact]
