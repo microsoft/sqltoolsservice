@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -808,20 +809,27 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             Database db = null;
             List<DbFile> ret = new List<DbFile>();
-            if (!this.RestorePlanner.ReadHeaderFromMedia)
+            try
             {
-                db = this.Server.Databases[this.RestorePlanner.DatabaseName];
+                if (!this.RestorePlanner.ReadHeaderFromMedia)
+                {
+                    db = this.Server.Databases[this.RestorePlanner.DatabaseName];
+                }
+                if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+                {
+                    if (db != null && db.Status == DatabaseStatus.Normal)
+                    {
+                        ret = this.Util.GetDbFiles(db);
+                    }
+                    else
+                    {
+                        ret = this.Util.GetDbFiles(restorePlan.RestoreOperations[0]);
+                    }
+                }
             }
-            if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+            catch(Exception ex )
             {
-                if (db != null && db.Status == DatabaseStatus.Normal)
-                {
-                    ret = this.Util.GetDbFiles(db);
-                }
-                else
-                {
-                    ret = this.Util.GetDbFiles(restorePlan.RestoreOperations[0]);
-                }
+                Logger.Write(LogLevel.Normal, $"Failed to get restore db files. error: {ex.Message}");
             }
             return ret;
         }
@@ -1254,9 +1262,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             bool shouldCreateNewPlan = ShouldCreateNewPlan();
 
-            if (!string.IsNullOrEmpty(RestoreParams.BackupFilePaths))
+            if (!string.IsNullOrEmpty(RestoreParams.BackupFilePaths) && RestoreParams.ReadHeaderFromMedia)
             {
                 AddFiles(RestoreParams.BackupFilePaths);
+            }
+            else
+            {
+                RestorePlanner.BackupMediaList.Clear();
             }
             RestorePlanner.ReadHeaderFromMedia = RestoreParams.ReadHeaderFromMedia;
 
