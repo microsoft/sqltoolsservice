@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             }
         }
 
-        public SqlTask SqlTask { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public SqlTask SqlTask { get; set; }
 
         /// <summary>
         /// Initialize 
