@@ -29,6 +29,20 @@ SupportsSchemaQuery - Boolean denoting if the object can be queried/accessed usi
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
+    <Name>Schema</Name>
+    <CreateSyntax>Schema</CreateSyntax>
+    <AccessClass>Schema</AccessClass>
+    <QuickInfoType>schema</QuickInfoType>
+    <SupportsSchemaQuery>false</SupportsSchemaQuery>
+  </Type>
+    <Type>
+    <Name>Database</Name>
+    <CreateSyntax>Database</CreateSyntax>
+    <AccessClass>Database</AccessClass>
+    <QuickInfoType>database</QuickInfoType>
+    <SupportsSchemaQuery>false</SupportsSchemaQuery>
+  </Type>
+  <Type>
     <Name>UserDefinedDataType</Name>
     <CreateSyntax>Type</CreateSyntax>
     <AccessClass>UserDefinedDataType</AccessClass>

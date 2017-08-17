@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         ProviderDisplayName = ServiceHost.ProviderDescription,
                         ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions(),
                         AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(),
-                        Features = FeaturesMetadataProviderHelper.CreateFratureMetadataProviders()
+                        Features = FeaturesMetadataProviderHelper.CreateFeatureMetadataProviders()
                     }
                 }
             );            
