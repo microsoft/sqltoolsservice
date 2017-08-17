@@ -34,6 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public event EventHandler<TaskEventArgs<TaskMessage>> MessageAdded;
         public event EventHandler<TaskEventArgs<SqlTaskStatus>> StatusChanged;
 
+        public SqlTask()
+        {
+        }
+
         /// <summary>
         /// Creates new instance of SQL task
         /// </summary>
@@ -41,10 +45,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="taskToRun">The function to run to start the task</param>
         public SqlTask(TaskMetadata taskMetdata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
         {
-            Validate.IsNotNull(nameof(taskMetdata), taskMetdata);
+            Init(taskMetdata, taskToRun, taskToCancel);
+        }
+
+        /// <summary>
+        /// Initializes the Sql task
+        /// </summary>
+        /// <param name="taskMetadata">Task metadata</param>
+        /// <param name="taskToRun">The function to execute the operation</param>
+        /// <param name="taskToCancel">The function to cancel the operation</param>
+        public virtual void Init(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
+        {
+            Validate.IsNotNull(nameof(taskMetadata), taskMetadata);
             Validate.IsNotNull(nameof(taskToRun), taskToRun);
 
-            TaskMetadata = taskMetdata;
+            TaskMetadata = taskMetadata;
             TaskToRun = taskToRun;
             TaskToCancel = taskToCancel;
             StartTime = DateTime.UtcNow;
@@ -120,8 +135,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <returns></returns>
         internal async Task<TaskResult> RunAndCancel()
         {
+            TokenSource = new CancellationTokenSource();
             AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
-
+           
             TaskResult taskResult = new TaskResult();
             Task<TaskResult> performTask = TaskToRun(this);
             Task<TaskResult> completedTask = null;
@@ -452,7 +468,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 Name = TaskMetadata.Name,
                 Description = TaskMetadata.Description,
                 TaskExecutionMode = TaskMetadata.TaskExecutionMode,
-                IsCancelable = TaskMetadata.IsCancelable,
+                IsCancelable = this.TaskToCancel != null,
             };
         }
 

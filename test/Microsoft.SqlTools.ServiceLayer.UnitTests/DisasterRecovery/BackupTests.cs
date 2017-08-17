@@ -201,15 +201,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             }
         }
 
-        private TaskMetadata CreateTaskMetaData(object data)
+        private TaskMetadata CreateTaskMetaData(IBackupOperation data)
         {
             TaskMetadata taskMetaData = new TaskMetadata
             {
                 ServerName = "server name",
                 DatabaseName = "database name",
                 Name = "backup database",
-                IsCancelable = true,
-                Data = data
+                TaskOperation = data
             };
 
             return taskMetaData;

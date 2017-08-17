@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// this is used when the backup dialog is launched in the context of a backup device
         /// The InitialBackupDestination will be loaded in LoadData
         private string initialBackupDestination = string.Empty;
-        
+
         // Helps in populating the properties of an Azure blob given its URI
         private class BlobProperties
         {
@@ -162,6 +162,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 this.scriptContent = value;
             }
         }
+
+        public string ErrorMessage
+        {
+            get
+            {
+                return string.Empty;
+            }
+        }
+
+        public SqlTask SqlTask { get; set; }
 
         /// <summary>
         /// Execute backup
