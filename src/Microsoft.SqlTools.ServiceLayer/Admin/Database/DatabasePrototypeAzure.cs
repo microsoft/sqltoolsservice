@@ -177,33 +177,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
            //Altering the DB needs to be done on the master DB
            using (var conn = new SqlConnection(this.context.ServerConnection.GetDatabaseConnection("master").ConnectionString))
-           {                
-               var cmd = new SqlCommand();
-               cmd.Connection = conn;
-               conn.Open();
+           {
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    conn.Open();
 
-               //Only run the alter statements for modifications made. This is mostly to allow the non-Azure specific
-               //properties to be updated when a SLO change is in progress, but it also is beneficial to save trips to the
-               //server whenever we can (especially when Azure is concerned)
-               if (currentState.azureEdition != originalState.azureEdition ||
-                  currentState.currentServiceLevelObjective != originalState.currentServiceLevelObjective ||
-                  currentState.maxSize != originalState.maxSize)
-               {
-                   cmd.CommandText = alterDbPropertiesStatement;
-                   cmd.ExecuteNonQuery();
-               }
+                    //Only run the alter statements for modifications made. This is mostly to allow the non-Azure specific
+                    //properties to be updated when a SLO change is in progress, but it also is beneficial to save trips to the
+                    //server whenever we can (especially when Azure is concerned)
+                    if (currentState.azureEdition != originalState.azureEdition ||
+                       currentState.currentServiceLevelObjective != originalState.currentServiceLevelObjective ||
+                       currentState.maxSize != originalState.maxSize)
+                    {
+                        cmd.CommandText = alterDbPropertiesStatement;
+                        cmd.ExecuteNonQuery();
+                    }
 
-               if (currentState.recursiveTriggers != originalState.recursiveTriggers)
-               {
-                   cmd.CommandText = alterAzureDbRecursiveTriggersEnabledStatement;
-                   cmd.ExecuteNonQuery();
-               }
+                    if (currentState.recursiveTriggers != originalState.recursiveTriggers)
+                    {
+                        cmd.CommandText = alterAzureDbRecursiveTriggersEnabledStatement;
+                        cmd.ExecuteNonQuery();
+                    }
 
-               if (currentState.isReadOnly != originalState.isReadOnly)
-               {
-                   cmd.CommandText = alterAzureDbIsReadOnlyStatement;
-                   cmd.ExecuteNonQuery();
-               }
+                    if (currentState.isReadOnly != originalState.isReadOnly)
+                    {
+                        cmd.CommandText = alterAzureDbIsReadOnlyStatement;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
            }
 
            //Because we didn't use SMO to do the alter we should refresh the DB object so it picks up the correct properties

@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public sealed class LanguageService
+    public sealed class LanguageService: IDisposable
     {
         #region Singleton Instance Implementation
 
@@ -1715,6 +1715,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return string.Empty;
+        }
+
+        public void Dispose()
+        {
+            if (bindingQueue != null)
+            {
+                bindingQueue.Dispose();
+            }
         }
     }
 }
