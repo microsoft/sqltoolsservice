@@ -163,6 +163,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
+        /// <summary>
+        /// The error occurred during backup operation
+        /// </summary>
         public string ErrorMessage
         {
             get

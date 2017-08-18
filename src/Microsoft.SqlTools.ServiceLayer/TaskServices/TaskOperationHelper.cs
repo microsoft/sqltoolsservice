@@ -77,7 +77,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             ITaskOperation taskOperation = sqlTask.TaskMetadata.TaskOperation as ITaskOperation;
             TaskResult taskResult = null;
 
-
             if (taskOperation != null)
             {
               

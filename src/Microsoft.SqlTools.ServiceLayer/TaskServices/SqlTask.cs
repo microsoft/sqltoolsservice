@@ -34,6 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public event EventHandler<TaskEventArgs<TaskMessage>> MessageAdded;
         public event EventHandler<TaskEventArgs<SqlTaskStatus>> StatusChanged;
 
+        /// <summary>
+        /// Default constructor to create the geenric type. calling Initialize method is required after creating
+        /// the insance
+        /// </summary>
         public SqlTask()
         {
         }

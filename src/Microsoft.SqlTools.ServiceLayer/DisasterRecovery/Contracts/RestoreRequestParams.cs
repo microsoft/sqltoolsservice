@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public TaskExecutionMode TaskExecutionMode { get; set; }
 
         /// <summary>
-        /// Target Database name
+        /// Same as Target Database name. Used by task manager to create task info
         /// </summary>
         public string DatabaseName
         {

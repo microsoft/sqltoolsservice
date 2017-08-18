@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         void Cancel();
 
         /// <summary>
-        /// Error message occurred during executing 
+        /// If an error occurred during task execution, this field contains the error message text
         /// </summary>
         string ErrorMessage { get; }
 
