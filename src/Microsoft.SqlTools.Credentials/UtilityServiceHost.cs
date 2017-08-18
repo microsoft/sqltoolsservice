@@ -14,32 +14,32 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.Credentials
+namespace Microsoft.SqlTools.Credentials.Utility
 {
     /// <summary>
-    /// SQL Tools Credentials Service request handler. Provides the entire JSON RPC
+    /// SQL Tools Service request handler for any utility services. Provides the entire JSON RPC
     /// implementation for sending/receiving JSON requests and dispatching the requests to
     /// handlers that are registered prior to startup.
     /// </summary>
-    public sealed class CredentialsServiceHost : ServiceHostBase
+    public sealed class UtilityServiceHost : ServiceHostBase
     {
         /// <summary>
         /// This timeout limits the amount of time that shutdown tasks can take to complete
         /// prior to the process shutting down.
         /// </summary>
-        private const int ShutdownTimeoutInSeconds = 120;        
+        private const int ShutdownTimeoutInSeconds = 120;
 
         #region Singleton Instance Code
 
         /// <summary>
         /// Singleton instance of the service host for internal storage
         /// </summary>
-        private static readonly Lazy<CredentialsServiceHost> instance = new Lazy<CredentialsServiceHost>(() => new CredentialsServiceHost());
+        private static readonly Lazy<UtilityServiceHost> instance = new Lazy<UtilityServiceHost>(() => new UtilityServiceHost());
 
         /// <summary>
         /// Current instance of the ServiceHost
         /// </summary>
-        public static CredentialsServiceHost Instance
+        public static UtilityServiceHost Instance
         {
             get { return instance.Value; }
         }
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.Credentials
         /// Constructs new instance of ServiceHost using the host and profile details provided.
         /// Access is private to ensure only one instance exists at a time.
         /// </summary>
-        private CredentialsServiceHost() : base(new StdioServerChannel())
+        private UtilityServiceHost() : base(new StdioServerChannel())
         {
             // Initialize the shutdown activities
             shutdownCallbacks = new List<ShutdownCallback>();

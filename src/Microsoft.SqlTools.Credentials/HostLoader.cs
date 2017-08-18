@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
-namespace  Microsoft.SqlTools.Credentials
+namespace  Microsoft.SqlTools.Credentials.Utility
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility
@@ -18,9 +18,9 @@ namespace  Microsoft.SqlTools.Credentials
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        internal static CredentialsServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
+        public static UtilityServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
         {
-            CredentialsServiceHost serviceHost = CredentialsServiceHost.Instance;
+            UtilityServiceHost serviceHost = UtilityServiceHost.Instance;
             lock (lockObject)
             {
                 if (!isLoaded)
@@ -40,7 +40,7 @@ namespace  Microsoft.SqlTools.Credentials
             return serviceHost;
         }
 
-        private static void InitializeRequestHandlersAndServices(CredentialsServiceHost serviceHost, SqlToolsContext sqlToolsContext)
+        private static void InitializeRequestHandlersAndServices(UtilityServiceHost serviceHost, SqlToolsContext sqlToolsContext)
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future

@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.Credentials.Utility
     /// <summary>
     /// The command-line options helper class.
     /// </summary>
-    internal class CommandOptions
+    public class CommandOptions
     {
         /// <summary>
         /// Construct and parse command line options from the arguments array
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.Credentials.Utility
             }
         }
 
-        internal string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         /// <summary>
         /// Whether diagnostic logging is enabled
