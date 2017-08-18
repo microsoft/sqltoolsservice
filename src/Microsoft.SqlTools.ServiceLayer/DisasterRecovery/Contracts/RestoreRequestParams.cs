@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Newtonsoft.Json.Linq;
 
@@ -12,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     /// <summary>
     /// Restore request parameters
     /// </summary>
-    public class RestoreParams : GeneralRequestDetails
+    public class RestoreParams : GeneralRequestDetails, IScriptableRequestParams
     {
         /// <summary>
         /// Restore session id. The parameter is optional and if passed, an existing plan will be used
@@ -138,6 +139,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
             set
             {
                 SetOptionValue(RestoreOptionsHelper.SelectedBackupSets, value);
+            }
+        }
+
+        /// <summary>
+        /// The executation mode for the operation. default is execution
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
+
+        /// <summary>
+        /// Same as Target Database name. Used by task manager to create task info
+        /// </summary>
+        public string DatabaseName
+        {
+            get
+            {
+                return TargetDatabaseName;
+            }
+            set
+            {
+                TargetDatabaseName = value;
             }
         }
     }

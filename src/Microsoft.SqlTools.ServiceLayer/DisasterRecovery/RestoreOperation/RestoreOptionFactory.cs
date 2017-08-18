@@ -538,10 +538,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                    },
                    ValidateFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object currentValue, object defaultValue) =>
                    {
-
+                       string errorMessage = string.Empty;
+                       if (currentValue!= null && DatabaseUtils.IsSystemDatabaseConnection(currentValue.ToString()))
+                       {
+                           errorMessage = "Cannot restore to system database";
+                       }
                        return new OptionValidationResult()
                        {
-                           IsReadOnly = !restoreDataObject.CanChangeTargetDatabase
+                           IsReadOnly = !restoreDataObject.CanChangeTargetDatabase,
+                           ErrorMessage = errorMessage
                        };
                    },
                    SetValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object value) =>

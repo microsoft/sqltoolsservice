@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -83,19 +84,58 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="taskMetadata">Task Metadata</param>
         /// <param name="taskToRun">The function to run the operation</param>
         /// <param name="taskToCancel">The function to cancel the operation</param>
-        /// <returns></returns>
-        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
+        /// <returns>The new sql task</returns>
+        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel) 
+        {
+            return CreateTask<SqlTask>(taskMetadata, taskToRun, taskToCancel);
+        }
+
+        /// <summary>
+        /// Creates a new task
+        /// </summary>
+        /// <param name="taskMetadata">Task Metadata</param>
+        /// <returns>The new sql task</returns>
+        public SqlTask CreateTask<T>(TaskMetadata taskMetadata) where T : SqlTask, new()
+        {
+            Validate.IsNotNull(nameof(taskMetadata), taskMetadata);
+            return CreateTask<T>(taskMetadata, TaskOperationHelper.ExecuteTaskAsync, TaskOperationHelper.CancelTaskAsync);
+        }
+
+        /// <summary>
+        /// Creates a new task
+        /// </summary>
+        /// <param name="taskMetadata">Task Metadata</param>
+        /// <param name="taskToRun">The function to run the operation</param>
+        /// <param name="taskToCancel">The function to cancel the operation</param>
+        /// <returns>The new sql task</returns>
+        public SqlTask CreateTask<T>(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel) where T : SqlTask, new()
         {
             ValidateNotDisposed();
 
-            var newtask = new SqlTask(taskMetadata, taskToRun, taskToCancel);
+            var newTask = new T();
+            newTask.Init(taskMetadata, taskToRun, taskToCancel);
+            if (taskMetadata != null && taskMetadata.TaskOperation != null)
+            {
+                taskMetadata.TaskOperation.SqlTask = newTask;
+            }
 
             lock (lockObject)
             {
-                tasks.AddOrUpdate(newtask.TaskId, newtask, (key, oldValue) => newtask);
+                tasks.AddOrUpdate(newTask.TaskId, newTask, (key, oldValue) => newTask);
             }
-            OnTaskAdded(new TaskEventArgs<SqlTask>(newtask));
-            return newtask;
+            OnTaskAdded(new TaskEventArgs<SqlTask>(newTask));
+            return newTask;
+        }
+
+        /// <summary>
+        /// Creates a new task
+        /// </summary>
+        /// <param name="taskMetadata">Task Metadata</param>
+        /// <param name="taskToRun">The function to run the operation</param>
+        /// <returns>The new sql task</returns>
+        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun)
+        {
+            return CreateTask<SqlTask>(taskMetadata, taskToRun);
         }
 
         /// <summary>
@@ -104,9 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="taskMetadata">Task Metadata</param>
         /// <param name="taskToRun">The function to run the operation</param>
         /// <returns></returns>
-        public SqlTask CreateTask(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun)
+        public SqlTask CreateTask<T>(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun) where T : SqlTask, new()
         {
-            return CreateTask(taskMetadata, taskToRun, null);
+            return CreateTask<T>(taskMetadata, taskToRun, null);
         }
 
         /// <summary>
@@ -118,7 +158,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <returns></returns>
         public SqlTask CreateAndRun(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel)
         {
-            var sqlTask = CreateTask(taskMetadata, taskToRun, taskToCancel);
+            return CreateAndRun<SqlTask>(taskMetadata, taskToRun, taskToCancel);
+        }
+
+        public SqlTask CreateAndRun<T>(TaskMetadata taskMetadata) where T : SqlTask, new()
+        {
+            var sqlTask = CreateTask<T>(taskMetadata);
+            sqlTask.Run();
+            return sqlTask;
+        }
+
+        /// <summary>
+        /// Creates a new task and starts the task
+        /// </summary>
+        /// <param name="taskMetadata">Task Metadata</param>
+        /// <param name="taskToRun">The function to run the operation</param>
+        /// <param name="taskToCancel">The function to cancel the operation</param>
+        /// <returns></returns>
+        public SqlTask CreateAndRun<T>(TaskMetadata taskMetadata, Func<SqlTask, Task<TaskResult>> taskToRun, Func<SqlTask, Task<TaskResult>> taskToCancel) where T : SqlTask, new()
+        {
+            var sqlTask = CreateTask<T>(taskMetadata, taskToRun, taskToCancel);
             sqlTask.Run();
             return sqlTask;
         }
