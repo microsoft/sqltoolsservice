@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
                 serviceHost.WaitForExit();
-                HostLoader.Dispose();
             }
             catch (Exception e)
             {

@@ -249,6 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Write(LogLevel.Verbose, "Shutting down language service");
                 DeletePeekDefinitionScripts();
+                this.Dispose();
                 await Task.FromResult(0);
             });
 

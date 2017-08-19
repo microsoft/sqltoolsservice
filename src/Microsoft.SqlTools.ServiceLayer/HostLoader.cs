@@ -120,10 +120,5 @@ namespace Microsoft.SqlTools.ServiceLayer
                 service.InitializeService(host);
             }
         }
-
-        public static void Dispose()
-        {
-            LanguageService.Instance.Dispose();
-        }
     }
 }
