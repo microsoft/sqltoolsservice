@@ -13,8 +13,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using System.Globalization;
-using System.Text;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
@@ -22,13 +20,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// <summary>
     /// This class implements backup operations
     /// </summary>
-    public class BackupOperation : IBackupOperation
+    public class BackupOperation :  SmoScriptableTaskOperation, IBackupOperation
     {
         private CDataContainer dataContainer;
         private ServerConnection serverConnection;
         private CommonUtilities backupRestoreUtil = null;
         private Backup backup = null;
-        private string scriptContent = "";
 
         /// <summary>
         /// Constants
@@ -151,22 +148,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return configInfo;
         }
 
-        public string ScriptContent
-        {
-            get
-            {
-                return this.scriptContent;
-            }
-            set
-            {
-                this.scriptContent = value;
-            }
-        }
-
         /// <summary>
         /// The error occurred during backup operation
         /// </summary>
-        public string ErrorMessage
+        public override string ErrorMessage
         {
             get
             {
@@ -174,17 +159,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        public SqlTask SqlTask { get; set; }
+        public override Server Server
+        {
+            get
+            {
+                return this.dataContainer.Server;
+            }
+        }
 
         /// <summary>
         /// Execute backup
         /// </summary>
-        public void Execute(TaskExecutionMode mode)
+        public override void Execute()
         {
-            StringBuilder sb = new StringBuilder();
-            SqlExecutionModes oldExecutionMode = this.dataContainer.Server.ConnectionContext.SqlExecutionModes;
-            this.dataContainer.Server.ConnectionContext.SqlExecutionModes = (mode == TaskExecutionMode.Script) ? SqlExecutionModes.CaptureSql: SqlExecutionModes.ExecuteAndCaptureSql;
-            this.dataContainer.Server.ConnectionContext.CapturedSql.Clear();
             this.backup = new Backup();
             this.backup.Database = this.backupInfo.DatabaseName;
             this.backup.Action = this.backupActionType;
@@ -322,24 +309,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     }
                 }
 
-                foreach (String s in this.dataContainer.Server.ConnectionContext.CapturedSql.Text)
-                {
-                    sb.Append(s);
-                    sb.Append(Environment.NewLine);
-                }
-                this.ScriptContent = sb.ToString();
+                
             }
-            finally
+            catch(Exception)
             {
-                this.dataContainer.Server.ConnectionContext.CapturedSql.Clear();
-                this.dataContainer.Server.ConnectionContext.SqlExecutionModes = oldExecutionMode;
+                throw;
             }
         }
 
         /// <summary>
         /// Cancel backup
         /// </summary>
-        public void Cancel()
+        public override void Cancel()
         {
             if (this.backup != null)
             {

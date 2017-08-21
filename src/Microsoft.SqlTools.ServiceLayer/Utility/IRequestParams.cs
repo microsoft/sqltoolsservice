@@ -12,10 +12,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// The Uri to find the connection to do the restore operations
         /// </summary>
         string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Database name
-        /// </summary>
-        string DatabaseName { get; set; }
     }
 }

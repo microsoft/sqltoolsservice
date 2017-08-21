@@ -676,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 {
                     OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
                     BackupInfo = backupInfo,
-                    IsScripting = false
+                    TaskExecutionMode = TaskExecutionMode.Execute
                 };
 
                 // Backup the database

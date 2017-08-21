@@ -57,6 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         string DefaultTargetDbName { get; }
         string TargetDatabaseName { get; set; }
 
+        bool CanDropExistingConnections { get; }
+
 
     }
     /// <summary>
@@ -247,7 +249,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 lastBackup = isTheLastOneSelected ?
                     string.Format(CultureInfo.CurrentCulture, SR.TheLastBackupTaken, (backupTimeStr)) : backupTimeStr;
             }
-            //TODO: find the selected one
             else if (GetFirstSelectedBackupSetIndex() == 0 && !this.RestorePlanner.RestoreToLastBackup)
             {
                 lastBackup = this.CurrentRestorePointInTime.Value.ToLongDateString() +
@@ -1240,6 +1241,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Returns true if can close eixisting connections for give database
+        /// </summary>
+        public bool CanDropExistingConnections
+        {
+            get
+            {
+                if(RestorePlan != null && RestorePlanner != null)
+                {
+                    return RestorePlan.CanDropExistingConnections(RestorePlanner.DatabaseName);
+                }
+                return false;
+            }
         }
 
         /// <summary>
