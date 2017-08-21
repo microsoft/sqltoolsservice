@@ -67,11 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 taskMetadata.ServerName = connInfo.ConnectionDetails.ServerName;
             }
 
-            if (!string.IsNullOrEmpty(requestParam.DatabaseName))
-            {
-                taskMetadata.DatabaseName = requestParam.DatabaseName;
-            }
-            else if (connInfo != null)
+            if (connInfo != null)
             {
                 taskMetadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
             }

@@ -52,5 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         public string DefaultTargetDbName { get; set; }
 
         public string TargetDatabaseName { get; set; }
+        public bool CanDropExistingConnections { get; set; }
     }
 }

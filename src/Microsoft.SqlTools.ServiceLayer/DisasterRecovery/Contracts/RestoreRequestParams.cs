@@ -147,20 +147,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
 
-        /// <summary>
-        /// Same as Target Database name. Used by task manager to create task info
-        /// </summary>
-        public string DatabaseName
-        {
-            get
-            {
-                return TargetDatabaseName;
-            }
-            set
-            {
-                TargetDatabaseName = value;
-            }
-        }
     }
 
 }

@@ -225,6 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         {
                             // create task metadata
                             TaskMetadata metadata = TaskMetadata.Create(restoreParams, SR.RestoreTaskName, restoreDataObject, ConnectionServiceInstance);
+                            metadata.DatabaseName = restoreParams.TargetDatabaseName;
 
                             // create restore task and perform
                             SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
@@ -277,23 +278,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     SqlTask sqlTask = null;
 
                     // create task metadata
-                    TaskMetadata metadata = new TaskMetadata();
-                    metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                    metadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
-                    metadata.TaskOperation = backupOperation;
-
-                    if (backupParams.IsScripting)
-                    {
-                        metadata.Name = string.Format("{0} {1}", SR.BackupTaskName, SR.ScriptTaskName);
-                        metadata.TaskExecutionMode = TaskExecutionMode.Script;
-                    }
-                    else
-                    {
-                        metadata.Name = SR.BackupTaskName;
-                        metadata.TaskExecutionMode = TaskExecutionMode.ExecuteAndScript;
-                    }
-
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun(metadata, this.PerformBackupTaskAsync, this.CancelBackupTaskAsync);
+                    TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
+                   
+                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
                 }
                 else
                 {
@@ -399,89 +386,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal void ScriptBackup(BackupOperation backupOperation)
         {
             backupOperation.Execute(TaskExecutionMode.Script);
-        }
-
-        /// <summary>
-        /// Async task to execute backup
-        /// </summary>
-        /// <param name="sqlTask"></param>
-        /// <returns></returns>
-        internal async Task<TaskResult> PerformBackupTaskAsync(SqlTask sqlTask)
-        {
-            IBackupOperation backupOperation = sqlTask.TaskMetadata.TaskOperation as IBackupOperation;
-            TaskResult result = new TaskResult();
-
-            // Create a task to perform backup
-            await Task.Factory.StartNew(() =>
-            {
-                if (backupOperation != null)
-                {
-                    try
-                    {
-                        sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
-
-                        // Execute backup
-                        backupOperation.Execute(sqlTask.TaskMetadata.TaskExecutionMode);
-
-                        // Set result
-                        result.TaskStatus = SqlTaskStatus.Succeeded;
-
-                        // Send generated script to client
-                        if (!String.IsNullOrEmpty(backupOperation.ScriptContent))
-                        {
-                            sqlTask.AddScript(result.TaskStatus, backupOperation.ScriptContent);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        result.TaskStatus = SqlTaskStatus.Failed;
-                        result.ErrorMessage = string.Format(CultureInfo.InvariantCulture, "error:{0} inner:{1} stacktrace:{2}",
-                            ex.Message,
-                            ex.InnerException != null ? ex.InnerException.Message : "",
-                            ex.StackTrace);
-                    }
-                }
-                else
-                {
-                    result.TaskStatus = SqlTaskStatus.Failed;
-                }
-            });
-
-            return result;
-        }
-
-        /// <summary>
-        /// Async task to cancel backup
-        /// </summary>
-        /// <param name="sqlTask"></param>
-        /// <returns></returns>
-        internal async Task<TaskResult> CancelBackupTaskAsync(SqlTask sqlTask)
-        {
-            IBackupOperation backupOperation = sqlTask.TaskMetadata.TaskOperation as IBackupOperation;
-            TaskResult result = new TaskResult();
-
-            await Task.Factory.StartNew(() =>
-            {
-                if (backupOperation != null)
-                {
-                    try
-                    {
-                        backupOperation.Cancel();
-                        result.TaskStatus = SqlTaskStatus.Canceled;
-                    }
-                    catch (Exception ex)
-                    {
-                        result.TaskStatus = SqlTaskStatus.Failed;
-                        result.ErrorMessage = ex.Message;
-                    }
-                }
-                else
-                {
-                    result.TaskStatus = SqlTaskStatus.Failed;
-                }
-            });
-
-            return result;
         }
     }
 }
