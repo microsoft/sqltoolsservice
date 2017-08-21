@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// <summary>
     /// Main class for the Binding Queue
     /// </summary>
-    public class BindingQueue<T> where T : IBindingContext, new()
+    public class BindingQueue<T> : IDisposable where T : IBindingContext, new()
     {
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
 
@@ -309,6 +309,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // reset the item queued event since we've processed all the pending items
                             this.itemQueuedEvent.Reset();
                         }
+                    }
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (itemQueuedEvent != null)
+            {
+                itemQueuedEvent.Dispose();
+            }
+
+            if (this.BindingContextMap != null)
+            {
+                foreach (var item in this.BindingContextMap)
+                {
+                    if (item.Value != null && item.Value.ServerConnection != null && item.Value.ServerConnection.SqlConnectionObject != null)
+                    {
+                        item.Value.ServerConnection.SqlConnectionObject.Close();
                     }
                 }
             }

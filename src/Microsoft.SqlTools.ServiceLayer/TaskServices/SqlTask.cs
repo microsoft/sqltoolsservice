@@ -148,28 +148,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
             try
             {
-                if (TaskToCancel != null)
+                using (AutoResetEvent onCompletedEvent = new AutoResetEvent(initialState: false))
                 {
-                    AutoResetEvent onCompletedEvent = new AutoResetEvent(initialState: false);
-                    Task<TaskResult> cancelTask = Task.Run(() => CancelTaskAsync(TokenSource.Token, onCompletedEvent));
-
-                    completedTask = await Task.WhenAny(performTask, cancelTask);
-
-                    // Release the cancelTask
-                    if (completedTask == performTask)
+                    if (TaskToCancel != null)
                     {
-                        onCompletedEvent.Set();
+                        Task<TaskResult> cancelTask = Task.Run(() => CancelTaskAsync(TokenSource.Token, onCompletedEvent));
+
+                        completedTask = await Task.WhenAny(performTask, cancelTask);
+
+                        // Release the cancelTask
+                        if (completedTask == performTask)
+                        {
+                            onCompletedEvent.Set();
+                        }
                     }
-                }
-                else
-                {
-                    completedTask = await Task.WhenAny(performTask);
-                }
+                    else
+                    {
+                        completedTask = await Task.WhenAny(performTask);
+                    }
 
-                AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.TaskCompleted,
-                                   completedTask.Result.TaskStatus);
-                taskResult = completedTask.Result;
-
+                    AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.TaskCompleted,
+                                       completedTask.Result.TaskStatus);
+                    taskResult = completedTask.Result;
+                }
             }
             catch (OperationCanceledException)
             {
