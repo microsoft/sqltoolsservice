@@ -1250,7 +1250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             get
             {
-                if(RestorePlan != null && RestorePlanner != null)
+                if (RestorePlan != null && RestorePlanner != null)
                 {
                     return RestorePlan.CanDropExistingConnections(RestorePlanner.DatabaseName);
                 }
