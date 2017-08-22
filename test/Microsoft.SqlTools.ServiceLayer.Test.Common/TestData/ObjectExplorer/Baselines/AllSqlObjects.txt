@@ -1,3 +1,18 @@
+NodeType: Table Label: dbo.tableWithAllDataTypes SubType: Status:
+NodeType: Column Label: cDecimal (decimal(18,5), null) SubType: Status:
+NodeType: Column Label: cNumeric (numeric(18,2), null) SubType: Status:
+NodeType: Column Label: cBigint (bigint, null) SubType: Status:
+NodeType: Column Label: cDate (date, null) SubType: Status:
+NodeType: Column Label: cDatetime (datetime, null) SubType: Status:
+NodeType: Column Label: cFloat (float, null) SubType: Status:
+NodeType: Column Label: cSmalldatetime (smalldatetime, null) SubType: Status:
+NodeType: Column Label: cDatetime2 (datetime2(7), null) SubType: Status:
+NodeType: Column Label: cDatetimeoffset (datetimeoffset(7), null) SubType: Status:
+NodeType: Column Label: cTime (time(7), null) SubType: Status:
+NodeType: Column Label: cBinary (binary(1), null) SubType: Status:
+NodeType: Column Label: cBit (bit, null) SubType: Status:
+NodeType: Column Label: cChar (char(1), null) SubType: Status:
+NodeType: Column Label: cMoney (money, null) SubType: Status:
 NodeType: Table Label: dbo.tableWithColumnset SubType: Status:
 NodeType: Column Label: i (int, null) SubType: Status:
 NodeType: Column Label: cs (Column Set, null) SubType: Status:
@@ -29,7 +44,7 @@ NodeType: Constraint Label: CK_Employee_VacationHours SubType: Status:
 NodeType: Index Label: NonClusteredIndex-Login (Non-Unique, Non-Clustered) SubType: Status:
 NodeType: Statistic Label: NonClusteredIndex-Login SubType: Status:
 NodeType: Statistic Label: PK_Employee_BusinessEntityID SubType: Status:
-NodeType: Table Label: HumanResources.Employee_Temporal (System-Versioned) SubType: Status:
+NodeType: Table Label: HumanResources.Employee_Temporal (System-Versioned) SubType:Temporal Status:
 NodeType: Column Label: BusinessEntityID (PK, int, not null) SubType: Status:
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
 NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:
@@ -42,8 +57,8 @@ NodeType: Column Label: Gender (nchar(1), not null) SubType: Status:
 NodeType: Column Label: HireDate (date, not null) SubType: Status:
 NodeType: Column Label: VacationHours (smallint, not null) SubType: Status:
 NodeType: Column Label: SickLeaveHours (smallint, not null) SubType: Status:
-NodeType: Column Label: ValidFrom (datetime2, not null) SubType: Status:
-NodeType: Column Label: ValidTo (datetime2, not null) SubType: Status:
+NodeType: Column Label: ValidFrom (datetime2(7), not null) SubType: Status:
+NodeType: Column Label: ValidTo (datetime2(7), not null) SubType: Status:
 NodeType: Key Label: PK_Employee_History_BusinessEntityID SubType:PrimaryKey Status:
 NodeType: Statistic Label: PK_Employee_History_BusinessEntityID SubType: Status:
 NodeType: HistoryTable Label: HumanResources.Employee_Temporal_History (History) SubType: Status:
@@ -59,8 +74,8 @@ NodeType: Column Label: Gender (nchar(1), not null) SubType: Status:
 NodeType: Column Label: HireDate (date, not null) SubType: Status:
 NodeType: Column Label: VacationHours (smallint, not null) SubType: Status:
 NodeType: Column Label: SickLeaveHours (smallint, not null) SubType: Status:
-NodeType: Column Label: ValidFrom (datetime2, not null) SubType: Status:
-NodeType: Column Label: ValidTo (datetime2, not null) SubType: Status:
+NodeType: Column Label: ValidFrom (datetime2(7), not null) SubType: Status:
+NodeType: Column Label: ValidTo (datetime2(7), not null) SubType: Status:
 NodeType: Table Label: Person.Person SubType: Status:
 NodeType: Column Label: BusinessEntityID (PK, int, not null) SubType: Status:
 NodeType: Column Label: PersonType (nchar(2), not null) SubType: Status:
