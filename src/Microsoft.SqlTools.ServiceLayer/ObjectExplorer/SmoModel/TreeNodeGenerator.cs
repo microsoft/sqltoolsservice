@@ -775,6 +775,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Name = "IsSystemVersioned",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
                 });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "TemporalType",
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
+                });
                 return properties;
            }
         }

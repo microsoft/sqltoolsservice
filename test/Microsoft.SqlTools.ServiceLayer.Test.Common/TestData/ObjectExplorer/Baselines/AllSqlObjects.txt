@@ -44,7 +44,7 @@ NodeType: Constraint Label: CK_Employee_VacationHours SubType: Status:
 NodeType: Index Label: NonClusteredIndex-Login (Non-Unique, Non-Clustered) SubType: Status:
 NodeType: Statistic Label: NonClusteredIndex-Login SubType: Status:
 NodeType: Statistic Label: PK_Employee_BusinessEntityID SubType: Status:
-NodeType: Table Label: HumanResources.Employee_Temporal (System-Versioned) SubType: Status:
+NodeType: Table Label: HumanResources.Employee_Temporal (System-Versioned) SubType:Temporal Status:
 NodeType: Column Label: BusinessEntityID (PK, int, not null) SubType: Status:
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
 NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:

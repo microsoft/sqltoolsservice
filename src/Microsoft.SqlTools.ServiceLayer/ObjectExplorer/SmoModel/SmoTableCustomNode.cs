@@ -29,6 +29,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             return string.Empty;
         }
+
+        public override string GetNodeSubType(object context)
+        {
+            try
+            {
+                Table table = context as Table;
+                if (table != null && table.TemporalType != TableTemporalType.None)
+                {
+                    return "Temporal";
+                }
+               // return string.Empty;
+
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
+            }
+
+            return string.Empty;
+        }
     }
 
     /// <summary>
