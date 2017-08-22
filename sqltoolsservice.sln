@@ -70,8 +70,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.TestEnvConfig", "test\Microsoft.SqlTools.ServiceLayer.TestEnvConfig\Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj", "{2C290C58-C98D-46B2-BCED-44D9B67F6D31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Serialization2", "src\MicrosoftSqlToolsSerialization\Microsoft.SqlTools.Serialization2.csproj", "{290741B4-5694-45DF-B14D-AE7726C37D59}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Serialization", "src\Microsoft.SqlTools.Serialization\Microsoft.SqlTools.Serialization.csproj", "{6517A043-3AF6-485C-B10A-70D29D3ED7C1}"
 EndProject
 Global
