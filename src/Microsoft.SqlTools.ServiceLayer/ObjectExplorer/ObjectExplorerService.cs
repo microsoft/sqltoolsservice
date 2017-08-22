@@ -17,6 +17,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
@@ -35,13 +36,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService
     {
         internal const string uriPrefix = "objectexplorer://";
-        
+
         // Instance of the connection service, used to get the connection info for a given owner URI
         private ConnectionService connectionService;
         private IProtocolEndpoint serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+        private const int PrepopulateBindTimeout = 10000;
+
 
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
@@ -83,8 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 return new ReadOnlyCollection<string>(sessionMap.Keys.ToList());
             }
-        } 
-    
+        }
+
         /// <summary>
         /// As an <see cref="IComposableService"/>, this will be set whenever the service is initialized
         /// via an <see cref="IMultiServiceProvider"/>
@@ -198,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     return true;
                 }
             };
-            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");          
+            await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
         }
 
         internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
@@ -280,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
         }
 
-        private void  RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
+        private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
             Logger.Write(LogLevel.Normal, "Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -288,9 +292,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
                 CreateSessionTask = task;
-                Task.Run(async () => 
+                Task.Run(async () =>
                 {
-                    ObjectExplorerTaskResult result = await RunTaskWithTimeout(task, 
+                    ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                         settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
 
                     if (result != null && !result.IsCompleted)
@@ -338,7 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     RootNode = session.Root.ToNodeInfo(),
                     SessionId = uri,
                     ErrorMessage = session.ErrorMessage
-                    
+
                 };
                 await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                 return response;
@@ -351,21 +355,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             return await Task.Factory.StartNew(() =>
             {
-                NodeInfo[] nodes = null;
-                TreeNode node = session.Root.FindNodeByPath(nodePath);
-                if(node != null)
+                return QueueExpandNodeRequest(session, nodePath, forceRefresh);
+            });
+        }
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        {
+            NodeInfo[] nodes = null;
+            TreeNode node = session.Root.FindNodeByPath(nodePath);
+            ExpandResponse response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
+
+            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+            {
+                try
                 {
-                    if (forceRefresh)
+                    QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                           key: session.Uri,
+                           bindingTimeout: PrepopulateBindTimeout,
+                           waitForLockTimeout: PrepopulateBindTimeout,
+                           bindOperation: (bindingContext, cancelToken) =>
+                           {
+
+                               if (forceRefresh)
+                               {
+                                   nodes = node.Refresh().Select(x => x.ToNodeInfo()).ToArray();
+                               }
+                               else
+                               {
+                                   nodes = node.Expand().Select(x => x.ToNodeInfo()).ToArray();
+                               }
+                               response.Nodes = nodes;
+                               response.ErrorMessage = node.ErrorMessage;
+                               return response;
+                           });
+
+                    queueItem.ItemProcessed.WaitOne();
+                    if (queueItem.GetResultAsT<ExpandResponse>() != null)
                     {
-                        nodes = node.Refresh().Select(x => x.ToNodeInfo()).ToArray();
-                    }
-                    else
-                    {
-                        nodes = node.Expand().Select(x => x.ToNodeInfo()).ToArray();
+                        response = queueItem.GetResultAsT<ExpandResponse>();
                     }
                 }
-                return new ExpandResponse { Nodes = nodes, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
-            });
+                catch
+                {
+                }
+                finally
+                {
+                    Monitor.Exit(node.BuildingMetadataLock);
+                }
+            }
+            return response;
         }
 
         /// <summary>
