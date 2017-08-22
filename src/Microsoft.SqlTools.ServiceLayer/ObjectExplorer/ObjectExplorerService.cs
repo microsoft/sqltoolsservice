@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
     /// The APIs used for this are modeled closely on the VSCode TreeExplorerNodeProvider API.
     /// </summary>
     [Export(typeof(IHostedService))]
-    public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService
+    public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
         internal const string uriPrefix = "objectexplorer://";
 
@@ -625,6 +625,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             public bool IsCompleted { get; set; }
             public Exception Exception { get; set; }
+        }
+
+        public void Dispose()
+        {
+            if (bindingQueue != null)
+            {
+                bindingQueue.Dispose();
+            }
         }
 
         internal class ObjectExplorerSession
