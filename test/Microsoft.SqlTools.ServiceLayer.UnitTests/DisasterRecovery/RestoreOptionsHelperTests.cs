@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
-        public void TargetDatabaseNameShouldSetToDefaultIfNotValid()
+        public void TargetDatabaseNameShouldBeWhatIsRequested()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             string defaultDbName = "default";
@@ -260,12 +260,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             RestoreOptionFactory.Instance.SetAndValidate(RestoreOptionsHelper.TargetDatabaseName, restoreDatabaseTaskDataObject);
 
             string actual = restoreDatabaseTaskDataObject.TargetDatabaseName;
-            string expected = defaultDbName;
+            string expected = currentDbName;
             Assert.Equal(actual, expected);
         }
 
         [Fact]
-        public void TargetDatabaseNameShouldStayTheSameIfValid()
+        public void TargetDatabaseNameShouldBeWhatIsRequested2()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             string defaultDbName = "default";
