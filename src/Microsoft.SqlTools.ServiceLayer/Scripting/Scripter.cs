@@ -14,6 +14,7 @@ using System.Collections.Specialized;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
 	internal partial class Scripter
@@ -39,18 +40,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">Table name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetTableScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetTableScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
-                Table smoObject = string.IsNullOrEmpty(schemaName) ? new Table(this.Database, objectName) : new Table(this.Database, objectName, schemaName);
-                smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                ScriptingParams requestParams = new ScriptingParams
+                {
+                    FilePath = filePath,
+                    ConnectionString = this.connectionInfo.OwnerUri,
+                    IncludeTypes = {"Table"},
+                    ScriptOptions = new ScriptOptions
+                    {
+                        TypeOfDataToScript = "SchemaOnly",
+                        AppendToFile = true
+                    },
+                };
+                ScriptingScriptOperation operation = new ScriptingScriptOperation(requestParams);
+                operation.Execute();
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetTableScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -60,18 +72,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">View name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetViewScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetViewScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 View smoObject = string.IsNullOrEmpty(schemaName) ? new View(this.Database, objectName) : new View(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetViewScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -81,18 +93,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">StoredProcedure name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetStoredProcedureScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetStoredProcedureScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 StoredProcedure smoObject = string.IsNullOrEmpty(schemaName) ? new StoredProcedure(this.Database, objectName) : new StoredProcedure(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetStoredProcedureScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -102,18 +114,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">Schema name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetSchemaScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetSchemaScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 Schema smoObject = new Schema(this.Database, objectName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetSchemaScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -123,18 +135,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">Database name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetDatabaseScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetDatabaseScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 Database smoObject = new Database(new Server(this.serverConnection), objectName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetDatabaseScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -144,18 +156,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">UserDefinedDataType name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetUserDefinedDataTypeScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetUserDefinedDataTypeScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 UserDefinedDataType smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedDataType(this.Database, objectName) : new UserDefinedDataType(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetUserDefinedDataTypeScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -165,18 +177,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">UserDefinedTableType name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetUserDefinedTableTypeScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetUserDefinedTableTypeScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 UserDefinedTableType smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedTableType(this.Database, objectName) : new UserDefinedTableType(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetUserDefinedTableTypeScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -186,18 +198,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">Synonym name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetSynonymScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetSynonymScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 Synonym smoObject = string.IsNullOrEmpty(schemaName) ? new Synonym(this.Database, objectName) : new Synonym(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetSynonymScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -207,18 +219,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">ScalarValuedFunction name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetScalarValuedFunctionScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetScalarValuedFunctionScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 UserDefinedFunction smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedFunction(this.Database, objectName) : new UserDefinedFunction(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetScalarValuedFunctionScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 
@@ -228,18 +240,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectName">TableValuedFunction name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetTableValuedFunctionScripts(string objectName, string schemaName, ScriptingOptions scriptingOptions = null)
+        internal bool GetTableValuedFunctionScripts(string objectName, string schemaName, string filePath)
         {
             try
             {
                 UserDefinedFunction smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedFunction(this.Database, objectName) : new UserDefinedFunction(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return (scriptingOptions == null) ? smoObject.Script() : smoObject.Script(scriptingOptions);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetTableValuedFunctionScripts : " + ex.Message);
-                return null;
+                return false;
             }
         }
 

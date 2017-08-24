@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private Database database;
         private string tempPath;
 
-        internal delegate StringCollection ScriptGetter(string objectName, string schemaName, ScriptingOptions scriptingOptions);
+        internal delegate bool ScriptGetter(string objectName, string schemaName, string filePath);
 
         // Dictionary that holds the script getter for each type
         private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
@@ -273,24 +273,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 string schemaName,
                 string objectType)
         {
-            StringCollection scripts = sqlScriptGetter(objectName, schemaName, null);
+            bool scriptSuccess = false;
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
-            if (scripts != null)
+            
+            scriptSuccess = sqlScriptGetter(objectName, schemaName, tempFileName);
+
+            if (scriptSuccess)
             {
                 int lineNumber = 0;
-                using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
+                using (StreamReader scriptFile = new StreamReader(tempFileName))
                 {
-
-                    foreach (string script in scripts)
+                    string line;
+                    int lineCount = 0;
+                    while((line = scriptFile.ReadLine()) != null) 
                     {
                         string createSyntax = string.Format("CREATE {0}", objectType);
-                        if (script.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0)
+                        if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            scriptFile.WriteLine(script);
-                            lineNumber = GetStartOfCreate(script, createSyntax);
+                            lineNumber = lineCount;
                         }
+                        lineCount++;
                     }
                 }
                 return GetLocationFromFile(tempFileName, lineNumber);

@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -93,8 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
-            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
+            serviceHost.SetRequestHandler(ScriptingRequest.Type, HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
 
@@ -133,13 +133,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             try
             {
+                ConnectionInfo connInfo;
+                ScriptingService.ConnectionServiceInstance.TryFindConnection(
+                    parameters.ConnectionString,
+                    out connInfo);
+                parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                 ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
                 operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
                 operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
                 operation.CompleteNotification += (sender, e) => this.SendEvent(requestContext, ScriptingCompleteEvent.Type, e);
 
                 RunTask(requestContext, operation);
-
+                
                 await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
             }
             catch (Exception e)
@@ -221,8 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 disposed = true;
             }
         }
-
-        /// <summary>
+                /// <summary>
         /// Script create statements for metadata object
         /// </summary>
         private static string ScriptAsCreate(
@@ -234,24 +238,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             StringCollection results = null;
             switch(metadata.MetadataTypeName)
             {
-                case ("Table"):
-                    results = scripter.GetTableScripts(metadata.Name, metadata.Schema);
-                    break;
-                case ("View"):
-                    results = scripter.GetViewScripts(metadata.Name, metadata.Schema);
-                    break;
-                case("StoredProcedure"):
-                    results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema);
-                    break;
-                case("Schema"):
-                    results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema);
-                    break;
-                case("Database"):
-                    results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema);
-                    break;
-                default:
-                    results = null;
-                    break;
+                // case ("Table"):
+                //     results = scripter.GetTableScripts(metadata.Name, metadata.Schema, null);
+                //     break;
+                // case ("View"):
+                //     results = scripter.GetViewScripts(metadata.Name, metadata.Schema);
+                //     break;
+                // case("StoredProcedure"):
+                //     results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema);
+                //     break;
+                // case("Schema"):
+                //     results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema);
+                //     break;
+                // case("Database"):
+                //     results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema);
+                //     break;
+                // default:
+                //     results = null;
+                //     break;
             }
             StringBuilder builder = null;
             if (results != null) 
@@ -302,24 +306,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             options.ScriptDrops = true;
             switch(metadata.MetadataTypeName)
             {
-                case ("Table"):
-                    results = scripter.GetTableScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case ("View"):
-                    results = scripter.GetViewScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case("StoredProcedure"):
-                    results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case("Schema"):
-                    results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case("Database"):
-                    results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                default:
-                    results = null;
-                    break;
+                // case ("Table"):
+                //     results = scripter.GetTableScripts(metadata.Name, metadata.Schema, options);
+                //     break;
+                // case ("View"):
+                //     results = scripter.GetViewScripts(metadata.Name, metadata.Schema, options);
+                //     break;
+                // case("StoredProcedure"):
+                //     results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema, options);
+                //     break;
+                // case("Schema"):
+                //     results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema, options);
+                //     break;
+                // case("Database"):
+                //     results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema, options);
+                //     break;
+                // default:
+                //     results = null;
+                //     break;
             }
             StringBuilder builder = null;
             if (results != null) 
