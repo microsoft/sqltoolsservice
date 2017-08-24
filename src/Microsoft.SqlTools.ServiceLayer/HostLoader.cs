@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
@@ -93,6 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             DisasterRecoveryService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
+
+            ShowPlanService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ShowPlanService.Instance);            
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
