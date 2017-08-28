@@ -2,25 +2,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
-using Microsoft.SqlTools.ServiceLayer.EditData;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Metadata;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.Serialization;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.SqlTools.Serialization
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility
@@ -31,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
+        public static UtilityServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
         {
-            ServiceHost serviceHost = ServiceHost.Instance;
+            UtilityServiceHost serviceHost = UtilityServiceHost.Instance;
             lock (lockObject)
             {
                 if (!isLoaded)
@@ -53,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             return serviceHost;
         }
 
-        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext)
+        private static void InitializeRequestHandlersAndServices(UtilityServiceHost serviceHost, SqlToolsContext sqlToolsContext)
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
@@ -61,44 +49,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
-            // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
-            // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
-            // and instead have MEF handle discovery & loading
-            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
-
-            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            serviceProvider.RegisterSingleService(LanguageService.Instance);
-
-            ConnectionService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(ConnectionService.Instance);
-
-            CredentialService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(CredentialService.Instance);
-
-            QueryExecutionService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
-
-            EditDataService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(EditDataService.Instance);
-
-            MetadataService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(MetadataService.Instance);
-
-            ScriptingService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(ScriptingService.Instance);
-
-            AdminService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(AdminService.Instance);
-
-            DisasterRecoveryService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
-
             SerializationService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SerializationService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
-            serviceHost.ServiceProvider = serviceProvider;
 
             serviceHost.InitializeRequestHandlers();
         }

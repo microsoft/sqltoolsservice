@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -14,7 +14,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.Credentials.Utility
+namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
     /// SQL Tools Service request handler for any utility services. Provides the entire JSON RPC

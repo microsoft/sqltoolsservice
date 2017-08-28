@@ -3,10 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
 {
     /// <summary>
     /// Parameters for the save results request
@@ -59,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Check if request is a subset of result set or whole result set
         /// </summary>
         /// <returns></returns>
-        internal bool IsSaveSelection
+        public bool IsSaveSelection
         {
             get
             {

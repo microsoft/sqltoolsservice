@@ -70,9 +70,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.TestEnvConfig", "test\Microsoft.SqlTools.ServiceLayer.TestEnvConfig\Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj", "{2C290C58-C98D-46B2-BCED-44D9B67F6D31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Serialization2", "src\MicrosoftSqlToolsSerialization\Microsoft.SqlTools.Serialization2.csproj", "{290741B4-5694-45DF-B14D-AE7726C37D59}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Serialization", "src\Microsoft.SqlTools.Serialization\Microsoft.SqlTools.Serialization.csproj", "{6517A043-3AF6-485C-B10A-70D29D3ED7C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Serialization", "src\Microsoft.SqlTools.Serialization\Microsoft.SqlTools.Serialization.csproj", "{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,18 +139,12 @@ Global
 		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C290C58-C98D-46B2-BCED-44D9B67F6D31}.Release|Any CPU.Build.0 = Release|Any CPU
-		{290741B4-5694-45DF-B14D-AE7726C37D59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{290741B4-5694-45DF-B14D-AE7726C37D59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{290741B4-5694-45DF-B14D-AE7726C37D59}.Integration|Any CPU.ActiveCfg = Release|Any CPU
-		{290741B4-5694-45DF-B14D-AE7726C37D59}.Integration|Any CPU.Build.0 = Release|Any CPU
-		{290741B4-5694-45DF-B14D-AE7726C37D59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{290741B4-5694-45DF-B14D-AE7726C37D59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,8 +162,7 @@ Global
 		{E985A5AA-63E4-48DC-A6D8-D3953A50D7E3} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{501DB3B2-AF92-41CF-82F6-780F9C37C219} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{2C290C58-C98D-46B2-BCED-44D9B67F6D31} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
-		{290741B4-5694-45DF-B14D-AE7726C37D59} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
-		{6517A043-3AF6-485C-B10A-70D29D3ED7C1} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
