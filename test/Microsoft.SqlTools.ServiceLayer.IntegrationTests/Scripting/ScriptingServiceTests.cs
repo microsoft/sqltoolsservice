@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Metadata = GenerateMetadata(objectType)
             };
 
-            await ScriptingService.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
+            // await ScriptingService.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
 
             return requestContext;
         }
