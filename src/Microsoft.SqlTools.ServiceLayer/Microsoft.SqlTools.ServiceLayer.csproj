@@ -40,4 +40,7 @@
        <SubType>Component</SubType>
      </Compile>
    </ItemGroup>
+   <ItemGroup>
+     <Folder Include="FileBrowser\Contracts\" />
+   </ItemGroup>
 </Project>
