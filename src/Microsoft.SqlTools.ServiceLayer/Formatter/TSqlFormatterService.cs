@@ -53,6 +53,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             get { return ServiceProvider.GetService<WorkspaceService<SqlToolsSettings>>(); }
         }
 
+        /// <summary>
+        /// Gets the language service. Note: should handle case where this is null in cases where unit tests do not set this up
+        /// </summary>
+        private LanguageService LanguageService
+        {
+            get { return ServiceProvider.GetService<LanguageService>(); }
+        }
 
         /// <summary>
         /// Ensure formatter settings are always up to date
@@ -103,6 +110,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private async Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
         {
+            if (docFormatParams == null
+                || docFormatParams.TextDocument == null
+                || docFormatParams.TextDocument.Uri == null
+                || ShouldSkipFormatting(docFormatParams.TextDocument.Uri))
+            {
+                return Array.Empty<TextEdit>();
+            }
+
             return await Task.Factory.StartNew(() =>
             {
                 var range = docFormatParams.Range;
@@ -117,8 +132,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             });
         }
 
+        private bool ShouldSkipFormatting(string uri)
+        {
+            return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(uri));
+        }
+
         private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
         {
+            if (docFormatParams == null
+                || docFormatParams.TextDocument == null
+                || docFormatParams.TextDocument.Uri == null
+                || ShouldSkipFormatting(docFormatParams.TextDocument.Uri))
+            {
+                return Array.Empty<TextEdit>();
+            }
+            
             return await Task.Factory.StartNew(() =>
             {
                 var scriptFile = GetFile(docFormatParams);
