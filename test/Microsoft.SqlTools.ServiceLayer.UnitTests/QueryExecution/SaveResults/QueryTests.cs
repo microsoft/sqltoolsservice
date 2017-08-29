@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlTools.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Xunit;

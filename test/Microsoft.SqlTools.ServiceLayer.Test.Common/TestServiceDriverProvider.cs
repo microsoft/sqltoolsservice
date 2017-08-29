@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;

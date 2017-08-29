@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
+namespace Microsoft.SqlTools.Contracts
 {
     /// <summary>
     /// Parameters for the save results request

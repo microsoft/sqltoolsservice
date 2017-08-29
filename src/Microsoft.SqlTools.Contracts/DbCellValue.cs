@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
+namespace Microsoft.SqlTools.Contracts
 {
     /// <summary>
     /// Class used for internally passing results from a cell around.
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
         /// <summary>
         /// The raw object for the cell, for use internally
         /// </summary>
-        internal object RawObject { get; set; }
+        public object RawObject { get; set; }
 
         /// <summary>
         /// The internal ID for the row. Should be used when directly referencing the row for edit

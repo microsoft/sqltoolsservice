@@ -6,11 +6,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;

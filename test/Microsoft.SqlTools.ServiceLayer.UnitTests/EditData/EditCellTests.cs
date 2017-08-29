@@ -4,8 +4,8 @@
 //
 
 using System;
+using Microsoft.SqlTools.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {

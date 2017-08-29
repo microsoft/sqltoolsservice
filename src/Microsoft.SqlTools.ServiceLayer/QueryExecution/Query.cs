@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Contracts;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;

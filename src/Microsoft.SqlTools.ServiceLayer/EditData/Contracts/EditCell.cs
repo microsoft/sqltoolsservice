@@ -5,6 +5,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {

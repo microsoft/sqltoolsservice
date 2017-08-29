@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.SqlTools.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;

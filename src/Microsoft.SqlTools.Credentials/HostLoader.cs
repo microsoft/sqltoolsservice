@@ -19,7 +19,7 @@ namespace  Microsoft.SqlTools.Credentials.Utility
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        public static UtilityServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
+        internal static UtilityServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
         {
             UtilityServiceHost serviceHost = UtilityServiceHost.Instance;
             lock (lockObject)

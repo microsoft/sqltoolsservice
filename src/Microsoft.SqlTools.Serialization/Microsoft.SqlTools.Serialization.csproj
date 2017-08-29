@@ -15,8 +15,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Contracts\Microsoft.SqlTools.Contracts.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Contracts\" />
   </ItemGroup>
 
 </Project>
