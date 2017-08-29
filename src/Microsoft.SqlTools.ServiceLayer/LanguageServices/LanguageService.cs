@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public sealed class LanguageService: IDisposable
+    public class LanguageService: IDisposable
     {
         #region Singleton Instance Implementation
 
@@ -960,7 +960,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return ShouldSkipNonMssqlFile(scriptFile.ClientFilePath);
         }
 
-        private bool ShouldSkipNonMssqlFile(string uri)
+        /// <summary>
+        /// Checks if a given URI is not an MSSQL file. Only files explicitly excluded by a language flavor change
+        /// notification will be treated as skippable
+        /// </summary>
+        public virtual bool ShouldSkipNonMssqlFile(string uri)
         {
             bool isNonMssql = false;
             nonMssqlUriMap.TryGetValue(uri, out isNonMssql);
