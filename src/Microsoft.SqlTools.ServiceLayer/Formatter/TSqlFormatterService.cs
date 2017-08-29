@@ -110,16 +110,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private async Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
         {
-            if (docFormatParams == null
-                || docFormatParams.TextDocument == null
-                || docFormatParams.TextDocument.Uri == null
-                || ShouldSkipFormatting(docFormatParams.TextDocument.Uri))
-            {
-                return Array.Empty<TextEdit>();
-            }
-
             return await Task.Factory.StartNew(() =>
             {
+                if (ShouldSkipFormatting(docFormatParams))
+                {
+                    return Array.Empty<TextEdit>();
+                }
+
                 var range = docFormatParams.Range;
                 ScriptFile scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null)
@@ -132,23 +129,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             });
         }
 
-        private bool ShouldSkipFormatting(string uri)
-        {
-            return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(uri));
-        }
-
-        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        private bool ShouldSkipFormatting(DocumentFormattingParams docFormatParams)
         {
             if (docFormatParams == null
                 || docFormatParams.TextDocument == null
-                || docFormatParams.TextDocument.Uri == null
-                || ShouldSkipFormatting(docFormatParams.TextDocument.Uri))
+                || docFormatParams.TextDocument.Uri == null)
             {
-                return Array.Empty<TextEdit>();
+                return true;
             }
-            
+            return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
+        }
+
+        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        {            
             return await Task.Factory.StartNew(() =>
             {
+                if (ShouldSkipFormatting(docFormatParams))
+                {
+                    return Array.Empty<TextEdit>();
+                }
+
                 var scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null
                     || scriptFile.FileLines.Count == 0)
