@@ -4,10 +4,10 @@
 //
 
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Data.Tools.DataSets;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 

@@ -4,9 +4,9 @@
 //
 
 using System;
+using System.Data;
 using System.Globalization;
 using System.IO;
-using Microsoft.Data.Tools.DataSets;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
