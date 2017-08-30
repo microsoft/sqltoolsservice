@@ -3,17 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
 {
     /// <summary>
-    /// Parameters for file browser operations
+    /// Parameters for opening file browser
     /// </summary>
-    public class FileBrowserParams
+    public class FileBrowserOpenParams
     {
         /// <summary>
         /// Connection uri
@@ -35,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     /// Response for opening/filtering a file browser
     /// Returns full directory structure on the server side
     /// </summary>
-    public class FileBrowserResponse
+    public class FileBrowserOpenResponse
     {
         /// <summary>
         /// Entire file/folder tree 
@@ -45,10 +42,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         /// <summary>
         /// Result of the operation
         /// </summary>
-        public bool Result;
+        public bool Succeeded;
 
         /// <summary>
-        /// Error message if any
+        /// Error message
         /// </summary>
         public string Message;
     }
@@ -59,17 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     public class FileBrowserOpenRequest
     {
         public static readonly
-            RequestType<FileBrowserParams, FileBrowserResponse> Type =
-                RequestType<FileBrowserParams, FileBrowserResponse>.Create("filebrowser/open");
-    }
-
-    /// <summary>
-    /// Request to filter files with the specified extension
-    /// </summary>
-    public class FileBrowserFilterRequest
-    {
-        public static readonly
-            RequestType<FileBrowserParams, FileBrowserResponse> Type =
-                RequestType<FileBrowserParams, FileBrowserResponse>.Create("filebrowser/filterfiles");
+            RequestType<FileBrowserOpenParams, FileBrowserOpenResponse> Type =
+                RequestType<FileBrowserOpenParams, FileBrowserOpenResponse>.Create("filebrowser/open");
     }
 }

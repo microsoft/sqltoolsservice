@@ -10,9 +10,19 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     /// </summary>
     public class FileTree
     {
+        /// <summary>
+        /// Root node of the tree
+        /// </summary>
         public FileTreeNode RootNode { get; private set; }
+
+        /// <summary>
+        /// Selected node of the tree
+        /// </summary>
         public FileTreeNode SelectedNode { get; set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public FileTree()
         {
             this.RootNode = new FileTreeNode();

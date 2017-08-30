@@ -1815,6 +1815,14 @@
     <value>Backup Database</value>
     <comment></comment>
   </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>The file name specified is also a directory name: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value> Cannot verify the existence of the backup file location: {0}</value>
+    <comment></comment>
+  </data>
   <data name="TaskInProgress" xml:space="preserve">
     <value>In progress</value>
     <comment></comment>
@@ -1917,6 +1925,10 @@
   </data>
   <data name="ScriptTaskName" xml:space="preserve">
     <value>scripting</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Cannot access the specified path on the server: {0}</value>
     <comment></comment>
   </data>
 </root>

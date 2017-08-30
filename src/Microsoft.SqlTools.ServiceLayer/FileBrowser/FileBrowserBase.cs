@@ -5,23 +5,21 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Data.Tools.DataSets;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.Data.Tools.DataSets;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
     public struct FileInfo
     {
-        // filename is empty for folders
+        // Empty for folder
         public string fileName;
         public string folderName;
         public string path;
-        // avoids the need for client code to concatenate path with fileName. Empty for folders
+        // Includes file name in the path. Empty for folder.
         public string fullPath;
     }
 
@@ -30,21 +28,21 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     /// </summary>
     public abstract class FileBrowserBase
     {
-        private Enumerator sfcEnumerator = null;
-
-        protected Enumerator SfcEnumerator
-        {
-            get { return sfcEnumerator = (sfcEnumerator ?? new Enumerator()); }
-        }
-
+        private Enumerator enumerator = null;
         protected object sqlConnection = null;
+
+        protected Enumerator Enumerator
+        {
+            get
+            {
+                return this.enumerator = (this.enumerator ?? new Enumerator());
+            }
+        }
 
         /// <summary>
         /// Separator string for components of the file path. Defaults to \ for Windows and / for Linux
         /// </summary>
         public string PathSeparator { get; set; }
-
-        protected abstract void Initialize();
 
         /// <summary>
         /// Returns the PathSeparator values of the Server.

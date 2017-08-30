@@ -7,20 +7,30 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
 {
     /// <summary>
-    /// Parameters to pass to close file browser
+    /// Parameters for validating selected file paths
     /// </summary>
-    public class FileBrowserCloseParams
+    public class FileBrowserValidateParams
     {
         /// <summary>
         /// Connection uri
         /// </summary>
         public string OwnerUri;
+
+        /// <summary>
+        /// Type of service that uses the file browser
+        /// </summary>
+        public string ServiceType;
+
+        /// <summary>
+        /// Selected files
+        /// </summary>
+        public string[] SelectedFiles;
     }
 
     /// <summary>
-    /// Response for closing the browser
+    /// Response for validation
     /// </summary>
-    public class FileBrowserCloseResponse
+    public class FileBrowserValidateResponse
     {
         /// <summary>
         /// Result of the operation
@@ -34,12 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     }
 
     /// <summary>
-    /// Requst to close the file browser
+    /// Requst to validate the selected file paths
     /// </summary>
-    class FileBrowserCloseRequest
+    class FileBrowserValidateRequest
     {
         public static readonly
-            RequestType<FileBrowserCloseParams, FileBrowserCloseResponse> Type =
-                RequestType<FileBrowserCloseParams, FileBrowserCloseResponse>.Create("filebrowser/close");
+            RequestType<FileBrowserValidateParams, FileBrowserValidateResponse> Type =
+                RequestType<FileBrowserValidateParams, FileBrowserValidateResponse>.Create("filebrowser/validate");
     }
 }
