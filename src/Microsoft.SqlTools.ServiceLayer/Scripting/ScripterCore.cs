@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
@@ -19,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
@@ -34,15 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private ConnectionInfo connectionInfo;
         private Database database;
         private string tempPath;
-
-        internal delegate bool ScriptGetter(string objectName, string schemaName, string filePath);
-
-        // Dictionary that holds the script getter for each type
-        private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
-            new Dictionary<DeclarationType, ScriptGetter>();
-
-        private Dictionary<string, ScriptGetter> sqlScriptGettersFromQuickInfo =
-            new Dictionary<string, ScriptGetter>();
 
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
@@ -114,13 +107,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Add the given type, scriptgetter and the typeName string to the respective dictionaries
         /// </summary>
-        private void AddSupportedType(DeclarationType type, ScriptGetter scriptGetter, string typeName, string quickInfoType)
+        private void AddSupportedType(DeclarationType type, string typeName, string quickInfoType, Type smoObjectType)
         {
-            sqlScriptGetters.Add(type, scriptGetter);
             sqlObjectTypes.Add(type, typeName);
             if (!string.IsNullOrEmpty(quickInfoType))
             {
-                sqlScriptGettersFromQuickInfo.Add(quickInfoType.ToLowerInvariant(), scriptGetter);
                 sqlObjectTypesFromQuickInfo.Add(quickInfoType.ToLowerInvariant(), typeName);
             }
         }
@@ -186,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
             if (tokenType != null)
             {
-                if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
+                if (sqlObjectTypesFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
                 {
                     // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                     // This workaround ensures that a schema name is present by attempting
@@ -198,7 +189,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                     }
                     Location[] locations = GetSqlObjectDefinition(
-                                sqlScriptGettersFromQuickInfo[tokenType.ToLowerInvariant()],
                                 tokenText,
                                 schemaName,
                                 sqlObjectTypesFromQuickInfo[tokenType.ToLowerInvariant()]
@@ -230,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <returns></returns>
         internal DefinitionResult GetDefinitionUsingDeclarationType(DeclarationType type, string databaseQualifiedName, string tokenText, string schemaName)
         {
-            if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
+            if (sqlObjectTypes.ContainsKey(type))
             {
                 // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                 // This workaround ensures that a schema name is present by attempting
@@ -242,7 +232,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                 }
                 Location[] locations = GetSqlObjectDefinition(
-                            sqlScriptGetters[type],
                             tokenText,
                             schemaName,
                             sqlObjectTypes[type]
@@ -268,19 +257,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectType">Type of SQL object</param>
         /// <returns>Location object representing URI and range of the script file</returns>
         internal Location[] GetSqlObjectDefinition(
-                ScriptGetter sqlScriptGetter,
                 string objectName,
                 string schemaName,
                 string objectType)
         {
-            bool scriptSuccess = false;
+            // script file destination
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
-            
-            scriptSuccess = sqlScriptGetter(objectName, schemaName, tempFileName);
+            ScriptingScriptOperation operation = CreateScriptOperation(objectName, schemaName, objectType, tempFileName);
+            operation.Execute();
 
-            if (scriptSuccess)
+            // If the scripting was successful, we should see a file with the scripts
+            if (File.Exists(tempFileName))
             {
                 int lineNumber = 0;
                 using (StreamReader scriptFile = new StreamReader(tempFileName))
@@ -357,21 +346,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return locations;
         }
 
-        /// <summary>
-        /// Get line number for the create statement
-        /// </summary>
-        private int GetStartOfCreate(string script, string createString)
-        {
-            string[] lines = script.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
-            {
-                if (lines[lineNumber].IndexOf(createString, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    return lineNumber;
-                }
-            }
-            return 0;
-        }
         /// <summary>
         /// Helper method to create definition error result object
         /// </summary>
@@ -457,7 +431,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return Resolver.FindCompletions(
                 parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
         }
-        #endregion
 
+        /// <summary>
+        /// Wrapper method that calls Resolver.FindCompletions
+        /// </summary>
+        /// <param name="objectName"></param>
+        /// <param name="schemaName"></param>
+        /// <param name="objectType"></param>
+        /// <param name="tempFileName"></param>
+        /// <returns></returns>
+        internal ScriptingScriptOperation CreateScriptOperation(string objectName, string schemaName, string objectType, string tempFileName)
+        {
+            // object that has to be scripted
+            ScriptingObject obj = new ScriptingObject {
+                Name = objectName,
+                Schema = schemaName,
+                Type = objectType
+            };
+
+            // scripting options
+            ScriptOptions options = new ScriptOptions {
+			    ScriptCreateDrop = "ScriptCreate",
+			    TypeOfDataToScript = "SchemaOnly",
+			    ScriptStatistics = "ScriptStatsNone",
+			    TargetDatabaseEngineEdition = "SqlServerEnterpriseEdition",
+			    TargetDatabaseEngineType = "SingleInstance",
+			    ScriptCompatibilityOption = "Script140Compat",
+                IncludeIfNotExists = true
+		    };
+
+            List<ScriptingObject> objList = new List<ScriptingObject>();
+            List<string> inclList = new List<string>();
+            inclList.Add(objectType);
+            objList.Add(obj);
+
+            // create parameters for the scripting operation
+            ScriptingParams parameters = new ScriptingParams {
+                FilePath = tempFileName,
+                ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
+                IncludeTypes = inclList,
+                ScriptingObjects = objList,
+                ScriptOptions = options
+            };
+
+            return new ScriptingScriptOperation(parameters);
+        }
+        #endregion
     }
 }

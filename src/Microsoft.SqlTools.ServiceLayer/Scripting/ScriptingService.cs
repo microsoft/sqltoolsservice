@@ -56,7 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 return connectionService;
             }
-
             set
             {
                 connectionService = value;
@@ -191,21 +190,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-                try
-                {
-                    Debug.Assert(!this.ActiveOperations.ContainsKey(operation.OperationId), "Operation id must be unique");
-                    this.ActiveOperations[operation.OperationId] = operation;
-                    operation.Execute();
-                }
-                catch (Exception e)
-                {
-                    context.SendError(e);
-                }
-                finally
-                {
-                    ScriptingOperation temp;
-                    this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-                }
+            try
+            {
+                Debug.Assert(!this.ActiveOperations.ContainsKey(operation.OperationId), "Operation id must be unique");
+                this.ActiveOperations[operation.OperationId] = operation;
+                operation.Execute();
+            }
+            catch (Exception e)
+            {
+                context.SendError(e);
+            }
+            finally
+            {
+                ScriptingOperation temp;
+                this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+            }
         }
 
         /// <summary>
@@ -219,7 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     operation.Dispose();
                 }
-
                 disposed = true;
             }
         }
