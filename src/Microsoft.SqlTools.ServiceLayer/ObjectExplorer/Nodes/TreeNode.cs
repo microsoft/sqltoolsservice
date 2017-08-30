@@ -46,7 +46,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             // some nodes may need to set it 
             NodeValue = value;
         }
-        
+
+        private object buildingMetadataLock = new object();
+
+        /// <summary>
+        /// Event which tells if MetadataProvider is built fully or not
+        /// </summary>
+        public object BuildingMetadataLock
+        {
+            get { return this.buildingMetadataLock; }
+        }
+
         /// <summary>
         /// Value describing this node
         /// </summary>

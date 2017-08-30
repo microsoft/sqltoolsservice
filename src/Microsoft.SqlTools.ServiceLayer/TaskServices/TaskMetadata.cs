@@ -3,6 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
     public class TaskMetadata
@@ -29,11 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public int Timeout { get; set; }
 
         /// <summary>
-        /// Defines if the task can be canceled
-        /// </summary>
-        public bool IsCancelable { get; set; }
-
-        /// <summary>
         /// Database server name this task is created for
         /// </summary>
         public string ServerName { get; set; }
@@ -46,6 +44,48 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Data required to perform the task
         /// </summary>
-        public object Data { get; set; }                
+        public ITaskOperation TaskOperation { get; set; }
+
+        /// <summary>
+        /// Creates task metadata given the request parameters
+        /// </summary>
+        /// <param name="requestParam">Request parameters</param>
+        /// <param name="taskName">Task name</param>
+        /// <param name="taskOperation">Task operation</param>
+        /// <param name="connectionService">Connection Service</param>
+        /// <returns>Task metadata</returns>
+        public static TaskMetadata Create(IRequestParams requestParam, string taskName, ITaskOperation taskOperation, ConnectionService connectionService)
+        {
+            TaskMetadata taskMetadata = new TaskMetadata();
+            ConnectionInfo connInfo;
+            connectionService.TryFindConnection(
+                    requestParam.OwnerUri,
+                    out connInfo);
+
+            if (connInfo != null)
+            {
+                taskMetadata.ServerName = connInfo.ConnectionDetails.ServerName;
+            }
+
+            if (connInfo != null)
+            {
+                taskMetadata.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
+            }
+
+            IScriptableRequestParams scriptableRequestParams = requestParam as IScriptableRequestParams;
+            if (scriptableRequestParams != null && scriptableRequestParams.TaskExecutionMode != TaskExecutionMode.Execute)
+            {
+                taskMetadata.Name = string.Format("{0} {1}", taskName, SR.ScriptTaskName);
+            }
+            else
+            {
+                taskMetadata.Name = taskName;
+            }
+            taskMetadata.TaskExecutionMode = scriptableRequestParams.TaskExecutionMode;
+
+            taskMetadata.TaskOperation = taskOperation;
+            return taskMetadata;
+        }
+       
     }
 }

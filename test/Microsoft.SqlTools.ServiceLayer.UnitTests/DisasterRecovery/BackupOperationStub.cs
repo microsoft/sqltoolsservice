@@ -28,6 +28,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         
         public string ScriptContent { get; set; }
 
+        public string ErrorMessage
+        {
+            get
+            {
+                return string.Empty;
+            }
+        }
+
+        public SqlTask SqlTask { get; set; }
+
         /// <summary>
         /// Initialize 
         /// </summary>

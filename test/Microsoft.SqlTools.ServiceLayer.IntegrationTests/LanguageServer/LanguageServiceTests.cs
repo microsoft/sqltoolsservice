@@ -63,12 +63,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         [Fact]
         public void PrepopulateCommonMetadata()
         {
-            var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            var connInfo = result.ConnectionInfo;
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var result = LiveConnectionHelper.InitLiveConnectionInfo("master", queryTempFile.FilePath);
+                var connInfo = result.ConnectionInfo;
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+                ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
 
-            LanguageService.Instance.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
+                LanguageService.Instance.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
+            }
         }
 
         // This test currently requires a live database connection to initialize 

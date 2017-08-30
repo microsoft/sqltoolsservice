@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -13,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -116,12 +117,23 @@ namespace Microsoft.SqlTools.ServiceLayer
                 provider.RegisterSingleService(service.ServiceType, service);
             }
 
+            ServiceHost serviceHost = host as ServiceHost;
             foreach (IHostedService service in provider.GetServices<IHostedService>())
             {
                 // Initialize all hosted services, and register them in the service provider for their requested
                 // service type. This ensures that when searching for the ConnectionService you can get it without
                 // searching for an IHostedService of type ConnectionService
                 service.InitializeService(host);
+
+                IDisposable disposable = service as IDisposable;
+                if (serviceHost != null && disposable != null)
+                {
+                    serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+                    {
+                        disposable.Dispose();
+                        await Task.FromResult(0);
+                    });
+                }
             }
         }
     }

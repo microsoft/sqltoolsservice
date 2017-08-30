@@ -647,17 +647,20 @@ WHERE do.database_id = @DbID
                 { //If it's under v12 we need to query the master DB directly since that has the views containing the necessary information
                     using (var conn = new SqlConnection(context.Server.ConnectionContext.ConnectionString))
                     {
-                        var cmd = new SqlCommand(dbSloQuery, conn);
-                        cmd.Parameters.AddWithValue("@DbID", db.ID);
-                        conn.Open();
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        while (reader.Read())
+                        using (var cmd = new SqlCommand(dbSloQuery, conn))
                         {
-                            this.configuredServiceLevelObjective = reader["configured_slo_name"].ToString();
-                            this.currentServiceLevelObjective = reader["current_slo_name"].ToString();
-                            break; //Got our service level objective so we're done
+                            cmd.Parameters.AddWithValue("@DbID", db.ID);
+                            conn.Open();
+                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    this.configuredServiceLevelObjective = reader["configured_slo_name"].ToString();
+                                    this.currentServiceLevelObjective = reader["current_slo_name"].ToString();
+                                    break; //Got our service level objective so we're done
+                                }
+                            }
                         }
-
                     }
                 }
             }

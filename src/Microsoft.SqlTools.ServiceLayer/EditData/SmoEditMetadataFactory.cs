@@ -105,7 +105,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Only tables can be memory-optimized
             Table smoTable = smoResult as Table;
-            bool isMemoryOptimized = smoTable != null && smoTable.IsMemoryOptimized;
+            bool isMemoryOptimized = false;
+            // TODO: Remove IsSupported check once SMO fixes broken IsMemoryOptimized scenario (TFS #10871823)
+            if (smoTable != null)
+            {
+                isMemoryOptimized = smoTable.IsSupportedProperty("IsMemoryOptimized") && smoTable.IsMemoryOptimized;
+            }
 
             // Escape the parts of the name
             string[] objectNameParts = {smoResult.Schema, smoResult.Name};

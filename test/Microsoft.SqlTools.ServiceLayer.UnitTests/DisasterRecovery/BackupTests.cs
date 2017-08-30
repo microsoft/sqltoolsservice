@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 DisasterRecoveryService service = new DisasterRecoveryService();
                 var mockBackupOperation = new Mock<IBackupOperation>();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
+                SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
                 taskMetaData.TaskExecutionMode = TaskExecutionMode.Script;
 
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync);
+                SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
@@ -74,8 +74,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 var mockBackupOperation = new Mock<IBackupOperation>();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
 
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
-                SqlTask sqlTask2 = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
+                SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
+                SqlTask sqlTask2 = manager.CreateTask<SqlTask>(taskMetaData);
                 Assert.NotNull(sqlTask);
                 Assert.NotNull(sqlTask2);
 
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 IBackupOperation backupOperation = new BackupOperationStub();
                 DisasterRecoveryService service = new DisasterRecoveryService();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
+                SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
@@ -135,8 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
                 TaskMetadata taskMetaData2 = this.CreateTaskMetaData(backupOperation2);
 
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
-                SqlTask sqlTask2 = manager.CreateTask(taskMetaData2, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
+                SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
+                SqlTask sqlTask2 = manager.CreateTask<SqlTask>(taskMetaData2);
                 Assert.NotNull(sqlTask);
                 Assert.NotNull(sqlTask2);
 
@@ -174,11 +174,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 DisasterRecoveryService service = new DisasterRecoveryService();
                 IBackupOperation backupOperation = new BackupOperationStub();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
-                SqlTask sqlTask = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
+                SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
 
                 var mockBackupOperation = new Mock<IBackupOperation>();
                 TaskMetadata taskMetaData2 = this.CreateTaskMetaData(mockBackupOperation.Object);
-                SqlTask sqlTask2 = manager.CreateTask(taskMetaData, service.PerformBackupTaskAsync, service.CancelBackupTaskAsync);
+                SqlTask sqlTask2 = manager.CreateTask<SqlTask>(taskMetaData);
 
                 Assert.NotNull(sqlTask);
                 Assert.NotNull(sqlTask2);
@@ -201,15 +201,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             }
         }
 
-        private TaskMetadata CreateTaskMetaData(object data)
+        private TaskMetadata CreateTaskMetaData(IBackupOperation data)
         {
             TaskMetadata taskMetaData = new TaskMetadata
             {
                 ServerName = "server name",
                 DatabaseName = "database name",
                 Name = "backup database",
-                IsCancelable = true,
-                Data = data
+                TaskOperation = data
             };
 
             return taskMetaData;

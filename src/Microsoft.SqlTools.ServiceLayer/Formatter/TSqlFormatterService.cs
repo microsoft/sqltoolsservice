@@ -53,6 +53,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             get { return ServiceProvider.GetService<WorkspaceService<SqlToolsSettings>>(); }
         }
 
+        /// <summary>
+        /// Gets the language service. Note: should handle case where this is null in cases where unit tests do not set this up
+        /// </summary>
+        private LanguageService LanguageService
+        {
+            get { return ServiceProvider.GetService<LanguageService>(); }
+        }
 
         /// <summary>
         /// Ensure formatter settings are always up to date
@@ -105,6 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             return await Task.Factory.StartNew(() =>
             {
+                if (ShouldSkipFormatting(docFormatParams))
+                {
+                    return Array.Empty<TextEdit>();
+                }
+
                 var range = docFormatParams.Range;
                 ScriptFile scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null)
@@ -117,10 +129,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             });
         }
 
-        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        private bool ShouldSkipFormatting(DocumentFormattingParams docFormatParams)
         {
+            if (docFormatParams == null
+                || docFormatParams.TextDocument == null
+                || docFormatParams.TextDocument.Uri == null)
+            {
+                return true;
+            }
+            return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
+        }
+
+        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        {            
             return await Task.Factory.StartNew(() =>
             {
+                if (ShouldSkipFormatting(docFormatParams))
+                {
+                    return Array.Empty<TextEdit>();
+                }
+
                 var scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null
                     || scriptFile.FileLines.Count == 0)
