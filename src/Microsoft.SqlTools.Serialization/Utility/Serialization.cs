@@ -1,7 +1,7 @@
 ﻿using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.Serialization
+namespace Microsoft.SqlTools.Serialization.Utility
 {
     public class SaveResultsInfo
     {
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.Serialization
         {
             this.SaveFormat = saveFormat;
             this.SavePath = savePath;
-            this.Rows = Rows;
+            this.Rows = rows;
             this.IsLast = isLast;
         }
     }

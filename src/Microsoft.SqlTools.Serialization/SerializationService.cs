@@ -4,12 +4,10 @@
 //
 
 using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.Hosting.Contracts;
-using Microsoft.SqlTools.Hosting.Hosting.Contracts;
 
 namespace Microsoft.SqlTools.Serialization
 {
@@ -47,7 +45,6 @@ namespace Microsoft.SqlTools.Serialization
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(SaveAsRequest.Type, HandleSaveAsRequest);
-
         }
 
         public async Task HandleSaveAsRequest(SaveResultsInfo resultsInfo, RequestContext<SaveResultRequestResult> requestContext)
@@ -63,6 +60,7 @@ namespace Microsoft.SqlTools.Serialization
         public async Task<SaveResultRequestResult> SaveAsAsync(SaveResultsInfo resultsInfo, RequestContext<SaveResultRequestResult> requestContext)
         {
             // TODO: Refactor currently available serialization code in sqltools to be utilized here
+            // Issue here: https://github.com/Microsoft/carbon/issues/1789
             switch (resultsInfo.SaveFormat) {
                 case "json":
                     throw new NotImplementedException("Converting to " + resultsInfo.SaveFormat + " is not implemented.");

@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
+using Microsoft.SqlTools.Hosting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {

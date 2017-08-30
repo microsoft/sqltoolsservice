@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
+namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
     /// Class used for internally passing results from a cell around.

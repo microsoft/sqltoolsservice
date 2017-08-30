@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution

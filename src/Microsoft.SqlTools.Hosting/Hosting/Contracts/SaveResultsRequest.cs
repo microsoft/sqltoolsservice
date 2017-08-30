@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
+namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
     /// Parameters for the save results request
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
         /// Check if request is a subset of result set or whole result set
         /// </summary>
         /// <returns></returns>
-        public bool IsSaveSelection
+        internal bool IsSaveSelection
         {
             get
             {
