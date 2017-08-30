@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Moq;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
@@ -44,60 +45,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             return result;
         }
 
-        private static ObjectMetadata GenerateMetadata(string objectType)
+        private async Task<Mock<RequestContext<ScriptingResult>>> SendAndValidateScriptRequest()
         {
-            var metadata = new ObjectMetadata()
+            var result = GetLiveAutoCompleteTestObjects();
+            var requestContext = new Mock<RequestContext<ScriptingResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<ScriptingResult>())).Returns(Task.FromResult(new object()));
+
+            var scriptingParams = new ScriptingParams
             {
-                Schema = SchemaName,
-                Name = objectType
+                ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
             };
-            switch(objectType)
-            {
-                case("Table"):
-                    metadata.MetadataType = MetadataType.Table;
-                    metadata.Name = TableName;
-                    break;
-                case("View"):
-                    metadata.MetadataType = MetadataType.View;
-                    metadata.Name = ViewName;
-                    break;
-                case("Database"):
-                    metadata.MetadataType = MetadataType.Database;
-                    metadata.Name = DatabaseName;
-                    break;
-                case("Schema"):
-                    metadata.MetadataType = MetadataType.Schema;
-                    metadata.MetadataTypeName = SchemaName;
-                    break;
-                case("SProc"):
-                    metadata.MetadataType = MetadataType.SProc;
-                    metadata.MetadataTypeName = StoredProcName;
-                    break;
-                default:
-                    metadata.MetadataType = MetadataType.Table;
-                    metadata.Name = TableName;
-                    break;                    
-            }
-            return metadata;
+
+            ScriptingService service = new ScriptingService();
+            await service.HandleScriptExecuteRequest(scriptingParams, requestContext.Object);
+
+            return requestContext;
         }
-
-        // private async Task<Mock<RequestContext<ScriptingScriptAsResult>>> SendAndValidateScriptRequest()
-        // {
-        //     var result = GetLiveAutoCompleteTestObjects();
-        //     var requestContext = new Mock<RequestContext<ScriptingScriptAsResult>>();
-        //     requestContext.Setup(x => x.SendResult(It.IsAny<ScriptingScriptAsResult>())).Returns(Task.FromResult(new object()));
-
-        //     var scriptingParams = new ScriptingScriptAsParams
-        //     {
-        //         OwnerUri = result.ConnectionInfo.OwnerUri,
-        //         //Operation = operation,
-        //         //Metadata = GenerateMetadata(objectType)
-        //     };
-
-        //     // await ScriptingService.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
-
-        //     return requestContext;
-        // }
 
         /// <summary>
         /// Verify the script as select request
@@ -107,55 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         {
             foreach (string obj in objects)
             {
-                //Assert.NotNull(await SendAndValidateScriptRequest());
-            }
-        }
-
-        /// <summary>
-        /// Verify the script as create request
-        /// </summary>
-        [Fact]
-        public async void ScriptingScriptAsCreate()
-        {
-            foreach (string obj in objects)
-            {
-                //Assert.NotNull(await SendAndValidateScriptRequest());
-            }
-        }
-
-        /// <summary>
-        /// Verify the script as insert request
-        /// </summary>
-        [Fact]
-        public async void ScriptingScriptAsInsert()
-        {
-            foreach (string obj in objects)
-            {
-                //Assert.NotNull(await SendAndValidateScriptRequest());
-            }
-        }
-
-        /// <summary>
-        /// Verify the script as update request
-        /// </summary>
-        [Fact]
-        public async void ScriptingScriptAsUpdate()
-        {
-            foreach (string obj in objects)
-            {
-                //Assert.NotNull(await SendAndValidateScriptRequest());
-            }
-        }
-
-        /// <summary>
-        /// Verify the script as delete request
-        /// </summary>
-        [Fact]
-        public async void ScriptingScriptAsDelete()
-        {
-            foreach (string obj in objects)
-            {
-                //Assert.NotNull(await SendAndValidateScriptRequest());
+                Assert.NotNull(await SendAndValidateScriptRequest());
             }
         }
     }
