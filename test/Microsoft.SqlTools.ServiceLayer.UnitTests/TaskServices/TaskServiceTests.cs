@@ -124,8 +124,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
         protected override RegisteredServiceProvider CreateServiceProviderWithMinServices()
         {
+            TaskService service = new TaskService();
+            service.TaskManager = new SqlTaskManager();
             return CreateProvider()
-                .RegisterSingleService(new TaskService());
+                .RegisterSingleService(service);
         }
     }
 }

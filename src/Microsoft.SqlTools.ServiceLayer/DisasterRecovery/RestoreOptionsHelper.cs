@@ -15,6 +15,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
     public class RestoreOptionsHelper
     {
+        //The list of names service uses to sends restore options to client
+        private static string[] optionNames = new string[] { KeepReplication, ReplaceDatabase , SetRestrictedUser, RecoveryState ,
+            BackupTailLog , TailLogBackupFile, TailLogWithNoRecovery, CloseExistingConnections, RelocateDbFiles, DataFileFolder, LogFileFolder,
+            StandbyFile,
+        };
         //The key names of restore info in the resquest of response
 
         //Option name keepReplication
@@ -235,125 +240,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             Validate.IsNotNull(nameof(restoreDataObject), restoreDataObject);
 
             Dictionary<string, RestorePlanDetailInfo> options = new Dictionary<string, RestorePlanDetailInfo>();
-            string databaseName = restoreDataObject.RestorePlan == null ? string.Empty : restoreDataObject.RestorePlan.DatabaseName;
-            //Files
+            RestoreOptionFactory restoreOptionFactory = RestoreOptionFactory.Instance;
 
-            // Default Data folder path in the target server
-            options.Add(RestoreOptionsHelper.DataFileFolder, RestorePlanDetailInfo.Create(
-               name: RestoreOptionsHelper.DataFileFolder,
-               currentValue: restoreDataObject.DataFilesFolder,
-               defaultValue: restoreDataObject.DefaultDataFileFolder,
-               isReadOnly: !restoreDataObject.RelocateAllFiles,
-               isVisible: true
-               ));
+            //Create the options using the current values
+            foreach (var optionKey in optionNames)
+            {
+                var optionInfo = restoreOptionFactory.CreateOptionInfo(optionKey, restoreDataObject);
+                options.Add(optionKey, optionInfo);
+            }
 
-            // Default log folder path in the target server
-            options.Add(RestoreOptionsHelper.LogFileFolder, RestorePlanDetailInfo.Create(
-              name: RestoreOptionsHelper.LogFileFolder,
-              currentValue: restoreDataObject.LogFilesFolder,
-              defaultValue: restoreDataObject.DefaultLogFileFolder,
-              isReadOnly: !restoreDataObject.RelocateAllFiles,
-              isVisible: true
-              ));
-
-            // Relocate all files
-            options.Add(RestoreOptionsHelper.RelocateDbFiles, RestorePlanDetailInfo.Create(
-              name: RestoreOptionsHelper.RelocateDbFiles,
-              currentValue: restoreDataObject.RelocateAllFiles,
-              defaultValue: false,
-              isReadOnly: restoreDataObject.DbFiles.Count == 0,
-              isVisible: true
-              ));
-
-
-            //Options
-
-            //With Replace
-            options.Add(RestoreOptionsHelper.ReplaceDatabase, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.ReplaceDatabase,
-                currentValue: restoreDataObject.RestoreOptions.ReplaceDatabase,
-                defaultValue: false,
-                isReadOnly: false,
-                isVisible: true
-                ));
-
-            //Keep replication
-            options.Add(RestoreOptionsHelper.KeepReplication, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.KeepReplication,
-                currentValue: restoreDataObject.RestoreOptions.KeepReplication,
-                defaultValue: false,
-                isReadOnly: restoreDataObject.RestoreOptions.RecoveryState == DatabaseRecoveryState.WithNoRecovery,
-                isVisible: true
-                ));
-
-            //Restricted user
-            options.Add(RestoreOptionsHelper.SetRestrictedUser, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.SetRestrictedUser,
-                currentValue: restoreDataObject.RestoreOptions.SetRestrictedUser,
-                defaultValue: false,
-                isReadOnly: false,
-                isVisible: true
-                ));
-
-            //State recovery
-            options.Add(RestoreOptionsHelper.RecoveryState, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.RecoveryState,
-                currentValue: restoreDataObject.RestoreOptions.RecoveryState.ToString(),
-                defaultValue: DatabaseRecoveryState.WithRecovery.ToString(),
-                isReadOnly: false,
-                isVisible: true
-                ));
-
-            // stand by file path for when RESTORE WITH STANDBY is selected
-            options.Add(RestoreOptionsHelper.StandbyFile, RestorePlanDetailInfo.Create(
-               name: RestoreOptionsHelper.StandbyFile,
-               currentValue: restoreDataObject.RestoreOptions.StandByFile,
-               defaultValue: restoreDataObject.GetDefaultStandbyFile(databaseName),
-               isReadOnly: restoreDataObject.RestoreOptions.RecoveryState != DatabaseRecoveryState.WithStandBy,
-               isVisible: true
-               ));
-
-            // Tail-log backup
-            // TODO:These methods are internal in SMO. after making them public, they can be removed from RestoreDatabaseTaskDataObject
-            bool isTailLogBackupPossible = restoreDataObject.IsTailLogBackupPossible(databaseName);
-            bool isTailLogBackupWithNoRecoveryPossible = restoreDataObject.IsTailLogBackupWithNoRecoveryPossible(databaseName);
-
-            options.Add(RestoreOptionsHelper.BackupTailLog, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.BackupTailLog,
-                currentValue: restoreDataObject.BackupTailLog,
-                defaultValue: isTailLogBackupPossible,
-                isReadOnly: !isTailLogBackupPossible,
-                isVisible: true
-                ));
-
-            options.Add(RestoreOptionsHelper.TailLogBackupFile, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.TailLogBackupFile,
-                currentValue: restoreDataObject.TailLogBackupFile,
-                defaultValue: restoreDataObject.GetDefaultTailLogbackupFile(databaseName),
-                isReadOnly: !isTailLogBackupPossible,
-                isVisible: true
-                ));
-
-            options.Add(RestoreOptionsHelper.TailLogWithNoRecovery, RestorePlanDetailInfo.Create(
-                name: RestoreOptionsHelper.TailLogWithNoRecovery,
-                currentValue: restoreDataObject.TailLogWithNoRecovery,
-                defaultValue: isTailLogBackupWithNoRecoveryPossible,
-                isReadOnly: !isTailLogBackupWithNoRecoveryPossible,
-                isVisible: true
-                ));
-        
-
-            //TODO: make the method public in SMO bool canDropExistingConnections = restoreDataObject.RestorePlan.CanDropExistingConnections(this.Data.RestorePlanner.DatabaseName);
-            options.Add(RestoreOptionsHelper.CloseExistingConnections, RestorePlanDetailInfo.Create(
-              name: RestoreOptionsHelper.CloseExistingConnections,
-              currentValue: restoreDataObject.CloseExistingConnections,
-              defaultValue: false,
-              isReadOnly: false, //TODO: !canDropExistingConnections
-              isVisible: true
-              ));
-
+            // After all options are set verify them all again to set the read only 
+            // Because some options can change the readonly mode of other options.( e.g Recovery state can affect StandBy to be readyonly)
+            foreach (var optionKey in optionNames)
+            {
+                restoreOptionFactory.UpdateOption(optionKey, restoreDataObject, options[optionKey]);
+            }
             return options;
         }
+
         /// <summary>
         /// Add options to restore plan response
         /// </summary>
@@ -372,58 +276,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        internal static T GetOptionValue<T>(string optionkey, Dictionary<string, RestorePlanDetailInfo> optionsMetadata, IRestoreDatabaseTaskDataObject restoreDataObject)
-        {
-            RestorePlanDetailInfo optionMetadata = null;
-            if(optionsMetadata.TryGetValue(optionkey, out optionMetadata))
-            {
-                if (!optionMetadata.IsReadOnly)
-                {
-                    return restoreDataObject.RestoreParams.GetOptionValue<T>(optionkey);
-                }
-                else
-                {
-                    return (T)Convert.ChangeType(optionMetadata.DefaultValue, typeof(T));
-                }
-            }
-            else
-            {
-                return default(T);
-            }
-        }
-
         /// <summary>
         /// Load options in restore plan
         /// </summary>
         internal static void UpdateOptionsInPlan(IRestoreDatabaseTaskDataObject restoreDataObject)
         {
-            var options = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDataObject);
+            RestoreOptionFactory restoreOptionFactory = RestoreOptionFactory.Instance;
 
-            //Files
-            restoreDataObject.LogFilesFolder = GetOptionValue<string>(RestoreOptionsHelper.LogFileFolder, options, restoreDataObject);
-            restoreDataObject.DataFilesFolder = GetOptionValue<string>(RestoreOptionsHelper.DataFileFolder, options, restoreDataObject);
-            restoreDataObject.RelocateAllFiles = GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles, options, restoreDataObject);
 
-            //Options
-            object databaseRecoveryState;
-
-            string recoveryState = GetOptionValue<string>(RestoreOptionsHelper.RecoveryState, options, restoreDataObject);
-            if (Enum.TryParse(typeof(DatabaseRecoveryState), recoveryState, out databaseRecoveryState))
+            foreach (var optionKey in optionNames)
             {
-                restoreDataObject.RestoreOptions.RecoveryState = (DatabaseRecoveryState)databaseRecoveryState;
+                restoreOptionFactory.SetValue(optionKey, restoreDataObject);
             }
-            restoreDataObject.RestoreOptions.KeepReplication = GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication, options, restoreDataObject);
-            restoreDataObject.RestoreOptions.ReplaceDatabase = GetOptionValue<bool>(RestoreOptionsHelper.ReplaceDatabase, options, restoreDataObject);
-            restoreDataObject.RestoreOptions.SetRestrictedUser = GetOptionValue<bool>(RestoreOptionsHelper.SetRestrictedUser, options, restoreDataObject);
-            restoreDataObject.RestoreOptions.StandByFile = GetOptionValue<string>(RestoreOptionsHelper.StandbyFile, options, restoreDataObject);
 
-           
-
-            restoreDataObject.BackupTailLog = GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog, options, restoreDataObject);
-            restoreDataObject.TailLogBackupFile = GetOptionValue<string>(RestoreOptionsHelper.TailLogBackupFile, options, restoreDataObject);
-            restoreDataObject.TailLogWithNoRecovery = GetOptionValue<bool>(RestoreOptionsHelper.TailLogWithNoRecovery, options, restoreDataObject);
-
-            restoreDataObject.CloseExistingConnections = GetOptionValue<bool>(RestoreOptionsHelper.CloseExistingConnections, options, restoreDataObject);
+            //After all options are set do a vaidation so any invalid option set to default
+            foreach (var optionKey in optionNames)
+            {
+                string error = restoreOptionFactory.ValidateOption(optionKey, restoreDataObject);
+                if (!string.IsNullOrEmpty(error))
+                {
+                    //TODO: we could send back the error message so client knows the option is set incorrectly
+                }
+            }
+            
         }
     }
 }

@@ -20,8 +20,6 @@ using System.Globalization;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
-using DataSet = Microsoft.Data.Tools.DataSets.DataSet;
-using DataTable = Microsoft.Data.Tools.DataSets.DataTable;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {

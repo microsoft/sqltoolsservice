@@ -13,7 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         Table = 0,
         View = 1,
         SProc = 2,
-        Function = 3
+        Function = 3,
+        Schema = 4,
+        Database = 5
     }
 
     /// <summary>

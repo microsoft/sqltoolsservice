@@ -11,6 +11,7 @@ using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -45,7 +46,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             // some nodes may need to set it 
             NodeValue = value;
         }
-        
+
+        private object buildingMetadataLock = new object();
+
+        /// <summary>
+        /// Event which tells if MetadataProvider is built fully or not
+        /// </summary>
+        public object BuildingMetadataLock
+        {
+            get { return this.buildingMetadataLock; }
+        }
+
         /// <summary>
         /// Value describing this node
         /// </summary>
@@ -292,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             Debug.Assert(IsAlwaysLeaf == false);
 
             SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
-            bool includeSystemObjects = context != null && context.Database != null ? ObjectExplorerUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
+            bool includeSystemObjects = context != null && context.Database != null ? DatabaseUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
             
 
             if (children.IsPopulating || context == null)

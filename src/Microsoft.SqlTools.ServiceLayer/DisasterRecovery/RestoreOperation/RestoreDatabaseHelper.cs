@@ -7,14 +7,14 @@ using System;
 using System.Linq;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
+using System.Collections.Concurrent;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -24,107 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
     public class RestoreDatabaseHelper
     {
         public const string LastBackupTaken = "lastBackupTaken";
-
-        /// <summary>
-        /// Create a backup task for execution and cancellation
-        /// </summary>
-        /// <param name="sqlTask"></param>
-        /// <returns></returns>
-        internal async Task<TaskResult> RestoreTaskAsync(SqlTask sqlTask)
-        {
-            sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
-            RestoreDatabaseTaskDataObject restoreDataObject = sqlTask.TaskMetadata.Data as RestoreDatabaseTaskDataObject;
-            TaskResult taskResult = null;
-
-            if (restoreDataObject != null)
-            {
-                // Create a task to perform backup
-                return await Task.Factory.StartNew(() =>
-                {
-                    TaskResult result = new TaskResult();
-                    try
-                    {
-                        if (restoreDataObject.IsValid)
-                        {
-                            ExecuteRestore(restoreDataObject, sqlTask);
-                            result.TaskStatus = SqlTaskStatus.Succeeded;
-                        }
-                        else
-                        {
-                            result.TaskStatus = SqlTaskStatus.Failed;
-                            if (restoreDataObject.ActiveException != null)
-                            {
-                                result.ErrorMessage = restoreDataObject.ActiveException.Message;
-                            }
-                            else
-                            {
-                                result.ErrorMessage = SR.RestoreNotSupported;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        result.TaskStatus = SqlTaskStatus.Failed;
-                        result.ErrorMessage = ex.Message;
-                        if (ex.InnerException != null)
-                        {
-                            result.ErrorMessage += Environment.NewLine + ex.InnerException.Message;
-                        }
-                        if (restoreDataObject != null && restoreDataObject.ActiveException != null)
-                        {
-                            result.ErrorMessage += Environment.NewLine + restoreDataObject.ActiveException.Message;
-                        }
-                    }
-                    return result;
-                });
-            }
-            else
-            {
-                taskResult = new TaskResult();
-                taskResult.TaskStatus = SqlTaskStatus.Failed;
-            }
-
-            return taskResult;
-        }
-
-       
-
-        /// <summary>
-        /// Async task to cancel restore
-        /// </summary>
-        public async Task<TaskResult> CancelTaskAsync(SqlTask sqlTask)
-        {
-            RestoreDatabaseTaskDataObject restoreDataObject = sqlTask.TaskMetadata.Data as RestoreDatabaseTaskDataObject;
-            TaskResult taskResult = null;
-
-
-            if (restoreDataObject != null && restoreDataObject.IsValid)
-            {
-                // Create a task for backup cancellation request
-                return await Task.Factory.StartNew(() =>
-                {
-
-                    foreach (Restore restore in restoreDataObject.RestorePlan.RestoreOperations)
-                    {
-                        restore.Abort();
-                    }
-
-
-                    return new TaskResult
-                    {
-                        TaskStatus = SqlTaskStatus.Canceled
-                    };
-
-                });
-            }
-            else
-            {
-                taskResult = new TaskResult();
-                taskResult.TaskStatus = SqlTaskStatus.Failed;
-            }
-
-            return taskResult;
-        }
+        private ConcurrentDictionary<string, RestoreDatabaseTaskDataObject> sessions = new ConcurrentDictionary<string, RestoreDatabaseTaskDataObject>(); 
 
         /// <summary>
         /// Creates response which includes information about the server given to restore (default data location, db names with backupsets)
@@ -163,12 +63,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 if (restoreDataObject != null && restoreDataObject.IsValid)
                 {
-                    UpdateRestorePlan(restoreDataObject);
+                    restoreDataObject.UpdateRestoreTaskObject();
 
                     if (restoreDataObject != null && restoreDataObject.IsValid)
                     {
                         response.SessionId = restoreDataObject.SessionId;
-                        response.DatabaseName = restoreDataObject.TargetDatabase;
+                        response.DatabaseName = restoreDataObject.TargetDatabaseName;
+
+                        response.PlanDetails.Add(RestoreOptionsHelper.TargetDatabaseName, 
+                            RestoreOptionFactory.Instance.CreateAndValidate(RestoreOptionsHelper.TargetDatabaseName, restoreDataObject));
+                        response.PlanDetails.Add(RestoreOptionsHelper.SourceDatabaseName, 
+                            RestoreOptionFactory.Instance.CreateAndValidate(RestoreOptionsHelper.SourceDatabaseName, restoreDataObject));
+
+                        response.PlanDetails.Add(RestoreOptionsHelper.ReadHeaderFromMedia, RestorePlanDetailInfo.Create(
+                           name: RestoreOptionsHelper.ReadHeaderFromMedia,
+                           currentValue: restoreDataObject.RestorePlanner.ReadHeaderFromMedia));
                         response.DbFiles = restoreDataObject.DbFiles.Select(x => new RestoreDatabaseFileInfo
                         {
                             FileType = x.DbFileType,
@@ -178,15 +87,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         });
                         response.CanRestore = CanRestore(restoreDataObject);
 
-                        if (!response.CanRestore)
-                        {
-                            response.ErrorMessage = SR.RestoreNotSupported;
-                        }
-
-                        response.PlanDetails.Add(LastBackupTaken, RestorePlanDetailInfo.Create(LastBackupTaken, restoreDataObject.GetLastBackupTaken()));
+                        response.PlanDetails.Add(LastBackupTaken, 
+                            RestorePlanDetailInfo.Create(name: LastBackupTaken, currentValue: restoreDataObject.GetLastBackupTaken(), isReadOnly: true));
 
                         response.BackupSetsToRestore = restoreDataObject.GetSelectedBakupSets();
-                        var dbNames = restoreDataObject.GetSourceDbNames();
+                        var dbNames = restoreDataObject.SourceDbNames;
                         response.DatabaseNamesFromBackupSets = dbNames == null ? new string[] { } : dbNames.ToArray();
 
                         RestoreOptionsHelper.AddOptions(response, restoreDataObject);
@@ -219,6 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     response.ErrorMessage += Environment.NewLine;
                     response.ErrorMessage += ex.InnerException.Message;
                 }
+                Logger.Write(LogLevel.Normal, $"Failed to create restore plan. error: { response.ErrorMessage}");
             }
             return response;
 
@@ -241,10 +147,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams)
         {
             RestoreDatabaseTaskDataObject restoreTaskObject = null;
-            restoreTaskObject = CreateRestoreForNewSession(restoreParams.OwnerUri, restoreParams.TargetDatabaseName);
             string sessionId = string.IsNullOrWhiteSpace(restoreParams.SessionId) ? Guid.NewGuid().ToString() : restoreParams.SessionId;
+            if (!sessions.TryGetValue(sessionId, out restoreTaskObject))
+            {
+                restoreTaskObject = CreateRestoreForNewSession(restoreParams.OwnerUri, restoreParams.TargetDatabaseName);
+                sessions.AddOrUpdate(sessionId, restoreTaskObject, (key, old) => restoreTaskObject);
+            }
             restoreTaskObject.SessionId = sessionId;
             restoreTaskObject.RestoreParams = restoreParams;
+            
             return restoreTaskObject;
         }
 
@@ -282,59 +193,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return null;
         }
 
-        /// <summary>
-        /// Create a restore data object that includes the plan to do the restore operation
-        /// </summary>
-        /// <param name="requestParam"></param>
-        /// <returns></returns>
-        private void UpdateRestorePlan(RestoreDatabaseTaskDataObject restoreDataObject)
+       
+
+        private bool CanChangeTargetDatabase(RestoreDatabaseTaskDataObject restoreDataObject)
         {
-            if (!string.IsNullOrEmpty(restoreDataObject.RestoreParams.BackupFilePaths))
-            {
-                restoreDataObject.AddFiles(restoreDataObject.RestoreParams.BackupFilePaths);
-            }
-            restoreDataObject.RestorePlanner.ReadHeaderFromMedia = restoreDataObject.RestoreParams.ReadHeaderFromMedia;
-
-            if (string.IsNullOrWhiteSpace(restoreDataObject.RestoreParams.SourceDatabaseName))
-            {
-                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.DefaultDbName;
-            }
-            else
-            {
-                restoreDataObject.RestorePlanner.DatabaseName = restoreDataObject.RestoreParams.SourceDatabaseName;
-            }
-            restoreDataObject.TargetDatabase = restoreDataObject.RestoreParams.TargetDatabaseName;
-
-            RestoreOptionsHelper.UpdateOptionsInPlan(restoreDataObject);
-
-            restoreDataObject.UpdateRestorePlan();
-        }
-
-        /// <summary>
-        /// Executes the restore operation
-        /// </summary>
-        /// <param name="requestParam"></param>
-        public void ExecuteRestore(RestoreDatabaseTaskDataObject restoreDataObject, SqlTask sqlTask = null)
-        {
-            // Restore Plan should be already created and updated at this point
-            UpdateRestorePlan(restoreDataObject);
-
-            if (restoreDataObject != null && CanRestore(restoreDataObject))
-            {
-                try
-                {
-                    restoreDataObject.SqlTask = sqlTask;
-                    restoreDataObject.Execute();
-                }
-                catch(Exception ex)
-                {
-                    throw ex;
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException(SR.RestoreNotSupported);
-            }
+            return DatabaseUtils.IsSystemDatabaseConnection(restoreDataObject.Server.ConnectionContext.DatabaseName);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
@@ -57,10 +58,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
     C2 nvarchar(50) NULL
 )");
         
+        private void SetupLanguageService(bool skipFile = false)
+        {
+            LanguageServiceMock.Setup(x => x.ShouldSkipNonMssqlFile(It.IsAny<string>())).Returns(skipFile);
+        }
+
         [Fact]
         public async Task FormatDocumentShouldReturnSingleEdit()
         {
             // Given a document that we want to format
+            SetupLanguageService();
             SetupScriptFile(defaultSqlContents);
             // When format document is called
             await TestUtils.RunAndVerify<TextEdit[]>(
@@ -74,11 +81,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         [Fact]
+        public async Task FormatDocumentShouldSkipNonMssqlFile()
+        {
+            // Given a non-MSSQL document
+            SetupLanguageService(skipFile: true);
+            SetupScriptFile(defaultSqlContents);
+            // When format document is called
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    // Then expect a single edit to be returned and for it to match the standard formatting
+                    Assert.Equal(0, edits.Length);
+                    LanguageServiceMock.Verify(x => x.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri), Times.Once);
+                }));
+        }
+
+        [Fact]
+        public async Task FormatRangeShouldReturnSingleEdit()
+        {
+            // Given a document that we want to format
+            SetupLanguageService();
+            SetupScriptFile(defaultSqlContents);
+            // When format document is called
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    // Then expect a single edit to be returned and for it to match the standard formatting
+                    Assert.Equal(1, edits.Length);
+                    AssertFormattingEqual(formattedSqlContents, edits[0].NewText);
+                }));
+        }
+
+        [Fact]
+        public async Task FormatRangeShouldSkipNonMssqlFile()
+        {
+            // Given a non-MSSQL document
+            SetupLanguageService(skipFile: true);
+            SetupScriptFile(defaultSqlContents);
+            // When format document is called
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    // Then expect a single edit to be returned and for it to match the standard formatting
+                    Assert.Equal(0, edits.Length);
+                    LanguageServiceMock.Verify(x => x.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri), Times.Once);
+                }));
+        }
+
+
+        [Fact]
         public async Task FormatDocumentTelemetryShouldIncludeFormatTypeProperty()
         {
             await RunAndVerifyTelemetryTest(
                 // Given a document that we want to format
-                preRunSetup: () => SetupScriptFile(defaultSqlContents),
+                preRunSetup: () => SetupLanguageService(),
                 // When format document is called
                 test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
                 verify: (result, actualParams) =>
@@ -95,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             await RunAndVerifyTelemetryTest(
                 // Given a document that we want to format
-                preRunSetup: () => SetupScriptFile(defaultSqlContents),
+                preRunSetup: () => SetupLanguageService(),
                 // When format range is called
                 test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
                 verify: (result, actualParams) =>
@@ -131,6 +190,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             });
 
             // Given a document that we want to format
+            if (preRunSetup != null)
+            {
+                preRunSetup();
+            }
             SetupScriptFile(defaultSqlContents);
 
             // When format document is called

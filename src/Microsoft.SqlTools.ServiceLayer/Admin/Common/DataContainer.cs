@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -18,7 +19,6 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Assembly = System.Reflection.Assembly;
 using System.Xml.Linq;
-using Microsoft.Data.Tools.DataSets;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -1119,27 +1119,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 throw new ArgumentException("sourceXml");
             }
 
-            MemoryStream memoryStream = new MemoryStream();
-            StreamWriter streamWriter = new StreamWriter(memoryStream);
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                using (StreamWriter streamWriter = new StreamWriter(memoryStream))
+                {
+                    //  Writes the xml to the memory stream
+                    streamWriter.Write(sourceXml);
+                    streamWriter.Flush();
 
-            //  Writes the xml to the memory stream
-            streamWriter.Write(sourceXml);
-            streamWriter.Flush();
+                    //  Resets the stream to the beginning
+                    memoryStream.Seek(0, SeekOrigin.Begin);
 
-            //  Resets the stream to the beginning
-            memoryStream.Seek(0, SeekOrigin.Begin);
+                    //  Creates the XML reader from the stream 
+                    //  and moves it to the correct node
+                    XmlReader xmlReader = XmlReader.Create(memoryStream);
+                    xmlReader.MoveToContent();
 
-            //  Creates the XML reader from the stream 
-            //  and moves it to the correct node
-            XmlReader xmlReader = XmlReader.Create(memoryStream);
-            xmlReader.MoveToContent();
+                    // generate the xml document
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.PreserveWhitespace = true;
+                    xmlDocument.LoadXml(xmlReader.ReadOuterXml());
 
-            // generate the xml document
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.PreserveWhitespace = true;
-            xmlDocument.LoadXml(xmlReader.ReadOuterXml());
-
-            return xmlDocument;
+                    return xmlDocument;
+                }
+            }
         }
 
         #endregion

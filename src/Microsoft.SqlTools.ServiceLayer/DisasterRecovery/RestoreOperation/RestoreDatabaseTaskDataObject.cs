@@ -12,6 +12,8 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -26,15 +28,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         RestoreOptions RestoreOptions { get; }
 
-        string GetDefaultStandbyFile(string databaseName);
-        bool IsTailLogBackupPossible(string databaseName);
-        bool IsTailLogBackupWithNoRecoveryPossible(string databaseName);
+        string DefaultStandbyFile { get; }
+        bool IsTailLogBackupPossible { get; }
+        bool IsTailLogBackupWithNoRecoveryPossible { get; }
 
         bool TailLogWithNoRecovery { get; set; }
 
         string TailLogBackupFile { get; set; }
 
-        string GetDefaultTailLogbackupFile(string databaseName);
+        string DefaultTailLogbackupFile { get; }
 
         RestorePlan RestorePlan { get; }
 
@@ -43,22 +45,41 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         RestoreParams RestoreParams { get; set; }
 
         bool BackupTailLog { get; set; }
+
+        string DefaultSourceDbName { get; }
+
+        string SourceDatabaseName { get; set; }
+
+        List<String> SourceDbNames { get; }
+
+        bool CanChangeTargetDatabase { get; }
+
+        string DefaultTargetDbName { get; }
+        string TargetDatabaseName { get; set; }
+
+        bool CanDropExistingConnections { get; }
+
+
     }
     /// <summary>
     /// Includes the plan with all the data required to do a restore operation on server
     /// </summary>
-    public class RestoreDatabaseTaskDataObject : IRestoreDatabaseTaskDataObject
+    public class RestoreDatabaseTaskDataObject : SmoScriptableTaskOperation, IRestoreDatabaseTaskDataObject
     {
 
         private const char BackupMediaNameSeparator = ',';
         private DatabaseRestorePlanner restorePlanner;
         private string tailLogBackupFile;
         private BackupSetsFilterInfo backupSetsFilterInfo = new BackupSetsFilterInfo();
+        private bool? isTailLogBackupPossible = false;
+        private bool? isTailLogBackupWithNoRecoveryPossible = false;
+        private string backupMediaList = string.Empty;
+        private Server server;
 
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
             PlanUpdateRequired = true;
-            this.Server = server;
+            this.server = server;
             this.Util = new RestoreUtil(server);
             restorePlanner = new DatabaseRestorePlanner(server);
 
@@ -88,16 +109,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         public string SessionId { get; set; }
 
-        /// <summary>
-        /// Sql task assigned to the restore object
-        /// </summary>
-        public SqlTask SqlTask { get; set; }
-
-        public string TargetDatabase
+        public string TargetDatabaseName
         {
             get
             {
-                return string.IsNullOrEmpty(targetDbName) ? DefaultDbName : targetDbName;
+                return string.IsNullOrEmpty(targetDbName) ? DefaultSourceDbName : targetDbName;
             }
             set
             {
@@ -119,9 +135,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// Database names includes in the restore plan
         /// </summary>
         /// <returns></returns>
-        public List<String> GetSourceDbNames()
+        public List<String> SourceDbNames
         {
-            return Util.GetSourceDbNames(this.restorePlanner.BackupMediaList, this.CredentialName);
+            get
+            {
+                if (RestorePlanner.ReadHeaderFromMedia)
+                {
+                    return Util.GetSourceDbNames(this.restorePlanner.BackupMediaList, this.CredentialName);
+                }
+                else
+                {
+                    return Util.GetSourceDbNames();
+                }
+            }
         }
 
         /// <summary>
@@ -133,10 +159,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return Util.GetSourceDbNames();
         }
 
+        public bool CanChangeTargetDatabase
+        {
+            get
+            {
+                return DatabaseUtils.IsSystemDatabaseConnection(Server.ConnectionContext.DatabaseName);
+            }
+        }
+
+        public string DefaultTargetDbName
+        {
+            get
+            {
+                return Server.ConnectionContext.DatabaseName;
+            }
+        }
+
+
         /// <summary>
         /// Current sqlserver instance
         /// </summary>
-        public Server Server;
+        public override Server Server
+        {
+            get
+            {
+                return server;
+            }
+        }
 
         /// <summary>
         /// Recent exception that was thrown
@@ -152,6 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <param name="filePaths"></param>
         public void AddFiles(string filePaths)
         {
+            backupMediaList = filePaths;
             PlanUpdateRequired = true;
             if (!string.IsNullOrWhiteSpace(filePaths))
             {
@@ -169,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     }
                 }
 
-                var itemsToRemove = this.RestorePlanner.BackupMediaList.Where(x => !files.Contains(x.Name));
+                var itemsToRemove = this.RestorePlanner.BackupMediaList.Where(x => !files.Contains(x.Name)).ToList();
                 foreach (var item in itemsToRemove)
                 {
                     this.RestorePlanner.BackupMediaList.Remove(item);
@@ -199,7 +249,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 lastBackup = isTheLastOneSelected ?
                     string.Format(CultureInfo.CurrentCulture, SR.TheLastBackupTaken, (backupTimeStr)) : backupTimeStr;
             }
-            //TODO: find the selected one
             else if (GetFirstSelectedBackupSetIndex() == 0 && !this.RestorePlanner.RestoreToLastBackup)
             {
                 lastBackup = this.CurrentRestorePointInTime.Value.ToLongDateString() +
@@ -209,23 +258,36 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         }
 
+        public override void Execute(TaskExecutionMode mode)
+        {
+            UpdateRestoreTaskObject();
+
+            base.Execute(mode);
+        }
+
         /// <summary>
         /// Executes the restore operations
         /// </summary>
-        public void Execute()
+        public override void Execute()
         {
-            RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
-            
-            if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+            if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
             {
-                restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                // Restore Plan should be already created and updated at this point
+
+                RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
+
+                if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
                 {
-                    if (SqlTask != null)
+                    restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                     {
-                        SqlTask.AddMessage($"{e.Percent}%", SqlTaskStatus.InProgress);
-                    }
-                };
-                restorePlan.Execute();
+                        OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
+                    };
+                    restorePlan.Execute();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(SR.RestoreNotSupported);
             }
         }
 
@@ -349,7 +411,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         }
                         else
                         {
-                            this.dataFilesFolder = PathWrapper.GetDirectoryName(value);
+                            this.dataFilesFolder = PathWrapper.GetDirectoryName(value + PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext));
                         }
                         if (string.IsNullOrEmpty(this.dataFilesFolder))
                         {
@@ -397,7 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         }
                         else
                         {
-                            this.logFilesFolder = PathWrapper.GetDirectoryName(value);
+                            this.logFilesFolder = PathWrapper.GetDirectoryName(value + PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext));
                         }
                         if (string.IsNullOrEmpty(this.logFilesFolder))
                         {
@@ -419,32 +481,44 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns>
         /// 	<c>true</c> if [is tail log backup possible]; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsTailLogBackupPossible(string databaseName)
+        public bool IsTailLogBackupPossible
         {
-            if (this.Server.Version.Major < 9 || String.IsNullOrEmpty(this.restorePlanner.DatabaseName))
+            get
             {
-                return false;
-            }
+                if (!isTailLogBackupPossible.HasValue)
+                {
+                    if (this.Server.Version.Major < 9 || String.IsNullOrEmpty(this.restorePlanner.DatabaseName))
+                    {
+                        isTailLogBackupPossible = false;
+                    }
+                    else
+                    {
+                        Database db = this.Server.Databases[this.RestorePlanner.DatabaseName];
+                        if (db == null)
+                        {
+                            isTailLogBackupPossible = false;
+                        }
+                        else
+                        {
+                            db.Refresh();
+                            if (db.Status != DatabaseStatus.Normal && db.Status != DatabaseStatus.Suspect && db.Status != DatabaseStatus.EmergencyMode)
+                            {
+                                isTailLogBackupPossible = false;
+                            }
+                            else if (db.RecoveryModel == RecoveryModel.Full || db.RecoveryModel == RecoveryModel.BulkLogged)
+                            {
+                                isTailLogBackupPossible = true;
+                            }
+                            else
+                            {
+                                isTailLogBackupPossible = false;
+                            }
+                        }
+                    }
+                }
 
-            Database db = this.Server.Databases[databaseName];
-            if (db == null)
-            {
-                return false;
+                return isTailLogBackupPossible.Value;
             }
-            else
-            {
-                db.Refresh();
-            }
-
-            if (db.Status != DatabaseStatus.Normal && db.Status != DatabaseStatus.Suspect && db.Status != DatabaseStatus.EmergencyMode)
-            {
-                return false;
-            }
-            if (db.RecoveryModel == RecoveryModel.Full || db.RecoveryModel == RecoveryModel.BulkLogged)
-            {
-                return true;
-            }
-            return false;
         }
 
         /// <summary>
@@ -453,37 +527,56 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns>
         /// 	<c>true</c> if [is tail log backup with NORECOVERY possible]; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsTailLogBackupWithNoRecoveryPossible(string databaseName)
+        public bool IsTailLogBackupWithNoRecoveryPossible
         {
-            if (!IsTailLogBackupPossible(databaseName))
+            get
             {
-                return false;
+                if (!isTailLogBackupWithNoRecoveryPossible.HasValue)
+                {
+                    string databaseName = this.RestorePlanner.DatabaseName;
+                    if (!IsTailLogBackupPossible)
+                    {
+                        isTailLogBackupWithNoRecoveryPossible = false;
+                    }
+                    else
+                    {
+                        Database db = this.Server.Databases[databaseName];
+                        if (db == null)
+                        {
+                            isTailLogBackupWithNoRecoveryPossible = false;
+                        }
+                        else if (Server.Version.Major > 10 && db.DatabaseEngineType == DatabaseEngineType.Standalone && !String.IsNullOrEmpty(db.AvailabilityGroupName))
+                        {
+                            isTailLogBackupWithNoRecoveryPossible = false;
+                        }
+                        else if (db.DatabaseEngineType == DatabaseEngineType.Standalone && db.IsMirroringEnabled)
+                        {
+                            isTailLogBackupWithNoRecoveryPossible = false;
+                        }
+                        else
+                        {
+                            isTailLogBackupWithNoRecoveryPossible = true;
+                        }
+                    }
+                }
+                return isTailLogBackupWithNoRecoveryPossible.Value;
             }
-
-            Database db = this.Server.Databases[databaseName];
-            if (db == null)
-            {
-                return false;
-            }
-            if (Server.Version.Major > 10 && db.DatabaseEngineType == DatabaseEngineType.Standalone && !String.IsNullOrEmpty(db.AvailabilityGroupName))
-            {
-                return false;
-            }
-            if (db.DatabaseEngineType == DatabaseEngineType.Standalone && db.IsMirroringEnabled)
-            {
-                return false;
-            }
-            return true;
         }
 
-        public string GetDefaultStandbyFile(string databaseName)
+        public string DefaultStandbyFile
         {
-            return Util.GetDefaultStandbyFile(databaseName);
+            get
+            {
+                return Util.GetDefaultStandbyFile(this.RestorePlan != null ? this.RestorePlan.DatabaseName : string.Empty);
+            }
         }
 
-        public string GetDefaultTailLogbackupFile(string databaseName)
+        public string DefaultTailLogbackupFile
         {
-            return Util.GetDefaultTailLogbackupFile(databaseName);
+            get
+            {
+                return Util.GetDefaultTailLogbackupFile(this.RestorePlan != null ? this.RestorePlan.DatabaseName : string.Empty);
+            }
         }
 
         /// <summary>
@@ -581,10 +674,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             get
             {
-                if (this.restorePlan == null)
-                {
-                    this.UpdateRestorePlan();
-                }
                 return this.restorePlan;
             }
             internal set
@@ -601,13 +690,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <summary>
         /// The database from the backup file used to restore to by default
         /// </summary>
-        public string DefaultDbName
+        public string DefaultSourceDbName
         {
             get
             {
-                var dbNames = GetSourceDbNames();
+                var dbNames = SourceDbNames;
                 string dbName = dbNames.FirstOrDefault();
                 return dbName;
+            }
+        }
+
+        /// <summary>
+        /// Current value of source db name in the planner
+        /// </summary>
+        public string SourceDatabaseName
+        {
+            get
+            {
+                return this.RestorePlanner == null ? string.Empty : this.RestorePlanner.DatabaseName;
+            }
+            set
+            {
+                if(this.RestorePlanner != null)
+                {
+                    string currentDatabaseName = this.RestorePlanner.DatabaseName;
+                    this.RestorePlanner.DatabaseName = value;
+
+                    if (string.Compare(currentDatabaseName, value, StringComparison.InvariantCultureIgnoreCase) != 0)
+                    {
+                        ResetOptions();
+                    }
+                }
             }
         }
 
@@ -649,10 +762,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private string GetTargetDbFilePhysicalName(string sourceDbFilePhysicalLocation)
         {
             string fileName = Path.GetFileName(sourceDbFilePhysicalLocation);
-            if (!string.IsNullOrEmpty(this.DefaultDbName) && !string.IsNullOrEmpty(this.targetDbName))
+            if (!string.IsNullOrEmpty(this.DefaultSourceDbName) && !string.IsNullOrEmpty(this.targetDbName))
             {
                 string sourceFilename = fileName;
-                fileName = sourceFilename.Replace(this.DefaultDbName, this.targetDbName);
+                fileName = sourceFilename.Replace(this.DefaultSourceDbName, this.targetDbName);
             }
             return fileName;
         }
@@ -663,10 +776,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             foreach (Restore restore in RestorePlan.RestoreOperations)
             {
                 BackupSetInfo backupSetInfo = BackupSetInfo.Create(restore, Server);
-                if (this.backupSetsFilterInfo.IsBackupSetSelected(restore.BackupSet))
-                {
-                   
-                }
                 result.Add(backupSetInfo);
             }
 
@@ -701,20 +810,27 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             Database db = null;
             List<DbFile> ret = new List<DbFile>();
-            if (!this.RestorePlanner.ReadHeaderFromMedia)
+            try
             {
-                db = this.Server.Databases[this.RestorePlanner.DatabaseName];
+                if (!this.RestorePlanner.ReadHeaderFromMedia)
+                {
+                    db = this.Server.Databases[this.RestorePlanner.DatabaseName];
+                }
+                if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+                {
+                    if (db != null && db.Status == DatabaseStatus.Normal)
+                    {
+                        ret = this.Util.GetDbFiles(db);
+                    }
+                    else
+                    {
+                        ret = this.Util.GetDbFiles(restorePlan.RestoreOperations[0]);
+                    }
+                }
             }
-            if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+            catch(Exception ex )
             {
-                if (db != null && db.Status == DatabaseStatus.Normal)
-                {
-                    ret = this.Util.GetDbFiles(db);
-                }
-                else
-                {
-                    ret = this.Util.GetDbFiles(restorePlan.RestoreOperations[0]);
-                }
+                Logger.Write(LogLevel.Normal, $"Failed to get restore db files. error: {ex.Message}");
             }
             return ret;
         }
@@ -761,10 +877,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return ret;
         }
 
-        /// <summary>
-        /// Updates restore plan
-        /// </summary>
-        public void UpdateRestorePlan()
+        private void ResetOptions()
+        {
+            isTailLogBackupPossible = null;
+            isTailLogBackupWithNoRecoveryPossible = null;
+            bool isTailLogBackupPossibleValue = IsTailLogBackupPossible;
+            bool isTailLogBackupWithNoRecoveryPossibleValue = isTailLogBackupPossibleValue;
+        }
+
+        public void CreateNewRestorePlan()
         {
             this.ActiveException = null; //Clear any existing exceptions as the plan is getting recreated. 
                                          //Clear any existing exceptions as new plan is getting recreated.
@@ -781,16 +902,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 this.RestorePlan = this.CreateRestorePlan(this.RestorePlanner, this.RestoreOptions);
                 this.Util.AddCredentialNameForUrlBackupSet(this.restorePlan, this.CredentialName);
+
                 if (this.ActiveException == null)
                 {
                     this.dbFiles = this.GetDbFiles();
-                    UpdateDBFilesPhysicalRelocate();
 
-                    if (RelocateAllFiles)
-                    {
-                        UpdateDbFiles();
-                    }
-                    this.SetRestorePlanProperties(this.restorePlan);
+                    UpdateDBFilesPhysicalRelocate();
+                   
+
                 }
             }
             if (this.restorePlan == null)
@@ -798,6 +917,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 this.RestorePlan = new RestorePlan(this.Server);
                 this.Util.AddCredentialNameForUrlBackupSet(this.RestorePlan, this.CredentialName);
             }
+        }
+
+        public bool ShouldCreateNewPlan()
+        {
+            return string.Compare(RestorePlanner.DatabaseName, this.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.SourceDatabaseName), StringComparison.InvariantCultureIgnoreCase) != 0 ||
+                RestorePlanner.ReadHeaderFromMedia != this.RestoreParams.ReadHeaderFromMedia ||
+                string.Compare(this.backupMediaList, RestoreParams.BackupFilePaths, StringComparison.InvariantCultureIgnoreCase) != 0;
+        }
+
+        /// <summary>
+        /// Updates restore plan
+        /// </summary>
+        public void UpdateRestorePlan()
+        {
+            RestoreOptionsHelper.UpdateOptionsInPlan(this);
+            if (RelocateAllFiles)
+            {
+                UpdateDbFiles();
+            }
+            this.SetRestorePlanProperties(this.restorePlan);
 
             UpdateSelectedBackupSets();
         }
@@ -823,9 +962,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             rp.SetRestoreOptions(this.RestoreOptions);
             rp.CloseExistingConnections = this.CloseExistingConnections;
-            if (this.TargetDatabase != null && !this.TargetDatabase.Equals(string.Empty))
+            if (this.TargetDatabaseName != null && !this.TargetDatabaseName.Equals(string.Empty))
             {
-                rp.DatabaseName = TargetDatabase;
+                rp.DatabaseName = TargetDatabaseName;
             }
             rp.RestoreOperations[0].RelocateFiles.Clear();
             foreach (DbFile dbFile in this.DbFiles)
@@ -914,9 +1053,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
+        /// <summary>
+        /// Returns the restore plan error message
+        /// </summary>
+        public override string ErrorMessage
+        {
+            get
+            {
+                if (ActiveException != null)
+                {
+                    return ActiveException.Message;
+                }
+                return string.Empty;
+            }
+        }
 
-
-       
 
         private bool IsAnyFullBackupSetSelected()
         {
@@ -979,6 +1130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         // If the collection client sent is null, select everything; otherwise select the items that are selected in client
                         bool backupSetSelected = selectedBackupSetsFromClient == null || selectedBackupSetsFromClient.Any(x => BackUpSetGuidEqualsId(backupSet, x));
 
+
                         if (backupSetSelected)
                         {
                             AddBackupSetsToSelected(index, index);
@@ -1015,6 +1167,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             if (backupSet.BackupSetType == BackupSetType.Log)
                             {
                                 break;
+                            }
+
+                            //If the second item is not selected and it's a diff backup 
+                            if (index == 1 && backupSet.BackupSetType == BackupSetType.Differential)
+                            {
+                                if (this.Server.Version.Major < 9 || 
+                                    (this.RestorePlan.RestoreOperations.Count >= 3 && 
+                                    BackupSet.IsBackupSetsInSequence(this.RestorePlan.RestoreOperations[0].BackupSet, this.RestorePlan.RestoreOperations[2].BackupSet)))
+                                {
+                                    // only the item at index 1 won't be selected
+                                }
+                                else
+                                {
+                                    // nothing after index 1 should be selected
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1073,6 +1241,63 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Returns true if can close eixisting connections for give database
+        /// </summary>
+        public bool CanDropExistingConnections
+        {
+            get
+            {
+                if (RestorePlan != null && RestorePlanner != null)
+                {
+                    return RestorePlan.CanDropExistingConnections(RestorePlanner.DatabaseName);
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Cancels the restore operations
+        /// </summary>
+        public override void Cancel()
+        {
+            foreach (Restore restore in RestorePlan.RestoreOperations)
+            {
+                restore.Abort();
+            }
+        }
+
+        /// <summary>
+        /// Create a restore data object that includes the plan to do the restore operation
+        /// </summary>
+        /// <param name="requestParam"></param>
+        /// <returns></returns>
+        internal void UpdateRestoreTaskObject()
+        {
+            bool shouldCreateNewPlan = ShouldCreateNewPlan();
+
+            if (!string.IsNullOrEmpty(RestoreParams.BackupFilePaths) && RestoreParams.ReadHeaderFromMedia)
+            {
+                AddFiles(RestoreParams.BackupFilePaths);
+            }
+            else
+            {
+                RestorePlanner.BackupMediaList.Clear();
+            }
+            RestorePlanner.ReadHeaderFromMedia = RestoreParams.ReadHeaderFromMedia;
+
+            RestoreOptionFactory.Instance.SetAndValidate(RestoreOptionsHelper.SourceDatabaseName, this);
+            RestoreOptionFactory.Instance.SetAndValidate(RestoreOptionsHelper.TargetDatabaseName, this);
+
+            if (shouldCreateNewPlan)
+            {
+                CreateNewRestorePlan();
+            }
+
+            UpdateRestorePlan();
+
         }
     }
 }
