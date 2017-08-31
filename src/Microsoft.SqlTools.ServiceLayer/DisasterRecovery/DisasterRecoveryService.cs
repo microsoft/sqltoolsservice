@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -281,6 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
                    
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                    sqlTask.StatusChanged += CloseConnection;
                 }
                 else
                 {
@@ -350,6 +352,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             connectionInfo = null;
             return false;
+        }
+
+        private void CloseConnection(object sender, TaskEventArgs<SqlTaskStatus> e)
+        {
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null && sqlTask.IsCompleted)
+            {
+                connectionService.Disconnect(new DisconnectParams()
+                {
+                    OwnerUri = sqlTask.TaskMetadata.OwnerUri
+                });
+            }
         }
 
         private BackupOperation CreateBackupOperation(CDataContainer dataContainer, SqlConnection sqlConnection)

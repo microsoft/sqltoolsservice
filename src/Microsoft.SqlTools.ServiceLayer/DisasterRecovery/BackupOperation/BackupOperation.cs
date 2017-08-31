@@ -308,8 +308,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         }
                     }
                 }
-
-                
             }
             catch(Exception)
             {
