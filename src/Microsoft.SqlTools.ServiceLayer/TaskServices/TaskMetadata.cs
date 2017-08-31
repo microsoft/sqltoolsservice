@@ -47,6 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public ITaskOperation TaskOperation { get; set; }
 
         /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
         /// Creates task metadata given the request parameters
         /// </summary>
         /// <param name="requestParam">Request parameters</param>
@@ -84,6 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             taskMetadata.TaskExecutionMode = scriptableRequestParams.TaskExecutionMode;
 
             taskMetadata.TaskOperation = taskOperation;
+            taskMetadata.OwnerUri = requestParam.OwnerUri;
+
             return taskMetadata;
         }
        
