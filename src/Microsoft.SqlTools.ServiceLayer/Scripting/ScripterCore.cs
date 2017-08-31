@@ -338,8 +338,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     new Location {
                         Uri = tempFileName,
                         Range = new Range {
-                            Start = new Position { Line = lineNumber, Character = 1},
-                            End = new Position { Line = lineNumber + 1, Character = 1}
+                            Start = new Position { Line = lineNumber, Character = 0},
+                            End = new Position { Line = lineNumber + 1, Character = 0}
                         }
                     }
             };
