@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.IO;
 using Microsoft.SqlTools.Credentials.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
@@ -28,9 +29,15 @@ namespace Microsoft.SqlTools.Credentials
                     return;
                 }
 
+                string logFilePath = "credentials";
+                if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
+                {
+                    logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
+                }
+
                 // turn on Verbose logging during early development
                 // we need to switch to Normal when preparing for public preview
-                Logger.Initialize(minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
+                Logger.Initialize(logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
                 Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
 
                 // set up the host details and profile paths 

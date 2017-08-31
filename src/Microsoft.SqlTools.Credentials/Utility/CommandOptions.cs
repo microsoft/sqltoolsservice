@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.IO;
 
 namespace Microsoft.SqlTools.Credentials.Utility
 {
@@ -26,10 +27,18 @@ namespace Microsoft.SqlTools.Credentials.Utility
                     string arg = args[i];
                     if (arg.StartsWith("--") || arg.StartsWith("-"))
                     {
+                        if (arg.StartsWith("--"))
+                        {
+                            // Extracting arguments and properties
+                            arg = arg.Substring(1).ToLowerInvariant();
+                        }
                         switch (arg)
                         {
                             case "-enable-logging":
                                 EnableLogging = true;
+                                break;
+                            case "-log-dir":
+                                SetLoggingDirectory(args[++i]);
                                 break;
                             case "h":
                             case "-help":
@@ -65,9 +74,24 @@ namespace Microsoft.SqlTools.Credentials.Utility
         public bool EnableLogging { get; private set; }
 
         /// <summary>
+        /// Gets the directory where log files are output.
+        /// </summary>
+        public string LoggingDirectory { get; private set; }
+
+        /// <summary>
         /// Whether the program should exit immediately. Set to true when the usage is printed.
         /// </summary>
         public bool ShouldExit { get; private set; }
+
+        private void SetLoggingDirectory(string loggingDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(loggingDirectory))
+            {
+                return;
+            }
+
+            this.LoggingDirectory = Path.GetFullPath(loggingDirectory);
+        }
 
         /// <summary>
         /// Get the usage string describing command-line arguments for the program
