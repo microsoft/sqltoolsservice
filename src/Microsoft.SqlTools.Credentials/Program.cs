@@ -4,6 +4,7 @@
 
 using System;
 using Microsoft.SqlTools.Credentials.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.Credentials
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args);
+                CommandOptions commandOptions = new CommandOptions(args, "MicrosoftSqlToolsCredentials.exe");
                 if (commandOptions.ShouldExit)
                 {
                     return;

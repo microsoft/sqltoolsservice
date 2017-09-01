@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.Hosting.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Class used for internally passing results from a cell around.

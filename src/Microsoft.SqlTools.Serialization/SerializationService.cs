@@ -4,9 +4,12 @@
 //
 
 using System;
+using System.Composition;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Contracts;
+using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Serialization
@@ -15,34 +18,13 @@ namespace Microsoft.SqlTools.Serialization
     /// Service responsible for securing credentials in a platform-neutral manner. This provides
     /// a generic API for read, save and delete credentials
     /// </summary>
-    public class SerializationService
+    
+    [Export(typeof(IHostedService))]
+    public class SerializationService : HostedService<SerializationService>, IComposableService
     {
-        /// <summary>
-        /// Singleton service instance
-        /// </summary>
-        private static Lazy<SerializationService> instance
-            = new Lazy<SerializationService>(() => new SerializationService());
-
-        /// <summary>
-        /// Gets the singleton service instance
-        /// </summary>
-        public static SerializationService Instance
+        public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            get
-            {
-                return instance.Value;
-            }
-        }
-
-        /// <summary>
-        /// Default constructor is private since it's a singleton class
-        /// </summary>
-        private SerializationService()
-        {
-        }
-
-        public void InitializeService(IProtocolEndpoint serviceHost)
-        {
+            Logger.Write(LogLevel.Verbose, "Serialization initialized");
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(SaveAsRequest.Type, HandleSaveAsRequest);
         }

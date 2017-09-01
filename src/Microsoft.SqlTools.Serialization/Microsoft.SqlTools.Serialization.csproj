@@ -3,9 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <PackageId>MicrosoftSqlToolsSerialization</PackageId>
+    <PackageId>SqlSerializationService</PackageId>
     <Company>Microsoft</Company>
-    <Product>SqlTools Serialization Service</Product>
+    <Product>Sql Tools Serialization Service</Product>
     <Description>Provides serialization functionality.</Description>
     <Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
   </PropertyGroup>
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj" />
   </ItemGroup>
 
 </Project>

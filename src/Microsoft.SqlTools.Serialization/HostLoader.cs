@@ -49,8 +49,9 @@ namespace Microsoft.SqlTools.Serialization
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
-            SerializationService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(SerializationService.Instance);
+            SerializationService serializationService = serviceProvider.GetService<SerializationService>();
+            serializationService.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(serializationService);
 
             InitializeHostedServices(serviceProvider, serviceHost);
 

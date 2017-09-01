@@ -28,7 +28,6 @@
   <ItemGroup>
 	<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 	<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
-	<ProjectReference Include="../Microsoft.SqlTools.Serialization/Microsoft.SqlTools.Serialization.csproj" />
   </ItemGroup>
    <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />

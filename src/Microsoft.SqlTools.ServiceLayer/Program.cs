@@ -4,9 +4,10 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.IO;
+using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args);
+                ServiceLayerCommandOptions commandOptions = new ServiceLayerCommandOptions(args);
                 if (commandOptions.ShouldExit)
                 {
                     return;
