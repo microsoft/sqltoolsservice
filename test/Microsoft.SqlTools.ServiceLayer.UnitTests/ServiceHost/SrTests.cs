@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Security.Authentication.ExtendedProtection;
+using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
@@ -213,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         {
             string locale = "en";
             var args = new string[] { "--locale", locale };
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.Equal(SR.Culture.Name, options.Locale);
             Assert.Equal(options.Locale, locale);
 
@@ -226,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         {
             string locale = "es";
             var args = new string[] { "--locale", locale };
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.Equal(SR.Culture.Name, options.Locale);
             Assert.Equal(options.Locale, locale);
 
@@ -242,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         {
             SR.Culture = null;
             var args = new string[] { "" };
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.Null(SR.Culture);
             Assert.Equal(options.Locale, "");
 

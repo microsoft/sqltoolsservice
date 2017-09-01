@@ -11,7 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Microsoft.SqlTools.Hosting.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage

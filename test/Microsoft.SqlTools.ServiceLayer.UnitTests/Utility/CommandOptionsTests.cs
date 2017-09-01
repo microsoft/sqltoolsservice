@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.IO;
+using Microsoft.SqlTools.Hosting.Utility;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -18,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void LoggingEnabledWhenFlagProvided()
         {
             var args = new string[] {"--enable-logging"};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.NotNull(options);
 
             Assert.True(options.EnableLogging);
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void LoggingDisabledWhenFlagNotProvided()
         {
             var args = new string[] {};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.NotNull(options);
 
             Assert.False(options.EnableLogging);
@@ -42,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void UsageIsShownWhenHelpFlagProvided()
         {
             var args = new string[] {"--help"};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void UsageIsShownWhenBadArgumentsProvided()
         {
             var args = new string[] {"--unknown-argument", "/bad-argument"};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void DefaultValuesAreUsedWhenNoArgumentsAreProvided()
         {
             var args = new string[] {};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.NotNull(options);
    
             Assert.False(options.EnableLogging);
@@ -79,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void LocaleSetWhenProvided(string locale)
         {
             var args = new string[] {"--locale", locale};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args); ;
 
             // Asserting all options were properly set 
             Assert.NotNull(options);
@@ -92,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             string locale = "invalid";
             var args = new string[] { "--locale", locale };
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
 
             // Asserting all options were properly set 
             Assert.NotNull(options);
@@ -103,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void LocaleNotSetWhenNotProvided()
         {
             var args = new string[] {};
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
 
             // Asserting all options were properly set 
             Assert.NotNull(options);
@@ -117,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             string logDir = Directory.GetCurrentDirectory();
             var args = new string[] { "--log-dir", logDir };
-            CommandOptions options = new CommandOptions(args);
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
 
             // Asserting all options were properly set 
             Assert.NotNull(options);
