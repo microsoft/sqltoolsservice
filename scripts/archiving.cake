@@ -102,12 +102,13 @@ void CopyEulas(string runtime, string framework, string contentFolder, string pa
         "*.RTF", 
         SearchOption.AllDirectories).ToList();
 
-    foreach (var file in files) {
-        System.IO.File.Copy(
-            file,
-            System.IO.Path.Combine(
-                contentFolder,
-                System.IO.Path.GetFileName(file)));    
+    foreach (var file in files) 
+    {
+       var dest = System.IO.Path.Combine(contentFolder, System.IO.Path.GetFileName(file));
+       if (!System.IO.File.Exists(dest))
+       {
+           System.IO.File.Copy(file, dest);   
+       }
     }
 }
 
