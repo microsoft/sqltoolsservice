@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.Serialization
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args, "Microsoft.SqlTools.Serialization.exe");
+                CommandOptions commandOptions = new CommandOptions(args, "SqlSerializationService.exe");
                 if (commandOptions.ShouldExit)
                 {
                     return;

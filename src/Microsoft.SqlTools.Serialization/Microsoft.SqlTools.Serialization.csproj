@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <PackageId>SqlSerializationService</PackageId>
+    <AssemblyName>SqlSerializationService</AssemblyName>
     <Company>Microsoft</Company>
     <Product>Sql Tools Serialization Service</Product>
     <Description>Provides serialization functionality.</Description>
