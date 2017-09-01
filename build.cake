@@ -41,6 +41,7 @@ public class BuildPlan
     public string ArtifactsFolder { get; set; }
     public bool UseSystemDotNetPath { get; set; }
     public string DotNetFolder { get; set; }
+    public string PackageName { get; set; }
     public string DotNetInstallScriptURL { get; set; }
     public string DotNetChannel { get; set; }
     public string DotNetVersion { get; set; }
@@ -313,6 +314,7 @@ Task("OnlyPublish")
     .IsDependentOn("CodeGen")
     .Does(() =>
 {    
+	var packageName = buildPlan.PackageName;
     foreach (var project in buildPlan.MainProjects)
     {
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
@@ -320,7 +322,7 @@ Task("OnlyPublish")
         {
             foreach (var runtime in buildPlan.Rids)
             {
-                var outputFolder = System.IO.Path.Combine(publishFolder, project, runtime, framework);
+                var outputFolder = System.IO.Path.Combine(publishFolder, packageName, runtime, framework);
                 var publishArguments = "publish";
                 if (!runtime.Equals("default"))
                 {
@@ -337,11 +339,19 @@ Task("OnlyPublish")
                 {    
                     Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
                 }
-                if (requireArchive)
-                {
-                    Package(runtime, framework, outputFolder, packageFolder, project.ToLower(), workingDirectory);
-                }
             }
+        }
+
+        if (requireArchive)
+        {
+                foreach (var framework in buildPlan.Frameworks)
+                {
+                    foreach (var runtime in buildPlan.Rids)
+                    {
+                        var outputFolder = System.IO.Path.Combine(publishFolder, packageName, runtime, framework);
+                        Package(runtime, framework, outputFolder, packageFolder, packageName, workingDirectory);
+                    }
+                }
         }
         CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
     }    
