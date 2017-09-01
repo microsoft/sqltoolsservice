@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.Credentials
                     return;
                 }
 
-                string logFilePath = "sqltools";
+                string logFilePath = "credentials";
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);

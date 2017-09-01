@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.Serialization
     /// </summary>
     internal class Program
     {
-        /// <summary>s
+        /// <summary>
         /// Main entry point into the Serialization Service Host
         /// </summary>
         internal static void Main(string[] args)
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Serialization
                     return;
                 }
 
-                string logFilePath = "sqltools";
+                string logFilePath = "serialization";
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);

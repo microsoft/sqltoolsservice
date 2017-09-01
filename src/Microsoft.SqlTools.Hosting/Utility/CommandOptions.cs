@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
             {
                 if (!string.IsNullOrEmpty(ErrorMessage) || ShouldExit)
                 {
-                    Console.WriteLine((string) Usage);
+                    Console.WriteLine(Usage);
                     ShouldExit = true;
                 }
             }
