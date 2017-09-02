@@ -61,6 +61,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
+        internal string[] FileFilters
+        {
+            get
+            {
+                return this.fileFilters;
+            }
+        }
+
         public void PopulateFileTree()
         {
             this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
@@ -179,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// Filter a filename based on the full mask provide.  The full mask may be a collection a masks seperated by semi-colons.
         /// For example: *; *.txt
         /// </summary>
-        private bool FilterFile(string fileName, string[] masks)
+        internal bool FilterFile(string fileName, string[] masks)
         {
             for (int index = 0; index < masks.Length; index++)
             {

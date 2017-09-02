@@ -42,13 +42,13 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <summary>
         /// Separator string for components of the file path. Defaults to \ for Windows and / for Linux
         /// </summary>
-        public string PathSeparator { get; set; }
+        internal string PathSeparator { get; set; }
 
         /// <summary>
         /// Returns the PathSeparator values of the Server.
         /// </summary>
         /// <returns>PathSeparator</returns>
-        public static string GetPathSeparator(Enumerator sfcEnumerator, object sqlConnectionObject)
+        internal static string GetPathSeparator(Enumerator sfcEnumerator, object sqlConnectionObject)
         {
             var req = new Request();
             req.Urn = "Server";
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="enumerator"></param>
         /// <param name="sqlConnection"></param>
         /// <returns></returns>
-        public static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, object sqlConnection)
+        internal static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, object sqlConnection)
         {
             // if not supplied, server name will be obtained from urn
             Request req = new Request();
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="path"></param>
         /// <param name="isFolder"></param>
         /// <returns></returns>
-        static public bool IsPathExisting(Enumerator sfcEnumerator, object sqlConnectionObject, string path, out bool? isFolder)
+        internal static bool IsPathExisting(Enumerator sfcEnumerator, object sqlConnectionObject, string path, out bool? isFolder)
         {
             isFolder = null;
             var isValid = false;
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="sqlConnectionObject"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        static public IEnumerable<FileInfo> EnumerateFilesInFolder(Enumerator sfcEnumerator, object sqlConnectionObject, string path)
+        internal static IEnumerable<FileInfo> EnumerateFilesInFolder(Enumerator sfcEnumerator, object sqlConnectionObject, string path)
         {
             var request = new Request
             {

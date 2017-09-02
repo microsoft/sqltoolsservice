@@ -143,5 +143,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             // Verify complete notification event was fired and the result
             serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidateCompleteNotification.Type, It.Is<FileBrowserValidateCompleteParams>(p => p.Succeeded == true)), Times.Once());
         }
+
+        [Fact]
+        public async void InvalidFileValidationTest()
+        {
+            FileBrowserService service = new FileBrowserService();
+            service.RegisterValidatePathsCallback("TestService", ValidatePaths);
+
+            var validateParams = new FileBrowserValidateParams
+            {
+                // Do not pass any service so that the file validator will be null
+                ServiceType = "TestService",
+                SelectedFiles = new string[] { "" }
+            };
+
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            service.ServiceHost = serviceHostMock.Object;
+
+            // Validate files with null file validator
+            await service.RunFileBrowserValidateTask(validateParams);
+
+            // Verify complete notification event was fired and the result
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidateCompleteNotification.Type, It.Is<FileBrowserValidateCompleteParams>(p => p.Succeeded == false)), Times.Once());
+        }
+
+        #region private methods
+
+        private bool ValidatePaths(FileBrowserValidateEventArgs eventArgs)
+        {
+            return false;
+        }
+
+        #endregion
     }
 }
