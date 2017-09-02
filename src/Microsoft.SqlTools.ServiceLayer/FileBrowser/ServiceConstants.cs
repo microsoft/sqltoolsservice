@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.FileValidator
+namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
     /// <summary>
-    /// List of services that provide file validation implementation for file browser
+    /// List of services that provide file validation callback to file browser service
     /// </summary>
-    public static class ServiceConstants
+    public static class FileValidationServiceConstants
     {
         /// <summary>
         /// Backup

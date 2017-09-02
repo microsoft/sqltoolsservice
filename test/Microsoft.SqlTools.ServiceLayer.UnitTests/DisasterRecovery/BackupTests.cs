@@ -22,7 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                DisasterRecoveryService service = new DisasterRecoveryService();
                 var mockBackupOperation = new Mock<IBackupOperation>();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
                 SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
@@ -45,7 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                DisasterRecoveryService service = new DisasterRecoveryService();
                 var mockBackupOperation = new Mock<IBackupOperation>();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
                 taskMetaData.TaskExecutionMode = TaskExecutionMode.Script;
@@ -69,8 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         public async Task VerifyRunningMultipleBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
-            {   
-                DisasterRecoveryService service = new DisasterRecoveryService();
+            {
                 var mockBackupOperation = new Mock<IBackupOperation>();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(mockBackupOperation.Object);
 
@@ -103,7 +100,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             using (SqlTaskManager manager = new SqlTaskManager())
             {
                 IBackupOperation backupOperation = new BackupOperationStub();
-                DisasterRecoveryService service = new DisasterRecoveryService();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
                 SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);
                 Assert.NotNull(sqlTask);
@@ -129,7 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                DisasterRecoveryService service = new DisasterRecoveryService();
                 IBackupOperation backupOperation = new BackupOperationStub();
                 IBackupOperation backupOperation2 = new BackupOperationStub();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
@@ -171,7 +166,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             using (SqlTaskManager manager = new SqlTaskManager())
             {
-                DisasterRecoveryService service = new DisasterRecoveryService();
                 IBackupOperation backupOperation = new BackupOperationStub();
                 TaskMetadata taskMetaData = this.CreateTaskMetaData(backupOperation);
                 SqlTask sqlTask = manager.CreateTask<SqlTask>(taskMetaData);

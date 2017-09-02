@@ -4,15 +4,16 @@
 //
 
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser.FileValidator;
-using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -24,9 +25,17 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private static readonly Lazy<FileBrowserService> LazyInstance = new Lazy<FileBrowserService>(() => new FileBrowserService());
         public static FileBrowserService Instance => LazyInstance.Value;
 
-        // Caches file browser operation for expanding node request
+        // Cache file browser operations for expanding node request
         private Dictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new Dictionary<string, FileBrowserOperation>();
         private ConnectionService connectionService = null;
+
+        private Dictionary<string, ValidatePathsCallback> validatePathsCallbackMap { get; set; }
+
+        /// <summary>
+        /// Signature for callback method that validates the selected file paths
+        /// </summary>
+        /// <param name="eventArgs"></param>
+        public delegate bool ValidatePathsCallback(FileBrowserValidateEventArgs eventArgs);
 
         internal ConnectionService ConnectionServiceInstance
         {
@@ -45,12 +54,42 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         }
 
         /// <summary>
+        /// Service host object for sending/receiving requests/events.
+        /// Internal for testing purposes.
+        /// </summary>
+        internal IProtocolEndpoint ServiceHost
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public FileBrowserService()
+        {
+            this.validatePathsCallbackMap = new Dictionary<string, ValidatePathsCallback>();
+        }
+
+        /// <summary>
+        /// Register validate path callback
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="callback"></param>
+        public void RegisterValidatePathsCallback(string service, ValidatePathsCallback callback)
+        {
+            this.validatePathsCallbackMap.Add(service, callback);
+        }
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
+            this.ServiceHost = serviceHost;
+
             // Open a file browser
             serviceHost.SetRequestHandler(FileBrowserOpenRequest.Type, HandleFileBrowserOpenRequest);
 
@@ -64,120 +103,51 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             serviceHost.SetRequestHandler(FileBrowserCloseRequest.Type, HandleFileBrowserCloseRequest);
         }
 
+        #region request handlers
+
         internal async Task HandleFileBrowserOpenRequest(
             FileBrowserOpenParams fileBrowserParams,
-            RequestContext<FileBrowserOpenResponse> requestContext)
+            RequestContext<bool> requestContext)
         {
-            FileBrowserOpenResponse response = new FileBrowserOpenResponse();
-
             try
             {
-                ConnectionInfo connInfo;
-                this.ConnectionServiceInstance.TryFindConnection(
-                    fileBrowserParams.OwnerUri,
-                    out connInfo);
-
-                if (connInfo != null)
-                {
-                    SqlConnection sqlConn = GetSqlConnection(connInfo);
-                    FileBrowserOperation browser = new FileBrowserOperation(sqlConn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
-                    browser.PopulateFileTree();
-
-                    // Cache the file browser operation for expanding node request in the future
-                    this.ownerToFileBrowserMap.Add(fileBrowserParams.OwnerUri, browser);
-
-                    response.FileTree = browser.FileTree;
-                    response.Succeeded = true;
-                }
+                Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams));
+                await requestContext.SendResult(true);
             }
-            catch (Exception ex)
+            catch
             {
-                response.Succeeded = false;
-                response.Message = ex.Message;
+                await requestContext.SendResult(false);
             }
-
-            await requestContext.SendResult(response);
         }
 
         internal async Task HandleFileBrowserExpandRequest(
             FileBrowserExpandParams fileBrowserParams,
-            RequestContext<FileBrowserExpandResponse> requestContext)
+            RequestContext<bool> requestContext)
         {
-            FileBrowserExpandResponse response = new FileBrowserExpandResponse();
-
             try
             {
-                FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
-                if (browser != null)
-                {
-                    browser.ExpandSelectedNode(fileBrowserParams.ExpandPath);
-                    response.ExpandedNode = browser.FileTree.SelectedNode;
-                    response.Succeeded = true;
-                }
+                Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams));
+                await requestContext.SendResult(true);
             }
-            catch (Exception ex)
+            catch
             {
-                response.Succeeded = false;
-                response.Message = ex.Message;
+                await requestContext.SendResult(false);
             }
-
-            await requestContext.SendResult(response);
         }
 
         internal async Task HandleFileBrowserValidateRequest(
             FileBrowserValidateParams fileBrowserParams,
-            RequestContext<FileBrowserValidateResponse> requestContext)
+            RequestContext<bool> requestContext)
         {
-            FileBrowserValidateResponse response = new FileBrowserValidateResponse();
-
             try
             {
-                if (fileBrowserParams.SelectedFiles != null && fileBrowserParams.SelectedFiles.Length > 0)
-                {
-                    IFileValidator fileValidator = null;
-                    switch (fileBrowserParams.ServiceType)
-                    {
-                        case ServiceConstants.Backup:
-                        case ServiceConstants.Restore:
-                            ConnectionInfo connInfo;
-                            this.ConnectionServiceInstance.TryFindConnection(
-                                fileBrowserParams.OwnerUri,
-                                out connInfo);
-                            SqlConnection sqlConn = GetSqlConnection(connInfo);
-                            fileValidator = new DisasterRecoveryFileValidator(sqlConn,
-                                fileBrowserParams.ServiceType == ServiceConstants.Restore);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (fileValidator != null)
-                    {
-                        string errorMessage = "";
-                        fileValidator.ValidatePaths(fileBrowserParams.SelectedFiles, out errorMessage);
-                        if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            response.Succeeded = false;
-                            response.Message = errorMessage;
-                        }
-                        else
-                        {
-                            response.Succeeded = true;
-                        }
-                    }
-                    else
-                    {
-                        response.Succeeded = true;
-                    }
-                }
+                Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams));
+                await requestContext.SendResult(true);
             }
-            catch (Exception ex)
+            catch
             {
-                response.Succeeded = false;
-                response.Message = ex.Message;
+                await requestContext.SendResult(false);
             }
-
-            await requestContext.SendResult(response);
         }
 
         internal async Task HandleFileBrowserCloseRequest(
@@ -193,30 +163,96 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             await requestContext.SendResult(response);
         }
 
-        internal static SqlConnection GetSqlConnection(ConnectionInfo connInfo)
+        #endregion
+
+        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams)
         {
+            FileBrowserOpenCompleteParams result = new FileBrowserOpenCompleteParams();
+
             try
             {
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+                ConnectionInfo connInfo;
+                this.ConnectionServiceInstance.TryFindConnection(
+                    fileBrowserParams.OwnerUri,
+                    out connInfo);
+                DbConnection dbConn = null;
+                connInfo.TryGetConnection(ConnectionType.Default, out dbConn);
+                SqlConnection conn = ReliableConnectionHelper.GetAsSqlConnection((IDbConnection)dbConn);
 
-                // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString);
-                sqlConn.Open();
-                return sqlConn;
+                if (conn != null)
+                {
+                    FileBrowserOperation browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
+                    browser.PopulateFileTree();
+                    this.ownerToFileBrowserMap.Add(fileBrowserParams.OwnerUri, browser);
+                    result.FileTree = browser.FileTree;
+                    result.Succeeded = true;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                result.Succeeded = false;
+                result.Message = ex.Message;
             }
 
-            return null;
+            await ServiceHost.SendEvent(FileBrowserOpenCompleteNotification.Type, result);
+        }
+
+        internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams)
+        {
+            FileBrowserExpandCompleteParams result = new FileBrowserExpandCompleteParams();
+            try
+            {
+                FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
+                if (browser != null)
+                {
+                    browser.ExpandSelectedNode(fileBrowserParams.ExpandPath);
+                    result.ExpandedNode = browser.FileTree.SelectedNode;
+                    result.Succeeded = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Message = ex.Message;
+            }
+
+            await ServiceHost.SendEvent(FileBrowserExpandCompleteNotification.Type, result);
+        }
+
+        internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams)
+        {
+            FileBrowserValidateCompleteParams result = new FileBrowserValidateCompleteParams();
+
+            try
+            {
+                if (this.validatePathsCallbackMap.ContainsKey(fileBrowserParams.ServiceType)
+                    && this.validatePathsCallbackMap[fileBrowserParams.ServiceType] != null
+                    && fileBrowserParams.SelectedFiles != null
+                    && fileBrowserParams.SelectedFiles.Length > 0)
+                {
+                    result.Succeeded = this.validatePathsCallbackMap[fileBrowserParams.ServiceType](new FileBrowserValidateEventArgs
+                    {
+                        ServiceType = fileBrowserParams.ServiceType,
+                        OwnerUri = fileBrowserParams.OwnerUri,
+                        FilePaths = fileBrowserParams.SelectedFiles
+                    });
+                }
+                else
+                {
+                    result.Succeeded = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Message = ex.Message;
+            }
+
+            await ServiceHost.SendEvent(FileBrowserValidateCompleteNotification.Type, result);
         }
     }
 }

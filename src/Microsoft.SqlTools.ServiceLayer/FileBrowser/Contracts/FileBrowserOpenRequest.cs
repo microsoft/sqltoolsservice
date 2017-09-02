@@ -29,34 +29,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     }
 
     /// <summary>
-    /// Response for opening/filtering a file browser
-    /// Returns full directory structure on the server side
-    /// </summary>
-    public class FileBrowserOpenResponse
-    {
-        /// <summary>
-        /// Entire file/folder tree 
-        /// </summary>
-        public FileTree FileTree;
-
-        /// <summary>
-        /// Result of the operation
-        /// </summary>
-        public bool Succeeded;
-
-        /// <summary>
-        /// Error message
-        /// </summary>
-        public string Message;
-    }
-
-    /// <summary>
     /// Request to open a file browser
     /// </summary>
     public class FileBrowserOpenRequest
     {
         public static readonly
-            RequestType<FileBrowserOpenParams, FileBrowserOpenResponse> Type =
-                RequestType<FileBrowserOpenParams, FileBrowserOpenResponse>.Create("filebrowser/open");
+            RequestType<FileBrowserOpenParams, bool> Type =
+                RequestType<FileBrowserOpenParams, bool>.Create("filebrowser/open");
     }
 }

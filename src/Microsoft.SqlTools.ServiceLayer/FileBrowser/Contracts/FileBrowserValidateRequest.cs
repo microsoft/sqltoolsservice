@@ -28,28 +28,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     }
 
     /// <summary>
-    /// Response for validation
-    /// </summary>
-    public class FileBrowserValidateResponse
-    {
-        /// <summary>
-        /// Result of the operation
-        /// </summary>
-        public bool Succeeded;
-
-        /// <summary>
-        /// Error message if any
-        /// </summary>
-        public string Message;
-    }
-
-    /// <summary>
     /// Requst to validate the selected file paths
     /// </summary>
     class FileBrowserValidateRequest
     {
         public static readonly
-            RequestType<FileBrowserValidateParams, FileBrowserValidateResponse> Type =
-                RequestType<FileBrowserValidateParams, FileBrowserValidateResponse>.Create("filebrowser/validate");
+            RequestType<FileBrowserValidateParams, bool> Type =
+                RequestType<FileBrowserValidateParams, bool>.Create("filebrowser/validate");
     }
 }
