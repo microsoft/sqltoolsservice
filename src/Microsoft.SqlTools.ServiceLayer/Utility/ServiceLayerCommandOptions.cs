@@ -9,7 +9,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     class ServiceLayerCommandOptions : CommandOptions
     {
-        private static string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
+        private const string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
+
         public ServiceLayerCommandOptions(string[] args) : base(args, ServiceLayerServiceName)
         {
         }
@@ -19,6 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             try
             {
                 LocaleSetter(locale);
+
                 // Setting our internal SR culture to our global culture
                 SR.Culture = CultureInfo.CurrentCulture;
             }

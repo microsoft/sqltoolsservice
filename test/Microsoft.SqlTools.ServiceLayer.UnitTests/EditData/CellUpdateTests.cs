@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;

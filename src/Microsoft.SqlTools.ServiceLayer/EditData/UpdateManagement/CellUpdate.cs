@@ -6,7 +6,6 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;

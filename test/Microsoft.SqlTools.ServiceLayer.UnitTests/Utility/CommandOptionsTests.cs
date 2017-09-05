@@ -4,9 +4,8 @@
 //
 
 using System.IO;
-using Microsoft.SqlTools.Hosting.Utility;
-using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {

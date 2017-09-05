@@ -71,6 +71,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
             }
         }
 
+        /// <summary>
+        /// Contains any error messages during execution
+        /// </summary>
         public string ErrorMessage { get; private set; }
 
 
@@ -142,7 +145,12 @@ namespace Microsoft.SqlTools.Hosting.Utility
             }
         }
 
-        public void LocaleSetter(string locale)
+        /// <summary>
+        /// Sets the Locale field used for testing and also sets the global CultureInfo used for
+        /// culture-specific messages
+        /// </summary>
+        /// <param name="locale"></param>
+        internal void LocaleSetter(string locale)
         {
             // Creating cultureInfo from our given locale
             CultureInfo language = new CultureInfo(locale);

@@ -15,6 +15,8 @@ namespace Microsoft.SqlTools.Serialization
     /// </summary>
     internal class Program
     {
+        private const string ServiceName = "SqlSerializationService.exe";
+
         /// <summary>
         /// Main entry point into the Serialization Service Host
         /// </summary>
@@ -23,7 +25,7 @@ namespace Microsoft.SqlTools.Serialization
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args, "SqlSerializationService.exe");
+                CommandOptions commandOptions = new CommandOptions(args, ServiceName);
                 if (commandOptions.ShouldExit)
                 {
                     return;
