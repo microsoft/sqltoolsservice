@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text.RegularExpressions;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;

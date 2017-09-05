@@ -4,8 +4,6 @@
 //
 using System;
 using System.Collections.Concurrent;
-using System.Data.Common;
-using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
