@@ -42,6 +42,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private Dictionary<string, string> sqlObjectTypesFromQuickInfo = new Dictionary<string, string>();
 
+        private Dictionary<DatabaseEngineEdition, string> targetDatabaseEngineEditionMap = new Dictionary<DatabaseEngineEdition, string>();
+
+        private Dictionary<int, string> serverVersionMap = new Dictionary<int, string>();
+
         /// <summary>
         /// Initialize a Peek Definition helper object
         /// </summary>
@@ -265,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
-            ScriptingScriptOperation operation = CreateScriptOperation(objectName, schemaName, objectType, tempFileName);
+            ScriptingScriptOperation operation = InitScriptOperation(objectName, schemaName, objectType, tempFileName);
             operation.Execute();
 
             // If the scripting was successful, we should see a file with the scripts
@@ -279,7 +283,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     while((line = scriptFile.ReadLine()) != null) 
                     {
                         string createSyntax = string.Format("CREATE {0}", objectType);
-                        if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0)
+                        if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
                         {
                             lineNumber = lineCount;
                         }
@@ -440,8 +445,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectType"></param>
         /// <param name="tempFileName"></param>
         /// <returns></returns>
-        internal ScriptingScriptOperation CreateScriptOperation(string objectName, string schemaName, string objectType, string tempFileName)
-        {
+        internal ScriptingScriptOperation InitScriptOperation(string objectName, string schemaName, string objectType, string tempFileName)
+        {            
             // object that has to be scripted
             ScriptingObject obj = new ScriptingObject {
                 Name = objectName,
@@ -454,9 +459,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 			    ScriptCreateDrop = "ScriptCreate",
 			    TypeOfDataToScript = "SchemaOnly",
 			    ScriptStatistics = "ScriptStatsNone",
-			    TargetDatabaseEngineEdition = "SqlServerEnterpriseEdition",
-			    TargetDatabaseEngineType = "SingleInstance",
-			    ScriptCompatibilityOption = "Script140Compat",
+			    TargetDatabaseEngineEdition = GetTargetDatabaseEngineEdition(),
+			    TargetDatabaseEngineType = GetTargetDatabaseEngineType(),
+			    ScriptCompatibilityOption = GetScriptCompatibilityOption(),
                 IncludeIfNotExists = true
 		    };
 
@@ -466,6 +471,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             objList.Add(obj);
 
             // create parameters for the scripting operation
+
             ScriptingParams parameters = new ScriptingParams {
                 FilePath = tempFileName,
                 ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
@@ -475,6 +481,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             };
 
             return new ScriptingScriptOperation(parameters);
+        }
+
+        internal string GetTargetDatabaseEngineEdition() 
+        {
+            DatabaseEngineEdition dbEngineEdition = this.serverConnection.DatabaseEngineEdition;
+            string dbEngineEditionString = targetDatabaseEngineEditionMap[dbEngineEdition];
+            return (dbEngineEditionString != null) ? dbEngineEditionString : "SqlServerEnterpriseEdition";
+        }
+
+        internal string GetScriptCompatibilityOption()
+        {
+            int serverVersion = this.serverConnection.ServerVersion.Major;
+            string dbEngineTypeString = serverVersionMap[serverVersion];
+            return (dbEngineTypeString != null) ? dbEngineTypeString : "Script140Compat";
+        }
+
+        internal string GetTargetDatabaseEngineType()
+        {
+           return connectionInfo.IsAzure ? "SqlAzure" : "SingleInstance";
         }
         #endregion
     }

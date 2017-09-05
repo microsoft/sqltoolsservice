@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     // any extraneous slashes
                     Uri fileUri = new Uri(filePath);
                     filePath = fileUri.LocalPath;
-                    if (filePath.StartsWith("//") || filePath.StartsWith("\\\\")) 
+                    if (filePath.StartsWith("//") || filePath.StartsWith("\\\\") || filePath.StartsWith("/")) 
                     {
                         filePath = filePath.Substring(1);
                     }

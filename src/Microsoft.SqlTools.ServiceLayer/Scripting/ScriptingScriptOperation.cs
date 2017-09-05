@@ -138,23 +138,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
-            this.SetCommomEventProperties(parameters);
+            this.SetCommonEventProperties(parameters);
             this.CompleteNotification?.Invoke(this, parameters);
         }
 
         private void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
         {
-            this.SetCommomEventProperties(parameters);
+            this.SetCommonEventProperties(parameters);
             this.PlanNotification?.Invoke(this, parameters);
         }
 
         private void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
-            this.SetCommomEventProperties(parameters);
+            this.SetCommonEventProperties(parameters);
             this.ProgressNotification?.Invoke(this, parameters);
         }
 
-        private void SetCommomEventProperties(ScriptingEventParams parameters)
+        private void SetCommonEventProperties(ScriptingEventParams parameters)
         {
             parameters.OperationId = this.OperationId;
             parameters.SequenceNumber = this.eventSequenceNumber;

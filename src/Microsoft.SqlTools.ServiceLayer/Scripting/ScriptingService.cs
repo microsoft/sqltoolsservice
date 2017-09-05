@@ -93,6 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
+            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
             serviceHost.SetRequestHandler(ScriptingRequest.Type, HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -126,6 +127,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         /// <summary>
+        /// Handles script as request
+        /// </summary>
+        public async Task HandleScriptingScriptAsRequest(ScriptingScriptAsParams parameters, RequestContext<ScriptingScriptAsResult> requestContext)
+        {
+            try 
+            {
+                ConnectionInfo connectionInfo;
+                ScriptingService.ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connectionInfo);
+                string connString = ConnectionService.BuildConnectionString(connectionInfo.ConnectionDetails);
+                ScriptingParams scriptingParams = new ScriptingParams {
+                    ConnectionString = connString,
+                    FilePath = @"C:\Users\adbist\Desktop\script.txt"
+                };
+                ScriptingScriptOperation operation = new ScriptingScriptOperation(scriptingParams);
+                string filePath = @"C:\Users\adbist\Desktop\script.txt";
+                operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
+                operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
+                operation.CompleteNotification += (sender, e) => 
+                    this.SendScriptAsCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, parameters.OwnerUri, filePath);
+
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
         /// Handles request to execute start the script operation.
         /// </summary>
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
@@ -140,11 +171,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
                 operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
                 operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
-                operation.CompleteNotification += (sender, e) => this.SendEvent(requestContext, ScriptingCompleteEvent.Type, e);
+                operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation);
 
                 RunTask(requestContext, operation);
                 
-                await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
             }
             catch (Exception e)
             {
@@ -177,6 +207,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
+        private async void SendScriptAsCompleteEvent<TParams>(RequestContext<ScriptingScriptAsResult> requestContext, EventType<TParams> eventType, TParams parameters, string ownerUri, string filePath)
+        {
+            await Task.Run(async () =>
+            {
+                // first send the event
+                await requestContext.SendEvent(eventType, parameters);
+
+                string script = "";
+                // read the file and extract the script string from it
+                if (File.Exists(filePath))
+                {
+                    script = File.ReadAllText(filePath);
+                    File.Delete(filePath);
+                }
+
+                // send the result back 
+                await requestContext.SendResult(new ScriptingScriptAsResult 
+                { 
+                    OwnerUri = ownerUri,
+                    Script = script
+                });
+            });
+        }
+
+        private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, ScriptingScriptOperation operation)
+        {
+            await Task.Run(async () => 
+            {
+                await requestContext.SendEvent(eventType, parameters);
+                await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+            });
+        }
+
         /// <summary>
         /// Sends a JSON-RPC event.
         /// </summary>
@@ -190,21 +253,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-            try
+            Task.Run(() =>
             {
-                Debug.Assert(!this.ActiveOperations.ContainsKey(operation.OperationId), "Operation id must be unique");
-                this.ActiveOperations[operation.OperationId] = operation;
-                operation.Execute();
-            }
-            catch (Exception e)
-            {
-                context.SendError(e);
-            }
-            finally
-            {
-                ScriptingOperation temp;
-                this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-            }
+                try
+                {
+                    Debug.Assert(!this.ActiveOperations.ContainsKey(operation.OperationId), "Operation id must be unique");
+                    this.ActiveOperations[operation.OperationId] = operation;
+                    operation.Execute();
+                }
+                catch (Exception e)
+                {
+                    context.SendError(e);
+                }
+                finally
+                {
+                    ScriptingOperation temp;
+                    this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+                }
+            });
         }
 
         /// <summary>
