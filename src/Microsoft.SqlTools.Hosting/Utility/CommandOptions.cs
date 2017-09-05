@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
                     "        [--log-dir **] (default: current directory)" + Environment.NewLine +
                     "        [--help]" + Environment.NewLine +
                     "        [--locale **] (default: 'en')" + Environment.NewLine,
-                    (object) ErrorMessage);
+                    ErrorMessage);
                 return str;
             }
         }
