@@ -53,10 +53,16 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             var req = new Request();
             req.Urn = "Server";
             req.Fields = new[] { "PathSeparator" };
-
             DataSet ds = sfcEnumerator.Process(sqlConnectionObject, req);
+            string pathSeparator = @"\";
 
-            return Convert.ToString(ds.Tables[0].Rows[0][0], System.Globalization.CultureInfo.InvariantCulture);
+            if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                pathSeparator = Convert.ToString(ds.Tables[0].Rows[0][0], System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            ds.Dispose();
+            return pathSeparator;
         }
 
         /// <summary>
@@ -83,14 +89,17 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 ds = enumerator.Process(sqlConnection, req);
-                nItems = ds.Tables[0].Rows.Count;
-
-                if (0 < nItems)
+                if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
                 {
-                    clustered = Convert.ToBoolean(ds.Tables[0].Rows[0][0],
-                        CultureInfo.InvariantCulture);
-                    pathSeparator = Convert.ToString(ds.Tables[0].Rows[0][1], CultureInfo.InvariantCulture);
-                    hostPlatform = Convert.ToString(ds.Tables[0].Rows[0][2], CultureInfo.InvariantCulture);
+                    nItems = ds.Tables[0].Rows.Count;
+
+                    if (0 < nItems)
+                    {
+                        clustered = Convert.ToBoolean(ds.Tables[0].Rows[0][0],
+                            CultureInfo.InvariantCulture);
+                        pathSeparator = Convert.ToString(ds.Tables[0].Rows[0][1], CultureInfo.InvariantCulture);
+                        hostPlatform = Convert.ToString(ds.Tables[0].Rows[0][2], CultureInfo.InvariantCulture);
+                    }
                 }
             }
             catch (UnknownPropertyEnumeratorException)
@@ -103,53 +112,31 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             req.Urn = clustered ? "Server/AvailableMedia[@SharedDrive=true()]" : "Server/Drive";
             req.Fields = new[] { "Name" };
             ds = enumerator.Process(sqlConnection, req);
-            nItems = ds.Tables[0].Rows.Count;
-            for (i = 0; i < nItems; i++)
-            {
-                var fileInfo = new FileInfo
-                {
-                    fileName = "",
-                    path =
-                        Convert.ToString(ds.Tables[0].Rows[i][0], System.Globalization.CultureInfo.InvariantCulture)
-                };
 
-                // if we're looking at shared devices on a clustered server
-                // they already have \ on the drive
-                // sys.dm_os_enumerate_fixed_drives appends a \ on Windows for sql17+
-                if (!clustered && hostPlatform == HostPlatformNames.Windows && !fileInfo.path.EndsWith(pathSeparator))
+            if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            {
+                nItems = ds.Tables[0].Rows.Count;
+                for (i = 0; i < nItems; i++)
                 {
-                    fileInfo.path += pathSeparator;
+                    var fileInfo = new FileInfo
+                    {
+                        fileName = "",
+                        path = Convert.ToString(ds.Tables[0].Rows[i][0], System.Globalization.CultureInfo.InvariantCulture)
+                    };
+
+                    // if we're looking at shared devices on a clustered server
+                    // they already have \ on the drive
+                    // sys.dm_os_enumerate_fixed_drives appends a \ on Windows for sql17+
+                    if (!clustered && hostPlatform == HostPlatformNames.Windows && !fileInfo.path.EndsWith(pathSeparator))
+                    {
+                        fileInfo.path += pathSeparator;
+                    }
+
+                    yield return fileInfo;
                 }
-                yield return fileInfo;
             }
-        }
 
-        /// <summary>
-        /// Determines if the given path exists
-        /// </summary>
-        /// <param name="sfcEnumerator"></param>
-        /// <param name="sqlConnectionObject"></param>
-        /// <param name="root">The root drive portion of the path. Will be / for Linux, a drive letter like C:\ for Windows</param>
-        /// <param name="path"></param>
-        /// <param name="isFolder"></param>
-        /// <returns></returns>
-        internal static bool IsPathExisting(Enumerator sfcEnumerator, object sqlConnectionObject, string path, out bool? isFolder)
-        {
-            isFolder = null;
-            var isValid = false;
-            var request = new Request
-            {
-                Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']",
-                Fields = new[] { "IsFile" }
-            };
-
-            DataSet dataSet = sfcEnumerator.Process(sqlConnectionObject, request);
-            if (dataSet.Tables[0].Rows.Count == 1)
-            {
-                isFolder = !Convert.ToBoolean(dataSet.Tables[0].Rows[0][0], CultureInfo.InvariantCulture);
-                isValid = true;
-            }
-            return isValid;
+            ds.Dispose();
         }
 
         /// <summary>
@@ -178,16 +165,33 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 }
             };
 
-            DataSet dataSet = sfcEnumerator.Process(sqlConnectionObject, request);
-            return from row in dataSet.Tables[0].Rows.Cast<DataRow>()
-                let isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture)
-                select new FileInfo
+            DataSet ds = sfcEnumerator.Process(sqlConnectionObject, request);
+            if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows.Cast<DataRow>())
                 {
-                    path = isFile ? path : Convert.ToString((object)row[2], CultureInfo.InvariantCulture),
-                    fileName = isFile ? Convert.ToString((object)row[0], CultureInfo.InvariantCulture) : String.Empty,
-                    folderName = isFile ? String.Empty : Convert.ToString((object)row[0], CultureInfo.InvariantCulture),
-                    fullPath = isFile ? Convert.ToString((object)row[2], CultureInfo.InvariantCulture) : String.Empty
-                };
+                    bool isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture);
+                    yield return new FileInfo
+                    {
+                        path = isFile ? path : Convert.ToString((object)row[2], CultureInfo.InvariantCulture),
+                        fileName = isFile ? Convert.ToString((object)row[0], CultureInfo.InvariantCulture) : String.Empty,
+                        folderName = isFile ? String.Empty : Convert.ToString((object)row[0], CultureInfo.InvariantCulture),
+                        fullPath = isFile ? Convert.ToString((object)row[2], CultureInfo.InvariantCulture) : String.Empty
+                    };
+                }
+            }
+
+            ds.Dispose();
+
+            //return from row in ds.Tables[0].Rows.Cast<DataRow>()
+            //       let isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture)
+            //       select new FileInfo
+            //       {
+            //           path = isFile ? path : Convert.ToString((object)row[2], CultureInfo.InvariantCulture),
+            //           fileName = isFile ? Convert.ToString((object)row[0], CultureInfo.InvariantCulture) : String.Empty,
+            //           folderName = isFile ? String.Empty : Convert.ToString((object)row[0], CultureInfo.InvariantCulture),
+            //           fullPath = isFile ? Convert.ToString((object)row[2], CultureInfo.InvariantCulture) : String.Empty
+            //       };
         }
     }
 }

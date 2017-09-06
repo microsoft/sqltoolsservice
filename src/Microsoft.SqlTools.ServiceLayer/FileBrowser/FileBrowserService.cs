@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// Signature for callback method that validates the selected file paths
         /// </summary>
         /// <param name="eventArgs"></param>
-        public delegate bool ValidatePathsCallback(FileBrowserValidateEventArgs eventArgs);
+        public delegate bool ValidatePathsCallback(FileBrowserValidateEventArgs eventArgs, out string errorMessage);
 
         internal ConnectionService ConnectionServiceInstance
         {
@@ -234,12 +234,18 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     && fileBrowserParams.SelectedFiles != null
                     && fileBrowserParams.SelectedFiles.Length > 0)
                 {
+                    string errorMessage;
                     result.Succeeded = this.validatePathsCallbackMap[fileBrowserParams.ServiceType](new FileBrowserValidateEventArgs
                     {
                         ServiceType = fileBrowserParams.ServiceType,
                         OwnerUri = fileBrowserParams.OwnerUri,
                         FilePaths = fileBrowserParams.SelectedFiles
-                    });
+                    }, out errorMessage);
+
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        result.Message = errorMessage;
+                    }
                 }
                 else
                 {

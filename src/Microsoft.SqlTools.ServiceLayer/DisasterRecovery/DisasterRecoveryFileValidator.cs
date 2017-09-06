@@ -5,16 +5,16 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -26,65 +26,83 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private const string localSqlServer = "(local)";
         private const string localMachineName = ".";
 
-        public static bool ValidatePaths(FileBrowserValidateEventArgs args)
+        public static bool ValidatePaths(FileBrowserValidateEventArgs args, out string errorMessage)
         {
+            errorMessage = "";
             bool result = true;
-            string errorMessage = "";
             DbConnection dbConn = null;
             ConnectionInfo connInfo;
 
-            ConnectionService.Instance.TryFindConnection(args.OwnerUri, out connInfo);
-            if (connInfo != null)
+            if (args != null)
             {
-                connInfo.TryGetConnection(Connection.ConnectionType.Default, out dbConn);
-                SqlConnection conn = ReliableConnectionHelper.GetAsSqlConnection(dbConn);
-                ServerConnection serverConnection = new ServerConnection(conn);
-
-                bool isLocal = false;
-                if (string.Compare(GetMachineName(serverConnection.ServerInstance), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
+                ConnectionService.Instance.TryFindConnection(args.OwnerUri, out connInfo);
+                SqlConnection conn = null;
+                ServerConnection serverConnection = null;
+                if (connInfo != null)
                 {
-                    isLocal = true;
-                }
-
-                foreach (string filePath in args.FilePaths)
-                {
-                    bool IsFolder = false;
-                    bool Existing = IsPathExisting(serverConnection, filePath, ref IsFolder);
-
-                    if (Existing)
+                    connInfo.TryGetConnection(Connection.ConnectionType.Default, out dbConn);
+                    if (dbConn != null)
                     {
-                        if (IsFolder)
+                        conn = ReliableConnectionHelper.GetAsSqlConnection(dbConn);
+                        if (conn != null)
                         {
-                            errorMessage = string.Format(SR.BackupPathIsFolderError, filePath);
-                            result = false;
-                            break;
+                            serverConnection = new ServerConnection(conn);
                         }
                     }
-                    else
+                }
+
+                if (serverConnection != null)
+                {
+                    bool isLocal = false;
+                    if (string.Compare(GetMachineName(serverConnection.ServerInstance), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
                     {
-                        // If the file path doesn't exist, check if the folder exists
-                        string folderPath = PathWrapper.GetDirectoryName(filePath);
-                        if (isLocal)
+                        isLocal = true;
+                    }
+
+                    foreach (string filePath in args.FilePaths)
+                    {
+                        bool IsFolder = false;
+                        bool Existing = IsPathExisting(serverConnection, filePath, ref IsFolder);
+
+                        if (Existing)
                         {
-                            if (!string.IsNullOrEmpty(folderPath) && !Directory.Exists(folderPath))
+                            if (IsFolder)
                             {
-                                errorMessage = string.Format(SR.InvalidBackupPathError, folderPath);
+                                errorMessage = string.Format(SR.BackupPathIsFolderError, filePath);
                                 result = false;
                                 break;
                             }
                         }
                         else
                         {
-                            bool isFolderOnRemote = true;
-                            bool existsOnRemote = IsPathExisting(serverConnection, folderPath, ref isFolderOnRemote);
-                            if (!existsOnRemote)
+                            // If the file path doesn't exist, check if the folder exists
+                            string folderPath = PathWrapper.GetDirectoryName(filePath);
+                            if (isLocal)
                             {
-                                errorMessage = string.Format(SR.InvalidBackupPathError, folderPath);
-                                result = false;
-                                break;
+                                if (!string.IsNullOrEmpty(folderPath) && !Directory.Exists(folderPath))
+                                {
+                                    errorMessage = string.Format(SR.InvalidBackupPathError, folderPath);
+                                    result = false;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                bool isFolderOnRemote = true;
+                                bool existsOnRemote = IsPathExisting(serverConnection, folderPath, ref isFolderOnRemote);
+                                if (!existsOnRemote)
+                                {
+                                    errorMessage = string.Format(SR.InvalidBackupPathError, folderPath);
+                                    result = false;
+                                    break;
+                                }
                             }
                         }
                     }
+                }
+                else
+                {
+                    result = false;
                 }
             }
             else
@@ -92,36 +110,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 result = false;
             }
 
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                throw new FileBrowserException(errorMessage);
-            }
-
             return result;
         }
 
         #region private methods
 
-        private static bool IsPathExisting(ServerConnection serverConnection, string path, ref bool IsFolder)
+        private static bool IsPathExisting(ServerConnection serverConnection, string path, ref bool isFolder)
         {
             Enumerator en = null;
             DataSet ds = new DataSet();
             ds.Locale = CultureInfo.InvariantCulture;
             Request req = new Request();
-
             en = new Enumerator();
-            req.Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']";
-            ds = en.Process(serverConnection, req);
-            int iCount = ds.Tables[0].Rows.Count;
+            bool isExisting = false;
+            isFolder = false;
 
-            if (iCount > 0)
+            try
             {
-                IsFolder = !(Convert.ToBoolean(ds.Tables[0].Rows[0]["IsFile"], CultureInfo.InvariantCulture));
-                return true;
+                req.Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']";
+                ds = en.Process(serverConnection, req);
+                if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    isFolder = !(Convert.ToBoolean(ds.Tables[0].Rows[0]["IsFile"], CultureInfo.InvariantCulture));
+                    isExisting = true;
+                }
+            }
+            finally
+            {
+                ds.Dispose();
             }
 
-            IsFolder = false;
-            return false;
+            return isExisting;
         }
 
         private static string GetMachineName(string sqlServerName)
