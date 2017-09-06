@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
@@ -8,7 +8,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
-namespace  Microsoft.SqlTools.Credentials.Utility
+namespace Microsoft.SqlTools.Serialization
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility
@@ -49,8 +49,9 @@ namespace  Microsoft.SqlTools.Credentials.Utility
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
-            CredentialService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(CredentialService.Instance);
+            SerializationService serializationService = serviceProvider.GetService<SerializationService>();
+            serializationService.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(serializationService);
 
             InitializeHostedServices(serviceProvider, serviceHost);
 

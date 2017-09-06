@@ -7,18 +7,19 @@ using System;
 using System.Globalization;
 using System.IO;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.SqlTools.Hosting.Utility
 {
     /// <summary>
     /// The command-line options helper class.
     /// </summary>
-    internal class CommandOptions
+    public class CommandOptions
     {
         /// <summary>
         /// Construct and parse command line options from the arguments array
         /// </summary>
-        public CommandOptions(string[] args)
+        public CommandOptions(string[] args, string serviceName)
         {
+            ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
 
@@ -70,7 +71,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
         }
 
-        internal string ErrorMessage { get; private set; }
+        /// <summary>
+        /// Contains any error messages during execution
+        /// </summary>
+        public string ErrorMessage { get; private set; }
 
 
         /// <summary>
@@ -94,6 +98,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         public string Locale { get; private set; }
 
         /// <summary>
+        /// Name of service that is receiving command options
+        /// </summary>
+        public string ServiceName { get; private set; }
+
+        /// <summary>
         /// Get the usage string describing command-line arguments for the program
         /// </summary>
         public string Usage
@@ -101,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             get
             {
                 var str = string.Format("{0}" + Environment.NewLine +
-                    "Microsoft.SqlTools.ServiceLayer.exe " + Environment.NewLine +
+                    ServiceName + " " + Environment.NewLine +
                     "   Options:" + Environment.NewLine +
                     "        [--enable-logging]" + Environment.NewLine +
                     "        [--log-dir **] (default: current directory)" + Environment.NewLine +
@@ -122,20 +131,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             this.LoggingDirectory = Path.GetFullPath(loggingDirectory);
         }
 
-        private void SetLocale(string locale)
+        public virtual void SetLocale(string locale)
         {
             try
             {
-                // Creating cultureInfo from our given locale
-                CultureInfo language = new CultureInfo(locale);
-                Locale = locale;
-
-                // Setting our language globally 
-                CultureInfo.CurrentCulture = language;
-                CultureInfo.CurrentUICulture = language;
-
-                // Setting our internal SR culture to our global culture
-                SR.Culture = CultureInfo.CurrentCulture;
+                LocaleSetter(locale);
             }
             catch (CultureNotFoundException)
             {
@@ -143,6 +143,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 // along with macOS and Linux, pick up the default culture if an invalid locale is passed
                 // into the CultureInfo constructor.
             }
+        }
+
+        /// <summary>
+        /// Sets the Locale field used for testing and also sets the global CultureInfo used for
+        /// culture-specific messages
+        /// </summary>
+        /// <param name="locale"></param>
+        internal void LocaleSetter(string locale)
+        {
+            // Creating cultureInfo from our given locale
+            CultureInfo language = new CultureInfo(locale);
+            Locale = locale;
+
+            // Setting our language globally 
+            CultureInfo.CurrentCulture = language;
+            CultureInfo.CurrentUICulture = language;
         }
     }
 }
