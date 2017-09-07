@@ -22,8 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection password
         /// </summary>
-        /// <returns></returns>
-        public string Password {
+        public string Password 
+        {
             get
             {
                 return GetOptionValue<string>("password");

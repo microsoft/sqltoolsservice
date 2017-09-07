@@ -10,12 +10,13 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -31,17 +32,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
-            // serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
-            // serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
-            // serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
-            // serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
-
-            // // Register handler for shutdown event
-            // serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
-            // {
-            //     this.Dispose();
-            //     return Task.FromResult(0);
-            // });
+            serviceHost.SetRequestHandler(StartProfilingRequest.Type, HanldeStartProfilingRequest);
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private async Task HanldeStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        {
+            try
+            {             
+                await requestContext.SendResult(new StartProfilingResult { SessionId = "abc" });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
         }
 
         /// <summary>
@@ -52,8 +58,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             if (!disposed)
             {                
                 disposed = true;
-
-
             }
         }        
     }
