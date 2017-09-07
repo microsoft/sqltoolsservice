@@ -6,9 +6,7 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Xunit;
-using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
 {
@@ -44,14 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
             {
                 Assert.False(operation.FilterFile(path, filters));
             }
-        }
-
-        [Fact]
-        public void PathSeparatorShouldReturnDefaultValue()
-        {
-            char separator = '\0';
-            separator = FileBrowserBase.GetPathSeparator(new Enumerator(), new SqlConnection());
-            Assert.True(separator != '\0');
         }
 
         [Fact]
