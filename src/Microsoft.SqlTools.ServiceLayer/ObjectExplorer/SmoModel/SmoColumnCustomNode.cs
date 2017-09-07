@@ -128,6 +128,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         }
                         typeName += ")";
                         break;
+                    case SqlDataType.Numeric:
+                    case SqlDataType.Decimal:
+                        typeName += $"({dataType.NumericPrecision},{dataType.NumericScale})";
+                        break;
+                    case SqlDataType.DateTime2:
+                    case SqlDataType.Time:
+                    case SqlDataType.DateTimeOffset:
+                        typeName += $"({dataType.NumericScale})";
+                        break;
                 }
             }
             return typeName;

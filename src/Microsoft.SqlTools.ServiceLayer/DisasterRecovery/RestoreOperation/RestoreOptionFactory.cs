@@ -482,8 +482,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         return new OptionValidationResult()
                         {
-                            //TODO: make the method public in SMO bool canDropExistingConnections = restoreDataObject.RestorePlan.CanDropExistingConnections(this.Data.RestorePlanner.DatabaseName);
-                            IsReadOnly = false
+                            IsReadOnly = !restoreDataObject.CanDropExistingConnections
                         };
                     },
                     SetValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object value) =>
@@ -538,10 +537,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                    },
                    ValidateFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object currentValue, object defaultValue) =>
                    {
-
                        return new OptionValidationResult()
                        {
-                           IsReadOnly = !restoreDataObject.CanChangeTargetDatabase
+                           IsReadOnly = false
                        };
                    },
                    SetValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject, object value) =>

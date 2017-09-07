@@ -4,13 +4,15 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
     /// Backup parameters passed for execution and scripting
     /// </summary>
-    public class BackupParams
+    public class BackupParams : IScriptableRequestParams
     {
         /// <summary>
         /// Connection uri
@@ -23,9 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         public BackupInfo BackupInfo { get; set; }
 
         /// <summary>
-        /// True for generating script, false for execution
+        /// 
         /// </summary>
-        public bool IsScripting { get; set; }
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>

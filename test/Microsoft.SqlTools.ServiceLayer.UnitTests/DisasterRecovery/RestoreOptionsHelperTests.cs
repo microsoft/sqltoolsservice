@@ -136,6 +136,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
+        public void CloseExistingConnectionsShouldNotBeReadOnlyGivenCanDropExistingConnectionsSetToTrue()
+        {
+            GeneralRequestDetails optionValues = CreateOptionsTestData();
+            optionValues.Options["CanDropExistingConnections"] = true;
+            IRestoreDatabaseTaskDataObject restoreDatabaseTaskDataObject = CreateRestoreDatabaseTaskDataObject(optionValues);
+
+            Dictionary<string, RestorePlanDetailInfo> result = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDatabaseTaskDataObject);
+            Assert.NotNull(result);
+            Assert.False(result[RestoreOptionsHelper.CloseExistingConnections].IsReadOnly);
+        }
+
+        [Fact]
+        public void CloseExistingConnectionsShouldBeReadOnlyGivenCanDropExistingConnectionsSetToFalse()
+        {
+            GeneralRequestDetails optionValues = CreateOptionsTestData();
+            optionValues.Options["CanDropExistingConnections"] = false;
+            IRestoreDatabaseTaskDataObject restoreDatabaseTaskDataObject = CreateRestoreDatabaseTaskDataObject(optionValues);
+
+            Dictionary<string, RestorePlanDetailInfo> result = RestoreOptionsHelper.CreateRestorePlanOptions(restoreDatabaseTaskDataObject);
+            Assert.NotNull(result);
+            Assert.True(result[RestoreOptionsHelper.CloseExistingConnections].IsReadOnly);
+        }
+
+        [Fact]
         public void KeepReplicationShouldNotBeReadOnlyGivenRecoveryStateWithNoRecovery()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -222,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         }
 
         [Fact]
-        public void TargetDatabaseNameShouldSetToDefaultIfNotValid()
+        public void TargetDatabaseNameShouldBeWhatIsRequested()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             string defaultDbName = "default";
@@ -236,12 +260,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             RestoreOptionFactory.Instance.SetAndValidate(RestoreOptionsHelper.TargetDatabaseName, restoreDatabaseTaskDataObject);
 
             string actual = restoreDatabaseTaskDataObject.TargetDatabaseName;
-            string expected = defaultDbName;
+            string expected = currentDbName;
             Assert.Equal(actual, expected);
         }
 
         [Fact]
-        public void TargetDatabaseNameShouldStayTheSameIfValid()
+        public void TargetDatabaseNameShouldBeWhatIsRequested2()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             string defaultDbName = "default";
@@ -288,6 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             optionValues.Options.Add("DefaultSourceDbName", "DefaultSourceDbName");
             optionValues.Options.Add("DefaultTargetDbName", "DefaultTargetDbName");
             optionValues.Options.Add("SourceDbNames", new List<string>());
+            optionValues.Options.Add("CanDropExistingConnections", true);
             return optionValues;
         }
 
@@ -314,6 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             restoreDataObject.SourceDbNames = optionValues.GetOptionValue<List<string>>("SourceDbNames");
             restoreDataObject.DefaultTargetDbName = optionValues.GetOptionValue<string>("DefaultTargetDbName");
             restoreDataObject.BackupTailLog = optionValues.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog);
+            restoreDataObject.CanDropExistingConnections = optionValues.GetOptionValue<bool>("CanDropExistingConnections");
             restoreDataObject.RestoreParams = optionValues as RestoreParams;
             restoreDataObject.RestorePlan = null;
             RestoreOptions restoreOptions = new RestoreOptions();

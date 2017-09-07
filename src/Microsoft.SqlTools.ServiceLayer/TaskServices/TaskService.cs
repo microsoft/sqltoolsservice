@@ -17,17 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
     public class TaskService: HostedService<TaskService>, IComposableService
     {
         private static readonly Lazy<TaskService> instance = new Lazy<TaskService>(() => new TaskService());
-        private SqlTaskManager taskManager = SqlTaskManager.Instance;
+        private SqlTaskManager taskManager = null;
         private IProtocolEndpoint serviceHost;
-
-
-        /// <summary>
-        /// Default, parameterless constructor.
-        /// </summary>
-        public TaskService()
-        {
-            taskManager.TaskAdded += OnTaskAdded;
-        }
 
         /// <summary>
         /// Gets the singleton instance object
@@ -44,7 +35,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             get
             {
+                if(taskManager == null)
+                {
+                    taskManager = SqlTaskManager.Instance;
+                }
                 return taskManager;
+            }
+            set
+            {
+                taskManager = value;
             }
         }
 
@@ -57,6 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             Logger.Write(LogLevel.Verbose, "TaskService initialized");
             serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest);
             serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest);
+            TaskManager.TaskAdded += OnTaskAdded;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 return Task.Factory.StartNew(() =>
                 {
                     ListTasksResponse response = new ListTasksResponse();
-                    response.Tasks = taskManager.Tasks.Select(x => x.ToTaskInfo()).ToArray();
+                    response.Tasks = TaskManager.Tasks.Select(x => x.ToTaskInfo()).ToArray();
 
                     return response;
                 });
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                     Guid taskId;
                     if (Guid.TryParse(cancelTaskParams.TaskId, out taskId))
                     {
-                        taskManager.CancelTask(taskId);
+                        TaskManager.CancelTask(taskId);
                         return true;
                     }
                     else
@@ -176,8 +176,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         public void Dispose()
         {
-            taskManager.TaskAdded -= OnTaskAdded;
-            taskManager.Dispose();
+            TaskManager.TaskAdded -= OnTaskAdded;
+            TaskManager.Dispose();
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -19,6 +20,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// Cancel a task
         /// </summary>
         void Cancel();
+
+        /// <summary>
+        /// If an error occurred during task execution, this field contains the error message text
+        /// </summary>
+        string ErrorMessage { get; }
+
+        /// <summary>
+        /// The sql task that's executing the operation
+        /// </summary>
+        SqlTask SqlTask { get; set; }
     }
 
     /// <summary>

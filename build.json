@@ -6,6 +6,7 @@
   "DotNetVersion": "1.0.0-preview2-003121",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
+  "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
       "netcoreapp2.0"
@@ -16,6 +17,7 @@
   ],
   "MainProjects": [     
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.SqlTools.Credentials"
+    "Microsoft.SqlTools.Credentials",
+    "Microsoft.Sqltools.Serialization"
   ]
 }

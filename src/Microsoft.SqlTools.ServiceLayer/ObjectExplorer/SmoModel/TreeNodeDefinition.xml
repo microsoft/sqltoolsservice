@@ -77,6 +77,7 @@
     </Filters>
     <Properties>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
+	  <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <!--
@@ -201,6 +202,7 @@
         <Value>IndexKeyType.DriUniqueKey</Value>
       </Filter>
     </Filters>
+	 
   </Node>
   <Node Name="Constraints" LocLabel="SR.SchemaHierarchy_Constraints" BaseClass="ModelBased" NodeType="Constraint" Strategy="ElementsInRelationship" ChildQuerierTypes="SqlDefaultConstraint;SqlCheck"/>
   <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
