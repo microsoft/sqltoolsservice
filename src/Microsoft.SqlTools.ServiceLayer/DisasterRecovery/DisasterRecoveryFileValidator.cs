@@ -9,7 +9,6 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -23,50 +22,45 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
     /// </summary>
     public static class DisasterRecoveryFileValidator
     {
-        private const string localSqlServer = "(local)";
-        private const string localMachineName = ".";
+        internal const string LocalSqlServer = "(local)";
+        internal const string LocalMachineName = ".";
 
         public static bool ValidatePaths(FileBrowserValidateEventArgs args, out string errorMessage)
         {
-            errorMessage = "";
+            errorMessage = string.Empty;
             bool result = true;
-            DbConnection dbConn = null;
-            ConnectionInfo connInfo;
+            SqlConnection connection = null;
 
             if (args != null)
             {
+                ConnectionInfo connInfo;
                 ConnectionService.Instance.TryFindConnection(args.OwnerUri, out connInfo);
-                SqlConnection conn = null;
-                ServerConnection serverConnection = null;
                 if (connInfo != null)
                 {
-                    connInfo.TryGetConnection(Connection.ConnectionType.Default, out dbConn);
-                    if (dbConn != null)
+                    DbConnection dbConnection = null;
+                    connInfo.TryGetConnection(Connection.ConnectionType.Default, out dbConnection);
+                    if (dbConnection != null)
                     {
-                        conn = ReliableConnectionHelper.GetAsSqlConnection(dbConn);
-                        if (conn != null)
-                        {
-                            serverConnection = new ServerConnection(conn);
-                        }
+                        connection = ReliableConnectionHelper.GetAsSqlConnection(dbConnection);
                     }
                 }
 
-                if (serverConnection != null)
+                if (connection != null)
                 {
                     bool isLocal = false;
-                    if (string.Compare(GetMachineName(serverConnection.ServerInstance), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
+                    if (string.Compare(GetMachineName(connection.DataSource), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
                     {
                         isLocal = true;
                     }
 
                     foreach (string filePath in args.FilePaths)
                     {
-                        bool IsFolder = false;
-                        bool Existing = IsPathExisting(serverConnection, filePath, ref IsFolder);
+                        bool isFolder;
+                        bool existing = IsPathExisting(connection, filePath, out isFolder);
 
-                        if (Existing)
+                        if (existing)
                         {
-                            if (IsFolder)
+                            if (isFolder)
                             {
                                 errorMessage = string.Format(SR.BackupPathIsFolderError, filePath);
                                 result = false;
@@ -88,8 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             }
                             else
                             {
-                                bool isFolderOnRemote = true;
-                                bool existsOnRemote = IsPathExisting(serverConnection, folderPath, ref isFolderOnRemote);
+                                bool isFolderOnRemote;
+                                bool existsOnRemote = IsPathExisting(connection, folderPath, out isFolderOnRemote);
                                 if (!existsOnRemote)
                                 {
                                     errorMessage = string.Format(SR.InvalidBackupPathError, folderPath);
@@ -115,41 +109,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         #region private methods
 
-        private static bool IsPathExisting(ServerConnection serverConnection, string path, ref bool isFolder)
+        internal static bool IsPathExisting(SqlConnection connection, string path, out bool isFolder)
         {
-            Enumerator en = null;
-            DataSet ds = new DataSet();
-            ds.Locale = CultureInfo.InvariantCulture;
-            Request req = new Request();
-            en = new Enumerator();
+            Request req = new Request
+            {
+                Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']",
+                Fields = new[] { "IsFile" }
+            };
+
+            Enumerator en = new Enumerator();
             bool isExisting = false;
             isFolder = false;
 
-            try
+            using (DataSet ds = en.Process(connection, req))
             {
-                req.Urn = "Server/File[@FullName='" + Urn.EscapeString(path) + "']";
-                ds = en.Process(serverConnection, req);
-                if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                if (ds.Tables[0].Rows.Count > 0)
                 {
                     isFolder = !(Convert.ToBoolean(ds.Tables[0].Rows[0]["IsFile"], CultureInfo.InvariantCulture));
                     isExisting = true;
                 }
             }
-            finally
-            {
-                ds.Dispose();
-            }
 
             return isExisting;
         }
 
-        private static string GetMachineName(string sqlServerName)
+        internal static string GetMachineName(string sqlServerName)
         {
-            string machineName = "";
+            string machineName = string.Empty;
             if (sqlServerName != null)
             {
-                // special case (local) which is accepted SQL(MDAC) but by OS
-                if ((sqlServerName.ToLowerInvariant().Trim() == localSqlServer) || (sqlServerName.ToLowerInvariant().Trim() == localMachineName))
+                string serverName = sqlServerName.ToLowerInvariant().Trim();
+                if ((serverName == LocalSqlServer) || (serverName == LocalMachineName))
                 {
                     machineName = System.Environment.MachineName;
                 }

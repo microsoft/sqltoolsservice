@@ -1816,7 +1816,7 @@
     <comment></comment>
   </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>The file name specified is also a directory name: {0}</value>
+    <value>The provided path specifies a directory but a file path is required: {0}</value>
     <comment></comment>
   </data>
   <data name="InvalidBackupPathError" xml:space="preserve">

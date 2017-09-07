@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     {
         public static readonly
             EventType<FileBrowserExpandCompleteParams> Type =
-            EventType<FileBrowserExpandCompleteParams>.Create("filebrowser/expandComplete");
+            EventType<FileBrowserExpandCompleteParams>.Create("filebrowser/expandcomplete");
     }
 
 }

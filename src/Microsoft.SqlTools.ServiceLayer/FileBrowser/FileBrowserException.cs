@@ -12,10 +12,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     /// </summary>
     internal sealed class FileBrowserException : Exception
     {
-        internal FileBrowserException() : base()
-        {
-        }
-
         internal FileBrowserException(string m) : base(m)
         {
         }

@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     {
         public static readonly
             EventType<FileBrowserValidateCompleteParams> Type =
-            EventType<FileBrowserValidateCompleteParams>.Create("filebrowser/validateComplete");
+            EventType<FileBrowserValidateCompleteParams>.Create("filebrowser/validatecomplete");
     }
 
 }

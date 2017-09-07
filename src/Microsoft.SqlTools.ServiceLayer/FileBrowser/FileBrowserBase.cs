@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     public abstract class FileBrowserBase
     {
         private Enumerator enumerator = null;
-        protected object sqlConnection = null;
+        protected SqlConnection sqlConnection = null;
 
         protected Enumerator Enumerator
         {
@@ -42,43 +43,45 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <summary>
         /// Separator string for components of the file path. Defaults to \ for Windows and / for Linux
         /// </summary>
-        internal string PathSeparator { get; set; }
+        internal char PathSeparator { get; set; }
 
         /// <summary>
         /// Returns the PathSeparator values of the Server.
         /// </summary>
         /// <returns>PathSeparator</returns>
-        internal static string GetPathSeparator(Enumerator sfcEnumerator, object sqlConnectionObject)
+        internal static char GetPathSeparator(Enumerator enumerator, SqlConnection connection)
         {
             var req = new Request();
             req.Urn = "Server";
             req.Fields = new[] { "PathSeparator" };
-            DataSet ds = sfcEnumerator.Process(sqlConnectionObject, req);
-            string pathSeparator = @"\";
+            string pathSeparator = string.Empty;
 
-            if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            using (DataSet ds = enumerator.Process(connection, req))
             {
-                pathSeparator = Convert.ToString(ds.Tables[0].Rows[0][0], System.Globalization.CultureInfo.InvariantCulture);
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    pathSeparator = Convert.ToString(ds.Tables[0].Rows[0][0], System.Globalization.CultureInfo.InvariantCulture);
+                }
             }
 
-            ds.Dispose();
-            return pathSeparator;
+            if (string.IsNullOrEmpty(pathSeparator))
+            {
+                pathSeparator = @"\";
+            }
+
+            return pathSeparator[0];
         }
 
         /// <summary>
         /// Enumerates the FileInfo objects associated with drives 
         /// </summary>
         /// <param name="enumerator"></param>
-        /// <param name="sqlConnection"></param>
+        /// <param name="connection"></param>
         /// <returns></returns>
-        internal static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, object sqlConnection)
+        internal static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, SqlConnection connection)
         {
             // if not supplied, server name will be obtained from urn
             Request req = new Request();
-            int nItems;
-            int i;
-            DataSet ds;
-
             bool clustered = false;
 
             req.Urn = "Server/Information";
@@ -88,12 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             var hostPlatform = HostPlatformNames.Windows;
             try
             {
-                ds = enumerator.Process(sqlConnection, req);
-                if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+                using (DataSet ds = enumerator.Process(connection, req))
                 {
-                    nItems = ds.Tables[0].Rows.Count;
-
-                    if (0 < nItems)
+                    if (ds.Tables[0].Rows.Count > 0)
                     {
                         clustered = Convert.ToBoolean(ds.Tables[0].Rows[0][0],
                             CultureInfo.InvariantCulture);
@@ -111,16 +111,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             // shared drives on a cluster
             req.Urn = clustered ? "Server/AvailableMedia[@SharedDrive=true()]" : "Server/Drive";
             req.Fields = new[] { "Name" };
-            ds = enumerator.Process(sqlConnection, req);
 
-            if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            using (DataSet ds = enumerator.Process(connection, req))
             {
-                nItems = ds.Tables[0].Rows.Count;
-                for (i = 0; i < nItems; i++)
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
                     var fileInfo = new FileInfo
                     {
-                        fileName = "",
+                        fileName = string.Empty,
                         path = Convert.ToString(ds.Tables[0].Rows[i][0], System.Globalization.CultureInfo.InvariantCulture)
                     };
 
@@ -135,18 +133,16 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     yield return fileInfo;
                 }
             }
-
-            ds.Dispose();
         }
 
         /// <summary>
         /// Enumerates files and folders that are immediate children of the given path on the server
         /// </summary>
-        /// <param name="sfcEnumerator"></param>
-        /// <param name="sqlConnectionObject"></param>
+        /// <param name="enumerator"></param>
+        /// <param name="connection"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        internal static IEnumerable<FileInfo> EnumerateFilesInFolder(Enumerator sfcEnumerator, object sqlConnectionObject, string path)
+        internal static IEnumerable<FileInfo> EnumerateFilesInFolder(Enumerator enumerator, SqlConnection connection, string path)
         {
             var request = new Request
             {
@@ -165,10 +161,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 }
             };
 
-            DataSet ds = sfcEnumerator.Process(sqlConnectionObject, request);
-            if (ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            using (DataSet ds = enumerator.Process(connection, request))
             {
-                foreach (DataRow row in ds.Tables[0].Rows.Cast<DataRow>())
+                foreach (DataRow row in ds.Tables[0].Rows)
                 {
                     bool isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture);
                     yield return new FileInfo
@@ -180,18 +175,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     };
                 }
             }
-
-            ds.Dispose();
-
-            //return from row in ds.Tables[0].Rows.Cast<DataRow>()
-            //       let isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture)
-            //       select new FileInfo
-            //       {
-            //           path = isFile ? path : Convert.ToString((object)row[2], CultureInfo.InvariantCulture),
-            //           fileName = isFile ? Convert.ToString((object)row[0], CultureInfo.InvariantCulture) : String.Empty,
-            //           folderName = isFile ? String.Empty : Convert.ToString((object)row[0], CultureInfo.InvariantCulture),
-            //           fullPath = isFile ? Convert.ToString((object)row[2], CultureInfo.InvariantCulture) : String.Empty
-            //       };
         }
     }
 }

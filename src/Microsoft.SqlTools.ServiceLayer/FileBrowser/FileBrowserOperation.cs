@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// </summary>
         /// <param name="connectionInfo">The connection info</param>
         /// <param name="fileFilters">The file extension filters</param>
-        public FileBrowserOperation(object connectionInfo, string expandPath, string[] fileFilters = null): this()
+        public FileBrowserOperation(SqlConnection connectionInfo, string expandPath, string[] fileFilters = null): this()
         {
             this.sqlConnection = connectionInfo;
             this.expandPath = expandPath;
@@ -82,18 +83,19 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         public void ExpandSelectedNode(string expandPath)
         {
             this.expandPath = expandPath;
-            if (!String.IsNullOrEmpty(this.expandPath))
+            if (!string.IsNullOrEmpty(this.expandPath))
             {
-                var dirs = this.expandPath.TrimEnd(this.PathSeparator[0]).Split(this.PathSeparator[0]);
+                var dirs = this.expandPath.TrimEnd(this.PathSeparator).Split(this.PathSeparator);
                 List<FileTreeNode> currentChildren = this.fileTree.RootNode.Children;
                 FileTreeNode lastNode = null;
+                string pathSeparatorString = Convert.ToString(this.PathSeparator);
 
                 foreach (string dir in dirs)
                 {
                     FileTreeNode currentNode = null;
                     foreach (FileTreeNode node in currentChildren)
                     {
-                        if (node.Name == this.PathSeparator || string.Equals(node.Name, dir, StringComparison.OrdinalIgnoreCase))
+                        if (node.Name == pathSeparatorString || string.Equals(node.Name, dir, StringComparison.OrdinalIgnoreCase))
                         {
                             currentNode = node;
                             break;

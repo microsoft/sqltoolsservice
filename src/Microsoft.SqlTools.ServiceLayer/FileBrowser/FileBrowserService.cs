@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private Dictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new Dictionary<string, FileBrowserOperation>();
         private ConnectionService connectionService = null;
 
-        private Dictionary<string, ValidatePathsCallback> validatePathsCallbackMap { get; set; }
+        private Dictionary<string, ValidatePathsCallback> ValidatePathsCallbackMap { get; set; }
 
         /// <summary>
         /// Signature for callback method that validates the selected file paths
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// </summary>
         public FileBrowserService()
         {
-            this.validatePathsCallbackMap = new Dictionary<string, ValidatePathsCallback>();
+            this.ValidatePathsCallbackMap = new Dictionary<string, ValidatePathsCallback>();
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="callback"></param>
         public void RegisterValidatePathsCallback(string service, ValidatePathsCallback callback)
         {
-            this.validatePathsCallbackMap.Add(service, callback);
+            this.ValidatePathsCallbackMap.Add(service, callback);
         }
 
         /// <summary>
@@ -172,12 +172,18 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 ConnectionInfo connInfo;
-                this.ConnectionServiceInstance.TryFindConnection(
-                    fileBrowserParams.OwnerUri,
-                    out connInfo);
-                DbConnection dbConn = null;
-                connInfo.TryGetConnection(ConnectionType.Default, out dbConn);
-                SqlConnection conn = ReliableConnectionHelper.GetAsSqlConnection((IDbConnection)dbConn);
+                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
+                SqlConnection conn = null;
+
+                if (connInfo != null)
+                {
+                    DbConnection dbConn;
+                    connInfo.TryGetConnection(ConnectionType.Default, out dbConn);
+                    if (dbConn != null)
+                    {
+                        conn = ReliableConnectionHelper.GetAsSqlConnection((IDbConnection)dbConn);
+                    }
+                }
 
                 if (conn != null)
                 {
@@ -206,12 +212,16 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             FileBrowserExpandCompleteParams result = new FileBrowserExpandCompleteParams();
             try
             {
-                FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
-                if (browser != null)
+                if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
                 {
+                    FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
                     browser.ExpandSelectedNode(fileBrowserParams.ExpandPath);
                     result.ExpandedNode = browser.FileTree.SelectedNode;
                     result.Succeeded = true;
+                }
+                else
+                {
+                    result.Succeeded = false;
                 }
             }
             catch (Exception ex)
@@ -229,13 +239,13 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             try
             {
-                if (this.validatePathsCallbackMap.ContainsKey(fileBrowserParams.ServiceType)
-                    && this.validatePathsCallbackMap[fileBrowserParams.ServiceType] != null
+                if (this.ValidatePathsCallbackMap.ContainsKey(fileBrowserParams.ServiceType)
+                    && this.ValidatePathsCallbackMap[fileBrowserParams.ServiceType] != null
                     && fileBrowserParams.SelectedFiles != null
                     && fileBrowserParams.SelectedFiles.Length > 0)
                 {
                     string errorMessage;
-                    result.Succeeded = this.validatePathsCallbackMap[fileBrowserParams.ServiceType](new FileBrowserValidateEventArgs
+                    result.Succeeded = this.ValidatePathsCallbackMap[fileBrowserParams.ServiceType](new FileBrowserValidateEventArgs
                     {
                         ServiceType = fileBrowserParams.ServiceType,
                         OwnerUri = fileBrowserParams.OwnerUri,

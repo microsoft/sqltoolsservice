@@ -118,8 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
 
             // Register file path validation callbacks
-            FileBrowserServiceInstance?.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
-            FileBrowserServiceInstance?.RegisterValidatePathsCallback(FileValidationServiceConstants.Restore, DisasterRecoveryFileValidator.ValidatePaths);
+            FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
+            FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Restore, DisasterRecoveryFileValidator.ValidatePaths);
         }
 
         /// <summary>

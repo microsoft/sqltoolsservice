@@ -18,6 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
     /// </summary>
     public class FileBrowserServiceTests
     {
+        #region Request handle tests
+
         [Fact]
         public async void HandleFileBrowserOpenRequestTest()
         {
@@ -92,6 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             // Result should return false since it's trying to close a filebrowser that was never opened
             requestContext.Verify(x => x.SendResult(It.Is<FileBrowserCloseResponse>(p => p.Succeeded == false)));
         }
+
+        #endregion
 
         [Fact]
         public async void OpenFileBrowserTest()
@@ -169,8 +173,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
 
         #region private methods
 
-        private bool ValidatePaths(FileBrowserValidateEventArgs eventArgs)
+        private bool ValidatePaths(FileBrowserValidateEventArgs eventArgs, out string message)
         {
+            message = string.Empty;
             return false;
         }
 

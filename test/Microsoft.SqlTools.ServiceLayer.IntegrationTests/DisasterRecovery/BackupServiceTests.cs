@@ -79,7 +79,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
 
-            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+            string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
                 BackupType.Full,
@@ -103,7 +103,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
-            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+            string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
                 BackupType.Full,
@@ -136,7 +136,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
-            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+            string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             string certificateName = CreateCertificate(testDb);
             string cleanupCertificateQuery = string.Format(CleanupCertificateQueryFormat, certificateName);
@@ -188,7 +188,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
             SqlConnection sqlConn = DisasterRecoveryService.GetSqlConnection(liveConnection.ConnectionInfo);
-            string backupPath = GetDefaultBackupPath(service, databaseName, helper.DataContainer, sqlConn);
+            string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             string certificateName = CreateCertificate(testDb);
             string cleanupCertificateQuery = string.Format(CleanupCertificateQueryFormat, certificateName);
@@ -340,7 +340,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             return backupInfo;
         }
 
-        private string GetDefaultBackupPath(DisasterRecoveryService service, string databaseName, CDataContainer dataContainer, SqlConnection sqlConn)
+        private string GetDefaultBackupFullPath(DisasterRecoveryService service, string databaseName, CDataContainer dataContainer, SqlConnection sqlConn)
         {
             BackupConfigInfo backupConfigInfo = service.GetBackupConfigInfo(dataContainer, sqlConn, sqlConn.Database);
             return Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + ".bak");

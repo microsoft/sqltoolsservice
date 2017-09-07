@@ -8,22 +8,22 @@ using System;
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
     /// <summary>
-    /// 
+    /// Event arguments for validating selected files in file browser
     /// </summary>
     public sealed class FileBrowserValidateEventArgs : EventArgs
     {
         /// <summary>
-        /// 
+        /// Connection uri
         /// </summary>
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// 
+        /// Service which provide validation callback
         /// </summary>
         public string ServiceType { get; set; }
 
         /// <summary>
-        /// 
+        /// Selected files
         /// </summary>
         public string[] FilePaths { get; set; }
     }

@@ -6,7 +6,9 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Xunit;
+using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
 {
@@ -45,6 +47,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
         }
 
         [Fact]
+        public void PathSeparatorShouldReturnDefaultValue()
+        {
+            char separator = '\0';
+            separator = FileBrowserBase.GetPathSeparator(new Enumerator(), new SqlConnection());
+            Assert.True(separator != '\0');
+        }
+
+        [Fact]
         public void ExpandNodeShouldThrowExceptionForInvalidPath()
         {
             FileBrowserOperation operation = new FileBrowserOperation();
@@ -52,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
 
             try
             {
-                operation.PathSeparator = "/";
+                operation.PathSeparator = '/';
                 operation.ExpandSelectedNode("testdrive/filebrowser/test");
             }
             catch (FileBrowserException ex)

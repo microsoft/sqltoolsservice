@@ -2251,7 +2251,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
-        <source>The file name specified is also a directory name: {0}</source>
+        <source>The provided path specifies a directory but a file path is required: {0}</source>
         <target state="new">The file name specified is also a directory name: {0}</target>
         <note></note>
       </trans-unit>
