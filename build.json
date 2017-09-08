@@ -17,6 +17,7 @@
   ],
   "MainProjects": [     
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.SqlTools.Credentials"
+    "Microsoft.SqlTools.Credentials",
+    "Microsoft.Sqltools.Serialization"
   ]
 }

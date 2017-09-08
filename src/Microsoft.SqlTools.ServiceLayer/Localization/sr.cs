@@ -3285,6 +3285,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string BackupPathIsFolderError
+        {
+            get
+            {
+                return Keys.GetString(Keys.BackupPathIsFolderError);
+            }
+        }
+
+        public static string InvalidBackupPathError
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidBackupPathError);
+            }
+        }
+
         public static string TaskInProgress
         {
             get
@@ -3490,6 +3506,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.ScriptTaskName);
+            }
+        }
+
+        public static string InvalidPathError
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidPathError);
             }
         }
 
@@ -4834,6 +4858,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string BackupTaskName = "BackupTaskName";
 
 
+            public const string BackupPathIsFolderError = "BackupPathIsFolderError";
+
+
+            public const string InvalidBackupPathError = "InvalidBackupPathError";
+
+
             public const string TaskInProgress = "TaskInProgress";
 
 
@@ -4910,6 +4940,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptTaskName = "ScriptTaskName";
+
+
+            public const string InvalidPathError = "InvalidPathError";
 
 
             private Keys()
