@@ -77,13 +77,9 @@
     </Filters>
     <Properties>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
-	  <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
+	    <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
-    <!--
-    <Child Name="FileTables"/>
-    <Child Name="ExternalTables"/>
-    -->
   </Node>
 
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
