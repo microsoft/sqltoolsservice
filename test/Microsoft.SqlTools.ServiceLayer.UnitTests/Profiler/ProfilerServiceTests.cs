@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
     public class ProfilerServiceTests
     {   
         [Fact]
-        public void TestStartProfilingRequest()
+        public async Task TestStartProfilingRequest()
         {
             var requestContext = new Mock<RequestContext<StartProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
@@ -29,7 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var requestParams = new StartProfilingParams();
             requestParams.TemplateName = "Standard";
 
-            profilerService.HanldeStartProfilingRequest(requestParams, requestContext.Object);
+            await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);
+
+            requestContext.VerifyAll();
         }    
   
     }

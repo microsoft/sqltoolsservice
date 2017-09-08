@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Management.XEvent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -27,21 +28,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         private bool disposed;
 
+        private static readonly Lazy<ProfilerService> instance = new Lazy<ProfilerService>(() => new ProfilerService());
+
+        /// <summary>
+        /// Gets the singleton instance object
+        /// </summary>
+        public static ProfilerService Instance
+        {
+            get { return instance.Value; }
+        }
+
+        internal IProfilerServiceHelper ProfilerServiceHelper { get; set; }
+
+        public ProfilerService()
+        {
+            this.ProfilerServiceHelper = new ProfilerServiceHelper();  
+        }
+
         /// <summary>
         /// Initializes the Profiler Service instance
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(StartProfilingRequest.Type, HanldeStartProfilingRequest);
+            serviceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
         }
         
         /// <summary>
-        /// 
+        /// Handle request to start profiling sessions
         /// </summary>
-        internal async Task HanldeStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
         {
             try
-            {             
+            {
+                Session s = this.ProfilerServiceHelper.GetOrCreateSession(null);
                 await requestContext.SendResult(new StartProfilingResult { SessionId = "abc" });
             }
             catch (Exception e)
@@ -59,6 +78,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {                
                 disposed = true;
             }
-        }        
+        }
     }
 }
