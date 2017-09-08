@@ -1,6 +1,6 @@
 ## Object Explorer Service
 
-> Object explorer service provides functionality to retrieve the hierarchical objects in each instance of SQL server. It handles request to expand or refresh a node in the hierarchy.
+> Object Explorer  service provides functionality to retrieve the hierarchical objects in each instance of SQL Server. It handles requests to expand or refresh a node in the hierarchy.
 
 > The service uses generated classes to create the objects hierarchy and there are two xml files used as sources to generated the classes.
 
@@ -8,7 +8,7 @@
 > TreeNodeDefinition.xml defines all the hierarchies and all the supported objects types. It includes:
 
 * The hierarchy of the SQL objects
-* The supported objects for each version of SQL server.
+* The supported objects for each version of SQL Server.
 * How to filter objects based on the properties in each node
 * How to query each object (Reference to another generated code to query each object type)
 
