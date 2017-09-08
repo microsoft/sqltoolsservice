@@ -273,9 +273,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             operation.Execute();
 
             // If the scripting was successful, we should see a file with the scripts
+            bool objectFound = false;
+            int lineNumber = 0;
             if (File.Exists(tempFileName))
             {
-                int lineNumber = 0;
                 using (StreamReader scriptFile = new StreamReader(tempFileName))
                 {
                     string line;
@@ -286,11 +287,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
                             line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
                         {
+                            objectFound = true;
                             lineNumber = lineCount;
                         }
                         lineCount++;
                     }
                 }
+            }
+            if (objectFound)
+            {
                 return GetLocationFromFile(tempFileName, lineNumber);
             }
             else

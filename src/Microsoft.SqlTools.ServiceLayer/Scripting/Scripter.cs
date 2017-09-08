@@ -22,7 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             AddSupportedType(DeclarationType.View, "View", "view", typeof(View));
             AddSupportedType(DeclarationType.StoredProcedure, "Procedure", "stored procedure", typeof(StoredProcedure));
             AddSupportedType(DeclarationType.Schema, "Schema", "schema", typeof(Schema));
-            AddSupportedType(DeclarationType.Database, "Database", "database", typeof(Database));
             AddSupportedType(DeclarationType.UserDefinedDataType, "UserDefinedDataType", "user-defined data type", typeof(UserDefinedDataType));
             AddSupportedType(DeclarationType.UserDefinedTableType, "UserDefinedTableType", "user-defined table type", typeof(UserDefinedTableType));
             AddSupportedType(DeclarationType.Synonym, "Synonym", "", typeof(Synonym));

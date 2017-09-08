@@ -62,10 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 AssertSchemaInFile(tempFile.FilePath, assert: true);
@@ -90,10 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(completeParameters.Success);
-                Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 AssertSchemaInFile(tempFile.FilePath, assert: true);
@@ -127,10 +123,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                //ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(1, planEvent.Count);
+                //Assert.Equal<int>(1, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }
@@ -219,6 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
+                        ContinueScriptingOnError = false
                     },
                     ScriptingObjects = new List<ScriptingObject>
                     {

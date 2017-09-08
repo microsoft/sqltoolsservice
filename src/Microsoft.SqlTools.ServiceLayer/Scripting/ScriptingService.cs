@@ -167,7 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptingService.ConnectionServiceInstance.TryFindConnection(
                     parameters.ConnectionString,
                     out connInfo);
-                parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                if (connInfo != null)
+                {
+                    parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                }
                 ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
                 operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
                 operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
