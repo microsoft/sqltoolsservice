@@ -3285,6 +3285,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string BackupPathIsFolderError
+        {
+            get
+            {
+                return Keys.GetString(Keys.BackupPathIsFolderError);
+            }
+        }
+
+        public static string InvalidBackupPathError
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidBackupPathError);
+            }
+        }
+
         public static string TaskInProgress
         {
             get
@@ -3493,6 +3509,15 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string InvalidPathError
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidPathError);
+            }
+        }
+
+        
         public static string ProfilerConnectionNotFound
         {
             get
@@ -3501,7 +3526,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ConnectionServiceListDbErrorNotConnected(string uri)
+		public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
         }
@@ -4842,6 +4867,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string BackupTaskName = "BackupTaskName";
 
 
+            public const string BackupPathIsFolderError = "BackupPathIsFolderError";
+
+
+            public const string InvalidBackupPathError = "InvalidBackupPathError";
+
+
             public const string TaskInProgress = "TaskInProgress";
 
 
@@ -4918,6 +4949,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptTaskName = "ScriptTaskName";
+
+
+            public const string InvalidPathError = "InvalidPathError";
 
 
             public const string ProfilerConnectionNotFound = "ProfilerConnectionNotFound";

@@ -807,6 +807,10 @@ prototype_file_noApplicableFileGroup = No Applicable Filegroup
 # Backup Service
 BackupTaskName = Backup Database
 
+# Backup File Validation Errors
+BackupPathIsFolderError = The provided path specifies a directory but a file path is required: {0}
+InvalidBackupPathError =  Cannot verify the existence of the backup file location: {0}
+
 ############################################################################
 # Task Service
 TaskInProgress = In progress
@@ -842,6 +846,9 @@ TheLastBackupTaken = The last backup taken ({0})
 # Generate Script
 ScriptTaskName = scripting
 
+############################################################################
+# File Browser Validation Errors
+InvalidPathError = Cannot access the specified path on the server: {0}
 
 ############################################################################
 # Profiler

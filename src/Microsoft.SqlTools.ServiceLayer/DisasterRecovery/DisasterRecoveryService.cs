@@ -9,12 +9,11 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
-using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -26,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
+        private FileBrowserService fileBrowserService = null;
         private RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
 
         /// <summary>
@@ -79,6 +79,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         /// <summary>
+        /// Gets or sets the current filebrowser service instance
+        /// </summary>
+        internal FileBrowserService FileBrowserServiceInstance
+        {
+            get
+            {
+                if (fileBrowserService == null)
+                {
+                    fileBrowserService = FileBrowserService.Instance;
+                }
+                return fileBrowserService;
+            }
+            set
+            {
+                fileBrowserService = value;
+            }
+        }
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
         public void InitializeService(IProtocolEndpoint serviceHost)
@@ -89,14 +108,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             // Create backup
             serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
 
-            // Create respore task
+            // Create restore task
             serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest);
 
-            // Create respore plan
+            // Create restore plan
             serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
 
-            // Create respore config
+            // Create restore config
             serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
+
+            // Register file path validation callbacks
+            FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
+            FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Restore, DisasterRecoveryFileValidator.ValidatePaths);
         }
 
         /// <summary>
