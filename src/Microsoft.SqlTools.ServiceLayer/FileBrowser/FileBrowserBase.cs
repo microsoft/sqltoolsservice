@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             using (DataSet ds = enumerator.Process(connection, req))
             {
-                if (ds.Tables[0].Rows.Count > 0)
+                if (IsValidDataSet(ds))
                 {
                     pathSeparator = Convert.ToString(ds.Tables[0].Rows[0][0], System.Globalization.CultureInfo.InvariantCulture);
                 }
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             {
                 using (DataSet ds = enumerator.Process(connection, req))
                 {
-                    if (ds.Tables[0].Rows.Count > 0)
+                    if (IsValidDataSet(ds))
                     {
                         clustered = Convert.ToBoolean(ds.Tables[0].Rows[0][0],
                             CultureInfo.InvariantCulture);
@@ -114,23 +114,26 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             using (DataSet ds = enumerator.Process(connection, req))
             {
-                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                if (IsValidDataSet(ds))
                 {
-                    var fileInfo = new FileInfo
+                    for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                     {
-                        fileName = string.Empty,
-                        path = Convert.ToString(ds.Tables[0].Rows[i][0], System.Globalization.CultureInfo.InvariantCulture)
-                    };
+                        var fileInfo = new FileInfo
+                        {
+                            fileName = string.Empty,
+                            path = Convert.ToString(ds.Tables[0].Rows[i][0], System.Globalization.CultureInfo.InvariantCulture)
+                        };
 
-                    // if we're looking at shared devices on a clustered server
-                    // they already have \ on the drive
-                    // sys.dm_os_enumerate_fixed_drives appends a \ on Windows for sql17+
-                    if (!clustered && hostPlatform == HostPlatformNames.Windows && !fileInfo.path.EndsWith(pathSeparator))
-                    {
-                        fileInfo.path += pathSeparator;
+                        // if we're looking at shared devices on a clustered server
+                        // they already have \ on the drive
+                        // sys.dm_os_enumerate_fixed_drives appends a \ on Windows for sql17+
+                        if (!clustered && hostPlatform == HostPlatformNames.Windows && !fileInfo.path.EndsWith(pathSeparator))
+                        {
+                            fileInfo.path += pathSeparator;
+                        }
+
+                        yield return fileInfo;
                     }
-
-                    yield return fileInfo;
                 }
             }
         }
@@ -163,18 +166,30 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             using (DataSet ds = enumerator.Process(connection, request))
             {
-                foreach (DataRow row in ds.Tables[0].Rows)
+                if (IsValidDataSet(ds))
                 {
-                    bool isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture);
-                    yield return new FileInfo
+                    foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        path = isFile ? path : Convert.ToString((object)row[2], CultureInfo.InvariantCulture),
-                        fileName = isFile ? Convert.ToString((object)row[0], CultureInfo.InvariantCulture) : String.Empty,
-                        folderName = isFile ? String.Empty : Convert.ToString((object)row[0], CultureInfo.InvariantCulture),
-                        fullPath = isFile ? Convert.ToString((object)row[2], CultureInfo.InvariantCulture) : String.Empty
-                    };
+                        bool isFile = Convert.ToBoolean((object)row[1], CultureInfo.InvariantCulture);
+                        yield return new FileInfo
+                        {
+                            path = isFile ? path : Convert.ToString((object)row[2], CultureInfo.InvariantCulture),
+                            fileName = isFile ? Convert.ToString((object)row[0], CultureInfo.InvariantCulture) : String.Empty,
+                            folderName = isFile ? String.Empty : Convert.ToString((object)row[0], CultureInfo.InvariantCulture),
+                            fullPath = isFile ? Convert.ToString((object)row[2], CultureInfo.InvariantCulture) : String.Empty
+                        };
+                    }
                 }
             }
+        }
+
+        internal static bool IsValidDataSet(DataSet ds)
+        {
+            return (ds != null 
+                && ds.Tables != null 
+                && ds.Tables.Count > 0 
+                && ds.Tables[0].Rows != null 
+                && ds.Tables[0].Rows.Count > 0) ;
         }
     }
 }

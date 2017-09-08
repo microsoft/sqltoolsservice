@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             using (DataSet ds = en.Process(connection, req))
             {
-                if (ds.Tables[0].Rows.Count > 0)
+                if (FileBrowserBase.IsValidDataSet(ds))
                 {
                     isFolder = !(Convert.ToBoolean(ds.Tables[0].Rows[0]["IsFile"], CultureInfo.InvariantCulture));
                     isExisting = true;

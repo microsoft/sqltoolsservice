@@ -76,6 +76,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="callback"></param>
         public void RegisterValidatePathsCallback(string service, ValidatePathsCallback callback)
         {
+            if (this.validatePathsCallbackMap.ContainsKey(service))
+            {
+                this.validatePathsCallbackMap.Remove(service);
+            }
+
             this.validatePathsCallbackMap.Add(service, callback);
         }
 
@@ -158,6 +163,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 this.ownerToFileBrowserMap.Remove(fileBrowserParams.OwnerUri);
                 response.Succeeded = true;
             }
+            else
+            {
+                response.Succeeded = false;
+            }
+
             await requestContext.SendResult(response);
         }
 
