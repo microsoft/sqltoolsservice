@@ -13,7 +13,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
 	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.5" />
-	<PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.2.4" />
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
