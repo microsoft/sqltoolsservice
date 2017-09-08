@@ -841,3 +841,8 @@ TheLastBackupTaken = The last backup taken ({0})
 ############################################################################
 # Generate Script
 ScriptTaskName = scripting
+
+
+############################################################################
+# Profiler
+ProfilerConnectionNotFound = Connection not found

@@ -1919,4 +1919,8 @@
     <value>scripting</value>
     <comment></comment>
   </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Connection not found</value>
+    <comment></comment>
+  </data>
 </root>

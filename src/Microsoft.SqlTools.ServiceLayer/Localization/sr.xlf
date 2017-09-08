@@ -2250,6 +2250,11 @@
         <target state="new">scripting</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ProfilerConnectionNotFound">
+        <source>Connection not found</source>
+        <target state="new">Connection not found</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

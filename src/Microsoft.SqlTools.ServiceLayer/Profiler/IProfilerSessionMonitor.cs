@@ -4,17 +4,20 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Xml;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IProfilerServiceHelper
+    public interface IProfilerSessionMonitor
     {
-        Session GetOrCreateSession(ConnectionDetails connectionDetails);
+        bool StartMonitoringSession(ProfilerSession session);
+
+        bool StopMonitoringSession(string sessionId);
     }
 }
