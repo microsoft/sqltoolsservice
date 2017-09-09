@@ -3517,7 +3517,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        
         public static string ProfilerConnectionNotFound
         {
             get
@@ -3526,7 +3525,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-		public static string ConnectionServiceListDbErrorNotConnected(string uri)
+        public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
         }

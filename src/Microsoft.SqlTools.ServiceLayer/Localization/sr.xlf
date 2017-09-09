@@ -2250,11 +2250,11 @@
         <target state="new">scripting</target>
         <note></note>
       </trans-unit>
-<<<<<<< HEAD
       <trans-unit id="ProfilerConnectionNotFound">
         <source>Connection not found</source>
         <target state="new">Connection not found</target>
-=======
+        <note></note>
+      </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
         <source>The provided path specifies a directory but a file path is required: {0}</source>
         <target state="new">The file name specified is also a directory name: {0}</target>
@@ -2268,7 +2268,6 @@
       <trans-unit id="InvalidPathError">
         <source>Cannot access the specified path on the server: {0}</source>
         <target state="new">Cannot access the specified path on the server: {0}</target>
->>>>>>> master
         <note></note>
       </trans-unit>
     </body>
