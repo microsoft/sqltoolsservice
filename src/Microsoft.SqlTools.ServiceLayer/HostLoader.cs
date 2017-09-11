@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -93,6 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             DisasterRecoveryService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
+
+            FileBrowserService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(FileBrowserService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
