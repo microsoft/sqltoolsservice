@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 var metadata = new List<ObjectMetadata>();
                 if (connInfo != null) 
                 {                    
-                    using (SqlConnection sqlConn = OpenMetadataConnection(connInfo))
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
                     {
                         ReadMetadata(sqlConn, metadata);
                     }
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 ColumnMetadata[] metadata = null;
                 if (connInfo != null) 
                 {
-                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);                    
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);                    
                     TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
                         sqlConn, metadataParams.Schema, 
                         metadataParams.ObjectName, objectType);
@@ -145,35 +145,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             {
                 await requestContext.SendError(ex.ToString());
             }
-        }
-
-        /// <summary>
-        /// Create a SqlConnection to use for querying metadata
-        /// </summary>
-        internal static SqlConnection OpenMetadataConnection(ConnectionInfo connInfo)
-        {
-            try
-            {                 
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString); 
-                sqlConn.Open();
-                return sqlConn;
-            }
-            catch (Exception)
-            {
-            }
-            
-            return null;
         }
 
         internal static bool IsSystemDatabase(string database)

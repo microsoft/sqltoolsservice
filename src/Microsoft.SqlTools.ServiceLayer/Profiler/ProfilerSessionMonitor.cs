@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSessionMonitor : IProfilerSessionMonitor
     {
-        private const int PollingDelay = 1000;
+        private const int PollingLoopDelay = 1000;
 
         private object sessionsLock = new object();
 
@@ -83,17 +83,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return Task.Factory.StartNew(ProcessSessions);
         }
 
-        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events)
-        {
-            lock (listenersLock)
-            {
-                foreach (var listener in this.listeners)
-                {
-                    listener.EventsAvailable(sessionId, events);
-                }
-            }
-        }
-
         /// <summary>
         /// The core queue processing method
         /// </summary>
@@ -106,18 +95,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     foreach (var session in this.monitoredSessions.Values)
                     {
-                        if (!session.IsPolling)
-                        {
-                            var localSession = session;
-                            Task.Factory.StartNew(() => 
-                            {
-                                PollSession(localSession);
-                            });
-                        }
+                        ProcessSession(session);
                     }
                 }
 
-                Thread.Sleep(PollingDelay);
+                Thread.Sleep(PollingLoopDelay);
+            }
+        }
+
+        private void ProcessSession(ProfilerSession session)
+        {
+            if (!session.IsPolling)
+            {
+                Task.Factory.StartNew(() => 
+                {
+                    var events = PollSession(session);
+                    if (events.Count > 0)
+                    {
+                        SendEventsToListeners(session.SessionId, events);
+                    }
+                });
             }
         }
 
@@ -140,31 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
                 foreach (XmlNode node in nodes)
                 {
-                    var profilerEvent = new ProfilerEvent()
+                    var profilerEvent = ParseProfilerEvent(node);
+                    if (profilerEvent != null)
                     {
-                        Id = Guid.NewGuid().ToString()
-                    };
-    
-                    var name = node.Attributes["name"];
-                    var timestamp = node.Attributes["timestamp"];
-
-                    profilerEvent.Name = name.InnerText;
-                    profilerEvent.Timestamp = timestamp.InnerText;
-            
-                    foreach (XmlNode childNode in node.ChildNodes)
-                    {
-                        var childName = childNode.Attributes["name"];
-                        XmlNode typeNode = childNode.SelectSingleNode("type");
-                        var typeName = typeNode.Attributes["name"];
-                        XmlNode valueNode = childNode.SelectSingleNode("value");
-
-                        if (!profilerEvent.Values.ContainsKey(childName.InnerText))
-                        {
-                            profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
-                        }
+                        events.Add(profilerEvent);
                     }
-
-                    events.Add(profilerEvent);
                 }
             }
             finally
@@ -173,6 +150,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
 
             return events;
+        }
+
+        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events)
+        {
+            lock (listenersLock)
+            {
+                foreach (var listener in this.listeners)
+                {
+                    listener.EventsAvailable(sessionId, events);
+                }
+            }
+        }
+
+        private ProfilerEvent ParseProfilerEvent(XmlNode node)
+        {
+            var name = node.Attributes["name"];
+            var timestamp = node.Attributes["timestamp"];
+
+            var profilerEvent = new ProfilerEvent(name.InnerText, timestamp.InnerText);
+    
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                var childName = childNode.Attributes["name"];
+                XmlNode typeNode = childNode.SelectSingleNode("type");
+                var typeName = typeNode.Attributes["name"];
+                XmlNode valueNode = childNode.SelectSingleNode("value");
+
+                if (!profilerEvent.Values.ContainsKey(childName.InnerText))
+                {
+                    profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
+                }
+            }
+
+            return profilerEvent;
         }
     }
 }

@@ -1086,5 +1086,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
             }
         }
+
+        /// <summary>
+        /// Create and open a new SqlConnection from a ConnectionInfo object
+        /// Note: we need to audit all uses of this method to determine why we're
+        /// bypassing normal ConnectionService connection management
+        /// </summary>
+        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
+        {
+            try
+            {                 
+                // increase the connection timeout to at least 30 seconds and and build connection string
+                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
+                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+
+                // open a dedicated binding server connection
+                SqlConnection sqlConn = new SqlConnection(connectionString); 
+                sqlConn.Open();
+                return sqlConn;
+            }
+            catch (Exception)
+            {
+            }
+            
+            return null;
+        }
     }
 }

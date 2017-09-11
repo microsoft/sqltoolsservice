@@ -12,17 +12,67 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// </summary>
     public class ProfilerEvent
     {
-        public ProfilerEvent()
+        /// <summary>
+        /// Initialize a new ProfilerEvent with required parameters
+        /// </summary>
+        public ProfilerEvent(string name, string timestamp)
         {
+            this.Name = name;
+            this.Timestamp = timestamp;
             this.Values = new Dictionary<string, string>();
         }
 
-        public string Id { get; set; }
+        /// <summary>
+        /// Profiler event name
+        /// </summary>
+        public string Name { get; private set; }
 
-        public string Name { get; set; }
+        /// <summary>
+        /// Profiler event timestamp
+        /// </summary>
+        public string Timestamp { get; private set; }
 
-        public string Timestamp { get; set; }
+        /// <summary>
+        /// Profiler event values collection
+        /// </summary>
+        public Dictionary<string, string> Values { get; private set; }
 
-        public Dictionary<string, string> Values { get; set; }
+        /// <summary>
+        /// Equals method
+        /// </summary>
+        public bool Equals(ProfilerEvent p)
+        {
+            // if parameter is null return false:
+            if ((object)p == null)
+            {
+                return false;
+            }
+
+            return this.Name == p.Name
+                && this.Timestamp == p.Timestamp
+                && this.Values.Count == p.Values.Count;
+        }
+
+        /// <summary>
+        /// GetHashCode method
+        /// </summary>
+        public override int GetHashCode()
+        {
+            int hashCode = this.GetType().ToString().GetHashCode();
+
+            if (this.Name != null)
+            {
+                hashCode ^= this.Name.GetHashCode();
+            }
+
+            if (this.Timestamp != null)
+            {
+                hashCode ^= this.Timestamp.GetHashCode();
+            }
+
+            hashCode ^= this.Values.Count.GetHashCode();
+
+            return hashCode;
+        }
     }
 }
