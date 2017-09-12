@@ -21,7 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 return string.Empty;
             }
 
-            var defaultTarget = this.Session.Targets.First();
+            // try to read events from the first target
+            Target defaultTarget = this.Session.Targets.FirstOrDefault();
             return defaultTarget != null ? defaultTarget.GetTargetData() : string.Empty;
         }
     }

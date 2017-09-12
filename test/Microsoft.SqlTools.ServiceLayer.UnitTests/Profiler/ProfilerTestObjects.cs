@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,22 @@ using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
+    public static class ProfilerTestObjects
+    {
+        public static List<ProfilerEvent> TestProfilerEvents
+        {
+            get
+            {
+                return new List<ProfilerEvent>
+                {
+                    new ProfilerEvent("event1", "1/1/2017"),
+                    new ProfilerEvent("event2", "1/2/2017"),
+                    new ProfilerEvent("event3", "1/3/2017")
+                };
+            }
+        }
+    }
+
     public class TestXEventSession : IXEventSession
     {
         private string testXEventXml = 

@@ -11,6 +11,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
 {
     public class ProfilerEventsAvailableParams
     {
+        public string SessionId { get; set; }
+
         public List<ProfilerEvent> Events { get; set; }
     }
 

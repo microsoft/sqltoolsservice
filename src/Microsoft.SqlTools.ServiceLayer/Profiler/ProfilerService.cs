@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// <summary>
     /// Main class for Profiler Service functionality
     /// </summary>
-    public sealed class ProfilerService : IDisposable, IXEventSessionFactory
+    public sealed class ProfilerService : IDisposable, IXEventSessionFactory, IProfilerSessionListener
     {
         private bool disposed;
 
@@ -39,6 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private ProfilerSessionMonitor monitor = new ProfilerSessionMonitor();
 
         private static readonly Lazy<ProfilerService> instance = new Lazy<ProfilerService>(() => new ProfilerService());
+
+        /// <summary>
+        /// Construct a new ProfilerService instance with default parameters
+        /// </summary>
+        public ProfilerService()
+        {
+            this.XEventSessionFactory = this;
+        }
 
         /// <summary>
         /// Gets the singleton instance object
@@ -68,45 +76,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// XEvent session factory.  Internal to allow mocking in unit tests.
+        /// </summary>
         internal IXEventSessionFactory XEventSessionFactory { get; set; }
 
-        public ProfilerService()
+        /// <summary>
+        /// Session monitor instance
+        /// </summary>
+        private ProfilerSessionMonitor SessionMonitor
         {
-            this.XEventSessionFactory = this;
+            get
+            {
+                return this.monitor;
+            }
         }
 
-        public IXEventSession CreateXEventSession(ConnectionInfo connInfo)
+        /// <summary>
+        /// Service host object for sending/receiving requests/events.
+        /// Internal for testing purposes.
+        /// </summary>
+        internal IProtocolEndpoint ServiceHost
         {
-            SqlConnectionStringBuilder connectionBuilder;          
-            connectionBuilder = new SqlConnectionStringBuilder
-            {
-                IntegratedSecurity = false,
-                ["Data Source"] = "localhost",
-                ["User Id"] = "sa",
-                ["Password"] = "Yukon900",
-                ["Initial Catalog"] = "master"
-            };
-
-            SqlConnection sqlConnection = new SqlConnection(connectionBuilder.ToString());
-            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-            XEStore store = new XEStore(connection);
-            Session session = store.Sessions["Profiler"];
-
-            try
-            {
-                // start the session if it isn't already running
-                if (!session.IsRunning)
-                {
-                    session.Start();
-                }
-            }
-            catch { }
-
-            // create xevent session wrapper
-            return new XEventSession()
-            {
-                Session = session
-            };
+            get;
+            set;
         }
 
         /// <summary>
@@ -114,10 +107,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
-            serviceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
+            this.ServiceHost = serviceHost;
+            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
+            this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
+
+            this.SessionMonitor.AddSessionListener(this);
         }
-        
+
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
@@ -167,8 +163,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             } 
         }
 
-        public ProfilerSession StartSession(ConnectionInfo connInfo)
+        /// <summary>
+        /// Starts a new profiler session for the provided connection
+        /// </summary>
+        internal ProfilerSession StartSession(ConnectionInfo connInfo)
         {
+            // create a new XEvent session and Profiler session
             var xeSession = this.XEventSessionFactory.CreateXEventSession(connInfo);
             var profilerSession = new ProfilerSession()
             {
@@ -176,9 +176,61 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 XEventSession = xeSession
             };
 
+            // start monitoring the profiler session
             monitor.StartMonitoringSession(profilerSession);
 
             return profilerSession;
+        }
+
+        /// <summary>
+        /// Create a new XEvent sessions per the IXEventSessionFactory contract
+        /// </summary>
+        public IXEventSession CreateXEventSession(ConnectionInfo connInfo)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
+            Session session = ProfilerService.GetOrCreateSession(connection, "Profiler");
+
+            // create xevent session wrapper
+            return new XEventSession()
+            {
+                Session = session
+            };
+        }
+
+        /// <summary>
+        /// Gets an existing XEvent session or creates one if no matching session exists.
+        /// Also starts the session if it isn't currently running
+        /// </summary>
+        private static Session GetOrCreateSession(SqlStoreConnection connection, string sessionName)
+        {
+            XEStore store = new XEStore(connection);
+            Session session = store.Sessions["Profiler"];
+            try
+            {
+                // start the session if it isn't already running
+                if (session != null && !session.IsRunning)
+                {
+                    session.Start();
+                }
+            }
+            catch { }
+            return session;
+        }
+
+        /// <summary>
+        /// Callback when profiler events are available
+        /// </summary>
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
+        {
+            // pass the profiler events on to the client
+            this.ServiceHost.SendEvent(
+                ProfilerEventsAvailableNotification.Type,
+                new ProfilerEventsAvailableParams()
+                {
+                    SessionId = sessionId,
+                    Events = events
+                });
         }
 
         /// <summary>

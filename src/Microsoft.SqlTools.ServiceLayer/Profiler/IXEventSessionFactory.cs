@@ -15,6 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public interface IXEventSessionFactory
     {
+        /// <summary>
+        /// Create a new XEvent session
+        /// </summary>
         IXEventSession CreateXEventSession(ConnectionInfo connInfo);
     }
 }

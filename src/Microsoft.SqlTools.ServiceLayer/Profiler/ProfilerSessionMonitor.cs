@@ -35,6 +35,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
 
+        /// <summary>
+        /// Registers a session event listener to receive a callback when events arrive
+        /// </summary>
         public void AddSessionListener(IProfilerSessionListener listener)
         {   
             lock (this.listenersLock) 
@@ -43,6 +46,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// Start monitoring the provided sessions
+        /// </summary>
         public bool StartMonitoringSession(ProfilerSession session)
         {
             lock (this.sessionsLock)
@@ -50,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // start the monitoring thread 
                 if (this.processorThread == null)
                 {
-                    this.processorThread = StartSessionProcessor();
+                    this.processorThread = Task.Factory.StartNew(ProcessSessions);;
                 }
 
                 if (!this.monitoredSessions.ContainsKey(session.SessionId))
@@ -62,6 +68,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return true;
         }
 
+        /// <summary>
+        /// Stop monitoring the session specified by the sessionId
+        /// </summary>
         public bool StopMonitoringSession(string sessionId)
         {
             lock (this.sessionsLock)
@@ -76,11 +85,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     return false;
                 }
             }
-        }
-
-        private Task StartSessionProcessor()
-        {
-            return Task.Factory.StartNew(ProcessSessions);
         }
 
         /// <summary>
@@ -103,9 +107,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// Process a session for new XEvents if it meets the polling criteria
+        /// </summary>
         private void ProcessSession(ProfilerSession session)
         {
-            if (!session.IsPolling)
+            if (session.TryEnterPolling())
             {
                 Task.Factory.StartNew(() => 
                 {
@@ -121,7 +128,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private List<ProfilerEvent> PollSession(ProfilerSession session)
         {
             var events = new List<ProfilerEvent>();
-            session.IsPolling = true;
             try
             {
                 if (session == null || session.XEventSession == null)
@@ -149,9 +155,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.IsPolling = false;
             }
 
-            return events;
+            return session.FilterOldEvents(events);
         }
 
+        /// <summary>
+        /// Notify listeners when new profiler events are available
+        /// </summary>
         private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events)
         {
             lock (listenersLock)
@@ -163,6 +172,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// Parse a single event node from XEvent XML
+        /// </summary>
         private ProfilerEvent ParseProfilerEvent(XmlNode node)
         {
             var name = node.Attributes["name"];

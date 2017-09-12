@@ -3,17 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
-using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using System.Data.SqlClient;
-using System;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
-using Microsoft.SqlTools.Hosting.Protocol;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 {
@@ -71,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
 
             var result = GetLiveAutoCompleteTestObjects();
-            var sqlConn = MetadataService.OpenMetadataConnection(result.ConnectionInfo);
+            var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
             Assert.NotNull(sqlConn);
 
             CreateTestTable(sqlConn);
@@ -101,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
                    
             var result = GetLiveAutoCompleteTestObjects();
-            var sqlConn = MetadataService.OpenMetadataConnection(result.ConnectionInfo);
+            var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
 
             CreateTestTable(sqlConn);
 

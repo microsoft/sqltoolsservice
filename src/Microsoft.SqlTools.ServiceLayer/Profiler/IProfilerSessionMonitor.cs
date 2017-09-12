@@ -14,10 +14,19 @@ using Microsoft.SqlServer.Management.XEvent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
+    /// <summary>
+    /// Profiler session monitor interface
+    /// </summary>
     public interface IProfilerSessionMonitor
     {
+        /// <summary>
+        /// Starts monitoring a profiler session
+        /// </summary>
         bool StartMonitoringSession(ProfilerSession session);
 
+        /// <summary>
+        /// Stops monitoring a profiler session
+        /// </summary>
         bool StopMonitoringSession(string sessionId);
     }
 }
