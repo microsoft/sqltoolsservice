@@ -209,15 +209,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             XEStore store = new XEStore(connection);
             Session session = store.Sessions["Profiler"];
-            try
+            // start the session if it isn't already running
+            if (session != null && !session.IsRunning)
             {
-                // start the session if it isn't already running
-                if (session != null && !session.IsRunning)
-                {
-                    session.Start();
-                }
+                session.Start();
             }
-            catch { }
             return session;
         }
 
