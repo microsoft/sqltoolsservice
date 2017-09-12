@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
                         BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
                         backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
@@ -333,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (connInfo != null)
                 {
                     sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
                         connectionInfo = connInfo;
                         return true;

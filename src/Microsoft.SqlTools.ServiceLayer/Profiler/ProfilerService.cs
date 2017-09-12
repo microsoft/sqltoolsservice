@@ -155,7 +155,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             try
             {
                 monitor.StopMonitoringSession(parameters.SessionId);
-                await requestContext.SendResult(new StopProfilingResult());
+                await requestContext.SendResult(new StopProfilingResult
+                {
+                    Succeeded = true
+                });
             }
             catch (Exception e)
             {

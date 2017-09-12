@@ -1111,8 +1111,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 sqlConn.Open();
                 return sqlConn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                string error = string.Format(CultureInfo.InvariantCulture, 
+                    "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
+                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
             }
             
             return null;
