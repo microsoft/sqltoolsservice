@@ -143,8 +143,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = GetSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
                         BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
                         backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
@@ -296,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (supported && connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = GetSqlConnection(connInfo);
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
 
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
                     SqlTask sqlTask = null;
@@ -320,32 +320,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        internal static SqlConnection GetSqlConnection(ConnectionInfo connInfo)
-        {
-            try
-            {
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString);
-                sqlConn.Open();
-                return sqlConn;
-            }
-            catch (Exception)
-            {
-            }
-
-            return null;
-        }
-
         private bool IsBackupRestoreOperationSupported(string ownerUri, out ConnectionInfo connectionInfo)
         {
             SqlConnection sqlConn = null;
@@ -358,8 +332,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (connInfo != null)
                 {
-                    sqlConn = GetSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
                         connectionInfo = connInfo;
                         return true;
