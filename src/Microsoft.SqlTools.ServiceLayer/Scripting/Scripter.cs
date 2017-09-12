@@ -10,8 +10,8 @@ using System.Collections.Specialized;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using  Microsoft.SqlServer.Management.Common;
+
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
 	internal partial class Scripter
