@@ -35,6 +35,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         }
     }
 
+    public class TestSessionListener : IProfilerSessionListener
+    {
+        public string PreviousSessionId { get; set; }
+
+        public List<ProfilerEvent> PreviousEvents { get; set; }
+
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
+        {
+            this.PreviousSessionId = sessionId;
+            this.PreviousEvents = events;
+        }
+    }
+
     public class TestXEventSession : IXEventSession
     {
         private string testXEventXml = 

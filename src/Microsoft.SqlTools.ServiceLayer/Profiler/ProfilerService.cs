@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Session monitor instance
         /// </summary>
-        private ProfilerSessionMonitor SessionMonitor
+        internal ProfilerSessionMonitor SessionMonitor
         {
             get
             {
