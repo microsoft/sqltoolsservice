@@ -12,13 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
@@ -36,46 +30,48 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         [Fact]
         public async Task TestHandleStartAndStopProfilingRequests()
         {
-            // initialize test state
-            ProfilerService profilerService = new ProfilerService();
-            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
-
-            // start a new session
-            var startParams = new StartProfilingParams();
-            startParams.OwnerUri = liveConnection.ConnectionInfo.OwnerUri;
-            startParams.TemplateName = "Standard";
-
-            string sessionId = null;
-            var startContext = new Mock<RequestContext<StartProfilingResult>>();
-            startContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                .Returns<StartProfilingResult>((result) => 
-                {
-                    // capture the session id for sending the stop message
-                    sessionId = result.SessionId;
-                    return Task.FromResult(0);
-                });
-
-            await profilerService.HandleStartProfilingRequest(startParams, startContext.Object);
-
-            startContext.VerifyAll();
-
-            // wait a bit for the session monitoring to initialize
-            Thread.Sleep(TimeSpan.FromHours(1));
-
-            // stop the session
-            var stopParams = new StopProfilingParams()
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                SessionId = sessionId
-            };
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-            var stopContext = new Mock<RequestContext<StopProfilingResult>>();
-            stopContext.Setup(rc => rc.SendResult(It.IsAny<StopProfilingResult>()))
-                .Returns(Task.FromResult(0));
+                ProfilerService profilerService = new ProfilerService();
 
-            await profilerService.HandleStopProfilingRequest(stopParams, stopContext.Object);
+                // start a new session
+                var startParams = new StartProfilingParams();
+                startParams.OwnerUri = connectionResult.ConnectionInfo.OwnerUri;
+                startParams.TemplateName = "Standard";
 
+                string sessionId = null;
+                var startContext = new Mock<RequestContext<StartProfilingResult>>();
+                startContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
+                    .Returns<StartProfilingResult>((result) => 
+                    {
+                        // capture the session id for sending the stop message
+                        sessionId = result.SessionId;
+                        return Task.FromResult(0);
+                    });
 
-            stopContext.VerifyAll();
+                await profilerService.HandleStartProfilingRequest(startParams, startContext.Object);
+
+                startContext.VerifyAll();
+
+                // wait a bit for the session monitoring to initialize
+                Thread.Sleep(TimeSpan.FromHours(1));
+
+                // stop the session
+                var stopParams = new StopProfilingParams()
+                {
+                    SessionId = sessionId
+                };
+
+                var stopContext = new Mock<RequestContext<StopProfilingResult>>();
+                stopContext.Setup(rc => rc.SendResult(It.IsAny<StopProfilingResult>()))
+                    .Returns(Task.FromResult(0));
+
+                await profilerService.HandleStopProfilingRequest(stopParams, stopContext.Object);
+
+                stopContext.VerifyAll();
+            }           
         }
 
         /// <summary>
