@@ -180,10 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             // check if the connection is using SQL Auth or Integrated Auth
             if (string.Equals(connInfo.ConnectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
             {
-                var passwordSecureString = new System.Security.SecureString();
-                foreach (char c in connInfo.ConnectionDetails.Password) {
-                    passwordSecureString.AppendChar(c);
-                }
+                var passwordSecureString = BuildSecureStringFromPassword(connInfo.ConnectionDetails.Password);
                 dataContainer = new CDataContainer(
                     CDataContainer.ServerType.SQL,
                     connInfo.ConnectionDetails.ServerName,
@@ -205,6 +202,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             var taskHelper = new DatabaseTaskHelper(dataContainer);
             return taskHelper;
+        }
+
+        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) {
+            var passwordSecureString = new System.Security.SecureString();
+            if (password != null) {
+                foreach (char c in password) {
+                    passwordSecureString.AppendChar(c);
+                }
+            }
+            return passwordSecureString;
         }
 
         /// <summary>
