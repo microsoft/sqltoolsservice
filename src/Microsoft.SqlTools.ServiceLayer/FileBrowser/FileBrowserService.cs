@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams)
         {
-            FileBrowserOpenCompleteParams result = new FileBrowserOpenCompleteParams();
+            FileBrowserOpenedParams result = new FileBrowserOpenedParams();
 
             try
             {
@@ -212,12 +212,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserOpenCompleteNotification.Type, result);
+            await ServiceHost.SendEvent(FileBrowserOpenedNotification.Type, result);
         }
 
         internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams)
         {
-            FileBrowserExpandCompleteParams result = new FileBrowserExpandCompleteParams();
+            FileBrowserExpandedParams result = new FileBrowserExpandedParams();
             try
             {
                 if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
@@ -238,12 +238,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserExpandCompleteNotification.Type, result);
+            await ServiceHost.SendEvent(FileBrowserExpandedNotification.Type, result);
         }
 
         internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams)
         {
-            FileBrowserValidateCompleteParams result = new FileBrowserValidateCompleteParams();
+            FileBrowserValidatedParams result = new FileBrowserValidatedParams();
 
             try
             {
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserValidateCompleteNotification.Type, result);
+            await ServiceHost.SendEvent(FileBrowserValidatedNotification.Type, result);
         }
     }
 }

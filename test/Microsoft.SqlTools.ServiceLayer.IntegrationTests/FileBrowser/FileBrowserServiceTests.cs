@@ -115,8 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             await service.RunFileBrowserOpenTask(openParams);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserOpenCompleteNotification.Type, 
-                It.Is<FileBrowserOpenCompleteParams>(p => p.Succeeded == true
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserOpenedNotification.Type, 
+                It.Is<FileBrowserOpenedParams>(p => p.Succeeded == true
                 && p.FileTree != null
                 && p.FileTree.RootNode != null
                 && p.FileTree.RootNode.Children != null
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             await service.RunFileBrowserValidateTask(validateParams);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidateCompleteNotification.Type, It.Is<FileBrowserValidateCompleteParams>(p => p.Succeeded == true)), Times.Once());
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidatedNotification.Type, It.Is<FileBrowserValidatedParams>(p => p.Succeeded == true)), Times.Once());
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             await service.RunFileBrowserValidateTask(validateParams);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidateCompleteNotification.Type, It.Is<FileBrowserValidateCompleteParams>(p => p.Succeeded == false)), Times.Once());
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidatedNotification.Type, It.Is<FileBrowserValidatedParams>(p => p.Succeeded == false)), Times.Once());
         }
 
         #region private methods

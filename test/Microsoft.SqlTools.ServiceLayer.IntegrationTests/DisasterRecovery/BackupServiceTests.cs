@@ -264,8 +264,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             await service.RunFileBrowserOpenTask(openParams);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserOpenCompleteNotification.Type,
-                It.Is<FileBrowserOpenCompleteParams>(p => p.Succeeded == true
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserOpenedNotification.Type,
+                It.Is<FileBrowserOpenedParams>(p => p.Succeeded == true
                 && p.FileTree != null
                 && p.FileTree.RootNode != null
                 && p.FileTree.RootNode.Children != null
@@ -285,8 +285,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             await service.RunFileBrowserExpandTask(expandParams);
 
             // Verify result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserExpandCompleteNotification.Type,
-                It.Is<FileBrowserExpandCompleteParams>(p => p.Succeeded == true
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserExpandedNotification.Type,
+                It.Is<FileBrowserExpandedParams>(p => p.Succeeded == true
                 && p.ExpandedNode.FullPath == backupConfigInfo.DefaultBackupFolder)),
                 Times.Once());
 
@@ -301,7 +301,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             await service.RunFileBrowserValidateTask(validateParams);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidateCompleteNotification.Type, It.Is<FileBrowserValidateCompleteParams>(p => p.Succeeded == true)), Times.Once());
+            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidatedNotification.Type, It.Is<FileBrowserValidatedParams>(p => p.Succeeded == true)), Times.Once());
 
             // Remove the backup file
             if (File.Exists(backupPath))

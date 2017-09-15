@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     /// Event params for opening a file browser
     /// Returns full directory structure on the server side
     /// </summary>
-    public class FileBrowserOpenCompleteParams
+    public class FileBrowserOpenedParams
     {
         /// <summary>
         /// Entire file/folder tree 
@@ -32,11 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     /// <summary>
     /// Notification for completing file browser opening
     /// </summary>
-    public class FileBrowserOpenCompleteNotification
+    public class FileBrowserOpenedNotification
     {
         public static readonly
-            EventType<FileBrowserOpenCompleteParams> Type =
-            EventType<FileBrowserOpenCompleteParams>.Create("filebrowser/opencomplete");
+            EventType<FileBrowserOpenedParams> Type =
+            EventType<FileBrowserOpenedParams>.Create("filebrowser/opencomplete");
     }
 
 }
