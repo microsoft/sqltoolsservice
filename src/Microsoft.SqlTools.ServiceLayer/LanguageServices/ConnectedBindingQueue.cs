@@ -81,20 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-
-                    // increase the connection timeout to at least 30 seconds and and build connection string
-                    // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                    int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                    bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                    connInfo.ConnectionDetails.ConnectTimeout = Math.Max(DefaultMinimumConnectionTimeout, originalTimeout ?? 0);
-                    connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                    connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                    // open a dedicated binding server connection
-                    SqlConnection sqlConn = new SqlConnection(connectionString);                    
-                    sqlConn.Open();
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
 
                     // populate the binding context to work with the SMO metadata provider
                     ServerConnection serverConn = new ServerConnection(sqlConn);                            

@@ -1,0 +1,127 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.SqlServer.Management.XEvent;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+
+namespace Microsoft.SqlTools.ServiceLayer.Profiler
+{
+    /// <summary>
+    /// Profiler session class
+    /// </summary>
+    public class ProfilerSession
+    {
+        private static readonly TimeSpan DefaultPollingDelay = TimeSpan.FromSeconds(1);
+        private object pollingLock = new object();
+        private bool isPolling = false;
+        private DateTime lastPollTime = DateTime.Now.Subtract(DefaultPollingDelay);
+        private TimeSpan pollingDelay = DefaultPollingDelay;
+        private ProfilerEvent lastSeenEvent = null;
+
+        /// <summary>
+        /// Unique ID for the session
+        /// </summary>
+        public string SessionId { get; set; }
+
+        /// <summary>
+        /// Connection to use for the session
+        /// </summary>
+        public ConnectionInfo ConnectionInfo { get; set; }
+
+        /// <summary>
+        /// Underlying XEvent session wrapper
+        /// </summary>
+        public IXEventSession XEventSession { get; set; }
+
+        /// <summary>
+        /// Try to set the session into polling mode if criteria is meet
+        /// </summary>
+        /// <returns>True if session set to polling mode, False otherwise</returns>
+        public bool TryEnterPolling()
+        {
+            lock (this.pollingLock)
+            {
+                if (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay)
+                {
+                    this.isPolling = true;
+                    this.lastPollTime = DateTime.Now;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Is the session currently being polled
+        /// </summary>
+        public bool IsPolling
+        {
+            get
+            {
+                return this.isPolling;
+            }
+            set
+            {
+                lock (this.pollingLock)
+                {
+                    this.isPolling  = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The delay between session polls
+        /// </summary>
+        public TimeSpan PollingDelay 
+        {
+            get
+            {
+                return pollingDelay;
+            }
+        }
+
+        /// <summary>
+        /// Filter the event list to not include previously seen events
+        /// </summary>
+        public List<ProfilerEvent> FilterOldEvents(List<ProfilerEvent> events)
+        {
+            if (lastSeenEvent != null)
+            {
+                // find the last event we've previously seen
+                bool foundLastEvent = false;
+                int idx = events.Count;
+                while (--idx >= 0)
+                {
+                    if (events[idx].Equals(lastSeenEvent))
+                    {
+                        foundLastEvent = true;
+                        break;
+                    }
+                }
+
+                // remove all the events we've seen before
+                if (foundLastEvent)
+                {
+                    events.RemoveRange(0, idx + 1);
+                }
+            }
+
+            // save the last event so we know where to clean-up the list from next time
+            if (events.Count > 0)
+            {
+                lastSeenEvent = events.LastOrDefault();
+            }
+
+            return events;
+        }
+    }
+}

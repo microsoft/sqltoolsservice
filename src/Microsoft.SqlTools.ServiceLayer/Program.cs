@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args);
+                ServiceLayerCommandOptions commandOptions = new ServiceLayerCommandOptions(args);
                 if (commandOptions.ShouldExit)
                 {
                     return;

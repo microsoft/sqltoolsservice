@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using Microsoft.SqlTools.Credentials.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
@@ -15,6 +16,8 @@ namespace Microsoft.SqlTools.Credentials
     /// </summary>
     internal class Program
     {
+        private const string ServiceName = "MicrosoftSqlToolsCredentials.exe";
+
         /// <summary>
         /// Main entry point into the Credentials Service Host
         /// </summary>
@@ -23,7 +26,7 @@ namespace Microsoft.SqlTools.Credentials
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args);
+                CommandOptions commandOptions = new CommandOptions(args, ServiceName);
                 if (commandOptions.ShouldExit)
                 {
                     return;
@@ -37,7 +40,7 @@ namespace Microsoft.SqlTools.Credentials
 
                 // turn on Verbose logging during early development
                 // we need to switch to Normal when preparing for public preview
-                Logger.Initialize(logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
+                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
                 Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
 
                 // set up the host details and profile paths 
@@ -47,7 +50,7 @@ namespace Microsoft.SqlTools.Credentials
                     version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-                CredentialsServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                UtilityServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
                 serviceHost.WaitForExit();
             }
