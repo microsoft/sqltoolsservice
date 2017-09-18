@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         /// <summary>
         /// Expanded node 
         /// </summary>
-        public FileTreeNode ExpandedNode;
+        public FileTreeNode[] Children;
 
         /// <summary>
         /// Result of the operation

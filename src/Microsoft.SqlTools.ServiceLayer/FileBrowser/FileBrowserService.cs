@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 {
                     FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
                     browser.ExpandSelectedNode(fileBrowserParams.ExpandPath);
-                    result.ExpandedNode = browser.FileTree.SelectedNode;
+                    result.Children = browser.FileTree.SelectedNode.Children.ToArray();
                     result.Succeeded = true;
                 }
                 else
