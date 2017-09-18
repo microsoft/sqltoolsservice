@@ -213,12 +213,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             if (!disposed)
             {
+                disposed = true;
+                
                 foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
                 {
                     operation.Dispose();
                 }
-
-                disposed = true;
             }
         }
 

@@ -9,12 +9,11 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
-using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -26,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private static readonly Lazy<DisasterRecoveryService> instance = new Lazy<DisasterRecoveryService>(() => new DisasterRecoveryService());
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
+        private FileBrowserService fileBrowserService = null;
         private RestoreDatabaseHelper restoreDatabaseService = new RestoreDatabaseHelper();
 
         /// <summary>
@@ -79,6 +79,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         /// <summary>
+        /// Gets or sets the current filebrowser service instance
+        /// </summary>
+        internal FileBrowserService FileBrowserServiceInstance
+        {
+            get
+            {
+                if (fileBrowserService == null)
+                {
+                    fileBrowserService = FileBrowserService.Instance;
+                }
+                return fileBrowserService;
+            }
+            set
+            {
+                fileBrowserService = value;
+            }
+        }
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
         public void InitializeService(IProtocolEndpoint serviceHost)
@@ -89,14 +108,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             // Create backup
             serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
 
-            // Create respore task
+            // Create restore task
             serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest);
 
-            // Create respore plan
+            // Create restore plan
             serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
 
-            // Create respore config
+            // Create restore config
             serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
+
+            // Register file path validation callbacks
+            FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
+            FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Restore, DisasterRecoveryFileValidator.ValidatePaths);
         }
 
         /// <summary>
@@ -120,8 +143,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = GetSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
                         BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
                         backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
@@ -273,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (supported && connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = GetSqlConnection(connInfo);
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
 
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
                     SqlTask sqlTask = null;
@@ -297,32 +320,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        internal static SqlConnection GetSqlConnection(ConnectionInfo connInfo)
-        {
-            try
-            {
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString);
-                sqlConn.Open();
-                return sqlConn;
-            }
-            catch (Exception)
-            {
-            }
-
-            return null;
-        }
-
         private bool IsBackupRestoreOperationSupported(string ownerUri, out ConnectionInfo connectionInfo)
         {
             SqlConnection sqlConn = null;
@@ -335,8 +332,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (connInfo != null)
                 {
-                    sqlConn = GetSqlConnection(connInfo);
-                    if ((sqlConn != null) && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                     {
                         connectionInfo = connInfo;
                         return true;
