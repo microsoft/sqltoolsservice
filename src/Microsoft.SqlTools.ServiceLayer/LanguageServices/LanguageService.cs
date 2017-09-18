@@ -1712,6 +1712,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             if (statement.StartLocation.LineNumber <= parserLine 
                                 && statement.EndLocation.LineNumber >= parserLine)
                             {
+                                if (statement.EndLocation.LineNumber == parserLine && statement.EndLocation.ColumnNumber < parserColumn
+                                    || statement.StartLocation.LineNumber == parserLine && statement.StartLocation.ColumnNumber > parserColumn)
+                                {
+                                    continue;
+                                }
                                 return statement.Sql;
                             }
                         }

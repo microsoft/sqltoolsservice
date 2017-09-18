@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         #region Get SQL Tests
 
-         [Fact]
+        [Fact]
         public void ExecuteDocumentStatementTest()
         {            
             string query = string.Format("{0}{1}GO{1}{0}", Constants.StandardQuery, Environment.NewLine);
@@ -34,6 +34,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // The text should match the standard query
             Assert.Equal(queryText, Constants.StandardQuery);
+        }
+
+        [Fact]
+        public void ExecuteDocumentStatementSameLine()
+        {
+            var statement1 = Constants.StandardQuery;
+            var statement2 = "SELECT * FROM sys.databases";
+            string query = string.Format("{0};{1}", statement1, statement2);
+            var workspaceService = GetDefaultWorkspaceService(query);
+            var queryService = new QueryExecutionService(null, workspaceService);
+
+            // If a line has multiple statements and the cursor is somewhere in the second one
+            var cursorColumn = statement1.Length + 1;
+            var queryParams = new ExecuteDocumentStatementParams { OwnerUri = Constants.OwnerUri, Line = 0, Column = cursorColumn };
+            var queryText = queryService.GetSqlText(queryParams);
+
+            // The text should match the second statement
+            Assert.Equal(queryText, statement2);
         }
 
         [Fact]
