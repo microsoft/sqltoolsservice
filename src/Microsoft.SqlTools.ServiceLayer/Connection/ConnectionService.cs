@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1085,6 +1086,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     Logger.Write(LogLevel.Verbose, "Could not send Connection telemetry event " + ex.ToString());
                 }
             }
+        }
+
+        /// <summary>
+        /// Create and open a new SqlConnection from a ConnectionInfo object
+        /// Note: we need to audit all uses of this method to determine why we're
+        /// bypassing normal ConnectionService connection management
+        /// </summary>
+        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
+        {
+            try
+            {                 
+                // increase the connection timeout to at least 30 seconds and and build connection string
+                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
+                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+
+                // open a dedicated binding server connection
+                SqlConnection sqlConn = new SqlConnection(connectionString); 
+                sqlConn.Open();
+                return sqlConn;
+            }
+            catch (Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture, 
+                    "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
+                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
+            }
+            
+            return null;
         }
     }
 }
