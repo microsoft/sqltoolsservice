@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -1702,6 +1703,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         continue;
                     }
 
+                    // If there is a single statement on the line, track it so that we can return it regardless of where the user's cursor is
+                    SqlStatement lineStatement = null;
+                    bool? lineHasSingleStatement = null;
+
                     // check if the batch matches parameters
                     if (batch.StartLocation.LineNumber <= parserLine 
                         && batch.EndLocation.LineNumber >= parserLine)
@@ -1712,9 +1717,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             if (statement.StartLocation.LineNumber <= parserLine 
                                 && statement.EndLocation.LineNumber >= parserLine)
                             {
+                                if (statement.EndLocation.LineNumber == parserLine && statement.EndLocation.ColumnNumber < parserColumn
+                                    || statement.StartLocation.LineNumber == parserLine && statement.StartLocation.ColumnNumber > parserColumn)
+                                {
+                                    if (lineHasSingleStatement == null)
+                                    {
+                                        lineHasSingleStatement = true;
+                                        lineStatement = statement;
+                                    }
+                                    else if (lineHasSingleStatement == true)
+                                    {
+                                        lineHasSingleStatement = false;
+                                    }
+                                    continue;
+                                }
                                 return statement.Sql;
                             }
                         }
+                    }
+
+                    if (lineHasSingleStatement == true)
+                    {
+                        return lineStatement.Sql;
                     }
                 }
             }

@@ -27,7 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// Test starting a profiling session and receiving event callback
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/459
+        //[Fact]
         public async Task TestStartProfilingRequest()
         {
             string sessionId = null;
