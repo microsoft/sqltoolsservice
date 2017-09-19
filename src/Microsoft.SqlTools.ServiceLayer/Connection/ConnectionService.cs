@@ -1096,16 +1096,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
         {
             try
-            {                 
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
+            {
+                // capture original values
                 int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
+
+                // increase the connection timeout to at least 30 seconds and and build connection string
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
+                connInfo.ConnectionDetails.Pooling = false;
+
+                // generate connection string        
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+
+                // restore original values
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+                connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString); 
