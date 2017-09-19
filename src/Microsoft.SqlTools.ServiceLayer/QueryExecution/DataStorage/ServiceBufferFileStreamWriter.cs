@@ -90,6 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(DateTimeOffset), val => WriteDateTimeOffset((DateTimeOffset) val) },
                 {typeof(TimeSpan), val => WriteTimeSpan((TimeSpan) val) },
                 {typeof(byte[]), val => WriteBytes((byte[]) val)},
+                {typeof(Guid), val => WriteGuid((Guid) val)},
 
                 {typeof(SqlString), val => WriteNullable((SqlString) val, obj => WriteString((string) obj))},
                 {typeof(SqlInt16), val => WriteNullable((SqlInt16) val, obj => WriteInt16((short) obj))},

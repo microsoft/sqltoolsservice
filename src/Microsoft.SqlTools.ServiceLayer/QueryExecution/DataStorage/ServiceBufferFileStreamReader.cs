@@ -81,6 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(DateTimeOffset), (o, id, col) => ReadDateTimeOffset(o, id)},
                 {typeof(TimeSpan),       (o, id, col) => ReadTimeSpan(o, id)},
                 {typeof(byte[]),         (o, id, col) => ReadBytes(o, id)},
+                {typeof(Guid),           (o, id, col) => ReadGuid(o, id)},
 
                 {typeof(SqlString),      (o, id, col) => ReadString(o, id)},
                 {typeof(SqlInt16),       (o, id, col) => ReadInt16(o, id)},
@@ -467,8 +468,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the bytes from</param>
         /// <param name="rowId">Internal ID of the row that will be stored in the cell</param>
-        /// <returns>A guid type object</returns>
+        /// <returns>A system guid type object</returns>
         internal FileStreamReadResult ReadGuid(long offset, long rowId)
+        {
+            return ReadCellHelper(offset, rowId, length =>
+            {
+                byte[] output = new byte[length];
+                Buffer.BlockCopy(buffer, 0, output, 0, length);
+                return new Guid(output);
+            }, totalLength => totalLength == 1);
+        }
+
+        /// <summary>
+        /// Reads the bytes that make up a GUID at the offset provided
+        /// </summary>
+        /// <param name="offset">Offset into the file to read the bytes from</param>
+        /// <param name="rowId">Internal ID of the row that will be stored in the cell</param>
+        /// <returns>A SQL guid type object</returns>
+        internal FileStreamReadResult ReadSqlGuid(long offset, long rowId)
         {
             return ReadCellHelper(offset, rowId, length =>
             {
@@ -477,6 +494,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return new SqlGuid(output);
             }, totalLength => totalLength == 1);
         }
+
+
 
         /// <summary>
         /// Reads a SqlMoney type from the offset provided
