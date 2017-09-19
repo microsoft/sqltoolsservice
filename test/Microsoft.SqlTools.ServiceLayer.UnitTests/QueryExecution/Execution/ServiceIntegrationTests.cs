@@ -46,9 +46,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Test putting the cursor at the end of statement 1
             ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length, statement1);
             // Test putting the cursor at the start of statement 2
-            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length + 1, statement1);
+            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length + 1, statement2);
             // Test putting the cursor at the end of the line
-            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length + 1 + statement2.Length, statement1);
+            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length + 1 + statement2.Length, statement2);
+            // Test putting the cursor after a semicolon when only one statement is on the line
+            ExecuteDocumentStatementSameLineHelper(statement1, "", statement1.Length + 1, statement1);
         }
 
         private void ExecuteDocumentStatementSameLineHelper(string statement1, string statement2, int cursorColumn, string expectedQueryText)
@@ -61,9 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryParams = new ExecuteDocumentStatementParams { OwnerUri = Constants.OwnerUri, Line = 0, Column = cursorColumn };
             var queryText = queryService.GetSqlText(queryParams);
 
-            // The text should match the statement at the cursor
-            var statementAtCursor = cursorColumn > statement1.Length ? statement2 : statement1;
-            Assert.Equal(queryText, statementAtCursor);
+            // The query text should match the expected statement at the cursor
+            Assert.Equal(expectedQueryText, queryText);
         }
 
         [Fact]
