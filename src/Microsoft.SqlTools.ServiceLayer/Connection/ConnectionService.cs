@@ -1101,11 +1101,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
+
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                connInfo.ConnectionDetails.Pooling = false;
+
+                // generate connection string        
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+
+                // restore original values
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+                connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString); 
