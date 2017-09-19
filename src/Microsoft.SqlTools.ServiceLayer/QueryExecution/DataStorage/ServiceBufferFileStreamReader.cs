@@ -480,24 +480,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Reads the bytes that make up a GUID at the offset provided
-        /// </summary>
-        /// <param name="offset">Offset into the file to read the bytes from</param>
-        /// <param name="rowId">Internal ID of the row that will be stored in the cell</param>
-        /// <returns>A SQL guid type object</returns>
-        internal FileStreamReadResult ReadSqlGuid(long offset, long rowId)
-        {
-            return ReadCellHelper(offset, rowId, length =>
-            {
-                byte[] output = new byte[length];
-                Buffer.BlockCopy(buffer, 0, output, 0, length);
-                return new SqlGuid(output);
-            }, totalLength => totalLength == 1);
-        }
-
-
-
-        /// <summary>
         /// Reads a SqlMoney type from the offset provided
         /// into a 
         /// </summary>
