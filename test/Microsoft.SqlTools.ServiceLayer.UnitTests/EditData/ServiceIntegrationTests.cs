@@ -158,7 +158,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public async Task RevertSucceeds()
+        public async Task RevertCellSucceeds()
+        {
+            // Setup: 
+            // ... Create an edit data service with a session that has a pending cell edit
+            var eds = new EditDataService(null, null, null);
+            var session = await GetDefaultSession();
+            eds.ActiveSessions[Constants.OwnerUri] = session;
+            
+            // ... Make sure that the edit has revert capabilities
+            var mockEdit = new Mock<RowEditBase>();
+            mockEdit.Setup(edit => edit.RevertCell(It.IsAny<int>()))
+                .Returns(new EditRevertCellResult());
+            session.EditCache[0] = mockEdit.Object;
+
+
+            // If: I ask to revert a cell that has a pending edit
+            var efv = new EventFlowValidator<EditRevertCellResult>()
+                .AddResultValidation(Assert.NotNull)
+                .Complete();
+            var param = new EditRevertCellParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                RowId = 0
+            };
+            await eds.HandleRevertCellRequest(param, efv.Object);
+            
+            // Then:
+            // ... It should have succeeded
+            efv.Validate();
+            
+            // ... The edit cache should be empty again
+            EditSession s = eds.ActiveSessions[Constants.OwnerUri];
+            Assert.Empty(s.EditCache);
+        }
+        
+        [Fact]
+        public async Task RevertRowSucceeds()
         {
             // Setup: Create an edit data service with a session that has an pending edit
             var eds = new EditDataService(null, null, null);
