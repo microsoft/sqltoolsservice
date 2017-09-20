@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -97,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -165,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -208,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
