@@ -1210,6 +1210,48 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => service.GetOrOpenConnection(TestObjects.ScriptUri, ConnectionType.Query));
         }
+        
+        [Fact]
+        public async Task GetOrOpenAdminDefaultConnection()
+        {
+            // Setup: Create a connection service with an empty connection info obj
+            var service = TestObjects.GetTestConnectionService();
+            var connInfo = new ConnectionInfo(null, null, null);
+            service.OwnerToConnectionMap[TestObjects.ScriptUri] = connInfo;
+
+            // If: I ask for a connection on a connection that doesn't have a default connection
+            // Then: An exception should be thrown
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => service.GetOrOpenConnection(TestObjects.ScriptUri, ConnectionType.Query));
+        }
+
+        [Fact]
+        public async Task ConnectionWithAdminConnectionEnsuresOnlyOneConnectionCreated()
+        {
+            // If I try to connect using a connection string, it overrides the server name and username for the connection
+            ConnectParams connectionParameters = TestObjects.GetTestConnectionParams();
+            string serverName = "ADMIN:overriddenServerName";
+            string userName = "overriddenUserName";
+            connectionParameters.Connection.ServerName = serverName;
+            connectionParameters.Connection.UserName = userName;
+
+            // Connect
+            ConnectionService service = TestObjects.GetTestConnectionService();
+            var connectionResult = await service.Connect(connectionParameters);
+            
+            // Verify you can get the connection for default
+            DbConnection defaultConn = await service.GetOrOpenConnection(connectionParameters.OwnerUri, ConnectionType.Default);
+            ConnectionInfo connInfo = service.OwnerToConnectionMap[connectionParameters.OwnerUri];
+            Assert.NotNull(defaultConn);
+            Assert.Equal(connInfo.AllConnections.Count, 1);
+
+            // Verify that for the Query, no new connection is created
+            DbConnection queryConn = await service.GetOrOpenConnection(connectionParameters.OwnerUri, ConnectionType.Query);
+            connInfo = service.OwnerToConnectionMap[connectionParameters.OwnerUri];
+            Assert.NotNull(defaultConn);
+            Assert.Equal(connInfo.AllConnections.Count, 1);
+            
+        }
 
         [Fact]
         public async Task ConnectionWithConnectionStringSucceeds()
