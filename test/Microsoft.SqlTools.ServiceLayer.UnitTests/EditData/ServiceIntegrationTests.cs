@@ -4,16 +4,13 @@
 //
 
 using System;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
@@ -248,7 +245,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
         }
 
-        #region Initialize Tests
         [Theory]
         [InlineData(null, "table", "table")]            // Null owner URI
         [InlineData(Common.OwnerUri, null, "table")]    // Null object name
@@ -281,103 +277,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Empty(eds.ActiveSessions);
         }
 
-        [Fact]
-        public async Task InitializeSessionExists()
-        {
-            // Setup: Create an edit data service with a session already defined
-            var eds = new EditDataService(null, null, null);
-            var session = await GetDefaultSession();
-            eds.ActiveSessions[Constants.OwnerUri] = session;
-            
-            // If: I request to init a session for an owner URI that already exists
-            var initParams = new EditInitializeParams
-            {
-                ObjectName = "testTable",
-                OwnerUri = Constants.OwnerUri,
-                ObjectType = "Table",
-                Filters = new EditInitializeFiltering()
-            };
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-            
-            // Then:
-            // ... An error event should have been sent
-            efv.Validate();
-            
-            // ... The original session should still be there
-            Assert.Equal(1, eds.ActiveSessions.Count);
-            Assert.Equal(session, eds.ActiveSessions[Constants.OwnerUri]);
-        }
-
-        [Fact]
-        public async Task InitializeSessionSuccess()
-        {
-            // Setup: 
-            // .. Create a mock query
-            var mockQueryResults = QueryExecution.Common.StandardTestDataSet;
-            var cols = mockQueryResults[0].Columns;
-            
-            // ... Create a metadata factory that will return some generic column information
-            var etm = Common.GetStandardMetadata(cols.ToArray());
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
-                .Returns(etm);
-            
-            // ... Create a query execution service that will return a successful query
-            var qes = QueryExecution.Common.GetPrimedExecutionService(mockQueryResults, true, false, null);
-            
-            // ... Create a connection service that doesn't throw when asked for a connection
-            var cs = new Mock<ConnectionService>();
-            cs.Setup(s => s.GetOrOpenConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-                .Returns(Task.FromResult<DbConnection>(null));
-            
-            // ... Create an edit data service that has mock providers
-            var eds = new EditDataService(qes, cs.Object, emf.Object);
-
-            // If: I request to initialize an edit data session
-            var initParams = new EditInitializeParams
-            {
-                ObjectName = "testTable",
-                OwnerUri = Constants.OwnerUri,
-                ObjectType = "Table",
-                Filters = new EditInitializeFiltering()
-            };
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddResultValidation(Assert.NotNull)
-                .AddEventValidation(BatchStartEvent.Type, Assert.NotNull)
-                .AddEventValidation(ResultSetCompleteEvent.Type, Assert.NotNull)
-                .AddEventValidation(MessageEvent.Type, Assert.NotNull)
-                .AddEventValidation(BatchCompleteEvent.Type, Assert.NotNull)
-                .AddEventValidation(QueryCompleteEvent.Type, Assert.NotNull)
-                .AddEventValidation(EditSessionReadyEvent.Type, esrp =>
-                {
-                    Assert.NotNull(esrp);
-                    Assert.Equal(Constants.OwnerUri, esrp.OwnerUri);
-                    Assert.True(esrp.Success);
-                    Assert.Null(esrp.Message);
-                })
-                .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-            await eds.ActiveSessions[Constants.OwnerUri].InitializeTask;
-            
-            // Then:
-            // ... The event should have been received successfully
-            efv.Validate();
-            
-            // ... The session should have been created
-            Assert.Equal(1, eds.ActiveSessions.Count);
-            Assert.True(eds.ActiveSessions.Keys.Contains(Constants.OwnerUri));
-        }
-        
-        #endregion
-        
         [Theory]
-        [InlineData("table", "myschema", new [] { "myschema", "table" })]                 // Use schema
-        [InlineData("table", null, new [] { "table" })]                                   // skip schema
+        [InlineData("table", "myschema", new [] { "myschema", "table" })]    // Use schema
+        [InlineData("table", null, new [] { "table" })]    // skip schema
         [InlineData("schema.table", "myschema", new [] { "myschema", "schema.table"})]    // Use schema
-        [InlineData("schema.table", null, new [] { "schema", "table"})]                   // Split object name into schema
+        [InlineData("schema.table", null, new [] { "schema", "table"})]    // Split object name into schema
         public void ShouldUseSchemaNameIfDefined(string objName, string schemaName, string[] expectedNameParts)
         {
             // Setup: Create an edit data service without a session
