@@ -19,7 +19,7 @@ using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
-    public class ReaderWriterPairTest
+    public class ServiceBufferReaderWriterTests
     {
         [Fact]
         public void ReaderStreamNull()
@@ -535,21 +535,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 (reader, rowId) => reader.ReadBytes(0, rowId));
         }
 
-        [Fact]
-        public void GuidTest()
+        public static IEnumerable<object[]> GuidTestParameters
         {
-            // Setup:
-            // ... Create some test values
-            // NOTE: We are doing these here instead of InlineData because Guid type can't be written as constant expressions
-            Guid[] guids =
+            get
             {
-                Guid.Empty, Guid.NewGuid(), Guid.NewGuid()
-            };
-            foreach (Guid guid in guids)
-            {
-                VerifyReadWrite(guid.ToByteArray().Length + 1, new SqlGuid(guid), (writer, val) => writer.WriteGuid(guid),
-                    (reader, rowId) => reader.ReadGuid(0, rowId));
+                yield return new object[] {Guid.Empty};
+                yield return new object[] {Guid.NewGuid()};
+                yield return new object[] {Guid.NewGuid()};
             }
+        }
+
+        [Theory]
+        [MemberData(nameof(GuidTestParameters))]
+        public void GuidTest(Guid testValue)
+        {
+            VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
+                (writer, val) => writer.WriteGuid(testValue),
+                (reader, rowId) => reader.ReadGuid(0, rowId));
         }
 
         [Fact]
