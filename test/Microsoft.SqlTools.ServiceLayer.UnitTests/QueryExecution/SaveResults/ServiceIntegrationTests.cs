@@ -333,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 BatchIndex = 0,
                 ResultSetIndex = 0
             };
-            qes.JsonFileFactory = GetExcelStreamFactory(storage, saveParams);
+            qes.ExcelFileFactory = GetExcelStreamFactory(storage, saveParams);
             var efv = new EventFlowValidator<SaveResultRequestResult>()
                 .AddStandardResultValidator()
                 .Complete();
