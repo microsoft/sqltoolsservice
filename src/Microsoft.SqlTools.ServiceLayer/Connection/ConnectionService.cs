@@ -29,6 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
+        public const string AdminConnectionPrefix = "admin:";
+
         /// <summary>
         /// Singleton service instance
         /// </summary>
@@ -444,6 +446,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
 
+            if(IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            {
+                // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
+                return defaultConnection;
+            }
+
             // Try to get the DbConnection
             DbConnection connection;
             if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
@@ -842,12 +850,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendError(ex.ToString());
             }
         }
-                
+
+        /// <summary>
+        /// Checks if a ConnectionDetails object represents a DAC connection
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
+        {
+            Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
+            string serverName = builder.DataSource;
+            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+        
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
+        {
+            return CreateConnectionStringBuilder(connectionDetails).ToString();
+        }
+
+        /// <summary>
+        /// Build a connection string builder a connection details instance
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -981,7 +1010,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
 
-            return connectionBuilder.ToString();
+            return connectionBuilder;
         }
 
         /// <summary>
