@@ -425,7 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// This should be removed once the core issue is resolved and clone works as expected
         /// </param>
         /// <returns>A DB connection for the connection type requested</returns>
-        public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
+        public virtual async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
         {
             Validate.IsNotNullOrEmptyString(nameof(ownerUri), ownerUri);
             Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
