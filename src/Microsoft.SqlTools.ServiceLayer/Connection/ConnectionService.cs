@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        public const string AdminConnectionPrefix = "admin:";
+        public const string AdminConnectionPrefix = "ADMIN:";
 
         /// <summary>
         /// Singleton service instance
