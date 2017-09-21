@@ -1,5 +1,5 @@
 ﻿
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
 
             // If I run a query creating a temp table
             CreateAndExecuteQuery(createTempText, connInfo, fileStreamFactory);
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             DbConnection connection;
             connInfo.TryGetConnection(ConnectionType.Default, out connection);
 
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
 
             // If I use master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
