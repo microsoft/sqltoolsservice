@@ -1,6 +1,5 @@
 ﻿
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
