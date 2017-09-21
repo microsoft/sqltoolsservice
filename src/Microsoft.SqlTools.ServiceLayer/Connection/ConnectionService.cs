@@ -886,10 +886,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
             }
-            else {
+            else 
+            {
+                // add alternate port to data source property if provided
+                string dataSource = !connectionDetails.Port.HasValue
+                    ? connectionDetails.ServerName
+                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
+
                 connectionBuilder = new SqlConnectionStringBuilder
                 {
-                    ["Data Source"] = connectionDetails.ServerName,
+                    ["Data Source"] = dataSource,
                     ["User Id"] = connectionDetails.UserName,
                     ["Password"] = connectionDetails.Password
                 };
