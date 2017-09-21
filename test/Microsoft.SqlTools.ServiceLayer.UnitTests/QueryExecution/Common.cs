@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -212,10 +213,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data,
             bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService,
-            out Dictionary<string, byte[]> storage)
+            out ConcurrentDictionary<string, byte[]> storage)
         {
             // Create a place for the temp "files" to be written
-            storage = new Dictionary<string, byte[]>();
+            storage = new ConcurrentDictionary<string, byte[]>();
 
             // Mock the connection service
             var connectionService = new Mock<ConnectionService>();
@@ -231,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)
         {
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             return GetPrimedExecutionService(data, isConnected, throwOnRead, workspaceService, out storage);
         }
 
