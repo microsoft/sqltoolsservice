@@ -128,8 +128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             
             this.bindingQueue.StopQueueProcessor(15000);     
 
-            Assert.True(this.bindCallCount == 1);
-            Assert.True(this.timeoutCallCount == 0);  
+            Assert.Equal(1, this.bindCallCount);
+            Assert.Equal(0, this.timeoutCallCount);  
             Assert.False(this.isCancelationRequested);
         }
 
@@ -153,8 +153,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             this.bindingQueue.StopQueueProcessor(15000);     
 
-            Assert.True(this.bindCallCount == 100);
-            Assert.True(this.timeoutCallCount == 0);
+            Assert.Equal(100, this.bindCallCount);
+            Assert.Equal(0, this.timeoutCallCount);
             Assert.False(this.isCancelationRequested);
         }
 
@@ -178,8 +178,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             
             this.bindingQueue.StopQueueProcessor(15000);
 
-            Assert.True(this.bindCallCount == 0);
-            Assert.True(this.timeoutCallCount == 1);
+            Assert.Equal(0, this.bindCallCount);
+            Assert.Equal(1, this.timeoutCallCount);
             Assert.True(this.isCancelationRequested);
         }
     }

@@ -121,7 +121,7 @@
       </trans-unit>
       <trans-unit id="QueryServiceFileWrapperWriteOnly">
         <source>Access method cannot be write-only</source>
-        <target state="new">Access 방법은 쓰기 전용이 될 수 없습니다.</target>
+        <target state="new">액세스 방법은 쓰기 전용이 될 수 없습니다.</target>
         
         <note/>
       </trans-unit>
@@ -2530,26 +2530,195 @@ votes
         <target state="new">결과 집합의 행 수가 너무 많아서 안전하게 불러들일 수 없습니다.</target>
         
       </trans-unit>
-      <trans-unit id="Backup_TaskName">
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="new">매개 변수화</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConflictWithNoRecovery">
+        <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
+        <target state="new">NORECOVERY 옵션을 사용하여 백업을 복원하는 동안 이 옵션을 지정할 수 없습니다.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="InvalidPathForDatabaseFile">
+        <source>Invalid path for database file: '{0}'</source>
+        <target state="new">데이터베이스 파일의 경로가 잘못되었습니다. '{0}'</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Log">
+        <source>Log</source>
+        <target state="new">로그</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestorePlanFailed">
+        <source>Failed to create restore plan</source>
+        <target state="new">복원 계획을 만들지 못했습니다</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreNotSupported">
+        <source>Restore database is not supported</source>
+        <target state="new">데이터베이스 복원은 지원되지 않습니다.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreTaskName">
+        <source>Restore Database</source>
+        <target state="new">데이터베이스 복원</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreCopyOnly">
+        <source>(Copy Only)</source>
+        <target state="new">복사 전용</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetComponent">
+        <source>Component</source>
+        <target state="new">구성 요소</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetType">
+        <source>Type</source>
+        <target state="new">형식</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetServer">
+        <source>Server</source>
+        <target state="new">서버</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetDatabase">
+        <source>Database</source>
+        <target state="new">데이터베이스</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetPosition">
+        <source>Position</source>
+        <target state="new">위치</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFirstLsn">
+        <source>First LSN</source>
+        <target state="new">첫 번째 LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetLastLsn">
+        <source>Last LSN</source>
+        <target state="new">마지막 LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetCheckpointLsn">
+        <source>Checkpoint LSN</source>
+        <target state="new">검사점 LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFullLsn">
+        <source>Full LSN</source>
+        <target state="new">전체 LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetStartDate">
+        <source>Start Date</source>
+        <target state="new">시작 날짜</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFinishDate">
+        <source>Finish Date</source>
+        <target state="new">완료 날짜</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetSize">
+        <source>Size</source>
+        <target state="new">크기</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetUserName">
+        <source>User Name</source>
+        <target state="new">사용자 이름</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetExpiration">
+        <source>Expiration</source>
+        <target state="new">만료</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetName">
+        <source>Name</source>
+        <target state="new">Name</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="TheLastBackupTaken">
+        <source>The last backup taken ({0})</source>
+        <target state="new">수행된 마지막 백업({0})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BackupTaskName">
         <source>Backup Database</source>
         <target state="new">데이터베이스 백업</target>
         
         <note/>
       </trans-unit>
-      <trans-unit id="Task_InProgress">
+      <trans-unit id="TaskInProgress">
         <source>In progress</source>
         <target state="new">진행 중</target>
         
         <note/>
       </trans-unit>
-      <trans-unit id="Task_Completed">
+      <trans-unit id="TaskCompleted">
         <source>Completed</source>
         <target state="new">완료됨</target>
         
+        <note/>
       </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization">
-        <source>Parameterization</source>
-        <target state="new">매개 변수화</target>
+      <trans-unit id="ScriptTaskName">
+        <source>scripting</source>
+        <target state="new">스크립팅</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ProfilerConnectionNotFound">
+        <source>Connection not found</source>
+        <target state="new">연결 없음</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BackupPathIsFolderError">
+        <source>The provided path specifies a directory but a file path is required: {0}</source>
+        <target state="new">지정한 파일 이름은 디렉터리 이름이기도 합니다: {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="InvalidBackupPathError">
+        <source> Cannot verify the existence of the backup file location: {0}</source>
+        <target state="new">백업 파일 위치를 확인할 수 없습니다: {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="InvalidPathError">
+        <source>Cannot access the specified path on the server: {0}</source>
+        <target state="new">서버에서 지정된 경로에 액세스할 수 없습니다: {0}</target>
         
         <note/>
       </trans-unit>
