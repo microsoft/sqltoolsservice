@@ -2529,26 +2529,195 @@
         <target state="new">Conjunto de resultados tem muitas linhas para ser carregado com segurança</target>
         
       </trans-unit>
-      <trans-unit id="Backup_TaskName">
-        <source>Backup Database</source>
-        <target state="new">Fazer Backup do Banco de Dados</target>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="new">Parametrização</target>
         
         <note/>
       </trans-unit>
-      <trans-unit id="Task_InProgress">
+      <trans-unit id="ConflictWithNoRecovery">
+        <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
+        <target state="new">Não é permitido especificar essa opção ao restaurar um backup com a opção NORECOVERY.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="InvalidPathForDatabaseFile">
+        <source>Invalid path for database file: '{0}'</source>
+        <target state="new">Caminho inválido para o arquivo de banco de dados: '{0}'</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Log">
+        <source>Log</source>
+        <target state="new">Log</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestorePlanFailed">
+        <source>Failed to create restore plan</source>
+        <target state="new">Falha ao criar o plano de restauração</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreNotSupported">
+        <source>Restore database is not supported</source>
+        <target state="new">Restauração de banco de dados não é suportado</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreTaskName">
+        <source>Restore Database</source>
+        <target state="new">Restaurar o banco de dados</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreCopyOnly">
+        <source>(Copy Only)</source>
+        <target state="new">(Apenas cópia)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetComponent">
+        <source>Component</source>
+        <target state="new">Componente</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetType">
+        <source>Type</source>
+        <target state="new">Tipo</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetServer">
+        <source>Server</source>
+        <target state="new">Servidor</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetDatabase">
+        <source>Database</source>
+        <target state="new">Banco de dados</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetPosition">
+        <source>Position</source>
+        <target state="new">Posição</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFirstLsn">
+        <source>First LSN</source>
+        <target state="new">Primeiro LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetLastLsn">
+        <source>Last LSN</source>
+        <target state="new">Último LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetCheckpointLsn">
+        <source>Checkpoint LSN</source>
+        <target state="new">Checkpoint LSN</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFullLsn">
+        <source>Full LSN</source>
+        <target state="new">LSN completo</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetStartDate">
+        <source>Start Date</source>
+        <target state="new">Data de Início</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetFinishDate">
+        <source>Finish Date</source>
+        <target state="new">Data de Término</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetSize">
+        <source>Size</source>
+        <target state="new">Tamanho</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetUserName">
+        <source>User Name</source>
+        <target state="new">Nome do usuário</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetExpiration">
+        <source>Expiration</source>
+        <target state="new">Expiração</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="RestoreBackupSetName">
+        <source>Name</source>
+        <target state="new">Nome</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="TheLastBackupTaken">
+        <source>The last backup taken ({0})</source>
+        <target state="new">O último backup feito ({0})</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BackupTaskName">
+        <source>Backup Database</source>
+        <target state="new">Backup do Banco de Dados</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="TaskInProgress">
         <source>In progress</source>
         <target state="new">Em andamento</target>
         
         <note/>
       </trans-unit>
-      <trans-unit id="Task_Completed">
+      <trans-unit id="TaskCompleted">
         <source>Completed</source>
         <target state="new">Concluído</target>
         
+        <note/>
       </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization">
-        <source>Parameterization</source>
-        <target state="new">Parametrização</target>
+      <trans-unit id="ScriptTaskName">
+        <source>scripting</source>
+        <target state="new">Gerando script</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ProfilerConnectionNotFound">
+        <source>Connection not found</source>
+        <target state="new">Conexão não encontrada</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BackupPathIsFolderError">
+        <source>The provided path specifies a directory but a file path is required: {0}</source>
+        <target state="new">O nome do arquivo especificado também é um nome de diretório: {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="InvalidBackupPathError">
+        <source> Cannot verify the existence of the backup file location: {0}</source>
+        <target state="new">Não foi possível verificar a existência do local do arquivo de backup: {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="InvalidPathError">
+        <source>Cannot access the specified path on the server: {0}</source>
+        <target state="new">Não foi possível acessar o diretório especificado no servidor: {0}</target>
         
         <note/>
       </trans-unit>

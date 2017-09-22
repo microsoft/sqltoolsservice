@@ -3517,6 +3517,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ProfilerConnectionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProfilerConnectionNotFound);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4943,6 +4951,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string InvalidPathError = "InvalidPathError";
+
+
+            public const string ProfilerConnectionNotFound = "ProfilerConnectionNotFound";
 
 
             private Keys()

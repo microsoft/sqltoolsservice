@@ -46,6 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private Dictionary<int, string> serverVersionMap = new Dictionary<int, string>();
 
+        private Dictionary<string, string> objectScriptMap = new Dictionary<string, string>();
+
         /// <summary>
         /// Initialize a Peek Definition helper object
         /// </summary>
@@ -281,13 +283,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     string line;
                     int lineCount = 0;
-                    while((line = scriptFile.ReadLine()) != null) 
+                    string createSyntax = null;
+                    if (objectScriptMap.ContainsKey(objectType))
                     {
-                        string createSyntax = string.Format("CREATE {0}", objectType);
+                        createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType]);
+                    }
+                    while (objectFound && (line = scriptFile.ReadLine()) != null) 
+                    {
                         if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
                             line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
                         {
-                            objectFound = true;
                             lineNumber = lineCount;
                         }
                         lineCount++;

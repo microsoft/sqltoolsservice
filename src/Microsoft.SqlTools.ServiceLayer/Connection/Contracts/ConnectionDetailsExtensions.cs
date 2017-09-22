@@ -43,7 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 MultipleActiveResultSets = details.MultipleActiveResultSets,
                 PacketSize = details.PacketSize,
                 TypeSystemVersion = details.TypeSystemVersion,
-                ConnectionString = details.ConnectionString
+                ConnectionString = details.ConnectionString,
+                Port = details.Port
             };
         }
     }

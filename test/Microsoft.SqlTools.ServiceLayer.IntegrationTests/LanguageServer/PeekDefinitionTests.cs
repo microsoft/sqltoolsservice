@@ -75,7 +75,7 @@ CREATE SYNONYM [dbo].[pd_testTable] FOR master.dbo.spt_monitor
 GO";
 
         private const string TableValuedFunctionTypeName = "TableValuedFunction";
-        private const string ScalarValuedFunctionTypeName = "ScalarValuedFunction";
+        private const string ScalarValuedFunctionTypeName = "UserDefinedFunction";
         private const string UserDefinedDataTypeTypeName = "UserDefinedDataType";
         private const string UserDefinedTableTypeTypeName = "UserDefinedTableType";
         private const string SynonymTypeName = "Synonym";

@@ -22,8 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection password
         /// </summary>
-        /// <returns></returns>
-        public string Password {
+        public string Password 
+        {
             get
             {
                 return GetOptionValue<string>("password");
@@ -417,6 +417,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 SetOptionValue("packetSize", value);
             }
         }
+
+        /// <summary>
+        /// Gets or sets the port to use for the TCP/IP connection
+        /// </summary>
+        public int? Port
+        {
+            get
+            {
+                return GetOptionValue<int?>("port");
+            }
+
+            set
+            {
+                SetOptionValue("port", value);
+            }
+        }        
 
         /// <summary>
         /// Gets or sets a string value that indicates the type system the application expects.

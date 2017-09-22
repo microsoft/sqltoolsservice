@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -97,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -137,7 +138,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
         [Fact]
         public async Task SaveResultsJsonNonExistentQuery()
-
         {
             // Given: A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Given: 
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            Dictionary<string, byte[]> storage;
+            ConcurrentDictionary<string, byte[]> storage;
             QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
@@ -242,6 +242,115 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         }
 
         #endregion
+        
+        #region Excel Tests 
+        
+        [Fact]
+        public async Task SaveResultsExcelNonExistentQuery()
+        {
+            // Given: A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, ws);
+
+            // If: I attempt to save a result set from a query that doesn't exist
+            SaveResultsAsExcelRequestParams saveParams = new SaveResultsAsExcelRequestParams
+            {
+                OwnerUri = Constants.OwnerUri  // Won't exist because nothing has executed
+            };
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await qes.HandleSaveResultsAsExcelRequest(saveParams, efv.Object);
+
+            // Then:
+            // ... An error event should have been fired
+            // ... No success event should have been fired
+            efv.Validate();
+        }
+
+        [Fact]
+        public async Task SaveResultAsExcelFailure()
+        {
+            // Given: 
+            // ... A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            ConcurrentDictionary<string, byte[]> storage;
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
+
+            // ... The query execution service has executed a query with results
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            // If: I attempt to save a result set and get it to throw because of invalid column selection
+            SaveResultsAsExcelRequestParams saveParams = new SaveResultsAsExcelRequestParams
+            {
+                BatchIndex = 0,
+                FilePath = "qqq",
+                OwnerUri = Constants.OwnerUri,
+                ResultSetIndex = 0,
+                ColumnStartIndex = -1,
+                ColumnEndIndex = 100,
+                RowStartIndex = 0,
+                RowEndIndex = 5
+            };
+            qes.JsonFileFactory = GetExcelStreamFactory(storage, saveParams);
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await qes.HandleSaveResultsAsExcelRequest(saveParams, efv.Object);
+            await qes.ActiveQueries[saveParams.OwnerUri]
+                .Batches[saveParams.BatchIndex]
+                .ResultSets[saveParams.ResultSetIndex]
+                .SaveTasks[saveParams.FilePath];
+
+            // Then:
+            // ... An error event should have been fired
+            // ... No success event should have been fired
+            efv.Validate();
+        }
+
+        [Fact]
+        public async Task SaveResultsAsExcelSuccess()
+        {
+            // Given: 
+            // ... A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            ConcurrentDictionary<string, byte[]> storage;
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
+
+            // ... The query execution service has executed a query with results
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            // If: I attempt to save a result set from a query
+            SaveResultsAsExcelRequestParams saveParams = new SaveResultsAsExcelRequestParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                FilePath = "qqq",
+                BatchIndex = 0,
+                ResultSetIndex = 0
+            };
+            qes.ExcelFileFactory = GetExcelStreamFactory(storage, saveParams);
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardResultValidator()
+                .Complete();
+            await qes.HandleSaveResultsAsExcelRequest(saveParams, efv.Object);
+            await qes.ActiveQueries[saveParams.OwnerUri]
+                .Batches[saveParams.BatchIndex]
+                .ResultSets[saveParams.ResultSetIndex]
+                .SaveTasks[saveParams.FilePath];
+
+            // Then:
+            // ... I should have a successful result
+            // ... There should not have been an error
+            efv.Validate();
+        }
+        
+        #endregion
 
         #region Private Helpers
 
@@ -272,6 +381,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     return new SaveAsJsonFileStreamWriter(new MemoryStream(storage[output]), saveParams);
                 });
 
+            return mock.Object;
+        }
+
+        private static IFileStreamFactory GetExcelStreamFactory(IDictionary<string, byte[]> storage,
+            SaveResultsAsExcelRequestParams saveParams)
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
+                .Returns<string>(output =>
+                {
+                    storage.Add(output, new byte[8192]);
+                    return new SaveAsExcelFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                });
+            
             return mock.Object;
         }
 

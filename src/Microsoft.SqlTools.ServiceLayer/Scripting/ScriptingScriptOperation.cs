@@ -71,6 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
+                publishModel.AllowSystemObjects = true;
 
                 ScriptDestination destination = !string.IsNullOrWhiteSpace(this.Parameters.ScriptDestination)
                     ? (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)

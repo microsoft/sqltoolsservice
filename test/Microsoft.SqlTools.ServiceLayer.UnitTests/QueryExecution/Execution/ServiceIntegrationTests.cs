@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         #region Get SQL Tests
 
-         [Fact]
+        [Fact]
         public void ExecuteDocumentStatementTest()
         {            
             string query = string.Format("{0}{1}GO{1}{0}", Constants.StandardQuery, Environment.NewLine);
@@ -34,6 +34,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // The text should match the standard query
             Assert.Equal(queryText, Constants.StandardQuery);
+        }
+
+        [Fact]
+        public void ExecuteDocumentStatementSameLine()
+        {
+            var statement1 = Constants.StandardQuery;
+            var statement2 = "SELECT * FROM sys.databases";
+            // Test putting the cursor at the start of the line
+            ExecuteDocumentStatementSameLineHelper(statement1, statement2, 0, statement1);
+            // Test putting the cursor at the end of statement 1
+            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length, statement1);
+            // Test putting the cursor at the start of statement 2
+            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length + 1, statement2);
+            // Test putting the cursor at the end of the line
+            ExecuteDocumentStatementSameLineHelper(statement1, statement2, statement1.Length + 1 + statement2.Length, statement2);
+            // Test putting the cursor after a semicolon when only one statement is on the line
+            ExecuteDocumentStatementSameLineHelper(statement1, "", statement1.Length + 1, statement1);
+        }
+
+        private void ExecuteDocumentStatementSameLineHelper(string statement1, string statement2, int cursorColumn, string expectedQueryText)
+        {
+            string query = string.Format("{0};{1}", statement1, statement2);
+            var workspaceService = GetDefaultWorkspaceService(query);
+            var queryService = new QueryExecutionService(null, workspaceService);
+
+            // If a line has multiple statements and the cursor is somewhere in the line
+            var queryParams = new ExecuteDocumentStatementParams { OwnerUri = Constants.OwnerUri, Line = 0, Column = cursorColumn };
+            var queryText = queryService.GetSqlText(queryParams);
+
+            // The query text should match the expected statement at the cursor
+            Assert.Equal(expectedQueryText, queryText);
         }
 
         [Fact]

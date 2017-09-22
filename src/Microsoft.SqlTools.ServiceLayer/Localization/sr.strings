@@ -849,3 +849,7 @@ ScriptTaskName = scripting
 ############################################################################
 # File Browser Validation Errors
 InvalidPathError = Cannot access the specified path on the server: {0}
+
+############################################################################
+# Profiler
+ProfilerConnectionNotFound = Connection not found

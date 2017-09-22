@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
+        public const string AdminConnectionPrefix = "ADMIN:";
+
         /// <summary>
         /// Singleton service instance
         /// </summary>
@@ -424,7 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// This should be removed once the core issue is resolved and clone works as expected
         /// </param>
         /// <returns>A DB connection for the connection type requested</returns>
-        public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
+        public virtual async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
         {
             Validate.IsNotNullOrEmptyString(nameof(ownerUri), ownerUri);
             Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
@@ -441,6 +444,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!connectionInfo.TryGetConnection(ConnectionType.Default, out defaultConnection))
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
+            }
+
+            if(IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            {
+                // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
+                return defaultConnection;
             }
 
             // Try to get the DbConnection
@@ -841,12 +850,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendError(ex.ToString());
             }
         }
-                
+
+        /// <summary>
+        /// Checks if a ConnectionDetails object represents a DAC connection
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
+        {
+            Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
+            string serverName = builder.DataSource;
+            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+        
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
+        {
+            return CreateConnectionStringBuilder(connectionDetails).ToString();
+        }
+
+        /// <summary>
+        /// Build a connection string builder a connection details instance
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -856,10 +886,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
             }
-            else {
+            else 
+            {
+                // add alternate port to data source property if provided
+                string dataSource = !connectionDetails.Port.HasValue
+                    ? connectionDetails.ServerName
+                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
+
                 connectionBuilder = new SqlConnectionStringBuilder
                 {
-                    ["Data Source"] = connectionDetails.ServerName,
+                    ["Data Source"] = dataSource,
                     ["User Id"] = connectionDetails.UserName,
                     ["Password"] = connectionDetails.Password
                 };
@@ -980,7 +1016,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
 
-            return connectionBuilder.ToString();
+            return connectionBuilder;
         }
 
         /// <summary>
@@ -1085,6 +1121,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     Logger.Write(LogLevel.Verbose, "Could not send Connection telemetry event " + ex.ToString());
                 }
             }
+        }
+
+        /// <summary>
+        /// Create and open a new SqlConnection from a ConnectionInfo object
+        /// Note: we need to audit all uses of this method to determine why we're
+        /// bypassing normal ConnectionService connection management
+        /// </summary>
+        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
+        {
+            try
+            {
+                // capture original values
+                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
+
+                // increase the connection timeout to at least 30 seconds and and build connection string
+                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
+                connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
+                connInfo.ConnectionDetails.Pooling = false;
+
+                // generate connection string        
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+
+                // restore original values
+                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+                connInfo.ConnectionDetails.Pooling = originalPooling;
+
+                // open a dedicated binding server connection
+                SqlConnection sqlConn = new SqlConnection(connectionString); 
+                sqlConn.Open();
+                return sqlConn;
+            }
+            catch (Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture, 
+                    "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
+                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
+                Logger.Write(LogLevel.Error, error);
+            }
+            
+            return null;
         }
     }
 }

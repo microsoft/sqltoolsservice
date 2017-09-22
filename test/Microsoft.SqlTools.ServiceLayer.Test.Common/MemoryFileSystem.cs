@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -12,17 +12,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public static IFileStreamFactory GetFileStreamFactory()
         {
-            return GetFileStreamFactory(new Dictionary<string, byte[]>());
+            return GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
         }
 
-        public static IFileStreamFactory GetFileStreamFactory(Dictionary<string, byte[]> storage)
+        public static IFileStreamFactory GetFileStreamFactory(ConcurrentDictionary<string, byte[]> storage)
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.CreateFile())
                 .Returns(() =>
                 {
                     string fileName = Guid.NewGuid().ToString();
-                    storage.Add(fileName, new byte[8192]);
+                    storage.TryAdd(fileName, new byte[8192]);
                     return fileName;
                 });
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
