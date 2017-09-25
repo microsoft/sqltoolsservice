@@ -197,7 +197,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 {
                     FileBrowserOperation browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
                     browser.PopulateFileTree();
+
+                    if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
+                    {
+                        this.ownerToFileBrowserMap.Remove(fileBrowserParams.OwnerUri);
+                    }
                     this.ownerToFileBrowserMap.Add(fileBrowserParams.OwnerUri, browser);
+
+                    result.OwnerUri = fileBrowserParams.OwnerUri;
                     result.FileTree = browser.FileTree;
                     result.Succeeded = true;
                 }
@@ -224,6 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 {
                     FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
                     browser.ExpandSelectedNode(fileBrowserParams.ExpandPath);
+                    result.OwnerUri = fileBrowserParams.OwnerUri;
                     result.ExpandedNode = browser.FileTree.SelectedNode;
                     result.Succeeded = true;
                 }

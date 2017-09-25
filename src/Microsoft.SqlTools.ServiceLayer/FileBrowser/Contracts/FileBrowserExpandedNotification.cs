@@ -12,6 +12,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     public class FileBrowserExpandedParams
     {
         /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri;
+
+        /// <summary>
         /// Expanded node 
         /// </summary>
         public FileTreeNode ExpandedNode;

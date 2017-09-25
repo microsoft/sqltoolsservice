@@ -14,6 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     public class FileBrowserOpenedParams
     {
         /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri;
+
+        /// <summary>
         /// Entire file/folder tree 
         /// </summary>
         public FileTree FileTree;
