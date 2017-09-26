@@ -20,6 +20,9 @@ using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
+using System.Data.SqlClient;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -96,6 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             serviceHost.SetRequestHandler(ScriptingRequest.Type, HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
+            serviceHost.SetRequestHandler(ScriptingSelectRequest.Type, this.HandleScriptSelectRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -103,6 +107,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.Dispose();
                 return Task.FromResult(0);
             });
+        }
+
+        /// <summary>
+        /// Handles request to get select script for an smo object
+        /// </summary>
+        public async Task HandleScriptSelectRequest(ScriptingSelectParams parameters, RequestContext<ScriptingSelectResult> requestContext)
+        {
+            try 
+            {
+                string script = String.Empty;
+
+                // convert owner uri received from parameters to lookup for its
+                // associated connection and build a connection string out of it
+                ConnectionInfo connInfo;
+                ScriptingService.ConnectionServiceInstance.TryFindConnection(
+                    parameters.ConnectionString,
+                    out connInfo);
+                if (connInfo != null)
+                {
+                    parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                }
+                SqlConnection sqlConn = new SqlConnection(parameters.ConnectionString);
+                ServerConnection serverConn = new ServerConnection(sqlConn);
+                Server server = new Server(serverConn);
+                server.DefaultTextMode = true;
+                SqlConnectionStringBuilder connStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
+                string urnString = string.Format(
+                    "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
+                    server.Name.ToUpper(),
+                    connStringBuilder.InitialCatalog,
+                    parameters.ScriptingObject.Type,
+                    parameters.ScriptingObject.Name,
+                    parameters.ScriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", parameters.ScriptingObject.Schema) : string.Empty);
+                Urn urn = new Urn(urnString);
+                string name = urn.GetNameForType(parameters.ScriptingObject.Type);
+                if (string.Compare(name, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
+                {
+                    script = Scripter.SelectAllValuesFromTransmissionQueue(urn);
+                }
+                else 
+                {
+                    if (string.Compare(name, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
+                        string.Compare(name, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
+                    {
+                        script = Scripter.SelectAllValues(urn);
+                    }
+                    else 
+                    {   
+                        Database db = server.Databases[connStringBuilder.InitialCatalog];
+                        bool isDw = db.IsSqlDw;
+                        script = new Scripter().SelectFromTableOrView(server, urn, isDw);
+                    }
+                }
+                await requestContext.SendResult(new ScriptingSelectResult { script = script});
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
         }
 
         /// <summary>
@@ -132,6 +195,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             try
             {
+                // convert owner uri received from parameters to lookup for its
+                // associated connection and build a connection string out of it
                 ConnectionInfo connInfo;
                 ScriptingService.ConnectionServiceInstance.TryFindConnection(
                     parameters.ConnectionString,
@@ -140,6 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                 }
+
                 ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
                 operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
                 operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
