@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         private const string DatabaseName = "test-db";
         private const string StoredProcName = "test-sp";
         private string[] objects = new string[5] {"Table", "View", "Schema", "Database", "SProc"};
+        private string[] selectObjects = new string[2] { "Table", "View" };
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -62,15 +63,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             return requestContext;
         }
 
+        private async Task<Mock<RequestContext<ScriptingSelectResult>>> SendAndValidateSelectScriptRequest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var requestContext = new Mock<RequestContext<ScriptingSelectResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<ScriptingSelectResult>())).Returns(Task.FromResult(new object()));
+
+            var scriptingParams = new ScriptingSelectParams
+            {
+                ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
+            };
+
+            ScriptingService service = new ScriptingService();
+            await service.HandleScriptSelectRequest(scriptingParams, requestContext.Object);
+
+            return requestContext;
+        }
+
         /// <summary>
-        /// Verify the script as select request
+        /// Verify the script object request
         /// </summary>
         [Fact]
-        public async void ScriptingScriptAsSelect()
+        public async void ScriptingScript()
         {
             foreach (string obj in objects)
             {
                 Assert.NotNull(await SendAndValidateScriptRequest());
+            }
+        }
+
+        /// <summary>
+        /// Verify the script as select request
+        /// </summary>
+        [Fact]
+        public async void ScriptingSelectScript()
+        {
+            foreach (string obj in selectObjects)
+            {
+                Assert.NotNull(await SendAndValidateSelectScriptRequest());
             }
         }
     }

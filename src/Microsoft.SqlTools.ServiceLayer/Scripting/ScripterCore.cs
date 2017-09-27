@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Script a object using the type extracted from declarationItem
         /// </summary>
-        /// <param name="declarationItem">The Declarartion object that matched with the selected token</param>
+        /// <param name="declarationItem">The Declaration object that matched with the selected token</param>
         /// <param name="tokenText">The text of the selected token</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns></returns>
