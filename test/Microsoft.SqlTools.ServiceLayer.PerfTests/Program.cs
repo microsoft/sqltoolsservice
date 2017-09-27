@@ -30,4 +30,3 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         }
     }
 }
-

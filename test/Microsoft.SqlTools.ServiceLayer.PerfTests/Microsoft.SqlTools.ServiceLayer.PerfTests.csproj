@@ -10,6 +10,7 @@
 	  <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
     <StartupObject>Microsoft.SqlTools.ServiceLayer.PerfTests.Program</StartupObject>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
   <ItemGroup>
  	  <Reference Include="Newtonsoft.Json">
