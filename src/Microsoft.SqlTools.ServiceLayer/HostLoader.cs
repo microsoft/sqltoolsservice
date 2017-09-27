@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
@@ -20,7 +21,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -98,8 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             FileBrowserService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(FileBrowserService.Instance);
+
             ProfilerService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(ProfilerService.Instance);            
+            serviceProvider.RegisterSingleService(ProfilerService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

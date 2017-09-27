@@ -21,11 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         }
 
         /// <summary>
-        /// Parent node
-        /// </summary>
-        //public FileTreeNode Parent { get; private set; }
-
-        /// <summary>
         /// List of children nodes
         /// </summary>
         public List<FileTreeNode> Children { get; private set; }
@@ -48,7 +43,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
 
         public void AddChildNode(FileTreeNode item)
         {
-            //item.Parent = this;
             this.Children.Add(item);
         }
     }
