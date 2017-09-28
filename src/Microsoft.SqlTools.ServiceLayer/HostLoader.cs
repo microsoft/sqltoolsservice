@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
@@ -95,8 +96,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             DisasterRecoveryService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
 
+            FileBrowserService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(FileBrowserService.Instance);
+
             ProfilerService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(ProfilerService.Instance);            
+            serviceProvider.RegisterSingleService(ProfilerService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

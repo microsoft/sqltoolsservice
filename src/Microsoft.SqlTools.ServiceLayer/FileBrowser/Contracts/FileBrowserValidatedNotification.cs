@@ -7,15 +7,10 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
 {
     /// <summary>
-    /// Event params for expanding a node
+    /// Event params for validation completion
     /// </summary>
-    public class FileBrowserExpandCompleteParams
+    public class FileBrowserValidatedParams
     {
-        /// <summary>
-        /// Expanded node 
-        /// </summary>
-        public FileTreeNode ExpandedNode;
-
         /// <summary>
         /// Result of the operation
         /// </summary>
@@ -28,13 +23,13 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
     }
 
     /// <summary>
-    /// Notification for expand completion
+    /// Notification for validation completion
     /// </summary>
-    public class FileBrowserExpandCompleteNotification
+    public class FileBrowserValidatedNotification
     {
         public static readonly
-            EventType<FileBrowserExpandCompleteParams> Type =
-            EventType<FileBrowserExpandCompleteParams>.Create("filebrowser/expandcomplete");
+            EventType<FileBrowserValidatedParams> Type =
+            EventType<FileBrowserValidatedParams>.Create("filebrowser/validatecomplete");
     }
 
 }
