@@ -3,16 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Moq;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using System.Threading.Tasks;
+using Moq;
+using Xunit;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 {
@@ -63,23 +64,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             return requestContext;
         }
 
-        private async Task<Mock<RequestContext<ScriptingSelectResult>>> SendAndValidateSelectScriptRequest()
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<ScriptingSelectResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<ScriptingSelectResult>())).Returns(Task.FromResult(new object()));
-
-            var scriptingParams = new ScriptingSelectParams
-            {
-                ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
-            };
-
-            ScriptingService service = new ScriptingService();
-            await service.HandleScriptSelectRequest(scriptingParams, requestContext.Object);
-
-            return requestContext;
-        }
-
         /// <summary>
         /// Verify the script object request
         /// </summary>
@@ -89,18 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             foreach (string obj in objects)
             {
                 Assert.NotNull(await SendAndValidateScriptRequest());
-            }
-        }
-
-        /// <summary>
-        /// Verify the script as select request
-        /// </summary>
-        [Fact]
-        public async void ScriptingSelectScript()
-        {
-            foreach (string obj in selectObjects)
-            {
-                Assert.NotNull(await SendAndValidateSelectScriptRequest());
             }
         }
     }

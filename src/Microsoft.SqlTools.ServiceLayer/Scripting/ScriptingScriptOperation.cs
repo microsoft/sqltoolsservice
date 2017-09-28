@@ -39,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private ScriptingParams Parameters { get; set; }
 
+        public SqlScriptPublishModel PublishModel { get; private set; }
+
         /// <summary>
         /// Event raised when a scripting operation has resolved which database objects will be scripted.
         /// </summary>
@@ -236,6 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
             }
 
+            this.PublishModel = publishModel;
             return publishModel;
         }
 

@@ -277,38 +277,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             ScriptingScriptOperation operation = InitScriptOperation(objectName, schemaName, objectType, tempFileName);
             operation.Execute();
+            string script = operation.PublishModel.RawScript;
 
-            // If the scripting was successful, we should see a file with the scripts
             bool objectFound = false;
             int createStatementLineNumber = 0;
-            if (File.Exists(tempFileName))
+
+            File.WriteAllText(tempFileName, script);
+            string[] lines = File.ReadAllLines(tempFileName);
+            int lineCount = 0;
+            string createSyntax = null;
+            if (objectScriptMap.ContainsKey(objectType))
             {
-                using (StreamReader scriptFile = new StreamReader(tempFileName))
+                createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType]);
+                foreach (string line in lines)
                 {
-                    string line;
-                    int lineCount = 0;
-                    string createSyntax = null;
-                    if (objectScriptMap.ContainsKey(objectType))
+                    if (LineContainsObject(line, objectName, createSyntax))
                     {
-                        createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType]);
+                        createStatementLineNumber = lineCount;
+                        objectFound = true;
+                        break;
                     }
-                    while (objectFound && (line = scriptFile.ReadLine()) != null) 
-                    {
-                        if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                            line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
-                        {
-                            createStatementLineNumber = lineCount;
-                            objectFound = true;
-                            break;
-                        }
-                        lineCount++;
-                    }
+                    lineCount++;
                 }
-                File.Delete(tempFileName);
             }
             if (objectFound)
             {
-                return GetLocationFromFile(tempFileName, createStatementLineNumber);
+                Location[] locations = GetLocationFromFile(tempFileName, createStatementLineNumber);
+                return locations;
             }
             else
             {
@@ -356,10 +351,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 tempFileName = new Uri(tempFileName).AbsoluteUri;
             }
             // Create a location array containing the tempFile Uri, as expected by VSCode.
-            Location[] locations = new[] {
-                    new Location {
+            Location[] locations = new[] 
+            {
+                    new Location 
+                    {
                         Uri = tempFileName,
-                        Range = new Range {
+                        Range = new Range 
+                        {
                             Start = new Position { Line = lineNumber, Character = 0},
                             End = new Position { Line = lineNumber + 1, Character = 0}
                         }
@@ -465,14 +463,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         internal ScriptingScriptOperation InitScriptOperation(string objectName, string schemaName, string objectType, string tempFileName)
         {            
             // object that has to be scripted
-            ScriptingObject obj = new ScriptingObject {
+            ScriptingObject scriptingObject = new ScriptingObject 
+            {
                 Name = objectName,
                 Schema = schemaName,
                 Type = objectType
             };
 
             // scripting options
-            ScriptOptions options = new ScriptOptions {
+            ScriptOptions options = new ScriptOptions 
+            {
 			    ScriptCreateDrop = "ScriptCreate",
 			    TypeOfDataToScript = "SchemaOnly",
 			    ScriptStatistics = "ScriptStatsNone",
@@ -484,17 +484,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             List<ScriptingObject> objectList = new List<ScriptingObject>();
             List<string> includeList = new List<string>();
-            includeList.Add(objectType);
-            objectList.Add(obj);
+            objectList.Add(scriptingObject);
 
             // create parameters for the scripting operation
 
-            ScriptingParams parameters = new ScriptingParams {
+            ScriptingParams parameters = new ScriptingParams 
+            {
                 FilePath = tempFileName,
                 ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
-                IncludeTypes = includeList,
                 ScriptingObjects = objectList,
-                ScriptOptions = options
+                ScriptOptions = options,
+                ScriptDestination = "ToEditor"
             };
 
             return new ScriptingScriptOperation(parameters);
@@ -517,6 +517,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         internal string GetTargetDatabaseEngineType()
         {
            return connectionInfo.IsAzure ? "SqlAzure" : "SingleInstance";
+        }
+
+        internal bool LineContainsObject(string line, string objectName, string createSyntax)
+        {
+            if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
+            {
+                return true;
+            }
+            return false;
         }
 
         internal static class ScriptingGlobals
