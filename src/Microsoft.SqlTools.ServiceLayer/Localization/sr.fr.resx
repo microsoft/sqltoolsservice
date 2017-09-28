@@ -1374,16 +1374,100 @@
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>Le jeu de résultats a trop de lignes pour être chargé en toute sécurité</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>Sauvegarder la base de données</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>En cours</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>Terminé</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>Paramétrage</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>La spécification de cette option lors de la restauration d'une sauvegarde avec l'option NORECOVERY n'est pas permise.</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Chemin d'accès non valide pour le fichier de base de données : « {0} »</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Journal</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Échec de la création du plan de restauration</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>La restauration de la base de données n'est pas supportée</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Restaurer la base de données</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Copie seule)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Composant</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Serveur </value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Base de données </value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Premier NSE</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Dernier NSE</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>NSE du point de contrôle</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Tous les NSE</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Date de début</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Date de fin</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Taille</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Nom d'utilisateur </value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Expiration </value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Nom </value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>La dernière sauvegarde effectuée ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Sauvegarder la base de données</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>Opération en cours</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Terminé</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>script</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Connexion introuvable</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Le nom de fichier spécifié est également un nom de répertoire: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>Impossible de vérifier l'existence de l'emplacement du fichier de sauvegarde: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Impossible d'accéder au chemin d'accès spécifié sur le serveur: {0}</value>
   </data>
 </root>

@@ -2270,6 +2270,11 @@
         <target state="new">Cannot access the specified path on the server: {0}</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="NoBackupsetsToRestore">
+        <source>No backupset selected to be restored</source>
+        <target state="new">No backupset selected to be restored</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

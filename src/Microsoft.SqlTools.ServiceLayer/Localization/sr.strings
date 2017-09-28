@@ -841,6 +841,7 @@ RestoreBackupSetSize = Size
 RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
+NoBackupsetsToRestore = No backupset selected to be restored
 
 ############################################################################
 # Generate Script

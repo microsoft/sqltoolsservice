@@ -1375,16 +1375,100 @@
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>Conjunto de resultados tem muitas linhas para ser carregado com segurança</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>Fazer Backup do Banco de Dados</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>Em andamento</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>Concluído</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>Parametrização</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Não é permitido especificar essa opção ao restaurar um backup com a opção NORECOVERY.</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Caminho inválido para o arquivo de banco de dados: '{0}'</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Falha ao criar o plano de restauração</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Restauração de banco de dados não é suportado</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Restaurar o banco de dados</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Apenas cópia)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Componente</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Servidor</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Banco de dados</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Posição</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Primeiro LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Último LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Checkpoint LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>LSN completo</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Data de Início</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Data de Término</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Tamanho</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Nome do usuário</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Expiração</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>O último backup feito ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Backup do Banco de Dados</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>Em andamento</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Concluído</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>Gerando script</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Conexão não encontrada</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>O nome do arquivo especificado também é um nome de diretório: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>Não foi possível verificar a existência do local do arquivo de backup: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Não foi possível acessar o diretório especificado no servidor: {0}</value>
   </data>
 </root>

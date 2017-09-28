@@ -507,8 +507,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                    {
                        string errorMessage = string.Empty;
                        var sourceDbNames = restoreDataObject.SourceDbNames;
-                       if (currentValue == null || (sourceDbNames != null && 
-                            !sourceDbNames.Any(x => string.Compare(x, currentValue.ToString(), StringComparison.InvariantCultureIgnoreCase) == 0)))
+                       if (currentValue == null)
                        {
                            errorMessage = "Source database name is not valid";
                        }

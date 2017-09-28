@@ -175,7 +175,7 @@
     <value>반환되는 최대 XML 바이트 수는 0보다 커야 합니다.</value>
   </data>
   <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>Access 방법은 쓰기 전용이 될 수 없습니다.</value>
+    <value>액세스 방법은 쓰기 전용이 될 수 없습니다.</value>
   </data>
   <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
     <value>FileStreamWrapper 는 작업을 수행 하기 전에 초기화 해야 합니다.</value>
@@ -1376,16 +1376,100 @@ votes
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>결과 집합의 행 수가 너무 많아서 안전하게 불러들일 수 없습니다.</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>데이터베이스 백업</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>진행 중</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>완료됨</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>매개 변수화</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>NORECOVERY 옵션을 사용하여 백업을 복원하는 동안 이 옵션을 지정할 수 없습니다.</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>데이터베이스 파일의 경로가 잘못되었습니다. '{0}'</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>로그</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>복원 계획을 만들지 못했습니다</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>데이터베이스 복원은 지원되지 않습니다.</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>데이터베이스 복원</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>복사 전용</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>구성 요소</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>형식</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>서버</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>데이터베이스</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>위치</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>첫 번째 LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>마지막 LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>검사점 LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>전체 LSN</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>시작 날짜</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>완료 날짜</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>크기</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>사용자 이름</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>만료</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>수행된 마지막 백업({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>데이터베이스 백업</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>진행 중</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>완료됨</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>스크립팅</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>연결 없음</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>지정한 파일 이름은 디렉터리 이름이기도 합니다: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>백업 파일 위치를 확인할 수 없습니다: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>서버에서 지정된 경로에 액세스할 수 없습니다: {0}</value>
   </data>
 </root>

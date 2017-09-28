@@ -3501,6 +3501,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string NoBackupsetsToRestore
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoBackupsetsToRestore);
+            }
+        }
+
         public static string ScriptTaskName
         {
             get
@@ -4945,6 +4953,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TheLastBackupTaken = "TheLastBackupTaken";
+
+
+            public const string NoBackupsetsToRestore = "NoBackupsetsToRestore";
 
 
             public const string ScriptTaskName = "ScriptTaskName";

@@ -1374,16 +1374,100 @@
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>Pезультатов слишком много строк для безопасной загрузки</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>Резервное копирование базы данных</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>Выполняется</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>Завершен</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>Параметризация</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Не разрешается указывать этот параметр при восстановлении резервной копии с параметром NORECOVERY.</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Недопустимый путь к файлу базы данных: {0}""""</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Журнал</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Не удалось создать план восстановления </value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Восстановление базы данных не поддерживается</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Восстановление базы данных</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Копировать только)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Тип копии</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Сервер</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>База данных</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Положение</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Первый номер LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Последний номер LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Номер LSN для контрольной точки</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Полный номер LSN</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Дата начала</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Дата завершения</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Размер</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Имя пользователя</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Истечение срока</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>Последняя созданная резервная копия ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Создание резервной копии базы данных</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>Выполняется</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Завершен</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>Скрипты</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Соединение не найдено</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Указанное имя файла является также именем каталога: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>Невозможно проверить существование расположения файла резервной копии: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Указанный путь на сервере недоступен: {0}</value>
   </data>
 </root>

@@ -1374,16 +1374,100 @@
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>El conjunto de resultados contiene demasiada filas para cargarlo de forma segura</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>Copia de seguridad de la base de datos</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>En curso</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>Completado</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>Parametrización</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>No se permite restaurar una copia de seguridad con la opción NORECOVERY</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Ruta de archivo no válida: '{0}'</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Registro</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>No se pudo crear un plan de restauraciones</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>No se admite restaurar la base de datos</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Restaurar base de datos</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Copiar solamente)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Componente</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Servidor</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Base de datos</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Posición</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Primer LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Último LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Checkpoint LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>LSN completo</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Fecha de inicio</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Fecha de finalización</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Tamaño</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Nombre del usuario</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Expiración</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>La última copia de seguridad tomada ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Copia de seguridad de la base de datos</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>En curso</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Completado</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>scripting </value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Conexión no encontrada</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>El nombre del archivo especificado es un nombre de directorio: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>No se puede verificar la existencia de la ubicación del archivo de copia de seguridad: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>No se puede acceder a la ruta de acceso especificada en el servidor: {0}</value>
   </data>
 </root>

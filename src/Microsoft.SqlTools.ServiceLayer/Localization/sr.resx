@@ -1923,6 +1923,10 @@
     <value>The last backup taken ({0})</value>
     <comment></comment>
   </data>
+  <data name="NoBackupsetsToRestore" xml:space="preserve">
+    <value>No backupset selected to be restored</value>
+    <comment></comment>
+  </data>
   <data name="ScriptTaskName" xml:space="preserve">
     <value>scripting</value>
     <comment></comment>
