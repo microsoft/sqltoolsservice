@@ -409,4 +409,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             Assert.Equal<int>(2, results.Count());
         }
     }
+
+    public class ScriptingUtilsTests
+    {
+        private static string[] TestObjects = new string[]
+        {
+            "Table",
+            "Table]",
+            "]Table",
+            "Tab]le",
+            "",
+            "]",
+            "view"
+        };
+
+        private static string[] ExpectedObjects = new string[]
+        {
+            "Table",
+            "Table]]",
+            "]]Table",
+            "Tab]]le",
+            "",
+            "]]",
+            "view"
+        };
+        
+
+        [Fact]
+        public void TestQuoteObjectName()
+        {
+            for (int i = 0; i < TestObjects.Length; i++)
+            {
+                Assert.Equal(Scripter.ScriptingUtils.QuoteObjectName(TestObjects[i]), ExpectedObjects[i]);
+            }
+        }
+    }
 }
