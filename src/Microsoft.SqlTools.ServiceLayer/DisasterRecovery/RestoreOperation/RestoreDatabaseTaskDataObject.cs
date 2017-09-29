@@ -921,8 +921,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         public bool ShouldCreateNewPlan()
         {
-            return string.Compare(RestorePlanner.DatabaseName, this.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.SourceDatabaseName), StringComparison.InvariantCultureIgnoreCase) != 0 ||
+            return RestorePlan == null || string.Compare(RestorePlanner.DatabaseName, this.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.SourceDatabaseName), StringComparison.InvariantCultureIgnoreCase) != 0 ||
                 RestorePlanner.ReadHeaderFromMedia != this.RestoreParams.ReadHeaderFromMedia ||
+                this.RelocateAllFiles != this.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles) ||
                 string.Compare(this.backupMediaList, RestoreParams.BackupFilePaths, StringComparison.InvariantCultureIgnoreCase) != 0;
         }
 

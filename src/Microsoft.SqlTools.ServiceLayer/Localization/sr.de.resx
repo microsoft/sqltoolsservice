@@ -139,7 +139,7 @@
     <value>OwnerUri darf nicht null oder leer sein.</value>
   </data>
   <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>Details-Verbindungsobjekt kann nicht null sein.</value>
+    <value>Verbindungsdetails-Objekt darf nicht null sein.</value>
   </data>
   <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
     <value>ServerName darf nicht null oder leer sein.</value>
@@ -1375,16 +1375,100 @@ prototype_db_prop_parameterization = Parameterization</value>
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>Ergebnismenge ist zu groß, um sicher geladen zu werden</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>Datenbank sichern</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>In Bearbeitung</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>Abgeschlossen</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>Parametrisierung</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Diese Option darf nicht angegeben werden, wenn eine Sicherung mit der NORECOVERY-Option wiederhergestellt wird.</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Ungültiger Pfad für Datenbankdatei: {0}</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Protokoll</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Fehler beim Erstellen des Wiederherstellungsplan</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Wiederherstellen der Datenbank wird nicht unterstützt.</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Datenbank wiederherstellen</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(nur kopieren)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Komponente</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Datenbank</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Erste LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Letzte LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Prüfpunkt-LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Vollständige LSN</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Startdatum</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Beendigungsdatum</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Größe</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Benutzername</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Ablaufdatum</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>Letzte Sicherung ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Datenbank sichern</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>In Bearbeitung</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>Skripterstellung</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Verbindung nicht gefunden</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Der angegebene Dateiname ist zugleich ein Verzeichnisname: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>Es kann nicht überprüft werden, ob der Speicherort der Sicherungsdatei vorhanden ist: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Auf den angegebenen Pfad auf dem Server kann nicht zugegriffen werden: {0}</value>
   </data>
 </root>

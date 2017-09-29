@@ -86,6 +86,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             RestoreAsFileName = x.PhysicalNameRelocate
                         });
                         response.CanRestore = CanRestore(restoreDataObject);
+                        if (!response.CanRestore)
+                        {
+                            response.ErrorMessage = SR.NoBackupsetsToRestore;
+                        }
 
                         response.PlanDetails.Add(LastBackupTaken, 
                             RestorePlanDetailInfo.Create(name: LastBackupTaken, currentValue: restoreDataObject.GetLastBackupTaken(), isReadOnly: true));
