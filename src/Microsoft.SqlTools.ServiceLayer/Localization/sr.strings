@@ -808,8 +808,8 @@ prototype_file_noApplicableFileGroup = No Applicable Filegroup
 BackupTaskName = Backup Database
 
 # Backup File Validation Errors
-BackupPathIsFolderError = The provided path specifies a directory but a file path is required
-InvalidBackupPathError =  The file does not exist
+BackupPathIsFolderError = Please provide a file path instead of directory path
+InvalidBackupPathError =  The provided path is invalid
 
 ############################################################################
 # Task Service

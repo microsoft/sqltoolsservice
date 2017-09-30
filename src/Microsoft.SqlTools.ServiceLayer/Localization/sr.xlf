@@ -2256,12 +2256,12 @@
         <note></note>
       </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
-        <source>The provided path specifies a directory but a file path is required</source>
+        <source>Please provide a file path instead of directory path</source>
         <target state="new">The file name specified is also a directory name: {0}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidBackupPathError">
-        <source> The file does not exist</source>
+        <source> The provided path is invalid</source>
         <target state="new"> Cannot verify the existence of the backup file location: {0}</target>
         <note></note>
       </trans-unit>
