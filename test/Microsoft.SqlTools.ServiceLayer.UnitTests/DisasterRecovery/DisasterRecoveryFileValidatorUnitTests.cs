@@ -14,11 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
     public class DisasterRecoveryFileValidatorUnitTests
     {
         [Fact]
-        public void ValidatorShouldReturnFalseForNullArgument()
+        public void ValidatorShouldReturnTrueForNullArgument()
         {
             string message;
             bool result = DisasterRecoveryFileValidator.ValidatePaths(null, out message);
-            Assert.False(result);
+            Assert.True(result);
         }
 
         [Fact]
