@@ -93,7 +93,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             }
                             else if (args.ServiceType == FileValidationServiceConstants.Restore)
                             {
-
+                                errorMessage = SR.InvalidBackupPathError;
+                                break;
                             }
                         }
                     }
