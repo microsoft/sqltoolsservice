@@ -74,14 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                     if (!string.IsNullOrEmpty(errorMessage))
                     {
+                        result = false;
                         break;
                     }
                 }
-            }
-
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                result = false;
             }
 
             return result;
