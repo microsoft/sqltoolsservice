@@ -44,59 +44,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         connection = ReliableConnectionHelper.GetAsSqlConnection(dbConnection);
                     }
                 }
+            }
 
-                if (connection != null)
+            if (connection != null)
+            {
+                foreach (string filePath in args.FilePaths)
                 {
-                    bool isLocal = false;
-                    if (string.Compare(GetMachineName(connection.DataSource), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
+                    bool isFolder;
+                    bool existing = IsPathExisting(connection, filePath, out isFolder);
+
+                    if (existing)
                     {
-                        isLocal = true;
+                        if (isFolder)
+                        {
+                            errorMessage = SR.BackupPathIsFolderError;
+                        }
+                    }
+                    else
+                    {
+                        if (args.ServiceType == FileValidationServiceConstants.Backup)
+                        {
+                            errorMessage = IsFolderPathExisting(connection, filePath);
+                        }
+                        else if (args.ServiceType == FileValidationServiceConstants.Restore)
+                        {
+                            errorMessage = SR.InvalidBackupPathError;
+                        }
                     }
 
-                    foreach (string filePath in args.FilePaths)
+                    if (!string.IsNullOrEmpty(errorMessage))
                     {
-                        bool isFolder;
-                        bool existing = IsPathExisting(connection, filePath, out isFolder);
-
-                        if (existing)
-                        {
-                            if (isFolder)
-                            {
-                                errorMessage = SR.BackupPathIsFolderError;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (args.ServiceType == FileValidationServiceConstants.Backup)
-                            {
-                                // If the file path doesn't exist, check if the folder exists
-                                string folderPath = PathWrapper.GetDirectoryName(filePath);
-                                if (isLocal)
-                                {
-                                    if (!string.IsNullOrEmpty(folderPath) && !Directory.Exists(folderPath))
-                                    {
-                                        errorMessage = SR.InvalidBackupPathError;
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    bool isFolderOnRemote;
-                                    bool existsOnRemote = IsPathExisting(connection, folderPath, out isFolderOnRemote);
-                                    if (!existsOnRemote)
-                                    {
-                                        errorMessage = SR.InvalidBackupPathError;
-                                        break;
-                                    }
-                                }
-                            }
-                            else if (args.ServiceType == FileValidationServiceConstants.Restore)
-                            {
-                                errorMessage = SR.InvalidBackupPathError;
-                                break;
-                            }
-                        }
+                        break;
                     }
                 }
             }
@@ -110,6 +88,32 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         #region private methods
+
+        internal static string IsFolderPathExisting(SqlConnection connection, string filePath)
+        {
+            // If the file path doesn't exist, check if the folder exists
+            string folderPath = PathWrapper.GetDirectoryName(filePath);
+            string errorMessage = string.Empty;
+
+            if (string.Compare(GetMachineName(connection.DataSource), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                if (!string.IsNullOrEmpty(folderPath) && !Directory.Exists(folderPath))
+                {
+                    errorMessage = SR.InvalidBackupPathError;
+                }
+            }
+            else
+            {
+                bool isFolderOnRemote;
+                bool existsOnRemote = IsPathExisting(connection, folderPath, out isFolderOnRemote);
+                if (!existsOnRemote)
+                {
+                    errorMessage = SR.InvalidBackupPathError;
+                }
+            }
+
+            return errorMessage;
+        }
 
         internal static bool IsPathExisting(SqlConnection connection, string path, out bool isFolder)
         {
