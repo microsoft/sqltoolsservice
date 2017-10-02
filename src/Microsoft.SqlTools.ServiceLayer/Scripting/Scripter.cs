@@ -50,26 +50,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             serverVersionMap.Add(14, "Script140Compat");
 
             // Mapping the object types for scripting
-            objectScriptMap.Add("Table", "Table");
-            objectScriptMap.Add("View", "View");
-            objectScriptMap.Add("StoredProcedure", "Procedure");
-            objectScriptMap.Add("UserDefinedFunction", "Function");
-            objectScriptMap.Add("UserDefinedDataType", "Type");
-            objectScriptMap.Add("User", "User");
-            objectScriptMap.Add("Default", "Default");
-            objectScriptMap.Add("Rule", "Rule");
-            objectScriptMap.Add("DatabaseRole", "Role");
-            objectScriptMap.Add("ApplicationRole", "Application Role");
-            objectScriptMap.Add("SqlAssembly", "Assembly");
-            objectScriptMap.Add("DdlTrigger", "Trigger");
-            objectScriptMap.Add("Synonym", "Synonym");
-            objectScriptMap.Add("XmlSchemaCollection", "Xml Schema Collection");
-            objectScriptMap.Add("Schema", "Schema");
-            objectScriptMap.Add("PlanGuide", "sp_create_plan_guide");
-            objectScriptMap.Add("UserDefinedType", "Type");
-            objectScriptMap.Add("UserDefinedAggregate", "Aggregate");
-            objectScriptMap.Add("FullTextCatalog", "Fulltext Catalog");
-            objectScriptMap.Add("UserDefinedTableType", "Type");
+            objectScriptMap.Add("table", "Table");
+            objectScriptMap.Add("view", "View");
+            objectScriptMap.Add("storedprocedure", "Procedure");
+            objectScriptMap.Add("userdefinedfunction", "Function");
+            objectScriptMap.Add("userdefineddataType", "Type");
+            objectScriptMap.Add("user", "User");
+            objectScriptMap.Add("default", "Default");
+            objectScriptMap.Add("rule", "Rule");
+            objectScriptMap.Add("databaserole", "Role");
+            objectScriptMap.Add("applicationrole", "Application Role");
+            objectScriptMap.Add("sqlassembly", "Assembly");
+            objectScriptMap.Add("ddltrigger", "Trigger");
+            objectScriptMap.Add("synonym", "Synonym");
+            objectScriptMap.Add("xmlschemacollection", "Xml Schema Collection");
+            objectScriptMap.Add("schema", "Schema");
+            objectScriptMap.Add("planguide", "sp_create_plan_guide");
+            objectScriptMap.Add("userdefinedType", "Type");
+            objectScriptMap.Add("userdefinedaggregate", "Aggregate");
+            objectScriptMap.Add("fulltextcatalog", "Fulltext Catalog");
+            objectScriptMap.Add("userdefinedtabletype", "Type");
         }
 	}
 }

@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             return result;
         }
 
-        private async Task<Mock<RequestContext<ScriptingResult>>> SendAndValidateScriptRequest()
+        private async Task<Mock<RequestContext<ScriptingResult>>> SendAndValidateScriptRequest(bool isSelectScript)
         {
             var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<ScriptingResult>>();
@@ -55,9 +55,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
             var scriptingParams = new ScriptingParams
             {
-                ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
+                OwnerUri = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
             };
-
+            if (isSelectScript)
+            {
+                scriptingParams.ScriptOptions = new ScriptOptions { ScriptCreateDrop = "ScriptSelect" };
+                List<ScriptingObject> scriptingObjects = new List<ScriptingObject>();
+                scriptingObjects.Add(new ScriptingObject { Type = "View", Name = "sysobjects", Schema = "sys" });
+                scriptingParams.ScriptingObjects = scriptingObjects;
+            }
             ScriptingService service = new ScriptingService();
             await service.HandleScriptExecuteRequest(scriptingParams, requestContext.Object);
 
@@ -72,7 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         {
             foreach (string obj in objects)
             {
-                Assert.NotNull(await SendAndValidateScriptRequest());
+                Assert.NotNull(await SendAndValidateScriptRequest(false));
+                Assert.NotNull(await SendAndValidateScriptRequest(true));
             }
         }
     }

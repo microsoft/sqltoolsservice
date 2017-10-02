@@ -408,6 +408,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 
             Assert.Equal<int>(2, results.Count());
         }
+
+        [Fact]
+        public void ScriptingObjectEquality()
+        {
+            ScriptingObject scriptingObject1 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
+            ScriptingObject scriptingObject2 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
+            ScriptingObject scriptingObject3 = null;
+            Assert.Equal(scriptingObject1, scriptingObject2);
+            Assert.False(scriptingObject1.Equals(scriptingObject3));
+        }
     }
 
     public class ScriptingUtilsTests

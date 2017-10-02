@@ -300,7 +300,7 @@ GO";
             string objectName = "sp_columns";
 
             string schemaName = "sys";
-            string objectType = "PROCEDURE";
+            string objectType = "StoredProcedure";
 
             Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
@@ -339,7 +339,7 @@ GO";
             Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "sp_MSrepl_startup";
             string schemaName = null;
-            string objectType = "PROCEDURE";
+            string objectType = "StoredProcedure";
 
             Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);

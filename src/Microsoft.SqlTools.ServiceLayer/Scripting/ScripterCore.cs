@@ -4,9 +4,7 @@
 //
 
 using System;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -275,9 +273,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
-            ScriptingScriptOperation operation = InitScriptOperation(objectName, schemaName, objectType, tempFileName);
+            ScriptingScriptOperation operation = InitScriptOperation(objectName, schemaName, objectType);
             operation.Execute();
-            string script = operation.PublishModel.RawScript;
+            string script = operation.ScriptText;
 
             bool objectFound = false;
             int createStatementLineNumber = 0;
@@ -286,9 +284,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string[] lines = File.ReadAllLines(tempFileName);
             int lineCount = 0;
             string createSyntax = null;
-            if (objectScriptMap.ContainsKey(objectType))
+            if (objectScriptMap.ContainsKey(objectType.ToLower()))
             {
-                createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType]);
+                createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType.ToLower()]);
                 foreach (string line in lines)
                 {
                     if (LineContainsObject(line, objectName, createSyntax))
@@ -460,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectType"></param>
         /// <param name="tempFileName"></param>
         /// <returns></returns>
-        internal ScriptingScriptOperation InitScriptOperation(string objectName, string schemaName, string objectType, string tempFileName)
+        internal ScriptingScriptOperation InitScriptOperation(string objectName, string schemaName, string objectType)
         {            
             // object that has to be scripted
             ScriptingObject scriptingObject = new ScriptingObject 
@@ -483,14 +481,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 		    };
 
             List<ScriptingObject> objectList = new List<ScriptingObject>();
-            List<string> includeList = new List<string>();
             objectList.Add(scriptingObject);
 
             // create parameters for the scripting operation
 
             ScriptingParams parameters = new ScriptingParams 
             {
-                FilePath = tempFileName,
                 ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
                 ScriptingObjects = objectList,
                 ScriptOptions = options,

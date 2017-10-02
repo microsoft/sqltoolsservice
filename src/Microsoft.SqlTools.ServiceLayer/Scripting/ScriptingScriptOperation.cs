@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private ScriptingParams Parameters { get; set; }
 
-        public SqlScriptPublishModel PublishModel { get; private set; }
+        public string ScriptText { get; private set; }
 
         /// <summary>
         /// Event raised when a scripting operation has resolved which database objects will be scripted.
@@ -101,6 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         this.eventSequenceNumber,
                         this.totalScriptedObjectCount,
                         this.scriptedObjectCount));
+                
+                ScriptText = publishModel.RawScript;
 
                 this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                 {
@@ -237,8 +239,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
             }
-
-            this.PublishModel = publishModel;
             return publishModel;
         }
 
@@ -338,10 +338,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid, e);
             }
-
-            if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
+            if (this.Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
+            }
+            else if (this.Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
+                {
+                    throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
+                }
             }
         }
 
