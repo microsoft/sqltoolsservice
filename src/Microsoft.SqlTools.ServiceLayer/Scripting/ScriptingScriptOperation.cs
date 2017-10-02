@@ -39,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private ScriptingParams Parameters { get; set; }
 
+        public string ScriptText { get; private set; }
+
         /// <summary>
         /// Event raised when a scripting operation has resolved which database objects will be scripted.
         /// </summary>
@@ -71,6 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
+                publishModel.AllowSystemObjects = true;
 
                 ScriptDestination destination = !string.IsNullOrWhiteSpace(this.Parameters.ScriptDestination)
                     ? (ScriptDestination)Enum.Parse(typeof(ScriptDestination), this.Parameters.ScriptDestination)
@@ -98,6 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         this.eventSequenceNumber,
                         this.totalScriptedObjectCount,
                         this.scriptedObjectCount));
+                
+                ScriptText = publishModel.RawScript;
 
                 this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                 {
@@ -138,23 +143,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
-            this.SetCommomEventProperties(parameters);
+            this.SetCommonEventProperties(parameters);
             this.CompleteNotification?.Invoke(this, parameters);
         }
 
         private void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
         {
-            this.SetCommomEventProperties(parameters);
+            this.SetCommonEventProperties(parameters);
             this.PlanNotification?.Invoke(this, parameters);
         }
 
         private void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
-            this.SetCommomEventProperties(parameters);
+            this.SetCommonEventProperties(parameters);
             this.ProgressNotification?.Invoke(this, parameters);
         }
 
-        private void SetCommomEventProperties(ScriptingEventParams parameters)
+        private void SetCommonEventProperties(ScriptingEventParams parameters)
         {
             parameters.OperationId = this.OperationId;
             parameters.SequenceNumber = this.eventSequenceNumber;
@@ -234,7 +239,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
             }
-
             return publishModel;
         }
 
@@ -334,10 +338,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid, e);
             }
-
-            if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
+            if (this.Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
+            }
+            else if (this.Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
+                {
+                    throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
+                }
             }
         }
 
