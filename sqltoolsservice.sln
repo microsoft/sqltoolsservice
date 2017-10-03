@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26510.0
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BBD7364-054F-4693-97CD-1C395E3E84A9}"
 EndProject
@@ -71,6 +71,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer.TestEnvConfig", "test\Microsoft.SqlTools.ServiceLayer.TestEnvConfig\Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj", "{2C290C58-C98D-46B2-BCED-44D9B67F6D31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Serialization", "src\Microsoft.SqlTools.Serialization\Microsoft.SqlTools.Serialization.csproj", "{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Azure", "src\Microsoft.SqlTools.Azure\Microsoft.SqlTools.Azure.csproj", "{6FEE7E14-8A1D-454E-8F7C-B63597801787}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Azure.Core", "src\Microsoft.SqlTools.Azure.Core\Microsoft.SqlTools.Azure.Core.csproj", "{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,6 +149,18 @@ Global
 		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,6 +179,8 @@ Global
 		{501DB3B2-AF92-41CF-82F6-780F9C37C219} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{2C290C58-C98D-46B2-BCED-44D9B67F6D31} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{6FEE7E14-8A1D-454E-8F7C-B63597801787} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
