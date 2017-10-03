@@ -1375,16 +1375,91 @@ Enabledprototype_db_prop_parameterization = Parameterization</value>
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>結果セットの行数が多すぎるため安全にロードすることはできません</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>データベースをバックアップする</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>実行中</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>完了</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>パラメーター化</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>NORECOVERY オプションを使用してバックアップを復元するときにこのオプションを指定することはできません。</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>データベース ファイルのパスが無効です: '{0}'</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>ログ</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>データベースのリストアはサポートされていません。</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>データベースのリストア</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>コンポーネント</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>種類</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>サーバー</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>データベース</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>最初の LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>最後の LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>チェックポイントの LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>全 LSN</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>開始日</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>完了日</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>有効期限</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>最後に作成されたバックアップ ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>データベースをバックアップする</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>実行中</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>スクリプト</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>指定されたファイル名はディレクトリ名と重複します: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>バックアップ ファイルの場所が存在するかどうかを確認できません: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>サーバーで指定されたパスにアクセスできません: {0}</value>
   </data>
 </root>

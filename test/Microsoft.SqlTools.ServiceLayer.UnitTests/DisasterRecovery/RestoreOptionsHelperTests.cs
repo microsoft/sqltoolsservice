@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             string defaultDbName = "default";
-            string currentDbName = "db3";
+            string currentDbName = null;
             restoreParams.Options["SourceDbNames"] = new List<string> { "db1", "db2" };
             restoreParams.Options["DefaultSourceDbName"] = defaultDbName;
             restoreParams.Options[RestoreOptionsHelper.SourceDatabaseName] = currentDbName;

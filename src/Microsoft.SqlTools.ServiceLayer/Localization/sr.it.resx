@@ -1374,16 +1374,100 @@
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>L'insieme di risultati ha troppe righe per essere caricato in modo sicuro</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>Backup database</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>In corso</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>Completato</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>Parametrizzazione</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Non è consentito specificare questa opzione quando si ripristina un backup con NORECOVERY.</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Percorso non valido per il file di database: '{0}'</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Impossibile creare un piano di ripristino.</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Ripristino del database non supportato.</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Ripristina Database</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Sola Copia)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Componente</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Posizione</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>Primo LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Ultimo LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>LSN di checkpoint</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>LSN completo</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Data di inizio</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Data di fine</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Dimensione</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>Nome utente</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Scadenza</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>L'ultimo backup effettuato ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Backup database</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>In corso</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Completato</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>scripting</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Connessione non trovata</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Il nome file specificato è anche un nome di cartella: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>Impossibile verificare l'esistenza della posizione del file di backup: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Impossibile accedere al percorso specificato sul server: {0}</value>
   </data>
 </root>
