@@ -97,7 +97,7 @@ GO";
             string objectName = "spt_monitor";
 
             string schemaName = null;
-            string objectType = "TABLE";
+            string objectType = "Table";
 
             // Get locations for valid table object
             Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
@@ -139,7 +139,7 @@ GO";
             string objectName = "spt_monitor";
 
             string schemaName = "dbo";
-            string objectType = "TABLE";
+            string objectType = "Table";
 
             // Get locations for valid table object with schema name
             Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
@@ -260,7 +260,7 @@ GO";
             Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
-            string objectType = "VIEW";
+            string objectType = "View";
 
             Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
@@ -401,7 +401,7 @@ GO";
         [Fact]
         public async Task GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
-            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName);
+            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, ScalarValuedFunctionTypeName);
         }
 
         /// <summary>
@@ -444,7 +444,7 @@ GO";
         [Fact]
         public async Task GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
-            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName, null);
+            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, ScalarValuedFunctionTypeName, null);
         }
 
 
