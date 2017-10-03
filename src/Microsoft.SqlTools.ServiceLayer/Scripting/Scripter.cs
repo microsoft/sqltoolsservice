@@ -52,9 +52,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // Mapping the object types for scripting
             objectScriptMap.Add("table", "Table");
             objectScriptMap.Add("view", "View");
+            objectScriptMap.Add("function", "Function");
             objectScriptMap.Add("storedprocedure", "Procedure");
             objectScriptMap.Add("userdefinedfunction", "Function");
-            objectScriptMap.Add("userdefineddataType", "Type");
+            objectScriptMap.Add("tablevaluedfunction", "Function");
+            objectScriptMap.Add("userdefineddatatype", "Type");
             objectScriptMap.Add("user", "User");
             objectScriptMap.Add("default", "Default");
             objectScriptMap.Add("rule", "Rule");
@@ -66,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             objectScriptMap.Add("xmlschemacollection", "Xml Schema Collection");
             objectScriptMap.Add("schema", "Schema");
             objectScriptMap.Add("planguide", "sp_create_plan_guide");
-            objectScriptMap.Add("userdefinedType", "Type");
+            objectScriptMap.Add("userdefinedtype", "Type");
             objectScriptMap.Add("userdefinedaggregate", "Aggregate");
             objectScriptMap.Add("fulltextcatalog", "Fulltext Catalog");
             objectScriptMap.Add("userdefinedtabletype", "Type");
