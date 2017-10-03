@@ -13,15 +13,13 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
     /// </summary>
     internal class AzureUserAccount : IAzureUserAccount
     {
-        private readonly IAzureUserAccount _azureUserAccount;
-        private readonly Account _account;
+        private string uniqueId;
 
         /// <summary>
         /// Default constructor to initializes user session
         /// </summary>
-        public AzureUserAccount(Account account)
+        public AzureUserAccount()
         {
-            _account = account;
         }
 
         /// <summary>
@@ -29,93 +27,57 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// </summary>
         public AzureUserAccount(IAzureUserAccount azureUserAccount)
         {
-            _azureUserAccount = azureUserAccount;
+            CopyFrom(azureUserAccount);
         }
 
+        private void CopyFrom(IAzureUserAccount azureUserAccount)
+        {
+            this.DisplayInfo = new AzureUserAccountDisplayInfo(azureUserAccount.DisplayInfo);
+            this.NeedsReauthentication = azureUserAccount.NeedsReauthentication;
+            this.TenantId = azureUserAccount.TenantId;
+            this.UniqueId = azureUserAccount.UniqueId;
+        }
         /// <summary>
         /// Returns true if given user account equals this class
         /// </summary>
         public bool Equals(IAzureUserAccount other)
         {
             return other != null &&
-                   CommonUtil.SameString(other.UserId, UserId) &&
-                   CommonUtil.SameString(other.TenantId, TenantId) &&
-                   CommonUtil.SameString(other.UserName, UserName);
+                   CommonUtil.SameString(other.UniqueId, UniqueId) &&
+                   CommonUtil.SameString(other.TenantId, TenantId);
         }
-
         
-
         /// <summary>
-        /// User Id
+        /// Unique Id
         /// </summary>
-        public string UserId
+        public string UniqueId
         {
             get
             {
-                if (_account != null)
-                {
-                    return _account.UniqueId;
-                }
-
-                return _azureUserAccount == null ? string.Empty :_azureUserAccount.UniqueId;
+                return uniqueId == null ? string.Empty : uniqueId;
             }
-        }
-
-        /// <summary>
-        /// User Name
-        /// </summary>
-        public string UserName
-        {
-            get
+            set
             {
-                if (_account != null && _account.DisplayInfo != null)
-                {
-                    return _account.DisplayInfo.UserName;
-                }
-                return _azureUserAccount != null ? _azureUserAccount.DisplayInfo.UserName : string.Empty;
+                this.uniqueId = value;
             }
         }
-
+        
         /// <summary>
         /// Returns true if user needs reauthentication
         /// </summary>
         public bool NeedsReauthentication
         {
-            get
-            {
-                if (_account != null)
-                {
-                    return _account.NeedsReauthentication;
-                }
-                return _azureUserAccount != null ? _azureUserAccount.NeedsReauthentication : true;
-            }
+            get;
+            set;
         }
-
-        /// <summary>
-        /// The actual user account object which is wrapped by this class
-        /// </summary>
-        public object Account
-        {
-            get
-            {
-                return _account;
-                
-            }
-        }
-
+        
         /// <summary>
         /// User display info
         /// </summary>
         public IAzureUserAccountDisplayInfo DisplayInfo
         {
-            get
-            {
-                if (_account != null && _account.DisplayInfo != null)
-                {
-                    return new AzureUserAccountDisplayInfo(_account.DisplayInfo);
-                }
-                return _azureUserAccount != null ? new AzureUserAccountDisplayInfo(_azureUserAccount.DisplayInfo): null;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -123,10 +85,8 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// </summary>
         public string TenantId
         {
-            get
-            {
-                return _azureUserAccount != null ? _azureUserAccount.TenantId : string.Empty;
-            }
+            get;
+            set;
         } 
     }
 }

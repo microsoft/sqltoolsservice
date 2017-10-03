@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.Azure.Core.FirewallRule
                 }
                 var currentUser = await AuthenticationManager.GetCurrentAccountAsync();
 
-                throw new FirewallRuleException(string.Format(CultureInfo.CurrentCulture, SR.AzureServerNotFound, serverName, currentUser != null ? currentUser.UserName : string.Empty));
+                throw new FirewallRuleException(string.Format(CultureInfo.CurrentCulture, SR.AzureServerNotFound, serverName, currentUser != null ? currentUser.UniqueId : string.Empty));
             }
             catch (ServiceExceptionBase)
             {

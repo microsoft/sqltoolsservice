@@ -20,10 +20,7 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// </summary>
         public SqlAzureResource(Models.Server azureResource) : base(azureResource)
         {
-            if (azureResource == null)
-            {
-                throw new ArgumentNullException("azureResource");
-            }
+            CommonUtil.CheckForNull(azureResource, nameof(azureResource));
             _azureSqlServerResource = azureResource;
         }
 
@@ -34,7 +31,7 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         {
             get
             {
-                return _azureSqlServerResource != null ? _azureSqlServerResource.Properties.FullyQualifiedDomainName : string.Empty;
+                return _azureSqlServerResource != null ? _azureSqlServerResource.FullyQualifiedDomainName : string.Empty;
             }
         }
 
@@ -45,7 +42,7 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         {
             get
             {
-                return _azureSqlServerResource != null ? _azureSqlServerResource.Properties.AdministratorLogin : string.Empty;
+                return _azureSqlServerResource != null ? _azureSqlServerResource.AdministratorLogin : string.Empty;
             }
         }
     }

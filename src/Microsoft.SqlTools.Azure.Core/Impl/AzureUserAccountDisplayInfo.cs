@@ -2,16 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using Microsoft.SqlTools.Azure.Core.Authentication;
-using Microsoft.VisualStudio.WindowsAzure.Authentication;
-#if (VS11 || VS12)
-using Microsoft.VisualStudio.WindowsAzure.CommonAzureTools.KeychainMarshaller;
-using Microsoft.VisualStudio.WindowsAzure.CommonAzureTools.KeychainShellDependencies;
-using Microsoft.VisualStudio.WindowsAzure.CommonAzureTools.KeychainShellDependencies.Interfaces;
-#else
-using Microsoft.VisualStudio.Services.Client.AccountManagement;
-#endif
 
 
 namespace Microsoft.SqlTools.Azure.Core.Impl
@@ -22,23 +13,31 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
     /// </summary>
     internal class AzureUserAccountDisplayInfo : IAzureUserAccountDisplayInfo
     {
-        private readonly IAzureUserAccountDisplayInfo _azureUserAccountDisplayInfo;
-        private readonly AccountDisplayInfo _accountDisplayInfo;
+        private string userName;
+        private string accountDisplayName;
 
         /// <summary>
         /// Creating the instance using <see cref="IAzureUserAccountDisplayInfo" />
         /// </summary>
         public AzureUserAccountDisplayInfo(IAzureUserAccountDisplayInfo azureUserAccountDisplayInfo)
         {
-            _azureUserAccountDisplayInfo = azureUserAccountDisplayInfo;
+            CopyFrom(azureUserAccountDisplayInfo);
         }
 
         /// <summary>
-        /// Creating the instance using <see cref="AccountDisplayInfo" />
+        /// Creating empty instance
         /// </summary>
-        public AzureUserAccountDisplayInfo(AccountDisplayInfo accountDisplayInfo)
+        public AzureUserAccountDisplayInfo()
         {
-            _accountDisplayInfo = accountDisplayInfo;
+        }
+
+        private void CopyFrom(IAzureUserAccountDisplayInfo azureUserAccountDisplayInfo)
+        {
+            this.AccountDisplayName = azureUserAccountDisplayInfo.AccountDisplayName;
+            this.AccountLogo = azureUserAccountDisplayInfo.AccountLogo;
+            this.ProviderDisplayName = azureUserAccountDisplayInfo.ProviderDisplayName;
+            this.ProviderLogo = azureUserAccountDisplayInfo.ProviderLogo;
+            this.UserName = azureUserAccountDisplayInfo.UserName;
         }
 
         /// <summary>
@@ -58,11 +57,11 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         {
             get
             {
-                if (_accountDisplayInfo != null)
-                {
-                    return _accountDisplayInfo.AccountDisplayName;
-                }
-                return _azureUserAccountDisplayInfo != null ? _azureUserAccountDisplayInfo.AccountDisplayName : string.Empty;
+                return accountDisplayName != null ? accountDisplayName : string.Empty;
+            }
+            set
+            {
+                accountDisplayName = value;
             }
         }
 
@@ -71,14 +70,8 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// </summary>
         public byte[] AccountLogo
         {
-            get
-            {
-                if (_accountDisplayInfo != null)
-                {
-                    return _accountDisplayInfo.AccountLogo;
-                }
-                return _azureUserAccountDisplayInfo != null ? _azureUserAccountDisplayInfo.AccountLogo : null;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -86,14 +79,8 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// </summary>
         public string ProviderDisplayName
         {
-            get
-            {
-                if (_accountDisplayInfo != null)
-                {
-                    return _accountDisplayInfo.ProviderDisplayName;
-                }
-                return _azureUserAccountDisplayInfo != null ? _azureUserAccountDisplayInfo.ProviderDisplayName : string.Empty;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -101,14 +88,8 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// </summary>
         public byte[] ProviderLogo
         {
-            get
-            {
-                if (_accountDisplayInfo != null)
-                {
-                    return _accountDisplayInfo.ProviderLogo;
-                }
-                return _azureUserAccountDisplayInfo != null ? _azureUserAccountDisplayInfo.ProviderLogo : null;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -118,11 +99,11 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         {
             get
             {
-                if (_accountDisplayInfo != null)
-                {
-                    return _accountDisplayInfo.UserName;
-                }
-                return _azureUserAccountDisplayInfo != null ? _azureUserAccountDisplayInfo.UserName : string.Empty;
+                return userName != null ? userName : string.Empty;
+            }
+            set
+            {
+                userName = value;
             }
         }
     }

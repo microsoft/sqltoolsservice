@@ -6,19 +6,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.ResourceManager;
 using Microsoft.Azure.Management.ResourceManager.Models;
 using Microsoft.Azure.Management.Sql;
 using Microsoft.Azure.Management.Sql.Models;
+using RestFirewallRule = Microsoft.Azure.Management.Sql.Models.FirewallRule;
 using Microsoft.SqlTools.Azure.Core.Authentication;
 using Microsoft.SqlTools.Azure.Core.FirewallRule;
 using Microsoft.SqlTools.Azure.Core.Extensibility;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Rest;
-using System.Threading;
 using System.Globalization;
+using Microsoft.Rest.Azure;
 
 namespace Microsoft.SqlTools.Azure.Core.Impl
 {
@@ -87,17 +87,12 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
                     {
                         IEnumerable<Database> databaseListResponse = await vsAzureResourceManagementSession.SqlManagementClient.Databases.ListByServerAsync(resourceGroupName, serverName);
                         return databaseListResponse.Select(
-                                    x => new VsAzureResource(x) { ResourceGroupName = resourceGroupName });
+                                    x => new AzureResourceWrapper(x) { ResourceGroupName = resourceGroupName });
                     }
                     catch(HttpOperationException ex)
                     {
                         throw new AzureResourceFailedException(SR.FailedToGetAzureDatabasesErrorMessage, ex.Response.StatusCode);
                     }
-                        if (databaseListResponse.StatusCode == HttpStatusCode.OK)
-                        {
-                            
-                        }
-                        
                 }
             }
             catch (Exception ex)
@@ -124,25 +119,24 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
                 AzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as AzureResourceManagementSession;
                 if(vsAzureResourceManagementSession != null)
                 {
-                    IEnumerable<TrackedResource> resourceGroupNames = await GetResourceGroupsAsync(vsAzureResourceManagementSession);
+                    IEnumerable<ResourceGroup> resourceGroupNames = await GetResourceGroupsAsync(vsAzureResourceManagementSession);
                     if (resourceGroupNames != null)
                     {
-                        foreach (ResourceGroupExtended resourceGroupExtended in resourceGroupNames)
+                        foreach (ResourceGroup resourceGroupExtended in resourceGroupNames)
                         {
-                            IServerOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
-                            ServerListResponse serverListResponse =
-                                await serverOperations.ListAsync(resourceGroupExtended.Name);
-                            if (serverListResponse != null && serverListResponse.Servers != null &&
-                                serverListResponse.StatusCode == HttpStatusCode.OK)
+                            try
                             {
-                                sqlServers.AddRange(serverListResponse.Servers.Select(x =>
-                                    new SqlAzureResource(x) {ResourceGroupName = resourceGroupExtended.Name}));
+                                IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
+                                IPage<Server> servers = await serverOperations.ListByResourceGroupAsync(resourceGroupExtended.Name);
+                                if (servers != null)
+                                {
+                                    sqlServers.AddRange(servers.Select(x =>
+                                        new SqlAzureResource(x) { ResourceGroupName = resourceGroupExtended.Name }));
+                                }
                             }
-                            else
+                            catch (HttpOperationException ex)
                             {
-                                throw new AzureResourceFailedException(
-                                    SR.FailedToGetAzureSqlServersErrorMessage,
-                                    serverListResponse != null ? serverListResponse.StatusCode : HttpStatusCode.InternalServerError);
+                                throw new AzureResourceFailedException(SR.FailedToGetAzureSqlServersErrorMessage, ex.Response.StatusCode);
                             }
                         }
                     }
@@ -150,7 +144,7 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
             }
             catch(Exception ex)
             {
-                TraceException(TraceEventType.Error, (int) TraceId.AzureResource, ex, "Failed to get databases");
+                TraceException(TraceEventType.Error, (int) TraceId.AzureResource, ex, "Failed to get servers");
                 throw;
             }
 
@@ -168,37 +162,36 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
 
             try
             {
-                VsAzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as VsAzureResourceManagementSession;
+                AzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as AzureResourceManagementSession;
 
-                if(vsAzureResourceManagementSession != null)
+                if (vsAzureResourceManagementSession != null)
                 {
-                    FirewallRuleCreateOrUpdateParameters firewallRuleParameters =
-                        new FirewallRuleCreateOrUpdateParameters(new FirewallRuleCreateOrUpdateProperties()
+                    try
+                    {
+                        var firewallRule = new RestFirewallRule()
                         {
                             EndIpAddress = firewallRuleRequest.EndIpAddress.ToString(),
                             StartIpAddress = firewallRuleRequest.StartIpAddress.ToString()
-                        });
-                    IFirewallRuleOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
-                    FirewallRuleGetResponse firewallRuleGetResponse = await firewallRuleOperations.CreateOrUpdateAsync(
-                        azureSqlServer.ResourceGroupName,
-                        azureSqlServer.Name,
-                        firewallRuleRequest.FirewallRuleName,
-                        firewallRuleParameters);
-                    if (firewallRuleGetResponse != null && firewallRuleGetResponse.FirewallRule != null)
-                    {
-                        if (firewallRuleGetResponse.StatusCode == HttpStatusCode.OK ||
-                            firewallRuleGetResponse.StatusCode == HttpStatusCode.Created)
+                        };
+                        IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
+                        var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateAsync(
+                                                                                    azureSqlServer.ResourceGroupName,
+                                                                                    azureSqlServer.Name,
+                                                                                    firewallRuleRequest.FirewallRuleName,
+                                                                                    firewallRule);
+                        return new FirewallRuleResponse()
                         {
-                            return new FirewallRuleResponse()
-                            {
-                                StartIpAddress = firewallRuleGetResponse.FirewallRule.Properties.StartIpAddress,
-                                EndIpAddress = firewallRuleGetResponse.FirewallRule.Properties.EndIpAddress,
-                                Created = true
-                            };
-                        }
-                        throw new AzureResourceFailedException(SR.FirewallRuleCreationFailed, firewallRuleGetResponse.StatusCode);
+                            StartIpAddress = firewallRuleResponse.StartIpAddress,
+                            EndIpAddress = firewallRuleResponse.EndIpAddress,
+                            Created = true
+                        };
+                    }
+                    catch (HttpOperationException ex)
+                    {
+                        throw new AzureResourceFailedException(SR.FirewallRuleCreationFailed, ex.Response.StatusCode);
                     }
                 }
+                // else respond with failure case
                 return  new FirewallRuleResponse()
                 {                    
                     Created = false
@@ -214,39 +207,35 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         /// <summary>
         /// Returns the azure resource groups for given subscription
         /// </summary>
-        private async Task<IEnumerable<TrackedResource>> GetResourceGroupsAsync(AzureResourceManagementSession vsAzureResourceManagementSession)
+        private async Task<IEnumerable<ResourceGroup>> GetResourceGroupsAsync(AzureResourceManagementSession vsAzureResourceManagementSession)
         {
             try
             {
                 if (vsAzureResourceManagementSession != null)
                 {
-                    ResourceGroupListParameters resourceGroupListParameters = new ResourceGroupListParameters();
-                    IResourceGroupOperations resourceGroupOperations = vsAzureResourceManagementSession.ResourceManagementClient.ResourceGroups;
-                    if (resourceGroupOperations != null)
+                    try
                     {
-
-                        ResourceGroupListResult resourceGroupList =
-                            await resourceGroupOperations.ListAsync(resourceGroupListParameters);
+                        IResourceGroupsOperations resourceGroupOperations = vsAzureResourceManagementSession.ResourceManagementClient.ResourceGroups;
+                        IPage<ResourceGroup> resourceGroupList = await resourceGroupOperations.ListAsync();
                         if (resourceGroupList != null)
                         {
-                            if (resourceGroupList.StatusCode == HttpStatusCode.OK)
-                            {
-                                return resourceGroupList.ResourceGroups;
-                            }
-                            throw new AzureResourceFailedException(
-                                SR.FailedToGetAzureResourceGroupsErrorMessage,
-                                resourceGroupList.StatusCode);
+                            return resourceGroupList.AsEnumerable();
                         }
+
+                    }
+                    catch (HttpOperationException ex)
+                    {
+                        throw new AzureResourceFailedException(SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Response.StatusCode);
                     }
                 }
+
+                return Enumerable.Empty<ResourceGroup>();
             }
             catch (Exception ex)
             {
                 TraceException(TraceEventType.Error, (int)TraceId.AzureResource, ex, "Failed to get azure resource groups");
                 throw;
             }
-
-            return Enumerable.Empty<TrackedResource>();
         }
 
 

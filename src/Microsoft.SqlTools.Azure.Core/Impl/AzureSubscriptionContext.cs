@@ -37,8 +37,7 @@ namespace Microsoft.SqlTools.Azure.Core.Impl
         {
             get
             {
-                return _azureSubscriptionIdentifier != null ? 
-                    new AzureSubscriptionIdentifier(_azureSubscriptionIdentifier) : null;
+                return _azureSubscriptionIdentifier;
             }
         }
 

@@ -12,19 +12,11 @@ namespace Microsoft.SqlTools.Azure.Core.Authentication
         /// <summary>
         /// The unique Id for the user
         /// </summary>
-        string UserId
+        string UniqueId
         {
             get;
         }
-
-        /// <summary>
-        /// The user name for the user
-        /// </summary>
-        string UserName
-        {
-            get;
-        }
-
+        
         /// <summary>
         /// Returns true if user needs reauthentication
         /// </summary>
@@ -32,10 +24,6 @@ namespace Microsoft.SqlTools.Azure.Core.Authentication
         {
             get;
         }
-
-        /// <summary>
-        /// The actual account object which is wrapped by this class 
-        /// </summary>
-        object Account { get; }
+        
     }
 }
