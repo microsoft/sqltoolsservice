@@ -320,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return recoveryModelString;
         }
 
-        public string GetDefaultBackupFolder()
+        public static string GetDefaultBackupFolder(ServerConnection connection)
         {
             string backupFolder = "";
 
@@ -330,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             Request req = new Request();
             en = new Enumerator();
             req.Urn = "Server/Setting";
-            ds = en.Process(this.sqlConnection, req);
+            ds = en.Process(connection, req);
 
             if (ds.Tables[0].Rows.Count > 0)
             {
