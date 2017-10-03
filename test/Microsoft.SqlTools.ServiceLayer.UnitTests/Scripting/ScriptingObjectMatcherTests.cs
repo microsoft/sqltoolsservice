@@ -408,5 +408,50 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 
             Assert.Equal<int>(2, results.Count());
         }
+
+        [Fact]
+        public void ScriptingObjectEquality()
+        {
+            ScriptingObject scriptingObject1 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
+            ScriptingObject scriptingObject2 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
+            ScriptingObject scriptingObject3 = null;
+            Assert.Equal(scriptingObject1, scriptingObject2);
+            Assert.False(scriptingObject1.Equals(scriptingObject3));
+        }
+    }
+
+    public class ScriptingUtilsTests
+    {
+        private static string[] TestObjects = new string[]
+        {
+            "Table",
+            "Table]",
+            "]Table",
+            "Tab]le",
+            "",
+            "]",
+            "view"
+        };
+
+        private static string[] ExpectedObjects = new string[]
+        {
+            "Table",
+            "Table]]",
+            "]]Table",
+            "Tab]]le",
+            "",
+            "]]",
+            "view"
+        };
+        
+
+        [Fact]
+        public void TestQuoteObjectName()
+        {
+            for (int i = 0; i < TestObjects.Length; i++)
+            {
+                Assert.Equal(Scripter.ScriptingUtils.QuoteObjectName(TestObjects[i]), ExpectedObjects[i]);
+            }
+        }
     }
 }

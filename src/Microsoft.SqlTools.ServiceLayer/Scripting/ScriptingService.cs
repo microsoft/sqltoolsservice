@@ -4,8 +4,10 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -19,6 +21,8 @@ using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -55,7 +59,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 return connectionService;
             }
-
             set
             {
                 connectionService = value;
@@ -93,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -103,6 +105,61 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 this.Dispose();
                 return Task.FromResult(0);
+            });
+        }
+
+        /// <summary>
+        /// Handles request to get select script for an smo object
+        /// </summary>
+        private void HandleScriptSelectRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        {
+            Task.Run(() =>
+            {
+                try 
+                {
+                    string script = String.Empty;
+                    ScriptingObject scriptingObject = parameters.ScriptingObjects[0];   
+
+                    // convert owner uri received from parameters to lookup for its
+                    // associated connection and build a connection string out of it
+                    SqlConnection sqlConn = new SqlConnection(parameters.ConnectionString);
+                    ServerConnection serverConn = new ServerConnection(sqlConn);
+                    Server server = new Server(serverConn);
+                    server.DefaultTextMode = true;
+                    SqlConnectionStringBuilder connStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
+                    string urnString = string.Format(
+                        "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
+                        server.Name.ToUpper(),
+                        connStringBuilder.InitialCatalog,
+                        scriptingObject.Type,
+                        scriptingObject.Name,
+                        scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", scriptingObject.Schema) : string.Empty);
+                    Urn urn = new Urn(urnString);
+                    string name = urn.GetNameForType(scriptingObject.Type);
+                    if (string.Compare(name, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
+                    {
+                        script = Scripter.SelectAllValuesFromTransmissionQueue(urn);
+                    }
+                    else 
+                    {
+                        if (string.Compare(name, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
+                            string.Compare(name, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
+                        {
+                            script = Scripter.SelectAllValues(urn);
+                        }
+                        else 
+                        {   
+                            Database db = server.Databases[connStringBuilder.InitialCatalog];
+                            bool isDw = db.IsSqlDw;
+                            script = new Scripter().SelectFromTableOrView(server, urn, isDw);
+                        }
+                    }
+                    requestContext.SendResult(new ScriptingResult { Script = script});
+                }
+                catch (Exception e)
+                {
+                    requestContext.SendError(e);
+                }
             });
         }
 
@@ -133,14 +190,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             try
             {
-                ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
-                operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
-                operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
-                operation.CompleteNotification += (sender, e) => this.SendEvent(requestContext, ScriptingCompleteEvent.Type, e);
+                // convert owner uri received from parameters to lookup for its
+                // associated connection and build a connection string out of it
+                // if a connection string doesn't already exist
+                if (parameters.ConnectionString == null)
+                {
+                    ConnectionInfo connInfo;
+                    ScriptingService.ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri, out connInfo);
+                    if (connInfo != null)
+                    {
+                        parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    }
+                }
 
-                RunTask(requestContext, operation);
+                // if the scripting operation is for select
+                if (parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+                {
+                    RunSelectTask(parameters, requestContext);
+                }
+                else
+                {
+                    ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
+                    operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
+                    operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
+                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
 
-                await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                    RunTask(requestContext, operation);
+                }
             }
             catch (Exception e)
             {
@@ -173,6 +250,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
+        private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, 
+                                                               ScriptingScriptOperation operation, string scriptDestination)
+        {
+            await Task.Run(async () => 
+            {
+                await requestContext.SendEvent(eventType, parameters);
+                if (scriptDestination == "ToEditor")
+                {
+                    await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });
+                }
+                else if (scriptDestination == "ToSingleFile")
+                {
+                    await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                }
+                else
+                {
+                    await requestContext.SendError(string.Format("Operation {0} failed", operation.ToString()));
+                }
+            });
+        }
+
         /// <summary>
         /// Sends a JSON-RPC event.
         /// </summary>
@@ -184,13 +282,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Runs the async task that performs the scripting operation.
         /// </summary>
+        private void RunSelectTask(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    this.HandleScriptSelectRequest(parameters, requestContext);
+                }
+                catch (Exception e)
+                {
+                    requestContext.SendError(e);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Runs the async task that performs the scripting operation.
+        /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
             Task.Run(() =>
             {
                 try
                 {
-                    Debug.Assert(!this.ActiveOperations.ContainsKey(operation.OperationId), "Operation id must be unique");
                     this.ActiveOperations[operation.OperationId] = operation;
                     operation.Execute();
                 }
@@ -219,214 +334,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     operation.Dispose();
                 }
-            }
-        }
-
-        /// <summary>
-        /// Script create statements for metadata object
-        /// </summary>
-        private static string ScriptAsCreate(
-            IBindingContext bindingContext,
-            ConnectionInfo connInfo,
-            ObjectMetadata metadata)
-        {
-            Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
-            StringCollection results = null;
-            switch(metadata.MetadataTypeName)
-            {
-                case ("Table"):
-                    results = scripter.GetTableScripts(metadata.Name, metadata.Schema);
-                    break;
-                case ("View"):
-                    results = scripter.GetViewScripts(metadata.Name, metadata.Schema);
-                    break;
-                case("StoredProcedure"):
-                    results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema);
-                    break;
-                case("Schema"):
-                    results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema);
-                    break;
-                case("Database"):
-                    results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema);
-                    break;
-                default:
-                    results = null;
-                    break;
-            }
-            StringBuilder builder = null;
-            if (results != null) 
-            {                                
-                builder = new StringBuilder();                             
-                foreach (var result in results)
-                {
-                    builder.AppendLine(result);
-                    builder.AppendLine();
-                }
-            }
-            return builder != null ? builder.ToString() : null;
-        }
-
-        /// <summary>
-        /// Not yet implemented
-        /// </summary>
-        private static string ScriptAsUpdate(
-            IBindingContext bindingContext,
-            ConnectionInfo connInfo,
-            ObjectMetadata metadata)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Not yet implemented
-        /// </summary>
-        private static string ScriptAsInsert(
-            IBindingContext bindingContext,
-            ConnectionInfo connInfo,
-            ObjectMetadata metadata)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Not yet implemented
-        /// </summary>
-        private static string ScriptAsDelete(
-            IBindingContext bindingContext,
-            ConnectionInfo connInfo,
-            ObjectMetadata metadata)
-        {
-            Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
-            StringCollection results = null;
-            ScriptingOptions options = new ScriptingOptions();
-            options.ScriptDrops = true;
-            switch(metadata.MetadataTypeName)
-            {
-                case ("Table"):
-                    results = scripter.GetTableScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case ("View"):
-                    results = scripter.GetViewScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case("StoredProcedure"):
-                    results = scripter.GetStoredProcedureScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case("Schema"):
-                    results = scripter.GetSchemaScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                case("Database"):
-                    results = scripter.GetDatabaseScripts(metadata.Name, metadata.Schema, options);
-                    break;
-                default:
-                    results = null;
-                    break;
-            }
-            StringBuilder builder = null;
-            if (results != null) 
-            {                                
-                builder = new StringBuilder();                             
-                foreach (var result in results)
-                {
-                    builder.AppendLine(result);
-                    builder.AppendLine();
-                }
-            }
-            return builder != null ? builder.ToString() : null;            
-        }
-
-        /// <summary>
-        /// Handle Script As Update requests
-        /// </summary>
-        private static string QueueScriptOperation(
-            ScriptOperation operation,
-            ConnectionInfo connInfo,
-            ObjectMetadata metadata)
-        {
-            // get or create the current parse info object
-            ScriptParseInfo parseInfo = LanguageServiceInstance.GetScriptParseInfo(connInfo.OwnerUri);
-            if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
-            {
-                try
-                {
-                    QueueItem queueItem = LanguageServiceInstance.BindingQueue.QueueBindingOperation(
-                        key: parseInfo.ConnectionKey,
-                        bindingTimeout: ScriptingService.ScriptingOperationTimeout,
-                        bindOperation: (bindingContext, cancelToken) =>
-                        {
-                            if (operation == ScriptOperation.Select)
-                            {                    
-                                return string.Format(
-                                    @"SELECT TOP 1000 * " + Environment.NewLine + @"FROM {0}.{1}",
-                                    metadata.Schema, metadata.Name);
-                            }
-                            else if (operation == ScriptOperation.Create)
-                            {
-                                return ScriptAsCreate(bindingContext, connInfo, metadata);
-                            }
-                            else if (operation == ScriptOperation.Update)
-                            {
-                                return ScriptAsUpdate(bindingContext, connInfo, metadata);
-                            }
-                            else if (operation == ScriptOperation.Insert)
-                            {
-                                return ScriptAsInsert(bindingContext, connInfo, metadata);
-                            }
-                            else if (operation == ScriptOperation.Delete)
-                            {
-                               return ScriptAsDelete(bindingContext, connInfo, metadata);
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        });
-
-                    queueItem.ItemProcessed.WaitOne();
-
-                    return queueItem.GetResultAsT<string>();
-                }
-                finally
-                {
-                    Monitor.Exit(parseInfo.BuildingMetadataLock);
-                }
-            }
-
-            return string.Empty;
-        }        
-
-        /// <summary>
-        /// Handles script as request messages
-        /// </summary>
-        /// <param name="scriptingParams"></param>
-        /// <param name="requestContext"></param>
-        internal static async Task HandleScriptingScriptAsRequest(
-            ScriptingScriptAsParams scriptingParams,
-            RequestContext<ScriptingScriptAsResult> requestContext)
-        {
-            try
-            {
-                ConnectionInfo connInfo;
-                ScriptingService.ConnectionServiceInstance.TryFindConnection(
-                    scriptingParams.OwnerUri,
-                    out connInfo);
-
-                ObjectMetadata metadata = scriptingParams.Metadata;
-                string script = string.Empty;
-
-                if (connInfo != null) 
-                {
-                    script = QueueScriptOperation(scriptingParams.Operation, connInfo, metadata);
-                }
-
-                await requestContext.SendResult(new ScriptingScriptAsResult
-                {
-                    OwnerUri = scriptingParams.OwnerUri,
-                    Script = script
-                });
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
             }
         }
     }

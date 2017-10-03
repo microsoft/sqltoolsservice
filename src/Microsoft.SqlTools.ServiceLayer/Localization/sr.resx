@@ -1816,11 +1816,11 @@
     <comment></comment>
   </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>The provided path specifies a directory but a file path is required: {0}</value>
+    <value>Please provide a file path instead of directory path</value>
     <comment></comment>
   </data>
   <data name="InvalidBackupPathError" xml:space="preserve">
-    <value> Cannot verify the existence of the backup file location: {0}</value>
+    <value> The provided path is invalid</value>
     <comment></comment>
   </data>
   <data name="TaskInProgress" xml:space="preserve">

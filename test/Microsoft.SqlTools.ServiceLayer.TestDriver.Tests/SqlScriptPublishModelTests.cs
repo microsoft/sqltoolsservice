@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -49,11 +48,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptDatabaseSchema()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
@@ -62,14 +60,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
-                Assert.True(File.Exists(tempFile.FilePath));
-                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                AssertSchemaInFile(tempFile.FilePath, assert: true);
-                AssertTableDataInFile(tempFile.FilePath, assert: false);
             }
         }
 
@@ -77,11 +69,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptDatabaseSchemaAndData()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
@@ -90,14 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(completeParameters.Success);
-                Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
-                Assert.True(File.Exists(tempFile.FilePath));
-                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                AssertSchemaInFile(tempFile.FilePath, assert: true);
-                AssertTableDataInFile(tempFile.FilePath, assert: true);
             }
         }
 
@@ -105,15 +90,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptTable()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            {
+            {  
                 ScriptingParams requestParams = new ScriptingParams
                 {                    
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
+
                     },
                     ScriptingObjects = new List<ScriptingObject>
                     {
@@ -131,8 +116,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
                 Assert.Equal<int>(1, planEvent.Count);
-                Assert.True(File.Exists(tempFile.FilePath));
-                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }
         }
 
@@ -140,11 +123,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptTableUsingIncludeFilter()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
@@ -166,8 +148,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
                 Assert.Equal<int>(1, planEvent.Count);
-                Assert.True(File.Exists(tempFile.FilePath));
-                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }
         }
 
@@ -175,11 +155,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptTableAndData()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
@@ -201,8 +180,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
                 Assert.Equal<int>(1, planEvent.Count);
-                Assert.True(File.Exists(tempFile.FilePath));
-                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
             }
         }
 
@@ -210,15 +187,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptTableDoesNotExist()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
+                        ContinueScriptingOnError = false
                     },
                     ScriptingObjects = new List<ScriptingObject>
                     {
@@ -243,11 +220,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptSchemaCancel()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
@@ -267,11 +243,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptSchemaInvalidConnectionString()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = tempFile.FilePath,
+                    ScriptDestination = "ToEditor",
                     ConnectionString = "I'm an invalid connection string",
                     ScriptOptions = new ScriptOptions
                     {
