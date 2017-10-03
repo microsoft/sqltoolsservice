@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
     /// <summary>
     /// Includes the plan with all the data required to do a restore operation on server
     /// </summary>
-    public class RestoreDatabaseTaskDataObject : SmoScriptableTaskOperation, IRestoreDatabaseTaskDataObject
+    public class RestoreDatabaseTaskDataObject : SmoScriptableOperationWithFullDbAccess, IRestoreDatabaseTaskDataObject
     {
 
         private const char BackupMediaNameSeparator = ',';
@@ -265,29 +266,62 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             base.Execute(mode);
         }
 
+        public ConnectionInfo ConnectionInfo { get; set; }
+
+        public override string ServerName
+        {
+            get
+            {
+                if (this.ConnectionInfo != null)
+                {
+                    return this.ConnectionInfo.ConnectionDetails.ServerName;
+                }
+
+                return this.Server.Name;
+            }
+        }
+
+        public override string DatabaseName
+        {
+            get
+            {
+                return TargetDatabaseName;
+            }
+        }
+
         /// <summary>
         /// Executes the restore operations
         /// </summary>
         public override void Execute()
         {
-            if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
+            try
             {
-                // Restore Plan should be already created and updated at this point
-
-                RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
-
-                if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+                if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
                 {
-                    restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                    // Restore Plan should be already created and updated at this point
+
+                    RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
+
+                    if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
                     {
-                        OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
-                    };
-                    restorePlan.Execute();
+                        restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                        {
+                            OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
+                        };
+                        restorePlan.Execute();
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException(SR.RestoreNotSupported);
                 }
             }
-            else
+            finally
             {
-                throw new InvalidOperationException(SR.RestoreNotSupported);
+                if (this.Server.ConnectionContext.IsOpen)
+                {
+                    this.Server.ConnectionContext.Disconnect();
+                }
             }
         }
 

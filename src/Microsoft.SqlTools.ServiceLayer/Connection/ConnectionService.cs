@@ -17,8 +17,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Utility;
 
@@ -52,7 +50,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// The SQL connection factory object
         /// </summary>
         private ISqlConnectionFactory connectionFactory;
-           
+
+        private DatabaseLocksManager lockedDatabaseManager;
+
         private readonly Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
@@ -73,6 +73,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             get
             {
                 return this.ownerToConnectionMap;   
+            }
+        }
+
+        /// <summary>
+        /// Database Lock manager instance
+        /// </summary>
+        internal DatabaseLocksManager LockedDatabaseManager
+        {
+            get
+            {
+                if (lockedDatabaseManager == null)
+                {
+                    lockedDatabaseManager = DatabaseLocksManager.Instance;
+                }
+                return lockedDatabaseManager;
+            }
+            set
+            {
+                this.lockedDatabaseManager = value;
             }
         }
 
@@ -229,6 +248,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Invoke callback notifications          
             InvokeOnConnectionActivities(connectionInfo, connectionParams);
 
+            if(connectionParams.Type == ConnectionType.ObjectExplorer)
+            {
+                DbConnection connection;
+                if (connectionInfo.TryGetConnection(ConnectionType.Default, out connection))
+                {
+                    // OE doesn't need to keep the connection open
+                    connection.Close();
+                }
+            }
             return completeParams;
         }
 
@@ -345,9 +373,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             DbConnection connection = null;
             CancelTokenKey cancelKey = new CancelTokenKey { OwnerUri = connectionParams.OwnerUri, Type = connectionParams.Type };
             ConnectionCompleteParams response = new ConnectionCompleteParams { OwnerUri = connectionInfo.OwnerUri, Type = connectionParams.Type };
+            bool? currentPooling = connectionInfo.ConnectionDetails.Pooling;
 
             try
             {
+                connectionInfo.ConnectionDetails.Pooling = false;
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
@@ -368,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                     cancelTupleToCancellationTokenSourceMap[cancelKey] = source;
                 }
-                    
+                
                 // Open the connection
                 await connection.OpenAsync(source.Token);
             }
@@ -404,6 +434,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         cancelTupleToCancellationTokenSourceMap.TryRemove(cancelKey, out sourceValue);
                     }
                     source?.Dispose();
+                }
+                if (connectionInfo != null && connectionInfo.ConnectionDetails != null)
+                {
+                    connectionInfo.ConnectionDetails.Pooling = currentPooling;
                 }
             }
 
@@ -1128,7 +1162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Note: we need to audit all uses of this method to determine why we're
         /// bypassing normal ConnectionService connection management
         /// </summary>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
+        internal SqlConnection OpenSqlConnection(ConnectionInfo connInfo, object source = null)
         {
             try
             {
@@ -1153,8 +1187,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString); 
+                SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.Open();
+
+                if (source != null)
+                {
+                    IDatabaseLockConnection lockedDatabaseConnection = source as IDatabaseLockConnection;
+                    if (lockedDatabaseConnection != null)
+                    {
+                        LockedDatabaseManager.AddConnection(connInfo.ConnectionDetails.ServerName, connInfo.ConnectionDetails.DatabaseName, lockedDatabaseConnection);
+                    }
+                }
+
                 return sqlConn;
             }
             catch (Exception ex)

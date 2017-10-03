@@ -7,7 +7,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using System;
 using System.Threading.Tasks;
 using System.Xml;
@@ -27,8 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         private static readonly ConcurrentDictionary<string, DatabaseTaskHelper> serverTaskHelperMap =
             new ConcurrentDictionary<string, DatabaseTaskHelper>();
-
-        private static DatabaseTaskHelper taskHelper;
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -91,13 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     optionsParams.OwnerUri,
                     out connInfo);
 
-                if (taskHelper == null)
+                using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
                 {
-                    taskHelper = CreateDatabaseTaskHelper(connInfo);
+                    response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+                    await requestContext.SendResult(response);
                 }
-
-                response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-                await requestContext.SendResult(response);
             }
             catch (Exception ex)
             {
@@ -120,25 +115,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     databaseParams.OwnerUri,
                     out connInfo);
 
-                if (taskHelper == null)
+                using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
                 {
-                    taskHelper = CreateDatabaseTaskHelper(connInfo);
+                    DatabasePrototype prototype = taskHelper.Prototype;
+                    DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
+
+                    Database db = prototype.ApplyChanges();
+
+                    await requestContext.SendResult(new CreateDatabaseResponse()
+                    {
+                        Result = true,
+                        TaskId = 0
+                    });
                 }
-
-                DatabasePrototype prototype = taskHelper.Prototype;
-                DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
-
-                Database db = prototype.ApplyChanges();
-                if (db != null)
-                {
-                    taskHelper = null;
-                }
-
-                await requestContext.SendResult(new CreateDatabaseResponse()
-                {
-                    Result = true,
-                    TaskId = 0
-                }); 
             }
             catch (Exception ex)
             {
@@ -182,9 +171,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="connInfo"></param>
         /// <returns></returns>
         internal static DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
-        {            
-            DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo, true);
-            return DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+        {
+            using (DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo, true))
+            {
+                return DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+            }
         }
 
         /// <summary>
@@ -205,6 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
 
             // check if the connection is using SQL Auth or Integrated Auth
+            //TODO: ConnectionQueue try to get an existing connection (ConnectionQueue)
             if (string.Equals(connectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
             {
                 var passwordSecureString = BuildSecureStringFromPassword(connectionDetails.Password);

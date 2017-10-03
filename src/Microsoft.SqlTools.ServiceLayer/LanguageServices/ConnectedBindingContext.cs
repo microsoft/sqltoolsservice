@@ -11,13 +11,14 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     /// <summary>
     /// Class for the binding context for connected sessions
     /// </summary>
-    public class ConnectedBindingContext : IBindingContext
+    public class ConnectedBindingContext : IBindingContext, IDatabaseLockConnection
     {
         private ParseOptions parseOptions;
 
@@ -160,6 +161,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        public bool CanTemporaryClose
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public bool IsConnctionOpen
+        {
+            get
+            {
+                return serverConnection != null && serverConnection.IsOpen;
+            }
+        }
 
         /// <summary>
         /// Gets the database compatibility level from a server version
@@ -210,6 +226,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return TransactSqlVersion.Version130;
                 default:
                     return TransactSqlVersion.Current;
+            }
+        }
+
+        public void Connect()
+        {
+            if (this.ServerConnection != null && !this.ServerConnection.IsOpen)
+            {
+                this.ServerConnection.Connect();
+            }
+        }
+
+        public void Disconnect()
+        {
+            if (this.ServerConnection != null && this.ServerConnection.IsOpen)
+            {
+                this.ServerConnection.Disconnect();
             }
         }
     }

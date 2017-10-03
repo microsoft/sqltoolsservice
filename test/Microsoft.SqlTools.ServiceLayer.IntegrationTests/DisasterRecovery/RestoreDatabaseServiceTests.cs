@@ -606,7 +606,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 // Initialize backup service
                 var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName, queryTempFile.FilePath);
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
+                SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
                 BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
 
                 query = $"create table [test].[{tableNames[0]}] (c1 int)";
@@ -661,7 +661,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                 // Initialize backup service
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
+                SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
 
                 // Get default backup pathS
                 BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);

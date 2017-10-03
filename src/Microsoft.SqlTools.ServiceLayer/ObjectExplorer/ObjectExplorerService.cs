@@ -275,6 +275,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerSession session;
             if (sessionMap.TryGetValue(uri, out session))
             {
+                if (session.Root != null && session.ConnectionDetails != null)
+                {
+                    connectionService.LockedDatabaseManager.RemoveConnection(session.ConnectionDetails.ServerName, session.ConnectionDetails.DatabaseName, session.Root);
+                }
                 // Remove the session from active sessions and disconnect
                 sessionMap.TryRemove(session.Uri, out session);
                 connectionService.Disconnect(new DisconnectParams()
@@ -415,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 ObjectExplorerSession session;
                 connectionDetails.PersistSecurityInfo = true;
-                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails };
+                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = ConnectionType.ObjectExplorer };
 
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
                 if (connectionResult == null)
@@ -425,6 +429,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
 
                 session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider);
+                session.ConnectionDetails = connectionDetails;
+                connectionService.LockedDatabaseManager.AddConnection(connectionDetails.ServerName, connectionDetails.DatabaseName, session.Root);
+
+
                 sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                 return session;
             }
@@ -656,6 +664,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string Uri { get; private set; }
             public TreeNode Root { get; private set; }
+
+            public ConnectionDetails ConnectionDetails { get; set; }
 
             public string ErrorMessage { get; set; }
 

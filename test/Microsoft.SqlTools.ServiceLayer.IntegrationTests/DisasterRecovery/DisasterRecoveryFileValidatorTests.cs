@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
             string backupPath = Path.Combine(GetDefaultBackupFolderPath(helper.DataContainer, sqlConn), "master.bak");
 
             string message;
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
             string backupPath = GetDefaultBackupFolderPath(helper.DataContainer, sqlConn);
 
             bool isFolder;

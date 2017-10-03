@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>
-        private void EnsureConnectionOpen(SmoObjectBase smoObj)
+        public void EnsureConnectionOpen(SmoObjectBase smoObj)
         {
             if (!smoWrapper.IsConnectionOpen(smoObj))
             {
@@ -182,6 +182,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 // Note: not currently catching connection exceptions. Expect this to bubble
                 // up to calling methods and be logged there as this would be happening there in any case
                 smoWrapper.OpenConnection(smoObj);
+            }
+        }
+        public bool IsConnectionOpen(SmoObjectBase smoObj)
+        {
+            return smoWrapper.IsConnectionOpen(smoObj);
+        }
+
+
+        public void CloseConnection(SmoObjectBase smoObj)
+        {
+            if (smoObj != null && smoWrapper.IsConnectionOpen(smoObj))
+            {
+                smoWrapper.CloseConnection(smoObj);
             }
         }
     }

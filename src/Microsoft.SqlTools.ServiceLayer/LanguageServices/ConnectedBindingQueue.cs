@@ -81,8 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-
+                    SqlConnection sqlConn = ConnectionService.Instance.OpenSqlConnection(connInfo, bindingContext);
+                   
                     // populate the binding context to work with the SMO metadata provider
                     ServerConnection serverConn = new ServerConnection(sqlConn);                            
                     bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);

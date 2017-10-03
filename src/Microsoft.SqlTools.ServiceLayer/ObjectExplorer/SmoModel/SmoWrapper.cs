@@ -40,5 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 sqlObj.ExecutionManager.ConnectionContext.Connect();
             }
         }
+
+        public virtual void CloseConnection(SmoObjectBase smoObj)
+        {
+            SqlSmoObject sqlObj = smoObj as SqlSmoObject;
+            if (sqlObj != null
+                && sqlObj.ExecutionManager != null
+                && sqlObj.ExecutionManager.ConnectionContext != null)
+            {
+                sqlObj.ExecutionManager.ConnectionContext.Disconnect();
+            }
+        }
     }
 }

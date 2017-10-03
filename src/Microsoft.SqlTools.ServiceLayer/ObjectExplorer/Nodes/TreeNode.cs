@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     /// Base class for elements in the object explorer tree. Provides common methods for tree navigation
     /// and other core functionality
     /// </summary>
-    public class TreeNode : IComparable<TreeNode>
+    public class TreeNode : IComparable<TreeNode>, IDatabaseLockConnection
     {
         private NodeObservableCollection children = new NodeObservableCollection();
         private TreeNode parent;
@@ -328,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                                 {
                                     children.Add(item);
                                     item.Parent = this;
-
+                                   
                                 }
                             }
                         }
@@ -355,6 +356,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
         }
 
+        public void CloseConnection()
+        {
+            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+            SmoTreeNode smoTreeNode = this as SmoTreeNode;
+            if (context != null && smoTreeNode != null)
+            {
+                context.CloseConnection(smoTreeNode.SmoObject);
+            }
+        }
+
         public void BeginChildrenInit()
         {
             children.BeginInit();
@@ -372,6 +383,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Sort Priority to help when ordering elements in the tree
         /// </summary>
         public int? SortPriority { get; set; }
+
+        public bool CanTemporaryClose
+        {
+            get
+            {
+                return !children.IsPopulating;
+            }
+        }
+
+        public bool IsConnctionOpen
+        {
+            get
+            {
+                SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+                SmoTreeNode smoTreeNode = this as SmoTreeNode;
+                
+                return context != null && smoTreeNode != null && context.IsConnectionOpen(smoTreeNode.SmoObject);
+            }
+        }
 
         protected virtual int CompareSamePriorities(TreeNode thisItem, TreeNode otherItem)
         {
@@ -404,6 +434,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             if (priDiff == 0)
                 return 0;
             return 1;
+        }
+
+        public void Disconnect()
+        {
+            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+            SmoTreeNode smoTreeNode = this as SmoTreeNode;
+            if (context != null && smoTreeNode != null)
+            {
+                context.CloseConnection(smoTreeNode.SmoObject);
+            }
+        }
+
+        public void Connect()
+        {
+            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
+            SmoTreeNode smoTreeNode = this as SmoTreeNode;
+            if (context != null && smoTreeNode != null)
+            {
+                context.EnsureConnectionOpen(smoTreeNode.SmoObject);
+            }
         }
     }
 }

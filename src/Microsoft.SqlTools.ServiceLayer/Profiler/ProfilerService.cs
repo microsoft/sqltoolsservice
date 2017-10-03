@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public IXEventSession CreateXEventSession(ConnectionInfo connInfo)
         {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            var sqlConnection = ConnectionServiceInstance.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             Session session = ProfilerService.GetOrCreateSession(connection, "Profiler");
 
