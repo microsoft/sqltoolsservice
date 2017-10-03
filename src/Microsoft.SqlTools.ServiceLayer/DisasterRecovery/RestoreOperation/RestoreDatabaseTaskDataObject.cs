@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         string LogFilesFolder { get; set; }
         string DefaultLogFileFolder { get; }
         List<DbFile> DbFiles { get; }
+        string DefaultBackupFolder { get; }
 
         RestoreOptions RestoreOptions { get; }
 
@@ -848,6 +849,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             get
             {
                 return Util.GetDefaultLogFileFolder();
+            }
+        }
+
+        public string DefaultBackupFolder
+        {
+            get
+            {
+                return CommonUtilities.GetDefaultBackupFolder(this.server.ConnectionContext);
             }
         }
 
