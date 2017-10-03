@@ -8,7 +8,10 @@ using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
-    internal static class CommonUtil
+    /// <summary>
+    /// Utilities used by resource provider related code
+    /// </summary>
+    public static class CommonUtil
     {
         private const int KeyValueNameLength = 1024; // 1024 should be enough for registry key value name. 
 
@@ -60,23 +63,23 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
         }
 
-        internal static bool SameString(string value1, string value2)
+        public static bool SameString(string value1, string value2)
         {
             return (value1 == null && value2 == null) || (value2 != null && value2.Equals(value1));
         }
 
-        internal static bool SameUri(Uri value1, Uri value2)
+        public static bool SameUri(Uri value1, Uri value2)
         {
             return (value1 == null && value2 == null) || (value2 != null && value2.Equals(value1));
         }
 
-        internal static bool SameSubscriptionIdentifier(IAzureSubscriptionIdentifier value1,
+        public static bool SameSubscriptionIdentifier(IAzureSubscriptionIdentifier value1,
             IAzureSubscriptionIdentifier value2)
         {
             return (value1 == null && value2 == null) || (value2 != null && value2.Equals(value1));
         }
 
-        internal static bool SameUserAccount(IAzureUserAccount value1, IAzureUserAccount value2)
+        public static bool SameUserAccount(IAzureUserAccount value1, IAzureUserAccount value2)
         {
             return (value1 == null && value2 == null) || (value2 != null && value2.Equals(value1));
         }
