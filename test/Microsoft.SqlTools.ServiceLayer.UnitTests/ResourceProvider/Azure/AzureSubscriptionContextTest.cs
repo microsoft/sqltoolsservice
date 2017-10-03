@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
         {
             AzureSubscriptionContext subscriptionContext = new AzureSubscriptionContext(null);
             Assert.True(subscriptionContext.SubscriptionName == String.Empty);
-            Assert.True(subscriptionContext.Subscription != null);
+            Assert.True(subscriptionContext.Subscription == null);
         }
 
         [Fact]

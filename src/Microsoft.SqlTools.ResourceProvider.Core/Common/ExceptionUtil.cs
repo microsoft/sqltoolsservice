@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 return aggregateException.InnerExceptions != null &&
                     aggregateException.InnerExceptions.Any(inner => inner.IsExceptionType(type));
             }
-            else if (ex.GetType() == type || (ex.InnerException != null && ex.InnerException.IsExceptionType(type)))
+            else if (type.IsAssignableFrom(ex.GetType()) || (ex.InnerException != null && ex.InnerException.IsExceptionType(type)))
             {
                 return true;
             }

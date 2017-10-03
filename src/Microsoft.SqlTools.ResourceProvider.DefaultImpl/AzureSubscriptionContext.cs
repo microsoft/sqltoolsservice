@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             get
             {
                 return _azureSubscriptionIdentifier != null ? 
-                    _azureSubscriptionIdentifier.SubscriptionId : null;
+                    _azureSubscriptionIdentifier.SubscriptionId : string.Empty;
             }
         }
     }

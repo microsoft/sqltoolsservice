@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 
             foreach (string subscriptionName in subscriptionToDatabaseMap.Keys)
             {
-                var azureAccount = new AzureUserAccount(null);
+                var azureAccount = new AzureUserAccount();
                 AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(azureAccount, subscriptionName, null);
                 var subscription = new AzureUserAccountSubscriptionContext(subId, new TokenCredentials("dummy"));
                 accountSubscriptions.Add(subscription);

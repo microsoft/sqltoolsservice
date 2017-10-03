@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
             azureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
                  It.IsAny<IAzureResourceManagementSession>(), It.IsAny<IAzureSqlServerResource>(), It.IsAny<FirewallRuleRequest>()),
-                 Times.AtLeastOnce);
+                 Times.Never);
         }
 
         [Fact]
@@ -519,11 +519,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
         internal Mock<IAzureAuthenticationManager> ApplicationAuthenticationManagerMock { get; set; }
-        internal IAzureAuthenticationManager ApplicationAuthenticationManager { get { return ApplicationAuthenticationManagerMock.Object; } }
+        internal IAzureAuthenticationManager ApplicationAuthenticationManager { get { return ApplicationAuthenticationManagerMock?.Object; } }
 
         internal Mock<IAzureResourceManager> AzureResourceManagerMock { get; set; }
 
-        internal IAzureResourceManager AzureResourceManager { get { return AzureResourceManagerMock.Object; } }
+        internal IAzureResourceManager AzureResourceManager { get { return AzureResourceManagerMock?.Object; } }
     }
 
 }
