@@ -72,9 +72,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Serialization", "src\Microsoft.SqlTools.Serialization\Microsoft.SqlTools.Serialization.csproj", "{75E1A89F-9DF6-4DA3-9EF1-5FD966331E06}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Azure", "src\Microsoft.SqlTools.Azure\Microsoft.SqlTools.Azure.csproj", "{6FEE7E14-8A1D-454E-8F7C-B63597801787}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ResourceProvider", "src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj", "{6FEE7E14-8A1D-454E-8F7C-B63597801787}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Azure.Core", "src\Microsoft.SqlTools.Azure.Core\Microsoft.SqlTools.Azure.Core.csproj", "{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ResourceProvider.Core", "src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj", "{70E63BC1-2C82-41C0-89D6-272FD3C7B0C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
