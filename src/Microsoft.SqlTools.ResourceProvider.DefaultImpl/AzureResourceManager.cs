@@ -19,8 +19,9 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.Rest;
 using System.Globalization;
 using Microsoft.Rest.Azure;
+using Microsoft.SqlTools.ResourceProvider.Core;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.Impl
+namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// Default implementation for <see cref="IAzureResourceManager" />

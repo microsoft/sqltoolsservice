@@ -4,8 +4,9 @@
 
 using System;
 using Microsoft.Azure.Management.Sql.Models;
+using Microsoft.SqlTools.ResourceProvider.Core;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.Impl
+namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// Implementation for <see cref="IAzureResource" /> using VS services. 

@@ -141,18 +141,6 @@
     <value>Unexpected connection type.</value>
     <comment></comment>
   </data>
-  <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure databases</value>
-    <comment></comment>
-  </data>
-  <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure resource groups</value>
-    <comment></comment>
-  </data>
-  <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure Sql Servers</value>
-    <comment></comment>
-  </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</value>
     <comment></comment>

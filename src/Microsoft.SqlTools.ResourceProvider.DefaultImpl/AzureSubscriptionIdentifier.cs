@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.Impl
+namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// Implementation for <see cref="IAzureSubscriptionIdentifier" />

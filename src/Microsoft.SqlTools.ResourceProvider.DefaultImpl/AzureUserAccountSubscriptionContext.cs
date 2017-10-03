@@ -4,9 +4,10 @@
 
 using System;
 using Microsoft.Rest;
+using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.Impl
+namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// Implementation for <see cref="IAzureUserAccountSubscriptionContext" /> using built-in services

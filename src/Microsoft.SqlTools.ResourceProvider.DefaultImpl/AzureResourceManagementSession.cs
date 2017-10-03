@@ -5,9 +5,10 @@
 using System;
 using Microsoft.Azure.Management.ResourceManager;
 using Microsoft.Azure.Management.Sql;
+using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.Impl
+namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// VS session used by <see cref="AzureResourceManager" />. 

@@ -77,30 +77,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
         }
 
-        public static string FailedToGetAzureDatabasesErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.FailedToGetAzureDatabasesErrorMessage);
-            }
-        }
-
-        public static string FailedToGetAzureResourceGroupsErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.FailedToGetAzureResourceGroupsErrorMessage);
-            }
-        }
-
-        public static string FailedToGetAzureSqlServersErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.FailedToGetAzureSqlServersErrorMessage);
-            }
-        }
-
         public static string FirewallRuleAccessForbidden
         {
             get
@@ -237,15 +213,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
 
             public const string ErrUnexpectedConnectionType = "ErrUnexpectedConnectionType";
-
-
-            public const string FailedToGetAzureDatabasesErrorMessage = "FailedToGetAzureDatabasesErrorMessage";
-
-
-            public const string FailedToGetAzureResourceGroupsErrorMessage = "FailedToGetAzureResourceGroupsErrorMessage";
-
-
-            public const string FailedToGetAzureSqlServersErrorMessage = "FailedToGetAzureSqlServersErrorMessage";
 
 
             public const string FirewallRuleAccessForbidden = "FirewallRuleAccessForbidden";

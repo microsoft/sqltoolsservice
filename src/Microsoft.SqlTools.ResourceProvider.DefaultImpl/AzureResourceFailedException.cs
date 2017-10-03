@@ -5,8 +5,9 @@
 using System;
 using System.Net;
 using System.Runtime.Serialization;
+using Microsoft.SqlTools.ResourceProvider.Core;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.Impl
+namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
     /// Exception to be raised if azure resource manager operation fails
