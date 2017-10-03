@@ -740,12 +740,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         internal string SelectFromTableOrView(Server server, Urn urn, bool isDw)
         {
-            string script = string.Empty;
             DataTable dt = GetColumnNames(server, urn, isDw);
             StringBuilder selectQuery = new StringBuilder();
 
             // build the first line
-            if ((dt != null) && (dt.Rows.Count > 0))
+            if (dt != null && dt.Rows.Count > 0)
             {
 
                 selectQuery.Append("SELECT TOP (1000) ");
@@ -768,18 +767,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 selectQuery.Append("SELECT TOP (1000) * ");
             }
+
             // from clause
             selectQuery.Append("  FROM ");
 
             if(server.ServerType != DatabaseEngineType.SqlAzureDatabase)
-            { //Azure doesn't allow qualifying object names with the DB, so only add it on if we're not in Azure
-                // database URN
+            {   
+                // Azure doesn't allow qualifying object names with the DB, so only add it on if we're not in Azure database URN
                 Urn dbUrn = urn.Parent;
                 selectQuery.AppendFormat("{0}{1}{2}.",
                                      ScriptingGlobals.LeftDelimiter,
                                      ScriptingUtils.QuoteObjectName(dbUrn.GetAttribute("Name"), ScriptingGlobals.RightDelimiter),
                                      ScriptingGlobals.RightDelimiter);
             }
+
             // schema
             selectQuery.AppendFormat("{0}{1}{2}.",
                                      ScriptingGlobals.LeftDelimiter,
@@ -794,16 +795,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // In Hekaton M5, if it's a memory optimized table, we need to provide SNAPSHOT hint for SELECT.
             if (urn.Type.Equals("Table") && ScriptingUtils.IsXTPSupportedOnServer(server))
             {
-                Table table = (Table)server.GetSmoObject(urn);
-                table.Refresh();
-                if (table.IsMemoryOptimized)
+                try
                 {
-                    selectQuery.Append(" WITH (SNAPSHOT)");
+                    Table table = (Table)server.GetSmoObject(urn);
+                    table.Refresh();
+                    if (table.IsMemoryOptimized)
+                    {
+                        selectQuery.Append(" WITH (SNAPSHOT)");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // log any exceptions determining if InMemory, but don't treat as fatal exception
+                    Logger.Write(LogLevel.Error, "Could not determine if is InMemory table " + ex.ToString());
                 }
             }
 
-            script = selectQuery.ToString();
-            return script;
+            return selectQuery.ToString();
         }
 
         #endregion
