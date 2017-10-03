@@ -19,12 +19,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Makes sure the feature has fill access to the database
         /// </summary>
-        void GainAccessToDatabase();
+        bool GainAccessToDatabase();
 
         /// <summary>
         /// Release the access to db
         /// </summary>
-        void ReleaseAccessToDatabase();
+        bool ReleaseAccessToDatabase();
 
         /// <summary>
         /// Server name

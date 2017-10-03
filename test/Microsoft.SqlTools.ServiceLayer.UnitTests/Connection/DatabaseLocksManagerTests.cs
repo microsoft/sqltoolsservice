@@ -20,67 +20,99 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void RemoveConnectionShouldRemoveTheGivenConnection()
         {
             var connectionLock = new Mock<IDatabaseLockConnection>();
-            DatabaseLocksManager databaseLocksManager = CreateManager();
-            int count = databaseLocksManager.GetLocks(server1, database1).Count;
-            databaseLocksManager.AddConnection(server1, database1, connectionLock.Object);
+            using (DatabaseLocksManager databaseLocksManager = CreateManager())
+            {
+                int count = databaseLocksManager.GetLocks(server1, database1).Count;
+                databaseLocksManager.AddConnection(server1, database1, connectionLock.Object);
 
-            int actual = databaseLocksManager.GetLocks(server1, database1).Count;
-            int expected = count + 1;
-            Assert.Equal(actual, expected);
+                int actual = databaseLocksManager.GetLocks(server1, database1).Count;
+                int expected = count + 1;
+                Assert.Equal(actual, expected);
 
-            databaseLocksManager.RemoveConnection(server1, database1, connectionLock.Object);
-            actual = databaseLocksManager.GetLocks(server1, database1).Count;
-            expected = count;
-            Assert.Equal(actual, expected);
+                databaseLocksManager.RemoveConnection(server1, database1, connectionLock.Object);
+                actual = databaseLocksManager.GetLocks(server1, database1).Count;
+                expected = count;
+                Assert.Equal(actual, expected);
+            }
         }
 
         [Fact]
         public void RemoveConnectionShouldNotFailGivenInvalidConnection()
         {
             var connectionLock = new Mock<IDatabaseLockConnection>();
-            DatabaseLocksManager databaseLocksManager = CreateManager();
-            int count = databaseLocksManager.GetLocks(server1, database1).Count;
+            using (DatabaseLocksManager databaseLocksManager = CreateManager())
+            {
+                int count = databaseLocksManager.GetLocks(server1, database1).Count;
 
-            databaseLocksManager.RemoveConnection(server1, database1, connectionLock.Object);
-            int actual = databaseLocksManager.GetLocks(server1, database1).Count;
-            int expected = count;
-            Assert.Equal(actual, expected);
+                databaseLocksManager.RemoveConnection(server1, database1, connectionLock.Object);
+                int actual = databaseLocksManager.GetLocks(server1, database1).Count;
+                int expected = count;
+                Assert.Equal(actual, expected);
+            }
         }
 
         [Fact]
-        public void ReleaseLocksShouldDisconnectTheConnections()
+        public void GainFullAccessShouldDisconnectTheConnections()
         {
             var connectionLock = new Mock<IDatabaseLockConnection>();
             connectionLock.Setup(x => x.Disconnect());
             connectionLock.Setup(x => x.IsConnctionOpen).Returns(true);
             connectionLock.Setup(x => x.CanTemporaryClose).Returns(true);
 
-            DatabaseLocksManager databaseLocksManager = CreateManager();
-            databaseLocksManager.AddConnection(server1, database1, connectionLock.Object);
+            using (DatabaseLocksManager databaseLocksManager = CreateManager())
+            {
+                databaseLocksManager.AddConnection(server1, database1, connectionLock.Object);
 
 
-            databaseLocksManager.ReleaseLocks(server1, database1);
-            connectionLock.Verify(x => x.Disconnect());
+                databaseLocksManager.GainFullAccessToDatabase(server1, database1);
+                connectionLock.Verify(x => x.Disconnect());
+            }
         }
 
         [Fact]
-        public void RegainLocksShouldConnectTheConnections()
+        public void ReleaseAccessShouldConnectTheConnections()
         {
             var connectionLock = new Mock<IDatabaseLockConnection>();
             connectionLock.Setup(x => x.Connect());
             connectionLock.Setup(x => x.IsConnctionOpen).Returns(false);
 
-            DatabaseLocksManager databaseLocksManager = CreateManager();
-            databaseLocksManager.AddConnection(server1, database1, connectionLock.Object);
+            using (DatabaseLocksManager databaseLocksManager = CreateManager())
+            {
+                databaseLocksManager.AddConnection(server1, database1, connectionLock.Object);
 
 
-            databaseLocksManager.RegainLocks(server1, database1);
-            connectionLock.Verify(x => x.Connect());
+                databaseLocksManager.ReleaseAccess(server1, database1);
+                connectionLock.Verify(x => x.Connect());
+            }
+        }
+
+        [Fact]
+        public void SecondProcessToGainAccessShouldWaitForTheFirstProcess()
+        {
+            var connectionLock = new Mock<IDatabaseLockConnection>();
+
+            using (DatabaseLocksManager databaseLocksManager = CreateManager())
+            {
+                databaseLocksManager.GainFullAccessToDatabase(server1, database1);
+                bool secondTimeGettingAccessFails = false;
+                try
+                {
+                    databaseLocksManager.GainFullAccessToDatabase(server1, database1);
+                }
+                catch (DatabaseFullAccessException)
+                {
+                    secondTimeGettingAccessFails = true;
+                }
+                Assert.Equal(secondTimeGettingAccessFails, true);
+                databaseLocksManager.ReleaseAccess(server1, database1);
+                Assert.Equal(databaseLocksManager.GainFullAccessToDatabase(server1, database1), true);
+                databaseLocksManager.ReleaseAccess(server1, database1);
+            }
         }
 
         private DatabaseLocksManager CreateManager()
         {
-            DatabaseLocksManager databaseLocksManager = new DatabaseLocksManager();
+            DatabaseLocksManager databaseLocksManager = new DatabaseLocksManager(2000);
             var connectionLock1 = new Mock<IDatabaseLockConnection>();
             var connectionLock2 = new Mock<IDatabaseLockConnection>();
             connectionLock1.Setup(x => x.Disconnect());

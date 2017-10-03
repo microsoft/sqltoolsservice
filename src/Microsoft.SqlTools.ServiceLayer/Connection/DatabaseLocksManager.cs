@@ -3,18 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
-    public class DatabaseLocksManager
+    public class DatabaseLocksManager: IDisposable
     {
-        internal DatabaseLocksManager()
+        internal DatabaseLocksManager(int waitToGetFullAccess)
         {
+            this.waitToGetFullAccess = waitToGetFullAccess;
         }
 
-        private static DatabaseLocksManager instance = new DatabaseLocksManager();
+        private static DatabaseLocksManager instance = new DatabaseLocksManager(DefaultWaitToGetFullAccess);
 
         public static DatabaseLocksManager Instance
         {
@@ -23,8 +26,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return instance;
             }
         }
-        private Dictionary<string, List<IDatabaseLockConnection>> _connections = new Dictionary<string, List<IDatabaseLockConnection>>();
+        private Dictionary<string, List<IDatabaseLockConnection>> connections = new Dictionary<string, List<IDatabaseLockConnection>>();
+        private Dictionary<string, ManualResetEvent> databaseAccessEvents = new Dictionary<string, ManualResetEvent>();
+        private object databaseAccessLock = new object();
         private object lockObject = new object();
+        public const int DefaultWaitToGetFullAccess = 60000;
+        public int waitToGetFullAccess = 60000;
 
         public void AddConnection(string serverName, string databaseName, IDatabaseLockConnection connection)
         {
@@ -33,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             lock (this.lockObject)
             {
                 List<IDatabaseLockConnection> currentList;
-                if (_connections.TryGetValue(key, out currentList))
+                if (connections.TryGetValue(key, out currentList))
                 {
                     currentList.Add(connection);
                 }
@@ -41,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     currentList = new List<IDatabaseLockConnection>();
                     currentList.Add(connection);
-                    _connections.Add(key, currentList);
+                    connections.Add(key, currentList);
                 }
             }
         }
@@ -52,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             lock(this.lockObject)
             {
                 List<IDatabaseLockConnection> currentList;
-                if (_connections.TryGetValue(key, out currentList))
+                if (connections.TryGetValue(key, out currentList))
                 {
                     if (connection.IsConnctionOpen)
                     {
@@ -70,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             lock (lockObject)
             {
                 List<IDatabaseLockConnection> currentList;
-                if (_connections.TryGetValue(key, out currentList))
+                if (connections.TryGetValue(key, out currentList))
                 {
                     readOnLyList = new ReadOnlyCollection<IDatabaseLockConnection>(currentList);
                 }
@@ -79,24 +86,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return readOnLyList;
         }
 
-        public void ReleaseLocks(string serverName, string databaseName)
+        private ManualResetEvent GetResetEvent(string serverName, string databaseName)
         {
-            ReadOnlyCollection<IDatabaseLockConnection> readOnLyList = GetLocks(serverName, databaseName);
-
-            if (readOnLyList != null)
+            string key = GenerateKey(serverName, databaseName);
+            ManualResetEvent resetEvent = null;
+            lock (databaseAccessLock)
             {
-                foreach (var connection in readOnLyList)
+                if (!databaseAccessEvents.TryGetValue(key, out resetEvent))
                 {
-                    if (connection.IsConnctionOpen && connection.CanTemporaryClose)
+                    resetEvent = new ManualResetEvent(true);
+                    databaseAccessEvents.Add(key, resetEvent);
+                }
+            }
+
+            return resetEvent;
+        }
+
+        public bool GainFullAccessToDatabase(string serverName, string databaseName)
+        {
+            ManualResetEvent resetEvent = GetResetEvent(serverName, databaseName);
+            if (resetEvent.WaitOne(this.waitToGetFullAccess))
+            {
+                resetEvent.Reset();
+                ReadOnlyCollection<IDatabaseLockConnection> readOnLyList = GetLocks(serverName, databaseName);
+
+                if (readOnLyList != null)
+                {
+                    foreach (var connection in readOnLyList)
                     {
-                        connection.Disconnect();
+                        if (connection.IsConnctionOpen && connection.CanTemporaryClose)
+                        {
+                            connection.Disconnect();
+                        }
                     }
                 }
+                return true;
+            }
+            else
+            {
+                throw new DatabaseFullAccessException($"Waited more than {waitToGetFullAccess} milli seconds for others to release the lock");
             }
         }
 
-        public void RegainLocks(string serverName, string databaseName)
+        public bool ReleaseAccess(string serverName, string databaseName)
         {
+            ManualResetEvent resetEvent = GetResetEvent(serverName, databaseName);
             ReadOnlyCollection<IDatabaseLockConnection> readOnLyList = GetLocks(serverName, databaseName);
 
             if (readOnLyList != null)
@@ -109,11 +143,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                 }
             }
+            resetEvent.Set();
+            return true;
         }
 
         private string GenerateKey(string serverName, string databaseName)
         {
             return $"{serverName.ToLowerInvariant()}-{databaseName.ToLowerInvariant()}";
+        }
+
+        public void Dispose()
+        {
+            foreach (var resetEvent in databaseAccessEvents)
+            {
+                resetEvent.Value.Dispose();
+            }
         }
     }
 }

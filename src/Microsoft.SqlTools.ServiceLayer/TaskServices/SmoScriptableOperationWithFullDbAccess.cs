@@ -5,6 +5,7 @@
 
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -56,10 +57,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="mode"></param>
         public override void Execute(TaskExecutionMode mode)
         {
+            bool hasAccessToDb = false;
             try
             {
-                GainAccessToDatabase();
+                hasAccessToDb = GainAccessToDatabase();
                 base.Execute(mode);
+            }
+            catch (DatabaseFullAccessException databaseFullAccessException)
+            {
+                Logger.Write(LogLevel.Warning, $"Failed to gain access to database. server|database:{ServerName}|{DatabaseName}");
+                throw databaseFullAccessException;
             }
             catch
             {
@@ -67,24 +74,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
             finally
             {
-                ReleaseAccessToDatabase();
+                if (hasAccessToDb)
+                {
+                    ReleaseAccessToDatabase();
+                }
             }
         }
 
-        public void GainAccessToDatabase()
+        public bool GainAccessToDatabase()
         {
             if (LockedDatabaseManager != null)
             {
-                LockedDatabaseManager.ReleaseLocks(ServerName, DatabaseName);
+                return LockedDatabaseManager.GainFullAccessToDatabase(ServerName, DatabaseName);
             }
+            return false;
         }
 
-        public void ReleaseAccessToDatabase()
+        public bool ReleaseAccessToDatabase()
         {
             if (LockedDatabaseManager != null)
             {
-                LockedDatabaseManager.RegainLocks(ServerName, DatabaseName);
+                return LockedDatabaseManager.ReleaseAccess(ServerName, DatabaseName);
             }
+            return false;
         }
     }
 }

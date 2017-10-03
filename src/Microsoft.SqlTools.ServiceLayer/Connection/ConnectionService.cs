@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if(connectionParams.Type == ConnectionType.ObjectExplorer)
             {
                 DbConnection connection;
-                if (connectionInfo.TryGetConnection(ConnectionType.Default, out connection))
+                if (connectionInfo.TryGetConnection(ConnectionType.ObjectExplorer, out connection))
                 {
                     // OE doesn't need to keep the connection open
                     connection.Close();

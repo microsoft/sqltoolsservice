@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     SqlConnection sqlConn = ConnectionServiceInstance.OpenSqlConnection(connInfo);
-                    // Connection gets dscounnect when backup is done
+                    // Connection gets discounnected when backup is done
 
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
                     SqlTask sqlTask = null;

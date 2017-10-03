@@ -59,7 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
         }
 
-        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null)
+        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null, 
+            string connectionType = ServiceLayer.Connection.ConnectionType.Default)
         {
             ScriptFile scriptFile = null;
             if (string.IsNullOrEmpty(ownerUri))
@@ -76,7 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 .Connect(new ConnectParams
                 {
                     OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
+                    Connection = connectParams.Connection,
+                    Type = connectionType
                 });
             if (!string.IsNullOrEmpty(connectionResult.ErrorMessage))
             {
