@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task ScriptSchemaCancel()
+        public async void ScriptSchemaCancel()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
@@ -228,11 +228,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
-                    },
+                    }
                 };
 
-                ScriptingResult result = await testService.Script(requestParams);
-                ScriptingCancelResult cancelResult = await testService.CancelScript(result.OperationId);
+                var result = Task.Run(() => testService.Script(requestParams));
+                ScriptingProgressNotificationParams progressParams = await testService.Driver.WaitForEvent(ScriptingProgressNotificationEvent.Type, TimeSpan.FromSeconds(10));
+                Task.Run(() => testService.CancelScript(progressParams.OperationId));
                 ScriptingCompleteParams cancelEvent = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(cancelEvent.Canceled);
             }

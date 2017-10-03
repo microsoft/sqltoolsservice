@@ -26,11 +26,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal const int DefaultMinimumConnectionTimeout = 30;
 
         /// <summary>
+        /// flag determing if the connection queue requires online metadata objects
+        /// it's much cheaper to not construct these objects if not needed
+        /// </summary>
+        private bool needsMetadata;
+
+        /// <summary>
         /// Gets the current settings
         /// </summary>
         internal SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
+        }
+
+        public ConnectedBindingQueue()
+            : this(true)
+        {            
+        }
+
+        public ConnectedBindingQueue(bool needsMetadata)
+        {
+            this.needsMetadata = needsMetadata;
         }
 
         /// <summary>
@@ -84,14 +100,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     SqlConnection sqlConn = ConnectionService.Instance.OpenSqlConnection(connInfo, bindingContext);
                    
                     // populate the binding context to work with the SMO metadata provider
-                    ServerConnection serverConn = new ServerConnection(sqlConn);                            
-                    bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                    bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                    bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                        this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                            ? CasingStyle.Lowercase : CasingStyle.Uppercase;
-                    bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
-                    bindingContext.ServerConnection = serverConn;
+                    bindingContext.ServerConnection = new ServerConnection(sqlConn);
+
+                    if (this.needsMetadata)
+                    {
+                        bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
+                        bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
+                            this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                                ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                        bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
+                    }         
+            
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;                    
                 }
