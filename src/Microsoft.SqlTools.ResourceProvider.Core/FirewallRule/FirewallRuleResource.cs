@@ -9,7 +9,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
     /// <summary>
     /// Includes azure resource and subscription needed to create firewall rule
     /// </summary>
-    internal class FirewallRuleResource
+    public class FirewallRuleResource
     {
         /// <summary>
         /// Azure resource

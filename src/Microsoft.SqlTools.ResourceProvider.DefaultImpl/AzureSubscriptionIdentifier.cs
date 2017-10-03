@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureSubscriptionIdentifier" />
     /// Contains information about an Azure subscription identifier
     /// </summary>
-    internal class AzureSubscriptionIdentifier : IAzureSubscriptionIdentifier
+    public class AzureSubscriptionIdentifier : IAzureSubscriptionIdentifier
     {
         /// <summary>
         /// Default constructor to initialize the subscription identifier

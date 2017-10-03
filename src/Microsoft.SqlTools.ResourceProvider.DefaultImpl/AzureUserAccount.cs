@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureUserAccount" /> using VS services
     /// Contains information about an Azure account
     /// </summary>
-    internal class AzureUserAccount : IAzureUserAccount
+    public class AzureUserAccount : IAzureUserAccount
     {
         private string uniqueId;
 

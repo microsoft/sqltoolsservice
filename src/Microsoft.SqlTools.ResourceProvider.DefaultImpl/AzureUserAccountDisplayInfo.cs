@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureUserAccountDisplayInfo" /> using VS services
     /// Contains information about an Azure account display info
     /// </summary>
-    internal class AzureUserAccountDisplayInfo : IAzureUserAccountDisplayInfo
+    public class AzureUserAccountDisplayInfo : IAzureUserAccountDisplayInfo
     {
         private string userName;
         private string accountDisplayName;

@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -24,9 +25,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// <summary>
         /// Returns true if given exception if any of the inner exceptions is sql exception
         /// </summary>
-        internal static bool IsSqlException(this Exception ex)
+        internal static bool IsDbException(this Exception ex)
         {
-            return ex.IsExceptionType(typeof (SqlException));
+            return ex.IsExceptionType(typeof (DbException));
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         "Microsoft.SqlServer.ConnectionServices.Azure.Impl.VsAzureResourceManager",
         1)
     ]
-    internal class AzureResourceManager : ExportableBase, IAzureResourceManager
+    public class AzureResourceManager : ExportableBase, IAzureResourceManager
     {
         private readonly Uri _resourceManagementUri = new Uri("https://management.azure.com/");
 

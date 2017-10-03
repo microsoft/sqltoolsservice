@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureUserAccountSubscriptionContext" /> using built-in services
     /// Contains information about an Azure account subscription
     /// </summary>
-    internal class AzureUserAccountSubscriptionContext : IAzureUserAccountSubscriptionContext
+    public class AzureUserAccountSubscriptionContext : IAzureUserAccountSubscriptionContext
     {
 
         /// <summary>

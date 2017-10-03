@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         Categories.Azure,
         typeof(IDatabaseDiscoveryProvider),
         "Microsoft.SqlServer.ConnectionServices.Azure.AzureDatabaseDiscoveryProvider")]
-    internal class AzureDatabaseDiscoveryProvider : ExportableBase, IDatabaseDiscoveryProvider, ISecureService, ICacheable<ServiceResponse<DatabaseInstanceInfo>>
+    public class AzureDatabaseDiscoveryProvider : ExportableBase, IDatabaseDiscoveryProvider, ISecureService, ICacheable<ServiceResponse<DatabaseInstanceInfo>>
     {
         private IAzureResourceManager _azureResourceManagerWrapper;
         private IAzureAuthenticationManager _azureAccountManager;
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// <summary>
         /// Returns the resource manager that has same metadata as this class
         /// </summary>
-        internal IAzureResourceManager AzureResourceManager
+        public IAzureResourceManager AzureResourceManager
         {
             get
             {
@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 return AzureAccountManager;
 
             }
-            internal set
+            set
             {
                 _azureAccountManager = value as IAzureAuthenticationManager;
             }

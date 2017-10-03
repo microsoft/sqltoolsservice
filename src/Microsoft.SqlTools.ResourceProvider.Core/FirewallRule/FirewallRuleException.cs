@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
     /// <summary>
     /// Exception used by firewall service to indicate when firewall rule operation fails
     /// </summary>
-    internal class FirewallRuleException : ServiceExceptionBase
+    public class FirewallRuleException : ServiceExceptionBase
     {
         /// <summary>
         /// Initializes a new instance of the AuthenticationFailedException class.

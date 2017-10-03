@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
 {
 
-    internal interface IFirewallRuleService
+    public interface IFirewallRuleService
     {
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
     /// <summary>
     /// Service to be used by the controls to create firewall rule
     /// </summary>
-    internal class FirewallRuleService : IFirewallRuleService
+    public class FirewallRuleService : IFirewallRuleService
     {
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails

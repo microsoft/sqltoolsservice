@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureSqlServerResource" /> using VS services
     /// Provides information about an Azure Sql Server resource
     /// </summary>
-    internal class SqlAzureResource : AzureResourceWrapper, IAzureSqlServerResource
+    public class SqlAzureResource : AzureResourceWrapper, IAzureSqlServerResource
     {
         private readonly Models.Server _azureSqlServerResource;
 

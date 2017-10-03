@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// VS session used by <see cref="AzureResourceManager" />. 
     /// Includes all the clients that the resource management needs to get ther resources
     /// </summary>
-    internal class AzureResourceManagementSession : IAzureResourceManagementSession
+    public class AzureResourceManagementSession : IAzureResourceManagementSession
     {
         /// <summary>
         /// Creates the new session for given clients

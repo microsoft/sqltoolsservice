@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureResource" /> using VS services. 
     /// Provides information about an Azure resource
     /// </summary>
-    internal class AzureResourceWrapper : IAzureResource
+    public class AzureResourceWrapper : IAzureResource
     {
         /// <summary>
         /// Initializes the resource 

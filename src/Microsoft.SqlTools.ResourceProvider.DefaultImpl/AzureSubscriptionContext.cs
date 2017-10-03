@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     /// Implementation for <see cref="IAzureSubscriptionContext" /> using VS services
     /// Contains information about an Azure subscription
     /// </summary>
-    internal class AzureSubscriptionContext : IAzureSubscriptionContext
+    public class AzureSubscriptionContext : IAzureSubscriptionContext
     {
         private readonly IAzureSubscriptionIdentifier _azureSubscriptionIdentifier;
 

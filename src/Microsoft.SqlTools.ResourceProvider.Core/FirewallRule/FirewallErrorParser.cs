@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
     /// <summary>
     /// Parses an error to check for firewall rule error. Will include the blocked ip address if firewall rule error is detected
     /// </summary>
-    internal class FirewallErrorParser : IFirewallErrorParser
+    public class FirewallErrorParser : IFirewallErrorParser
     {
         /// <summary>
         /// Parses given error message and error code to see if it's firewall rule error 
