@@ -13,7 +13,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -329,7 +328,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                                 {
                                     children.Add(item);
                                     item.Parent = this;
-                                   
                                 }
                             }
                         }

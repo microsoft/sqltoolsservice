@@ -11,7 +11,6 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -160,6 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return this.parseOptions;
             }
         }
+
 
         /// <summary>
         /// Gets the database compatibility level from a server version

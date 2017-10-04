@@ -103,25 +103,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 
         public static ConnectionInfo InitLiveConnectionInfoForDefinition(string databaseName = null)
         {
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
-            const string ScriptUriTemplate = "file://some/{0}.sql";
-            string ownerUri = string.Format(CultureInfo.InvariantCulture, ScriptUriTemplate, string.IsNullOrEmpty(databaseName) ? "file" : databaseName);
-            var connectionService = GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
-                });
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
+                string ownerUri = queryTempFile.FilePath;//string.Format(CultureInfo.InvariantCulture, ScriptUriTemplate, string.IsNullOrEmpty(databaseName) ? "file" : databaseName);
+                var connectionService = GetLiveTestConnectionService();
+                var connectionResult =
+                    connectionService
+                    .Connect(new ConnectParams
+                    {
+                        OwnerUri = ownerUri,
+                        Connection = connectParams.Connection
+                    });
 
-            connectionResult.Wait();
+                connectionResult.Wait();
 
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
+                ConnectionInfo connInfo = null;
+                connectionService.TryFindConnection(ownerUri, out connInfo);
 
-            Assert.NotNull(connInfo);
-            return connInfo;
+                Assert.NotNull(connInfo);
+                return connInfo;
+            }
         }
 
         public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)

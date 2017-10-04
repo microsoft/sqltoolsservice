@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Xunit;
-
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         // helper method to set up a Sql Connection to a database
         private SqlConnection SetUpConnection(string name)
         {
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, name);
+            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, name);
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition(testDb.DatabaseName);
             string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             SqlConnection resultConnection = new SqlConnection(connectionString);
@@ -71,6 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         public void Dispose()
         {
             CloseConnection(connection);
+            Task.Run(() => SqlTestDb.DropDatabase(connection.Database));
             connection = null;
         }        
 
@@ -633,7 +634,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// Test multiple threads of execution engine with cancel operation
         /// </summary>
         [Fact]
-        public void ExecutionEngineTest_MultiThreading_WithCancel()
+        public async Task ExecutionEngineTest_MultiThreading_WithCancel()
         {
             string[] sqlStatement = { "waitfor delay '0:0:10'",
                  "waitfor delay '0:0:10'",
@@ -683,6 +684,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 
             CloseConnection(connection2);
             CloseConnection(connection3);
+            await SqlTestDb.DropDatabase(connection2.Database);
+            await SqlTestDb.DropDatabase(connection3.Database);
         }
 
         #endregion

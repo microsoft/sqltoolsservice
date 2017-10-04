@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Xunit;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -132,17 +133,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 if (!DoNotCleanupDb)
                 {
-                    string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
-                        (ServerType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), DatabaseName);
-
-                    Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Cleaning up database {0}", DatabaseName));
-                    await TestServiceProvider.Instance.RunQueryAsync(ServerType, MasterDatabaseName, dropDatabaseQuery);
+                    await DropDatabase(DatabaseName, ServerType);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Failed to cleanup database: {0} error:{1}", DatabaseName, ex.Message));
             }
+        }
+
+        public static async Task DropDatabase(string databaseName, TestServerType serverType = TestServerType.OnPrem)
+        {
+            string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
+                       (serverType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), databaseName);
+
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Cleaning up database {0}", databaseName));
+            await TestServiceProvider.Instance.RunQueryAsync(serverType, MasterDatabaseName, dropDatabaseQuery);
         }
 
         /// <summary>
