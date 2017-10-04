@@ -288,11 +288,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptSelectTable()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
+                await testService.Connect(tempFile.FilePath, testService.TestConnectionService.GetConnectionParameters(serverType: TestServerType.OnPrem));
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     ScriptDestination = "ToEditor",
-                    ConnectionString = this.Northwind.ConnectionString,
+                    OwnerUri = tempFile.FilePath,
                     ScriptOptions = new ScriptOptions
                     {
                         ScriptCreateDrop = "ScriptSelect"
