@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
     /// <summary>
     /// Extension methods for exportable and service 
     /// </summary>
-    internal static class ExtensionUtils
+    public static class ExtensionUtils
     {
 
         /// <summary>
@@ -22,11 +22,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         /// <typeparam name="T">The type of the service</typeparam>
         /// <returns>A service of type T or null if not found</returns>
-        public static T GetService<T>(this IMultiServiceProvider provider, IExportableMetadata metadata)
+        public static T GetService<T>(this IMultiServiceProvider provider, IServerDefinition serverDefinition)
             where T : IExportable
         {
             return provider.GetServices<T>()
-                    .FilterExportables(metadata)
+                    .FilterExportables(serverDefinition)
                     .OrderByDescending(s => SortOrder(s)).
                     FirstOrDefault();
         }
@@ -41,8 +41,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             return 0;
         }
 
-        public static IEnumerable<T> FilterExportables<T>(
-            this IEnumerable<T> exportables, IServerDefinition serverDefinition = null)
+        public static IEnumerable<T> FilterExportables<T>(this IEnumerable<T> exportables, IServerDefinition serverDefinition = null)
              where T : IExportable
         {
             if (exportables == null)
@@ -51,7 +50,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             }
             //Get all the possible matches 
             IEnumerable<T> allMatched = serverDefinition != null ?
-                exportables.Where(x => x.Metadata.Match(serverDefinition)).ToList() : exportables;
+                exportables.Where(x => Match(x.Metadata, serverDefinition)).ToList() : exportables;
             IList<T> list = allMatched.ToList();
 
             //If specific server type requested and the list has any item with that server type remove the others.
@@ -147,6 +146,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>       
         public static bool Match(this IServerDefinition first, IServerDefinition other)
         {
+            if (first == null)
+            {
+                // TODO should we handle this differently? 
+                return false;
+            }
             if (other == null)
             {
                 return false;
@@ -155,7 +159,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
                 && MatchMetaData(first.Category, other.Category);
         }
         
-
         /// <summary>
         /// Returns true if the metadata value matches the given value
         /// </summary>   

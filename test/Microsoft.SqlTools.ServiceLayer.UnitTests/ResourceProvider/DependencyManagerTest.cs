@@ -1,8 +1,8 @@
-﻿////------------------------------------------------------------------------------
-//// <copyright company="Microsoft">
-////   Copyright (c) Microsoft Corporation.  All rights reserved.
-//// </copyright>
-////------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+// TODO Ideally would reenable these but using ExtensionServiceProvider
 
 //using System;
 //using System.Collections.Generic;
@@ -10,6 +10,8 @@
 //using System.Threading.Tasks;
 //using Microsoft.SqlTools.ResourceProvider.Core;
 //using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
+//using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes;
+//using Moq;
 //using Xunit;
 
 //namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
@@ -28,28 +30,28 @@
 //            new ServerInstanceInfo(),
 //            new ServerInstanceInfo(),
 //        };
-        
+
 //        public DependencyManagerTest()
 //        {
-//            IServerDiscoveryProvider provider1 = new Mock<IServerDiscoveryProvider>();
-//            IServerDiscoveryProvider provider2 = new Mock<IServerDiscoveryProvider>();
+//            var provider1 = new Mock<IServerDiscoveryProvider>();
+//            var provider2 = new Mock<IServerDiscoveryProvider>();
 //            provider1.Setup(x => x.GetServerInstancesAsync()).Returns(Task.FromResult(new ServiceResponse<ServerInstanceInfo>(_localSqlServers.AsEnumerable())));
 //            _providers = new List<Lazy<IServerDiscoveryProvider, IExportableMetadata>>()
 //            {
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => provider1, 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => provider1.Object,
 //                new ExportableAttribute("SqlServer", "Local", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString())),
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => provider2, 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => provider2.Object,
 //                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString())),
 //            };
-           
+
 //            _serviceProperties = FakeDataFactory.CreateServiceProperties(_providers);
 //            _dependencyManager = new DependencyManager(_serviceProperties);
 //        }
 
 //        [Fact]
-//        public void GetShouldReturnProvidersFromTheCatalog() 
+//        public void GetShouldReturnProvidersFromTheCatalog()
 //        {
-//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers = 
+//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
 //                _dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>();
 //            Assert.NotNull(providers);
 //        }
@@ -69,7 +71,7 @@
 //        [Fact]
 //        public void GetShouldReturnAllProvidersGivenNoParameter()
 //        {
-//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers = 
+//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
 //                _dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>();
 //            Assert.NotNull(providers);
 //            Assert.True(providers.Count() == _providers.Count());
@@ -79,7 +81,7 @@
 //        public void GetShouldReturnProvidersGivenServerType()
 //        {
 //            var serverType = "sqlServer";
-//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers = 
+//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
 //                _dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>(new ServerDefinition(serverType, null));
 //            Assert.NotNull(providers);
 //            Assert.True(providers.Any());
@@ -89,12 +91,12 @@
 //        [Fact]
 //        public void GetShouldReturnProvidersGivenCategory()
 //        {
-//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers = 
+//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
 //                _dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>(new ServerDefinition(null, "local"));
 //            Assert.NotNull(providers);
 //            Assert.True(providers.Count() == 1);
 //        }
-        
+
 //        [Fact]
 //        public void GetShouldReturnProviderForEmptyCategoryGivenEmptyCategory()
 //        {
@@ -113,7 +115,7 @@
 
 //            var serviceProperties = FakeDataFactory.CreateServiceProperties(providers);
 //            var dependencyManager = new DependencyManager(serviceProperties);
-            
+
 //            // When getting the correct descriptor
 
 //            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> foundProviders =
@@ -127,7 +129,7 @@
 //        [Fact]
 //        public void GetShouldReturnProviderGivenServerTypeAndLocationWithValidProvider()
 //        {
-//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers = 
+//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
 //                _dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>(new ServerDefinition("SqlServer", "local"));
 //            Assert.NotNull(providers);
 //            Assert.True(providers.Count() == 1);
@@ -140,11 +142,11 @@
 //            IServerDiscoveryProvider expectedProvider = new Mock<IServerDiscoveryProvider>();
 //            List<Lazy<IServerDiscoveryProvider, IExportableMetadata>> providers = new List<Lazy<IServerDiscoveryProvider, IExportableMetadata>>()
 //            {
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(), 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(),
 //                new ExportableAttribute("SqlServer", "Local", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString())),
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(), 
-//                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 1)), 
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => expectedProvider, 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(),
+//                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 1)),
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => expectedProvider,
 //                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 2))
 //            };
 
@@ -166,11 +168,11 @@
 //            IServerDiscoveryProvider expectedProvider = new Mock<IServerDiscoveryProvider>();
 //            List<Lazy<IServerDiscoveryProvider, IExportableMetadata>> providers = new List<Lazy<IServerDiscoveryProvider, IExportableMetadata>>()
 //            {
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(), 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(),
 //                new ExportableAttribute("SqlServer", "", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString())),
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(), 
-//                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 1)), 
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => expectedProvider, 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(),
+//                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 1)),
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => expectedProvider,
 //                new ExportableAttribute("", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 2))
 //            };
 
@@ -245,11 +247,11 @@
 //            IServerDiscoveryProvider expectedProvider = new Mock<IServerDiscoveryProvider>();
 //            List<Lazy<IServerDiscoveryProvider, IExportableMetadata>> providers = new List<Lazy<IServerDiscoveryProvider, IExportableMetadata>>()
 //            {
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(), 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(),
 //                new ExportableAttribute("SqlServer", "Local", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString())),
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(), 
-//                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 1)), 
-//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => expectedProvider, 
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => new Mock<IServerDiscoveryProvider>(),
+//                new ExportableAttribute("SqlServer", "Network", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 1)),
+//                new Lazy<IServerDiscoveryProvider, IExportableMetadata>(() => expectedProvider,
 //                new ExportableAttribute("SqlServer", "", typeof(IServerDiscoveryProvider), Guid.NewGuid().ToString(), 2))
 //            };
 
@@ -269,7 +271,7 @@
 //        public void GetShouldReturnProvidersGivenServerTypeAndMoreThanOneLocation()
 //        {
 //            var serverType = "sqlServer";
-//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers = 
+//            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
 //                _dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>(new ServerDefinition(serverType, null));
 //            Assert.NotNull(providers);
 //            Assert.True(providers.Count() == _providers.Count(x => x.Metadata.ServerType.Equals(serverType, StringComparison.OrdinalIgnoreCase)));

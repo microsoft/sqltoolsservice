@@ -1,8 +1,6 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="RdtManager.cs" company="Microsoft">
-//   Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Threading.Tasks;
@@ -18,6 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
         "Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes.FakeAccountManager", 1)]
     public class FakeAccountManager : IAccountManager
     {
+        public FakeAccountManager(IExportableMetadata metadata)
+        {
+            Metadata = metadata;
+        }
+
         public ITrace Trace { get; set; }
         public Task<bool> GetUserNeedsReauthenticationAsync()
         {

@@ -1,8 +1,6 @@
-﻿//------------------------------------------------------------------------------
-// <copyright company="Microsoft">
-//   Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Threading.Tasks;
@@ -16,6 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
         typeof(IAccountManager), "Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes.FakeAccountManager2", 2)]
     public class FakeAccountManager2 : IAccountManager
     {
+        public FakeAccountManager2(IExportableMetadata metadata)
+        {
+            Metadata = metadata;
+        }
+
         public ITrace Trace { get; set; }
         public Task<bool> GetUserNeedsReauthenticationAsync()
         {
