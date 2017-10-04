@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {

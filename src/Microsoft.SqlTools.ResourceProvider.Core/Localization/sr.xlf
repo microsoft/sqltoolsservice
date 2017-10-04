@@ -2,16 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" original="sr.resx" source-language="en">
     <body>
-      <trans-unit id="AdoDotNetConnectionProperties_NoProperties">
-        <source>No connection properties have been set.</source>
-        <target state="new">No connection properties have been set.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="AuthenticationFailedErrorMessage">
-        <source>An error occurred while authenticating the user</source>
-        <target state="new">An error occurred while authenticating the user</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="AzureServerNotFound">
         <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
         <target state="new">The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</target>
@@ -25,11 +15,6 @@
       <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
         <source>An error occurred while getting databases from servers of type {0} from {1}</source>
         <target state="new">An error occurred while getting databases from servers of type {0} from {1}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ErrUnexpectedConnectionType">
-        <source>Unexpected connection type.</source>
-        <target state="new">Unexpected connection type.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleAccessForbidden">
@@ -50,51 +35,6 @@
       <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
         <source>A required dll cannot be loaded. Please repair your application.</source>
         <target state="new">A required dll cannot be loaded. Please repair your application.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="NoInternetConnectionError">
-        <source>No internet connection found</source>
-        <target state="new">No internet connection found</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServerDiscoveryFailedErrorMessage">
-        <source>An error occurred while getting server of type {0} from {1}</source>
-        <target state="new">An error occurred while getting server of type {0} from {1}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlConnectionProperties_CannotTestNonExistentDatabase">
-        <source>This connection cannot be tested because the specified database does not exist or is not visible to the specified user.</source>
-        <target state="new">This connection cannot be tested because the specified database does not exist or is not visible to the specified user.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlConnectionProperties_MustSpecifyDataSource">
-        <source>This connection cannot be tested because no server name has been specified.</source>
-        <target state="new">This connection cannot be tested because no server name has been specified.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlConnectionProperties_UnsupportedSqlVersion">
-        <source>This server version is not supported.  You must have Microsoft SQL Server 2005 or later.</source>
-        <target state="new">This server version is not supported.  You must have Microsoft SQL Server 2005 or later.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlFileConnectionProperties_CannotTestNonExistentMdf">
-        <source>This connection cannot be tested because the specified database file does not exist.</source>
-        <target state="new">This connection cannot be tested because the specified database file does not exist.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlFileConnectionProperties_NoFileSpecified">
-        <source>No database file was specified.</source>
-        <target state="new">No database file was specified.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SqlFileConnectionProperties_TimeoutReasons">
-        <source>Common reasons for this problem include that the server is not installed, the service is not started or the server is upgrading your database.  If an upgrade is in process, you will be able to connect to the database when the upgrade is complete.</source>
-        <target state="new">Common reasons for this problem include that the server is not installed, the service is not started or the server is upgrading your database.  If an upgrade is in process, you will be able to connect to the database when the upgrade is complete.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="UnsupportedSqlServerVersionErrorMessage">
-        <source>Sql Server Version is not supported.</source>
-        <target state="new">Sql Server Version is not supported.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailed">

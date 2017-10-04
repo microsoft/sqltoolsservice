@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core
+namespace Microsoft.SqlTools.Utility
 {
-    internal class ConcurrentCache<T>
+    public class ConcurrentCache<T>
     {
         private readonly Dictionary<string, T> _cache = new Dictionary<string, T>();
         private readonly ReaderWriterLock _readerWriterLock = new ReaderWriterLock();
