@@ -415,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             ScriptingObject scriptingObject1 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
             ScriptingObject scriptingObject2 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
             ScriptingObject scriptingObject3 = null;
-            Assert.Equal(scriptingObject1, scriptingObject2);
+            Assert.True(scriptingObject1.Equals(scriptingObject2));
             Assert.False(scriptingObject1.Equals(scriptingObject3));
         }
     }

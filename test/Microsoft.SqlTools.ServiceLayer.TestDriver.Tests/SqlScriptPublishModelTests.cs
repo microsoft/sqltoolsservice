@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(1));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
                 Assert.Equal<int>(1, planEvent.Count);
@@ -281,6 +281,34 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(parameters.HasError);
                 Assert.Equal("Invalid directory specified by the ScriptingParams.FilePath property.", parameters.ErrorMessage);
+            }
+        }
+
+        [Fact]
+        public async Task ScriptSelectTable()
+        {
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            {
+                ScriptingParams requestParams = new ScriptingParams
+                {
+                    ScriptDestination = "ToEditor",
+                    ConnectionString = this.Northwind.ConnectionString,
+                    ScriptOptions = new ScriptOptions
+                    {
+                        ScriptCreateDrop = "ScriptSelect"
+                    },
+                    ScriptingObjects = new List<ScriptingObject> 
+                    {
+                        new ScriptingObject
+                        {
+                            Type = "Table",
+                            Schema = "dbo",
+                            Name = "Customers",
+                        }
+                    }
+                };
+                ScriptingResult result = await testService.Script(requestParams);
+                Assert.True(result.Script.Contains("SELECT"));
             }
         }
 
