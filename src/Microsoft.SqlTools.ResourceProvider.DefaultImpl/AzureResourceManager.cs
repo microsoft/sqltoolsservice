@@ -13,7 +13,7 @@ using Microsoft.Azure.Management.Sql;
 using Microsoft.Azure.Management.Sql.Models;
 using RestFirewallRule = Microsoft.Azure.Management.Sql.Models.FirewallRule;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
-using Microsoft.SqlTools.ResourceProvider.Core.FirewallRule;
+using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Rest;

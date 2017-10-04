@@ -6,7 +6,7 @@ using System;
 using System.Globalization;
 using System.Net;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
     /// <summary>
     /// Includes all the information needed to create a firewall rule

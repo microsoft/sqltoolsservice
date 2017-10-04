@@ -38,9 +38,19 @@ namespace Microsoft.SqlTools.Extensibility
                 "microsoftsqltoolsservicelayer.dll"
             };
 
+            return CreateFromAssembliesInDirectory(inclusionList);
+        }
+
+        /// <summary>
+        /// Creates a service provider by loading a set of named assemblies, expected to be in the current working directory
+        /// </summary>
+        /// <param name="inclusionList">full DLL names, as a string enumerable</param>
+        /// <returns><see cref="ExtensionServiceProvider"/> instance</returns>
+        public static ExtensionServiceProvider CreateFromAssembliesInDirectory(IEnumerable<string> inclusionList)
+        {
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
             string directory = Path.GetDirectoryName(assemblyPath);
-            
+
             AssemblyLoadContext context = new AssemblyLoader(directory);
             var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
 
@@ -49,20 +59,20 @@ namespace Microsoft.SqlTools.Extensibility
             {
                 // skip DLL files not in inclusion list
                 bool isInList = false;
-                foreach (var item in inclusionList) 
+                foreach (var item in inclusionList)
                 {
-                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase)) 
+                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
                     {
                         isInList = true;
                         break;
                     }
                 }
 
-                if (!isInList) 
+                if (!isInList)
                 {
                     continue;
-                }                
-                
+                }
+
                 try
                 {
                     assemblies.Add(

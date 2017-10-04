@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
-using Microsoft.SqlTools.ResourceProvider.Core.FirewallRule;
+using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Moq;
 using Xunit;
 

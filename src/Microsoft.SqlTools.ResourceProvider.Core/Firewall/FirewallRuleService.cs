@@ -9,7 +9,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
 
     public interface IFirewallRuleService
