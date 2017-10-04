@@ -7,11 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
-using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
@@ -20,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -206,7 +205,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ServerNodeContextShouldIncludeServer()
         {
             // given a successful Server creation
-            SetupAndRegisterTestConnectionService();
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             ServerNode node = SetupServerNodeWithServer(smoServer);
 
@@ -225,10 +223,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ServerNodeContextShouldSetErrorMessageIfSqlConnectionIsNull()
         {
             // given a connectionInfo with no SqlConnection to use for queries
-            ConnectionService connService = SetupAndRegisterTestConnectionService();
-            connService.OwnerToConnectionMap.Remove(defaultOwnerUri);
 
-            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
+            Server smoServer = null;
             ServerNode node = SetupServerNodeWithServer(smoServer);
 
             // When I get the context for a ServerNode
@@ -236,17 +232,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // Then I expect it to be in an error state 
             Assert.Null(context);
-            Assert.Equal(
-                string.Format(CultureInfo.CurrentCulture, SR.ServerNodeConnectionError, defaultConnectionDetails.ServerName), 
-                node.ErrorStateMessage);
         }
 
         [Fact]
         public void ServerNodeContextShouldSetErrorMessageIfConnFailureExceptionThrown()
         {
             // given a connectionInfo with no SqlConnection to use for queries
-            SetupAndRegisterTestConnectionService();
-
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             string expectedMsg = "ConnFailed!";
             ServerNode node = SetupServerNodeWithExceptionCreator(new ConnectionFailureException(expectedMsg));
@@ -265,8 +256,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ServerNodeContextShouldSetErrorMessageIfExceptionThrown()
         {
             // given a connectionInfo with no SqlConnection to use for queries
-            SetupAndRegisterTestConnectionService();
-
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             string expectedMsg = "Failed!";
             ServerNode node = SetupServerNodeWithExceptionCreator(new Exception(expectedMsg));
@@ -285,7 +274,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void QueryContextShouldNotCallOpenOnAlreadyOpenConnection()
         {
             // given a server connection that will state its connection is open
-            SetupAndRegisterTestConnectionService();
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: true);
             
@@ -317,7 +305,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void QueryContextShouldReopenClosedConnectionWhenGettingServer()
         {
             // given a server connection that will state its connection is closed
-            SetupAndRegisterTestConnectionService();
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
             
@@ -335,7 +322,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void QueryContextShouldReopenClosedConnectionWhenGettingParent()
         {
             // given a server connection that will state its connection is closed
-            SetupAndRegisterTestConnectionService();
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
             

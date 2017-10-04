@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         void CloseConnections(string serverName, string databaseName);
         void OpenConnections(string serverName, string databaseName);
         string AddConnectionContext(ConnectionInfo connInfo, bool overwrite = false);
+        void Dispose();
         QueueItem QueueBindingOperation(
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,

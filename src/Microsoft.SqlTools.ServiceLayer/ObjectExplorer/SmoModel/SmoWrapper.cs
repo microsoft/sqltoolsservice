@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public virtual Server CreateServer(ServerConnection serverConn)
         {
-            return new Server(serverConn);
+            return serverConn == null ? null : new Server(serverConn);
         }
 
         public virtual bool IsConnectionOpen(SmoObjectBase smoObj)
@@ -37,17 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 && sqlObj.ExecutionManager.ConnectionContext != null)
             {
                 sqlObj.ExecutionManager.ConnectionContext.Connect();
-            }
-        }
-
-        public virtual void CloseConnection(SmoObjectBase smoObj)
-        {
-            SqlSmoObject sqlObj = smoObj as SqlSmoObject;
-            if (sqlObj != null
-                && sqlObj.ExecutionManager != null
-                && sqlObj.ExecutionManager.ConnectionContext != null)
-            {
-                sqlObj.ExecutionManager.ConnectionContext.Disconnect();
             }
         }
     }

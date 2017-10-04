@@ -62,6 +62,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
         }
 
+        internal ConnectedBindingQueue ConnectedBindingQueue
+        {
+            get
+            {
+                return bindingQueue;
+            }
+            set
+            {
+                this.bindingQueue = value;
+            }
+        }
+
         /// <summary>
         /// Internal for testing only
         /// </summary>
@@ -430,8 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
-                if (!connectionService.TryFindConnection(uri, out connectionInfo) ||
-                connectionInfo.AllConnections == null || connectionInfo.AllConnections.Count == 0)
+                if (!connectionService.TryFindConnection(uri, out connectionInfo))
                 {
                     return null;
                 }

@@ -27,9 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         private ConnectionSummary connectionSummary;
         private ServerInfo serverInfo;
-        private string connectionUri;
         private Lazy<SmoQueryContext> context;
-        private ConnectionService connectionService;
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
@@ -43,10 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
-            this.connectionUri = connInfo.OwnerUri;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
-
-            this.connectionService = serviceProvider.GetService<ConnectionService>();
 
             this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
             this.serverConnection = serverConnection;
@@ -136,11 +131,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
-                return new SmoQueryContext(server, serviceProvider, SmoWrapper)
+                if (server != null)
                 {
-                    Parent = server,
-                    SqlServerType = this.sqlServerType
-                };
+                    return new SmoQueryContext(server, serviceProvider, SmoWrapper)
+                    {
+                        Parent = server,
+                        SqlServerType = this.sqlServerType
+                    };
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (ConnectionFailureException cfe)
             {

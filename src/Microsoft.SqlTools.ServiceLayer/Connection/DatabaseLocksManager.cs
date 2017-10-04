@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
             {
-                //item.OpenConnections(serverName, databaseName);
+                item.OpenConnections(serverName, databaseName);
             }
             
             resetEvent.Set();

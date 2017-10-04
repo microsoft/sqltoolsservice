@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        public void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
+        public virtual void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
         {
             if (!connectedQueues.ContainsKey(type))
             {

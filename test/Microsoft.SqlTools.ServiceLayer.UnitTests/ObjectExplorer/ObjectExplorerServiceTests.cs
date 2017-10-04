@@ -16,6 +16,8 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -25,12 +27,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ObjectExplorerService service;
         private Mock<ConnectionService> connectionServiceMock;
         private Mock<IProtocolEndpoint> serviceHostMock;
+        string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
+        private static ConnectionDetails details = new ConnectionDetails()
+        {
+            UserName = "user",
+            Password = "password",
+            DatabaseName = "msdb",
+            ServerName = "serverName"
+        };
+        ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);
+
+        ConnectedBindingQueue connectedBindingQueue;
         public ObjectExplorerServiceTests()
         {
             connectionServiceMock = new Mock<ConnectionService>();
             serviceHostMock = new Mock<IProtocolEndpoint>();
             service = CreateOEService(connectionServiceMock.Object);
+            connectionServiceMock.Setup(x => x.RegisterConnectedQueue(It.IsAny<string>(), It.IsAny<IConnectedBindingQueue>()));
             service.InitializeService(serviceHostMock.Object);
+            ConnectedBindingContext connectedBindingContext = new ConnectedBindingContext();
+            connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
+            connectedBindingQueue = new ConnectedBindingQueue(false);
+            connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL", connectedBindingContext);
+            service.ConnectedBindingQueue = connectedBindingQueue;
         }
 
         [Fact]
@@ -210,14 +229,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private async Task<SessionCreatedParameters> CreateSession()
         {
-            ConnectionDetails details = new ConnectionDetails()
-            {
-                UserName = "user",
-                Password = "password",
-                DatabaseName = "msdb",
-                ServerName = "serverName"
-            };
-
             SessionCreatedParameters sessionResult = null;
             serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (et, p) => sessionResult = p);
             CreateSessionResponse result = default(CreateSessionResponse);
@@ -226,8 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));
 
-            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, null);
-            string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
+            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);
             connectionInfo.AddConnection("Default", new SqlConnection(fakeConnectionString));
             connectionServiceMock.Setup((c => c.TryFindConnection(It.IsAny<string>(), out connectionInfo))).
                 OutCallback((string t, out ConnectionInfo v) => v = connectionInfo)
@@ -343,7 +353,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));
-            
+            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);
+            connectionInfo.AddConnection("Default", new SqlConnection(fakeConnectionString));
+            connectionServiceMock.Setup((c => c.TryFindConnection(It.IsAny<string>(), out connectionInfo))).
+                OutCallback((string t, out ConnectionInfo v) => v = connectionInfo)
+                .Returns(true);
+
             // when creating a new session
             // then expect the create session request to return false
             await RunAndVerify<CreateSessionResponse, SessionCreatedParameters>(

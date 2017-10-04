@@ -356,16 +356,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
         }
 
-        public void CloseConnection()
-        {
-            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
-            SmoTreeNode smoTreeNode = this as SmoTreeNode;
-            if (context != null && smoTreeNode != null)
-            {
-                context.CloseConnection(smoTreeNode.SmoObject);
-            }
-        }
-
         public void BeginChildrenInit()
         {
             children.BeginInit();

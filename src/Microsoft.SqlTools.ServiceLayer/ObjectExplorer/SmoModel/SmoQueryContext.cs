@@ -184,18 +184,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 smoWrapper.OpenConnection(smoObj);
             }
         }
-        public bool IsConnectionOpen(SmoObjectBase smoObj)
-        {
-            return smoWrapper.IsConnectionOpen(smoObj);
-        }
-
-
-        public void CloseConnection(SmoObjectBase smoObj)
-        {
-            if (smoObj != null && smoWrapper.IsConnectionOpen(smoObj))
-            {
-                smoWrapper.CloseConnection(smoObj);
-            }
-        }
     }
 }
