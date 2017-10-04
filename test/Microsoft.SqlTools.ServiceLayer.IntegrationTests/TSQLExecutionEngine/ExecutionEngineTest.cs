@@ -70,8 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         //
         public void Dispose()
         {
-            CloseConnection(connection);
             Task.Run(() => SqlTestDb.DropDatabase(connection.Database));
+            CloseConnection(connection);
             connection = null;
         }        
 
