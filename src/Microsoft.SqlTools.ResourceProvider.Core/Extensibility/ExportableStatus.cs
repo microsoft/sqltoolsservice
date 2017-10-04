@@ -6,7 +6,8 @@
 namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 {
     /// <summary>
-    /// Includes the status of the exportable. If it failed to load and any error message
+    /// Includes the status of the exportable - whether it failed to load and any error message
+    /// returned during loading
     /// </summary>
     public class ExportableStatus
     {

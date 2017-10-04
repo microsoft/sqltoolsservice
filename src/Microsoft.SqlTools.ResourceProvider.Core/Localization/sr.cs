@@ -29,22 +29,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
 
-        public static string AdoDotNetConnectionProperties_NoProperties
-        {
-            get
-            {
-                return Keys.GetString(Keys.AdoDotNetConnectionProperties_NoProperties);
-            }
-        }
-
-        public static string AuthenticationFailedErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.AuthenticationFailedErrorMessage);
-            }
-        }
-
         public static string AzureServerNotFound
         {
             get
@@ -66,14 +50,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             get
             {
                 return Keys.GetString(Keys.DatabaseDiscoveryFailedErrorMessage);
-            }
-        }
-
-        public static string ErrUnexpectedConnectionType
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrUnexpectedConnectionType);
             }
         }
 
@@ -117,90 +93,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
         }
 
-        public static string NoInternetConnectionError
-        {
-            get
-            {
-                return Keys.GetString(Keys.NoInternetConnectionError);
-            }
-        }
-
-        public static string ServerDiscoveryFailedErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServerDiscoveryFailedErrorMessage);
-            }
-        }
-
-        public static string SqlConnectionProperties_CannotTestNonExistentDatabase
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlConnectionProperties_CannotTestNonExistentDatabase);
-            }
-        }
-
-        public static string SqlConnectionProperties_MustSpecifyDataSource
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlConnectionProperties_MustSpecifyDataSource);
-            }
-        }
-
-        public static string SqlConnectionProperties_UnsupportedSqlVersion
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlConnectionProperties_UnsupportedSqlVersion);
-            }
-        }
-
-        public static string SqlFileConnectionProperties_CannotTestNonExistentMdf
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlFileConnectionProperties_CannotTestNonExistentMdf);
-            }
-        }
-
-        public static string SqlFileConnectionProperties_NoFileSpecified
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlFileConnectionProperties_NoFileSpecified);
-            }
-        }
-
-        public static string SqlFileConnectionProperties_TimeoutReasons
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlFileConnectionProperties_TimeoutReasons);
-            }
-        }
-
-        public static string UnsupportedSqlServerVersionErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.UnsupportedSqlServerVersionErrorMessage);
-            }
-        }
-
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
             static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ResourceProvider.Core.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
-
-
-            public const string AdoDotNetConnectionProperties_NoProperties = "AdoDotNetConnectionProperties_NoProperties";
-
-
-            public const string AuthenticationFailedErrorMessage = "AuthenticationFailedErrorMessage";
 
 
             public const string AzureServerNotFound = "AzureServerNotFound";
@@ -210,9 +108,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
 
             public const string DatabaseDiscoveryFailedErrorMessage = "DatabaseDiscoveryFailedErrorMessage";
-
-
-            public const string ErrUnexpectedConnectionType = "ErrUnexpectedConnectionType";
 
 
             public const string FirewallRuleAccessForbidden = "FirewallRuleAccessForbidden";
@@ -228,33 +123,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
 
             public const string LoadingExportableFailedGeneralErrorMessage = "LoadingExportableFailedGeneralErrorMessage";
-
-
-            public const string NoInternetConnectionError = "NoInternetConnectionError";
-
-
-            public const string ServerDiscoveryFailedErrorMessage = "ServerDiscoveryFailedErrorMessage";
-
-
-            public const string SqlConnectionProperties_CannotTestNonExistentDatabase = "SqlConnectionProperties_CannotTestNonExistentDatabase";
-
-
-            public const string SqlConnectionProperties_MustSpecifyDataSource = "SqlConnectionProperties_MustSpecifyDataSource";
-
-
-            public const string SqlConnectionProperties_UnsupportedSqlVersion = "SqlConnectionProperties_UnsupportedSqlVersion";
-
-
-            public const string SqlFileConnectionProperties_CannotTestNonExistentMdf = "SqlFileConnectionProperties_CannotTestNonExistentMdf";
-
-
-            public const string SqlFileConnectionProperties_NoFileSpecified = "SqlFileConnectionProperties_NoFileSpecified";
-
-
-            public const string SqlFileConnectionProperties_TimeoutReasons = "SqlFileConnectionProperties_TimeoutReasons";
-
-
-            public const string UnsupportedSqlServerVersionErrorMessage = "UnsupportedSqlServerVersionErrorMessage";
 
 
             private Keys()

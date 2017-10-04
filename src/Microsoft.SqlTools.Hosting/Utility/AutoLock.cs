@@ -5,7 +5,7 @@
 using System;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core
+namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
     /// A wrapper around the ReaderWriterLock to make sure the locks are released even if the action fails
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         private readonly bool _isWriteLocked;
 
         /// <summary>
-        /// Creates new lock given type of lock and timeput
+        /// Creates new lock given type of lock and timeout
         /// </summary>
         public AutoLock(ReaderWriterLock lockObj, bool isWriteLock, TimeSpan timeOut, Action action, out Exception exception)
         {

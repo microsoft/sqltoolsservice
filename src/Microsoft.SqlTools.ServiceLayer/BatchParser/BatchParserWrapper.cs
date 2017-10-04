@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         startLine,
                         endLine,
                         startColumn + 1,
-                        endColumn
+                        endColumn + 1
                     );
 
                     batchDefinitionList.Add(batchDef);
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             startLine,
                             endLine,
                             startColumn + 1,
-                            endColumn
+                            endColumn + 1
                         );
                         batchDefinitionList.Add(batch);
                     }
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 startLine,
                 endLine,
                 startColumn + 1,
-                endColumn
+                endColumn + 1
             );
         }
 
@@ -280,7 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             // if there are more than one batch
             for (int i = 0; i < n; i++)
             {
-                endColumn = 0;
                 int ch;
                 while (true)
                 {
@@ -292,6 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     else if (ch == 10 /* for \n */) // End of line increase and break
                     {
                         ++endLine;
+                        endColumn = 0;
                         break;
                     }
                     else // regular char just increase

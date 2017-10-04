@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
         public string DefaultLogFileFolder { get; set; }
 
+        public string DefaultBackupFolder { get; set; }
+
         public List<DbFile> DbFiles { get; set; }
 
         public RestoreOptions RestoreOptions { get; set; }

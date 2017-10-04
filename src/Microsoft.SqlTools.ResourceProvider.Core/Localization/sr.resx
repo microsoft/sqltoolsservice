@@ -117,14 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AdoDotNetConnectionProperties_NoProperties" xml:space="preserve">
-    <value>No connection properties have been set.</value>
-    <comment></comment>
-  </data>
-  <data name="AuthenticationFailedErrorMessage" xml:space="preserve">
-    <value>An error occurred while authenticating the user</value>
-    <comment></comment>
-  </data>
   <data name="AzureServerNotFound" xml:space="preserve">
     <value>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</value>
     <comment></comment>
@@ -135,10 +127,6 @@
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
     <value>An error occurred while getting databases from servers of type {0} from {1}</value>
-    <comment></comment>
-  </data>
-  <data name="ErrUnexpectedConnectionType" xml:space="preserve">
-    <value>Unexpected connection type.</value>
     <comment></comment>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
@@ -159,42 +147,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>A required dll cannot be loaded. Please repair your application.</value>
-    <comment></comment>
-  </data>
-  <data name="NoInternetConnectionError" xml:space="preserve">
-    <value>No internet connection found</value>
-    <comment></comment>
-  </data>
-  <data name="ServerDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting server of type {0} from {1}</value>
-    <comment></comment>
-  </data>
-  <data name="SqlConnectionProperties_CannotTestNonExistentDatabase" xml:space="preserve">
-    <value>This connection cannot be tested because the specified database does not exist or is not visible to the specified user.</value>
-    <comment></comment>
-  </data>
-  <data name="SqlConnectionProperties_MustSpecifyDataSource" xml:space="preserve">
-    <value>This connection cannot be tested because no server name has been specified.</value>
-    <comment></comment>
-  </data>
-  <data name="SqlConnectionProperties_UnsupportedSqlVersion" xml:space="preserve">
-    <value>This server version is not supported.  You must have Microsoft SQL Server 2005 or later.</value>
-    <comment></comment>
-  </data>
-  <data name="SqlFileConnectionProperties_CannotTestNonExistentMdf" xml:space="preserve">
-    <value>This connection cannot be tested because the specified database file does not exist.</value>
-    <comment></comment>
-  </data>
-  <data name="SqlFileConnectionProperties_NoFileSpecified" xml:space="preserve">
-    <value>No database file was specified.</value>
-    <comment></comment>
-  </data>
-  <data name="SqlFileConnectionProperties_TimeoutReasons" xml:space="preserve">
-    <value>Common reasons for this problem include that the server is not installed, the service is not started or the server is upgrading your database.  If an upgrade is in process, you will be able to connect to the database when the upgrade is complete.</value>
-    <comment></comment>
-  </data>
-  <data name="UnsupportedSqlServerVersionErrorMessage" xml:space="preserve">
-    <value>Sql Server Version is not supported.</value>
     <comment></comment>
   </data>
 </root>
