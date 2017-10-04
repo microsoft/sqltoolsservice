@@ -117,8 +117,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // if a connection string wasn't provided as a parameter then
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
-                ConnectionInfo connInfo;
-                if (parameters.ConnectionString == null)
+                ConnectionInfo connInfo = null;
+                if (parameters.ConnectionString == null || parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
                 {
                     ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
@@ -135,15 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // for SELECT we'll build the SQL directly whereas other scripting operations depend on SMO
                 if (parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
                 {
-                    ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-                    if (connInfo != null)
-                    {
-                        RunSelectTask(connInfo, parameters, requestContext);
-                    }
-                    else 
-                    {
-                        throw new Exception("Could not find ConnectionInfo");
-                    }
+                    RunSelectTask(connInfo, parameters, requestContext);
                 }
                 else
                 {
