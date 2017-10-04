@@ -85,18 +85,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         #region private methods
 
+        /// <summary>
+        /// Check if the folder path exists
+        /// </summary>
+        /// <param name="connection">sql connection</param>
+        /// <param name="filePath">full file path</param>
+        /// <returns></returns>
         internal static string IsFolderPathExisting(SqlConnection connection, string filePath)
         {
-            // If the file path doesn't exist, check if the folder exists
             string folderPath = PathWrapper.GetDirectoryName(filePath);
             string errorMessage = string.Empty;
 
-            if (string.Compare(GetMachineName(connection.DataSource), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.IsNullOrEmpty(folderPath))
             {
-                if (!string.IsNullOrEmpty(folderPath) && !Directory.Exists(folderPath))
-                {
-                    errorMessage = SR.InvalidBackupPathError;
-                }
+                errorMessage = SR.InvalidBackupPathError;
+            }
+            else if (string.Compare(GetMachineName(connection.DataSource), Environment.MachineName, StringComparison.OrdinalIgnoreCase) == 0
+                && !Directory.Exists(folderPath))
+            {
+                errorMessage = SR.InvalidBackupPathError;
             }
             else
             {
