@@ -16,19 +16,21 @@
   	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.6" />
   </ItemGroup>
   <ItemGroup> 	
-	<Reference Include="Newtonsoft.Json">
-	  <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
-	</Reference>
-	<Reference Include="Moq">
-	  <HintPath>../../bin/ref/Moq.dll</HintPath>
-	</Reference>
-	<Reference Include="Castle.Core">
-	  <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
-	</Reference>
-	<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-	<ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
-	<ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
-	<ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>../../bin/ref/Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
+    </Reference>
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.Core/Microsoft.SqlTools.ResourceProvider.Core.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.DefaultImpl/Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
+    <ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="obj\Debug\netcoreapp2.0\" />
