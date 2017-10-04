@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {    
@@ -110,6 +111,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 return this.BindingContextMap[key];
             }      
+        }
+
+        protected IEnumerable<IBindingContext> GetBindingContexts(string keyPrefix)
+        {
+            // use a default binding context for disconnected requests
+            if (string.IsNullOrWhiteSpace(keyPrefix))
+            {
+                keyPrefix = "disconnected_binding_context";
+            }
+
+            lock (this.bindingContextLock)
+            {
+                return this.BindingContextMap.Where(x => x.Key.StartsWith(keyPrefix)).Select(v => v.Value);
+            }
         }
 
         /// <summary>

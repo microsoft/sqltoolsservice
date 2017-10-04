@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     /// Base class for elements in the object explorer tree. Provides common methods for tree navigation
     /// and other core functionality
     /// </summary>
-    public class TreeNode : IComparable<TreeNode>, IDatabaseLockConnection
+    public class TreeNode : IComparable<TreeNode>
     {
         private NodeObservableCollection children = new NodeObservableCollection();
         private TreeNode parent;
@@ -384,25 +384,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public int? SortPriority { get; set; }
 
-        public bool CanTemporaryClose
-        {
-            get
-            {
-                return !children.IsPopulating;
-            }
-        }
-
-        public bool IsConnctionOpen
-        {
-            get
-            {
-                SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
-                SmoTreeNode smoTreeNode = this as SmoTreeNode;
-                
-                return context != null && smoTreeNode != null && context.IsConnectionOpen(smoTreeNode.SmoObject);
-            }
-        }
-
         protected virtual int CompareSamePriorities(TreeNode thisItem, TreeNode otherItem)
         {
             return string.Compare(thisItem.NodeValue, otherItem.NodeValue, StringComparison.OrdinalIgnoreCase);
@@ -434,26 +415,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             if (priDiff == 0)
                 return 0;
             return 1;
-        }
-
-        public void Disconnect()
-        {
-            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
-            SmoTreeNode smoTreeNode = this as SmoTreeNode;
-            if (context != null && smoTreeNode != null)
-            {
-                context.CloseConnection(smoTreeNode.SmoObject);
-            }
-        }
-
-        public void Connect()
-        {
-            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
-            SmoTreeNode smoTreeNode = this as SmoTreeNode;
-            if (context != null && smoTreeNode != null)
-            {
-                context.EnsureConnectionOpen(smoTreeNode.SmoObject);
-            }
         }
     }
 }

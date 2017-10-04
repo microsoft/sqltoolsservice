@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -26,65 +26,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return instance;
             }
         }
-        private Dictionary<string, List<IDatabaseLockConnection>> connections = new Dictionary<string, List<IDatabaseLockConnection>>();
+
+        public ConnectionService ConnectionService { get; set; }
+
         private Dictionary<string, ManualResetEvent> databaseAccessEvents = new Dictionary<string, ManualResetEvent>();
         private object databaseAccessLock = new object();
-        private object lockObject = new object();
         public const int DefaultWaitToGetFullAccess = 60000;
         public int waitToGetFullAccess = 60000;
-
-        public void AddConnection(string serverName, string databaseName, IDatabaseLockConnection connection)
-        {
-            string key = GenerateKey(serverName, databaseName);
-
-            lock (this.lockObject)
-            {
-                List<IDatabaseLockConnection> currentList;
-                if (connections.TryGetValue(key, out currentList))
-                {
-                    currentList.Add(connection);
-                }
-                else
-                {
-                    currentList = new List<IDatabaseLockConnection>();
-                    currentList.Add(connection);
-                    connections.Add(key, currentList);
-                }
-            }
-        }
-
-        public void RemoveConnection(string serverName, string databaseName, IDatabaseLockConnection connection)
-        {
-            string key = GenerateKey(serverName, databaseName);
-            lock(this.lockObject)
-            {
-                List<IDatabaseLockConnection> currentList;
-                if (connections.TryGetValue(key, out currentList))
-                {
-                    if (connection.IsConnctionOpen)
-                    {
-                        connection.Disconnect();
-                    }
-                    currentList.Remove(connection);
-                }
-            }
-        }
-
-        internal ReadOnlyCollection<IDatabaseLockConnection> GetLocks(string serverName, string databaseName)
-        {
-            string key = GenerateKey(serverName, databaseName);
-            ReadOnlyCollection<IDatabaseLockConnection> readOnLyList = null;
-            lock (lockObject)
-            {
-                List<IDatabaseLockConnection> currentList;
-                if (connections.TryGetValue(key, out currentList))
-                {
-                    readOnLyList = new ReadOnlyCollection<IDatabaseLockConnection>(currentList);
-                }
-            }
-
-            return readOnLyList;
-        }
 
         private ManualResetEvent GetResetEvent(string serverName, string databaseName)
         {
@@ -108,17 +56,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (resetEvent.WaitOne(this.waitToGetFullAccess))
             {
                 resetEvent.Reset();
-                ReadOnlyCollection<IDatabaseLockConnection> readOnLyList = GetLocks(serverName, databaseName);
 
-                if (readOnLyList != null)
+                foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
                 {
-                    foreach (var connection in readOnLyList)
-                    {
-                        if (connection.IsConnctionOpen && connection.CanTemporaryClose)
-                        {
-                            connection.Disconnect();
-                        }
-                    }
+                    item.CloseConnections(serverName, databaseName);
                 }
                 return true;
             }
@@ -131,18 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool ReleaseAccess(string serverName, string databaseName)
         {
             ManualResetEvent resetEvent = GetResetEvent(serverName, databaseName);
-            ReadOnlyCollection<IDatabaseLockConnection> readOnLyList = GetLocks(serverName, databaseName);
 
-            if (readOnLyList != null)
+            foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
             {
-                foreach (var connection in readOnLyList)
-                {
-                    if (!connection.IsConnctionOpen)
-                    {
-                        connection.Connect();
-                    }
-                }
+                //item.OpenConnections(serverName, databaseName);
             }
+            
             resetEvent.Set();
             return true;
         }

@@ -20,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Utility;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -65,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private readonly object cancellationTokenSourceLock = new object();
 
-        private ConnectedBindingQueue connectionQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
@@ -111,13 +112,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Gets the connection queue
         /// </summary>
-        internal ConnectedBindingQueue ConnectionQueue
+        internal IConnectedBindingQueue ConnectionQueue
         {
             get
             {
-                return this.connectionQueue;
+                return this.GetConnectedQueue("Default");
             }
         }
+
 
         /// <summary>
         /// Default constructor should be private since it's a singleton class, but we need a constructor
@@ -125,6 +127,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public ConnectionService()
         {
+            var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
+            connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
+            this.LockedDatabaseManager.ConnectionService = this;
+        }
+
+        public IConnectedBindingQueue GetConnectedQueue(string type)
+        {
+            IConnectedBindingQueue connectedBindingQueue;
+            if (connectedQueues.TryGetValue(type, out connectedBindingQueue))
+            {
+                return connectedBindingQueue;
+            }
+            return null;
+        }
+
+        public IEnumerable<IConnectedBindingQueue> ConnectedQueues
+        {
+            get
+            {
+                return this.connectedQueues.Values.Select(x => x as IConnectedBindingQueue);
+            }
+        }
+
+        public void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
+        {
+            if (!connectedQueues.ContainsKey(type))
+            {
+                connectedQueues.AddOrUpdate(type, connectedQueue, (key, old) => connectedQueue);
+            }
         }
 
         /// <summary>
@@ -1176,7 +1207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Note: we need to audit all uses of this method to determine why we're
         /// bypassing normal ConnectionService connection management
         /// </summary>
-        internal SqlConnection OpenSqlConnection(ConnectionInfo connInfo, object source = null)
+        internal SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
         {
             try
             {
@@ -1192,7 +1223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
                 connInfo.ConnectionDetails.Pooling = false;
 
-                // generate connection string        
+                // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
 
                 // restore original values
@@ -1203,16 +1234,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.Open();
-
-                if (source != null)
-                {
-                    IDatabaseLockConnection lockedDatabaseConnection = source as IDatabaseLockConnection;
-                    if (lockedDatabaseConnection != null)
-                    {
-                        LockedDatabaseManager.AddConnection(connInfo.ConnectionDetails.ServerName, connInfo.ConnectionDetails.DatabaseName, lockedDatabaseConnection);
-                    }
-                }
-
                 return sqlConn;
             }
             catch (Exception ex)

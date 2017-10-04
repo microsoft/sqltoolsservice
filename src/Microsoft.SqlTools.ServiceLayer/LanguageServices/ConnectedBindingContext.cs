@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// <summary>
     /// Class for the binding context for connected sessions
     /// </summary>
-    public class ConnectedBindingContext : IBindingContext, IDatabaseLockConnection
+    public class ConnectedBindingContext : IBindingContext
     {
         private ParseOptions parseOptions;
 
@@ -161,22 +161,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        public bool CanTemporaryClose
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public bool IsConnctionOpen
-        {
-            get
-            {
-                return serverConnection != null && serverConnection.IsOpen;
-            }
-        }
-
         /// <summary>
         /// Gets the database compatibility level from a server version
         /// </summary>
@@ -226,22 +210,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return TransactSqlVersion.Version130;
                 default:
                     return TransactSqlVersion.Current;
-            }
-        }
-
-        public void Connect()
-        {
-            if (this.ServerConnection != null && !this.ServerConnection.IsOpen)
-            {
-                this.ServerConnection.Connect();
-            }
-        }
-
-        public void Disconnect()
-        {
-            if (this.ServerConnection != null && this.ServerConnection.IsOpen)
-            {
-                this.ServerConnection.Disconnect();
             }
         }
     }

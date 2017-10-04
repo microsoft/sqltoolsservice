@@ -150,6 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
+                    connectionService.RegisterConnectedQueue("LanguageService", bindingQueue);
                 }
                 return connectionService;
             }

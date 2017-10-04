@@ -675,24 +675,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Fact]
         public void ReliableConnectionHelperTest()
         {
-            var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            ConnectionInfo connInfo = result.ConnectionInfo;
-            DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var result = LiveConnectionHelper.InitLiveConnectionInfo(null, queryTempFile.FilePath);
+                ConnectionInfo connInfo = result.ConnectionInfo;
+                DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
 
 
-            Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connection));
+                Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connection));
 
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-            Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(builder));
-            ReliableConnectionHelper.TryAddAlwaysOnConnectionProperties(builder, new SqlConnectionStringBuilder());
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+                Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(builder));
+                ReliableConnectionHelper.TryAddAlwaysOnConnectionProperties(builder, new SqlConnectionStringBuilder());
 
-            Assert.NotNull(ReliableConnectionHelper.GetServerName(connection));
-            Assert.NotNull(ReliableConnectionHelper.ReadServerVersion(connection));
-            
-            Assert.NotNull(ReliableConnectionHelper.GetAsSqlConnection(connection));
+                Assert.NotNull(ReliableConnectionHelper.GetServerName(connection));
+                Assert.NotNull(ReliableConnectionHelper.ReadServerVersion(connection));
 
-            ReliableConnectionHelper.ServerInfo info = ReliableConnectionHelper.GetServerVersion(connection);
-            Assert.NotNull(ReliableConnectionHelper.IsVersionGreaterThan2012RTM(info));
+                Assert.NotNull(ReliableConnectionHelper.GetAsSqlConnection(connection));
+
+                ReliableConnectionHelper.ServerInfo info = ReliableConnectionHelper.GetServerVersion(connection);
+                Assert.NotNull(ReliableConnectionHelper.IsVersionGreaterThan2012RTM(info));
+            }
         }
 
         [Fact]

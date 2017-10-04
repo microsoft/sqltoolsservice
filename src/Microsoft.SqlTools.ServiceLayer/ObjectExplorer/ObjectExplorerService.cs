@@ -25,6 +25,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -99,6 +100,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             Validate.IsNotNull(nameof(provider), provider);
             serviceProvider = provider;
             connectionService = provider.GetService<ConnectionService>();
+            try
+            {
+                connectionService.RegisterConnectedQueue("OE", bindingQueue);
+
+            }
+            catch(Exception ex)
+            {
+                Logger.Write(LogLevel.Error, ex.Message);
+            }
         }
 
         /// <summary>
@@ -119,6 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 workspaceService.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
             }
+
         }
 
         /// <summary>
@@ -275,10 +286,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerSession session;
             if (sessionMap.TryGetValue(uri, out session))
             {
-                if (session.Root != null && session.ConnectionDetails != null)
-                {
-                    connectionService.LockedDatabaseManager.RemoveConnection(session.ConnectionDetails.ServerName, session.ConnectionDetails.DatabaseName, session.Root);
-                }
                 // Remove the session from active sessions and disconnect
                 sessionMap.TryRemove(session.Uri, out session);
                 connectionService.Disconnect(new DisconnectParams()
@@ -373,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 try
                 {
                     QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: session.Uri,
+                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo),
                            bindingTimeout: PrepopulateBindTimeout,
                            waitForLockTimeout: PrepopulateBindTimeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -417,23 +424,41 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             try
             {
-                ObjectExplorerSession session;
+                ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
-                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = ConnectionType.ObjectExplorer };
+                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
 
+                ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
+                if (!connectionService.TryFindConnection(uri, out connectionInfo) ||
+                connectionInfo.AllConnections == null || connectionInfo.AllConnections.Count == 0)
+                {
+                    return null;
+                }
+
                 if (connectionResult == null)
                 {
                     // Connection failed and notification is already sent
                     return null;
                 }
 
-                session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider);
-                session.ConnectionDetails = connectionDetails;
-                connectionService.LockedDatabaseManager.AddConnection(connectionDetails.ServerName, connectionDetails.DatabaseName, session.Root);
+                QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                           key: bindingQueue.AddConnectionContext(connectionInfo),
+                           bindingTimeout: PrepopulateBindTimeout,
+                           waitForLockTimeout: PrepopulateBindTimeout,
+                           bindOperation: (bindingContext, cancelToken) =>
+                           {
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection);
+                               session.ConnectionInfo = connectionInfo;
 
-
-                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
+                               sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
+                               return session;
+                           });
+                queueItem.ItemProcessed.WaitOne();
+                if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
+                {
+                    session = queueItem.GetResultAsT<ObjectExplorerSession>();
+                }
                 return session;
             }
             catch(Exception ex)
@@ -665,13 +690,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             public string Uri { get; private set; }
             public TreeNode Root { get; private set; }
 
-            public ConnectionDetails ConnectionDetails { get; set; }
+            public ConnectionInfo ConnectionInfo { get; set; }
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider);
+                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!DatabaseUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
                 {

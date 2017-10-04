@@ -32,8 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private ConnectionService connectionService;
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
+        private ServerConnection serverConnection;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider)
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection)
             : base()
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
@@ -48,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             this.connectionService = serviceProvider.GetService<ConnectionService>();
 
             this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
+            this.serverConnection = serverConnection;
 
             NodeValue = connectionSummary.ServerName;
             IsAlwaysLeaf = false;
@@ -130,38 +132,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
         {
             string exceptionMessage;
-            ConnectionInfo connectionInfo;
-            SqlConnection connection = null;
-            // Get server object from connection
-            if (!connectionService.TryFindConnection(this.connectionUri, out connectionInfo) ||
-                connectionInfo.AllConnections == null || connectionInfo.AllConnections.Count == 0)
-            {
-                ErrorStateMessage = string.Format(CultureInfo.CurrentCulture, 
-                    SR.ServerNodeConnectionError, connectionSummary.ServerName);
-                return null;
-            }
-            //TODO: figure out how to use existing connections
-            DbConnection dbConnection = connectionInfo.AllConnections.First();
-            ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
-            SqlConnection sqlConnection = dbConnection as SqlConnection;
-            if (reliableSqlConnection != null)
-            {
-                connection = reliableSqlConnection.GetUnderlyingConnection();
-            }
-            else if (sqlConnection != null)
-            {
-                connection = sqlConnection;
-            }
-            else
-            {
-                ErrorStateMessage = string.Format(CultureInfo.CurrentCulture,
-                   SR.ServerNodeConnectionError, connectionSummary.ServerName);
-                return null;
-            }
-
+   
             try
             {
-                Server server = SmoWrapper.CreateServer(connection);
+                Server server = SmoWrapper.CreateServer(this.serverConnection);
                 return new SmoQueryContext(server, serviceProvider, SmoWrapper)
                 {
                     Parent = server,

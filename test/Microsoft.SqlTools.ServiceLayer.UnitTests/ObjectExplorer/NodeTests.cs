@@ -33,10 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ConnectionDetails defaultConnectionDetails;
         private ConnectionCompleteParams defaultConnParams;
         private string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
+        private ServerConnection serverConnection = null;
 
         public NodeTests()
         {
             defaultServerInfo = TestObjects.GetTestServerInfo();
+            serverConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
 
             defaultConnectionDetails = new ConnectionDetails()
             {
@@ -59,15 +61,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Fact]
         public void ServerNodeConstructorValidatesFields()
         {
-            Assert.Throws<ArgumentNullException>(() => new ServerNode(null, ServiceProvider));
-            Assert.Throws<ArgumentNullException>(() => new ServerNode(defaultConnParams, null));
+            Assert.Throws<ArgumentNullException>(() => new ServerNode(null, ServiceProvider, serverConnection));
+            Assert.Throws<ArgumentNullException>(() => new ServerNode(defaultConnParams, null, serverConnection));
         }
 
         [Fact]
         public void ServerNodeConstructorShouldSetValuesCorrectly()
         {
             // Given a server node with valid inputs
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
             // Then expect all fields set correctly
             Assert.False(node.IsAlwaysLeaf, "Server node should never be a leaf");
             Assert.Equal(defaultConnectionDetails.ServerName, node.NodeValue);
@@ -99,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 OwnerUri = defaultOwnerUri
             };
             // When querying label
-            string label = new ServerNode(connParams, ServiceProvider).Label;
+            string label = new ServerNode(connParams, ServiceProvider, serverConnection).Label;
             // Then only server name and version shown
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + ")";
             Assert.Equal(expectedLabel, label);
@@ -111,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             defaultServerInfo.IsCloud = true;
 
             // Given a server node for a cloud DB, with master name
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
             // Then expect label to not include db name
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ")";
@@ -120,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // But given a server node for a cloud DB that's not master
             defaultConnectionDetails.DatabaseName = "NotMaster";
             defaultConnParams.ConnectionSummary.DatabaseName = defaultConnectionDetails.DatabaseName;
-            node = new ServerNode(defaultConnParams, ServiceProvider);
+            node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
 
             // Then expect label to include db name 
             expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
@@ -132,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ToNodeInfoIncludeAllFields()
         {
             // Given a server connection
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
             // When converting to NodeInfo
             NodeInfo info = node.ToNodeInfo();
             // Then all fields should match
@@ -301,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             Mock<SmoWrapper> wrapper = new Mock<SmoWrapper>();
             int count = 0;
-            wrapper.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
+            wrapper.Setup(c => c.CreateServer(It.IsAny<ServerConnection>()))
                 .Returns(() => smoServer);
             wrapper.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => isOpen);
@@ -362,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerNode SetupServerNodeWithServer(Server smoServer)
         {
             Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
-            creator.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
+            creator.Setup(c => c.CreateServer(It.IsAny<ServerConnection>()))
                 .Returns(() => smoServer);
             creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => true);
@@ -373,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerNode SetupServerNodeWithExceptionCreator(Exception ex)
         {
             Mock<SmoWrapper> creator = new Mock<SmoWrapper>();
-            creator.Setup(c => c.CreateServer(It.IsAny<SqlConnection>()))
+            creator.Setup(c => c.CreateServer(It.IsAny<ServerConnection>()))
                 .Throws(ex);
             creator.Setup(c => c.IsConnectionOpen(It.IsAny<Server>()))
                 .Returns(() => false);
@@ -384,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private ServerNode SetupServerNodeWithCreator(SmoWrapper creator)
         {
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, new ServerConnection(new SqlConnection(fakeConnectionString)));
             node.SmoWrapper = creator;
             return node;
         }

@@ -180,16 +180,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
             var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
             ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
+            TestConnectionResult connectionResult;
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
 
                 //OE connection will be closed after conneced
-                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
+                connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
                 //Opening a connection to db to lock the db
 
-                DatabaseLockConnectionStub databaseLockConnection = new DatabaseLockConnectionStub();
-                var connection = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(connectionResult.ConnectionInfo, databaseLockConnection);
-                databaseLockConnection.Connection = connection;
+                connectionService.ConnectionQueue.AddConnectionContext(connectionResult.ConnectionInfo, true);
 
                 try
                 {
@@ -200,9 +199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     {
                         return database.Tables.Contains("tb1", "test");
                     });
-
-                    Assert.True(connection.State == System.Data.ConnectionState.Open);
-                    
                 }
                 finally
                 {
@@ -212,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         Type = ConnectionType.Default
                     });
                     testDb.Cleanup();
+                    
                 }
             }
         }
