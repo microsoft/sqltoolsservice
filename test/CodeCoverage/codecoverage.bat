@@ -12,12 +12,18 @@ REM backup current CSPROJ files
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj.BAK
+COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj.BAK
+COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj.BAK
+COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj.BAK
 
 REM switch PDB type to Full since that is required by OpenCover for now
 REM we should remove this step on OpenCover supports portable PDB
 cscript /nologo ReplaceText.vbs %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj portable full
 cscript /nologo ReplaceText.vbs %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj portable full
 cscript /nologo ReplaceText.vbs %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj portable full
+cscript /nologo ReplaceText.vbs %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj portable full
+cscript /nologo ReplaceText.vbs %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj portable full
+cscript /nologo ReplaceText.vbs %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj portable full
 
 REM rebuild the SqlToolsService project
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj
@@ -26,6 +32,12 @@ dotnet restore %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Host
 dotnet build %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj  %DOTNETCONFIG%
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj
 dotnet build %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj %DOTNETCONFIG% -r win7-x64
+dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj %DOTNETCONFIG% -r win7-x64
+dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj %DOTNETCONFIG% -r win7-x64
+dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj %DOTNETCONFIG% -r win7-x64
 
 REM run the tests through OpenCover and generate a report
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.csproj
@@ -66,5 +78,11 @@ COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credent
 DEL %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK 
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj
 DEL %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK 
+COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj
+DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj.BAK 
+COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj
+DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj.BAK 
+COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj
+DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj.BAK 
 
 EXIT
