@@ -53,6 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         //Option name logFileFolder
         internal const string LogFileFolder = "logFileFolder";
 
+        //Option name defaultBackupFolder
+        internal const string DefaultBackupFolder = "defaultBackupFolder";
+
         //The key name to use to set the session id in the request
         internal const string SessionId = "sessionId";
 

@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private const int PrepopulateBindTimeout = 10000;
 
 

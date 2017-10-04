@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -64,6 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private readonly object cancellationTokenSourceLock = new object();
 
+        private ConnectedBindingQueue connectionQueue = new ConnectedBindingQueue(needsMetadata: false);
+
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
@@ -84,6 +87,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets the connection queue
+        /// </summary>
+        internal ConnectedBindingQueue ConnectionQueue
+        {
+            get
+            {
+                return this.connectionQueue;
+            }
         }
 
         /// <summary>
