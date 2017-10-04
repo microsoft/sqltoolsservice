@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                    SqlConnection sqlConn = ConnectionService.Instance.OpenSqlConnection(connInfo);
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = new ServerConnection(sqlConn);

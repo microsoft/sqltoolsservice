@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
 
             var result = GetLiveAutoCompleteTestObjects();
-            var sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(result.ConnectionInfo);
+            var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
             Assert.NotNull(sqlConn);
 
             CreateTestTable(sqlConn);
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
                    
             var result = GetLiveAutoCompleteTestObjects();
-            var sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(result.ConnectionInfo);
+            var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
 
             CreateTestTable(sqlConn);
 

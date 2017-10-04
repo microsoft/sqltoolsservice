@@ -1207,7 +1207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Note: we need to audit all uses of this method to determine why we're
         /// bypassing normal ConnectionService connection management
         /// </summary>
-        internal SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
+        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
         {
             try
             {

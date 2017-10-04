@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 //OE connection will be closed after conneced
                 TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
                 //Opening a connection to db to lock the db
-                LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(connectionResult.ConnectionInfo);
+                ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
 
                 try
                 {
@@ -718,7 +718,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 // Initialize backup service
                 var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName, queryTempFile.FilePath);
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                using (SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo))
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
                 {
                     BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
 
@@ -775,7 +775,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                 // Initialize backup service
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
+                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
 
                 // Get default backup pathS
                 BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);

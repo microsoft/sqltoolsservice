@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 var metadata = new List<ObjectMetadata>();
                 if (connInfo != null) 
                 {                    
-                    using (SqlConnection sqlConn = ConnectionServiceInstance.OpenSqlConnection(connInfo))
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
                     {
                         ReadMetadata(sqlConn, metadata);
                     }
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 ColumnMetadata[] metadata = null;
                 if (connInfo != null) 
                 {
-                    using (SqlConnection sqlConn = ConnectionServiceInstance.OpenSqlConnection(connInfo))
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
                     {
                         TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
                             sqlConn, metadataParams.Schema,

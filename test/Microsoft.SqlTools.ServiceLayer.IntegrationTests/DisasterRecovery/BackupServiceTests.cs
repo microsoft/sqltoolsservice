@@ -78,7 +78,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
 
             string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
@@ -103,7 +103,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
             string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
@@ -136,7 +136,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
             string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             string certificateName = CreateCertificate(testDb);
@@ -188,7 +188,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
             string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
             string certificateName = CreateCertificate(testDb);
@@ -240,7 +240,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             // Initialize backup service
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-            SqlConnection sqlConn = LiveConnectionHelper.GetLiveTestConnectionService().OpenSqlConnection(liveConnection.ConnectionInfo);
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
             DisasterRecoveryService disasterRecoveryService = new DisasterRecoveryService();
             BackupConfigInfo backupConfigInfo = disasterRecoveryService.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
 
