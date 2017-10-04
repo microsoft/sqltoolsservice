@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 response.ConfigInfo.Add(RestoreOptionsHelper.LogFileFolder, restoreTaskObject.DefaultLogFileFolder);
                 // The db names with backup set
                 response.ConfigInfo.Add(RestoreOptionsHelper.SourceDatabaseNamesWithBackupSets, restoreTaskObject.GetDatabaseNamesWithBackupSets());
+                // Default backup folder path in the target server
+                response.ConfigInfo.Add(RestoreOptionsHelper.DefaultBackupFolder, restoreTaskObject.DefaultBackupFolder);
             }
 
             return response;
