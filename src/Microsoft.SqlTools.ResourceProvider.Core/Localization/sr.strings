@@ -1,0 +1,32 @@
+# String resource file 
+#
+# When processed by the String Resource Tool, this file generates
+# both a .CS and a .RESX file with the same name as the file.
+# The .CS file contains a class which can be used to access these 
+# string resources, including the ability to format in 
+# parameters, which are identified with the .NET {x} format
+# (see String.Format help).  
+#
+# Comments below assume the file name is SR.strings.
+#
+# Lines starting with a semicolon ";" are also treated as comments, but
+# in a future version they will be extracted and made available in LocStudio
+# Put your comments to localizers _before_ the string they apply to.
+#
+# SMO build specific comment
+# after generating the .resx file, run srgen on it and get the .resx file
+# please remember to also check that .resx in, along with the 
+# .strings and .cs files
+
+[strings]
+
+############################################################################
+# Azure Core DLL
+AzureServerNotFound = The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.
+AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions
+DatabaseDiscoveryFailedErrorMessage = An error occurred while getting databases from servers of type {0} from {1}
+FirewallRuleAccessForbidden = {0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.
+FirewallRuleCreationFailed = An error occurred while creating a new firewall rule.
+InvalidIpAddress = Invalid IP address
+InvalidServerTypeErrorMessage = Server Type is invalid.
+LoadingExportableFailedGeneralErrorMessage = A required dll cannot be loaded. Please repair your application.

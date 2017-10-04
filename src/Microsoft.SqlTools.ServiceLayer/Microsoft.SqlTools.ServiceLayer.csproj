@@ -30,6 +30,7 @@
   </ItemGroup>
    <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
+    <None Include="Localization\sr.strings" />
   </ItemGroup>
    <ItemGroup>
      <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">

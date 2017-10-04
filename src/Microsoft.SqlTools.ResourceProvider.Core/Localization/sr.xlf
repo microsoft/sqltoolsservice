@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en">
+    <body>
+      <trans-unit id="AzureServerNotFound">
+        <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
+        <target state="new">The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSubscriptionFailedErrorMessage">
+        <source>An error occurred while getting Azure subscriptions</source>
+        <target state="new">An error occurred while getting Azure subscriptions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
+        <source>An error occurred while getting databases from servers of type {0} from {1}</source>
+        <target state="new">An error occurred while getting databases from servers of type {0} from {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleAccessForbidden">
+        <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
+        <target state="new">{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidIpAddress">
+        <source>Invalid IP address</source>
+        <target state="new">Invalid IP address</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidServerTypeErrorMessage">
+        <source>Server Type is invalid.</source>
+        <target state="new">Server Type is invalid.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
+        <source>A required dll cannot be loaded. Please repair your application.</source>
+        <target state="new">A required dll cannot be loaded. Please repair your application.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailed">
+        <source>An error occurred while creating a new firewall rule.</source>
+        <target state="new">An error occurred while creating a new firewall rule.</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
