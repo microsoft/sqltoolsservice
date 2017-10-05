@@ -317,6 +317,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     throw new InvalidOperationException(SR.RestoreNotSupported);
                 }
             }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
             finally
             {
                 if (this.Server.ConnectionContext.IsOpen)

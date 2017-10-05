@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         // helper method to set up a Sql Connection to a database
         private SqlConnection SetUpConnection(string name)
         {
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, name);
+            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, name);
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition(testDb.DatabaseName);
             string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             SqlConnection resultConnection = new SqlConnection(connectionString);
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         //
         public void Dispose()
         {
-            Task.Run(() => SqlTestDb.DropDatabase(connection.Database));
+            //Task.Run(() => SqlTestDb.DropDatabase(connection.Database));
             CloseConnection(connection);
             connection = null;
         }        

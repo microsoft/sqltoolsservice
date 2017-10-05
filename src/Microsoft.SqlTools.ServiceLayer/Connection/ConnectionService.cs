@@ -20,7 +20,6 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Utility;
-using System.Collections.ObjectModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -132,6 +131,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.LockedDatabaseManager.ConnectionService = this;
         }
 
+        /// <summary>
+        /// Returns a connection queue for given type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public IConnectedBindingQueue GetConnectedQueue(string type)
         {
             IConnectedBindingQueue connectedBindingQueue;
@@ -142,6 +146,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return null;
         }
 
+        /// <summary>
+        /// Returns all the connection queues
+        /// </summary>
         public IEnumerable<IConnectedBindingQueue> ConnectedQueues
         {
             get
@@ -150,6 +157,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
+        /// <summary>
+        /// Register a new connection queue if not already registered
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="connectedQueue"></param>
         public virtual void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
         {
             if (!connectedQueues.ContainsKey(type))

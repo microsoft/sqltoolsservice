@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var contexts = GetBindingContexts(connectionKey);
             foreach (var bindingContext in contexts)
             {
-                if (bindingContext.BindingLock.WaitOne())
+                if (bindingContext.BindingLock.WaitOne(2000))
                 {
                     bindingContext.ServerConnection.Disconnect();
                 }
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var contexts = GetBindingContexts(connectionKey);
             foreach (var bindingContext in contexts)
             {
-                if (bindingContext.BindingLock.WaitOne())
+                if (bindingContext.BindingLock.WaitOne(2000))
                 {
                     //bindingContext.ServerConnection.Connect();
                 }

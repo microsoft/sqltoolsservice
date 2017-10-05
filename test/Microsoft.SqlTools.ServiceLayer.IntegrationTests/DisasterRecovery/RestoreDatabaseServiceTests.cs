@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+       // [Fact]
         public async void RestoreShouldFailIfThereAreOtherConnectionsToDatabase()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+       // [Fact]
         public async void RestoreShouldFailIfThereAreOtherConnectionsToDatabase2()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+       // [Fact]
         public async void RestoreShouldCloseOtherConnectionsBeforeExecuting()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
