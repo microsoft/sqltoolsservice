@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
-                return this.connectedQueues.Values.Select(x => x as IConnectedBindingQueue);
+                return this.connectedQueues.Values;
             }
         }
 
