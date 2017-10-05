@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
                                 ShouldExit = true;
                                 return;
                             default:
-                                ErrorMessage += String.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
+                                ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
                         }
                     }
