@@ -173,6 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 ConnectionInfo connInfo;
                 bool supported = IsBackupRestoreOperationSupported(restoreParams.OwnerUri, out connInfo);
+                restoreParams.TargetDatabaseName = restoreParams.SourceDatabaseName;
 
                 if (supported && connInfo != null)
                 {

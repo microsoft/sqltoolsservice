@@ -164,7 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             get
             {
-                return DatabaseUtils.IsSystemDatabaseConnection(Server.ConnectionContext.DatabaseName);
+                return true;
+                //return DatabaseUtils.IsSystemDatabaseConnection(Server.ConnectionContext.DatabaseName);
             }
         }
 
