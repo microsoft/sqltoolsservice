@@ -93,6 +93,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
         }
 
+        public static string FirewallRuleUnsupportedConnectionType
+        {
+            get
+            {
+                return Keys.GetString(Keys.FirewallRuleUnsupportedConnectionType);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -123,6 +131,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
 
             public const string LoadingExportableFailedGeneralErrorMessage = "LoadingExportableFailedGeneralErrorMessage";
+
+
+            public const string FirewallRuleUnsupportedConnectionType = "FirewallRuleUnsupportedConnectionType";
 
 
             private Keys()

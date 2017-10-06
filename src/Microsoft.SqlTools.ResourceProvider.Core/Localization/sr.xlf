@@ -42,6 +42,11 @@
         <target state="new">An error occurred while creating a new firewall rule.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FirewallRuleUnsupportedConnectionType">
+        <source>Cannot open a firewall rule for the specified connection type</source>
+        <target state="new">Cannot open a firewall rule for the specified connection type</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
@@ -12,10 +13,11 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
+using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.SqlTools.ResourceProvider.Core
 {
 
     [Export(typeof(IHostedService))]
@@ -31,44 +33,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(LogLevel.Verbose, "AuthenticationService initialized");
-            serviceHost.SetRequestHandler(CreateFirewallRuleRequest.Type, HandleAccountUpdatedRequest);
         }
         
-        public async Task HandleAccountUpdatedRequest(FirewallRule firewallRule, RequestContext<bool> requestContext)
+        public async Task<IUserAccount> SetCurrentAccountAsync(Account account, Dictionary<string, string> securityTokenMappings)
         {
-            Func<Task<bool>> requestHandler = () =>
-            {
-                return DoHandleCreateFirewallRuleRequest(firewallRule);
-            };
-            await HandleRequest(requestHandler, requestContext, "HandleCreateFirewallRuleRequest");
+            var authManager = ServiceProvider.GetService<IAzureAuthenticationManager>();
+            // Ideally in the future, would have a factory to create the user account and tenant info without knowing
+            // which implementation is which. For expediency, will directly define these in this instance.
+            return await authManager.SetCurrentAccountAsync(new AccountTokenWrapper(account, securityTokenMappings));
         }
-
-        private async Task<bool> DoHandleCreateFirewallRuleRequest(FirewallRule firewallRule)
-        {
-            FirewallRuleService firewallService = new FirewallRuleService()
-            {
-                AuthenticationManager = ServiceProvider.GetService<IAzureAuthenticationManager>(),
-                ResourceManager = ServiceProvider.GetService<IAzureResourceManager>()
-            };
-            // Note: currently not catching the exception. Expect the caller to this message to handle error cases by
-            // showing the error string and responding with a clean failure message to the user
-            FirewallRuleResponse response = await firewallService.CreateFirewallRuleAsync(firewallRule.ServerName, firewallRule.StartIpAddressValue, firewallRule.EndIpAddressValue);
-            return response.Created;
-        }
-
-        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
-        {
-            Logger.Write(LogLevel.Verbose, requestType);
-
-            try
-            {
-                T result = await handler();
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
-        }   
     }
+
 }

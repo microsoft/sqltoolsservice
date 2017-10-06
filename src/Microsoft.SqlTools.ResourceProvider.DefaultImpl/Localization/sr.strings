@@ -26,3 +26,5 @@ FailedToGetAzureDatabasesErrorMessage = An error occurred while getting Azure da
 FailedToGetAzureResourceGroupsErrorMessage = An error occurred while getting Azure resource groups
 FailedToGetAzureSqlServersErrorMessage = An error occurred while getting Azure Sql Servers
 FirewallRuleCreationFailed = An error occurred while creating a new firewall rule.
+AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions
+UnsupportedAuthType = Unsupported account type '{0}' for this provider

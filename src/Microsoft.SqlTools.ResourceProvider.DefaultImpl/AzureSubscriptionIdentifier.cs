@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <summary>
         /// Default constructor to initialize the subscription identifier
         /// </summary>
-        public AzureSubscriptionIdentifier(IAzureUserAccount userAccount, string subscriptionId, Uri serviceManagementEndpoint)
+        public AzureSubscriptionIdentifier(IAzureUserAccount userAccount, string tenantId, string subscriptionId, Uri serviceManagementEndpoint)
         {
             UserAccount = userAccount;
             SubscriptionId = subscriptionId;
@@ -56,6 +56,15 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         {
             get;
             private set;
-        }        
+        }
+        
+        /// <summary>
+        /// The ID of the tenant this subscription comes from
+        /// </summary>
+        public string TenantId
+        {
+            get;
+            private set;
+        }
     }
 }

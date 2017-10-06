@@ -30,3 +30,4 @@ FirewallRuleCreationFailed = An error occurred while creating a new firewall rul
 InvalidIpAddress = Invalid IP address
 InvalidServerTypeErrorMessage = Server Type is invalid.
 LoadingExportableFailedGeneralErrorMessage = A required dll cannot be loaded. Please repair your application.
+FirewallRuleUnsupportedConnectionType = Cannot open a firewall rule for the specified connection type

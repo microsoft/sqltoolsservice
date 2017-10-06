@@ -133,4 +133,12 @@
     <value>An error occurred while creating a new firewall rule.</value>
     <comment></comment>
   </data>
+  <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
+    <value>An error occurred while getting Azure subscriptions</value>
+    <comment></comment>
+  </data>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>Unsupported account type '{0}' for this provider</value>
+    <comment></comment>
+  </data>
 </root>

@@ -20,6 +20,7 @@ using Microsoft.Rest;
 using System.Globalization;
 using Microsoft.Rest.Azure;
 using Microsoft.SqlTools.ResourceProvider.Core;
+using System.Collections;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         ServerTypes.SqlServer,
         Categories.Azure,
         typeof(IAzureResourceManager),
-        "Microsoft.SqlServer.ConnectionServices.Azure.Impl.VsAzureResourceManager",
+        "Microsoft.SqlTools.ResourceProvider.DefaultImpl.AzureResourceManager",
         1)
     ]
     public class AzureResourceManager : ExportableBase, IAzureResourceManager
@@ -45,18 +46,18 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             Metadata = new ExportableMetadata(
                 ServerTypes.SqlServer,
                 Categories.Azure,
-                "Microsoft.SqlServer.ConnectionServices.Azure.Impl.VsAzureResourceManager");
+                "Microsoft.SqlTools.ResourceProvider.DefaultImpl.AzureResourceManager");
         }
 
-        public async Task<IAzureResourceManagementSession> CreateSessionAsync(IAzureUserAccountSubscriptionContext subscriptionContext)
+        public Task<IAzureResourceManagementSession> CreateSessionAsync(IAzureUserAccountSubscriptionContext subscriptionContext)
         {
             CommonUtil.CheckForNull(subscriptionContext, "subscriptionContext");
             try
             {
-                ServiceClientCredentials credentials = await CreateCredentialsAsync(subscriptionContext);
+                ServiceClientCredentials credentials = CreateCredentials(subscriptionContext);
                 SqlManagementClient sqlManagementClient = new SqlManagementClient(_resourceManagementUri, credentials);
                 ResourceManagementClient resourceManagementClient = new ResourceManagementClient(_resourceManagementUri, credentials);
-                return new AzureResourceManagementSession(sqlManagementClient, resourceManagementClient, subscriptionContext);
+                return Task.FromResult<IAzureResourceManagementSession>(new AzureResourceManagementSession(sqlManagementClient, resourceManagementClient, subscriptionContext));
             }
             catch (Exception ex)
             {
@@ -239,18 +240,95 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
         }
 
+        /// <summary>
+        /// Gets all subscription contexts under a specific user account. Queries all tenants for the account and uses these to log in 
+        /// and retrieve subscription information as needed
+        /// </summary>
+        public async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionContextsAsync(IAzureUserAccount userAccount)
+        {
+            List<IAzureUserAccountSubscriptionContext> contexts = new List<IAzureUserAccountSubscriptionContext>();
+            foreach (IAzureTenant tenant in userAccount.AllTenants)
+            {
+                AzureTenant azureTenant = tenant as AzureTenant;
+                if (azureTenant != null)
+                {
+                    ServiceClientCredentials credentials = CreateCredentials(azureTenant);
+                    using (SubscriptionClient client = new SubscriptionClient(_resourceManagementUri, credentials))
+                    {
+                        IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
+                        contexts.AddRange(subs.Select(sub =>
+                        {
+                            AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, _resourceManagementUri);
+                            AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
+                            return context;
+                        }));
+                    }
+                }
+            }
+            return contexts;
+        }
+        
+        /// <summary>
+        /// Returns the azure resource groups for given subscription
+        /// </summary>
+        private async Task<IEnumerable<Subscription>> GetSubscriptionsAsync(SubscriptionClient subscriptionClient)
+        {
+            try
+            {
+                if (subscriptionClient != null)
+                {
+                    try
+                    {
+                        ISubscriptionsOperations subscriptionsOperations = subscriptionClient.Subscriptions;
+                        IPage<Subscription> subscriptionList = await subscriptionsOperations.ListAsync();
+                        if (subscriptionList != null)
+                        {
+                            return subscriptionList.AsEnumerable();
+                        }
+
+                    }
+                    catch (HttpOperationException ex)
+                    {
+                        throw new AzureResourceFailedException(SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Response.StatusCode);
+                    }
+                }
+
+                return Enumerable.Empty<Subscription>();
+            }
+            catch (Exception ex)
+            {
+                TraceException(TraceEventType.Error, (int)TraceId.AzureResource, ex, "Failed to get azure resource groups");
+                throw;
+            }
+        }
 
         /// <summary>
         /// Creates credential instance for given subscription
         /// </summary>
-        private Task<ServiceClientCredentials> CreateCredentialsAsync(IAzureUserAccountSubscriptionContext subscriptionContext)
+        private ServiceClientCredentials CreateCredentials(IAzureTenant tenant)
+        {
+            AzureTenant azureTenant = tenant as AzureTenant;
+
+            if (azureTenant != null)
+            {
+                TokenCredentials credentials = new TokenCredentials(azureTenant.AccessToken);
+
+                return credentials;
+            }
+            throw new NotSupportedException("This uses an unknown subscription type");
+        }
+
+        /// <summary>
+        /// Creates credential instance for given subscription
+        /// </summary>
+        private ServiceClientCredentials CreateCredentials(IAzureUserAccountSubscriptionContext subscriptionContext)
         {
             AzureUserAccountSubscriptionContext azureUserSubContext =
                 subscriptionContext as AzureUserAccountSubscriptionContext;
 
             if (azureUserSubContext != null)
             {
-                return Task.FromResult(azureUserSubContext.Credentials);
+                return azureUserSubContext.Credentials;
             }
             throw new NotSupportedException("This uses an unknown subscription type");
         }

@@ -49,5 +49,13 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             );
 
         Task<IAzureResourceManagementSession> CreateSessionAsync(IAzureUserAccountSubscriptionContext subscriptionContext);
+
+
+        /// <summary>
+        /// Gets all subscription contexts under a specific user account. Queries all tenants for the account and uses these to log in 
+        /// and retrieve subscription information as needed
+        /// <param name="userAccount">Account whose subscriptions should be queried</param>
+        /// </summary>
+        Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionContextsAsync(IAzureUserAccount userAccount);
     }
 }

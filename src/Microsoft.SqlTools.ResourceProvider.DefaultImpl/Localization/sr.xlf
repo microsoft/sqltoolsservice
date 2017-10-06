@@ -22,6 +22,16 @@
         <target state="new">An error occurred while creating a new firewall rule.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AzureSubscriptionFailedErrorMessage">
+        <source>An error occurred while getting Azure subscriptions</source>
+        <target state="new">An error occurred while getting Azure subscriptions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedAuthType">
+        <source>Unsupported account type '{0}' for this provider</source>
+        <target state="new">Unsupported account type '{0}' for this provider</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -149,4 +149,8 @@
     <value>A required dll cannot be loaded. Please repair your application.</value>
     <comment></comment>
   </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Cannot open a firewall rule for the specified connection type</value>
+    <comment></comment>
+  </data>
 </root>
