@@ -177,10 +177,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 ConnectionInfo connInfo;
                 bool supported = IsBackupRestoreOperationSupported(restoreParams.OwnerUri, out connInfo);
+                
+                if (restoreParams.OverwriteTargetDatabase)
+                {
+                    restoreParams.TargetDatabaseName = restoreParams.SourceDatabaseName;
+                }
 
                 if (supported && connInfo != null)
                 {
                     RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
+                    restoreDataObject.OverwriteTargetDatabase = restoreParams.OverwriteTargetDatabase;
                     response = this.restoreDatabaseService.CreateRestorePlanResponse(restoreDataObject);
                 }
                 else
