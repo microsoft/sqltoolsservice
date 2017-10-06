@@ -380,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (definitionResult.IsErrorResult)
                         {
-                            await requestContext.SendError(definitionResult.Message);
+                            await requestContext.SendError(definitionResult.Message);                            
                         }
                         else
                         {
@@ -390,11 +390,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     else
                     {
-                        // Send an empty result so that processing does not hang
+                        // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
                         await requestContext.SendResult(Array.Empty<Location>());
                     }
 
                     DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
+                }
+                else
+                {
+                    // Send an empty result so that processing does not hang
+                    await requestContext.SendResult(Array.Empty<Location>());
                 }
 
                 DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
