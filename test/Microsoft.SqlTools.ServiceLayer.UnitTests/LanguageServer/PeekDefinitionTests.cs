@@ -312,9 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tableName";
             string fullObjectName = "master.dbo.tableName";
-            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, objectName, null);
-            Assert.NotNull(result);
-            Assert.True(result.IsErrorResult);
+            Assert.Throws<NullReferenceException>(() => peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, objectName, null));
         }
     }
 }

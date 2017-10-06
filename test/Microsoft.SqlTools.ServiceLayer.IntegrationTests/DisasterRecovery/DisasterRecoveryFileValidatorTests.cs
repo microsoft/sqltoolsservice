@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             Assert.True(result);
         }
 
-        [Fact]
+        //[Fact]
         public void ValidatorShouldReturnFalseForInvalidPath()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");

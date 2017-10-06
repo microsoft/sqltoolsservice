@@ -129,11 +129,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 ColumnMetadata[] metadata = null;
                 if (connInfo != null) 
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);                    
-                    TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
-                        sqlConn, metadataParams.Schema, 
-                        metadataParams.ObjectName, objectType);
-                    metadata = table.Columns;               
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                    {
+                        TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
+                            sqlConn, metadataParams.Schema,
+                            metadataParams.ObjectName, objectType);
+                        metadata = table.Columns;
+                    }
                 }
 
                 await requestContext.SendResult(new TableMetadataResult

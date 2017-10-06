@@ -76,43 +76,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             var currentExecutionMode = Server.ConnectionContext.SqlExecutionModes;
             try
             {
-                
                 if (Server != null)
                 {
                     Server.ConnectionContext.CapturedSql.Clear();
-                    switch (mode)
-                    {
-                        case TaskExecutionMode.Execute:
-                            {
-                                Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
-                                break;
-                            }
-                        case TaskExecutionMode.ExecuteAndScript:
-                            {
-                                Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteAndCaptureSql;
-                                break;
-                            }
-                        case TaskExecutionMode.Script:
-                            {
-                                Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
-                                break;
-                            }
-                    }
+                    SetExecutionMode(mode);
                 }
 
                 Execute();
-                if (mode == TaskExecutionMode.Script || mode == TaskExecutionMode.ExecuteAndScript)
-                {
-                    this.ScriptContent = GetScriptContent();
-                    if (SqlTask != null)
-                    {
-                        OnScriptAdded(new TaskScript
-                        {
-                            Status = SqlTaskStatus.Succeeded,
-                            Script = this.ScriptContent
-                        });
-                    }
-                }
+                GenerateScript(mode);
+                
             }
             catch
             {
@@ -124,6 +96,44 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 Server.ConnectionContext.SqlExecutionModes = currentExecutionMode;
             }
 
+        }
+
+        protected void GenerateScript(TaskExecutionMode mode)
+        {
+            if (mode == TaskExecutionMode.Script || mode == TaskExecutionMode.ExecuteAndScript)
+            {
+                this.ScriptContent = GetScriptContent();
+                if (SqlTask != null)
+                {
+                    OnScriptAdded(new TaskScript
+                    {
+                        Status = SqlTaskStatus.Succeeded,
+                        Script = this.ScriptContent
+                    });
+                }
+            }
+        }
+
+        protected void SetExecutionMode(TaskExecutionMode mode)
+        {
+            switch (mode)
+            {
+                case TaskExecutionMode.Execute:
+                    {
+                        Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                        break;
+                    }
+                case TaskExecutionMode.ExecuteAndScript:
+                    {
+                        Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteAndCaptureSql;
+                        break;
+                    }
+                case TaskExecutionMode.Script:
+                    {
+                        Server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                        break;
+                    }
+            }
         }
 
         private string GetScriptContent()

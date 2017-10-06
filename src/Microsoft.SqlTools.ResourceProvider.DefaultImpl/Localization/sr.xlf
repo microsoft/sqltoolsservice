@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en">
+    <body>
+      <trans-unit id="FailedToGetAzureDatabasesErrorMessage">
+        <source>An error occurred while getting Azure databases</source>
+        <target state="new">An error occurred while getting Azure databases</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureResourceGroupsErrorMessage">
+        <source>An error occurred while getting Azure resource groups</source>
+        <target state="new">An error occurred while getting Azure resource groups</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureSqlServersErrorMessage">
+        <source>An error occurred while getting Azure Sql Servers</source>
+        <target state="new">An error occurred while getting Azure Sql Servers</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailed">
+        <source>An error occurred while creating a new firewall rule.</source>
+        <target state="new">An error occurred while creating a new firewall rule.</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

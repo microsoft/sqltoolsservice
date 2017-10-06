@@ -13,17 +13,38 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
+    public interface IConnectedBindingQueue
+    {
+        void CloseConnections(string serverName, string databaseName);
+        void OpenConnections(string serverName, string databaseName);
+        string AddConnectionContext(ConnectionInfo connInfo, bool overwrite = false);
+        void Dispose();
+        QueueItem QueueBindingOperation(
+            string key,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null);
+    }
+
     /// <summary>
     /// ConnectedBindingQueue class for processing online binding requests
     /// </summary>
-    public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>
+    public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
 
         internal const int DefaultMinimumConnectionTimeout = 30;
+
+        /// <summary>
+        /// flag determing if the connection queue requires online metadata objects
+        /// it's much cheaper to not construct these objects if not needed
+        /// </summary>
+        private bool needsMetadata;
 
         /// <summary>
         /// Gets the current settings
@@ -31,6 +52,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
+        }
+
+        public ConnectedBindingQueue()
+            : this(true)
+        {            
+        }
+
+        public ConnectedBindingQueue(bool needsMetadata)
+        {
+            this.needsMetadata = needsMetadata;
         }
 
         /// <summary>
@@ -46,6 +77,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 details.UserName ?? "NULL",
                 details.AuthenticationType ?? "NULL"
             );
+        }
+
+        /// <summary>
+        /// Generate a unique key based on the ConnectionInfo object
+        /// </summary>
+        /// <param name="connInfo"></param>
+        private string GetConnectionContextKey(string serverName, string databaseName)
+        {
+            return string.Format("{0}_{1}",
+                serverName ?? "NULL",
+                databaseName ?? "NULL");
+            
+        }
+
+        public void CloseConnections(string serverName, string databaseName)
+        {
+            string connectionKey = GetConnectionContextKey(serverName, databaseName);
+            var contexts = GetBindingContexts(connectionKey);
+            foreach (var bindingContext in contexts)
+            {
+                if (bindingContext.BindingLock.WaitOne(2000))
+                {
+                    bindingContext.ServerConnection.Disconnect();
+                }
+            }
+        }
+
+        public void OpenConnections(string serverName, string databaseName)
+        {
+            string connectionKey = GetConnectionContextKey(serverName, databaseName);
+            var contexts = GetBindingContexts(connectionKey);
+            foreach (var bindingContext in contexts)
+            {
+                if (bindingContext.BindingLock.WaitOne(2000))
+                {
+                    //bindingContext.ServerConnection.Connect();
+                }
+            }
         }
 
         /// <summary>
@@ -82,16 +151,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bindingContext.BindingLock.Reset();
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-
+                   
                     // populate the binding context to work with the SMO metadata provider
-                    ServerConnection serverConn = new ServerConnection(sqlConn);                            
-                    bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                    bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                    bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                        this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                            ? CasingStyle.Lowercase : CasingStyle.Uppercase;
-                    bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
-                    bindingContext.ServerConnection = serverConn;
+                    bindingContext.ServerConnection = new ServerConnection(sqlConn);
+
+                    if (this.needsMetadata)
+                    {
+                        bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
+                        bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
+                            this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                                ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                        bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
+                    }         
+            
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;                    
                 }

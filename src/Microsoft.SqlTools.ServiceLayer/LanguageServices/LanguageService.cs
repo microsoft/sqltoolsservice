@@ -150,6 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
+                    connectionService.RegisterConnectedQueue("LanguageService", bindingQueue);
                 }
                 return connectionService;
             }
@@ -839,6 +840,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             await Task.Run(() =>
             {
+                if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
+                {
+                    // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
+                    return;
+                }
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
                 if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {

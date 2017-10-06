@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         /// <summary>
         /// Verify that a start profiling request starts a profiling session
         /// </summary>
-        [Fact]
+        //[Fact]
         public async Task TestHandleStartAndStopProfilingRequests()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         /// <summary>
         /// Verify  the profiler service XEvent session factory
         /// </summary>
-        [Fact]
+        //[Fact]
         public void TestCreateXEventSession()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");

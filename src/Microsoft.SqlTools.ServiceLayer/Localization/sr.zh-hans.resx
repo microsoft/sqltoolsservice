@@ -1374,16 +1374,100 @@
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
     <value>资料行因结果集太长而可能无法加载</value>
   </data>
-  <data name="Backup_TaskName" xml:space="preserve">
-    <value>备份数据库</value>
-  </data>
-  <data name="Task_InProgress" xml:space="preserve">
-    <value>正在进行</value>
-  </data>
-  <data name="Task_Completed" xml:space="preserve">
-    <value>已完成</value>
-  </data>
   <data name="prototype_db_prop_parameterization" xml:space="preserve">
     <value>参数化</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>当使用 NORECOVERY 选项还原备份时，不允许指定此选项。</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>数据库文件的路径无效:“{0}”</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>日志</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>制订还原计划失败</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>不支持还原数据库</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>还原数据库</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(仅复制)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>组件</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>服务器</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>数据库</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>第一个 LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>最后一个 LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>检查点 LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>完整 LSN</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>开始日期</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>完成日期</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>用户名</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>过期</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>上次执行的备份({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>备份数据库</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>正在进行</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>开始执行脚本操作</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>找不到连接</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>指定的文件名也是一个目录名: {0}</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>无法验证备份文件位置是否存在: {0}</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>无法访问服务器上的指定路径: {0}</value>
   </data>
 </root>

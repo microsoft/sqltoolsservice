@@ -328,7 +328,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                                 {
                                     children.Add(item);
                                     item.Parent = this;
-
                                 }
                             }
                         }

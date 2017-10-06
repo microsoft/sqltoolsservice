@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             BackupConfigInfo configInfo = new BackupConfigInfo();
             configInfo.RecoveryModel = GetRecoveryModel(databaseName);
-            configInfo.DefaultBackupFolder = GetDefaultBackupFolder();
+            configInfo.DefaultBackupFolder = CommonUtilities.GetDefaultBackupFolder(this.serverConnection);
             configInfo.LatestBackups = GetLatestBackupLocations(databaseName);
             configInfo.BackupEncryptors = GetBackupEncryptors();
             return configInfo;
@@ -313,6 +313,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 throw;
             }
+            finally
+            {
+                if (this.serverConnection != null)
+                {
+                    this.serverConnection.Disconnect();
+                }
+                if(this.dataContainer != null)
+                {
+                    this.dataContainer.Dispose();
+                }
+            }
         }
 
         /// <summary>
@@ -336,11 +347,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             RecoveryModel recoveryModel = this.backupRestoreUtil.GetRecoveryModel(databaseName);
             return recoveryModel.ToString();
-        }
-
-        public string GetDefaultBackupFolder()
-        {
-            return this.backupRestoreUtil.GetDefaultBackupFolder();
         }
 
         /// <summary>

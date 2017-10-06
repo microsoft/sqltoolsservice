@@ -75,7 +75,7 @@ CREATE SYNONYM [dbo].[pd_testTable] FOR master.dbo.spt_monitor
 GO";
 
         private const string TableValuedFunctionTypeName = "TableValuedFunction";
-        private const string ScalarValuedFunctionTypeName = "ScalarValuedFunction";
+        private const string ScalarValuedFunctionTypeName = "UserDefinedFunction";
         private const string UserDefinedDataTypeTypeName = "UserDefinedDataType";
         private const string UserDefinedTableTypeTypeName = "UserDefinedTableType";
         private const string SynonymTypeName = "Synonym";
@@ -97,10 +97,10 @@ GO";
             string objectName = "spt_monitor";
 
             string schemaName = null;
-            string objectType = "TABLE";
+            string objectType = "Table";
 
             // Get locations for valid table object
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetTableScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -121,7 +121,7 @@ GO";
             string objectType = "TABLE";
 
             // Get locations for invalid table object
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetTableScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -139,10 +139,10 @@ GO";
             string objectName = "spt_monitor";
 
             string schemaName = "dbo";
-            string objectType = "TABLE";
+            string objectType = "Table";
 
             // Get locations for valid table object with schema name
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetTableScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -260,9 +260,9 @@ GO";
             Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
-            string objectType = "VIEW";
+            string objectType = "View";
 
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetViewScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -282,7 +282,7 @@ GO";
             string schemaName = null;
             string objectType = "VIEW";
 
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetViewScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -300,9 +300,9 @@ GO";
             string objectName = "sp_columns";
 
             string schemaName = "sys";
-            string objectType = "PROCEDURE";
+            string objectType = "StoredProcedure";
 
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -322,7 +322,7 @@ GO";
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
 
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -339,9 +339,9 @@ GO";
             Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "sp_MSrepl_startup";
             string schemaName = null;
-            string objectType = "PROCEDURE";
+            string objectType = "StoredProcedure";
 
-            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -377,40 +377,7 @@ GO";
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
 
-            Scripter.ScriptGetter sqlScriptGetter = null;
-            switch (objectType)
-            {
-                case SynonymTypeName:
-                    sqlScriptGetter = scripter.GetSynonymScripts;
-                    break;
-                case ScalarValuedFunctionTypeName:
-                    sqlScriptGetter = scripter.GetScalarValuedFunctionScripts;
-                    objectType = "Function";
-                    break;
-                case TableValuedFunctionTypeName:
-                    sqlScriptGetter = scripter.GetTableValuedFunctionScripts;
-                    objectType = "Function";
-                    break;
-                case TableTypeName:
-                    sqlScriptGetter = scripter.GetTableScripts;
-                    break;
-                case ViewTypeName:
-                    sqlScriptGetter = scripter.GetViewScripts;
-                    break;
-                case StoredProcedureTypeName:
-                    sqlScriptGetter = scripter.GetStoredProcedureScripts;
-                    break;
-                case UserDefinedDataTypeTypeName:
-                    sqlScriptGetter = scripter.GetUserDefinedDataTypeScripts;
-                    objectType = "Type";
-                    break;
-                case UserDefinedTableTypeTypeName:
-                    sqlScriptGetter = scripter.GetUserDefinedTableTypeScripts;
-                    objectType = "Type";
-                    break;
-            }
-
-            Location[] locations = scripter.GetSqlObjectDefinition(sqlScriptGetter, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(objectName, schemaName, objectType);
             if (shouldReturnValidResult)
             {
                 Assert.NotNull(locations);
@@ -434,7 +401,7 @@ GO";
         [Fact]
         public async Task GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
-            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName);
+            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, ScalarValuedFunctionTypeName);
         }
 
         /// <summary>
@@ -477,7 +444,7 @@ GO";
         [Fact]
         public async Task GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
-            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName, null);
+            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, ScalarValuedFunctionTypeName, null);
         }
 
 

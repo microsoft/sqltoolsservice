@@ -67,6 +67,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Gets or sets the scripting options.
         /// </summary>
         public ScriptOptions ScriptOptions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the connection owner URI
+        /// </summary>
+        public string OwnerUri { get; set; }
+
     }
 
     /// <summary>
@@ -75,6 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
     public class ScriptingResult
     {
         public string OperationId { get; set; }
+
+        public string Script { get; set; }
     }
 
     /// <summary>

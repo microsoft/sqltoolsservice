@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
 	  <EnableDefaultItems>false</EnableDefaultItems>
 	  <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
@@ -10,11 +10,9 @@
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<DebugType>portable</DebugType>
-    <RuntimeIdentifiers>win7-x64;win7-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.5" />
 	<PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
 	<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
 	<PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
@@ -25,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
+    <None Include="Localization\sr.strings" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

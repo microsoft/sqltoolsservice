@@ -107,6 +107,113 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         [Fact]
+        public async void RestoreShouldFailIfThereAreOtherConnectionsToDatabase()
+        {
+            await GetBackupFilesToRecoverDatabaseCreated();
+
+            var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+            ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                //Opening a connection to db to lock the db
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.Default);
+
+                try
+                {
+                    bool restoreShouldFail = true;
+                    Dictionary<string, object> options = new Dictionary<string, object>();
+                    options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
+                    await VerifyRestore(null, databaseNameToRestoreFrom, true, TaskExecutionModeFlag.Execute, testDb.DatabaseName, null, options, null, restoreShouldFail);
+                   
+                }
+                finally
+                {
+                    connectionService.Disconnect(new ServiceLayer.Connection.Contracts.DisconnectParams
+                    {
+                        OwnerUri = queryTempFile.FilePath,
+                        Type = ConnectionType.Default
+                    });
+                    testDb.Cleanup();
+                }
+            }
+        }
+
+        [Fact]
+        public async void RestoreShouldFailIfThereAreOtherConnectionsToDatabase2()
+        {
+            await GetBackupFilesToRecoverDatabaseCreated();
+
+            var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+            ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+
+                //OE connection will be closed after conneced
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
+                //Opening a connection to db to lock the db
+                ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+                try
+                {
+                    bool restoreShouldFail = true;
+                    Dictionary<string, object> options = new Dictionary<string, object>();
+                    options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
+                    await VerifyRestore(null, databaseNameToRestoreFrom, true, TaskExecutionModeFlag.Execute, testDb.DatabaseName, null, options, null, restoreShouldFail);
+                    
+                }
+                finally
+                {
+                    connectionService.Disconnect(new ServiceLayer.Connection.Contracts.DisconnectParams
+                    {
+                        OwnerUri = queryTempFile.FilePath,
+                        Type = ConnectionType.Default
+                    });
+                    testDb.Cleanup();
+                }
+            }
+        }
+
+        [Fact]
+        public async void RestoreShouldCloseOtherConnectionsBeforeExecuting()
+        {
+            await GetBackupFilesToRecoverDatabaseCreated();
+
+            var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "RestoreTest");
+            ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
+            TestConnectionResult connectionResult;
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+
+                //OE connection will be closed after conneced
+                connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
+                //Opening a connection to db to lock the db
+
+                connectionService.ConnectionQueue.AddConnectionContext(connectionResult.ConnectionInfo, true);
+
+                try
+                {
+                    Dictionary<string, object> options = new Dictionary<string, object>();
+                    options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
+                    await VerifyRestore(null, databaseNameToRestoreFrom, true, TaskExecutionModeFlag.Execute, testDb.DatabaseName, null, options
+                        , (database) =>
+                    {
+                        return database.Tables.Contains("tb1", "test");
+                    });
+                }
+                finally
+                {
+                    connectionService.Disconnect(new ServiceLayer.Connection.Contracts.DisconnectParams
+                    {
+                        OwnerUri = queryTempFile.FilePath,
+                        Type = ConnectionType.Default
+                    });
+                    testDb.Cleanup();
+                    
+                }
+            }
+        }
+
+        [Fact]
         public async void RestoreShouldRestoreTheBackupSetsThatAreSelected()
         {
             var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
@@ -431,7 +538,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             string targetDatabase = null, 
             string[] selectedBackupSets = null,
             Dictionary<string, object> options = null,
-            Func<Database, bool> verifyDatabase = null)
+            Func<Database, bool> verifyDatabase = null,
+            bool shouldFail = false)
         {
             string backUpFilePath = string.Empty;
             if (backupFileNames != null)
@@ -478,6 +586,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 }
 
                 var restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
+                restoreDataObject.ConnectionInfo = connectionResult.ConnectionInfo;
                 var response = service.CreateRestorePlanResponse(restoreDataObject);
 
                 Assert.NotNull(response);
@@ -533,7 +642,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         }
                         catch(Exception ex)
                         {
-                            Assert.False(true, ex.Message);
+                            if (!shouldFail)
+                            {
+                                Assert.False(true, ex.Message);
+                            }
                         }
                         finally
                         {
@@ -606,47 +718,49 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 // Initialize backup service
                 var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName, queryTempFile.FilePath);
                 DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
-                BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                {
+                    BackupConfigInfo backupConfigInfo = DisasterRecoveryService.Instance.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
 
-                query = $"create table [test].[{tableNames[0]}] (c1 int)";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
-                string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_full.bak");
-                query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
-                backupFiles.Add(backupPath);
+                    query = $"create table [test].[{tableNames[0]}] (c1 int)";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                    string backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_full.bak");
+                    query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                    backupFiles.Add(backupPath);
 
-                query = $"create table [test].[{tableNames[1]}] (c1 int)";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
-                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_diff.bak");
-                query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
-                backupFiles.Add(backupPath);
+                    query = $"create table [test].[{tableNames[1]}] (c1 int)";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                    backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_diff.bak");
+                    query = $"BACKUP DATABASE [{databaseName}] TO  DISK = N'{backupPath}' WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                    backupFiles.Add(backupPath);
 
-                query = $"create table [test].[{tableNames[2]}] (c1 int)";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
-                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log1.bak");
-                query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
-                backupFiles.Add(backupPath);
+                    query = $"create table [test].[{tableNames[2]}] (c1 int)";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                    backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log1.bak");
+                    query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                    backupFiles.Add(backupPath);
 
-                query = $"create table [test].[{tableNames[3]}] (c1 int)";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
-                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log2.bak");
-                query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
-                backupFiles.Add(backupPath);
+                    query = $"create table [test].[{tableNames[3]}] (c1 int)";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                    backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log2.bak");
+                    query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                    backupFiles.Add(backupPath);
 
-                query = $"create table [test].[{tableNames[4]}] (c1 int)";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
-                backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log3.bak");
-                query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
-                await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
-                backupFiles.Add(backupPath);
+                    query = $"create table [test].[{tableNames[4]}] (c1 int)";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, databaseName, query);
+                    backupPath = Path.Combine(backupConfigInfo.DefaultBackupFolder, databaseName + "_log3.bak");
+                    query = $"BACKUP Log [{databaseName}] TO  DISK = N'{backupPath}' WITH NOFORMAT, NOINIT, NAME = N'{databaseName}-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10";
+                    await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", query);
+                    backupFiles.Add(backupPath);
 
-                databaseNameToRestoreFrom = testDb.DatabaseName;
-                // Clean up the database
-                testDb.Cleanup();
+                    databaseNameToRestoreFrom = testDb.DatabaseName;
+                    // Clean up the database
+                    testDb.Cleanup();
+                }
             }
             return backupFiles.ToArray();
 

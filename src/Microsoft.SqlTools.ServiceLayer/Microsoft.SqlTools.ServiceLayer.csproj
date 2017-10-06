@@ -19,7 +19,7 @@
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.5" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.6" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="**\*.cs" />
@@ -30,6 +30,7 @@
   </ItemGroup>
    <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
+    <None Include="Localization\sr.strings" />
   </ItemGroup>
    <ItemGroup>
      <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">

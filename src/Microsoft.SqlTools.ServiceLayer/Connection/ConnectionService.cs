@@ -16,9 +16,8 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Utility;
 
@@ -29,6 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
+        public const string AdminConnectionPrefix = "ADMIN:";
+
         /// <summary>
         /// Singleton service instance
         /// </summary>
@@ -50,7 +51,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// The SQL connection factory object
         /// </summary>
         private ISqlConnectionFactory connectionFactory;
-           
+
+        private DatabaseLocksManager lockedDatabaseManager;
+
         private readonly Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
@@ -61,6 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
 
         private readonly object cancellationTokenSourceLock = new object();
+
+        private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
@@ -75,6 +80,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
+        /// Database Lock manager instance
+        /// </summary>
+        internal DatabaseLocksManager LockedDatabaseManager
+        {
+            get
+            {
+                if (lockedDatabaseManager == null)
+                {
+                    lockedDatabaseManager = DatabaseLocksManager.Instance;
+                }
+                return lockedDatabaseManager;
+            }
+            set
+            {
+                this.lockedDatabaseManager = value;
+            }
+        }
+
+        /// <summary>
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
@@ -85,11 +109,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
+        /// Gets the connection queue
+        /// </summary>
+        internal IConnectedBindingQueue ConnectionQueue
+        {
+            get
+            {
+                return this.GetConnectedQueue("Default");
+            }
+        }
+
+
+        /// <summary>
         /// Default constructor should be private since it's a singleton class, but we need a constructor
         /// for use in unit test mocking.
         /// </summary>
         public ConnectionService()
         {
+            var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
+            connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
+            this.LockedDatabaseManager.ConnectionService = this;
+        }
+
+        /// <summary>
+        /// Returns a connection queue for given type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public IConnectedBindingQueue GetConnectedQueue(string type)
+        {
+            IConnectedBindingQueue connectedBindingQueue;
+            if (connectedQueues.TryGetValue(type, out connectedBindingQueue))
+            {
+                return connectedBindingQueue;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns all the connection queues
+        /// </summary>
+        public IEnumerable<IConnectedBindingQueue> ConnectedQueues
+        {
+            get
+            {
+                return this.connectedQueues.Values;
+            }
+        }
+
+        /// <summary>
+        /// Register a new connection queue if not already registered
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="connectedQueue"></param>
+        public virtual void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
+        {
+            if (!connectedQueues.ContainsKey(type))
+            {
+                connectedQueues.AddOrUpdate(type, connectedQueue, (key, old) => connectedQueue);
+            }
         }
 
         /// <summary>
@@ -227,6 +305,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Invoke callback notifications          
             InvokeOnConnectionActivities(connectionInfo, connectionParams);
 
+            if(connectionParams.Type == ConnectionType.ObjectExplorer)
+            {
+                DbConnection connection;
+                if (connectionInfo.TryGetConnection(ConnectionType.ObjectExplorer, out connection))
+                {
+                    // OE doesn't need to keep the connection open
+                    connection.Close();
+                }
+            }
             return completeParams;
         }
 
@@ -343,9 +430,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             DbConnection connection = null;
             CancelTokenKey cancelKey = new CancelTokenKey { OwnerUri = connectionParams.OwnerUri, Type = connectionParams.Type };
             ConnectionCompleteParams response = new ConnectionCompleteParams { OwnerUri = connectionInfo.OwnerUri, Type = connectionParams.Type };
+            bool? currentPooling = connectionInfo.ConnectionDetails.Pooling;
 
             try
             {
+                connectionInfo.ConnectionDetails.Pooling = false;
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
@@ -366,7 +455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                     cancelTupleToCancellationTokenSourceMap[cancelKey] = source;
                 }
-                    
+                
                 // Open the connection
                 await connection.OpenAsync(source.Token);
             }
@@ -403,6 +492,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                     source?.Dispose();
                 }
+                if (connectionInfo != null && connectionInfo.ConnectionDetails != null)
+                {
+                    connectionInfo.ConnectionDetails.Pooling = currentPooling;
+                }
             }
 
             // Return null upon success
@@ -425,7 +518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// This should be removed once the core issue is resolved and clone works as expected
         /// </param>
         /// <returns>A DB connection for the connection type requested</returns>
-        public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
+        public virtual async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
         {
             Validate.IsNotNullOrEmptyString(nameof(ownerUri), ownerUri);
             Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
@@ -442,6 +535,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!connectionInfo.TryGetConnection(ConnectionType.Default, out defaultConnection))
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
+            }
+
+            if(IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            {
+                // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
+                return defaultConnection;
             }
 
             // Try to get the DbConnection
@@ -842,12 +941,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendError(ex.ToString());
             }
         }
-                
+
+        /// <summary>
+        /// Checks if a ConnectionDetails object represents a DAC connection
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
+        {
+            Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
+            string serverName = builder.DataSource;
+            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+        
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
+        {
+            return CreateConnectionStringBuilder(connectionDetails).ToString();
+        }
+
+        /// <summary>
+        /// Build a connection string builder a connection details instance
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -857,10 +977,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
             }
-            else {
+            else 
+            {
+                // add alternate port to data source property if provided
+                string dataSource = !connectionDetails.Port.HasValue
+                    ? connectionDetails.ServerName
+                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
+
                 connectionBuilder = new SqlConnectionStringBuilder
                 {
-                    ["Data Source"] = connectionDetails.ServerName,
+                    ["Data Source"] = dataSource,
                     ["User Id"] = connectionDetails.UserName,
                     ["Password"] = connectionDetails.Password
                 };
@@ -981,7 +1107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
 
-            return connectionBuilder.ToString();
+            return connectionBuilder;
         }
 
         /// <summary>
@@ -1109,7 +1235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
                 connInfo.ConnectionDetails.Pooling = false;
 
-                // generate connection string        
+                // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
 
                 // restore original values
@@ -1118,7 +1244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString); 
+                SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.Open();
                 return sqlConn;
             }

@@ -142,13 +142,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (connInfo != null)
                 {
-                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true))
                     {
-                        BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-                        backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
-                        response.BackupConfigInfo = backupConfigInfo;
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                        {
+                            if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                            {
+                                BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                                backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
+                                response.BackupConfigInfo = backupConfigInfo;
+                            }
+                        }
                     }
                 }
 
@@ -233,7 +237,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             RequestContext<RestoreResponse> requestContext)
         {
             RestoreResponse response = new RestoreResponse();
-
             try
             {
                 ConnectionInfo connInfo;
@@ -243,10 +246,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     try
                     {
-                        RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams);
+                       
+                        RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams, connInfo);
 
                         if (restoreDataObject != null)
                         {
+                            restoreDataObject.LockedDatabaseManager = ConnectionServiceInstance.LockedDatabaseManager;
                             // create task metadata
                             TaskMetadata metadata = TaskMetadata.Create(restoreParams, SR.RestoreTaskName, restoreDataObject, ConnectionServiceInstance);
                             metadata.DatabaseName = restoreParams.TargetDatabaseName;
@@ -297,6 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    // Connection gets discounnected when backup is done
 
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
                     SqlTask sqlTask = null;
@@ -332,17 +338,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (connInfo != null)
                 {
-                    sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-                    if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                    using (sqlConn = ConnectionService.OpenSqlConnection(connInfo))
                     {
-                        connectionInfo = connInfo;
-                        return true;
+                        if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                        {
+                            connectionInfo = connInfo;
+                            return true;
+                        }
                     }
                 }
             }
             catch
             {
-                if(sqlConn != null)
+                if(sqlConn != null && sqlConn.State == System.Data.ConnectionState.Open)
                 {
                     sqlConn.Close();
                 }

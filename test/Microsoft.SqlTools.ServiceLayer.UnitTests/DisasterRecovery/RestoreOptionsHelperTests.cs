@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         {
             RestoreParams restoreParams = CreateOptionsTestData();
             string defaultDbName = "default";
-            string currentDbName = "db3";
+            string currentDbName = null;
             restoreParams.Options["SourceDbNames"] = new List<string> { "db1", "db2" };
             restoreParams.Options["DefaultSourceDbName"] = defaultDbName;
             restoreParams.Options[RestoreOptionsHelper.SourceDatabaseName] = currentDbName;
@@ -292,6 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             optionValues.Options.Add("DbFiles", new List<DbFile>() { new DbFile("", '1', "") });
             optionValues.Options.Add("DefaultDataFileFolder", "Default data file folder");
             optionValues.Options.Add("DefaultLogFileFolder", "Default log file folder");
+            optionValues.Options.Add("DefaultBackupFolder", "Default backup folder");
             optionValues.Options.Add("IsTailLogBackupPossible", true);
             optionValues.Options.Add("IsTailLogBackupWithNoRecoveryPossible", true);
             optionValues.Options.Add("GetDefaultStandbyFile", "default standby file");
@@ -324,6 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             restoreDataObject.DbFiles = optionValues.GetOptionValue<List<DbFile>>("DbFiles");
             restoreDataObject.DefaultDataFileFolder = optionValues.GetOptionValue<string>("DefaultDataFileFolder");
             restoreDataObject.DefaultLogFileFolder = optionValues.GetOptionValue<string>("DefaultLogFileFolder");
+            restoreDataObject.DefaultBackupFolder = optionValues.GetOptionValue<string>("DefaultBackupFolder");
             restoreDataObject.IsTailLogBackupPossible = optionValues.GetOptionValue<bool>("IsTailLogBackupPossible");
             restoreDataObject.IsTailLogBackupWithNoRecoveryPossible = optionValues.GetOptionValue<bool>("IsTailLogBackupWithNoRecoveryPossible");
             restoreDataObject.DefaultStandbyFile = optionValues.GetOptionValue<string>("GetDefaultStandbyFile");

@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 response.ConfigInfo.Add(RestoreOptionsHelper.LogFileFolder, restoreTaskObject.DefaultLogFileFolder);
                 // The db names with backup set
                 response.ConfigInfo.Add(RestoreOptionsHelper.SourceDatabaseNamesWithBackupSets, restoreTaskObject.GetDatabaseNamesWithBackupSets());
+                // Default backup folder path in the target server
+                response.ConfigInfo.Add(RestoreOptionsHelper.DefaultBackupFolder, restoreTaskObject.DefaultBackupFolder);
             }
 
             return response;
@@ -144,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         /// <param name="restoreParams">Restore request parameters</param>
         /// <returns>Restore task object</returns>
-        public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams)
+        public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams, ConnectionInfo connectionInfo = null)
         {
             RestoreDatabaseTaskDataObject restoreTaskObject = null;
             string sessionId = string.IsNullOrWhiteSpace(restoreParams.SessionId) ? Guid.NewGuid().ToString() : restoreParams.SessionId;
@@ -155,6 +157,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             restoreTaskObject.SessionId = sessionId;
             restoreTaskObject.RestoreParams = restoreParams;
+            if (connectionInfo != null)
+            {
+                restoreTaskObject.ConnectionInfo = connectionInfo;
+            }
             
             return restoreTaskObject;
         }
