@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private void RunSelectTask(ConnectionInfo connInfo, ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {            
             ConnectionServiceInstance.ConnectionQueue.QueueBindingOperation(
-                key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo),
+                key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo, "Scripting"),
                 bindingTimeout: ScriptingOperationTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {

@@ -598,7 +598,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, overwrite: true);
+                                this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
                             }
                             catch (Exception ex)
                             {
@@ -845,7 +845,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info);
+                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, "languageService");
                         scriptInfo.IsConnected = true;
 
                     }

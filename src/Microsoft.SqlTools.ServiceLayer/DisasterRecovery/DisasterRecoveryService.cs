@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true))
                     {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
                         {
                             if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                             {
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (supported && connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
                     // Connection gets discounnected when backup is done
 
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (connInfo != null)
                 {
-                    using (sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                    using (sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DisasterRecovery"))
                     {
                         if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
                         {

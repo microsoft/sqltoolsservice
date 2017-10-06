@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private Dictionary<string, ManualResetEvent> databaseAccessEvents = new Dictionary<string, ManualResetEvent>();
         private object databaseAccessLock = new object();
-        public const int DefaultWaitToGetFullAccess = 60000;
+        public const int DefaultWaitToGetFullAccess = 10000;
         public int waitToGetFullAccess = DefaultWaitToGetFullAccess;
 
         private ManualResetEvent GetResetEvent(string serverName, string databaseName)
@@ -53,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool GainFullAccessToDatabase(string serverName, string databaseName)
         {
             /*
+             * TODO: add the lock so not two process can get full access at the same time
             ManualResetEvent resetEvent = GetResetEvent(serverName, databaseName);
             if (resetEvent.WaitOne(this.waitToGetFullAccess))
             {
@@ -71,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             */
             foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
             {
-                item.CloseConnections(serverName, databaseName);
+                item.CloseConnections(serverName, databaseName, DefaultWaitToGetFullAccess);
             }
             return true;
 
@@ -91,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             */
             foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
             {
-                item.OpenConnections(serverName, databaseName);
+                item.OpenConnections(serverName, databaseName, DefaultWaitToGetFullAccess);
             }
             return true;
             

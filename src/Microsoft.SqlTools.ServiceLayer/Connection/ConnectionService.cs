@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
-                return this.ownerToConnectionMap;   
+                return this.ownerToConnectionMap;
             }
         }
 
@@ -264,6 +264,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return validationResults;
             }
 
+            TrySetConnectionType(connectionParams);
+
+            connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Type);
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
@@ -305,16 +308,63 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Invoke callback notifications          
             InvokeOnConnectionActivities(connectionInfo, connectionParams);
 
-            if(connectionParams.Type == ConnectionType.ObjectExplorer)
+            TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
+
+            return completeParams;
+        }
+
+        private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
+        {
+            try
             {
-                DbConnection connection;
-                if (connectionInfo.TryGetConnection(ConnectionType.ObjectExplorer, out connection))
+                if (connectionParams.Type == ConnectionType.ObjectExplorer || connectionParams.Type == ConnectionType.Dashboard || connectionParams.Type == ConnectionType.ConnectionValidation)
                 {
-                    // OE doesn't need to keep the connection open
-                    connection.Close();
+                    DbConnection connection;
+                    string type = connectionParams.Type;
+                    if (connectionInfo.TryGetConnection(type, out connection))
+                    {
+                        // OE doesn't need to keep the connection open
+                        connection.Close();
+                    }
                 }
             }
-            return completeParams;
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Normal, "Failed to close temporary connections. error: " + ex.Message);
+            }
+        }
+
+        private static string GetApplicationNameWithFeature(string applicationName, string featureName)
+        {
+            string appNameWithFeature = applicationName;
+
+            if (!string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName))
+            {
+                int index = applicationName.IndexOf('-');
+                string appName = applicationName;
+                if (index > 0)
+                {
+                    appName = applicationName.Substring(0, index - 1);
+                }
+                appNameWithFeature = $"{appName}-{featureName}";
+            }
+
+            return appNameWithFeature;
+        }
+
+        private void TrySetConnectionType(ConnectParams connectionParams)
+        {
+            if (connectionParams != null && connectionParams.Type == ConnectionType.Default && !string.IsNullOrWhiteSpace(connectionParams.OwnerUri))
+            {
+                if (connectionParams.OwnerUri.ToLowerInvariant().StartsWith("dashboard://"))
+                {
+                    connectionParams.Type = ConnectionType.Dashboard;
+                }
+                else if (connectionParams.OwnerUri.ToLowerInvariant().StartsWith("connection://"))
+                {
+                    connectionParams.Type = ConnectionType.ConnectionValidation;
+                }
+            }
         }
 
         private bool IsConnectionChanged(ConnectParams connectionParams, ConnectionInfo connectionInfo)
@@ -1159,7 +1209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         private void InvokeOnConnectionActivities(ConnectionInfo connectionInfo, ConnectParams connectParams)
         {
-            if (connectParams.Type != ConnectionType.Default)
+            if (connectParams.Type != ConnectionType.Default && connectParams.Type != ConnectionType.ConnectionValidation)
             {
                 return;
             }
@@ -1219,7 +1269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Note: we need to audit all uses of this method to determine why we're
         /// bypassing normal ConnectionService connection management
         /// </summary>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo)
+        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
@@ -1234,6 +1284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
                 connInfo.ConnectionDetails.Pooling = false;
+                connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
 
                 // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
