@@ -13,13 +13,28 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
+    public interface IConnectedBindingQueue
+    {
+        void CloseConnections(string serverName, string databaseName);
+        void OpenConnections(string serverName, string databaseName);
+        string AddConnectionContext(ConnectionInfo connInfo, bool overwrite = false);
+        void Dispose();
+        QueueItem QueueBindingOperation(
+            string key,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null);
+    }
+
     /// <summary>
     /// ConnectedBindingQueue class for processing online binding requests
     /// </summary>
-    public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>
+    public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
 
@@ -65,6 +80,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Generate a unique key based on the ConnectionInfo object
+        /// </summary>
+        /// <param name="connInfo"></param>
+        private string GetConnectionContextKey(string serverName, string databaseName)
+        {
+            return string.Format("{0}_{1}",
+                serverName ?? "NULL",
+                databaseName ?? "NULL");
+            
+        }
+
+        public void CloseConnections(string serverName, string databaseName)
+        {
+            string connectionKey = GetConnectionContextKey(serverName, databaseName);
+            var contexts = GetBindingContexts(connectionKey);
+            foreach (var bindingContext in contexts)
+            {
+                if (bindingContext.BindingLock.WaitOne(2000))
+                {
+                    bindingContext.ServerConnection.Disconnect();
+                }
+            }
+        }
+
+        public void OpenConnections(string serverName, string databaseName)
+        {
+            string connectionKey = GetConnectionContextKey(serverName, databaseName);
+            var contexts = GetBindingContexts(connectionKey);
+            foreach (var bindingContext in contexts)
+            {
+                if (bindingContext.BindingLock.WaitOne(2000))
+                {
+                    //bindingContext.ServerConnection.Connect();
+                }
+            }
+        }
+
+        /// <summary>
         /// Use a ConnectionInfo item to create a connected binding context
         /// </summary>
         /// <param name="connInfo">Connection info used to create binding context</param>   
@@ -98,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bindingContext.BindingLock.Reset();
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
-
+                   
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = new ServerConnection(sqlConn);
 

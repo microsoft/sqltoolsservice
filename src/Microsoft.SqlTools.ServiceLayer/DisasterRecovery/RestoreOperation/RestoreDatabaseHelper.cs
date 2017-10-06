@@ -88,10 +88,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                             RestoreAsFileName = x.PhysicalNameRelocate
                         });
                         response.CanRestore = CanRestore(restoreDataObject);
-                        if (!response.CanRestore)
-                        {
-                            response.ErrorMessage = SR.NoBackupsetsToRestore;
-                        }
 
                         response.PlanDetails.Add(LastBackupTaken, 
                             RestorePlanDetailInfo.Create(name: LastBackupTaken, currentValue: restoreDataObject.GetLastBackupTaken(), isReadOnly: true));
@@ -150,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// </summary>
         /// <param name="restoreParams">Restore request parameters</param>
         /// <returns>Restore task object</returns>
-        public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams)
+        public RestoreDatabaseTaskDataObject CreateRestoreDatabaseTaskDataObject(RestoreParams restoreParams, ConnectionInfo connectionInfo = null)
         {
             RestoreDatabaseTaskDataObject restoreTaskObject = null;
             string sessionId = string.IsNullOrWhiteSpace(restoreParams.SessionId) ? Guid.NewGuid().ToString() : restoreParams.SessionId;
@@ -161,6 +157,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             restoreTaskObject.SessionId = sessionId;
             restoreTaskObject.RestoreParams = restoreParams;
+            if (connectionInfo != null)
+            {
+                restoreTaskObject.ConnectionInfo = connectionInfo;
+            }
             
             return restoreTaskObject;
         }

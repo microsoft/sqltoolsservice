@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -149,6 +150,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         events.Add(profilerEvent);
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                Logger.Write(LogLevel.Warning, "Failed to pool session. error: " + ex.Message);
             }
             finally
             {

@@ -36,13 +36,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             return filePath;
         }
 
-        public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null, string fileName = null)
+        public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null, string ownerUri = null)
         {
-            string sqlFilePath = GetTestSqlFile();
-            ScriptFile scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);
+            ScriptFile scriptFile = null;
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
-
-            string ownerUri = scriptFile.ClientFilePath;
+            if (string.IsNullOrEmpty(ownerUri))
+            {
+                ownerUri = GetTestSqlFile();
+                scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
+                ownerUri = scriptFile.ClientFilePath;
+            }
             var connectionService = GetLiveTestConnectionService();
             var connectionResult =
                 connectionService
@@ -59,13 +62,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
         }
 
-        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null)
+        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null, 
+            string connectionType = ServiceLayer.Connection.ConnectionType.Default)
         {
             ScriptFile scriptFile = null;
             if (string.IsNullOrEmpty(ownerUri))
             {
-                string sqlFilePath = GetTestSqlFile();
-                scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);
+                ownerUri = GetTestSqlFile();
+                scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
                 ownerUri = scriptFile.ClientFilePath;
             }
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
@@ -76,7 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 .Connect(new ConnectParams
                 {
                     OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
+                    Connection = connectParams.Connection,
+                    Type = connectionType
                 });
             if (!string.IsNullOrEmpty(connectionResult.ErrorMessage))
             {
@@ -90,25 +95,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 
         public static ConnectionInfo InitLiveConnectionInfoForDefinition(string databaseName = null)
         {
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
-            const string ScriptUriTemplate = "file://some/{0}.sql";
-            string ownerUri = string.Format(CultureInfo.InvariantCulture, ScriptUriTemplate, string.IsNullOrEmpty(databaseName) ? "file" : databaseName);
-            var connectionService = GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
-                });
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
+                string ownerUri = queryTempFile.FilePath;
+                var connectionService = GetLiveTestConnectionService();
+                var connectionResult =
+                    connectionService
+                    .Connect(new ConnectParams
+                    {
+                        OwnerUri = ownerUri,
+                        Connection = connectParams.Connection
+                    });
 
-            connectionResult.Wait();
+                connectionResult.Wait();
 
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
+                ConnectionInfo connInfo = null;
+                connectionService.TryFindConnection(ownerUri, out connInfo);
 
-            Assert.NotNull(connInfo);
-            return connInfo;
+                Assert.NotNull(connInfo);
+                return connInfo;
+            }
         }
 
         public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)

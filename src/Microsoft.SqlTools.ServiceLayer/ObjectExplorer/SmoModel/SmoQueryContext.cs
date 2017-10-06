@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>
-        private void EnsureConnectionOpen(SmoObjectBase smoObj)
+        public void EnsureConnectionOpen(SmoObjectBase smoObj)
         {
             if (!smoWrapper.IsConnectionOpen(smoObj))
             {

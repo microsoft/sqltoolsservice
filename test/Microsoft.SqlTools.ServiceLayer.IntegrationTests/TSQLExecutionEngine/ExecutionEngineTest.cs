@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Xunit;
-
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
@@ -70,6 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         //
         public void Dispose()
         {
+            //Task.Run(() => SqlTestDb.DropDatabase(connection.Database));
             CloseConnection(connection);
             connection = null;
         }        
@@ -633,7 +634,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// Test multiple threads of execution engine with cancel operation
         /// </summary>
         [Fact]
-        public void ExecutionEngineTest_MultiThreading_WithCancel()
+        public async Task ExecutionEngineTest_MultiThreading_WithCancel()
         {
             string[] sqlStatement = { "waitfor delay '0:0:10'",
                  "waitfor delay '0:0:10'",
@@ -683,6 +684,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 
             CloseConnection(connection2);
             CloseConnection(connection3);
+            await SqlTestDb.DropDatabase(connection2.Database);
+            await SqlTestDb.DropDatabase(connection3.Database);
         }
 
         #endregion

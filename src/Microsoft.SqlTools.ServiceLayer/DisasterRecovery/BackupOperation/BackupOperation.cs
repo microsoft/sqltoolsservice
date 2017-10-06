@@ -313,6 +313,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 throw;
             }
+            finally
+            {
+                if (this.serverConnection != null)
+                {
+                    this.serverConnection.Disconnect();
+                }
+                if(this.dataContainer != null)
+                {
+                    this.dataContainer.Dispose();
+                }
+            }
         }
 
         /// <summary>

@@ -15,10 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal class SmoWrapper
     {
-        public virtual Server CreateServer(SqlConnection connection)
+        public virtual Server CreateServer(ServerConnection serverConn)
         {
-            ServerConnection serverConn = new ServerConnection(connection);
-            return new Server(serverConn);
+            return serverConn == null ? null : new Server(serverConn);
         }
 
         public virtual bool IsConnectionOpen(SmoObjectBase smoObj)

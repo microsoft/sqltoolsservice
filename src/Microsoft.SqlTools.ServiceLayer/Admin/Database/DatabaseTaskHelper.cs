@@ -6,6 +6,7 @@
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
+using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
-    public class DatabaseTaskHelper
+    public class DatabaseTaskHelper: IDisposable
     {
         private DatabasePrototype prototype;
 
@@ -183,6 +184,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             }
             return prototype;
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                if (this.DataContainer != null)
+                {
+                    this.DataContainer.Dispose();
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.Write(LogLevel.Warning, $"Failed to disconnect Database task Helper connection. Error: {ex.Message}");
+            }
         }
     }
 }
