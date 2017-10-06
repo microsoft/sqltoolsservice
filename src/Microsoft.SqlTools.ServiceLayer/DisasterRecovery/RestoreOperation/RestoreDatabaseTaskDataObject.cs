@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         List<String> SourceDbNames { get; }
 
-        bool CanChangeTargetDatabase { get; }
+        bool OverwriteTargetDatabase { get; set; }
 
         string DefaultTargetDbName { get; }
         string TargetDatabaseName { get; set; }
@@ -160,14 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return Util.GetSourceDbNames();
         }
 
-        public bool CanChangeTargetDatabase
-        {
-            get
-            {
-                return true;
-                //return DatabaseUtils.IsSystemDatabaseConnection(Server.ConnectionContext.DatabaseName);
-            }
-        }
+        public bool OverwriteTargetDatabase { get; set; }
 
         public string DefaultTargetDbName
         {

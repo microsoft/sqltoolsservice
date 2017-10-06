@@ -336,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             restoreDataObject.SourceDatabaseName = optionValues.GetOptionValue<string>(RestoreOptionsHelper.SourceDatabaseName);
             restoreDataObject.TargetDatabaseName = optionValues.GetOptionValue<string>(RestoreOptionsHelper.TargetDatabaseName);
             restoreDataObject.TailLogWithNoRecovery = optionValues.GetOptionValue<bool>("TailLogWithNoRecovery");
-            restoreDataObject.CanChangeTargetDatabase = optionValues.GetOptionValue<bool>("CanChangeTargetDatabase");
+            restoreDataObject.OverwriteTargetDatabase = optionValues.GetOptionValue<bool>("CanChangeTargetDatabase");
             restoreDataObject.DefaultSourceDbName = optionValues.GetOptionValue<string>("DefaultSourceDbName");
             restoreDataObject.SourceDbNames = optionValues.GetOptionValue<List<string>>("SourceDbNames");
             restoreDataObject.DefaultTargetDbName = optionValues.GetOptionValue<string>("DefaultTargetDbName");

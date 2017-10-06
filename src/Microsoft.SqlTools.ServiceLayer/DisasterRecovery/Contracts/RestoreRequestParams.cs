@@ -147,6 +147,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
 
+        /// <summary>
+        /// Indicates whether to overwrite target database by source database name. 
+        /// The parameter is optional and if passed, an existing plan will be used
+        /// </summary>
+        internal bool OverwriteTargetDatabase
+        {
+            get
+            {
+                return Options.ContainsKey(RestoreOptionsHelper.OverwriteTargetDatabase) ? GetOptionValue<bool>(RestoreOptionsHelper.OverwriteTargetDatabase) : false;
+            }
+            set
+            {
+                SetOptionValue(RestoreOptionsHelper.OverwriteTargetDatabase, value);
+            }
+        }
     }
-
 }

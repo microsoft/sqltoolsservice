@@ -528,7 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                {
                    DefaultValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject) =>
                    {
-                       return restoreDataObject.CanChangeTargetDatabase ? restoreDataObject.DefaultSourceDbName : restoreDataObject.DefaultTargetDbName;
+                       return restoreDataObject.OverwriteTargetDatabase ? restoreDataObject.DefaultSourceDbName : restoreDataObject.DefaultTargetDbName;
                    },
                    CurrentValueFunction = (IRestoreDatabaseTaskDataObject restoreDataObject) =>
                    {

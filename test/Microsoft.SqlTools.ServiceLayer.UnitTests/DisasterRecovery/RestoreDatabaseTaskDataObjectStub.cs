@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
         public List<string> SourceDbNames { get; set; }
 
-        public bool CanChangeTargetDatabase { get; set; }
+        public bool OverwriteTargetDatabase { get; set; }
 
         public string DefaultTargetDbName { get; set; }
 

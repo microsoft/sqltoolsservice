@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         //The list of names service uses to sends restore options to client
         private static string[] optionNames = new string[] { KeepReplication, ReplaceDatabase , SetRestrictedUser, RecoveryState ,
             BackupTailLog , TailLogBackupFile, TailLogWithNoRecovery, CloseExistingConnections, RelocateDbFiles, DataFileFolder, LogFileFolder,
-            StandbyFile,
+            StandbyFile, OverwriteTargetDatabase
         };
         //The key names of restore info in the resquest of response
 
@@ -79,6 +79,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
         //The key name to use to set in the requst. If set to true, the backup files will be used to restore otherwise the source database name 
         internal const string ReadHeaderFromMedia = "readHeaderFromMedia";
+
+        //The key name to use to set in the requst. If set to true, the target database name will be overwritten by source database name
+        internal const string OverwriteTargetDatabase = "overwriteTargetDatabase";
 
         /// <summary>
         /// Creates the options metadata available for restore operations
