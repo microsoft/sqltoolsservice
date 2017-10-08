@@ -55,8 +55,14 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             try
             {
                 ServiceClientCredentials credentials = CreateCredentials(subscriptionContext);
-                SqlManagementClient sqlManagementClient = new SqlManagementClient(_resourceManagementUri, credentials);
-                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(_resourceManagementUri, credentials);
+                SqlManagementClient sqlManagementClient = new SqlManagementClient(_resourceManagementUri, credentials)
+                {
+                    SubscriptionId = subscriptionContext.Subscription.SubscriptionId
+                };
+                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(_resourceManagementUri, credentials)
+                {
+                    SubscriptionId = subscriptionContext.Subscription.SubscriptionId
+                };
                 return Task.FromResult<IAzureResourceManagementSession>(new AzureResourceManagementSession(sqlManagementClient, resourceManagementClient, subscriptionContext));
             }
             catch (Exception ex)
@@ -121,6 +127,10 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 AzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as AzureResourceManagementSession;
                 if(vsAzureResourceManagementSession != null)
                 {
+                    // Note: Ideally wouldn't need to query resource groups, but the current impl requires it
+                    // since any update will need the resource group name and it's not returned from the server.
+                    // This has a very negative impact on perf, so we should investigate running these queries
+                    // in parallel
                     IEnumerable<ResourceGroup> resourceGroupNames = await GetResourceGroupsAsync(vsAzureResourceManagementSession);
                     if (resourceGroupNames != null)
                     {
@@ -177,7 +187,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                         };
                         IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
                         var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateAsync(
-                                                                                    azureSqlServer.ResourceGroupName,
+                                                                                    azureSqlServer.ResourceGroupName ?? string.Empty,
                                                                                     azureSqlServer.Name,
                                                                                     firewallRuleRequest.FirewallRuleName,
                                                                                     firewallRule);
@@ -311,7 +321,15 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 
             if (azureTenant != null)
             {
-                TokenCredentials credentials = new TokenCredentials(azureTenant.AccessToken);
+                TokenCredentials credentials;
+                if (!string.IsNullOrWhiteSpace(azureTenant.TokenType))
+                {
+                    credentials = new TokenCredentials(azureTenant.AccessToken, azureTenant.TokenType);
+                }
+                else
+                {
+                    credentials = new TokenCredentials(azureTenant.AccessToken);
+                }
 
                 return credentials;
             }

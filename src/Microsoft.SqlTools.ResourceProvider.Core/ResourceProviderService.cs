@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             {
                 AuthenticationService authService = ServiceProvider.GetService<AuthenticationService>();
                 IUserAccount account = await authService.SetCurrentAccountAsync(firewallRule.Account, firewallRule.SecurityTokenMappings);
-                FirewallRuleResponse response = await firewallRuleService.CreateFirewallRuleAsync(firewallRule.ServerName, firewallRule.StartIpAddressValue, firewallRule.EndIpAddressValue);
+                FirewallRuleResponse response = await firewallRuleService.CreateFirewallRuleAsync(firewallRule.ServerName, firewallRule.StartIpAddress, firewallRule.EndIpAddress);
                 result.Result = true;
             }
             catch(FirewallRuleException ex)
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     FirewallErrorParser parser = new FirewallErrorParser();
                     FirewallParserResponse parserResponse = parser.ParseErrorMessage(canHandleRuleParams.ErrorMessage, canHandleRuleParams.ErrorCode);
                     response.Result = parserResponse.FirewallRuleErrorDetected;
-                    response.IpAddress = parserResponse.BlockedIpAddress.ToString();
+                    response.IpAddress = parserResponse.BlockedIpAddress != null ? parserResponse.BlockedIpAddress.ToString() : string.Empty;
                 }
                 return Task.FromResult(response);
             };

@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public AzureSubscriptionIdentifier(IAzureUserAccount userAccount, string tenantId, string subscriptionId, Uri serviceManagementEndpoint)
         {
             UserAccount = userAccount;
+            TenantId = tenantId;
             SubscriptionId = subscriptionId;
             ServiceManagementEndpoint = serviceManagementEndpoint;
         }

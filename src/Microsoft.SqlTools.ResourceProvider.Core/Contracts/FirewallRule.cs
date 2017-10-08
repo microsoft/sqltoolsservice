@@ -28,10 +28,10 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// </summary>
         public Account Account { get; set; }
         /// <summary>
-        /// Per-tenant oken mappings. Ideally would be set independently of this call, but for 
-        /// now this allows us to handle this
+        /// Per-tenant token mappings. Ideally would be set independently of this call, but for 
+        /// now this allows us to get the tokens necessary to find a server and open a firewall rule
         /// </summary>
-        public Dictionary<string,string> SecurityTokenMappings { get; set; }
+        public Dictionary<string,AccountSecurityToken> SecurityTokenMappings { get; set; }
 
         /// <summary>
         /// Fully qualified name of the server to create a new firewall rule on
@@ -41,12 +41,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// <summary>
         /// Start of the IP address range
         /// </summary>
-        public string StartIpAddressValue { get; set; }
+        public string StartIpAddress { get; set; }
 
         /// <summary>
         /// End of the IP address range
         /// </summary>
-        public string EndIpAddressValue { get; set; }
+        public string EndIpAddress { get; set; }
   
     }
 

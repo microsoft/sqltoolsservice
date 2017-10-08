@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
     /// </summary>
     public class AccountTokenWrapper
     {
-        public AccountTokenWrapper(Account account, Dictionary<string, string> securityTokenMappings)
+        public AccountTokenWrapper(Account account, Dictionary<string, AccountSecurityToken> securityTokenMappings)
         {
             Account = account;
             SecurityTokenMappings = securityTokenMappings;
@@ -26,6 +26,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
         /// <summary>
         /// Token mappings from tentant ID to their access token
         /// </summary>
-        public Dictionary<string, string> SecurityTokenMappings { get; private set; }
+        public Dictionary<string, AccountSecurityToken> SecurityTokenMappings { get; private set; }
     }
 }

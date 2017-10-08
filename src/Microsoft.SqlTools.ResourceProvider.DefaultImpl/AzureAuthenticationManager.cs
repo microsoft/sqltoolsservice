@@ -96,14 +96,15 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             IList<IAzureTenant> tenants = new List<IAzureTenant>();
             foreach (Tenant tenant in account.Properties.Tenants)
             {
-                string token;
+                AccountSecurityToken token;
                 if (accountTokenWrapper.SecurityTokenMappings.TryGetValue(tenant.Id, out token))
                 {
                     AzureTenant azureTenant = new AzureTenant()
                     {
                         TenantId = tenant.Id,
                         AccountDisplayableId = tenant.DisplayName,
-                        AccessToken = token
+                        AccessToken = token.Token,
+                        TokenType = token.TokenType
                     };
                     tenants.Add(azureTenant);
                 }

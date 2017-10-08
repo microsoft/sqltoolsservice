@@ -35,5 +35,14 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             get;
             set;
         }
+
+        /// <summary>
+        /// Optional token type defining whether this is a Bearer token or other type of token 
+        /// </summary>
+        public string TokenType
+        {
+            get;
+            set;
+        }
     }
 }

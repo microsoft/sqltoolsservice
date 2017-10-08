@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             Logger.Write(LogLevel.Verbose, "AuthenticationService initialized");
         }
         
-        public async Task<IUserAccount> SetCurrentAccountAsync(Account account, Dictionary<string, string> securityTokenMappings)
+        public async Task<IUserAccount> SetCurrentAccountAsync(Account account, Dictionary<string, AccountSecurityToken> securityTokenMappings)
         {
             var authManager = ServiceProvider.GetService<IAzureAuthenticationManager>();
             // Ideally in the future, would have a factory to create the user account and tenant info without knowing
