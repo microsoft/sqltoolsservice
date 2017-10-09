@@ -13,13 +13,14 @@ using Microsoft.Azure.Management.Sql;
 using Microsoft.Azure.Management.Sql.Models;
 using RestFirewallRule = Microsoft.Azure.Management.Sql.Models.FirewallRule;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
-using Microsoft.SqlTools.ResourceProvider.Core.FirewallRule;
+using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Rest;
 using System.Globalization;
 using Microsoft.Rest.Azure;
 using Microsoft.SqlTools.ResourceProvider.Core;
+using System.Collections;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         ServerTypes.SqlServer,
         Categories.Azure,
         typeof(IAzureResourceManager),
-        "Microsoft.SqlServer.ConnectionServices.Azure.Impl.VsAzureResourceManager",
+        "Microsoft.SqlTools.ResourceProvider.DefaultImpl.AzureResourceManager",
         1)
     ]
     public class AzureResourceManager : ExportableBase, IAzureResourceManager
@@ -45,18 +46,24 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             Metadata = new ExportableMetadata(
                 ServerTypes.SqlServer,
                 Categories.Azure,
-                "Microsoft.SqlServer.ConnectionServices.Azure.Impl.VsAzureResourceManager");
+                "Microsoft.SqlTools.ResourceProvider.DefaultImpl.AzureResourceManager");
         }
 
-        public async Task<IAzureResourceManagementSession> CreateSessionAsync(IAzureUserAccountSubscriptionContext subscriptionContext)
+        public Task<IAzureResourceManagementSession> CreateSessionAsync(IAzureUserAccountSubscriptionContext subscriptionContext)
         {
             CommonUtil.CheckForNull(subscriptionContext, "subscriptionContext");
             try
             {
-                ServiceClientCredentials credentials = await CreateCredentialsAsync(subscriptionContext);
-                SqlManagementClient sqlManagementClient = new SqlManagementClient(_resourceManagementUri, credentials);
-                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(_resourceManagementUri, credentials);
-                return new AzureResourceManagementSession(sqlManagementClient, resourceManagementClient, subscriptionContext);
+                ServiceClientCredentials credentials = CreateCredentials(subscriptionContext);
+                SqlManagementClient sqlManagementClient = new SqlManagementClient(credentials)
+                {
+                    SubscriptionId = subscriptionContext.Subscription.SubscriptionId
+                };
+                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(credentials)
+                {
+                    SubscriptionId = subscriptionContext.Subscription.SubscriptionId
+                };
+                return Task.FromResult<IAzureResourceManagementSession>(new AzureResourceManagementSession(sqlManagementClient, resourceManagementClient, subscriptionContext));
             }
             catch (Exception ex)
             {
@@ -120,26 +127,28 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 AzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as AzureResourceManagementSession;
                 if(vsAzureResourceManagementSession != null)
                 {
-                    IEnumerable<ResourceGroup> resourceGroupNames = await GetResourceGroupsAsync(vsAzureResourceManagementSession);
-                    if (resourceGroupNames != null)
+                    // Note: Ideally wouldn't need to query resource groups, but the current impl requires it
+                    // since any update will need the resource group name and it's not returned from the server.
+                    // This has a very negative impact on perf, so we should investigate running these queries
+                    // in parallel
+
+                    try
                     {
-                        foreach (ResourceGroup resourceGroupExtended in resourceGroupNames)
+                        IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
+                        IPage<Server> servers = await serverOperations.ListAsync();
+                        if (servers != null)
                         {
-                            try
-                            {
-                                IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
-                                IPage<Server> servers = await serverOperations.ListByResourceGroupAsync(resourceGroupExtended.Name);
-                                if (servers != null)
-                                {
-                                    sqlServers.AddRange(servers.Select(x =>
-                                        new SqlAzureResource(x) { ResourceGroupName = resourceGroupExtended.Name }));
-                                }
-                            }
-                            catch (HttpOperationException ex)
-                            {
-                                throw new AzureResourceFailedException(SR.FailedToGetAzureSqlServersErrorMessage, ex.Response.StatusCode);
-                            }
+                            sqlServers.AddRange(servers.Select(server => {
+                                var serverResource = new SqlAzureResource(server);
+                                // TODO ResourceGroup name
+                                return serverResource;
+                            }));
                         }
+                    }
+                    catch (HttpOperationException ex)
+                    {
+                        throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureSqlServersWithError, ex.Message), ex.Response.StatusCode);
                     }
                 }
             }
@@ -175,21 +184,24 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                             StartIpAddress = firewallRuleRequest.StartIpAddress.ToString()
                         };
                         IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
-                        var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateAsync(
-                                                                                    azureSqlServer.ResourceGroupName,
+                        var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateWithHttpMessagesAsync(
+                                                                                    azureSqlServer.ResourceGroupName ?? string.Empty,
                                                                                     azureSqlServer.Name,
                                                                                     firewallRuleRequest.FirewallRuleName,
-                                                                                    firewallRule);
+                                                                                    firewallRule,
+                                                                                    GetCustomHeaders());
+                        var response = firewallRuleResponse.Body;
                         return new FirewallRuleResponse()
                         {
-                            StartIpAddress = firewallRuleResponse.StartIpAddress,
-                            EndIpAddress = firewallRuleResponse.EndIpAddress,
+                            StartIpAddress = response.StartIpAddress,
+                            EndIpAddress = response.EndIpAddress,
                             Created = true
                         };
                     }
                     catch (HttpOperationException ex)
                     {
-                        throw new AzureResourceFailedException(SR.FirewallRuleCreationFailed, ex.Response.StatusCode);
+                        throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.FirewallRuleCreationFailedWithError, ex.Message), ex.Response.StatusCode);
                     }
                 }
                 // else respond with failure case
@@ -200,9 +212,20 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
             catch (Exception ex)
             {
-                TraceException(TraceEventType.Error, (int) TraceId.AzureResource, ex, "Failed to get databases");
+                TraceException(TraceEventType.Error, (int) TraceId.AzureResource, ex, "Failed to create firewall rule");
                 throw;
             }
+        }
+
+        private Dictionary<string,List<string>> GetCustomHeaders()
+        {
+            // For some unknown reason the firewall rule method defaults to returning XML. Fixes this by adding an Accept header
+            // ensuring it's always JSON
+            var headers = new Dictionary<string,List<string>>();
+            headers["Accept"] = new List<string>() {
+                "application/json"
+            };
+            return headers;
         }
 
         /// <summary>
@@ -226,7 +249,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     }
                     catch (HttpOperationException ex)
                     {
-                        throw new AzureResourceFailedException(SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Response.StatusCode);
+                        throw new AzureResourceFailedException(string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Message), ex.Response.StatusCode);
                     }
                 }
 
@@ -239,18 +262,104 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
         }
 
+        /// <summary>
+        /// Gets all subscription contexts under a specific user account. Queries all tenants for the account and uses these to log in 
+        /// and retrieve subscription information as needed
+        /// </summary>
+        public async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionContextsAsync(IAzureUserAccount userAccount)
+        {
+            List<IAzureUserAccountSubscriptionContext> contexts = new List<IAzureUserAccountSubscriptionContext>();
+            foreach (IAzureTenant tenant in userAccount.AllTenants)
+            {
+                AzureTenant azureTenant = tenant as AzureTenant;
+                if (azureTenant != null)
+                {
+                    ServiceClientCredentials credentials = CreateCredentials(azureTenant);
+                    using (SubscriptionClient client = new SubscriptionClient(_resourceManagementUri, credentials))
+                    {
+                        IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
+                        contexts.AddRange(subs.Select(sub =>
+                        {
+                            AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, _resourceManagementUri);
+                            AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
+                            return context;
+                        }));
+                    }
+                }
+            }
+            return contexts;
+        }
+        
+        /// <summary>
+        /// Returns the azure resource groups for given subscription
+        /// </summary>
+        private async Task<IEnumerable<Subscription>> GetSubscriptionsAsync(SubscriptionClient subscriptionClient)
+        {
+            try
+            {
+                if (subscriptionClient != null)
+                {
+                    try
+                    {
+                        ISubscriptionsOperations subscriptionsOperations = subscriptionClient.Subscriptions;
+                        IPage<Subscription> subscriptionList = await subscriptionsOperations.ListAsync();
+                        if (subscriptionList != null)
+                        {
+                            return subscriptionList.AsEnumerable();
+                        }
+
+                    }
+                    catch (HttpOperationException ex)
+                    {
+                        throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.AzureSubscriptionFailedErrorMessage, ex.Message), ex.Response.StatusCode);
+                    }
+                }
+
+                return Enumerable.Empty<Subscription>();
+            }
+            catch (Exception ex)
+            {
+                TraceException(TraceEventType.Error, (int)TraceId.AzureResource, ex, "Failed to get azure resource groups");
+                throw;
+            }
+        }
 
         /// <summary>
         /// Creates credential instance for given subscription
         /// </summary>
-        private Task<ServiceClientCredentials> CreateCredentialsAsync(IAzureUserAccountSubscriptionContext subscriptionContext)
+        private ServiceClientCredentials CreateCredentials(IAzureTenant tenant)
+        {
+            AzureTenant azureTenant = tenant as AzureTenant;
+
+            if (azureTenant != null)
+            {
+                TokenCredentials credentials;
+                if (!string.IsNullOrWhiteSpace(azureTenant.TokenType))
+                {
+                    credentials = new TokenCredentials(azureTenant.AccessToken, azureTenant.TokenType);
+                }
+                else
+                {
+                    credentials = new TokenCredentials(azureTenant.AccessToken);
+                }
+
+                return credentials;
+            }
+            throw new NotSupportedException("This uses an unknown subscription type");
+        }
+
+        /// <summary>
+        /// Creates credential instance for given subscription
+        /// </summary>
+        private ServiceClientCredentials CreateCredentials(IAzureUserAccountSubscriptionContext subscriptionContext)
         {
             AzureUserAccountSubscriptionContext azureUserSubContext =
                 subscriptionContext as AzureUserAccountSubscriptionContext;
 
             if (azureUserSubContext != null)
             {
-                return Task.FromResult(azureUserSubContext.Credentials);
+                return azureUserSubContext.Credentials;
             }
             throw new NotSupportedException("This uses an unknown subscription type");
         }

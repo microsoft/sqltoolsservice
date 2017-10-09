@@ -4,7 +4,7 @@
 
 using System.Net;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
     /// <summary>
     /// The response that's created by firewall rule parser

@@ -137,6 +137,10 @@
     <value>An error occurred while creating a new firewall rule.</value>
     <comment></comment>
   </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>An error occurred while creating a new firewall rule: '{0}'</value>
+    <comment></comment>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Invalid IP address</value>
     <comment></comment>
@@ -147,6 +151,10 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>A required dll cannot be loaded. Please repair your application.</value>
+    <comment></comment>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Cannot open a firewall rule for the specified connection type</value>
     <comment></comment>
   </data>
 </root>

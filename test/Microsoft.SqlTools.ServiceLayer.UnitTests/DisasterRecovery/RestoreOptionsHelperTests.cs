@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery

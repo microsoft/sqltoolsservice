@@ -4,7 +4,7 @@
 
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
     /// <summary>
     /// Includes azure resource and subscription needed to create firewall rule

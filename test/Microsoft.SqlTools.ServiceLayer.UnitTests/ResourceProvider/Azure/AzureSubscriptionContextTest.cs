@@ -25,8 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
         public void SubscriptionNameShouldReturnCorrectValueGivenValidSubscription()
         {
             string name = Guid.NewGuid().ToString();
-
-            AzureSubscriptionContext subscriptionContext = new AzureSubscriptionContext(new AzureSubscriptionIdentifier(null, name, null));
+            string tenantId = Guid.NewGuid().ToString();
+            AzureSubscriptionContext subscriptionContext = new AzureSubscriptionContext(new AzureSubscriptionIdentifier(null, null, name, null));
             Assert.True(subscriptionContext.SubscriptionName == name);
             Assert.True(subscriptionContext.Subscription != null);
         }

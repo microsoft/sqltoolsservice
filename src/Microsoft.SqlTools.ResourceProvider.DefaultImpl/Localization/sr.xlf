@@ -8,7 +8,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="FailedToGetAzureResourceGroupsErrorMessage">
-        <source>An error occurred while getting Azure resource groups</source>
+        <source>An error occurred while getting Azure resource groups: {0}</source>
         <target state="new">An error occurred while getting Azure resource groups</target>
         <note></note>
       </trans-unit>
@@ -20,6 +20,31 @@
       <trans-unit id="FirewallRuleCreationFailed">
         <source>An error occurred while creating a new firewall rule.</source>
         <target state="new">An error occurred while creating a new firewall rule.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSubscriptionFailedErrorMessage">
+        <source>An error occurred while getting Azure subscriptions</source>
+        <target state="new">An error occurred while getting Azure subscriptions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedAuthType">
+        <source>Unsupported account type '{0}' for this provider</source>
+        <target state="new">Unsupported account type '{0}' for this provider</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureSqlServersWithError">
+        <source>An error occurred while getting Azure Sql Servers: '{0}'</source>
+        <target state="new">An error occurred while getting Azure Sql Servers: '{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailedWithError">
+        <source>An error occurred while creating a new firewall rule: '{0}'</source>
+        <target state="new">An error occurred while creating a new firewall rule: '{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureSubscriptionsErrorMessage">
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
+        <target state="new">An error occurred while getting Azure subscriptions: {0}</target>
         <note></note>
       </trans-unit>
     </body>

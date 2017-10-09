@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using System.Net;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
     internal interface IFirewallErrorParser
     {

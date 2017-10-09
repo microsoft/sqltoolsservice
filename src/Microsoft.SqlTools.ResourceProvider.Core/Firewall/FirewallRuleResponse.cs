@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
     /// <summary>
     /// The response that's created when the firewall rule creation request is complete

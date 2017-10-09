@@ -6,9 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.SqlTools.Utility
 {
     public class GeneralRequestDetails
     {
@@ -17,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             Options = new Dictionary<string, object>();
         }
 
-        internal T GetOptionValue<T>(string name)
+        public T GetOptionValue<T>(string name)
         {
             T result = default(T);
             if (Options != null && Options.ContainsKey(name))
@@ -37,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return result;
         }
 
-        internal static T GetValueAs<T>(object value)
+        public static T GetValueAs<T>(object value)
         {
             T result = default(T);
 
@@ -54,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 else if (typeof(T).IsEnum)
                 {
                     object enumValue;
-                    if (Enum.TryParse(typeof(T), value.ToString(), out enumValue))
+                    if (TryParseEnum<T>(typeof(T), value.ToString(), out enumValue))
                     {
                         value = (T)enumValue;
                     }
@@ -63,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             else if (value != null && (typeof(T).IsEnum))
             {
                 object enumValue;
-                if (Enum.TryParse(typeof(T), value.ToString(), out enumValue))
+                if (TryParseEnum<T>(typeof(T), value.ToString(), out enumValue))
                 {
                     value = enumValue;
                 }
@@ -71,6 +70,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             result = value != null ? (T)value : default(T);
 
             return result;
+        }
+
+        /// <summary>
+        /// This method exists because in NetStandard the Enum.TryParse methods that accept in a type
+        /// are not present, and the generic TryParse method requires the type T to be non-nullable which
+        /// is hard to check. This is different to the NetCore definition for some reason.
+        /// It seems easier to implement our own than work around this.
+        /// </summary>
+        private static bool TryParseEnum<T>(Type t, string value, out object enumValue)
+        {
+            try
+            {
+                enumValue = Enum.Parse(t, value);
+                return true;
+            }
+            catch(Exception)
+            {
+                enumValue = default(T);
+                return false;
+            }
         }
 
         protected void SetOptionValue<T>(string name, T value)

@@ -23,6 +23,11 @@
 ############################################################################
 # Azure Core DLL
 FailedToGetAzureDatabasesErrorMessage = An error occurred while getting Azure databases
-FailedToGetAzureResourceGroupsErrorMessage = An error occurred while getting Azure resource groups
+FailedToGetAzureSubscriptionsErrorMessage = An error occurred while getting Azure subscriptions: {0}
+FailedToGetAzureResourceGroupsErrorMessage = An error occurred while getting Azure resource groups: {0}
 FailedToGetAzureSqlServersErrorMessage = An error occurred while getting Azure Sql Servers
+FailedToGetAzureSqlServersWithError = An error occurred while getting Azure Sql Servers: '{0}'
 FirewallRuleCreationFailed = An error occurred while creating a new firewall rule.
+FirewallRuleCreationFailedWithError = An error occurred while creating a new firewall rule: '{0}'
+AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions
+UnsupportedAuthType = Unsupported account type '{0}' for this provider

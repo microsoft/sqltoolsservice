@@ -6,7 +6,7 @@ using System;
 using System.Net;
 using System.Runtime.Serialization;
 
-namespace Microsoft.SqlTools.ResourceProvider.Core.FirewallRule
+namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
     /// <summary>
     /// Exception used by firewall service to indicate when firewall rule operation fails
