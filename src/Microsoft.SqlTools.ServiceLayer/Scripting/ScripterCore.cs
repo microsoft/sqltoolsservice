@@ -477,7 +477,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 			    TargetDatabaseEngineEdition = GetTargetDatabaseEngineEdition(),
 			    TargetDatabaseEngineType = GetTargetDatabaseEngineType(),
 			    ScriptCompatibilityOption = GetScriptCompatibilityOption(),
-                IncludeIfNotExists = true
+                ScriptExtendedProperties = false,
+                ScriptUseDatabase = false,
+                IncludeIfNotExists = false,
+                GenerateScriptForDependentObjects = false,
+                IncludeDescriptiveHeaders = false,
+                ScriptCheckConstraints = false,
+                ScriptChangeTracking = false,
+                ScriptDataCompressionOptions = false,
+                ScriptForeignKeys = false,
+                ScriptFullTextIndexes = false,
+                ScriptIndexes = false,
+                ScriptPrimaryKeys = false,
+                ScriptTriggers = false,
+                UniqueKeys = false
+
 		    };
 
             List<ScriptingObject> objectList = new List<ScriptingObject>();
