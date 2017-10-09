@@ -17,5 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const string Query = "Query";
         public const string Edit = "Edit";
         public const string ObjectExplorer = "ObjectExplorer";
+        public const string Dashboard = "Dashboard";
+        public const string ConnectionValidation = "ConnectionValidation";
     }
 }

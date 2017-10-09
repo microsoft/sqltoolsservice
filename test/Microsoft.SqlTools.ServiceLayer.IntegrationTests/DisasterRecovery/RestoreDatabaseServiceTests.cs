@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
                 //Opening a connection to db to lock the db
 
-                connectionService.ConnectionQueue.AddConnectionContext(connectionResult.ConnectionInfo, true);
+                connectionService.ConnectionQueue.AddConnectionContext(connectionResult.ConnectionInfo, "", true);
 
                 try
                 {

@@ -19,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     public interface IConnectedBindingQueue
     {
-        void CloseConnections(string serverName, string databaseName);
-        void OpenConnections(string serverName, string databaseName);
-        string AddConnectionContext(ConnectionInfo connInfo, bool overwrite = false);
+        void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
+        void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
+        string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
         void Dispose();
         QueueItem QueueBindingOperation(
             string key,
@@ -91,28 +91,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             
         }
 
-        public void CloseConnections(string serverName, string databaseName)
+        public void CloseConnections(string serverName, string databaseName, int millisecondsTimeout)
         {
             string connectionKey = GetConnectionContextKey(serverName, databaseName);
             var contexts = GetBindingContexts(connectionKey);
             foreach (var bindingContext in contexts)
             {
-                if (bindingContext.BindingLock.WaitOne(2000))
+                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
                 {
                     bindingContext.ServerConnection.Disconnect();
                 }
             }
         }
 
-        public void OpenConnections(string serverName, string databaseName)
+        public void OpenConnections(string serverName, string databaseName, int millisecondsTimeout)
         {
             string connectionKey = GetConnectionContextKey(serverName, databaseName);
             var contexts = GetBindingContexts(connectionKey);
             foreach (var bindingContext in contexts)
             {
-                if (bindingContext.BindingLock.WaitOne(2000))
+                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
                 {
-                    //bindingContext.ServerConnection.Connect();
+                    bindingContext.ServerConnection.Connect();
                 }
             }
         }
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="connInfo">Connection info used to create binding context</param>   
         /// <param name="overwrite">Overwrite existing context</param>      
-        public virtual string AddConnectionContext(ConnectionInfo connInfo, bool overwrite = false)
+        public virtual string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo);
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, featureName);
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = new ServerConnection(sqlConn);
@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }         
             
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
-                    bindingContext.IsConnected = true;                    
+                    bindingContext.IsConnected = true;
                 }
                 catch (Exception)
                 {

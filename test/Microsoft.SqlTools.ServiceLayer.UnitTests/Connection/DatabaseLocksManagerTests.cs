@@ -19,14 +19,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void GainFullAccessShouldDisconnectTheConnections()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
-            connectionLock.Setup(x => x.CloseConnections(server1, database1));
+            connectionLock.Setup(x => x.CloseConnections(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess));
 
             using (DatabaseLocksManager databaseLocksManager = CreateManager())
             {
                 databaseLocksManager.ConnectionService.RegisterConnectedQueue("test", connectionLock.Object);
 
                 databaseLocksManager.GainFullAccessToDatabase(server1, database1);
-                connectionLock.Verify(x => x.CloseConnections(server1, database1));
+                connectionLock.Verify(x => x.CloseConnections(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess));
             }
         }
 
@@ -34,14 +34,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void ReleaseAccessShouldConnectTheConnections()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
-            connectionLock.Setup(x => x.OpenConnections(server1, database1));
+            connectionLock.Setup(x => x.OpenConnections(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess));
 
             using (DatabaseLocksManager databaseLocksManager = CreateManager())
             {
                 databaseLocksManager.ConnectionService.RegisterConnectedQueue("test", connectionLock.Object);
 
                 databaseLocksManager.ReleaseAccess(server1, database1);
-                connectionLock.Verify(x => x.OpenConnections(server1, database1));
+                connectionLock.Verify(x => x.OpenConnections(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess));
             }
         }
 
@@ -74,10 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             DatabaseLocksManager databaseLocksManager = new DatabaseLocksManager(2000);
             var connectionLock1 = new Mock<IConnectedBindingQueue>();
             var connectionLock2 = new Mock<IConnectedBindingQueue>();
-            connectionLock1.Setup(x => x.CloseConnections(It.IsAny<string>(), It.IsAny<string>()));
-            connectionLock2.Setup(x => x.OpenConnections(It.IsAny<string>(), It.IsAny<string>()));
-            connectionLock1.Setup(x => x.OpenConnections(It.IsAny<string>(), It.IsAny<string>()));
-            connectionLock2.Setup(x => x.CloseConnections(It.IsAny<string>(), It.IsAny<string>()));
+            connectionLock1.Setup(x => x.CloseConnections(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+            connectionLock2.Setup(x => x.OpenConnections(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+            connectionLock1.Setup(x => x.OpenConnections(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+            connectionLock2.Setup(x => x.CloseConnections(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
             ConnectionService connectionService = new ConnectionService();
 
             databaseLocksManager.ConnectionService = connectionService;

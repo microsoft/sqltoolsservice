@@ -392,7 +392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 try
                 {
                     QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo),
+                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo, "OE"),
                            bindingTimeout: PrepopulateBindTimeout,
                            waitForLockTimeout: PrepopulateBindTimeout,
                            bindOperation: (bindingContext, cancelToken) =>
