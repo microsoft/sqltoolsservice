@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
             }
             catch (Exception ex)
             {
-                throw new FirewallRuleException(SR.FirewallRuleCreationFailed, ex);
+                throw new FirewallRuleException(string.Format(CultureInfo.CurrentCulture, SR.FirewallRuleCreationFailedWithError, ex.Message), ex);
             }
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
             }          
             catch (Exception ex)
             {
-                throw new FirewallRuleException(SR.FirewallRuleCreationFailed, ex);
+                throw new FirewallRuleException(string.Format(CultureInfo.CurrentCulture, SR.FirewallRuleCreationFailedWithError, ex.Message), ex);
             }
 
             return new FirewallRuleResponse()

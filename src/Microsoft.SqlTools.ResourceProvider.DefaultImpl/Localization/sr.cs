@@ -37,6 +37,14 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
         }
 
+        public static string FailedToGetAzureSubscriptionsErrorMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.FailedToGetAzureSubscriptionsErrorMessage);
+            }
+        }
+
         public static string FailedToGetAzureResourceGroupsErrorMessage
         {
             get
@@ -53,11 +61,27 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
         }
 
+        public static string FailedToGetAzureSqlServersWithError
+        {
+            get
+            {
+                return Keys.GetString(Keys.FailedToGetAzureSqlServersWithError);
+            }
+        }
+
         public static string FirewallRuleCreationFailed
         {
             get
             {
                 return Keys.GetString(Keys.FirewallRuleCreationFailed);
+            }
+        }
+
+        public static string FirewallRuleCreationFailedWithError
+        {
+            get
+            {
+                return Keys.GetString(Keys.FirewallRuleCreationFailedWithError);
             }
         }
 
@@ -88,13 +112,22 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             public const string FailedToGetAzureDatabasesErrorMessage = "FailedToGetAzureDatabasesErrorMessage";
 
 
+            public const string FailedToGetAzureSubscriptionsErrorMessage = "FailedToGetAzureSubscriptionsErrorMessage";
+
+
             public const string FailedToGetAzureResourceGroupsErrorMessage = "FailedToGetAzureResourceGroupsErrorMessage";
 
 
             public const string FailedToGetAzureSqlServersErrorMessage = "FailedToGetAzureSqlServersErrorMessage";
 
 
+            public const string FailedToGetAzureSqlServersWithError = "FailedToGetAzureSqlServersWithError";
+
+
             public const string FirewallRuleCreationFailed = "FirewallRuleCreationFailed";
+
+
+            public const string FirewallRuleCreationFailedWithError = "FirewallRuleCreationFailedWithError";
 
 
             public const string AzureSubscriptionFailedErrorMessage = "AzureSubscriptionFailedErrorMessage";

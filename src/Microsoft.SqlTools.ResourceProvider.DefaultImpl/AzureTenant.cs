@@ -27,6 +27,13 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             set;
         }
 
+        
+        /// <summary>
+        /// URI defining the root for resource lookup
+        /// </summary>
+        public string Resource { get; set; }
+
+
         /// <summary>
         /// Access token for use in login scenarios. Note that we could consider implementing this better in the 
         /// </summary>

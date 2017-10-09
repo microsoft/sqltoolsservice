@@ -137,6 +137,10 @@
     <value>An error occurred while creating a new firewall rule.</value>
     <comment></comment>
   </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>An error occurred while creating a new firewall rule: '{0}'</value>
+    <comment></comment>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Invalid IP address</value>
     <comment></comment>

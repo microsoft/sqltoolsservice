@@ -121,16 +121,28 @@
     <value>An error occurred while getting Azure databases</value>
     <comment></comment>
   </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>An error occurred while getting Azure subscriptions: {0}</value>
+    <comment></comment>
+  </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure resource groups</value>
+    <value>An error occurred while getting Azure resource groups: {0}</value>
     <comment></comment>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>An error occurred while getting Azure Sql Servers</value>
     <comment></comment>
   </data>
+  <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
+    <value>An error occurred while getting Azure Sql Servers: '{0}'</value>
+    <comment></comment>
+  </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
     <value>An error occurred while creating a new firewall rule.</value>
+    <comment></comment>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>An error occurred while creating a new firewall rule: '{0}'</value>
     <comment></comment>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">

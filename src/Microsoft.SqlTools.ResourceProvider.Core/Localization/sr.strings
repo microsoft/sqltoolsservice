@@ -27,6 +27,7 @@ AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subs
 DatabaseDiscoveryFailedErrorMessage = An error occurred while getting databases from servers of type {0} from {1}
 FirewallRuleAccessForbidden = {0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.
 FirewallRuleCreationFailed = An error occurred while creating a new firewall rule.
+FirewallRuleCreationFailedWithError = An error occurred while creating a new firewall rule: '{0}'
 InvalidIpAddress = Invalid IP address
 InvalidServerTypeErrorMessage = Server Type is invalid.
 LoadingExportableFailedGeneralErrorMessage = A required dll cannot be loaded. Please repair your application.

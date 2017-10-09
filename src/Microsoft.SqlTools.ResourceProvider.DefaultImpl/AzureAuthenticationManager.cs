@@ -103,6 +103,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     {
                         TenantId = tenant.Id,
                         AccountDisplayableId = tenant.DisplayName,
+                        Resource = token.Resource,
                         AccessToken = token.Token,
                         TokenType = token.TokenType
                     };

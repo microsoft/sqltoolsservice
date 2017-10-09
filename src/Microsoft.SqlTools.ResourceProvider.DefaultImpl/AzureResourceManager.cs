@@ -55,11 +55,11 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             try
             {
                 ServiceClientCredentials credentials = CreateCredentials(subscriptionContext);
-                SqlManagementClient sqlManagementClient = new SqlManagementClient(_resourceManagementUri, credentials)
+                SqlManagementClient sqlManagementClient = new SqlManagementClient(credentials)
                 {
                     SubscriptionId = subscriptionContext.Subscription.SubscriptionId
                 };
-                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(_resourceManagementUri, credentials)
+                ResourceManagementClient resourceManagementClient = new ResourceManagementClient(credentials)
                 {
                     SubscriptionId = subscriptionContext.Subscription.SubscriptionId
                 };
@@ -131,26 +131,24 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     // since any update will need the resource group name and it's not returned from the server.
                     // This has a very negative impact on perf, so we should investigate running these queries
                     // in parallel
-                    IEnumerable<ResourceGroup> resourceGroupNames = await GetResourceGroupsAsync(vsAzureResourceManagementSession);
-                    if (resourceGroupNames != null)
+
+                    try
                     {
-                        foreach (ResourceGroup resourceGroupExtended in resourceGroupNames)
+                        IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
+                        IPage<Server> servers = await serverOperations.ListAsync();
+                        if (servers != null)
                         {
-                            try
-                            {
-                                IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
-                                IPage<Server> servers = await serverOperations.ListByResourceGroupAsync(resourceGroupExtended.Name);
-                                if (servers != null)
-                                {
-                                    sqlServers.AddRange(servers.Select(x =>
-                                        new SqlAzureResource(x) { ResourceGroupName = resourceGroupExtended.Name }));
-                                }
-                            }
-                            catch (HttpOperationException ex)
-                            {
-                                throw new AzureResourceFailedException(SR.FailedToGetAzureSqlServersErrorMessage, ex.Response.StatusCode);
-                            }
+                            sqlServers.AddRange(servers.Select(server => {
+                                var serverResource = new SqlAzureResource(server);
+                                // TODO ResourceGroup name
+                                return serverResource;
+                            }));
                         }
+                    }
+                    catch (HttpOperationException ex)
+                    {
+                        throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureSqlServersWithError, ex.Message), ex.Response.StatusCode);
                     }
                 }
             }
@@ -186,21 +184,24 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                             StartIpAddress = firewallRuleRequest.StartIpAddress.ToString()
                         };
                         IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
-                        var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateAsync(
+                        var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateWithHttpMessagesAsync(
                                                                                     azureSqlServer.ResourceGroupName ?? string.Empty,
                                                                                     azureSqlServer.Name,
                                                                                     firewallRuleRequest.FirewallRuleName,
-                                                                                    firewallRule);
+                                                                                    firewallRule,
+                                                                                    GetCustomHeaders());
+                        var response = firewallRuleResponse.Body;
                         return new FirewallRuleResponse()
                         {
-                            StartIpAddress = firewallRuleResponse.StartIpAddress,
-                            EndIpAddress = firewallRuleResponse.EndIpAddress,
+                            StartIpAddress = response.StartIpAddress,
+                            EndIpAddress = response.EndIpAddress,
                             Created = true
                         };
                     }
                     catch (HttpOperationException ex)
                     {
-                        throw new AzureResourceFailedException(SR.FirewallRuleCreationFailed, ex.Response.StatusCode);
+                        throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.FirewallRuleCreationFailedWithError, ex.Message), ex.Response.StatusCode);
                     }
                 }
                 // else respond with failure case
@@ -211,9 +212,20 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
             catch (Exception ex)
             {
-                TraceException(TraceEventType.Error, (int) TraceId.AzureResource, ex, "Failed to get databases");
+                TraceException(TraceEventType.Error, (int) TraceId.AzureResource, ex, "Failed to create firewall rule");
                 throw;
             }
+        }
+
+        private Dictionary<string,List<string>> GetCustomHeaders()
+        {
+            // For some unknown reason the firewall rule method defaults to returning XML. Fixes this by adding an Accept header
+            // ensuring it's always JSON
+            var headers = new Dictionary<string,List<string>>();
+            headers["Accept"] = new List<string>() {
+                "application/json"
+            };
+            return headers;
         }
 
         /// <summary>
@@ -237,7 +249,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     }
                     catch (HttpOperationException ex)
                     {
-                        throw new AzureResourceFailedException(SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Response.StatusCode);
+                        throw new AzureResourceFailedException(string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Message), ex.Response.StatusCode);
                     }
                 }
 
@@ -299,7 +311,8 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     }
                     catch (HttpOperationException ex)
                     {
-                        throw new AzureResourceFailedException(SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Response.StatusCode);
+                        throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.AzureSubscriptionFailedErrorMessage, ex.Message), ex.Response.StatusCode);
                     }
                 }
 
