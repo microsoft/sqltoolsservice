@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -45,16 +47,23 @@ namespace  Microsoft.SqlTools.ResourceProvider
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory(GetResourceProviderExtensionDlls());
+
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
-
-            // CredentialService.Instance.InitializeService(serviceHost);
-            // serviceProvider.RegisterSingleService(CredentialService.Instance);
-
+            
             InitializeHostedServices(serviceProvider, serviceHost);
 
             serviceHost.InitializeRequestHandlers();
+        }
+
+        public static IEnumerable<string> GetResourceProviderExtensionDlls()
+        {
+            return new string[] {
+                "SqlToolsResourceProviderService.dll",
+                "Microsoft.SqlTools.ResourceProvider.Core.dll",
+                "Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll"
+            };
         }
 
         /// <summary>

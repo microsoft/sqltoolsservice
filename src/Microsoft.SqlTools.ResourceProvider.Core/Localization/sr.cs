@@ -69,6 +69,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
         }
 
+        public static string FirewallRuleCreationFailedWithError
+        {
+            get
+            {
+                return Keys.GetString(Keys.FirewallRuleCreationFailedWithError);
+            }
+        }
+
         public static string InvalidIpAddress
         {
             get
@@ -90,6 +98,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             get
             {
                 return Keys.GetString(Keys.LoadingExportableFailedGeneralErrorMessage);
+            }
+        }
+
+        public static string FirewallRuleUnsupportedConnectionType
+        {
+            get
+            {
+                return Keys.GetString(Keys.FirewallRuleUnsupportedConnectionType);
             }
         }
 
@@ -116,6 +132,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             public const string FirewallRuleCreationFailed = "FirewallRuleCreationFailed";
 
 
+            public const string FirewallRuleCreationFailedWithError = "FirewallRuleCreationFailedWithError";
+
+
             public const string InvalidIpAddress = "InvalidIpAddress";
 
 
@@ -123,6 +142,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
 
             public const string LoadingExportableFailedGeneralErrorMessage = "LoadingExportableFailedGeneralErrorMessage";
+
+
+            public const string FirewallRuleUnsupportedConnectionType = "FirewallRuleUnsupportedConnectionType";
 
 
             private Keys()

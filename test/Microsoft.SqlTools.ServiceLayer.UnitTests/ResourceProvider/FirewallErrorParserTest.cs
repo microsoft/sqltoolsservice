@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using Microsoft.SqlTools.ResourceProvider.Core.FirewallRule;
+using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider

@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
@@ -36,7 +37,9 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             this.DisplayInfo = new AzureUserAccountDisplayInfo(azureUserAccount.DisplayInfo);
             this.NeedsReauthentication = azureUserAccount.NeedsReauthentication;
             this.TenantId = azureUserAccount.TenantId;
+            this.AllTenants = azureUserAccount.AllTenants;
             this.UniqueId = azureUserAccount.UniqueId;
+            AzureUserAccount account = azureUserAccount as AzureUserAccount;
         }
         /// <summary>
         /// Returns true if given user account equals this class
@@ -46,6 +49,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             return other != null &&
                    CommonUtil.SameString(other.UniqueId, UniqueId) &&
                    CommonUtil.SameString(other.TenantId, TenantId);
+            // TODO probably should check the AllTenants field
         }
         
         /// <summary>
@@ -88,6 +92,12 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         {
             get;
             set;
-        } 
+        }
+
+        public IList<IAzureTenant> AllTenants
+        {
+            get;
+            set;
+        }
     }
 }
