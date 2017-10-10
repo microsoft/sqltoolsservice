@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (connInfo != null)
                 {
                     DbConnection dbConn;
-                    connInfo.TryGetConnection(ConnectionType.Default, out dbConn);
+                    connInfo.TryGetConnection(ConnectionType.ConnectionValidation, out dbConn);
                     if (dbConn != null)
                     {
                         conn = ReliableConnectionHelper.GetAsSqlConnection((IDbConnection)dbConn);
