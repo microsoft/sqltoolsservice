@@ -471,12 +471,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // scripting options
             ScriptOptions options = new ScriptOptions 
             {
-			    ScriptCreateDrop = "ScriptCreate",
-			    TypeOfDataToScript = "SchemaOnly",
-			    ScriptStatistics = "ScriptStatsNone",
-			    TargetDatabaseEngineEdition = GetTargetDatabaseEngineEdition(),
-			    TargetDatabaseEngineType = GetTargetDatabaseEngineType(),
-			    ScriptCompatibilityOption = GetScriptCompatibilityOption(),
+                ScriptCreateDrop = "ScriptCreate",
+                TypeOfDataToScript = "SchemaOnly",
+                ScriptStatistics = "ScriptStatsNone",
+                TargetDatabaseEngineEdition = GetTargetDatabaseEngineEdition(),
+                TargetDatabaseEngineType = GetTargetDatabaseEngineType(),
+                ScriptCompatibilityOption = GetScriptCompatibilityOption(),
                 ScriptExtendedProperties = false,
                 ScriptUseDatabase = false,
                 IncludeIfNotExists = false,
@@ -492,7 +492,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptTriggers = false,
                 UniqueKeys = false
 
-		    };
+            };
 
             List<ScriptingObject> objectList = new List<ScriptingObject>();
             objectList.Add(scriptingObject);
