@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                     throw new FirewallRuleException(SR.FirewallRuleCreationFailed);
                 }
 
-               ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel(null, 
+               ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null, 
                     subscriptions, serverName, new CancellationToken(), TryFindAzureResourceForSubscriptionAsync);
                 
                 if (response != null)
@@ -170,9 +170,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                     {
                         return response.Data.First();
                     }
-                    var error = response.Errors.FirstOrDefault();
-                    if (error != null)
+                    if (response.HasError)
                     {
+                        var error = response.Errors.FirstOrDefault();
                         throw new FirewallRuleException(error.Message, error);
                     }
                 }
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         /// <summary>
         /// Returns a  list of Azure sql databases for given subscription
         /// </summary>
-        private async Task<ServiceResponse<FirewallRuleResource>> TryFindAzureResourceForSubscriptionAsync(IAzureResourceManagementSession parentSession,
+        private async Task<ServiceResponse<FirewallRuleResource>> TryFindAzureResourceForSubscriptionAsync(object notRequired,
             IAzureUserAccountSubscriptionContext input, string serverName,
             CancellationToken cancellationToken, CancellationToken internalCancellationToken)
         {
