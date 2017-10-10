@@ -270,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // run the operation in a separate thread
                             var bindThread = new Thread(() =>
                             {
-                                 result = queueItem.BindOperation(
+                                result = queueItem.BindOperation(
                                      bindingContext,
                                      cancelToken.Token); 
                             }, BindingQueue<T>.QueueThreadStackSize);
