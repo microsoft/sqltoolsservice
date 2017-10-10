@@ -266,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             TrySetConnectionType(connectionParams);
 
-            connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Type);
+            connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             try
             {
-                if (connectionParams.Type == ConnectionType.ObjectExplorer || connectionParams.Type == ConnectionType.Dashboard || connectionParams.Type == ConnectionType.ConnectionValidation)
+                if (connectionParams.Purpose == ConnectionType.ObjectExplorer || connectionParams.Purpose == ConnectionType.Dashboard || connectionParams.Purpose == ConnectionType.GeneralConnection)
                 {
                     DbConnection connection;
                     string type = connectionParams.Type;
@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string appName = applicationName;
                 if (index > 0)
                 {
-                    appName = applicationName.Substring(0, index - 1);
+                    appName = applicationName.Substring(0, index);
                 }
                 appNameWithFeature = $"{appName}-{featureName}";
             }
@@ -358,12 +358,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 if (connectionParams.OwnerUri.ToLowerInvariant().StartsWith("dashboard://"))
                 {
-                    connectionParams.Type = ConnectionType.Dashboard;
+                    connectionParams.Purpose = ConnectionType.Dashboard;
                 }
                 else if (connectionParams.OwnerUri.ToLowerInvariant().StartsWith("connection://"))
                 {
-                    connectionParams.Type = ConnectionType.ConnectionValidation;
+                    connectionParams.Purpose = ConnectionType.GeneralConnection;
                 }
+            }
+            else if (connectionParams != null)
+            {
+                connectionParams.Purpose = connectionParams.Type;
             }
         }
 
@@ -1156,6 +1160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
+            connectionBuilder.Pooling = false;
 
             return connectionBuilder;
         }
@@ -1209,7 +1214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         private void InvokeOnConnectionActivities(ConnectionInfo connectionInfo, ConnectParams connectParams)
         {
-            if (connectParams.Type != ConnectionType.Default && connectParams.Type != ConnectionType.ConnectionValidation)
+            if (connectParams.Type != ConnectionType.Default && connectParams.Type != ConnectionType.GeneralConnection)
             {
                 return;
             }
