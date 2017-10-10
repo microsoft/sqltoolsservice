@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -168,78 +169,82 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private SqlScriptPublishModel BuildPublishModel()
         {
-            SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
-
-            // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
-            // criteria should include the target objects to script.
-            //
-            bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
-            bool hasCriteriaSpecified = 
-                (this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any()) ||
-                (this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any()) ||
-                (this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any()) ||
-                (this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any()) ||
-                (this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any()) ||
-                (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any());
-            bool scriptAllObjects = !hasObjectsSpecified && !hasCriteriaSpecified;
-
-            // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
-            // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
-            // of when SqlScriptPublishModel.ScriptAllObjects is set.  
-            //
-            publishModel.ScriptAllObjects = scriptAllObjects;
-            if (scriptAllObjects)
+            using (SqlConnection sqlconnection = new SqlConnection(this.Parameters.ConnectionString))
             {
-                // Due to the getter logic within publishModel.AdvancedOptions, we explicitly populate the options
-                // after we determine what objects we are scripting.
+                SqlConnectionInfo sqlConnectionInfo = new SqlConnectionInfo(new ServerConnection(sqlconnection), ConnectionType.SqlConnection);
+                SqlScriptPublishModel publishModel = new SqlScriptPublishModel(sqlConnectionInfo, sqlconnection.Database);
+
+                // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
+                // criteria should include the target objects to script.
+                //
+                bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
+                bool hasCriteriaSpecified =
+                    (this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any()) ||
+                    (this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any()) ||
+                    (this.Parameters.IncludeSchemas != null && this.Parameters.IncludeSchemas.Any()) ||
+                    (this.Parameters.ExcludeSchemas != null && this.Parameters.ExcludeSchemas.Any()) ||
+                    (this.Parameters.IncludeTypes != null && this.Parameters.IncludeTypes.Any()) ||
+                    (this.Parameters.ExcludeTypes != null && this.Parameters.ExcludeTypes.Any());
+                bool scriptAllObjects = !hasObjectsSpecified && !hasCriteriaSpecified;
+
+                // In the getter for SqlScriptPublishModel.AdvancedOptions, there is some strange logic which will 
+                // cause the SqlScriptPublishModel.AdvancedOptions to get reset and lose all values based the ordering
+                // of when SqlScriptPublishModel.ScriptAllObjects is set.  
+                //
+                publishModel.ScriptAllObjects = scriptAllObjects;
+                if (scriptAllObjects)
+                {
+                    // Due to the getter logic within publishModel.AdvancedOptions, we explicitly populate the options
+                    // after we determine what objects we are scripting.
+                    //
+                    PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
+                    return publishModel;
+                }
+
+                IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+
+                if (hasCriteriaSpecified)
+                {
+                    // This is an expensive remote call to load all objects from the database.
+                    //
+                    List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
+                    selectedObjects = ScriptingObjectMatcher.Match(
+                        this.Parameters.IncludeObjectCriteria,
+                        this.Parameters.ExcludeObjectCriteria,
+                        this.Parameters.IncludeSchemas,
+                        this.Parameters.ExcludeSchemas,
+                        this.Parameters.IncludeTypes,
+                        this.Parameters.ExcludeTypes,
+                        allObjects);
+                }
+
+                if (hasObjectsSpecified)
+                {
+                    selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
+                }
+
+                // Populating advanced options after we select our objects in question, otherwise we lose all
+                // advanced options.  After this call to PopulateAdvancedScriptOptions, DO NOT reference the
+                // publishModel.AdvancedOptions getter as it will reset the options in the model.
                 //
                 PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
+
+                Logger.Write(
+                    LogLevel.Normal,
+                    string.Format(
+                        "Scripting object count {0}, objects: {1}",
+                        selectedObjects.Count(),
+                        string.Join(", ", selectedObjects)));
+
+                string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
+                string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+
+                foreach (ScriptingObject scriptingObject in selectedObjects)
+                {
+                    publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
+                }
                 return publishModel;
             }
-
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
-
-            if (hasCriteriaSpecified)
-            {
-                // This is an expensive remote call to load all objects from the database.
-                //
-                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
-                selectedObjects = ScriptingObjectMatcher.Match(
-                    this.Parameters.IncludeObjectCriteria,
-                    this.Parameters.ExcludeObjectCriteria,
-                    this.Parameters.IncludeSchemas,
-                    this.Parameters.ExcludeSchemas,
-                    this.Parameters.IncludeTypes,
-                    this.Parameters.ExcludeTypes,
-                    allObjects);
-            }
-
-            if (hasObjectsSpecified)
-            {
-                selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
-            }
-
-            // Populating advanced options after we select our objects in question, otherwise we lose all
-            // advanced options.  After this call to PopulateAdvancedScriptOptions, DO NOT reference the
-            // publishModel.AdvancedOptions getter as it will reset the options in the model.
-            //
-            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
-
-            Logger.Write(
-                LogLevel.Normal,
-                string.Format(
-                    "Scripting object count {0}, objects: {1}",
-                    selectedObjects.Count(),
-                    string.Join(", ", selectedObjects)));
-
-            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
-            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
-
-            foreach (ScriptingObject scriptingObject in selectedObjects)
-            {
-                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
-            }
-            return publishModel;
         }
 
         private string GetServerNameFromLiveInstance(string connectionString)

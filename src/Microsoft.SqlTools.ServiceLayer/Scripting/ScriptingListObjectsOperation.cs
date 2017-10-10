@@ -17,6 +17,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -57,24 +58,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 this.ValidateScriptDatabaseParams();
 
-                publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
-                List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
-
-                Logger.Write(
-                    LogLevel.Verbose,
-                    string.Format(
-                        "Sending list object completion notification count {0}, objects: {1}",
-                        databaseObjects,
-                        string.Join(", ", databaseObjects)));
-
-                this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
+                using (SqlConnection sqlconnection = new SqlConnection(this.Parameters.ConnectionString))
                 {
-                    OperationId = this.OperationId,
-                    ScriptingObjects = databaseObjects,
-                    Count = databaseObjects.Count,
-                    Success = true,
-                    SequenceNumber = 1,
-                });
+                    SqlConnectionInfo sqlConnectionInfo = new SqlConnectionInfo(new ServerConnection(sqlconnection), ConnectionType.SqlConnection);
+                    publishModel = new SqlScriptPublishModel(sqlConnectionInfo, sqlconnection.Database);
+                    List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
+
+                    Logger.Write(
+                        LogLevel.Verbose,
+                        string.Format(
+                            "Sending list object completion notification count {0}, objects: {1}",
+                            databaseObjects,
+                            string.Join(", ", databaseObjects)));
+
+                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
+                    {
+                        OperationId = this.OperationId,
+                        ScriptingObjects = databaseObjects,
+                        Count = databaseObjects.Count,
+                        Success = true,
+                        SequenceNumber = 1,
+                    });
+                }
             }
             catch (Exception e)
             {
