@@ -1468,7 +1468,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="scriptFile"></param>
         internal ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
-        {            
+        {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath,
