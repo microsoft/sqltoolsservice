@@ -15,8 +15,10 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// <summary>
         /// Execute an async action for each input in the a list of input in parallel.
         /// If any task fails, adds the exeption message to the response errors
-        /// If cancellation token is set to cancel, returns empty response
-        /// </summary>        
+        /// If cancellation token is set to cancel, returns empty response.
+        /// Note: Will not throw if errors occur. Instead the caller should check for errors and either notify
+        /// or rethrow as needed.
+        /// </summary>
         /// <param name="session">Resource management session to use to call the resource manager</param>
         /// <param name="inputs">List of inputs</param>
         /// <param name="serverName">server name to filter the result</param>
