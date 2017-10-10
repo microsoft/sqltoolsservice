@@ -762,13 +762,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if (connInfo == null || !parseInfo.IsConnected)
                     {
-                        // parse current SQL file contents to retrieve a list of errors
-                        ParseResult parseResult = Parser.IncrementalParse(
-                            scriptFile.Contents,
-                            parseInfo.ParseResult,
-                            this.DefaultParseOptions);
+                            // parse on separate thread so stack size can be increased
+                            var parseThread = new Thread(() =>
+                            {
+                                 // parse current SQL file contents to retrieve a list of errors
+                                ParseResult parseResult = Parser.IncrementalParse(
+                                    scriptFile.Contents,
+                                    parseInfo.ParseResult,
+                                    this.DefaultParseOptions);
 
-                        parseInfo.ParseResult = parseResult;
+                                parseInfo.ParseResult = parseResult;
+                            }, ConnectedBindingQueue.QueueThreadStackSize);
+                            parseThread.Start();
+                            parseThread.Join();                        
                     }
                     else
                     {
@@ -1462,7 +1468,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="scriptFile"></param>
         internal ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
-        {
+        {            
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath,
