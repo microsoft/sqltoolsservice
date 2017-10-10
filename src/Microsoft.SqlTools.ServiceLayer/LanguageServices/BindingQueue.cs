@@ -17,6 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class BindingQueue<T> : IDisposable where T : IBindingContext, new()
     {
+        internal const int QueueThreadStackSize = 5 * 1024 * 1024;
+
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
@@ -264,15 +266,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // execute the binding operation
                             object result = null;
                             CancellationTokenSource cancelToken = new CancellationTokenSource();
-                            var bindTask = Task.Run(() =>
+                     
+                            // run the operation in a separate thread
+                            var bindThread = new Thread(() =>
                             {
                                 result = queueItem.BindOperation(
                                      bindingContext,
-                                     cancelToken.Token);  
-                            });
+                                     cancelToken.Token); 
+                            }, BindingQueue<T>.QueueThreadStackSize);
+                            bindThread.Start();
 
-                            // check if the binding tasks completed within the binding timeout
-                            if (bindTask.Wait(bindTimeout))
+                            // check if the binding tasks completed within the binding timeout                            
+                            if (bindThread.Join(bindTimeout))
                             {
                                 queueItem.Result = result;
                             }
@@ -285,12 +290,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 {                                    
                                     queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                 }
-                                
+
                                 lockTaken = false;
 
-                                bindTask.ContinueWith((a) => bindingContext.BindingLock.Set());
-                            }                            
-                        }                        
+                                Task.Run(() =>
+                                {
+                                    // wait for the operation to complete before releasing the lock
+                                    bindThread.Join();
+                                    bindingContext.BindingLock.Set();
+                                });
+                            }
+                        }
                         catch (Exception ex)
                         {
                             // catch and log any exceptions raised in the binding calls
