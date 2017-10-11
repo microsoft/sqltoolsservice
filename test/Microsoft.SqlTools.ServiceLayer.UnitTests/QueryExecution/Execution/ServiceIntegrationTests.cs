@@ -453,7 +453,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        // TODO https://github.com/Microsoft/vscode-mssql/issues/1003 reenable and make non-flaky
+        // [Fact]
         public async Task SimpleExecuteErrorWithNoResultsTest()
         {
             var queryService = Common.GetPrimedExecutionService(null, true, false, null);

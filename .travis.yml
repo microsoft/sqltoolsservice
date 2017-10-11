@@ -3,7 +3,8 @@ dist: trusty
 
 os:
   - linux
-  - osx
+# TODO https://github.com/Microsoft/vscode-mssql/issues/1004 reenable OSX once travis issue is fixed
+#  - osx
 
 mono: none
 dotnet: 2.0.0
