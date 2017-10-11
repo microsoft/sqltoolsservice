@@ -21,6 +21,7 @@ using System.Globalization;
 using Microsoft.Rest.Azure;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using System.Collections;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -269,27 +270,46 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionContextsAsync(IAzureUserAccount userAccount)
         {
             List<IAzureUserAccountSubscriptionContext> contexts = new List<IAzureUserAccountSubscriptionContext>();
-            foreach (IAzureTenant tenant in userAccount.AllTenants)
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            ServiceResponse<IAzureUserAccountSubscriptionContext> response = await AzureUtil.ExecuteGetAzureResourceAsParallel(
+                userAccount, userAccount.AllTenants, string.Empty, CancellationToken.None, GetSubscriptionsForTentantAsync);
+            
+            if (response.HasError)
             {
-                AzureTenant azureTenant = tenant as AzureTenant;
-                if (azureTenant != null)
-                {
-                    ServiceClientCredentials credentials = CreateCredentials(azureTenant);
-                    using (SubscriptionClient client = new SubscriptionClient(_resourceManagementUri, credentials))
-                    {
-                        IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
-                        contexts.AddRange(subs.Select(sub =>
-                        {
-                            AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, _resourceManagementUri);
-                            AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
-                            return context;
-                        }));
-                    }
-                }
+                var ex = response.Errors.First();
+                throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.AzureSubscriptionFailedErrorMessage, ex.Message));
             }
+            contexts.AddRange(response.Data);
+            stopwatch.Stop();
+            TraceEvent(TraceEventType.Verbose, (int)TraceId.AzureResource, "Time taken to get all subscriptions was {0}ms", stopwatch.ElapsedMilliseconds.ToString());
             return contexts;
         }
-        
+
+        private async Task<ServiceResponse<IAzureUserAccountSubscriptionContext>> GetSubscriptionsForTentantAsync(
+            IAzureUserAccount userAccount, IAzureTenant tenant, string lookupKey,
+            CancellationToken cancellationToken, CancellationToken internalCancellationToken)
+        {
+
+            AzureTenant azureTenant = tenant as AzureTenant;
+            if (azureTenant != null)
+            {
+                ServiceClientCredentials credentials = CreateCredentials(azureTenant);
+                using (SubscriptionClient client = new SubscriptionClient(_resourceManagementUri, credentials))
+                {
+                    IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
+                    return new ServiceResponse<IAzureUserAccountSubscriptionContext>(subs.Select(sub =>
+                    {
+                        AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, _resourceManagementUri);
+                        AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
+                        return context;
+                    }));
+                }
+            }
+            return new ServiceResponse<IAzureUserAccountSubscriptionContext>();
+        }
+
         /// <summary>
         /// Returns the azure resource groups for given subscription
         /// </summary>

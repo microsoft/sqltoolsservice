@@ -5,8 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
@@ -73,7 +76,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                 IAzureAuthenticationManager authenticationManager = AuthenticationManager;
 
                 if (authenticationManager != null && !await authenticationManager.GetUserNeedsReauthenticationAsync())
-                {                    
+                {
                     FirewallRuleResource firewallRuleResource = await FindAzureResourceAsync(serverName);
                     firewallRuleResponse = await CreateFirewallRule(firewallRuleResource, startIpAddress, endIpAddress);
                 }
@@ -158,22 +161,22 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                     throw new FirewallRuleException(SR.FirewallRuleCreationFailed);
                 }
 
-                foreach (IAzureUserAccountSubscriptionContext subscription in subscriptions)
+               ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null, 
+                    subscriptions, serverName, new CancellationToken(), TryFindAzureResourceForSubscriptionAsync);
+                
+                if (response != null)
                 {
-                    using (IAzureResourceManagementSession session = await ResourceManager.CreateSessionAsync(subscription))
+                    if (response.Data != null && response.Data.Any())
                     {
-                        IAzureSqlServerResource azureSqlServer = await FindAzureResourceForSubscriptionAsync(serverName, session);
-
-                        if (azureSqlServer != null)
-                        {
-                            return new FirewallRuleResource()
-                            {
-                                SubscriptionContext = subscription,
-                                AzureResource = azureSqlServer
-                            };
-                        }
+                        return response.Data.First();
+                    }
+                    if (response.HasError)
+                    {
+                        var error = response.Errors.FirstOrDefault();
+                        throw new FirewallRuleException(error.Message, error);
                     }
                 }
+                // Else throw as we couldn't find the resource as expected
                 var currentUser = await AuthenticationManager.GetCurrentAccountAsync();
 
                 throw new FirewallRuleException(string.Format(CultureInfo.CurrentCulture, SR.AzureServerNotFound, serverName, currentUser != null ? currentUser.UniqueId : string.Empty));
@@ -186,6 +189,34 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
             {
                 throw new FirewallRuleException(SR.FirewallRuleCreationFailed, ex);
             }
+        }
+ 
+        /// <summary>
+        /// Returns a  list of Azure sql databases for given subscription
+        /// </summary>
+        private async Task<ServiceResponse<FirewallRuleResource>> TryFindAzureResourceForSubscriptionAsync(object notRequired,
+            IAzureUserAccountSubscriptionContext input, string serverName,
+            CancellationToken cancellationToken, CancellationToken internalCancellationToken)
+        {
+            ServiceResponse<FirewallRuleResource> result = null;
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                using (IAzureResourceManagementSession session = await ResourceManager.CreateSessionAsync(input))
+                {
+                    IAzureSqlServerResource azureSqlServer = await FindAzureResourceForSubscriptionAsync(serverName, session);
+                    if (azureSqlServer != null)
+                    {
+                        result = new ServiceResponse<FirewallRuleResource>(new FirewallRuleResource()
+                        {
+                            SubscriptionContext = input,
+                            AzureResource = azureSqlServer
+                        }.SingleItemAsEnumerable());
+                        result.Found = true;
+                    }
+                }
+            }
+
+            return result ?? new ServiceResponse<FirewallRuleResource>();
         }
 
         /// <summary>
