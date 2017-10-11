@@ -43,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (projectPath != null)
             {
                 testFolderPath = Path.Combine(projectPath, testPath);
+                Console.WriteLine("Project path was {0}, so test path is {1}", projectPath, testFolderPath);
             }
             else
             {
@@ -59,6 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     string assemblyDir = Path.GetDirectoryName(typeof(Scripts).GetTypeInfo().Assembly.Location);
                     string defaultPath = Path.Combine(assemblyDir, GoUpNDirectories(4));
                     testFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
+                    Console.WriteLine("Project path was not found, so test path is {0}", testFolderPath);
 
                     cachedTestFolderPath = testFolderPath;
                 }
