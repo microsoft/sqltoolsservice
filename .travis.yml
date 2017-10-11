@@ -37,7 +37,7 @@ install:
 
 env:
 # Since we are building from root, current directory is the project path
-  - ProjectPath=./
+  - ProjectPath=$TRAVIS_BUILD_DIR
   
 script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
