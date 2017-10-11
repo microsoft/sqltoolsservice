@@ -14,11 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeStatus(object context)
         {
-            return LoginCustomeNodeHelper.GetStatus(context);
+            return LoginCustomNodeHelper.GetStatus(context);
         }
     }
 
-    internal static class LoginCustomeNodeHelper
+    internal static class LoginCustomNodeHelper
     {
         internal static string GetStatus(object context)
         {
