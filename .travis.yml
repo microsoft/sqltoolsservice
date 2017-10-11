@@ -17,6 +17,14 @@ branches:
 language: csharp
 solution: sqltoolsservice.sln
 
+env:
+  # Since we are building from root, current directory is the project path
+  - ProjectPath=$TRAVIS_BUILD_DIR
+  - HOMEBREW_NO_AUTO_UPDATE=1
+  
+before_install:
+  - brew update
+
 install:
   - dotnet restore
 
@@ -24,8 +32,3 @@ script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
-env:
-  # Since we are building from root, current directory is the project path
-  - ProjectPath=./
-  - HOMEBREW_NO_AUTO_UPDATE=1
-  
