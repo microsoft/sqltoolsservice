@@ -35,11 +35,10 @@ before_install:
 install:
   - dotnet restore
 
-script:
-  - dotnet build src/Microsoft.SqlTools.ServiceLayer
-  - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
-
 env:
 # Since we are building from root, current directory is the project path
   - ProjectPath=./
   
+script:
+  - dotnet build src/Microsoft.SqlTools.ServiceLayer
+  - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
