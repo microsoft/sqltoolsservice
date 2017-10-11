@@ -21,9 +21,13 @@ env:
   # Since we are building from root, current directory is the project path
   - ProjectPath=$TRAVIS_BUILD_DIR
   - HOMEBREW_NO_AUTO_UPDATE=1
-  
 before_install:
-  - brew update
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then
+      sudo apt-get update;
+      sudo apt-get install dotnet-sdk-2.0.0;
+    else
+      brew update;
+    fi
 
 install:
   - dotnet restore
