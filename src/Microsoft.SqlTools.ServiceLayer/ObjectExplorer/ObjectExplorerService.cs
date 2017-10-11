@@ -44,8 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
-        private const int PrepopulateBindTimeout = 10000;
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);        
 
 
         /// <summary>
@@ -391,13 +390,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 try
                 {
+                    int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
                     QueueItem queueItem = bindingQueue.QueueBindingOperation(
                            key: bindingQueue.AddConnectionContext(session.ConnectionInfo, "OE"),
-                           bindingTimeout: PrepopulateBindTimeout,
-                           waitForLockTimeout: PrepopulateBindTimeout,
+                           bindingTimeout: timeout,
+                           waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-
                                if (forceRefresh)
                                {
                                    nodes = node.Refresh().Select(x => x.ToNodeInfo()).ToArray();
@@ -453,10 +452,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     return null;
                 }
 
+                int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
                 QueueItem queueItem = bindingQueue.QueueBindingOperation(
                            key: bindingQueue.AddConnectionContext(connectionInfo),
-                           bindingTimeout: PrepopulateBindTimeout,
-                           waitForLockTimeout: PrepopulateBindTimeout,
+                           bindingTimeout: timeout,
+                           waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
                                session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection);
@@ -465,6 +465,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                                return session;
                            });
+
                 queueItem.ItemProcessed.WaitOne();
                 if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
                 {
@@ -551,7 +552,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             else if (!task.IsCompleted)
             {
-                result.Exception = new TimeoutException($"Object Explorer task didn't completed in {timeoutInSec} seconds.");
+                result.Exception = new TimeoutException($"Object Explorer task didn't complete within {timeoutInSec} seconds.");
             }
             return result;
         }
