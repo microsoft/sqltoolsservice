@@ -13,6 +13,11 @@ using Xunit;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using System.Collections.Generic;
+using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
+using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
+using System.Linq;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
@@ -124,6 +129,112 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 Assert.Equal(string.Empty, response.IpAddress);
                 Assert.Null(response.ErrorMessage);
             });
+        }
+
+        [Fact]
+        public async Task TestCreateFirewallRuleBasicRequest()
+        {
+            // Given a firewall request for a valid subscription
+            string serverName = "myserver.database.windows.net";
+            var sub1Mock = new Mock<IAzureUserAccountSubscriptionContext>();
+            var sub2Mock = new Mock<IAzureUserAccountSubscriptionContext>();
+            var server = new SqlAzureResource(new Azure.Management.Sql.Models.Server("Somewhere", 
+                "1234", "myserver", "SQLServer", 
+                null, null, null, null, null, null, null,
+                fullyQualifiedDomainName: serverName));
+            var subsToServers = new List<Tuple<IAzureUserAccountSubscriptionContext, IEnumerable<IAzureSqlServerResource>>>()
+            {
+                Tuple.Create(sub1Mock.Object, Enumerable.Empty<IAzureSqlServerResource>()),
+                Tuple.Create(sub2Mock.Object, new IAzureSqlServerResource[] { server }.AsEnumerable())
+            };
+            var azureRmResponse = new FirewallRuleResponse()
+            {
+                Created = true,
+                StartIpAddress = null,
+                EndIpAddress = null
+            };
+            SetupDependencies(subsToServers, azureRmResponse);
+
+            // When I request the firewall be created
+            var createFirewallParams = new CreateFirewallRuleParams()
+            {
+                ServerName = serverName,
+                StartIpAddress = "1.1.1.1",
+                EndIpAddress = "1.1.1.255",
+                Account = CreateAccount(),
+                SecurityTokenMappings = new Dictionary<string, AccountSecurityToken>()
+            };
+            await TestUtils.RunAndVerify<CreateFirewallRuleResponse>(
+                (context) => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams, context),
+                (response) =>
+            {
+                // Then I expect the response to be fakse as we require the known IP address to function
+                Assert.NotNull(response);
+                Assert.Null(response.ErrorMessage);
+                Assert.True(response.Result);
+            });
+        }
+
+        private void SetupDependencies(
+            IList<Tuple<IAzureUserAccountSubscriptionContext, IEnumerable<IAzureSqlServerResource>>> subsToServers,
+            FirewallRuleResponse response)
+        {
+            SetupCreateSession();
+            SetupReturnsSubscriptions(subsToServers.Select(s => s.Item1));
+            foreach(var s in subsToServers)
+            {
+                SetupAzureServers(s.Item1, s.Item2);
+            }
+            SetupFirewallResponse(response);
+        }
+
+        private void SetupReturnsSubscriptions(IEnumerable<IAzureUserAccountSubscriptionContext> subs)
+        {
+            AuthenticationManagerMock.Setup(a => a.GetSubscriptionsAsync()).Returns(() => Task.FromResult(subs));
+        }
+
+        private void SetupCreateSession()
+        {
+            ResourceManagerMock.Setup(r => r.CreateSessionAsync(It.IsAny<IAzureUserAccountSubscriptionContext>()))
+                .Returns((IAzureUserAccountSubscriptionContext sub) =>
+                {
+                    var sessionMock = new Mock<IAzureResourceManagementSession>();
+                    sessionMock.SetupProperty(s => s.SubscriptionContext, sub);
+                    return Task.FromResult(sessionMock.Object);
+                });
+        }
+
+        private void SetupAzureServers(IAzureSubscriptionContext sub, IEnumerable<IAzureSqlServerResource> servers)
+        {
+            Func<IAzureResourceManagementSession, bool> isExpectedSub = (session) =>
+            {
+                return session.SubscriptionContext == sub;
+            };
+            ResourceManagerMock.Setup(r => r.GetSqlServerAzureResourcesAsync(
+                It.Is<IAzureResourceManagementSession>((session) => isExpectedSub(session))
+            )).Returns(() => Task.FromResult(servers));
+        }
+
+        private void SetupFirewallResponse(FirewallRuleResponse response)
+        {
+            ResourceManagerMock.Setup(r => r.CreateFirewallRuleAsync(
+                It.IsAny<IAzureResourceManagementSession>(),
+                It.IsAny<IAzureSqlServerResource>(),
+                It.IsAny<FirewallRuleRequest>())
+            ).Returns(() => Task.FromResult(response));
+        }
+
+        private Account CreateAccount(bool needsReauthentication = false)
+        {
+            return new Account()
+            {
+                Key = new AccountKey()
+                {
+                    AccountId = "MyAccount",
+                    ProviderId = "MSSQL"
+                },
+                IsStale = needsReauthentication
+            };
         }
     }
 }

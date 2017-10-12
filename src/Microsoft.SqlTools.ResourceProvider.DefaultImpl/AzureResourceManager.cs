@@ -20,7 +20,6 @@ using Microsoft.Rest;
 using System.Globalization;
 using Microsoft.Rest.Azure;
 using Microsoft.SqlTools.ResourceProvider.Core;
-using System.Collections;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
