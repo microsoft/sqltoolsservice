@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         "Microsoft.SqlTools.ResourceProvider.DefaultImpl.AzureAuthenticationManager",
         1)
     ]
-    class AzureAuthenticationManager : ExportableBase, IAzureAuthenticationManager
+    public class AzureAuthenticationManager : ExportableBase, IAzureAuthenticationManager
     {
         private Dictionary<string, AzureUserAccount> accountsMap;
         private string currentAccountId = null;
@@ -88,38 +88,49 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public AzureUserAccount CreateUserAccount(AccountTokenWrapper accountTokenWrapper)
         {
             Account account = accountTokenWrapper.Account;
-            CommonUtil.CheckForNull(accountTokenWrapper.Account, nameof(account));
+            CommonUtil.CheckForNull(accountTokenWrapper, nameof(accountTokenWrapper));
+            CommonUtil.CheckForNull(account, nameof(account));
+            CommonUtil.CheckForNull(account.Key, nameof(account) + ".Key");
             CommonUtil.CheckForNull(accountTokenWrapper.SecurityTokenMappings, nameof(account) + ".SecurityTokenMappings");
             AzureUserAccount userAccount = new AzureUserAccount();
             userAccount.UniqueId = account.Key.AccountId;
             userAccount.DisplayInfo = ToDisplayInfo(account);
-            IList<IAzureTenant> tenants = new List<IAzureTenant>();
-            foreach (Tenant tenant in account.Properties.Tenants)
-            {
-                AccountSecurityToken token;
-                if (accountTokenWrapper.SecurityTokenMappings.TryGetValue(tenant.Id, out token))
-                {
-                    AzureTenant azureTenant = new AzureTenant()
-                    {
-                        TenantId = tenant.Id,
-                        AccountDisplayableId = tenant.DisplayName,
-                        Resource = token.Resource,
-                        AccessToken = token.Token,
-                        TokenType = token.TokenType
-                    };
-                    tenants.Add(azureTenant);
-                }
-                // else ignore for now as we can't handle a request to get a tenant without an access key
-            }
-            userAccount.AllTenants = tenants;
+            userAccount.NeedsReauthentication = account.IsStale;
+            userAccount.AllTenants = ProcessTenants(accountTokenWrapper, account);
             return userAccount;
+        }
+
+        private static IList<IAzureTenant> ProcessTenants(AccountTokenWrapper accountTokenWrapper, Account account)
+        {
+            IList<IAzureTenant> tenants = new List<IAzureTenant>();
+            if (account.Properties != null && account.Properties.Tenants != null)
+            {
+                foreach (Tenant tenant in account.Properties.Tenants)
+                {
+                    AccountSecurityToken token;
+                    if (accountTokenWrapper.SecurityTokenMappings.TryGetValue(tenant.Id, out token))
+                    {
+                        AzureTenant azureTenant = new AzureTenant()
+                        {
+                            TenantId = tenant.Id,
+                            AccountDisplayableId = tenant.DisplayName,
+                            Resource = token.Resource,
+                            AccessToken = token.Token,
+                            TokenType = token.TokenType
+                        };
+                        tenants.Add(azureTenant);
+                    }
+                    // else ignore for now as we can't handle a request to get a tenant without an access key
+                }
+            }
+            return tenants;
         }
 
         private AzureUserAccountDisplayInfo ToDisplayInfo(Account account)
         {
             return new AzureUserAccountDisplayInfo()
             {
-                AccountDisplayName = account.DisplayInfo.DisplayName,
+                AccountDisplayName = account.DisplayInfo != null ? account.DisplayInfo.DisplayName : account.Key.AccountId,
                 ProviderDisplayName = account.Key.ProviderId
             };
         }
