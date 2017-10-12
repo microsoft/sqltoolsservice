@@ -3,21 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.ResourceProvider.Core;
-using Moq;
-using Microsoft.SqlTools.ResourceProvider;
-using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
-using Xunit;
-using System.Threading.Tasks;
-using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ResourceProvider;
+using Microsoft.SqlTools.ResourceProvider.Core;
+using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
+using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
-using System.Linq;
-using System;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Moq;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
