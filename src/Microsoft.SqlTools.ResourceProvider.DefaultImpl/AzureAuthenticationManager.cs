@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     }
                     catch (Exception ex)
                     {
-                        throw new ServiceFailedException(SR.AzureSubscriptionFailedErrorMessage, ex);
+                        throw new ServiceFailedException(SR.FailedToGetAzureSubscriptionsErrorMessage, ex);
                     }
                 }
                 result = result ?? Enumerable.Empty<IAzureUserAccountSubscriptionContext>();
@@ -235,19 +235,19 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         private async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionFromServiceAsync(AzureUserAccount userAccount)
         {
             List<IAzureUserAccountSubscriptionContext> subscriptionList = new List<IAzureUserAccountSubscriptionContext>();
-
+            if (userAccount == null)
+            {
+                throw new UserNeedsAuthenticationException(SR.UserNotFoundError);
+            }
+            else if (userAccount.NeedsReauthentication)
+            {
+                throw new UserNeedsAuthenticationException(SR.UserNeedsAuthenticationError);
+            }
             try
             {
-                if (userAccount != null && !userAccount.NeedsReauthentication)
-                {
-                    IAzureResourceManager resourceManager = ServiceProvider.GetService<IAzureResourceManager>();
-                    IEnumerable<IAzureUserAccountSubscriptionContext> contexts = await resourceManager.GetSubscriptionContextsAsync(userAccount);
-                    subscriptionList = contexts.ToList();
-                }
-                else
-                {
-                    throw new UserNeedsAuthenticationException(SR.AzureSubscriptionFailedErrorMessage);
-                }
+                IAzureResourceManager resourceManager = ServiceProvider.GetService<IAzureResourceManager>();
+                IEnumerable<IAzureUserAccountSubscriptionContext> contexts = await resourceManager.GetSubscriptionContextsAsync(userAccount);
+                subscriptionList = contexts.ToList();
             }
             // TODO handle stale tokens
             //catch (MissingSecurityTokenException missingSecurityTokenException)
@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             //    {
             //        userAccount.NeedsReauthentication = true;
             //    }
-            //    throw new UserNeedsAuthenticationException(SR.AzureSubscriptionFailedErrorMessage, missingSecurityTokenException);
+            //    throw new UserNeedsAuthenticationException(SR.FailedToGetAzureSubscriptionsErrorMessage, missingSecurityTokenException);
             //}
             catch (ServiceExceptionBase)
             {
@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
             catch (Exception ex)
             {
-                throw new ServiceFailedException(SR.AzureSubscriptionFailedErrorMessage, ex);
+                throw new ServiceFailedException(SR.FailedToGetAzureSubscriptionsErrorMessage, ex);
             }
             return subscriptionList;
         }

@@ -126,7 +126,7 @@
     <comment></comment>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure subscriptions</value>
+    <value>An error occurred while getting Azure subscriptions: {0}</value>
     <comment></comment>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">

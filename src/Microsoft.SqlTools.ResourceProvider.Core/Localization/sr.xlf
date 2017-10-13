@@ -8,7 +8,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="AzureSubscriptionFailedErrorMessage">
-        <source>An error occurred while getting Azure subscriptions</source>
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
         <target state="new">An error occurred while getting Azure subscriptions</target>
         <note></note>
       </trans-unit>

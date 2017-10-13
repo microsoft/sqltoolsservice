@@ -278,7 +278,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             {
                 var ex = response.Errors.First();
                 throw new AzureResourceFailedException(
-                            string.Format(CultureInfo.CurrentCulture, SR.AzureSubscriptionFailedErrorMessage, ex.Message));
+                            string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureSubscriptionsErrorMessage, ex.Message));
             }
             contexts.AddRange(response.Data);
             stopwatch.Stop();
@@ -331,7 +331,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                     catch (HttpOperationException ex)
                     {
                         throw new AzureResourceFailedException(
-                            string.Format(CultureInfo.CurrentCulture, SR.AzureSubscriptionFailedErrorMessage, ex.Message), ex.Response.StatusCode);
+                            string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureSubscriptionsErrorMessage, ex.Message), ex.Response.StatusCode);
                     }
                 }
 
