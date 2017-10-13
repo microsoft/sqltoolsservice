@@ -22,6 +22,7 @@
 
 ############################################################################
 # Azure Core DLL
+NoSubscriptionsFound = No subscriptions were found for the currently logged in user account.
 AzureServerNotFound = The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.
 AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions
 DatabaseDiscoveryFailedErrorMessage = An error occurred while getting databases from servers of type {0} from {1}

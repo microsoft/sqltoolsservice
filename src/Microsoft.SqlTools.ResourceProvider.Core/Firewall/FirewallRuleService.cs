@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 
                 if (subscriptions == null)
                 {
-                    throw new FirewallRuleException(SR.FirewallRuleCreationFailed);
+                    throw new FirewallRuleException(SR.NoSubscriptionsFound);
                 }
 
                ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null, 
