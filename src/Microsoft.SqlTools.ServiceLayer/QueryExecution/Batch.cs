@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
+        /// The command used for executing the batch
+        /// </summary>
+        private DbCommand dbCommand;
+        
+        /// <summary>
         /// For IDisposable implementation, whether or not this has been disposed
         /// </summary>
         private bool disposed;
@@ -221,6 +226,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Public Methods
 
         /// <summary>
+        /// Cancels execution of the batch by sending a cancel request to the command. This will
+        /// halt executon on the server and prevent the SQL Client behavior of reading all the
+        /// records and then ditching them.
+        /// </summary>
+        public void Cancel()
+        {
+            dbCommand?.Cancel();
+        }
+        
+        /// <summary>
         /// Executes this batch and captures any server messages that are returned.
         /// </summary>
         /// <param name="conn">The connection to use to execute the batch</param>
@@ -247,37 +262,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
-                DbCommand command;
                 if (sqlConn != null)
                 {
                     // Register the message listener to *this instance* of the batch
                     // Note: This is being done to associate messages with batches
                     sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
-                    command = sqlConn.GetUnderlyingConnection().CreateCommand();
+                    dbCommand = sqlConn.GetUnderlyingConnection().CreateCommand();
 
                     // Add a handler for when the command completes
-                    SqlCommand sqlCommand = (SqlCommand)command;
+                    SqlCommand sqlCommand = (SqlCommand)dbCommand;
                     sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
                 {
-                    command = conn.CreateCommand();
+                    dbCommand = conn.CreateCommand();
                 }
 
                 // Make sure we aren't using a ReliableCommad since we do not want automatic retry
-                Debug.Assert(!(command is ReliableSqlConnection.ReliableSqlCommand),
+                Debug.Assert(!(dbCommand is ReliableSqlConnection.ReliableSqlCommand),
                     "ReliableSqlCommand command should not be used to execute queries");
 
                 // Create a command that we'll use for executing the query
-                using (command)
+                using (dbCommand)
                 {
-                    command.CommandText = BatchText;
-                    command.CommandType = CommandType.Text;
-                    command.CommandTimeout = 0;
+                    dbCommand.CommandText = BatchText;
+                    dbCommand.CommandType = CommandType.Text;
+                    dbCommand.CommandTimeout = 0;
                     executionStartTime = DateTime.Now;
 
                     // Execute the command to get back a reader
-                    using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
+                    using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
                     {
                         int resultSetOrdinal = 0;
                         do
@@ -315,6 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                     }
                 }
+                dbCommand = null;
             }
             catch (DbException dbe)
             {

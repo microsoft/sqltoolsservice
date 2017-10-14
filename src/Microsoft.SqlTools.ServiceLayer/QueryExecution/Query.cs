@@ -262,6 +262,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Issue the cancellation token for the query
             cancellationSource.Cancel();
+            
+            // Halt the command execution at the server, prevent continued streaming of results
+            foreach (Batch batch in Batches)
+            {
+                batch.Cancel();
+            }
         }
 
         /// <summary>
