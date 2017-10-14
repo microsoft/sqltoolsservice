@@ -145,12 +145,16 @@
     <value>An error occurred while creating a new firewall rule: '{0}'</value>
     <comment></comment>
   </data>
-  <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure subscriptions</value>
-    <comment></comment>
-  </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
     <value>Unsupported account type '{0}' for this provider</value>
+    <comment></comment>
+  </data>
+  <data name="UserNotFoundError" xml:space="preserve">
+    <value>No user was found, cannot execute the operation</value>
+    <comment></comment>
+  </data>
+  <data name="UserNeedsAuthenticationError" xml:space="preserve">
+    <value>The current user must be reauthenticated before executing this operation </value>
     <comment></comment>
   </data>
 </root>

@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             // When I ask whether the service can process an error as a firewall rule request
             await TestUtils.RunAndVerify<HandleFirewallRuleResponse>((context) => ResourceProviderService.ProcessHandleFirewallRuleRequest(handleFirewallParams, context), (response) =>
             {
-                // Then I expect the response to be fakse as we require the known IP address to function
+                // Then I expect the response to be OK as we require the known IP address to function
                 Assert.NotNull(response);
                 Assert.False(response.Result);
                 Assert.Equal(string.Empty, response.IpAddress);
@@ -168,10 +168,42 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 (context) => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams, context),
                 (response) =>
             {
-                // Then I expect the response to be fakse as we require the known IP address to function
+                // Then I expect the response to be OK as we require the known IP address to function
                 Assert.NotNull(response);
                 Assert.Null(response.ErrorMessage);
                 Assert.True(response.Result);
+                Assert.False(response.IsTokenExpiredFailure);
+            });
+        }
+
+        [Fact]
+        public async Task TestCreateFirewallRuleHandlesTokenExpiration()
+        {
+            // Given the token has expired
+            string serverName = "myserver.database.windows.net";
+            var sub1Mock = new Mock<IAzureUserAccountSubscriptionContext>();
+            SetupCreateSession();
+            string expectedErrorMsg = "Token is expired";
+            AuthenticationManagerMock.Setup(a => a.GetSubscriptionsAsync()).ThrowsAsync(new ExpiredTokenException(expectedErrorMsg));
+
+            // When I request the firewall be created
+            var createFirewallParams = new CreateFirewallRuleParams()
+            {
+                ServerName = serverName,
+                StartIpAddress = "1.1.1.1",
+                EndIpAddress = "1.1.1.255",
+                Account = CreateAccount(),
+                SecurityTokenMappings = new Dictionary<string, AccountSecurityToken>()
+            };
+            await TestUtils.RunAndVerify<CreateFirewallRuleResponse>(
+                (context) => ResourceProviderService.HandleCreateFirewallRuleRequest(createFirewallParams, context),
+                (response) =>
+            {
+                // Then I expect the response to indicate that we failed due to token expiration
+                Assert.NotNull(response);
+                Assert.Equal(expectedErrorMsg, response.ErrorMessage);
+                Assert.True(response.IsTokenExpiredFailure);
+                Assert.False(response.Result);
             });
         }
 

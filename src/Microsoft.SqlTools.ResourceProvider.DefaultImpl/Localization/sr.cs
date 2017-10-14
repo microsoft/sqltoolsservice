@@ -85,19 +85,27 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
         }
 
-        public static string AzureSubscriptionFailedErrorMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.AzureSubscriptionFailedErrorMessage);
-            }
-        }
-
         public static string UnsupportedAuthType
         {
             get
             {
                 return Keys.GetString(Keys.UnsupportedAuthType);
+            }
+        }
+
+        public static string UserNotFoundError
+        {
+            get
+            {
+                return Keys.GetString(Keys.UserNotFoundError);
+            }
+        }
+
+        public static string UserNeedsAuthenticationError
+        {
+            get
+            {
+                return Keys.GetString(Keys.UserNeedsAuthenticationError);
             }
         }
 
@@ -130,10 +138,13 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             public const string FirewallRuleCreationFailedWithError = "FirewallRuleCreationFailedWithError";
 
 
-            public const string AzureSubscriptionFailedErrorMessage = "AzureSubscriptionFailedErrorMessage";
-
-
             public const string UnsupportedAuthType = "UnsupportedAuthType";
+
+
+            public const string UserNotFoundError = "UserNotFoundError";
+
+
+            public const string UserNeedsAuthenticationError = "UserNeedsAuthenticationError";
 
 
             private Keys()

@@ -22,11 +22,6 @@
         <target state="new">An error occurred while creating a new firewall rule.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="AzureSubscriptionFailedErrorMessage">
-        <source>An error occurred while getting Azure subscriptions</source>
-        <target state="new">An error occurred while getting Azure subscriptions</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="UnsupportedAuthType">
         <source>Unsupported account type '{0}' for this provider</source>
         <target state="new">Unsupported account type '{0}' for this provider</target>
@@ -45,6 +40,16 @@
       <trans-unit id="FailedToGetAzureSubscriptionsErrorMessage">
         <source>An error occurred while getting Azure subscriptions: {0}</source>
         <target state="new">An error occurred while getting Azure subscriptions: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UserNeedsAuthenticationError">
+        <source>The current user must be reauthenticated before executing this operation </source>
+        <target state="new">The current user must be reauthenticated before executing this operation </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UserNotFoundError">
+        <source>No user was found, cannot execute the operation</source>
+        <target state="new">No user was found, cannot execute the operation</target>
         <note></note>
       </trans-unit>
     </body>
