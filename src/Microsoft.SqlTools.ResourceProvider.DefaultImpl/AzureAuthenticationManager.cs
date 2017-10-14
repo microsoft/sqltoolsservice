@@ -234,14 +234,11 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 
         private async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionFromServiceAsync(AzureUserAccount userAccount)
         {
+            CommonUtil.CheckForNull(userAccount, nameof(userAccount));
             List<IAzureUserAccountSubscriptionContext> subscriptionList = new List<IAzureUserAccountSubscriptionContext>();
-            if (userAccount == null)
+            if (userAccount.NeedsReauthentication)
             {
-                throw new UserNeedsAuthenticationException(SR.UserNotFoundError);
-            }
-            else if (userAccount.NeedsReauthentication)
-            {
-                throw new UserNeedsAuthenticationException(SR.UserNeedsAuthenticationError);
+                throw new ExpiredTokenException(SR.UserNeedsAuthenticationError);
             }
             try
             {
@@ -249,16 +246,6 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 IEnumerable<IAzureUserAccountSubscriptionContext> contexts = await resourceManager.GetSubscriptionContextsAsync(userAccount);
                 subscriptionList = contexts.ToList();
             }
-            // TODO handle stale tokens
-            //catch (MissingSecurityTokenException missingSecurityTokenException)
-            //{
-            //    //User needs to reauthenticate
-            //    if (userAccount != null)
-            //    {
-            //        userAccount.NeedsReauthentication = true;
-            //    }
-            //    throw new UserNeedsAuthenticationException(SR.FailedToGetAzureSubscriptionsErrorMessage, missingSecurityTokenException);
-            //}
             catch (ServiceExceptionBase)
             {
                 throw;
