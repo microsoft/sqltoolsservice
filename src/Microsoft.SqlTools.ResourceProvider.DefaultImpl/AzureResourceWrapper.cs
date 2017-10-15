@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 {
                     this.resourceGroupName = ParseResourceGroupNameFromId();
                 }
-                return this.resourceGroupName;
+                return this.resourceGroupName ?? string.Empty;
             }
             set
             {

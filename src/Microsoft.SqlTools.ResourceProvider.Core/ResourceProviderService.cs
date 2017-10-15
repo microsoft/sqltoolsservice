@@ -56,7 +56,16 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             {
                 return DoHandleCreateFirewallRuleRequest(firewallRule);
             };
-            await HandleRequest(requestHandler, requestContext, "HandleCreateFirewallRuleRequest");
+            Func<ExpiredTokenException, CreateFirewallRuleResponse> tokenExpiredHandler = (ExpiredTokenException ex) =>
+            {
+                return new CreateFirewallRuleResponse()
+                {
+                    Result = false,
+                    IsTokenExpiredFailure = true,
+                    ErrorMessage = ex.Message
+                };
+            };
+            await HandleRequest(requestHandler, tokenExpiredHandler, requestContext, "HandleCreateFirewallRuleRequest");
         }
 
         private async Task<CreateFirewallRuleResponse> DoHandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRule)
@@ -98,10 +107,10 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 }
                 return Task.FromResult(response);
             };
-            await HandleRequest(requestHandler, requestContext, "HandleCreateFirewallRuleRequest");
+            await HandleRequest(requestHandler, null, requestContext, "HandleCreateFirewallRuleRequest");
         }
         
-        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(LogLevel.Verbose, requestType);
 
@@ -110,9 +119,25 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 T result = await handler();
                 await requestContext.SendResult(result);
             }
+            catch(ExpiredTokenException ex)
+            {
+                if (expiredTokenHandler != null)
+                {
+                    // This is a special exception indicating the token(s) used to request resources had expired.
+                    // Any Azure resource should have handling for this such as an error path that clearly indicates that a refresh is needed
+                    T result = expiredTokenHandler(ex);
+                    await requestContext.SendResult(result);
+                }
+                else
+                {
+                    // No handling for expired tokens defined / expected
+                    await requestContext.SendError(ex.Message);
+                }
+            }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                // Send just the error message back for now as stack trace isn't useful
+                await requestContext.SendError(ex.Message);
             }
         }   
     }

@@ -117,12 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="NoSubscriptionsFound" xml:space="preserve">
+    <value>No subscriptions were found for the currently logged in user account.</value>
+    <comment></comment>
+  </data>
   <data name="AzureServerNotFound" xml:space="preserve">
     <value>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</value>
     <comment></comment>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure subscriptions</value>
+    <value>An error occurred while getting Azure subscriptions: {0}</value>
     <comment></comment>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">

@@ -29,5 +29,6 @@ FailedToGetAzureSqlServersErrorMessage = An error occurred while getting Azure S
 FailedToGetAzureSqlServersWithError = An error occurred while getting Azure Sql Servers: '{0}'
 FirewallRuleCreationFailed = An error occurred while creating a new firewall rule.
 FirewallRuleCreationFailedWithError = An error occurred while creating a new firewall rule: '{0}'
-AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions
 UnsupportedAuthType = Unsupported account type '{0}' for this provider
+UserNotFoundError = No user was found, cannot execute the operation
+UserNeedsAuthenticationError = The current user must be reauthenticated before executing this operation 

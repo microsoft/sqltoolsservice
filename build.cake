@@ -113,7 +113,8 @@ Task("PopulateRuntimes")
                 "debian.8-x64",
                 "fedora.23-x64",
                 "opensuse.13.2-x64",
-                "osx.10.11-x64"
+                "osx.10.11-x64",
+                "linux-x64"
             };
 });
 

@@ -14,10 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
     public class AutoCompletionResultTest
     {
         [Fact]
-        public void MetricsShouldGetSortedGivenUnSortedArray()
+        public void CompletionShouldRecordDuration()
         {
             AutoCompletionResult result = new AutoCompletionResult();
-            int duration = 2000;
+            int duration = 200;
             Thread.Sleep(duration);
             result.CompleteResult(new CompletionItem[] { });
             Assert.True(result.Duration >= duration);
