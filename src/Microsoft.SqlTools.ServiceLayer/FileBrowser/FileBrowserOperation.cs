@@ -9,6 +9,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -20,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private FileTree fileTree;
         private string expandPath;
         private string[] fileFilters;
+        private CancellationTokenSource cancelSource;
+        private CancellationToken cancelToken;
 
         #region Constructors
 
@@ -29,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         public FileBrowserOperation()
         {
             this.fileTree = new FileTree();
+            this.cancelSource = new CancellationTokenSource();
+            this.cancelToken = cancelSource.Token;
         }
 
         /// <summary>
@@ -70,6 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
+        public void Cancel()
+        {
+            this.cancelSource.Cancel();
+        }
+
         public void PopulateFileTree()
         {
             this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
@@ -92,6 +102,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
                 foreach (string dir in dirs)
                 {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     FileTreeNode currentNode = null;
                     foreach (FileTreeNode node in currentChildren)
                     {
@@ -134,24 +149,33 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private void PopulateDrives()
         {
             bool first = true;
-            foreach (var fileInfo in EnumerateDrives(Enumerator, sqlConnection))
+
+            if (!cancelToken.IsCancellationRequested)
             {
-                // Windows drive letter paths have a '\' at the end. Linux drive paths won't have a '\'.
-                var node = new FileTreeNode
+                foreach (var fileInfo in EnumerateDrives(Enumerator, sqlConnection))
                 {
-                    Name = Convert.ToString(fileInfo.path, CultureInfo.InvariantCulture).TrimEnd('\\'),
-                    FullPath = fileInfo.path
-                };
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
 
-                this.fileTree.RootNode.AddChildNode(node);
+                    // Windows drive letter paths have a '\' at the end. Linux drive paths won't have a '\'.
+                    var node = new FileTreeNode
+                    {
+                        Name = Convert.ToString(fileInfo.path, CultureInfo.InvariantCulture).TrimEnd('\\'),
+                        FullPath = fileInfo.path
+                    };
 
-                if (first)
-                {
-                    this.fileTree.SelectedNode = node;
-                    first = false;
+                    this.fileTree.RootNode.AddChildNode(node);
+
+                    if (first)
+                    {
+                        this.fileTree.SelectedNode = node;
+                        first = false;
+                    }
+
+                    PopulateFileNode(node);
                 }
-
-                PopulateFileNode(node);
             }
         }
 

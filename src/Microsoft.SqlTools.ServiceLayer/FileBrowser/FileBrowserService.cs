@@ -104,6 +104,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             // Close the file browser
             serviceHost.SetRequestHandler(FileBrowserCloseRequest.Type, HandleFileBrowserCloseRequest);
+
+            // Cancel opening a file browser
+            serviceHost.SetRequestHandler(FileBrowserCancelRequest.Type, HandleFileBrowserCancelRequest);
         }
 
         #region request handlers
@@ -169,6 +172,21 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
 
             await requestContext.SendResult(response);
+        }
+
+        internal async Task HandleFileBrowserCancelRequest(
+            FileBrowserCancelParams fileBrowserParams,
+            RequestContext<bool> requestContext)
+        {
+            try
+            {
+                var task = Task.Run(() => RunFileBrowserCancelTask(fileBrowserParams));
+                await requestContext.SendResult(true);
+            }
+            catch
+            {
+                await requestContext.SendResult(false);
+            }
         }
 
         #endregion
@@ -285,6 +303,32 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
 
             await ServiceHost.SendEvent(FileBrowserValidatedNotification.Type, result);
+        }
+
+        internal async Task RunFileBrowserCancelTask(FileBrowserCancelParams fileBrowserParams)
+        {
+            // todo: change the notification
+            FileBrowserExpandedParams result = new FileBrowserExpandedParams();
+            try
+            {
+                if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
+                {
+                    FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
+                    browser.Cancel();
+                    result.Succeeded = true;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Message = ex.Message;
+            }
+
+            await ServiceHost.SendEvent(FileBrowserExpandedNotification.Type, result);
         }
     }
 }

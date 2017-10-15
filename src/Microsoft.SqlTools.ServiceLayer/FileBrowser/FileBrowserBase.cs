@@ -84,6 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             Request req = new Request();
             bool clustered = false;
 
+            //todo: test code!
+            connection.Close();
+
             req.Urn = "Server/Information";
             req.Fields = new string[] { "IsClustered", "PathSeparator", "HostPlatform" };
 
