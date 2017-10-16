@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private string[] fileFilters;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
+        private bool fileTreeCreated;
 
         #region Constructors
 
@@ -75,6 +76,30 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
+        public SqlConnection SqlConnection
+        {
+            get
+            {
+                return this.sqlConnection;
+            }
+        }
+
+        public bool IsCancellationRequested
+        {
+            get
+            {
+                return this.cancelToken.IsCancellationRequested;
+            }
+        }
+
+        public bool FileTreeCreated
+        {
+            get
+            {
+                return this.fileTreeCreated;
+            }
+        }
+
         public void Cancel()
         {
             this.cancelSource.Cancel();
@@ -85,6 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
             PopulateDrives();
             ExpandSelectedNode(this.expandPath);
+            this.fileTreeCreated = true;
         }
 
         /// <summary>
@@ -122,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         currentNode.IsExpanded = true;
                         if (!currentNode.IsFile)
                         {
-                            PopulateFileNode(currentNode);
+                            currentNode.Children = GetChildren(currentNode.FullPath);
                         }
                         currentChildren = currentNode.Children;
                         lastNode = currentNode;
@@ -174,16 +200,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         first = false;
                     }
 
-                    PopulateFileNode(node);
+                    node.Children = GetChildren(node.FullPath);
                 }
             }
         }
 
-        private void PopulateFileNode(FileTreeNode parentNode)
+        public List<FileTreeNode> GetChildren(string parentPath)
         {
-            string parentPath = parentNode.FullPath;
-            parentNode.Children.Clear();
-
+            List<FileTreeNode> children = new List<FileTreeNode>();
             foreach (var file in EnumerateFilesInFolder(Enumerator, sqlConnection, parentPath))
             {
                 bool isFile = !string.IsNullOrEmpty(file.fileName);
@@ -204,9 +228,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 // add the node to the tree
                 if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters)))
                 {
-                    parentNode.AddChildNode(treeNode);
+                    children.Add(treeNode);
                 }
             }
+
+            return children;
         }
 
         /// <summary>

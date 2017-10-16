@@ -17,9 +17,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         public string OwnerUri;
 
         /// <summary>
-        /// Expanded node 
+        /// Path of expanded node
         /// </summary>
-        public FileTreeNode ExpandedNode;
+        public string ExpandPath;
+
+        /// <summary>
+        /// Children of the expanded node
+        /// </summary>
+        public FileTreeNode[] Children;
 
         /// <summary>
         /// Result of the operation

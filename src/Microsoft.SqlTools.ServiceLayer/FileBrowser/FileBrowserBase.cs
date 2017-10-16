@@ -80,12 +80,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <returns></returns>
         internal static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, SqlConnection connection)
         {
+            //todo: remove test code!
+            System.Threading.Thread.Sleep(10000);
+            
             // if not supplied, server name will be obtained from urn
             Request req = new Request();
             bool clustered = false;
-
-            //todo: test code!
-            connection.Close();
 
             req.Urn = "Server/Information";
             req.Fields = new string[] { "IsClustered", "PathSeparator", "HostPlatform" };
