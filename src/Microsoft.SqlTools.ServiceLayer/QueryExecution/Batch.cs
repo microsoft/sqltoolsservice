@@ -24,12 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     public class Batch : IDisposable
     {
         #region Member Variables
-
-        /// <summary>
-        /// The command used for executing the batch
-        /// </summary>
-        private DbCommand dbCommand;
-        
         /// <summary>
         /// For IDisposable implementation, whether or not this has been disposed
         /// </summary>
@@ -224,16 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Public Methods
-
-        /// <summary>
-        /// Cancels execution of the batch by sending a cancel request to the command. This will
-        /// halt executon on the server and prevent the SQL Client behavior of reading all the
-        /// records and then ditching them.
-        /// </summary>
-        public void Cancel()
-        {
-            dbCommand?.Cancel();
-        }
         
         /// <summary>
         /// Executes this batch and captures any server messages that are returned.
@@ -262,6 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+                DbCommand dbCommand;
                 if (sqlConn != null)
                 {
                     // Register the message listener to *this instance* of the batch
@@ -285,6 +270,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Create a command that we'll use for executing the query
                 using (dbCommand)
                 {
+                    // Make sure that we cancel the command if the cancellation token is cancelled
+                    cancellationToken.Register(() => dbCommand?.Cancel());
+                    
+                    // Setup the command for executing the batch
                     dbCommand.CommandText = BatchText;
                     dbCommand.CommandType = CommandType.Text;
                     dbCommand.CommandTimeout = 0;
@@ -329,7 +318,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                     }
                 }
-                dbCommand = null;
             }
             catch (DbException dbe)
             {
