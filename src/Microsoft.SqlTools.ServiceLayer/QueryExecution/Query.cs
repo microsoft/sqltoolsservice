@@ -1,6 +1,7 @@
 ﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Data.Common;
@@ -274,10 +275,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public void Execute()
         {
-            ExecutionTask = Task.Run(ExecuteInternal).ContinueWithExceptionHandling(t =>
-            {
-                QueryFailed?.Invoke(this, t.Exception).Wait();
-            });
+            ExecutionTask = Task.Run(ExecuteInternal)
+                .ContinueWithOnFaulted(t =>
+                {
+                    QueryFailed?.Invoke(this, t.Exception).Wait();
+                });
         }
 
         /// <summary>
