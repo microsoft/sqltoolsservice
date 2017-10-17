@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -25,10 +26,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
+        #region Constants
+        
         /// <summary>
         /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
         /// </summary>
         private const int DatabaseContextChangeErrorNumber = 5701;
+        
+        /// <summary>
+        /// ON keyword
+        /// </summary>
+        private const string On = "ON";
+
+        /// <summary>
+        /// OFF keyword
+        /// </summary>
+        private const string Off = "OFF";
+        
+        /// <summary>
+        /// showplan_xml statement
+        /// </summary>
+        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
+
+        /// <summary>
+        /// statistics xml statement
+        /// </summary>
+        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
+        
+        #endregion
 
         #region Member Variables
 
@@ -56,27 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Name of the new database if the database name was changed in the query
         /// </summary>
-        private string newDatabaseName;
-
-        /// <summary>
-        /// ON keyword
-        /// </summary>
-        private const string On = "ON";
-
-        /// <summary>
-        /// OFF keyword
-        /// </summary>
-        private const string Off = "OFF";
-
-        /// <summary>
-        /// showplan_xml statement
-        /// </summary>
-        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
-
-        /// <summary>
-        /// statistics xml statement
-        /// </summary>
-        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
+        private string newDatabaseName;        
 
         #endregion
 
@@ -269,7 +274,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public void Execute()
         {
-            ExecutionTask = Task.Run(ExecuteInternal);
+            ExecutionTask = Task.Run(ExecuteInternal).ContinueWithExceptionHandling(t =>
+            {
+                QueryFailed?.Invoke(this, t.Exception).Wait();
+            });
         }
 
         /// <summary>
@@ -338,34 +346,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private async Task ExecuteInternal()
         {
-            // Mark that we've internally executed
-            hasExecuteBeenCalled = true;
-
-            // Don't actually execute if there aren't any batches to execute
-            if (Batches.Length == 0)
-            {
-                if (BatchMessageSent != null)
-                {
-                    await BatchMessageSent(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
-                }
-                if (QueryCompleted != null)
-                {
-                    await QueryCompleted(this);
-                }
-                return;
-            }
-
-            // Locate and setup the connection
-            DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-            ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;
-            if (sqlConn != null)
-            {
-                // Subscribe to database informational messages
-                sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
-            }
-
+            ReliableSqlConnection sqlConn = null;
             try
             {
+                // Mark that we've internally executed
+                hasExecuteBeenCalled = true;
+    
+                // Don't actually execute if there aren't any batches to execute
+                if (Batches.Length == 0)
+                {
+                    if (BatchMessageSent != null)
+                    {
+                        await BatchMessageSent(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
+                    }
+                    if (QueryCompleted != null)
+                    {
+                        await QueryCompleted(this);
+                    }
+                    return;
+                }
+    
+                // Locate and setup the connection
+                DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
+                sqlConn = queryConnection as ReliableSqlConnection;
+                if (sqlConn != null)
+                {
+                    // Subscribe to database informational messages
+                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+                }
+
+            
                 // Execute beforeBatches synchronously, before the user defined batches 
                 foreach (Batch b in BeforeBatches)
                 {
@@ -393,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (QueryCompleted != null)
                 {
                     await QueryCompleted(this);
-                }         
+                }
             }
             catch (Exception e)
             {
@@ -405,16 +415,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             finally
             {
+                // Remove the message hadler from the connection
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
-            }
-
-            if (newDatabaseName != null)
-            {
-                ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
+                
+                // If any message notified us we had changed databases, then we must let the connection service know 
+                if (newDatabaseName != null)
+                {
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
+                }
             }
         }
 
