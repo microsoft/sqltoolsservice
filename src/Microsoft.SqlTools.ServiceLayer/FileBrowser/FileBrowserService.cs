@@ -230,9 +230,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
                 {
                     FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
-                    browser.ExpandSelectedNode(fileBrowserParams.ExpandPath);
+                    result.Children = browser.GetChildren(fileBrowserParams.ExpandPath).ToArray();
+                    result.ExpandPath = fileBrowserParams.ExpandPath;
                     result.OwnerUri = fileBrowserParams.OwnerUri;
-                    result.ExpandedNode = browser.FileTree.SelectedNode;
                     result.Succeeded = true;
                 }
                 else

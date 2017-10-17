@@ -50,9 +50,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
   
     }
 
-    public class CreateFirewallRuleResponse
+    public class CreateFirewallRuleResponse : TokenReliantResponse
     {
-        public bool Result { get; set; }
+        /// <summary>
+        /// An error message for why the request failed, if any
+        /// </summary>
         public string ErrorMessage { get; set; }
     }
 
@@ -97,6 +99,4 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// </summary>
         public string IpAddress { get; set; }
     }
-
-
 }

@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
         }
 
         [Fact]
-        public async Task GetShouldReturnEmptyGivenNotSubscriptionFound()
+        public async Task GetShouldReturnEmptyGivenNoSubscriptionFound()
         {
             Dictionary<string, List<string>> subscriptionToDatabaseMap = new Dictionary<string, List<string>>();
 
