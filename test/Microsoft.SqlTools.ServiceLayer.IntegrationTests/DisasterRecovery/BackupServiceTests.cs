@@ -288,9 +288,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             // Verify result
             serviceHostMock.Verify(x => x.SendEvent(FileBrowserExpandedNotification.Type,
                 It.Is<FileBrowserExpandedParams>(p => p.Succeeded == true
-                && p.ExpandedNode != null
-                && p.ExpandedNode.Children != null
-                && p.ExpandedNode.Children.Count > 0)),
+                && p.Children != null
+                && p.Children.Length > 0)),
                 Times.Once());
 
             var validateParams = new FileBrowserValidateParams

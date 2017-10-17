@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         #endregion
 
-        #region public properties and methods
+        #region public properties
 
         public FileTree FileTree
         {
@@ -69,6 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 return this.fileFilters;
             }
         }
+
+        #endregion
 
         public void PopulateFileTree()
         {
@@ -107,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         currentNode.IsExpanded = true;
                         if (!currentNode.IsFile)
                         {
-                            PopulateFileNode(currentNode);
+                            currentNode.Children = this.GetChildren(currentNode.FullPath);
                         }
                         currentChildren = currentNode.Children;
                         lastNode = currentNode;
@@ -129,38 +131,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        #endregion
-
-        private void PopulateDrives()
+        public List<FileTreeNode> GetChildren(string filepath)
         {
-            bool first = true;
-            foreach (var fileInfo in EnumerateDrives(Enumerator, sqlConnection))
-            {
-                // Windows drive letter paths have a '\' at the end. Linux drive paths won't have a '\'.
-                var node = new FileTreeNode
-                {
-                    Name = Convert.ToString(fileInfo.path, CultureInfo.InvariantCulture).TrimEnd('\\'),
-                    FullPath = fileInfo.path
-                };
-
-                this.fileTree.RootNode.AddChildNode(node);
-
-                if (first)
-                {
-                    this.fileTree.SelectedNode = node;
-                    first = false;
-                }
-
-                PopulateFileNode(node);
-            }
-        }
-
-        private void PopulateFileNode(FileTreeNode parentNode)
-        {
-            string parentPath = parentNode.FullPath;
-            parentNode.Children.Clear();
-
-            foreach (var file in EnumerateFilesInFolder(Enumerator, sqlConnection, parentPath))
+            List<FileTreeNode> children = new List<FileTreeNode>();
+            foreach (var file in EnumerateFilesInFolder(Enumerator, sqlConnection, filepath))
             {
                 bool isFile = !string.IsNullOrEmpty(file.fileName);
                 FileTreeNode treeNode = new FileTreeNode();
@@ -180,8 +154,34 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 // add the node to the tree
                 if (!isFile || (this.FilterFile(treeNode.Name, this.fileFilters)))
                 {
-                    parentNode.AddChildNode(treeNode);
+                    children.Add(treeNode);
                 }
+            }
+
+            return children;
+        }
+
+        public void PopulateDrives()
+        {
+            bool first = true;
+            foreach (var fileInfo in EnumerateDrives(Enumerator, sqlConnection))
+            {
+                // Windows drive letter paths have a '\' at the end. Linux drive paths won't have a '\'.
+                var node = new FileTreeNode
+                {
+                    Name = Convert.ToString(fileInfo.path, CultureInfo.InvariantCulture).TrimEnd('\\'),
+                    FullPath = fileInfo.path
+                };
+
+                this.fileTree.RootNode.AddChildNode(node);
+
+                if (first)
+                {
+                    this.fileTree.SelectedNode = node;
+                    first = false;
+                }
+
+                node.Children = this.GetChildren(node.FullPath);
             }
         }
 
