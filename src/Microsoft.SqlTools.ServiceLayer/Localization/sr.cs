@@ -3277,6 +3277,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string NeverBackedUp
+        {
+            get
+            {
+                return Keys.GetString(Keys.NeverBackedUp);
+            }
+        }
+
         public static string BackupTaskName
         {
             get
@@ -4869,6 +4877,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string NeverBackedUp = "NeverBackedUp";
 
 
             public const string BackupTaskName = "BackupTaskName";
