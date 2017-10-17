@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         #endregion
 
-        #region public properties and methods
+        #region public properties
 
         public FileTree FileTree
         {
@@ -104,6 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         {
             this.cancelSource.Cancel();
         }
+        #endregion
 
         public void PopulateFileTree()
         {
@@ -148,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         currentNode.IsExpanded = true;
                         if (!currentNode.IsFile)
                         {
-                            currentNode.Children = GetChildren(currentNode.FullPath);
+                            currentNode.Children = this.GetChildren(currentNode.FullPath);
                         }
                         currentChildren = currentNode.Children;
                         lastNode = currentNode;
@@ -170,12 +171,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        #endregion
-
-        private void PopulateDrives()
+        public void PopulateDrives()
         {
             bool first = true;
-
             if (!cancelToken.IsCancellationRequested)
             {
                 foreach (var fileInfo in EnumerateDrives(Enumerator, sqlConnection))
@@ -200,15 +198,15 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         first = false;
                     }
 
-                    node.Children = GetChildren(node.FullPath);
+                    node.Children = this.GetChildren(node.FullPath);
                 }
             }
         }
 
-        public List<FileTreeNode> GetChildren(string parentPath)
-        {
+        public List<FileTreeNode> GetChildren(string filePath)
+        { 
             List<FileTreeNode> children = new List<FileTreeNode>();
-            foreach (var file in EnumerateFilesInFolder(Enumerator, sqlConnection, parentPath))
+            foreach (var file in EnumerateFilesInFolder(Enumerator, sqlConnection, filePath))
             {
                 bool isFile = !string.IsNullOrEmpty(file.fileName);
                 FileTreeNode treeNode = new FileTreeNode();
