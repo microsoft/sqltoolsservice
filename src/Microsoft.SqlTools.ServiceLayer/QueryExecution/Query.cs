@@ -146,6 +146,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Events
 
         /// <summary>
+        /// Delegate type for callback when a query completes or fails
+        /// </summary>
+        /// <param name="q">The query that completed</param>
+        public delegate Task QueryAsyncEventHandler(Query q);
+        
+        /// <summary>
+        /// Delegate type for callback when a query fails
+        /// </summary>
+        /// <param name="q">Query that raised the event</param>
+        /// <param name="e">Exception that caused the query to fail</param>
+        public delegate Task QueryAsyncErrorEventHandler(Query q, Exception e);
+        
+        /// <summary>
         /// Event to be called when a batch is completed.
         /// </summary>
         public event Batch.BatchAsyncEventHandler BatchCompleted;
@@ -159,12 +172,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Event to be called when a batch starts execution.
         /// </summary>
         public event Batch.BatchAsyncEventHandler BatchStarted;
-
-        /// <summary>
-        /// Delegate type for callback when a query connection fails
-        /// </summary>
-        /// <param name="message">Error message for the failing query</param>
-        public delegate Task QueryAsyncErrorEventHandler(Query q, Exception e);
 
         /// <summary>
         /// Callback for when the query has completed successfully
@@ -186,25 +193,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
-        /// Delegate type for callback when a query completes or fails
-        /// </summary>
-        /// <param name="q">The query that completed</param>
-        public delegate Task QueryAsyncEventHandler(Query q);
-
-        /// <summary>
         /// The batches which should run before the user batches 
         /// </summary>
-        internal List<Batch> BeforeBatches { get; set; }
+        private List<Batch> BeforeBatches { get; }
 
         /// <summary>
         /// The batches underneath this query
         /// </summary>
-        internal Batch[] Batches { get; set; }
+        internal Batch[] Batches { get; }
 
         /// <summary>
         /// The batches which should run after the user batches 
         /// </summary>
-        internal List<Batch> AfterBatches { get; set; }
+        internal List<Batch> AfterBatches { get; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -249,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The text of the query to execute
         /// </summary>
-        public string QueryText { get; set; }
+        public string QueryText { get; }
 
         #endregion
 

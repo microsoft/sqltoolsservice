@@ -504,9 +504,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
             });
+            
+            // Add exception handling to the save task
+            Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(t =>
+            {
+                failureHandler?.Invoke(saveParams, t.Exception.Message);
+            });
 
             // If saving the task fails, return a failure
-            if (!SaveTasks.TryAdd(saveParams.FilePath, saveAsTask))
+            if (!SaveTasks.TryAdd(saveParams.FilePath, taskWithHandling))
             {
                 throw new InvalidOperationException(SR.QueryServiceSaveAsMiscStartingError);
             }
@@ -537,7 +543,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (!SaveTasks.IsEmpty)
             {
                 // Wait for tasks to finish before disposing ResultSet
-                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith((antecedent) =>
+                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith(antecedent =>
                 {
                     if (disposing)
                     {
