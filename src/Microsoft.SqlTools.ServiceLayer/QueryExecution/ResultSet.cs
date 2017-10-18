@@ -508,7 +508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Add exception handling to the save task
             Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(t =>
             {
-                failureHandler?.Invoke(saveParams, t.Exception.Message);
+                failureHandler?.Invoke(saveParams, t.Exception.Message).Wait();
             });
 
             // If saving the task fails, return a failure

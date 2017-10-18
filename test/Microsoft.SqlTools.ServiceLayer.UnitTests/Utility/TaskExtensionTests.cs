@@ -16,11 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public async Task ContinueWithOnFaultedNullContinuation()
         {
             // Setup: Create a task that will definitely fault
-            Task failuretask = new Task(() => throw new Exception("It fail!"));
+            Task failureTask = new Task(() => throw new Exception("It fail!"));
             
             // If: I continue on fault and start the task
-            Task continuationTask = failuretask.ContinueWithOnFaulted(null);
-            failuretask.Start();
+            Task continuationTask = failureTask.ContinueWithOnFaulted(null);
+            failureTask.Start();
             await continuationTask;
 
             // Then: The task should have completed without fault

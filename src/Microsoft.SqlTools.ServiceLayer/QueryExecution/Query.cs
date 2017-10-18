@@ -148,15 +148,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Delegate type for callback when a query completes or fails
         /// </summary>
-        /// <param name="q">The query that completed</param>
-        public delegate Task QueryAsyncEventHandler(Query q);
+        /// <param name="query">The query that completed</param>
+        public delegate Task QueryAsyncEventHandler(Query query);
         
         /// <summary>
         /// Delegate type for callback when a query fails
         /// </summary>
-        /// <param name="q">Query that raised the event</param>
-        /// <param name="e">Exception that caused the query to fail</param>
-        public delegate Task QueryAsyncErrorEventHandler(Query q, Exception e);
+        /// <param name="query">Query that raised the event</param>
+        /// <param name="exception">Exception that caused the query to fail</param>
+        public delegate Task QueryAsyncErrorEventHandler(Query query, Exception exception);
         
         /// <summary>
         /// Event to be called when a batch is completed.
@@ -418,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             finally
             {
-                // Remove the message hadler from the connection
+                // Remove the message handler from the connection
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
