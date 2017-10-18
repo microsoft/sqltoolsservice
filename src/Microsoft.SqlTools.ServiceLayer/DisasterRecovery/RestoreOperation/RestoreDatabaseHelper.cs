@@ -48,11 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     // Default backup folder path in the target server
                     response.ConfigInfo.Add(RestoreOptionsHelper.DefaultBackupFolder, restoreTaskObject.DefaultBackupFolder);
                 }
-
             }
             catch(Exception ex) 
             {
                 Logger.Write(LogLevel.Warning, $"Failed to create restore config info. error: { ex.Message}");
+                response.ErrorMessage = ex.Message;
             }
             finally
             {
