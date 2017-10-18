@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -14,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -54,16 +53,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         }
 
         /// <summary>
-        /// Service host object for sending/receiving requests/events.
-        /// Internal for testing purposes.
-        /// </summary>
-        internal IProtocolEndpoint ServiceHost
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Register validate path callback
         /// </summary>
         /// <param name="service"></param>
@@ -79,8 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="serviceHost">Service host to register handlers with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            this.ServiceHost = serviceHost;
-
             // Open a file browser
             serviceHost.SetRequestHandler(FileBrowserOpenRequest.Type, HandleFileBrowserOpenRequest);
 
@@ -96,13 +83,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         #region request handlers
 
-        internal async Task HandleFileBrowserOpenRequest(
-            FileBrowserOpenParams fileBrowserParams,
-            RequestContext<bool> requestContext)
+        internal async Task HandleFileBrowserOpenRequest(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams));
+                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(t => requestContext.SendResult(false));
                 await requestContext.SendResult(true);
             }
             catch
@@ -111,13 +97,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        internal async Task HandleFileBrowserExpandRequest(
-            FileBrowserExpandParams fileBrowserParams,
-            RequestContext<bool> requestContext)
+        internal async Task HandleFileBrowserExpandRequest(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams));
+                var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(t => requestContext.SendResult(false));
                 await requestContext.SendResult(true);
             }
             catch
@@ -126,13 +111,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        internal async Task HandleFileBrowserValidateRequest(
-            FileBrowserValidateParams fileBrowserParams,
-            RequestContext<bool> requestContext)
+        internal async Task HandleFileBrowserValidateRequest(FileBrowserValidateParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams));
+                var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(t => requestContext.SendResult(false));
                 await requestContext.SendResult(true);
             }
             catch
@@ -154,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         #endregion
 
-        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams)
+        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
 
@@ -170,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     connInfo.TryGetConnection(ConnectionType.Default, out dbConn);
                     if (dbConn != null)
                     {
-                        conn = ReliableConnectionHelper.GetAsSqlConnection((IDbConnection)dbConn);
+                        conn = ReliableConnectionHelper.GetAsSqlConnection(dbConn);
                     }
                 }
 
@@ -196,10 +180,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserOpenedNotification.Type, result);
+            await requestContext.SendEvent(FileBrowserOpenedNotification.Type, result);
         }
 
-        internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams)
+        internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserExpandedParams result = new FileBrowserExpandedParams();
             try
@@ -219,10 +203,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserExpandedNotification.Type, result);
+            await requestContext.SendEvent(FileBrowserExpandedNotification.Type, result);
         }
 
-        internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams)
+        internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserValidatedParams result = new FileBrowserValidatedParams();
 
@@ -258,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserValidatedNotification.Type, result);
+            await requestContext.SendEvent(FileBrowserValidatedNotification.Type, result);
         }
     }
 }
