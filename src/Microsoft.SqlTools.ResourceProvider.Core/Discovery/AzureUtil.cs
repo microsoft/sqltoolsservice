@@ -10,25 +10,30 @@ using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
-    internal static class AzureUtil
+    /// <summary>
+    /// Utils class supporting parallel querying of Azure resources
+    /// </summary>
+    public static class AzureUtil
     {
         /// <summary>
         /// Execute an async action for each input in the a list of input in parallel.
         /// If any task fails, adds the exeption message to the response errors
-        /// If cancellation token is set to cancel, returns empty response
-        /// </summary>        
+        /// If cancellation token is set to cancel, returns empty response.
+        /// Note: Will not throw if errors occur. Instead the caller should check for errors and either notify
+        /// or rethrow as needed.
+        /// </summary>
         /// <param name="session">Resource management session to use to call the resource manager</param>
         /// <param name="inputs">List of inputs</param>
-        /// <param name="serverName">server name to filter the result</param>
+        /// <param name="lookupKey">optional lookup key to filter the result</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <param name="asyncAction">Async action</param>
         /// <returns>ServiceResponse including the list of data and errors</returns>
-        public static async Task<ServiceResponse<TResult>> ExecuteGetAzureResourceAsParallel<TInput, TResult>(
-            IAzureResourceManagementSession session,
+        public static async Task<ServiceResponse<TResult>> ExecuteGetAzureResourceAsParallel<TConfig, TInput, TResult>(
+            TConfig config,
             IEnumerable<TInput> inputs,
-            string serverName,
+            string lookupKey,
             CancellationToken cancellationToken,
-            Func<IAzureResourceManagementSession,
+            Func<TConfig,
                 TInput,
                 string,
                 CancellationToken,
@@ -51,10 +56,10 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 var tasks = Enumerable.Range(0, inputList.Count())
                     .Select(async i =>
                     {
-                        ServiceResponse<TResult> result = await GetResult(session, inputList[i], serverName, cancellationToken,
+                        ServiceResponse<TResult> result = await GetResult(config, inputList[i], lookupKey, cancellationToken,
                                 cancellationTokenSource.Token, asyncAction);
                         //server name is used to filter the result and if the data is already found not, we need to cancel the other tasks
-                        if (!string.IsNullOrEmpty(serverName) && result.Found)
+                        if (!string.IsNullOrEmpty(lookupKey) && result.Found)
                         {
                             cancellationTokenSource.Cancel();
                         }
@@ -82,13 +87,13 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             return new ServiceResponse<TResult>(mergedResult, mergedErrors);
         }
 
-        private static async Task<ServiceResponse<TResult>> GetResult<TInput, TResult>(
-            IAzureResourceManagementSession session,
+        private static async Task<ServiceResponse<TResult>> GetResult<TConfig, TInput, TResult>(
+            TConfig config,
             TInput input,
-            string serverName,
+            string lookupKey,
             CancellationToken cancellationToken,
             CancellationToken internalCancellationToken,
-            Func<IAzureResourceManagementSession,
+            Func<TConfig,
                 TInput,
                 string,
                 CancellationToken,
@@ -102,7 +107,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
             try
             {
-                return await asyncAction(session, input, serverName, cancellationToken, internalCancellationToken);
+                return await asyncAction(config, input, lookupKey, cancellationToken, internalCancellationToken);
             }
             catch (Exception ex)
             {

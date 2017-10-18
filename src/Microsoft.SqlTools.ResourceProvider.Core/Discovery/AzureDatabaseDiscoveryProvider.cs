@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     IEnumerable<IAzureUserAccountSubscriptionContext> subscriptions = await GetSubscriptionsAsync(string.IsNullOrEmpty(serverName));
                     if (!cancellationToken.IsCancellationRequested)
                     {                       
-                        result = await AzureUtil.ExecuteGetAzureResourceAsParallel(null, subscriptions, serverName, cancellationToken,
+                        result = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null, subscriptions, serverName, cancellationToken,
                             GetDatabaseForSubscriptionAsync);
                     }
 
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// <summary>
         /// Returns a  list of Azure sql databases for given subscription
         /// </summary>
-        private async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabaseForSubscriptionAsync(IAzureResourceManagementSession parentSession,
+        private async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabaseForSubscriptionAsync(object notRequired,
             IAzureUserAccountSubscriptionContext input, string serverName,
             CancellationToken cancellationToken, CancellationToken internalCancellationToken)
         {

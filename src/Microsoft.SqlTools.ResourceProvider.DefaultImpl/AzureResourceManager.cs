@@ -20,7 +20,7 @@ using Microsoft.Rest;
 using System.Globalization;
 using Microsoft.Rest.Azure;
 using Microsoft.SqlTools.ResourceProvider.Core;
-using System.Collections;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -38,7 +38,8 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
     public class AzureResourceManager : ExportableBase, IAzureResourceManager
     {
         private readonly Uri _resourceManagementUri = new Uri("https://management.azure.com/");
-
+        private const string ExpiredTokenCode = "ExpiredAuthenticationToken";
+        
         public AzureResourceManager()
         {
             // Duplicate the exportable attribute as at present we do not support filtering using extensiondescriptor.
@@ -91,16 +92,10 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 
                 if (vsAzureResourceManagementSession != null)
                 {
-                    try
-                    {
-                        IEnumerable<Database> databaseListResponse = await vsAzureResourceManagementSession.SqlManagementClient.Databases.ListByServerAsync(resourceGroupName, serverName);
-                        return databaseListResponse.Select(
-                                    x => new AzureResourceWrapper(x) { ResourceGroupName = resourceGroupName });
-                    }
-                    catch(HttpOperationException ex)
-                    {
-                        throw new AzureResourceFailedException(SR.FailedToGetAzureDatabasesErrorMessage, ex.Response.StatusCode);
-                    }
+                    IEnumerable<Database> databaseListResponse = await ExecuteCloudRequest(
+                        () => vsAzureResourceManagementSession.SqlManagementClient.Databases.ListByServerAsync(resourceGroupName, serverName),
+                        SR.FailedToGetAzureDatabasesErrorMessage);
+                    return databaseListResponse.Select(x => new AzureResourceWrapper(x) { ResourceGroupName = resourceGroupName });
                 }
             }
             catch (Exception ex)
@@ -127,28 +122,17 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 AzureResourceManagementSession vsAzureResourceManagementSession = azureResourceManagementSession as AzureResourceManagementSession;
                 if(vsAzureResourceManagementSession != null)
                 {
-                    // Note: Ideally wouldn't need to query resource groups, but the current impl requires it
-                    // since any update will need the resource group name and it's not returned from the server.
-                    // This has a very negative impact on perf, so we should investigate running these queries
-                    // in parallel
-
-                    try
+                    IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
+                    IPage<Server> servers = await ExecuteCloudRequest(
+                        () => serverOperations.ListAsync(),
+                        SR.FailedToGetAzureSqlServersWithError);
+                    if (servers != null)
                     {
-                        IServersOperations serverOperations = vsAzureResourceManagementSession.SqlManagementClient.Servers;
-                        IPage<Server> servers = await serverOperations.ListAsync();
-                        if (servers != null)
-                        {
-                            sqlServers.AddRange(servers.Select(server => {
-                                var serverResource = new SqlAzureResource(server);
-                                // TODO ResourceGroup name
-                                return serverResource;
-                            }));
-                        }
-                    }
-                    catch (HttpOperationException ex)
-                    {
-                        throw new AzureResourceFailedException(
-                            string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureSqlServersWithError, ex.Message), ex.Response.StatusCode);
+                        sqlServers.AddRange(servers.Select(server => {
+                            var serverResource = new SqlAzureResource(server);
+                            // TODO ResourceGroup name
+                            return serverResource;
+                        }));
                     }
                 }
             }
@@ -176,33 +160,27 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 
                 if (vsAzureResourceManagementSession != null)
                 {
-                    try
+                    var firewallRule = new RestFirewallRule()
                     {
-                        var firewallRule = new RestFirewallRule()
-                        {
-                            EndIpAddress = firewallRuleRequest.EndIpAddress.ToString(),
-                            StartIpAddress = firewallRuleRequest.StartIpAddress.ToString()
-                        };
-                        IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
-                        var firewallRuleResponse = await firewallRuleOperations.CreateOrUpdateWithHttpMessagesAsync(
-                                                                                    azureSqlServer.ResourceGroupName ?? string.Empty,
-                                                                                    azureSqlServer.Name,
-                                                                                    firewallRuleRequest.FirewallRuleName,
-                                                                                    firewallRule,
-                                                                                    GetCustomHeaders());
-                        var response = firewallRuleResponse.Body;
-                        return new FirewallRuleResponse()
-                        {
-                            StartIpAddress = response.StartIpAddress,
-                            EndIpAddress = response.EndIpAddress,
-                            Created = true
-                        };
-                    }
-                    catch (HttpOperationException ex)
+                        EndIpAddress = firewallRuleRequest.EndIpAddress.ToString(),
+                        StartIpAddress = firewallRuleRequest.StartIpAddress.ToString()
+                    };
+                    IFirewallRulesOperations firewallRuleOperations = vsAzureResourceManagementSession.SqlManagementClient.FirewallRules;
+                    var firewallRuleResponse = await ExecuteCloudRequest(
+                        () => firewallRuleOperations.CreateOrUpdateWithHttpMessagesAsync(
+                                                                                azureSqlServer.ResourceGroupName ?? string.Empty,
+                                                                                azureSqlServer.Name,
+                                                                                firewallRuleRequest.FirewallRuleName,
+                                                                                firewallRule,
+                                                                                GetCustomHeaders()),
+                        SR.FirewallRuleCreationFailedWithError);
+                    var response = firewallRuleResponse.Body;
+                    return new FirewallRuleResponse()
                     {
-                        throw new AzureResourceFailedException(
-                            string.Format(CultureInfo.CurrentCulture, SR.FirewallRuleCreationFailedWithError, ex.Message), ex.Response.StatusCode);
-                    }
+                        StartIpAddress = response.StartIpAddress,
+                        EndIpAddress = response.EndIpAddress,
+                        Created = true
+                    };
                 }
                 // else respond with failure case
                 return  new FirewallRuleResponse()
@@ -229,67 +207,52 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// Returns the azure resource groups for given subscription
-        /// </summary>
-        private async Task<IEnumerable<ResourceGroup>> GetResourceGroupsAsync(AzureResourceManagementSession vsAzureResourceManagementSession)
-        {
-            try
-            {
-                if (vsAzureResourceManagementSession != null)
-                {
-                    try
-                    {
-                        IResourceGroupsOperations resourceGroupOperations = vsAzureResourceManagementSession.ResourceManagementClient.ResourceGroups;
-                        IPage<ResourceGroup> resourceGroupList = await resourceGroupOperations.ListAsync();
-                        if (resourceGroupList != null)
-                        {
-                            return resourceGroupList.AsEnumerable();
-                        }
-
-                    }
-                    catch (HttpOperationException ex)
-                    {
-                        throw new AzureResourceFailedException(string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureResourceGroupsErrorMessage, ex.Message), ex.Response.StatusCode);
-                    }
-                }
-
-                return Enumerable.Empty<ResourceGroup>();
-            }
-            catch (Exception ex)
-            {
-                TraceException(TraceEventType.Error, (int)TraceId.AzureResource, ex, "Failed to get azure resource groups");
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Gets all subscription contexts under a specific user account. Queries all tenants for the account and uses these to log in 
         /// and retrieve subscription information as needed
         /// </summary>
         public async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionContextsAsync(IAzureUserAccount userAccount)
         {
             List<IAzureUserAccountSubscriptionContext> contexts = new List<IAzureUserAccountSubscriptionContext>();
-            foreach (IAzureTenant tenant in userAccount.AllTenants)
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            ServiceResponse<IAzureUserAccountSubscriptionContext> response = await AzureUtil.ExecuteGetAzureResourceAsParallel(
+                userAccount, userAccount.AllTenants, string.Empty, CancellationToken.None, GetSubscriptionsForTentantAsync);
+            
+            if (response.HasError)
             {
-                AzureTenant azureTenant = tenant as AzureTenant;
-                if (azureTenant != null)
-                {
-                    ServiceClientCredentials credentials = CreateCredentials(azureTenant);
-                    using (SubscriptionClient client = new SubscriptionClient(_resourceManagementUri, credentials))
-                    {
-                        IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
-                        contexts.AddRange(subs.Select(sub =>
-                        {
-                            AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, _resourceManagementUri);
-                            AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
-                            return context;
-                        }));
-                    }
-                }
+                var ex = response.Errors.First();
+                throw new AzureResourceFailedException(
+                            string.Format(CultureInfo.CurrentCulture, SR.FailedToGetAzureSubscriptionsErrorMessage, ex.Message));
             }
+            contexts.AddRange(response.Data);
+            stopwatch.Stop();
+            TraceEvent(TraceEventType.Verbose, (int)TraceId.AzureResource, "Time taken to get all subscriptions was {0}ms", stopwatch.ElapsedMilliseconds.ToString());
             return contexts;
         }
-        
+
+        private async Task<ServiceResponse<IAzureUserAccountSubscriptionContext>> GetSubscriptionsForTentantAsync(
+            IAzureUserAccount userAccount, IAzureTenant tenant, string lookupKey,
+            CancellationToken cancellationToken, CancellationToken internalCancellationToken)
+        {
+
+            AzureTenant azureTenant = tenant as AzureTenant;
+            if (azureTenant != null)
+            {
+                ServiceClientCredentials credentials = CreateCredentials(azureTenant);
+                using (SubscriptionClient client = new SubscriptionClient(_resourceManagementUri, credentials))
+                {
+                    IEnumerable<Subscription> subs = await GetSubscriptionsAsync(client);
+                    return new ServiceResponse<IAzureUserAccountSubscriptionContext>(subs.Select(sub =>
+                    {
+                        AzureSubscriptionIdentifier subId = new AzureSubscriptionIdentifier(userAccount, azureTenant.TenantId, sub.SubscriptionId, _resourceManagementUri);
+                        AzureUserAccountSubscriptionContext context = new AzureUserAccountSubscriptionContext(subId, credentials);
+                        return context;
+                    }));
+                }
+            }
+            return new ServiceResponse<IAzureUserAccountSubscriptionContext>();
+        }
+
         /// <summary>
         /// Returns the azure resource groups for given subscription
         /// </summary>
@@ -299,20 +262,12 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             {
                 if (subscriptionClient != null)
                 {
-                    try
+                    IPage<Subscription> subscriptionList = await ExecuteCloudRequest(
+                        () => subscriptionClient.Subscriptions.ListAsync(),
+                        SR.FailedToGetAzureSubscriptionsErrorMessage);
+                    if (subscriptionList != null)
                     {
-                        ISubscriptionsOperations subscriptionsOperations = subscriptionClient.Subscriptions;
-                        IPage<Subscription> subscriptionList = await subscriptionsOperations.ListAsync();
-                        if (subscriptionList != null)
-                        {
-                            return subscriptionList.AsEnumerable();
-                        }
-
-                    }
-                    catch (HttpOperationException ex)
-                    {
-                        throw new AzureResourceFailedException(
-                            string.Format(CultureInfo.CurrentCulture, SR.AzureSubscriptionFailedErrorMessage, ex.Message), ex.Response.StatusCode);
+                        return subscriptionList.AsEnumerable();
                     }
                 }
 
@@ -362,6 +317,30 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 return azureUserSubContext.Credentials;
             }
             throw new NotSupportedException("This uses an unknown subscription type");
+        }
+
+        private async Task<T> ExecuteCloudRequest<T>(Func<Task<T>> operation, string errorOccurredMsg)
+        {
+            try
+            {
+                return await operation();
+            }
+            catch(CloudException ex)
+            {
+                if (ex.Body != null && string.Equals(ExpiredTokenCode, ex.Body.Code, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Throw an expired token exception, which indicates that the operation could succeed if the user reauthenticates
+                    throw new ExpiredTokenException(ex.Message);
+                }
+                throw new AzureResourceFailedException(
+                    string.Format(CultureInfo.CurrentCulture, errorOccurredMsg, ex.Message), ex.Response.StatusCode);
+            }
+            catch (HttpOperationException ex)
+            {
+                throw new AzureResourceFailedException(
+                    string.Format(CultureInfo.CurrentCulture, errorOccurredMsg, ex.Message), ex.Response.StatusCode);
+            }
+
         }
     }
 }

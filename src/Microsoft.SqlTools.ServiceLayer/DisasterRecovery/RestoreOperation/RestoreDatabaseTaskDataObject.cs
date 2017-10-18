@@ -794,11 +794,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private string GetTargetDbFilePhysicalName(string sourceDbFilePhysicalLocation)
         {
+            string pathSeparator = Path.DirectorySeparatorChar.ToString();
+            sourceDbFilePhysicalLocation = sourceDbFilePhysicalLocation.Replace("/", pathSeparator);
+            sourceDbFilePhysicalLocation = sourceDbFilePhysicalLocation.Replace("\\", pathSeparator);
             string fileName = Path.GetFileName(sourceDbFilePhysicalLocation);
-            if (!string.IsNullOrEmpty(this.DefaultSourceDbName) && !string.IsNullOrEmpty(this.targetDbName))
+            if (!string.IsNullOrEmpty(this.SourceDatabaseName) && !string.IsNullOrEmpty(this.targetDbName))
             {
                 string sourceFilename = fileName;
-                fileName = sourceFilename.Replace(this.DefaultSourceDbName, this.targetDbName);
+                fileName = sourceFilename.Replace(this.SourceDatabaseName, this.targetDbName);
             }
             return fileName;
         }
@@ -962,9 +965,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         public bool ShouldCreateNewPlan()
         {
-            return RestorePlan == null || string.Compare(RestorePlanner.DatabaseName, this.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.SourceDatabaseName), StringComparison.InvariantCultureIgnoreCase) != 0 ||
+            return RestorePlan == null || 
+                string.Compare(RestorePlanner.DatabaseName, this.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.SourceDatabaseName), StringComparison.InvariantCultureIgnoreCase) != 0 ||
                 RestorePlanner.ReadHeaderFromMedia != this.RestoreParams.ReadHeaderFromMedia ||
                 this.RelocateAllFiles != this.RestoreParams.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles) ||
+                string.Compare(TargetDatabaseName, this.RestoreParams.GetOptionValue<string>(RestoreOptionsHelper.TargetDatabaseName), StringComparison.InvariantCultureIgnoreCase) != 0 ||
                 string.Compare(this.backupMediaList, RestoreParams.BackupFilePaths, StringComparison.InvariantCultureIgnoreCase) != 0;
         }
 

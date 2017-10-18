@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         /// <summary>
         /// List of children nodes
         /// </summary>
-        public List<FileTreeNode> Children { get; private set; }
+        public List<FileTreeNode> Children { get; set; }
 
         // Indicates if the node is expanded, applicable to a folder.
         public bool IsExpanded { get; set; }

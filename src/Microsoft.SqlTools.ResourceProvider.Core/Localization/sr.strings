@@ -22,8 +22,9 @@
 
 ############################################################################
 # Azure Core DLL
+NoSubscriptionsFound = No subscriptions were found for the currently logged in user account.
 AzureServerNotFound = The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.
-AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions
+AzureSubscriptionFailedErrorMessage = An error occurred while getting Azure subscriptions: {0}
 DatabaseDiscoveryFailedErrorMessage = An error occurred while getting databases from servers of type {0} from {1}
 FirewallRuleAccessForbidden = {0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.
 FirewallRuleCreationFailed = An error occurred while creating a new firewall rule.
