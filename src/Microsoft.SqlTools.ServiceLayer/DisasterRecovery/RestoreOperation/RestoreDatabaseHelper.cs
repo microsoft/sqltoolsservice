@@ -32,20 +32,38 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         public RestoreConfigInfoResponse CreateConfigInfoResponse(RestoreConfigInfoRequestParams restoreConfigInfoRequest)
         {
             RestoreConfigInfoResponse response = new RestoreConfigInfoResponse();
-            RestoreDatabaseTaskDataObject restoreTaskObject = CreateRestoreForNewSession(restoreConfigInfoRequest.OwnerUri);
-            if (restoreTaskObject != null)
+            RestoreDatabaseTaskDataObject restoreTaskObject = null;
+            
+            try
             {
-                // Default Data folder path in the target server
-                response.ConfigInfo.Add(RestoreOptionsHelper.DataFileFolder, restoreTaskObject.DefaultDataFileFolder);
-                // Default log folder path in the target server
-                response.ConfigInfo.Add(RestoreOptionsHelper.LogFileFolder, restoreTaskObject.DefaultLogFileFolder);
-                // The db names with backup set
-                response.ConfigInfo.Add(RestoreOptionsHelper.SourceDatabaseNamesWithBackupSets, restoreTaskObject.GetDatabaseNamesWithBackupSets());
-                // Default backup folder path in the target server
-                response.ConfigInfo.Add(RestoreOptionsHelper.DefaultBackupFolder, restoreTaskObject.DefaultBackupFolder);
-            }
+                restoreTaskObject = CreateRestoreForNewSession(restoreConfigInfoRequest.OwnerUri);
+                if (restoreTaskObject != null)
+                {
+                    // Default Data folder path in the target server
+                    response.ConfigInfo.Add(RestoreOptionsHelper.DataFileFolder, restoreTaskObject.DefaultDataFileFolder);
+                    // Default log folder path in the target server
+                    response.ConfigInfo.Add(RestoreOptionsHelper.LogFileFolder, restoreTaskObject.DefaultLogFileFolder);
+                    // The db names with backup set
+                    response.ConfigInfo.Add(RestoreOptionsHelper.SourceDatabaseNamesWithBackupSets, restoreTaskObject.GetDatabaseNamesWithBackupSets());
+                    // Default backup folder path in the target server
+                    response.ConfigInfo.Add(RestoreOptionsHelper.DefaultBackupFolder, restoreTaskObject.DefaultBackupFolder);
+                }
 
+            }
+            catch(Exception ex) 
+            {
+                Logger.Write(LogLevel.Warning, $"Failed to create restore config info. error: { ex.Message}");
+            }
+            finally
+            {
+                if(restoreTaskObject != null && restoreTaskObject.Server != null && restoreTaskObject.Server.ConnectionContext != null && 
+                restoreTaskObject.Server.ConnectionContext.IsOpen)
+                {
+                    restoreTaskObject.Server.ConnectionContext.Disconnect();
+                }
+            }
             return response;
+            
         }
 
         /// <summary>
@@ -174,23 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (connInfo != null)
             {
-                SqlConnection connection;
-                DbConnection dbConnection = connInfo.AllConnections.First();
-                ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
-                SqlConnection sqlConnection = dbConnection as SqlConnection;
-                if (reliableSqlConnection != null)
-                {
-                    connection = reliableSqlConnection.GetUnderlyingConnection();
-                }
-                else if (sqlConnection != null)
-                {
-                    connection = sqlConnection;
-                }
-                else
-                {
-                    Logger.Write(LogLevel.Warning, "Cannot find any sql connection for restore operation");
-                    return null;
-                }
+                SqlConnection connection = ConnectionService.OpenSqlConnection(connInfo, "Restore");
                 Server server = new Server(new ServerConnection(connection));
 
                 RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(server, targetDatabaseName);
