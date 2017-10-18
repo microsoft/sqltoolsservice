@@ -794,7 +794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private string GetTargetDbFilePhysicalName(string sourceDbFilePhysicalLocation)
         {
-            string pathSeparator = PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext);
+            string pathSeparator = Path.DirectorySeparatorChar.ToString();
             sourceDbFilePhysicalLocation = sourceDbFilePhysicalLocation.Replace("/", pathSeparator);
             sourceDbFilePhysicalLocation = sourceDbFilePhysicalLocation.Replace("\\", pathSeparator);
             string fileName = Path.GetFileName(sourceDbFilePhysicalLocation);
