@@ -56,8 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             finally
             {
-                if(restoreTaskObject != null && restoreTaskObject.Server != null && restoreTaskObject.Server.ConnectionContext != null && 
-                restoreTaskObject.Server.ConnectionContext.IsOpen)
+                ServerConnection serverConnection = restoreTaskObject?.Server?.ConnectionContext;
+                if (serverConnection != null && serverConnection.IsOpen)
                 {
                     restoreTaskObject.Server.ConnectionContext.Disconnect();
                 }
