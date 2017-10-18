@@ -47,6 +47,11 @@ ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 
 ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
 
+### General connection service strings
+AzureSqlDbEdition = Azure SQL DB
+AzureSqlDwEdition = Azure SQL Data Warehouse
+AzureSqlStretchEdition = Azure SQL Stretch Database
+
 ############################################################################
 # Query Execution Service
 

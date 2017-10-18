@@ -37,6 +37,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public Func<IBindingContext, object> TimeoutOperation { get; set; }
 
         /// <summary>
+        /// Gets or sets the operation to call if the bind operation encounters an unexpected exception.
+        /// Supports returning an object in case of the exception occurring since in some cases we need to be
+        /// tolerant of error cases and still return some value
+        /// </summary>
+        public Func<Exception, object> ErrorHandler { get; set; }
+
+        /// <summary>
         /// Gets or sets an event to signal when this queue item has been processed
         /// </summary>
         public virtual ManualResetEvent ItemProcessed { get; set; } 
