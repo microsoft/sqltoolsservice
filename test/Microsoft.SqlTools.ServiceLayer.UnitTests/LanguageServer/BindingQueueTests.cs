@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 errorHandler: (exception) => {
                     isExceptionHandled = true;
                     mre.Set();
-                    return true;
+                    return defaultReturnObject;
                 });
 
             mre.WaitOne(10000);
