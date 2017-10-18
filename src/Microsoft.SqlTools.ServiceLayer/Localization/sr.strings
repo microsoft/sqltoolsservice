@@ -802,6 +802,7 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+NeverBackedUp = Never
 
 ############################################################################
 # Backup Service

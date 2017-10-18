@@ -1811,6 +1811,10 @@
     <value>No Applicable Filegroup</value>
     <comment></comment>
   </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>Never</value>
+    <comment></comment>
+  </data>
   <data name="BackupTaskName" xml:space="preserve">
     <value>Backup Database</value>
     <comment></comment>

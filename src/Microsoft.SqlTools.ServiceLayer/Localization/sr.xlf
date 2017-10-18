@@ -2275,6 +2275,11 @@
         <target state="new">No backupset selected to be restored</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="NeverBackedUp">
+        <source>Never</source>
+        <target state="new">Never</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

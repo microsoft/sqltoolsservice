@@ -18,6 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     public class DatabaseTaskHelper: IDisposable
     {
+        private static DateTime minBackupDate = new DateTime(1900, 1, 1);
+
         private DatabasePrototype prototype;
 
         private XmlDocument document;
@@ -109,9 +111,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.RecoveryModel, prototype.RecoveryModel.ToString());
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.IsSystemDB, prototype.IsSystemDB.ToString());
             databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.AnsiNulls, prototype.AnsiNulls.ToString());
-            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.CompatibilityLevel, prototype.DatabaseCompatibilityLevel.ToString());
-            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.LastBackupDate, prototype.LastBackupDate.ToString());
-            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.LastLogBackupDate, prototype.LastLogBackupDate.ToString());
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.CompatibilityLevel, (int)prototype.DatabaseCompatibilityLevel);
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.LastBackupDate, GetBackupDate(prototype.LastBackupDate));
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.LastLogBackupDate, GetBackupDate(prototype.LastLogBackupDate));
 
             databaseInfo.Options.Add(
                 AdminServicesProviderOptionsHelper.FileGroups + "Count", 
@@ -149,6 +151,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
 
             return databaseInfo;
+        }
+
+        private static string GetBackupDate(DateTime backupDate)
+        {
+            if (backupDate == null
+                || backupDate < minBackupDate)
+            {
+                return SR.NeverBackedUp;
+            }
+            return backupDate.ToString();
         }
 
         private static T GetValueOrDefault<T>(string key, Dictionary<string, object> map, T defaultValue) 
