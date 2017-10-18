@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams, requestContext))
-                    .ContinueWithOnFaulted(t => requestContext.SendResult(false));
+                    .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
             catch
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams, requestContext))
-                    .ContinueWithOnFaulted(t => requestContext.SendResult(false));
+                    .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
             catch
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams, requestContext))
-                    .ContinueWithOnFaulted(t => requestContext.SendResult(false));
+                    .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
             catch
