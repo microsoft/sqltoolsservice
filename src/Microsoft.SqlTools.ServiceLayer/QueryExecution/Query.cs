@@ -277,9 +277,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public void Execute()
         {
             ExecutionTask = Task.Run(ExecuteInternal)
-                .ContinueWithOnFaulted(t =>
+                .ContinueWithOnFaulted(async t =>
                 {
-                    QueryFailed?.Invoke(this, t.Exception).Wait();
+                    if (QueryFailed != null)
+                    {
+                        await QueryFailed(this, t.Exception);
+                    }
                 });
         }
 
