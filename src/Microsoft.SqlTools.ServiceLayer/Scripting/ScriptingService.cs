@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     string script = string.Empty;
                     ScriptingObject scriptingObject = parameters.ScriptingObjects[0];
                     try
-                    {                          
+                    {
                         Server server = new Server(bindingContext.ServerConnection);
                         server.DefaultTextMode = true;
 
@@ -277,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     }
 
                     return null;
-                });                     
+                });
         }
 
         /// <summary>

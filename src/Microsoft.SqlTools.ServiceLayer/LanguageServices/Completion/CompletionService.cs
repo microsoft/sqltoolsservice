@@ -104,6 +104,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 {
                     // return the default list if the connected bind fails
                     return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                },
+                errorHandler: ex =>
+                {
+                    // return the default list if an unexpected exception occurs
+                    return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 });
             return queueItem;
         }

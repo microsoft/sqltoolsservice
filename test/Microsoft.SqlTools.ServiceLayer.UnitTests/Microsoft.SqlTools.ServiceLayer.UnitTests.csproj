@@ -2,8 +2,8 @@
   <PropertyGroup Label="Configuration">
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	<DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
     <IsPackable>false</IsPackable>
     <ApplicationIcon />
     <StartupObject />
@@ -12,10 +12,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-	  <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
-  	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.6" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+    <PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.6" />
   </ItemGroup>
-  <ItemGroup> 	
+  <ItemGroup>
     <Reference Include="Newtonsoft.Json">
       <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
     </Reference>

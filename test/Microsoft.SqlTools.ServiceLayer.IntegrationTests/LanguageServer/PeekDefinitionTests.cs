@@ -211,6 +211,7 @@ GO";
                 It.IsAny<string>(),
                 It.IsAny<Func<IBindingContext, CancellationToken, object>>(),
                 It.IsAny<Func<IBindingContext, object>>(),
+                It.IsAny<Func<Exception, object>>(),
                 It.IsAny<int?>(),
                 It.IsAny<int?>()))
             .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, int?, int?>(

@@ -4,8 +4,7 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Data;
+using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -14,8 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -28,9 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         public static FileBrowserService Instance => LazyInstance.Value;
 
         // Cache file browser operations for expanding node request
-        private Dictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new Dictionary<string, FileBrowserOperation>();
-        private Dictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new Dictionary<string, ValidatePathsCallback>();
-        private ConnectionService connectionService = null;
+        private readonly ConcurrentDictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new ConcurrentDictionary<string, FileBrowserOperation>();
+        private readonly ConcurrentDictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new ConcurrentDictionary<string, ValidatePathsCallback>();
+        private ConnectionService connectionService;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
 
         /// <summary>
@@ -56,46 +54,21 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         }
 
         /// <summary>
-        /// Service host object for sending/receiving requests/events.
-        /// Internal for testing purposes.
-        /// </summary>
-        internal IProtocolEndpoint ServiceHost
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public FileBrowserService()
-        {
-        }
-
-        /// <summary>
         /// Register validate path callback
         /// </summary>
         /// <param name="service"></param>
         /// <param name="callback"></param>
         public void RegisterValidatePathsCallback(string service, ValidatePathsCallback callback)
         {
-            if (this.validatePathsCallbackMap.ContainsKey(service))
-            {
-                this.validatePathsCallbackMap.Remove(service);
-            }
-
-            this.validatePathsCallbackMap.Add(service, callback);
+            validatePathsCallbackMap.AddOrUpdate(service, callback, (key, oldValue) => callback);
         }
 
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        /// <param name="serviceHost"></param>
-        /// <param name="context"></param>
+        /// <param name="serviceHost">Service host to register handlers with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            this.ServiceHost = serviceHost;
-
             // Open a file browser
             serviceHost.SetRequestHandler(FileBrowserOpenRequest.Type, HandleFileBrowserOpenRequest);
 
@@ -111,13 +84,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         #region request handlers
 
-        internal async Task HandleFileBrowserOpenRequest(
-            FileBrowserOpenParams fileBrowserParams,
-            RequestContext<bool> requestContext)
+        internal async Task HandleFileBrowserOpenRequest(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams));
+                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
             catch
@@ -126,13 +98,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        internal async Task HandleFileBrowserExpandRequest(
-            FileBrowserExpandParams fileBrowserParams,
-            RequestContext<bool> requestContext)
+        internal async Task HandleFileBrowserExpandRequest(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams));
+                var task = Task.Run(() => RunFileBrowserExpandTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
             catch
@@ -141,13 +112,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        internal async Task HandleFileBrowserValidateRequest(
-            FileBrowserValidateParams fileBrowserParams,
-            RequestContext<bool> requestContext)
+        internal async Task HandleFileBrowserValidateRequest(FileBrowserValidateParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             try
             {
-                var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams));
+                var task = Task.Run(() => RunFileBrowserValidateTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
             catch
@@ -161,34 +131,26 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             RequestContext<FileBrowserCloseResponse> requestContext)
         {
             FileBrowserCloseResponse response = new FileBrowserCloseResponse();
-            try
+            FileBrowserOperation removedOperation;
+            response.Succeeded = ownerToFileBrowserMap.TryRemove(fileBrowserParams.OwnerUri, out removedOperation);
+            if (removedOperation != null)
             {
-                if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
+                if (!removedOperation.FileTreeCreated)
                 {
-                    FileBrowserOperation browserOperation = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
-                    if (!browserOperation.FileTreeCreated)
-                    {
-                        browserOperation.Cancel();
-                    }
-                    else
-                    {
-                        browserOperation.SqlConnection.Close();
-                    }
-                    this.ownerToFileBrowserMap.Remove(fileBrowserParams.OwnerUri);
-                    response.Succeeded = true;
+                    removedOperation.Cancel();
                 }
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-            }
+                else
+                {
+                    removedOperation.SqlConnection.Close();
+                }
+            } 
 
             await requestContext.SendResult(response);
         }
 
         #endregion
 
-        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams)
+        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
             bool cancelRequested = false;
@@ -207,11 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (conn != null)
                 {
                     FileBrowserOperation browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
-                    if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
-                    {
-                        this.ownerToFileBrowserMap.Remove(fileBrowserParams.OwnerUri);
-                    }
-                    this.ownerToFileBrowserMap.Add(fileBrowserParams.OwnerUri, browser);
+                    ownerToFileBrowserMap.AddOrUpdate(fileBrowserParams.OwnerUri, browser, (key, value) => browser);
 
                     // Create file browser tree
                     browser.PopulateFileTree();
@@ -234,25 +192,24 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-
             if (!cancelRequested)
             {
-                await ServiceHost.SendEvent(FileBrowserOpenedNotification.Type, result);
+                await requestContext.SendEvent(FileBrowserOpenedNotification.Type, result);
             }
         }
 
-        internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams)
+        internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserExpandedParams result = new FileBrowserExpandedParams();
             try
             {
-                if (this.ownerToFileBrowserMap.ContainsKey(fileBrowserParams.OwnerUri))
+                FileBrowserOperation browser;
+                result.Succeeded = ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out browser);
+                if (result.Succeeded && browser != null)
                 {
-                    FileBrowserOperation browser = this.ownerToFileBrowserMap[fileBrowserParams.OwnerUri];
                     result.ExpandPath = fileBrowserParams.ExpandPath;
                     result.Children = browser.GetChildren(fileBrowserParams.ExpandPath).ToArray();
                     result.OwnerUri = fileBrowserParams.OwnerUri;
-                    result.Succeeded = true;
                 }
             }
             catch (Exception ex)
@@ -261,22 +218,23 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserExpandedNotification.Type, result);
+            await requestContext.SendEvent(FileBrowserExpandedNotification.Type, result);
         }
 
-        internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams)
+        internal async Task RunFileBrowserValidateTask(FileBrowserValidateParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserValidatedParams result = new FileBrowserValidatedParams();
 
             try
             {
-                if (this.validatePathsCallbackMap.ContainsKey(fileBrowserParams.ServiceType)
-                    && this.validatePathsCallbackMap[fileBrowserParams.ServiceType] != null
+                ValidatePathsCallback callback;
+                if (validatePathsCallbackMap.TryGetValue(fileBrowserParams.ServiceType, out callback)
+                    && callback != null
                     && fileBrowserParams.SelectedFiles != null
                     && fileBrowserParams.SelectedFiles.Length > 0)
                 {
                     string errorMessage;
-                    result.Succeeded = this.validatePathsCallbackMap[fileBrowserParams.ServiceType](new FileBrowserValidateEventArgs
+                    result.Succeeded = callback(new FileBrowserValidateEventArgs
                     {
                         ServiceType = fileBrowserParams.ServiceType,
                         OwnerUri = fileBrowserParams.OwnerUri,
@@ -298,7 +256,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            await ServiceHost.SendEvent(FileBrowserValidatedNotification.Type, result);
+            await requestContext.SendEvent(FileBrowserValidatedNotification.Type, result);
         }
     }
 }

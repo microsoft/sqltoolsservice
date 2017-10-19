@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
             int? bindingTimeout = null,
             int? waitForLockTimeout = null);
     }
