@@ -2,42 +2,42 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
-	  <OutputType>Exe</OutputType>
-	  <EnableDefaultItems>false</EnableDefaultItems>
-	  <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-	  <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
-	  <RuntimeIdentifiers>win7-x64;win7-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win7-x64;win7-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="System.Data.SqlClient" />
+    <Reference Include="System.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
-	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.6" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+    <PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.6" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="**\*.cs" />
+    <Compile Include="**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-	<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-	<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
   </ItemGroup>
-   <ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
-   <ItemGroup>
-     <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">
-       <SubType>Component</SubType>
-     </Compile>
-     <Compile Update="Connection\ReliableConnection\ReliableSqlConnection.cs">
-       <SubType>Component</SubType>
-     </Compile>
-   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Connection\ReliableConnection\ReliableSqlConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>
