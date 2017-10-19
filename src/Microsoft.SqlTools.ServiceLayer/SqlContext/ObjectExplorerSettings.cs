@@ -10,8 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// </summary>
     public class ObjectExplorerSettings
     {
-        public static int DefaultCreateSessionTimeout = 60;
-        public static int DefaultExpandTimeout = 60;
+        public static int DefaultCreateSessionTimeout = 45;
+        public static int DefaultExpandTimeout = 45;
 
         public ObjectExplorerSettings()
         {
