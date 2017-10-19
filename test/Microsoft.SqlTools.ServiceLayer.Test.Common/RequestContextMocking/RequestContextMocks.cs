@@ -9,7 +9,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 {
     public static class RequestContextMocks
     {

@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
 using Xunit;
 
@@ -259,22 +260,22 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 FileFilters = backupFilters
             };
 
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
-            service.ServiceHost = serviceHostMock.Object;
+            var openBrowserEventFlowValidator = new EventFlowValidator<bool>()
+                .AddEventValidation(FileBrowserOpenedNotification.Type, eventParams =>
+                {
+                    Assert.True(eventParams.Succeeded);
+                    Assert.NotNull(eventParams.FileTree);
+                    Assert.NotNull(eventParams.FileTree.RootNode);
+                    Assert.NotNull(eventParams.FileTree.RootNode.Children);
+                    Assert.True(eventParams.FileTree.RootNode.Children.Count > 0);
+                    Assert.True(ContainsFileInTheFolder(eventParams.FileTree.SelectedNode, backupPath));
+                })
+                .Complete();
 
-            await service.RunFileBrowserOpenTask(openParams);
+            await service.RunFileBrowserOpenTask(openParams, openBrowserEventFlowValidator.Object);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserOpenedNotification.Type,
-                It.Is<FileBrowserOpenedParams>(p => p.Succeeded == true
-                && p.FileTree != null
-                && p.FileTree.RootNode != null
-                && p.FileTree.RootNode.Children != null
-                && p.FileTree.RootNode.Children.Count > 0
-                && p.FileTree.SelectedNode.FullPath == backupConfigInfo.DefaultBackupFolder
-                && p.FileTree.SelectedNode.Children.Count > 0
-                && ContainsFileInTheFolder(p.FileTree.SelectedNode, backupPath))),
-                Times.Once());
+            openBrowserEventFlowValidator.Validate();
 
             var expandParams = new FileBrowserExpandParams
             {
@@ -282,28 +283,38 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 ExpandPath = backupConfigInfo.DefaultBackupFolder
             };
 
+
+            var expandEventFlowValidator = new EventFlowValidator<bool>()
+                .AddEventValidation(FileBrowserExpandedNotification.Type, eventParams =>
+                {
+                    Assert.True(eventParams.Succeeded);
+                    Assert.NotNull(eventParams.Children);
+                    Assert.True(eventParams.Children.Length > 0);
+                })
+                .Complete();
+            
             // Expand the node in file browser
-            await service.RunFileBrowserExpandTask(expandParams);
+            await service.RunFileBrowserExpandTask(expandParams, expandEventFlowValidator.Object);
 
             // Verify result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserExpandedNotification.Type,
-                It.Is<FileBrowserExpandedParams>(p => p.Succeeded == true
-                && p.Children != null
-                && p.Children.Length > 0)),
-                Times.Once());
+            expandEventFlowValidator.Validate();
 
             var validateParams = new FileBrowserValidateParams
             {
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
                 ServiceType = FileValidationServiceConstants.Backup,
-                SelectedFiles = new string[] { backupPath }
+                SelectedFiles = new[] { backupPath }
             };
 
+            var validateEventFlowValidator = new EventFlowValidator<bool>()
+                .AddEventValidation(FileBrowserValidatedNotification.Type, eventParams => Assert.True(eventParams.Succeeded))
+                .Complete();
+            
             // Validate selected files in the browser
-            await service.RunFileBrowserValidateTask(validateParams);
+            await service.RunFileBrowserValidateTask(validateParams, validateEventFlowValidator.Object);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidatedNotification.Type, It.Is<FileBrowserValidatedParams>(p => p.Succeeded == true)), Times.Once());
+            validateEventFlowValidator.Validate();
 
             // Remove the backup file
             if (File.Exists(backupPath))
