@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -959,7 +960,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     };
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
-            });
+            }).ContinueWithOnFaulted(null);
         }
 
         /// <summary>
