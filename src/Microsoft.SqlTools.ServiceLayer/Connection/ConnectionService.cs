@@ -863,6 +863,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabase);
         }
 
         /// <summary> 
@@ -1163,6 +1164,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionBuilder.Pooling = false;
 
             return connectionBuilder;
+        }
+
+        /// <summary>
+        /// Handles a request to change the database for a connection
+        /// </summary>
+        public async Task HandleChangeDatabase(
+            ChangeDatabaseParams changeDatabaseParams,
+            RequestContext<bool> requestContext)
+        {
+            ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase);
+            await requestContext.SendResult(true);
         }
 
         /// <summary>
