@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Credentials.Linux;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 

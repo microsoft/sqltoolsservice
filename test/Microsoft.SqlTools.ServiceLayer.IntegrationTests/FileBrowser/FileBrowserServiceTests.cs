@@ -8,6 +8,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
 using Xunit;
 
@@ -107,21 +108,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             {
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
                 ExpandPath = "",
-                FileFilters = new string[1] { "*" }
+                FileFilters = new[] { "*" }
             };
 
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
-            service.ServiceHost = serviceHostMock.Object;
-            await service.RunFileBrowserOpenTask(openParams);
-
-            // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserOpenedNotification.Type, 
-                It.Is<FileBrowserOpenedParams>(p => p.Succeeded == true
-                && p.FileTree != null
-                && p.FileTree.RootNode != null
-                && p.FileTree.RootNode.Children != null
-                && p.FileTree.RootNode.Children.Count > 0)), 
-                Times.Once());
+            var efv = new EventFlowValidator<bool>()
+                .AddEventValidation(FileBrowserOpenedNotification.Type, eventParams =>
+                {
+                    Assert.True(eventParams.Succeeded);
+                    Assert.NotNull(eventParams.FileTree);
+                    Assert.NotNull(eventParams.FileTree.RootNode);
+                    Assert.NotNull(eventParams.FileTree.RootNode.Children);
+                    Assert.True(eventParams.FileTree.RootNode.Children.Count > 0);
+                })
+                .Complete();
+            await service.RunFileBrowserOpenTask(openParams, efv.Object);
+            efv.Validate();
         }
 
         [Fact]
@@ -135,17 +136,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
                 // Do not pass any service so that the file validator will be null
                 ServiceType = "",
                 OwnerUri = liveConnection.ConnectionInfo.OwnerUri,
-                SelectedFiles = new string[] { "" }
+                SelectedFiles = new[] { "" }
             };
 
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
-            service.ServiceHost = serviceHostMock.Object;
+            var efv = new EventFlowValidator<bool>()
+                .AddEventValidation(FileBrowserValidatedNotification.Type, eventParams => Assert.True(eventParams.Succeeded))
+                .Complete();
 
             // Validate files with null file validator
-            await service.RunFileBrowserValidateTask(validateParams);
-
-            // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidatedNotification.Type, It.Is<FileBrowserValidatedParams>(p => p.Succeeded == true)), Times.Once());
+            await service.RunFileBrowserValidateTask(validateParams, efv.Object);
+            efv.Validate();
         }
 
         [Fact]
@@ -158,22 +158,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             {
                 // Do not pass any service so that the file validator will be null
                 ServiceType = "TestService",
-                SelectedFiles = new string[] { "" }
+                SelectedFiles = new[] { "" }
             };
 
-            var serviceHostMock = new Mock<IProtocolEndpoint>();
-            service.ServiceHost = serviceHostMock.Object;
+            var efv = new EventFlowValidator<bool>()
+                .AddEventValidation(FileBrowserValidatedNotification.Type, eventParams => Assert.False(eventParams.Succeeded))
+                .Complete();
 
             // Validate files with null file validator
-            await service.RunFileBrowserValidateTask(validateParams);
+            await service.RunFileBrowserValidateTask(validateParams, efv.Object);
 
             // Verify complete notification event was fired and the result
-            serviceHostMock.Verify(x => x.SendEvent(FileBrowserValidatedNotification.Type, It.Is<FileBrowserValidatedParams>(p => p.Succeeded == false)), Times.Once());
+            efv.Validate();
         }
 
         #region private methods
 
-        private bool ValidatePaths(FileBrowserValidateEventArgs eventArgs, out string message)
+        private static bool ValidatePaths(FileBrowserValidateEventArgs eventArgs, out string message)
         {
             message = string.Empty;
             return false;
