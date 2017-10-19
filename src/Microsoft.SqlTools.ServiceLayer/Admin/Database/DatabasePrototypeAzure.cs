@@ -3,18 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.ComponentModel;
-using System.Text;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Diagnostics;
-using System.Globalization;
-using System.Data.SqlClient;
-using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
-using Microsoft.SqlServer.Management.Common;
-using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
+using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -102,10 +99,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             get
             {
-                return AzureSqlDbHelper.GetAzureEditionDisplayName(this.currentState.azureEdition);
+                return this.currentState.azureEditionDisplayValue;
             }
             set
             {
+                // TODO set from here should probably allow for the fact that System is a valid edition for
+                // actual system DBs. Not handling for now
                 AzureEdition edition;
                 if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(value, out edition))
                 {
@@ -115,6 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     }
 
                     this.currentState.azureEdition = edition;
+                    this.currentState.azureEditionDisplayValue = value;
                     this.CurrentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(edition);
                     this.MaxSize = AzureSqlDbHelper.GetDatabaseDefaultSize(edition).ToString();
                     this.NotifyObservers();
