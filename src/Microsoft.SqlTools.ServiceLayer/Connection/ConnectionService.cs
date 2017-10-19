@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     public class ConnectionService
     {
         public const string AdminConnectionPrefix = "ADMIN:";
+        private const string SqlAzureEdition = "SQL Azure";
 
         /// <summary>
         /// Singleton service instance
@@ -456,7 +457,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     EngineEditionId = serverInfo.EngineEditionId,
                     ServerVersion = serverInfo.ServerVersion,
                     ServerLevel = serverInfo.ServerLevel,
-                    ServerEdition = serverInfo.ServerEdition,
+                    ServerEdition = MapServerEdition(serverInfo),
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
@@ -472,6 +473,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             return response;
+        }
+
+        private string MapServerEdition(ReliableConnectionHelper.ServerInfo serverInfo)
+        {
+            string serverEdition = serverInfo.ServerEdition;
+            if (string.IsNullOrWhiteSpace(serverEdition))
+            {
+                return string.Empty;
+            }
+            if (SqlAzureEdition.Equals(serverEdition, StringComparison.OrdinalIgnoreCase))
+            {
+                switch(serverInfo.EngineEditionId)
+                {
+                    case (int) DatabaseEngineEdition.SqlDataWarehouse:
+                        serverEdition = SR.AzureSqlDwEdition;
+                        break;
+                    case (int) DatabaseEngineEdition.SqlStretchDatabase:
+                        serverEdition = SR.AzureSqlStretchEdition;
+                        break;
+                    default:
+                        serverEdition =  SR.AzureSqlDbEdition;
+                        break;
+                }
+            }
+            return serverEdition;
         }
 
         /// <summary>

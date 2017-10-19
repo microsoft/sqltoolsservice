@@ -77,6 +77,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string AzureSqlDbEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSqlDbEdition);
+            }
+        }
+
+        public static string AzureSqlDwEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSqlDwEdition);
+            }
+        }
+
+        public static string AzureSqlStretchEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSqlStretchEdition);
+            }
+        }
+
         public static string QueryServiceCancelAlreadyCompleted
         {
             get
@@ -3650,6 +3674,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionParamsValidateNullSqlAuth = "ConnectionParamsValidateNullSqlAuth";
+
+
+            public const string AzureSqlDbEdition = "AzureSqlDbEdition";
+
+
+            public const string AzureSqlDwEdition = "AzureSqlDwEdition";
+
+
+            public const string AzureSqlStretchEdition = "AzureSqlStretchEdition";
 
 
             public const string QueryServiceCancelAlreadyCompleted = "QueryServiceCancelAlreadyCompleted";
