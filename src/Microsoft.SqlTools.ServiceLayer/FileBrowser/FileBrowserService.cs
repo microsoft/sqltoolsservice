@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -30,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private Dictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new Dictionary<string, FileBrowserOperation>();
         private Dictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new Dictionary<string, ValidatePathsCallback>();
         private ConnectionService connectionService = null;
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
 
         /// <summary>
         /// Signature for callback method that validates the selected file paths
