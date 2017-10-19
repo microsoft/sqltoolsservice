@@ -3309,6 +3309,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Error_InvalidDirectoryName
+        {
+            get
+            {
+                return Keys.GetString(Keys.Error_InvalidDirectoryName);
+            }
+        }
+
+        public static string Error_ExistingDirectoryName
+        {
+            get
+            {
+                return Keys.GetString(Keys.Error_ExistingDirectoryName);
+            }
+        }
+
         public static string BackupTaskName
         {
             get
@@ -4913,6 +4929,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string NeverBackedUp = "NeverBackedUp";
+
+
+            public const string Error_InvalidDirectoryName = "Error_InvalidDirectoryName";
+
+
+            public const string Error_ExistingDirectoryName = "Error_ExistingDirectoryName";
 
 
             public const string BackupTaskName = "BackupTaskName";

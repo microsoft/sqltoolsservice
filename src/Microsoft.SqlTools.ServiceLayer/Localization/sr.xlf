@@ -2295,6 +2295,16 @@
         <target state="new">Azure SQL Stretch Database</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Error_InvalidDirectoryName">
+        <source>Path {0} is not a valid directory </source>
+        <target state="new">Path {0} is not a valid directory </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Error_ExistingDirectoryName">
+        <source>For directory {0} a file with name {1} already exists</source>
+        <target state="new">For directory {0} a file with name {1} already exists</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

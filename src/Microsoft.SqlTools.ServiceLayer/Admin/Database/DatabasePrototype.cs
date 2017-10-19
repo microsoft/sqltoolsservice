@@ -592,8 +592,8 @@ WHERE do.database_id = @DbID
                     }
                     else
                     {
-                        //Unknown Azure DB Edition so we can't continue
-                        throw new Exception("CreateDatabaseOptionsSR.Error_UnknownAzureEdition(db.AzureEdition)");
+                        //Unknown Azure DB Edition so we can't set a value
+                        this.azureEdition = default(AzureEdition);
                     }
 
                     //Size is in MB, but if it's greater than a GB we want to display the size in GB
@@ -1915,7 +1915,7 @@ WHERE do.database_id = @DbID
                        if (!FileNameHelper.IsValidFilename(this.FilestreamDirectoryName))
                        {
                            string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                           "CreateDatabaseOptionsSR.Error_InvalidDirectoryName {0}",
+                                                           SR.Error_InvalidDirectoryName,
                                                            this.FilestreamDirectoryName);
                            throw new ArgumentException(message);
                        }
@@ -1940,7 +1940,7 @@ WHERE do.database_id = @DbID
                        if (rowCount != 0)
                        {
                            string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                           "CreateDatabaseOptionsSR.Error_ExistingDirectoryName {0} {1}",
+                                                           SR.Error_ExistingDirectoryName,
                                                            this.FilestreamDirectoryName, this.Name);
                            throw new ArgumentException(message);
 
