@@ -729,6 +729,7 @@ WHERE do.database_id = @DbID
                 this.targetRecoveryTime = other.targetRecoveryTime;
                 this.delayedDurability = other.delayedDurability;
                 this.azureEdition = other.azureEdition;
+                this.azureEditionDisplayValue = other.azureEditionDisplayValue;
                 this.configuredServiceLevelObjective = other.configuredServiceLevelObjective;
                 this.currentServiceLevelObjective = other.currentServiceLevelObjective;
                 this.legacyCardinalityEstimation = other.legacyCardinalityEstimation;

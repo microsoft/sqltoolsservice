@@ -150,6 +150,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsPrimaryFile, file.IsPrimaryFile);
             }
 
+            AddAzureProperties(databaseInfo, prototype as DatabasePrototypeAzure);
+
             return databaseInfo;
         }
 
