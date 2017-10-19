@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {    
@@ -64,6 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
             int? bindingTimeout = null,
             int? waitForLockTimeout = null)
         {
@@ -78,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Key = key,
                 BindOperation = bindOperation,
                 TimeoutOperation = timeoutOperation,
+                ErrorHandler = errorHandler,
                 BindingTimeout = bindingTimeout,
                 WaitForLockTimeout = waitForLockTimeout
             };
@@ -90,6 +93,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.itemQueuedEvent.Set();
 
             return queueItem;
+        }
+
+        /// <summary>
+        /// Checks if a particular binding context is connected or not
+        /// </summary>
+        /// <param name="key"></param>
+        public bool IsBindingContextConnected(string key)
+        {
+            lock (this.bindingContextLock)
+            {
+                IBindingContext context;
+                if (this.BindingContextMap.TryGetValue(key, out context))
+                {
+                    return context.IsConnected;
+                }
+                return false;
+            } 
         }
 
         /// <summary>
@@ -270,9 +290,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // run the operation in a separate thread
                             var bindThread = new Thread(() =>
                             {
-                                result = queueItem.BindOperation(
-                                     bindingContext,
-                                     cancelToken.Token); 
+                                try
+                                {
+                                    result = queueItem.BindOperation(
+                                        bindingContext,
+                                        cancelToken.Token);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Write(LogLevel.Error, "Unexpected exception on the binding queue: " + ex.ToString());
+                                    if (queueItem.ErrorHandler != null)
+                                    {
+                                        result = queueItem.ErrorHandler(ex);
+                                    }
+                                }
                             }, BindingQueue<T>.QueueThreadStackSize);
                             bindThread.Start();
 
@@ -282,7 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 queueItem.Result = result;
                             }
                             else
-                            {       
+                            {
                                 cancelToken.Cancel();
 
                                 // if the task didn't complete then call the timeout callback
@@ -298,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     // wait for the operation to complete before releasing the lock
                                     bindThread.Join();
                                     bindingContext.BindingLock.Set();
-                                });
+                                }).ContinueWithOnFaulted(t => Logger.Write(LogLevel.Error, "Binding queue threw exception " + t.Exception.ToString()));
                             }
                         }
                         catch (Exception ex)

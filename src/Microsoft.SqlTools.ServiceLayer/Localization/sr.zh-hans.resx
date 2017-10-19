@@ -1,96 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -105,1369 +27,455 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>连接参数不能为 null</value>
-  </data>
-  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri 不能为 null 或为空</value>
-  </data>
-  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri '{0}' 没有已有的连接</value>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>AuthenticationType 值"{0}" 无效。 有效值为 'Integrated' 和 'SqlLogin'。</value>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>'{0}' 为无效的ApplicationIntent值。 有效值为 'ReadWrite' 和 'ReadOnly'。</value>
-  </data>
-  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
-    <value>连接已取消</value>
-  </data>
-  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri 不能为 null 或为空</value>
-  </data>
-  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>连接详细信息的对象不能为 null</value>
-  </data>
-  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
-    <value>ServerName 不能是 null 或是空白</value>
-  </data>
-  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>使用 SqlLogin 身份验证时，{0} 不可是 null 或是空</value>
-  </data>
-  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
-    <value>查询已完成，无法取消</value>
-  </data>
-  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>查询成功取消，无法处理查询。找不到的 URI 的所有者。</value>
-  </data>
-  <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>查询已被用户取消</value>
-  </data>
-  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
-    <value>该批处理尚未完成</value>
-  </data>
-  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
-    <value>批量索引不能小于 0 或大于批量的总数</value>
-  </data>
-  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
-    <value>结果集索引不能小于 0 或大于结果集的总数</value>
-  </data>
-  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
-    <value>返回的最大字节数必须大于零</value>
-  </data>
-  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
-    <value>返回的最大字符数必须大于零</value>
-  </data>
-  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
-    <value>返回的 XML 最大字节数必须大于零</value>
-  </data>
-  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>访问方法不能设置为”只写“</value>
-  </data>
-  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
-    <value>在执行操作之前，必须初始化 FileStreamWrapper</value>
-  </data>
-  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
-    <value>该 FileStreamWrapper 不能用于写入</value>
-  </data>
-  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>（1 行受到影响）</value>
-  </data>
-  <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>（影响 {0} 行）</value>
-  </data>
-  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>命令已成功完成。</value>
-  </data>
-  <data name="QueryServiceErrorFormat" xml:space="preserve">
-    <value>Msg {0}，级别 {1}，状态 {2}，第 {3} {4} {5} 行</value>
-  </data>
-  <data name="QueryServiceQueryFailed" xml:space="preserve">
-    <value>查询失败︰ {0}</value>
-  </data>
-  <data name="QueryServiceColumnNull" xml:space="preserve">
-    <value>（没有列名称）</value>
-  </data>
-  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
-    <value>请求的查询不存在。</value>
-  </data>
-  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>此编辑器未连接到数据库</value>
-  </data>
-  <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>此编辑器会话已有正在进行中的查询。请取消这项查询，或等待它完成</value>
-  </data>
-  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
-    <value>OnInfoMessage 事件的发送者必须是 SqlConnection</value>
-  </data>
-  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
-    <value>查询完成前，不能保存结果</value>
-  </data>
-  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
-    <value>保存任务时发生内部错误</value>
-  </data>
-  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
-    <value>相同路径的保存请求正在进行中</value>
-  </data>
-  <data name="QueryServiceSaveAsFail" xml:space="preserve">
-    <value>未能保存 {0}: {1}</value>
-  </data>
-  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
-    <value>没有从服务器读取结果之前，无法读取子数据集</value>
-  </data>
-  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
-    <value>起始行不能小于 0 或大于结果集中的行数</value>
-  </data>
-  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
-    <value>行数必须是一个正整数</value>
-  </data>
-  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
-    <value>未能从结果集获取列架构</value>
-  </data>
-  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>未能从结果集获取执行计划</value>
-  </data>
-  <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>这功能目前不支持 Azure SQL DB 和数据仓库︰ {0}</value>
-  </data>
-  <data name="PeekDefinitionError" xml:space="preserve">
-    <value>查看定义的执行过程中出现意外的错误︰ {0}</value>
-  </data>
-  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
-    <value>未找到结果。</value>
-  </data>
-  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
-    <value>检索不到任何数据库对象。</value>
-  </data>
-  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
-    <value>请连接到服务器。</value>
-  </data>
-  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
-    <value>操作超时。</value>
-  </data>
-  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>此功能当前不支持此对象类型。</value>
-  </data>
-  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>位置超出文件行范围</value>
-  </data>
-  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>第 {0} 行位置超出数据列范围</value>
-  </data>
-  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>起始位置 （{0}，{1}） 必须先于或等于结束位置 （{2}，{3}）</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Msg {0}，级别 {1} ，状态 {2}，第 {3} 行</value>
-  </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Msg {0}，级别 {1}，状态 {2}，过程 {3}，第 {4} 行</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Msg {0}，级别 {1}，状态 {2}</value>
-  </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>执行批处理时发生错误。错误消息︰ {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>（{0} 行受到影响）</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>前一次执行尚未完成。</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>出现脚本错误。</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>正在分析 {0} 时发现语法错误。</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>出现严重错误。</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>执行已完成 {0} 次...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>您已取消查询。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>执行批次处理时发生错误。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>执行批次处理时发生错误，但该错误已被忽略。</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
-    <value>正在开始执行循环的次数为 {0} 次...</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>不支持命令 {0}。</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>找不到变量 {0}。</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>SQL 执行错误︰ {0}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>批处理解析封装器执行︰{0} 找到位于第 {1} 行: {2} 描述︰{3} </value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>批处理解析封装器执行引擎所收到的消息︰ 消息︰ {0}，详细的消息︰ {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>批处理解析封装器执行引擎批次结果集处理︰ DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>批处理解析封装器执行引擎批次处理结果集已完成。</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>正在取消批处理解析封装器的批处理执行。</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>脚本警告。</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>有关此错误的详细信息，请参阅产品文档中的疑难解答主题。</value>
-  </data>
-  <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>文件 '{0}' 被递归方式包含。</value>
-  </data>
-  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>缺少结束注释标记 '*/'。</value>
-  </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>未闭合的引号后的字符字串。</value>
-  </data>
-  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>'{0}' 在分析时发现语法错误。</value>
-  </data>
-  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>未定义变量 {0}。</value>
-  </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>测试</value>
-  </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>用空字符串取代空字符串。</value>
-  </data>
-  <data name="EditDataSessionNotFound" xml:space="preserve">
-    <value>编辑会话不存在</value>
-  </data>
-  <data name="EditDataQueryNotCompleted" xml:space="preserve">
-    <value>查询尚未完成</value>
-  </data>
-  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
-    <value>查询并非产生单一结果集</value>
-  </data>
-  <data name="EditDataFailedAddRow" xml:space="preserve">
-    <value>无法添加新数据行以更新缓存，操作失败</value>
-  </data>
-  <data name="EditDataRowOutOfRange" xml:space="preserve">
-    <value>给定数据行 ID 已超出 edit cache 中数据行的范围</value>
-  </data>
-  <data name="EditDataUpdatePending" xml:space="preserve">
-    <value>这个数据行已经有一个更新正在等待使用，因此它必须先恢复原状。</value>
-  </data>
-  <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>给定行 ID 没有正在等待的更新操作</value>
-  </data>
-  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
-    <value>找不到表格或视图的元数据</value>
-  </data>
-  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
-    <value>二进制列格示错误</value>
-  </data>
-  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Boolean 列必须填入数字 1 或 0, 或字符串 true 或 false</value>
-  </data>
-  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>必填单元格的值缺失</value>
-  </data>
-  <data name="EditDataDeleteSetCell" xml:space="preserve">
-    <value>这行即将被删除，其中的单元格无法被更新</value>
-  </data>
-  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
-    <value>列 ID 必须在数据列总数內才可被查询</value>
-  </data>
-  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
-    <value>列无法被编辑</value>
-  </data>
-  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
-    <value>找不到键列</value>
-  </data>
-  <data name="EditDataScriptFilePathNull" xml:space="preserve">
-    <value>必须提供输出文件名</value>
-  </data>
-  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
-    <value>数据库对象 {0} 无法被编辑</value>
-  </data>
-  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>指定的 URI '{0}' 没有默认的连接</value>
-  </data>
-  <data name="EditDataCommitInProgress" xml:space="preserve">
-    <value>提交的任务正在进行，请等待它完成</value>
-  </data>
-  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>十进制列缺少数值精度或小数位数</value>
-  </data>
-  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
-    <value>&lt;TBD&gt;</value>
-  </data>
-  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>无法在结果缓冲区添加行，数据读取器不包含任何行</value>
-  </data>
-  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>TIME 列的取值范围必须在 00:00:00.0000000 至 23:59:59.9999999 之间</value>
-  </data>
-  <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>该列不允许Null 值</value>
-  </data>
-  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
-    <value>编辑会话已存在</value>
-  </data>
-  <data name="EditDataSessionNotInitialized" xml:space="preserve">
-    <value>编辑会话尚未初始化</value>
-  </data>
-  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
-    <value>编辑会话已被初始化</value>
-  </data>
-  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
-    <value>编辑会话已被初始化或正在初始化中</value>
-  </data>
-  <data name="EditDataQueryFailed" xml:space="preserve">
-    <value>执行查询失败，查看消息了解更多详情</value>
-  </data>
-  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
-    <value>结果集的限制值不能为负数</value>
-  </data>
-  <data name="QueryServiceCellNull" xml:space="preserve">
-    <value>空</value>
-  </data>
-  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
-    <value>必须提供对象名称</value>
-  </data>
-  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
-    <value>不支持显式指定服务器或者数据库</value>
-  </data>
-  <data name="EditDataMetadataNotExtended" xml:space="preserve">
-    <value>数据表的元数据没有扩展属性</value>
-  </data>
-  <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>找不到请求编辑的数据表或视图</value>
-  </data>
-  <data name="TreeNodeError" xml:space="preserve">
-    <value>扩展数据库时出错: {0}</value>
-  </data>
-  <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>连接到 {0} 时出错</value>
-  </data>
-  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>聚合</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>服务器角色</value>
-  </data>
-  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>应用程序角色</value>
-  </data>
-  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>程序集</value>
-  </data>
-  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>程序集文件</value>
-  </data>
-  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>非对称密钥</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>非对称密钥</value>
-  </data>
-  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>数据压缩选项</value>
-  </data>
-  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>证书</value>
-  </data>
-  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>文件表</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>证书</value>
-  </data>
-  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>CHECK 约束</value>
-  </data>
-  <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>列</value>
-  </data>
-  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>约束</value>
-  </data>
-  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>协定</value>
-  </data>
-  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>凭据</value>
-  </data>
-  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>错误消息</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>服务器角色成员资格</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>数据库选项</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>数据库角色</value>
-  </data>
-  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>角色成员资格</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>数据库触发器</value>
-  </data>
-  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>默认约束</value>
-  </data>
-  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>默认值</value>
-  </data>
-  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>序列</value>
-  </data>
-  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>终结点</value>
-  </data>
-  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>事件通知</value>
-  </data>
-  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>服务器事件通知</value>
-  </data>
-  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>扩展属性</value>
-  </data>
-  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>文件组</value>
-  </data>
-  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>外键</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>全文目录</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>全文检索</value>
-  </data>
-  <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>函数</value>
-  </data>
-  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>索引</value>
-  </data>
-  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>内联函数</value>
-  </data>
-  <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>键</value>
-  </data>
-  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>链接的服务器</value>
-  </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>链接的服务器登录名</value>
-  </data>
-  <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>登录名</value>
-  </data>
-  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>主密钥</value>
-  </data>
-  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>主密钥</value>
-  </data>
-  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>消息类型</value>
-  </data>
-  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>表值函数</value>
-  </data>
-  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>参数</value>
-  </data>
-  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>分区函数</value>
-  </data>
-  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>分区方案</value>
-  </data>
-  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>权限</value>
-  </data>
-  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>主键</value>
-  </data>
-  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>可编程性</value>
-  </data>
-  <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>队列</value>
-  </data>
-  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>远程服务绑定</value>
-  </data>
-  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>返回列</value>
-  </data>
-  <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>角色</value>
-  </data>
-  <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>路由</value>
-  </data>
-  <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>规则</value>
-  </data>
-  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>架构</value>
-  </data>
-  <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>安全性</value>
-  </data>
-  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>服务器对象</value>
-  </data>
-  <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>管理</value>
-  </data>
-  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>触发器</value>
-  </data>
-  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>服务</value>
-  </data>
-  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>签名</value>
-  </data>
-  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>日志文件</value>
-  </data>
-  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>统计信息</value>
-  </data>
-  <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>存储</value>
-  </data>
-  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>存储过程</value>
-  </data>
-  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>对称密钥</value>
-  </data>
-  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>同义词</value>
-  </data>
-  <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>表</value>
-  </data>
-  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>触发器</value>
-  </data>
-  <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>类型</value>
-  </data>
-  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>唯一键</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>用户定义的数据类型</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>用户定义的类型(CLR)</value>
-  </data>
-  <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>用户</value>
-  </data>
-  <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>视图</value>
-  </data>
-  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML 索引</value>
-  </data>
-  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML 架构集合</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>用户定义的表类型</value>
-  </data>
-  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>文件</value>
-  </data>
-  <data name="MissingCaption" xml:space="preserve">
-    <value>缺少标题</value>
-  </data>
-  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Broker 优先级</value>
-  </data>
-  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>加密提供程序</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>数据库审核规范</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>数据库加密密钥</value>
-  </data>
-  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>事件会话</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>全文非索引字表</value>
-  </data>
-  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>资源池</value>
-  </data>
-  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>审核</value>
-  </data>
-  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>服务器审核规范</value>
-  </data>
-  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>空间索引</value>
-  </data>
-  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>工作负荷组</value>
-  </data>
-  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL 文件</value>
-  </data>
-  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>服务器函数</value>
-  </data>
-  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL 类型</value>
-  </data>
-  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>服务器选项</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>数据库关系图</value>
-  </data>
-  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>系统表</value>
-  </data>
-  <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>数据库</value>
-  </data>
-  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>系统约定</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>系统数据库</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>系统消息类型</value>
-  </data>
-  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>系统队列</value>
-  </data>
-  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>系统服务</value>
-  </data>
-  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>系统存储过程</value>
-  </data>
-  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>系统视图</value>
-  </data>
-  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>数据层应用程序</value>
-  </data>
-  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>扩展存储过程</value>
-  </data>
-  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>聚合函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>近似数字</value>
-  </data>
-  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>二进制字符串</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>字符串</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR 数据类型</value>
-  </data>
-  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>配置函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>游标函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>系统数据类型</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>日期和时间</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>日期和时间函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>精确数字</value>
-  </data>
-  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>系统函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>层次结构 ID 函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>数学函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>元数据函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>其他数据类型</value>
-  </data>
-  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>其他函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>行集函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>安全函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>空间数据类型</value>
-  </data>
-  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>字符串函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>系统统计函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>文本和图像函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Unicode 字符串</value>
-  </data>
-  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>聚合函数</value>
-  </data>
-  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>标量值函数</value>
-  </data>
-  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>表值函数</value>
-  </data>
-  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>系统扩展存储过程</value>
-  </data>
-  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>内置类型</value>
-  </data>
-  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>内置服务器角色</value>
-  </data>
-  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>具有密码的用户</value>
-  </data>
-  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>搜索属性列表</value>
-  </data>
-  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>安全策略</value>
-  </data>
-  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>安全谓词</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>服务器角色</value>
-  </data>
-  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>搜索属性列表</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>列存储索引</value>
-  </data>
-  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>表类型索引</value>
-  </data>
-  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>选择性 XML 索引</value>
-  </data>
-  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML 命名空间</value>
-  </data>
-  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML 特型提升路径</value>
-  </data>
-  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL 特型提升路径</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>数据库范围的凭据</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>外部数据源</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>外部文件格式</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>外部资源</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>外部表</value>
-  </data>
-  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted 密钥</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>列主密钥</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>列加密密钥</value>
-  </data>
-  <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>服务器</value>
-  </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>解析属性 ScriptingParams.ConnectionString 时出错</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>ScriptingParams.FilePath 属性指定的路径是无效目录</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>解析属性 ScriptingListObjectsCompleteParams.ConnectionString 时出错</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
-    <value>{0} ({1}, {2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>无默认值</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>输入</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>输入/输出</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>输入/只读</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>输入/输出/只读</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>默认值</value>
-  </data>
-  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>Null</value>
-  </data>
-  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>非 Null</value>
-  </data>
-  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
-    <value>{0} ({1}, {2})</value>
-  </data>
-  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1})</value>
-  </data>
-  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} ({1}Computed, {2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1}Computed)</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (列集，{1})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (列集，{1}{2}，{3})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (列集，{1}，{2}，{3})</value>
-  </data>
-  <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>唯一</value>
-  </data>
-  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>非唯一</value>
-  </data>
-  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>聚集</value>
-  </data>
-  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>非聚集</value>
-  </data>
-  <data name="History_LabelPart" xml:space="preserve">
-    <value>历史记录</value>
-  </data>
-  <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>带有系统版本</value>
-  </data>
-  <data name="unavailable" xml:space="preserve">
-    <value>不可用</value>
-  </data>
-  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
-    <value>当前默认文件组: {0}</value>
-  </data>
-  <data name="filegroup_dialog_title" xml:space="preserve">
-    <value>{0} 的新文件组</value>
-  </data>
-  <data name="filegroups_default" xml:space="preserve">
-    <value>默认值</value>
-  </data>
-  <data name="filegroups_files" xml:space="preserve">
-    <value>文件</value>
-  </data>
-  <data name="filegroups_name" xml:space="preserve">
-    <value>名称</value>
-  </data>
-  <data name="filegroups_readonly" xml:space="preserve">
-    <value>只读</value>
-  </data>
-  <data name="general_autogrowth" xml:space="preserve">
-    <value>自动增长/最大大小</value>
-  </data>
-  <data name="general_builderText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="general_default" xml:space="preserve">
-    <value>&lt;默认值&gt;</value>
-  </data>
-  <data name="general_fileGroup" xml:space="preserve">
-    <value>文件组</value>
-  </data>
-  <data name="general_fileName" xml:space="preserve">
-    <value>逻辑名</value>
-  </data>
-  <data name="general_fileType" xml:space="preserve">
-    <value>文件类型</value>
-  </data>
-  <data name="general_initialSize" xml:space="preserve">
-    <value>初始大小 (MB)</value>
-  </data>
-  <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;新文件组&gt;</value>
-  </data>
-  <data name="general_path" xml:space="preserve">
-    <value>路径</value>
-  </data>
-  <data name="general_physicalFileName" xml:space="preserve">
-    <value>文件名</value>
-  </data>
-  <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;原始设备&gt;</value>
-  </data>
-  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
-    <value>批量记录的</value>
-  </data>
-  <data name="general_recoveryModel_full" xml:space="preserve">
-    <value>满</value>
-  </data>
-  <data name="general_recoveryModel_simple" xml:space="preserve">
-    <value>简单</value>
-  </data>
-  <data name="general_titleSearchOwner" xml:space="preserve">
-    <value>选择数据库所有者</value>
-  </data>
-  <data name="prototype_autogrowth_disabled" xml:space="preserve">
-    <value>无</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
-    <value>增量为 {0} MB，限制为 {1} MB</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
-    <value>增量为 {0}%，限制为 {1} MB</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
-    <value>增量为 {0} MB，增长无限制</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
-    <value>增量为 {0}%，增长无限制</value>
-  </data>
-  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
-    <value>无限制</value>
-  </data>
-  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
-    <value>不超过{0} MB</value>
-  </data>
-  <data name="prototype_db_category_automatic" xml:space="preserve">
-    <value>自动</value>
-  </data>
-  <data name="prototype_db_category_servicebroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="prototype_db_category_collation" xml:space="preserve">
-    <value>排序规则</value>
-  </data>
-  <data name="prototype_db_category_cursor" xml:space="preserve">
-    <value>游标</value>
-  </data>
-  <data name="prototype_db_category_misc" xml:space="preserve">
-    <value>杂项</value>
-  </data>
-  <data name="prototype_db_category_recovery" xml:space="preserve">
-    <value>恢复</value>
-  </data>
-  <data name="prototype_db_category_state" xml:space="preserve">
-    <value>状态</value>
-  </data>
-  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
-    <value>ANSI NULL 默认值</value>
-  </data>
-  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
-    <value>启用 ANSI NULLS</value>
-  </data>
-  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
-    <value>ANSI 填充已启用 </value>
-  </data>
-  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
-    <value>启用 ANSI 警告</value>
-  </data>
-  <data name="prototype_db_prop_arithabort" xml:space="preserve">
-    <value>算术中止已启用</value>
-  </data>
-  <data name="prototype_db_prop_autoClose" xml:space="preserve">
-    <value>自动关闭</value>
-  </data>
-  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
-    <value>自动创建统计信息</value>
-  </data>
-  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
-    <value>自动收缩</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
-    <value>自动更新统计信息</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
-    <value>自动异步更新统计信息</value>
-  </data>
-  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
-    <value>区分大小写的</value>
-  </data>
-  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
-    <value>已启用“提交时关闭游标”</value>
-  </data>
-  <data name="prototype_db_prop_collation" xml:space="preserve">
-    <value>排序规则</value>
-  </data>
-  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
-    <value>串联 Null 时得到 Null</value>
-  </data>
-  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
-    <value>数据库兼容级别</value>
-  </data>
-  <data name="prototype_db_prop_databaseState" xml:space="preserve">
-    <value>数据库状态</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
-    <value>默认游标</value>
-  </data>
-  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
-    <value>已启用全文索引</value>
-  </data>
-  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
-    <value>数值舍入 —— 中止</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
-    <value>页验证</value>
-  </data>
-  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
-    <value>已启用 Quoted Identifiers</value>
-  </data>
-  <data name="prototype_db_prop_readOnly" xml:space="preserve">
-    <value>数据库为只读的</value>
-  </data>
-  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
-    <value>已启用 Recursive Triggers</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
-    <value>限制访问</value>
-  </data>
-  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
-    <value>Select Into/Bulk Copy</value>
-  </data>
-  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
-    <value>优先处理 Broker 优先级</value>
-  </data>
-  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
-    <value>Service Broker Identifier</value>
-  </data>
-  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
-    <value>已启用 Broker</value>
-  </data>
-  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
-    <value>在检查点删除日志</value>
-  </data>
-  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
-    <value>启用跨数据库所有权链接</value>
-  </data>
-  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
-    <value>可信</value>
-  </data>
-  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>Date Correlation Optimization 已启用 prototype_db_prop_parameterization = Parameterization</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
-    <value>强迫的</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
-    <value>简单</value>
-  </data>
-  <data name="prototype_file_dataFile" xml:space="preserve">
-    <value>行数据</value>
-  </data>
-  <data name="prototype_file_logFile" xml:space="preserve">
-    <value>日志</value>
-  </data>
-  <data name="prototype_file_filestreamFile" xml:space="preserve">
-    <value>FILESTREAM 数据</value>
-  </data>
-  <data name="prototype_file_noFileGroup" xml:space="preserve">
-    <value>不适用</value>
-  </data>
-  <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;默认路径&gt;</value>
-  </data>
-  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>开着的连接</value>
-  </data>
-  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>SQL Server 需要关闭所有其它连接来改变数据库属性——你确认要改变属性并关闭所有其它连接吗？</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
-    <value>AUTO_CLOSED</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
-    <value>紧急</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
-    <value>不可访问</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
-    <value>一般</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
-    <value>离线</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
-    <value>恢复中</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
-    <value>等待恢复</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
-    <value>恢复中</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
-    <value>关机</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
-    <value>待机</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
-    <value>怀疑</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
-    <value>全局</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
-    <value>ju</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
-    <value>MULTI_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
-    <value>RESTRICTED_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
-    <value>SINGLE_USER</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
-    <value>校验码</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
-    <value>没有</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
-    <value>TORN_PAGE_DETECTION</value>
-  </data>
-  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
-    <value>启用 VarDecimal 存储格式</value>
-  </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-  </data>
-  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
-    <value>启用加密</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
-    <value>关</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
-    <value>开</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
-    <value>首要的</value>
-  </data>
-  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
-    <value>对于分配政策HASH，开始的哈希列的数量是可选的，但是应在1到16之间</value>
-  </data>
-  <data name="compatibilityLevel_denali" xml:space="preserve">
-    <value>SQL Server 2012 (110)</value>
-  </data>
-  <data name="compatibilityLevel_sql14" xml:space="preserve">
-    <value>SQL Server 2014 (120)</value>
-  </data>
-  <data name="compatibilityLevel_sql15" xml:space="preserve">
-    <value>SQL Server 2016 (130)</value>
-  </data>
-  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
-    <value>SQL Server vNext (140)</value>
-  </data>
-  <data name="general_containmentType_None" xml:space="preserve">
-    <value>无</value>
-  </data>
-  <data name="general_containmentType_Partial" xml:space="preserve">
-    <value>部分</value>
-  </data>
-  <data name="filegroups_filestreamFiles" xml:space="preserve">
-    <value>FILESTREAM 文件</value>
-  </data>
-  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
-    <value>没有可用的文件组</value>
-  </data>
-  <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>数据库 {0} 无法访问。</value>
-  </data>
-  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>无查询结果</value>
-  </data>
-  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>资料行因结果集太长而可能无法加载</value>
-  </data>
-  <data name="prototype_db_prop_parameterization" xml:space="preserve">
-    <value>参数化</value>
-  </data>
-  <data name="ConflictWithNoRecovery" xml:space="preserve">
-    <value>当使用 NORECOVERY 选项还原备份时，不允许指定此选项。</value>
-  </data>
-  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
-    <value>数据库文件的路径无效:“{0}”</value>
-  </data>
-  <data name="Log" xml:space="preserve">
-    <value>日志</value>
-  </data>
-  <data name="RestorePlanFailed" xml:space="preserve">
-    <value>制订还原计划失败</value>
-  </data>
-  <data name="RestoreNotSupported" xml:space="preserve">
-    <value>不支持还原数据库</value>
-  </data>
-  <data name="RestoreTaskName" xml:space="preserve">
-    <value>还原数据库</value>
-  </data>
-  <data name="RestoreCopyOnly" xml:space="preserve">
-    <value>(仅复制)</value>
-  </data>
-  <data name="RestoreBackupSetComponent" xml:space="preserve">
-    <value>组件</value>
-  </data>
-  <data name="RestoreBackupSetType" xml:space="preserve">
-    <value>类型</value>
-  </data>
-  <data name="RestoreBackupSetServer" xml:space="preserve">
-    <value>服务器</value>
-  </data>
-  <data name="RestoreBackupSetDatabase" xml:space="preserve">
-    <value>数据库</value>
-  </data>
-  <data name="RestoreBackupSetPosition" xml:space="preserve">
-    <value>位置</value>
-  </data>
-  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
-    <value>第一个 LSN</value>
-  </data>
-  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
-    <value>最后一个 LSN</value>
-  </data>
-  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
-    <value>检查点 LSN</value>
-  </data>
-  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
-    <value>完整 LSN</value>
-  </data>
-  <data name="RestoreBackupSetStartDate" xml:space="preserve">
-    <value>开始日期</value>
-  </data>
-  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
-    <value>完成日期</value>
-  </data>
-  <data name="RestoreBackupSetSize" xml:space="preserve">
-    <value>大小</value>
-  </data>
-  <data name="RestoreBackupSetUserName" xml:space="preserve">
-    <value>用户名</value>
-  </data>
-  <data name="RestoreBackupSetExpiration" xml:space="preserve">
-    <value>过期</value>
-  </data>
-  <data name="RestoreBackupSetName" xml:space="preserve">
-    <value>名称</value>
-  </data>
-  <data name="TheLastBackupTaken" xml:space="preserve">
-    <value>上次执行的备份({0})</value>
-  </data>
-  <data name="BackupTaskName" xml:space="preserve">
-    <value>备份数据库</value>
-  </data>
-  <data name="TaskInProgress" xml:space="preserve">
-    <value>正在进行</value>
-  </data>
-  <data name="TaskCompleted" xml:space="preserve">
-    <value>已完成</value>
-  </data>
-  <data name="ScriptTaskName" xml:space="preserve">
-    <value>开始执行脚本操作</value>
-  </data>
-  <data name="ProfilerConnectionNotFound" xml:space="preserve">
-    <value>找不到连接</value>
-  </data>
-  <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>指定的文件名也是一个目录名: {0}</value>
-  </data>
-  <data name="InvalidBackupPathError" xml:space="preserve">
-    <value>无法验证备份文件位置是否存在: {0}</value>
-  </data>
-  <data name="InvalidPathError" xml:space="preserve">
-    <value>无法访问服务器上的指定路径: {0}</value>
-  </data>
-</root>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ConnectionServiceConnectErrorNullParams"><value>连接参数不能为 null</value></data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri"><value>OwnerUri 不能为 null 或为空</value></data>
+  <data name="ConnectionServiceListDbErrorNotConnected"><value>SpecifiedUri '{0}' 没有已有的连接</value></data>
+  <data name="ConnectionServiceConnStringInvalidAuthType"><value>AuthenticationType 值"{0}" 无效。 有效值为 'Integrated' 和 'SqlLogin'。</value></data>
+  <data name="ConnectionServiceConnStringInvalidIntent"><value>'{0}' 为无效的ApplicationIntent值。 有效值为 'ReadWrite' 和 'ReadOnly'。</value></data>
+  <data name="ConnectionServiceConnectionCanceled"><value>连接已取消</value></data>
+  <data name="ConnectionParamsValidateNullOwnerUri"><value>OwnerUri 不能为 null 或为空</value></data>
+  <data name="ConnectionParamsValidateNullConnection"><value>连接详细信息的对象不能为 null</value></data>
+  <data name="ConnectionParamsValidateNullServerName"><value>ServerName 不能是 null 或是空白</value></data>
+  <data name="ConnectionParamsValidateNullSqlAuth"><value>使用 SqlLogin 身份验证时，{0} 不可是 null 或是空</value></data>
+  <data name="QueryServiceCancelAlreadyCompleted"><value>查询已完成，无法取消</value></data>
+  <data name="QueryServiceCancelDisposeFailed"><value>查询成功取消，无法处理查询。找不到的 URI 的所有者。</value></data>
+  <data name="QueryServiceQueryCancelled"><value>查询已被用户取消</value></data>
+  <data name="QueryServiceSubsetBatchNotCompleted"><value>该批处理尚未完成</value></data>
+  <data name="QueryServiceSubsetBatchOutOfRange"><value>批量索引不能小于 0 或大于批量的总数</value></data>
+  <data name="QueryServiceSubsetResultSetOutOfRange"><value>结果集索引不能小于 0 或大于结果集的总数</value></data>
+  <data name="QueryServiceDataReaderByteCountInvalid"><value>返回的最大字节数必须大于零</value></data>
+  <data name="QueryServiceDataReaderCharCountInvalid"><value>返回的最大字符数必须大于零</value></data>
+  <data name="QueryServiceDataReaderXmlCountInvalid"><value>返回的 XML 最大字节数必须大于零</value></data>
+  <data name="QueryServiceFileWrapperWriteOnly"><value>访问方法不能设置为”只写“</value></data>
+  <data name="QueryServiceFileWrapperNotInitialized"><value>在执行操作之前，必须初始化 FileStreamWrapper</value></data>
+  <data name="QueryServiceFileWrapperReadOnly"><value>该 FileStreamWrapper 不能用于写入</value></data>
+  <data name="QueryServiceAffectedOneRow"><value>（1 行受到影响）</value></data>
+  <data name="QueryServiceAffectedRows"><value>（影响 {0} 行）</value></data>
+  <data name="QueryServiceCompletedSuccessfully"><value>命令已成功完成。</value></data>
+  <data name="QueryServiceErrorFormat"><value>Msg {0}，级别 {1}，状态 {2}，第 {3} {4} {5} 行</value></data>
+  <data name="QueryServiceQueryFailed"><value>查询失败︰ {0}</value></data>
+  <data name="QueryServiceColumnNull"><value>（没有列名称）</value></data>
+  <data name="QueryServiceRequestsNoQuery"><value>请求的查询不存在。</value></data>
+  <data name="QueryServiceQueryInvalidOwnerUri"><value>此编辑器未连接到数据库</value></data>
+  <data name="QueryServiceQueryInProgress"><value>此编辑器会话已有正在进行中的查询。请取消这项查询，或等待它完成</value></data>
+  <data name="QueryServiceMessageSenderNotSql"><value>OnInfoMessage 事件的发送者必须是 SqlConnection</value></data>
+  <data name="QueryServiceSaveAsResultSetNotComplete"><value>查询完成前，不能保存结果</value></data>
+  <data name="QueryServiceSaveAsMiscStartingError"><value>保存任务时发生内部错误</value></data>
+  <data name="QueryServiceSaveAsInProgress"><value>相同路径的保存请求正在进行中</value></data>
+  <data name="QueryServiceSaveAsFail"><value>未能保存 {0}: {1}</value></data>
+  <data name="QueryServiceResultSetNotRead"><value>没有从服务器读取结果之前，无法读取子数据集</value></data>
+  <data name="QueryServiceResultSetStartRowOutOfRange"><value>起始行不能小于 0 或大于结果集中的行数</value></data>
+  <data name="QueryServiceResultSetRowCountOutOfRange"><value>行数必须是一个正整数</value></data>
+  <data name="QueryServiceResultSetNoColumnSchema"><value>未能从结果集获取列架构</value></data>
+  <data name="QueryServiceExecutionPlanNotFound"><value>未能从结果集获取执行计划</value></data>
+  <data name="PeekDefinitionAzureError"><value>这功能目前不支持 Azure SQL DB 和数据仓库︰ {0}</value></data>
+  <data name="PeekDefinitionError"><value>查看定义的执行过程中出现意外的错误︰ {0}</value></data>
+  <data name="PeekDefinitionNoResultsError"><value>未找到结果。</value></data>
+  <data name="PeekDefinitionDatabaseError"><value>检索不到任何数据库对象。</value></data>
+  <data name="PeekDefinitionNotConnectedError"><value>请连接到服务器。</value></data>
+  <data name="PeekDefinitionTimedoutError"><value>操作超时。</value></data>
+  <data name="PeekDefinitionTypeNotSupportedError"><value>此功能当前不支持此对象类型。</value></data>
+  <data name="WorkspaceServicePositionLineOutOfRange"><value>位置超出文件行范围</value></data>
+  <data name="WorkspaceServicePositionColumnOutOfRange"><value>第 {0} 行位置超出数据列范围</value></data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder"><value>起始位置 （{0}，{1}） 必须先于或等于结束位置 （{2}，{3}）</value></data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo"><value>Msg {0}，级别 {1} ，状态 {2}，第 {3} 行</value></data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>Msg {0}，级别 {1}，状态 {2}，过程 {3}，第 {4} 行</value></data>
+  <data name="EE_BatchSqlMessageNoLineInfo"><value>Msg {0}，级别 {1}，状态 {2}</value></data>
+  <data name="EE_BatchError_Exception"><value>执行批处理时发生错误。错误消息︰ {0}</value></data>
+  <data name="EE_BatchExecutionInfo_RowsAffected"><value>（{0} 行受到影响）</value></data>
+  <data name="EE_ExecutionNotYetCompleteError"><value>前一次执行尚未完成。</value></data>
+  <data name="EE_ScriptError_Error"><value>出现脚本错误。</value></data>
+  <data name="EE_ScriptError_ParsingSyntax"><value>正在分析 {0} 时发现语法错误。</value></data>
+  <data name="EE_ScriptError_FatalError"><value>出现严重错误。</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>执行已完成 {0} 次...</value></data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>您已取消查询。</value></data>
+  <data name="EE_BatchExecutionError_Halting"><value>执行批次处理时发生错误。</value></data>
+  <data name="EE_BatchExecutionError_Ignoring"><value>执行批次处理时发生错误，但该错误已被忽略。</value></data>
+  <data name="EE_ExecutionInfo_InitilizingLoop"><value>正在开始执行循环的次数为 {0} 次...</value></data>
+  <data name="EE_ExecutionError_CommandNotSupported"><value>不支持命令 {0}。</value></data>
+  <data name="EE_ExecutionError_VariableNotFound"><value>找不到变量 {0}。</value></data>
+  <data name="BatchParserWrapperExecutionEngineError"><value>SQL 执行错误︰ {0}</value></data>
+  <data name="BatchParserWrapperExecutionError"><value>批处理解析封装器执行︰{0} 找到位于第 {1} 行: {2} 描述︰{3} </value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage"><value>批处理解析封装器执行引擎所收到的消息︰ 消息︰ {0}，详细的消息︰ {1}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing"><value>批处理解析封装器执行引擎批次结果集处理︰ DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished"><value>批处理解析封装器执行引擎批次处理结果集已完成。</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling"><value>正在取消批处理解析封装器的批处理执行。</value></data>
+  <data name="EE_ScriptError_Warning"><value>脚本警告。</value></data>
+  <data name="TroubleshootingAssistanceMessage"><value>有关此错误的详细信息，请参阅产品文档中的疑难解答主题。</value></data>
+  <data name="BatchParser_CircularReference"><value>文件 '{0}' 被递归方式包含。</value></data>
+  <data name="BatchParser_CommentNotTerminated"><value>缺少结束注释标记 '*/'。</value></data>
+  <data name="BatchParser_StringNotTerminated"><value>未闭合的引号后的字符字串。</value></data>
+  <data name="BatchParser_IncorrectSyntax"><value>'{0}' 在分析时发现语法错误。</value></data>
+  <data name="BatchParser_VariableNotDefined"><value>未定义变量 {0}。</value></data>
+  <data name="TestLocalizationConstant"><value>测试</value></data>
+  <data name="ErrorEmptyStringReplacement"><value>用空字符串取代空字符串。</value></data>
+  <data name="EditDataSessionNotFound"><value>编辑会话不存在</value></data>
+  <data name="EditDataQueryNotCompleted"><value>查询尚未完成</value></data>
+  <data name="EditDataQueryImproperResultSets"><value>查询并非产生单一结果集</value></data>
+  <data name="EditDataFailedAddRow"><value>无法添加新数据行以更新缓存，操作失败</value></data>
+  <data name="EditDataRowOutOfRange"><value>给定数据行 ID 已超出 edit cache 中数据行的范围</value></data>
+  <data name="EditDataUpdatePending"><value>这个数据行已经有一个更新正在等待使用，因此它必须先恢复原状。</value></data>
+  <data name="EditDataUpdateNotPending"><value>给定行 ID 没有正在等待的更新操作</value></data>
+  <data name="EditDataObjectMetadataNotFound"><value>找不到表格或视图的元数据</value></data>
+  <data name="EditDataInvalidFormatBinary"><value>二进制列格示错误</value></data>
+  <data name="EditDataInvalidFormatBoolean"><value>Boolean 列必须填入数字 1 或 0, 或字符串 true 或 false</value></data>
+  <data name="EditDataCreateScriptMissingValue"><value>必填单元格的值缺失</value></data>
+  <data name="EditDataDeleteSetCell"><value>这行即将被删除，其中的单元格无法被更新</value></data>
+  <data name="EditDataColumnIdOutOfRange"><value>列 ID 必须在数据列总数內才可被查询</value></data>
+  <data name="EditDataColumnCannotBeEdited"><value>列无法被编辑</value></data>
+  <data name="EditDataColumnNoKeyColumns"><value>找不到键列</value></data>
+  <data name="EditDataScriptFilePathNull"><value>必须提供输出文件名</value></data>
+  <data name="EditDataUnsupportedObjectType"><value>数据库对象 {0} 无法被编辑</value></data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected"><value>指定的 URI '{0}' 没有默认的连接</value></data>
+  <data name="EditDataCommitInProgress"><value>提交的任务正在进行，请等待它完成</value></data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision"><value>十进制列缺少数值精度或小数位数</value></data>
+  <data name="EditDataComputedColumnPlaceholder"><value>&lt;TBD&gt;</value></data>
+  <data name="QueryServiceResultSetAddNoRows"><value>无法在结果缓冲区添加行，数据读取器不包含任何行</value></data>
+  <data name="EditDataTimeOver24Hrs"><value>TIME 列的取值范围必须在 00:00:00.0000000 至 23:59:59.9999999 之间</value></data>
+  <data name="EditDataNullNotAllowed"><value>该列不允许Null 值</value></data>
+  <data name="EditDataSessionAlreadyExists"><value>编辑会话已存在</value></data>
+  <data name="EditDataSessionNotInitialized"><value>编辑会话尚未初始化</value></data>
+  <data name="EditDataSessionAlreadyInitialized"><value>编辑会话已被初始化</value></data>
+  <data name="EditDataSessionAlreadyInitializing"><value>编辑会话已被初始化或正在初始化中</value></data>
+  <data name="EditDataQueryFailed"><value>执行查询失败，查看消息了解更多详情</value></data>
+  <data name="EditDataFilteringNegativeLimit"><value>结果集的限制值不能为负数</value></data>
+  <data name="QueryServiceCellNull"><value>空</value></data>
+  <data name="EditDataMetadataObjectNameRequired"><value>必须提供对象名称</value></data>
+  <data name="EditDataMetadataTooManyIdentifiers"><value>不支持显式指定服务器或者数据库</value></data>
+  <data name="EditDataMetadataNotExtended"><value>数据表的元数据没有扩展属性</value></data>
+  <data name="EditDataObjectNotFound"><value>找不到请求编辑的数据表或视图</value></data>
+  <data name="TreeNodeError"><value>扩展数据库时出错: {0}</value></data>
+  <data name="ServerNodeConnectionError"><value>连接到 {0} 时出错</value></data>
+  <data name="SchemaHierarchy_Aggregates"><value>聚合</value></data>
+  <data name="SchemaHierarchy_ServerRoles"><value>服务器角色</value></data>
+  <data name="SchemaHierarchy_ApplicationRoles"><value>应用程序角色</value></data>
+  <data name="SchemaHierarchy_Assemblies"><value>程序集</value></data>
+  <data name="SchemaHierarchy_AssemblyFiles"><value>程序集文件</value></data>
+  <data name="SchemaHierarchy_AsymmetricKeys"><value>非对称密钥</value></data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys"><value>非对称密钥</value></data>
+  <data name="SchemaHierarchy_DataCompressionOptions"><value>数据压缩选项</value></data>
+  <data name="SchemaHierarchy_Certificates"><value>证书</value></data>
+  <data name="SchemaHierarchy_FileTables"><value>文件表</value></data>
+  <data name="SchemaHierarchy_DatabaseCertificates"><value>证书</value></data>
+  <data name="SchemaHierarchy_CheckConstraints"><value>CHECK 约束</value></data>
+  <data name="SchemaHierarchy_Columns"><value>列</value></data>
+  <data name="SchemaHierarchy_Constraints"><value>约束</value></data>
+  <data name="SchemaHierarchy_Contracts"><value>协定</value></data>
+  <data name="SchemaHierarchy_Credentials"><value>凭据</value></data>
+  <data name="SchemaHierarchy_ErrorMessages"><value>错误消息</value></data>
+  <data name="SchemaHierarchy_ServerRoleMembership"><value>服务器角色成员资格</value></data>
+  <data name="SchemaHierarchy_DatabaseOptions"><value>数据库选项</value></data>
+  <data name="SchemaHierarchy_DatabaseRoles"><value>数据库角色</value></data>
+  <data name="SchemaHierarchy_RoleMemberships"><value>角色成员资格</value></data>
+  <data name="SchemaHierarchy_DatabaseTriggers"><value>数据库触发器</value></data>
+  <data name="SchemaHierarchy_DefaultConstraints"><value>默认约束</value></data>
+  <data name="SchemaHierarchy_Defaults"><value>默认值</value></data>
+  <data name="SchemaHierarchy_Sequences"><value>序列</value></data>
+  <data name="SchemaHierarchy_Endpoints"><value>终结点</value></data>
+  <data name="SchemaHierarchy_EventNotifications"><value>事件通知</value></data>
+  <data name="SchemaHierarchy_ServerEventNotifications"><value>服务器事件通知</value></data>
+  <data name="SchemaHierarchy_ExtendedProperties"><value>扩展属性</value></data>
+  <data name="SchemaHierarchy_FileGroups"><value>文件组</value></data>
+  <data name="SchemaHierarchy_ForeignKeys"><value>外键</value></data>
+  <data name="SchemaHierarchy_FullTextCatalogs"><value>全文目录</value></data>
+  <data name="SchemaHierarchy_FullTextIndexes"><value>全文检索</value></data>
+  <data name="SchemaHierarchy_Functions"><value>函数</value></data>
+  <data name="SchemaHierarchy_Indexes"><value>索引</value></data>
+  <data name="SchemaHierarchy_InlineFunctions"><value>内联函数</value></data>
+  <data name="SchemaHierarchy_Keys"><value>键</value></data>
+  <data name="SchemaHierarchy_LinkedServers"><value>链接的服务器</value></data>
+  <data name="SchemaHierarchy_LinkedServerLogins"><value>链接的服务器登录名</value></data>
+  <data name="SchemaHierarchy_Logins"><value>登录名</value></data>
+  <data name="SchemaHierarchy_MasterKey"><value>主密钥</value></data>
+  <data name="SchemaHierarchy_MasterKeys"><value>主密钥</value></data>
+  <data name="SchemaHierarchy_MessageTypes"><value>消息类型</value></data>
+  <data name="SchemaHierarchy_MultiSelectFunctions"><value>表值函数</value></data>
+  <data name="SchemaHierarchy_Parameters"><value>参数</value></data>
+  <data name="SchemaHierarchy_PartitionFunctions"><value>分区函数</value></data>
+  <data name="SchemaHierarchy_PartitionSchemes"><value>分区方案</value></data>
+  <data name="SchemaHierarchy_Permissions"><value>权限</value></data>
+  <data name="SchemaHierarchy_PrimaryKeys"><value>主键</value></data>
+  <data name="SchemaHierarchy_Programmability"><value>可编程性</value></data>
+  <data name="SchemaHierarchy_Queues"><value>队列</value></data>
+  <data name="SchemaHierarchy_RemoteServiceBindings"><value>远程服务绑定</value></data>
+  <data name="SchemaHierarchy_ReturnedColumns"><value>返回列</value></data>
+  <data name="SchemaHierarchy_Roles"><value>角色</value></data>
+  <data name="SchemaHierarchy_Routes"><value>路由</value></data>
+  <data name="SchemaHierarchy_Rules"><value>规则</value></data>
+  <data name="SchemaHierarchy_Schemas"><value>架构</value></data>
+  <data name="SchemaHierarchy_Security"><value>安全性</value></data>
+  <data name="SchemaHierarchy_ServerObjects"><value>服务器对象</value></data>
+  <data name="SchemaHierarchy_Management"><value>管理</value></data>
+  <data name="SchemaHierarchy_ServerTriggers"><value>触发器</value></data>
+  <data name="SchemaHierarchy_ServiceBroker"><value>Service Broker</value></data>
+  <data name="SchemaHierarchy_Services"><value>服务</value></data>
+  <data name="SchemaHierarchy_Signatures"><value>签名</value></data>
+  <data name="SchemaHierarchy_LogFiles"><value>日志文件</value></data>
+  <data name="SchemaHierarchy_Statistics"><value>统计信息</value></data>
+  <data name="SchemaHierarchy_Storage"><value>存储</value></data>
+  <data name="SchemaHierarchy_StoredProcedures"><value>存储过程</value></data>
+  <data name="SchemaHierarchy_SymmetricKeys"><value>对称密钥</value></data>
+  <data name="SchemaHierarchy_Synonyms"><value>同义词</value></data>
+  <data name="SchemaHierarchy_Tables"><value>表</value></data>
+  <data name="SchemaHierarchy_Triggers"><value>触发器</value></data>
+  <data name="SchemaHierarchy_Types"><value>类型</value></data>
+  <data name="SchemaHierarchy_UniqueKeys"><value>唯一键</value></data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes"><value>用户定义的数据类型</value></data>
+  <data name="SchemaHierarchy_UserDefinedTypes"><value>用户定义的类型(CLR)</value></data>
+  <data name="SchemaHierarchy_Users"><value>用户</value></data>
+  <data name="SchemaHierarchy_Views"><value>视图</value></data>
+  <data name="SchemaHierarchy_XmlIndexes"><value>XML 索引</value></data>
+  <data name="SchemaHierarchy_XMLSchemaCollections"><value>XML 架构集合</value></data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes"><value>用户定义的表类型</value></data>
+  <data name="SchemaHierarchy_FilegroupFiles"><value>文件</value></data>
+  <data name="MissingCaption"><value>缺少标题</value></data>
+  <data name="SchemaHierarchy_BrokerPriorities"><value>Broker 优先级</value></data>
+  <data name="SchemaHierarchy_CryptographicProviders"><value>加密提供程序</value></data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications"><value>数据库审核规范</value></data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys"><value>数据库加密密钥</value></data>
+  <data name="SchemaHierarchy_EventSessions"><value>事件会话</value></data>
+  <data name="SchemaHierarchy_FullTextStopLists"><value>全文非索引字表</value></data>
+  <data name="SchemaHierarchy_ResourcePools"><value>资源池</value></data>
+  <data name="SchemaHierarchy_ServerAudits"><value>审核</value></data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications"><value>服务器审核规范</value></data>
+  <data name="SchemaHierarchy_SpatialIndexes"><value>空间索引</value></data>
+  <data name="SchemaHierarchy_WorkloadGroups"><value>工作负荷组</value></data>
+  <data name="SchemaHierarchy_SqlFiles"><value>SQL 文件</value></data>
+  <data name="SchemaHierarchy_ServerFunctions"><value>服务器函数</value></data>
+  <data name="SchemaHierarchy_SqlType"><value>SQL 类型</value></data>
+  <data name="SchemaHierarchy_ServerOptions"><value>服务器选项</value></data>
+  <data name="SchemaHierarchy_DatabaseDiagrams"><value>数据库关系图</value></data>
+  <data name="SchemaHierarchy_SystemTables"><value>系统表</value></data>
+  <data name="SchemaHierarchy_Databases"><value>数据库</value></data>
+  <data name="SchemaHierarchy_SystemContracts"><value>系统约定</value></data>
+  <data name="SchemaHierarchy_SystemDatabases"><value>系统数据库</value></data>
+  <data name="SchemaHierarchy_SystemMessageTypes"><value>系统消息类型</value></data>
+  <data name="SchemaHierarchy_SystemQueues"><value>系统队列</value></data>
+  <data name="SchemaHierarchy_SystemServices"><value>系统服务</value></data>
+  <data name="SchemaHierarchy_SystemStoredProcedures"><value>系统存储过程</value></data>
+  <data name="SchemaHierarchy_SystemViews"><value>系统视图</value></data>
+  <data name="SchemaHierarchy_DataTierApplications"><value>数据层应用程序</value></data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures"><value>扩展存储过程</value></data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions"><value>聚合函数</value></data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics"><value>近似数字</value></data>
+  <data name="SchemaHierarchy_SystemBinaryStrings"><value>二进制字符串</value></data>
+  <data name="SchemaHierarchy_SystemCharacterStrings"><value>字符串</value></data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes"><value>CLR 数据类型</value></data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions"><value>配置函数</value></data>
+  <data name="SchemaHierarchy_SystemCursorFunctions"><value>游标函数</value></data>
+  <data name="SchemaHierarchy_SystemDataTypes"><value>系统数据类型</value></data>
+  <data name="SchemaHierarchy_SystemDateAndTime"><value>日期和时间</value></data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions"><value>日期和时间函数</value></data>
+  <data name="SchemaHierarchy_SystemExactNumerics"><value>精确数字</value></data>
+  <data name="SchemaHierarchy_SystemFunctions"><value>系统函数</value></data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions"><value>层次结构 ID 函数</value></data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions"><value>数学函数</value></data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions"><value>元数据函数</value></data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes"><value>其他数据类型</value></data>
+  <data name="SchemaHierarchy_SystemOtherFunctions"><value>其他函数</value></data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions"><value>行集函数</value></data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions"><value>安全函数</value></data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes"><value>空间数据类型</value></data>
+  <data name="SchemaHierarchy_SystemStringFunctions"><value>字符串函数</value></data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions"><value>系统统计函数</value></data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions"><value>文本和图像函数</value></data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings"><value>Unicode 字符串</value></data>
+  <data name="SchemaHierarchy_AggregateFunctions"><value>聚合函数</value></data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions"><value>标量值函数</value></data>
+  <data name="SchemaHierarchy_TableValuedFunctions"><value>表值函数</value></data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures"><value>系统扩展存储过程</value></data>
+  <data name="SchemaHierarchy_BuiltInType"><value>内置类型</value></data>
+  <data name="SchemaHierarchy_BuiltInServerRole"><value>内置服务器角色</value></data>
+  <data name="SchemaHierarchy_UserWithPassword"><value>具有密码的用户</value></data>
+  <data name="SchemaHierarchy_SearchPropertyList"><value>搜索属性列表</value></data>
+  <data name="SchemaHierarchy_SecurityPolicies"><value>安全策略</value></data>
+  <data name="SchemaHierarchy_SecurityPredicates"><value>安全谓词</value></data>
+  <data name="SchemaHierarchy_ServerRole"><value>服务器角色</value></data>
+  <data name="SchemaHierarchy_SearchPropertyLists"><value>搜索属性列表</value></data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes"><value>列存储索引</value></data>
+  <data name="SchemaHierarchy_TableTypeIndexes"><value>表类型索引</value></data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes"><value>选择性 XML 索引</value></data>
+  <data name="SchemaHierarchy_XmlNamespaces"><value>XML 命名空间</value></data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths"><value>XML 特型提升路径</value></data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths"><value>T-SQL 特型提升路径</value></data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials"><value>数据库范围的凭据</value></data>
+  <data name="SchemaHierarchy_ExternalDataSources"><value>外部数据源</value></data>
+  <data name="SchemaHierarchy_ExternalFileFormats"><value>外部文件格式</value></data>
+  <data name="SchemaHierarchy_ExternalResources"><value>外部资源</value></data>
+  <data name="SchemaHierarchy_ExternalTables"><value>外部表</value></data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys"><value>Always Encrypted 密钥</value></data>
+  <data name="SchemaHierarchy_ColumnMasterKeys"><value>列主密钥</value></data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys"><value>列加密密钥</value></data>
+  <data name="SchemaHierarchy_Server"><value>服务器</value></data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid"><value>解析属性 ScriptingParams.ConnectionString 时出错</value></data>
+  <data name="ScriptingParams_FilePath_Property_Invalid"><value>ScriptingParams.FilePath 属性指定的路径是无效目录</value></data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid"><value>解析属性 ScriptingListObjectsCompleteParams.ConnectionString 时出错</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString"><value>{0} ({1}, {2}, {3})</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel"><value>无默认值</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel"><value>输入</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel"><value>输入/输出</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel"><value>输入/只读</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel"><value>输入/输出/只读</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel"><value>默认值</value></data>
+  <data name="SchemaHierarchy_NullColumn_Label"><value>Null</value></data>
+  <data name="SchemaHierarchy_NotNullColumn_Label"><value>非 Null</value></data>
+  <data name="SchemaHierarchy_UDDTLabelWithType"><value>{0} ({1}, {2})</value></data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType"><value>{0} ({1})</value></data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType"><value>{0} ({1}Computed, {2}, {3})</value></data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType"><value>{0} ({1}Computed)</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType"><value>{0} (列集，{1})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType"><value>{0} (列集，{1}{2}，{3})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString"><value>{0} (列集，{1}，{2}，{3})</value></data>
+  <data name="UniqueIndex_LabelPart"><value>唯一</value></data>
+  <data name="NonUniqueIndex_LabelPart"><value>非唯一</value></data>
+  <data name="ClusteredIndex_LabelPart"><value>聚集</value></data>
+  <data name="NonClusteredIndex_LabelPart"><value>非聚集</value></data>
+  <data name="History_LabelPart"><value>历史记录</value></data>
+  <data name="SystemVersioned_LabelPart"><value>带有系统版本</value></data>
+  <data name="unavailable"><value>不可用</value></data>
+  <data name="filegroup_dialog_defaultFilegroup"><value>当前默认文件组: {0}</value></data>
+  <data name="filegroup_dialog_title"><value>{0} 的新文件组</value></data>
+  <data name="filegroups_default"><value>默认值</value></data>
+  <data name="filegroups_files"><value>文件</value></data>
+  <data name="filegroups_name"><value>名称</value></data>
+  <data name="filegroups_readonly"><value>只读</value></data>
+  <data name="general_autogrowth"><value>自动增长/最大大小</value></data>
+  <data name="general_builderText"><value>...</value></data>
+  <data name="general_default"><value>&lt;默认值&gt;</value></data>
+  <data name="general_fileGroup"><value>文件组</value></data>
+  <data name="general_fileName"><value>逻辑名</value></data>
+  <data name="general_fileType"><value>文件类型</value></data>
+  <data name="general_initialSize"><value>初始大小 (MB)</value></data>
+  <data name="general_newFilegroup"><value>&lt;新文件组&gt;</value></data>
+  <data name="general_path"><value>路径</value></data>
+  <data name="general_physicalFileName"><value>文件名</value></data>
+  <data name="general_rawDevice"><value>&lt;原始设备&gt;</value></data>
+  <data name="general_recoveryModel_bulkLogged"><value>批量记录的</value></data>
+  <data name="general_recoveryModel_full"><value>满</value></data>
+  <data name="general_recoveryModel_simple"><value>简单</value></data>
+  <data name="general_titleSearchOwner"><value>选择数据库所有者</value></data>
+  <data name="prototype_autogrowth_disabled"><value>无</value></data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB"><value>增量为 {0} MB，限制为 {1} MB</value></data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent"><value>增量为 {0}%，限制为 {1} MB</value></data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB"><value>增量为 {0} MB，增长无限制</value></data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent"><value>增量为 {0}%，增长无限制</value></data>
+  <data name="prototype_autogrowth_unlimitedfilestream"><value>无限制</value></data>
+  <data name="prototype_autogrowth_limitedfilestream"><value>不超过{0} MB</value></data>
+  <data name="prototype_db_category_automatic"><value>自动</value></data>
+  <data name="prototype_db_category_servicebroker"><value>Service Broker</value></data>
+  <data name="prototype_db_category_collation"><value>排序规则</value></data>
+  <data name="prototype_db_category_cursor"><value>游标</value></data>
+  <data name="prototype_db_category_misc"><value>杂项</value></data>
+  <data name="prototype_db_category_recovery"><value>恢复</value></data>
+  <data name="prototype_db_category_state"><value>状态</value></data>
+  <data name="prototype_db_prop_ansiNullDefault"><value>ANSI NULL 默认值</value></data>
+  <data name="prototype_db_prop_ansiNulls"><value>启用 ANSI NULLS</value></data>
+  <data name="prototype_db_prop_ansiPadding"><value>ANSI 填充已启用 </value></data>
+  <data name="prototype_db_prop_ansiWarnings"><value>启用 ANSI 警告</value></data>
+  <data name="prototype_db_prop_arithabort"><value>算术中止已启用</value></data>
+  <data name="prototype_db_prop_autoClose"><value>自动关闭</value></data>
+  <data name="prototype_db_prop_autoCreateStatistics"><value>自动创建统计信息</value></data>
+  <data name="prototype_db_prop_autoShrink"><value>自动收缩</value></data>
+  <data name="prototype_db_prop_autoUpdateStatistics"><value>自动更新统计信息</value></data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync"><value>自动异步更新统计信息</value></data>
+  <data name="prototype_db_prop_caseSensitive"><value>区分大小写的</value></data>
+  <data name="prototype_db_prop_closeCursorOnCommit"><value>已启用“提交时关闭游标”</value></data>
+  <data name="prototype_db_prop_collation"><value>排序规则</value></data>
+  <data name="prototype_db_prop_concatNullYieldsNull"><value>串联 Null 时得到 Null</value></data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel"><value>数据库兼容级别</value></data>
+  <data name="prototype_db_prop_databaseState"><value>数据库状态</value></data>
+  <data name="prototype_db_prop_defaultCursor"><value>默认游标</value></data>
+  <data name="prototype_db_prop_fullTextIndexing"><value>已启用全文索引</value></data>
+  <data name="prototype_db_prop_numericRoundAbort"><value>数值舍入 —— 中止</value></data>
+  <data name="prototype_db_prop_pageVerify"><value>页验证</value></data>
+  <data name="prototype_db_prop_quotedIdentifier"><value>已启用 Quoted Identifiers</value></data>
+  <data name="prototype_db_prop_readOnly"><value>数据库为只读的</value></data>
+  <data name="prototype_db_prop_recursiveTriggers"><value>已启用 Recursive Triggers</value></data>
+  <data name="prototype_db_prop_restrictAccess"><value>限制访问</value></data>
+  <data name="prototype_db_prop_selectIntoBulkCopy"><value>Select Into/Bulk Copy</value></data>
+  <data name="prototype_db_prop_honorBrokerPriority"><value>优先处理 Broker 优先级</value></data>
+  <data name="prototype_db_prop_serviceBrokerGuid"><value>Service Broker Identifier</value></data>
+  <data name="prototype_db_prop_brokerEnabled"><value>已启用 Broker</value></data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint"><value>在检查点删除日志</value></data>
+  <data name="prototype_db_prop_dbChaining"><value>启用跨数据库所有权链接</value></data>
+  <data name="prototype_db_prop_trustworthy"><value>可信</value></data>
+  <data name="prototype_db_prop_dateCorrelationOptimization"><value>Date Correlation Optimization 已启用 prototype_db_prop_parameterization = Parameterization</value></data>
+  <data name="prototype_db_prop_parameterization_value_forced"><value>强迫的</value></data>
+  <data name="prototype_db_prop_parameterization_value_simple"><value>简单</value></data>
+  <data name="prototype_file_dataFile"><value>行数据</value></data>
+  <data name="prototype_file_logFile"><value>日志</value></data>
+  <data name="prototype_file_filestreamFile"><value>FILESTREAM 数据</value></data>
+  <data name="prototype_file_noFileGroup"><value>不适用</value></data>
+  <data name="prototype_file_defaultpathstring"><value>&lt;默认路径&gt;</value></data>
+  <data name="title_openConnectionsMustBeClosed"><value>开着的连接</value></data>
+  <data name="warning_openConnectionsMustBeClosed"><value>SQL Server 需要关闭所有其它连接来改变数据库属性——你确认要改变属性并关闭所有其它连接吗？</value></data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed"><value>AUTO_CLOSED</value></data>
+  <data name="prototype_db_prop_databaseState_value_emergency"><value>紧急</value></data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible"><value>不可访问</value></data>
+  <data name="prototype_db_prop_databaseState_value_normal"><value>一般</value></data>
+  <data name="prototype_db_prop_databaseState_value_offline"><value>离线</value></data>
+  <data name="prototype_db_prop_databaseState_value_recovering"><value>恢复中</value></data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending"><value>等待恢复</value></data>
+  <data name="prototype_db_prop_databaseState_value_restoring"><value>恢复中</value></data>
+  <data name="prototype_db_prop_databaseState_value_shutdown"><value>关机</value></data>
+  <data name="prototype_db_prop_databaseState_value_standby"><value>待机</value></data>
+  <data name="prototype_db_prop_databaseState_value_suspect"><value>怀疑</value></data>
+  <data name="prototype_db_prop_defaultCursor_value_global"><value>全局</value></data>
+  <data name="prototype_db_prop_defaultCursor_value_local"><value>ju</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple"><value>MULTI_USER</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted"><value>RESTRICTED_USER</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_single"><value>SINGLE_USER</value></data>
+  <data name="prototype_db_prop_pageVerify_value_checksum"><value>校验码</value></data>
+  <data name="prototype_db_prop_pageVerify_value_none"><value>没有</value></data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection"><value>TORN_PAGE_DETECTION</value></data>
+  <data name="prototype_db_prop_varDecimalEnabled"><value>启用 VarDecimal 存储格式</value></data>
+  <data name="compatibilityLevel_katmai"><value>SQL Server 2008 (100)</value></data>
+  <data name="prototype_db_prop_encryptionEnabled"><value>启用加密</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off"><value>关</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on"><value>开</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary"><value>首要的</value></data>
+  <data name="error_db_prop_invalidleadingColumns"><value>对于分配政策HASH，开始的哈希列的数量是可选的，但是应在1到16之间</value></data>
+  <data name="compatibilityLevel_denali"><value>SQL Server 2012 (110)</value></data>
+  <data name="compatibilityLevel_sql14"><value>SQL Server 2014 (120)</value></data>
+  <data name="compatibilityLevel_sql15"><value>SQL Server 2016 (130)</value></data>
+  <data name="compatibilityLevel_sqlvNext"><value>SQL Server vNext (140)</value></data>
+  <data name="general_containmentType_None"><value>无</value></data>
+  <data name="general_containmentType_Partial"><value>部分</value></data>
+  <data name="filegroups_filestreamFiles"><value>FILESTREAM 文件</value></data>
+  <data name="prototype_file_noApplicableFileGroup"><value>没有可用的文件组</value></data>
+  <data name="DatabaseNotAccessible"><value>数据库 {0} 无法访问。</value></data>
+  <data name="QueryServiceResultSetHasNoResults"><value>无查询结果</value></data>
+  <data name="QueryServiceResultSetTooLarge"><value>资料行因结果集太长而可能无法加载</value></data>
+  <data name="prototype_db_prop_parameterization"><value>参数化</value></data>
+  <data name="ConflictWithNoRecovery"><value>当使用 NORECOVERY 选项还原备份时，不允许指定此选项。</value></data>
+  <data name="InvalidPathForDatabaseFile"><value>数据库文件的路径无效:“{0}”</value></data>
+  <data name="Log"><value>日志</value></data>
+  <data name="RestorePlanFailed"><value>制订还原计划失败</value></data>
+  <data name="RestoreNotSupported"><value>不支持还原数据库</value></data>
+  <data name="RestoreTaskName"><value>还原数据库</value></data>
+  <data name="RestoreCopyOnly"><value>(仅复制)</value></data>
+  <data name="RestoreBackupSetComponent"><value>组件</value></data>
+  <data name="RestoreBackupSetType"><value>类型</value></data>
+  <data name="RestoreBackupSetServer"><value>服务器</value></data>
+  <data name="RestoreBackupSetDatabase"><value>数据库</value></data>
+  <data name="RestoreBackupSetPosition"><value>位置</value></data>
+  <data name="RestoreBackupSetFirstLsn"><value>第一个 LSN</value></data>
+  <data name="RestoreBackupSetLastLsn"><value>最后一个 LSN</value></data>
+  <data name="RestoreBackupSetCheckpointLsn"><value>检查点 LSN</value></data>
+  <data name="RestoreBackupSetFullLsn"><value>完整 LSN</value></data>
+  <data name="RestoreBackupSetStartDate"><value>开始日期</value></data>
+  <data name="RestoreBackupSetFinishDate"><value>完成日期</value></data>
+  <data name="RestoreBackupSetSize"><value>大小</value></data>
+  <data name="RestoreBackupSetUserName"><value>用户名</value></data>
+  <data name="RestoreBackupSetExpiration"><value>过期</value></data>
+  <data name="RestoreBackupSetName"><value>名称</value></data>
+  <data name="TheLastBackupTaken"><value>上次执行的备份({0})</value></data>
+  <data name="BackupTaskName"><value>备份数据库</value></data>
+  <data name="TaskInProgress"><value>正在进行</value></data>
+  <data name="TaskCompleted"><value>已完成</value></data>
+  <data name="ScriptTaskName"><value>开始执行脚本操作</value></data>
+  <data name="ProfilerConnectionNotFound"><value>找不到连接</value></data>
+  <data name="BackupPathIsFolderError"><value>指定的文件名也是一个目录名: {0}</value></data>
+  <data name="InvalidBackupPathError"><value>无法验证备份文件位置是否存在: {0}</value></data>
+  <data name="InvalidPathError"><value>无法访问服务器上的指定路径: {0}</value></data>
+  </root>

@@ -47,6 +47,11 @@ ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 
 ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
 
+### General connection service strings
+AzureSqlDbEdition = Azure SQL DB
+AzureSqlDwEdition = Azure SQL Data Warehouse
+AzureSqlStretchEdition = Azure SQL Stretch Database
+
 ############################################################################
 # Query Execution Service
 
@@ -802,6 +807,7 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+NeverBackedUp = Never
 
 ############################################################################
 # Backup Service

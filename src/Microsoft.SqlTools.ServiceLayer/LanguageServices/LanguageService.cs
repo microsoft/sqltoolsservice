@@ -794,10 +794,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                     List<ParseResult> parseResults = new List<ParseResult>();
                                     parseResults.Add(parseResult);
-                                    bindingContext.Binder.Bind(
-                                        parseResults,
-                                        connInfo.ConnectionDetails.DatabaseName,
-                                        BindMode.Batch);
+                                    if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                    {
+                                        bindingContext.Binder.Bind(
+                                            parseResults,
+                                            connInfo.ConnectionDetails.DatabaseName,
+                                            BindMode.Batch);
+                                    }
                                 }
                                 catch (ConnectionException)
                                 {
@@ -856,8 +859,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, "languageService");
-                        scriptInfo.IsConnected = true;
-
+                        scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)
                     {
@@ -917,40 +919,42 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 ParseResult parseResult = Parser.Parse(
                                     "select ",
                                     bindingContext.ParseOptions);
+                                if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                {
+                                    List<ParseResult> parseResults = new List<ParseResult>();
+                                    parseResults.Add(parseResult);
+                                    bindingContext.Binder.Bind(
+                                        parseResults,
+                                        info.ConnectionDetails.DatabaseName,
+                                        BindMode.Batch);
 
-                                List<ParseResult> parseResults = new List<ParseResult>();
-                                parseResults.Add(parseResult);
-                                bindingContext.Binder.Bind(
-                                    parseResults,
-                                    info.ConnectionDetails.DatabaseName,
-                                    BindMode.Batch);
+                                    // get the completion list from SQL Parser
+                                    var suggestions = Resolver.FindCompletions(
+                                        parseResult, 1, 8,
+                                        bindingContext.MetadataDisplayInfoProvider);
 
-                                // get the completion list from SQL Parser
-                                var suggestions = Resolver.FindCompletions(
-                                    parseResult, 1, 8,
-                                    bindingContext.MetadataDisplayInfoProvider);
+                                    // this forces lazy evaluation of the suggestion metadata
+                                    AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
 
-                                // this forces lazy evaluation of the suggestion metadata
-                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+                                    parseResult = Parser.Parse(
+                                        "exec ",
+                                        bindingContext.ParseOptions);
 
-                                parseResult = Parser.Parse(
-                                    "exec ",
-                                    bindingContext.ParseOptions);
+                                    parseResults = new List<ParseResult>();
+                                    parseResults.Add(parseResult);
+                                    bindingContext.Binder.Bind(
+                                        parseResults,
+                                        info.ConnectionDetails.DatabaseName,
+                                        BindMode.Batch);
 
-                                parseResults = new List<ParseResult>();
-                                parseResults.Add(parseResult);
-                                bindingContext.Binder.Bind(
-                                    parseResults,
-                                    info.ConnectionDetails.DatabaseName,
-                                    BindMode.Batch);
+                                    // get the completion list from SQL Parser
+                                    suggestions = Resolver.FindCompletions(
+                                        parseResult, 1, 6,
+                                        bindingContext.MetadataDisplayInfoProvider);
 
-                                // get the completion list from SQL Parser
-                                suggestions = Resolver.FindCompletions(
-                                    parseResult, 1, 6,
-                                    bindingContext.MetadataDisplayInfoProvider);
-
-                                // this forces lazy evaluation of the suggestion metadata
-                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                    // this forces lazy evaluation of the suggestion metadata
+                                    AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                }
                                 return null;
                             });
 
@@ -1101,6 +1105,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         IsErrorResult = true,
                         Message = SR.PeekDefinitionTimedoutError,
+                        Locations = null
+                    };
+                },
+                errorHandler: ex =>
+                {
+                    // return error result
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = ex.Message,
                         Locations = null
                     };
                 });
