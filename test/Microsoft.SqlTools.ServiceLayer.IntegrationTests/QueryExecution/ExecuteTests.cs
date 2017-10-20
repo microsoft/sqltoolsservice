@@ -87,15 +87,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 
             // If I use master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
-            Assert.Equal(master, connection.Database);
+            Assert.Equal(master, connInfo.ConnectionDetails.DatabaseName);
 
             // If I use tempdb, the current database should be tempdb
             CreateAndExecuteQuery(string.Format(useQuery, tempdb), connInfo, fileStreamFactory);
-            Assert.Equal(tempdb, connection.Database);
+            Assert.Equal(tempdb, connInfo.ConnectionDetails.DatabaseName);
 
             // If I switch back to master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
-            Assert.Equal(master, connection.Database);
+            Assert.Equal(master, connInfo.ConnectionDetails.DatabaseName);
         }
 
         public Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IFileStreamFactory fileStreamFactory)

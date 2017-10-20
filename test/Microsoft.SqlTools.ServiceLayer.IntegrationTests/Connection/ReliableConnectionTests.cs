@@ -734,6 +734,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             var retryPolicy = connection.CommandRetryPolicy;
             connection.CommandRetryPolicy = retryPolicy;
             Assert.True(connection.CommandRetryPolicy == retryPolicy);
+            connection.Open();
             connection.ChangeDatabase("master");
             Assert.True(connection.ConnectionTimeout > 0);
             connection.ClearPool();
