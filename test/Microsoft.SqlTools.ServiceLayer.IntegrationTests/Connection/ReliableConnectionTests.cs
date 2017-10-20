@@ -738,7 +738,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             connection.ChangeDatabase("master");
             Assert.True(connection.ConnectionTimeout > 0);
             connection.ClearPool();
-            connection.Close();
         }
 
         [Fact]
