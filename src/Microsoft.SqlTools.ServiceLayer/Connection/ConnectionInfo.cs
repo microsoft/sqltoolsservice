@@ -63,10 +63,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
 
         /// <summary>
-        /// Returns true is the db connection is to a SQL db
+        /// Returns true if the db connection is to any cloud instance
         /// </summary>
-        public bool IsAzure { get; set; }
-      
+        public bool IsCloud { get; set; }
+
+        /// <summary>
+        /// Returns true if the db connection is to a SQL db instance
+        /// </summary>
+        public bool IsSqlDb { get; set; }
+        
         /// Returns true if the sql connection is to a DW instance
         /// </summary>
         public bool IsSqlDW { get; set; }

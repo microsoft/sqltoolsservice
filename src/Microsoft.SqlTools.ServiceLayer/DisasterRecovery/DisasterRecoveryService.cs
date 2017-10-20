@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     {
                         using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
                         {
-                            if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                            if (sqlConn != null && !connInfo.IsCloud)
                             {
                                 BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
                                 backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
@@ -346,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     using (sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DisasterRecovery"))
                     {
-                        if (sqlConn != null && !connInfo.IsSqlDW && !connInfo.IsAzure)
+                        if (sqlConn != null && !connInfo.IsCloud)
                         {
                             connectionInfo = connInfo;
                             return true;

@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         {
                             Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
                             this.error = true;
-                            this.errorMessage = (connectionInfo != null && connectionInfo.IsAzure) ? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
+                            this.errorMessage = (connectionInfo != null && connectionInfo.IsCloud) ? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
                             return null;
                         }
                         catch (Exception ex)
@@ -513,7 +513,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         internal string GetTargetDatabaseEngineEdition() 
         {
             DatabaseEngineEdition dbEngineEdition = this.serverConnection.DatabaseEngineEdition;
-            string dbEngineEditionString = targetDatabaseEngineEditionMap[dbEngineEdition];
+            string dbEngineEditionString;
+            targetDatabaseEngineEditionMap.TryGetValue(dbEngineEdition, out dbEngineEditionString);
             return (dbEngineEditionString != null) ? dbEngineEditionString : "SqlServerEnterpriseEdition";
         }
 
@@ -526,7 +527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         internal string GetTargetDatabaseEngineType()
         {
-           return connectionInfo.IsAzure ? "SqlAzure" : "SingleInstance";
+           return connectionInfo.IsCloud ? "SqlAzure" : "SingleInstance";
         }
 
         internal bool LineContainsObject(string line, string objectName, string createSyntax)

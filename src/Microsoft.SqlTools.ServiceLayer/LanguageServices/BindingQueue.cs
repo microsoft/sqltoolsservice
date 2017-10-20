@@ -288,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             CancellationTokenSource cancelToken = new CancellationTokenSource();
                      
                             // run the operation in a separate thread
-                            var bindThread = new Thread(() =>
+                            var bindTask = Task.Run(() =>
                             {
                                 try
                                 {
@@ -304,11 +304,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         result = queueItem.ErrorHandler(ex);
                                     }
                                 }
-                            }, BindingQueue<T>.QueueThreadStackSize);
-                            bindThread.Start();
-
+                            });
+  
                             // check if the binding tasks completed within the binding timeout                            
-                            if (bindThread.Join(bindTimeout))
+                            if (bindTask.Wait(bindTimeout))
                             {
                                 queueItem.Result = result;
                             }
@@ -324,12 +323,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                 lockTaken = false;
 
-                                Task.Run(() =>
-                                {
-                                    // wait for the operation to complete before releasing the lock
-                                    bindThread.Join();
-                                    bindingContext.BindingLock.Set();
-                                }).ContinueWithOnFaulted(t => Logger.Write(LogLevel.Error, "Binding queue threw exception " + t.Exception.ToString()));
+                                bindTask
+                                    .ContinueWith((a) => bindingContext.BindingLock.Set())
+                                    .ContinueWithOnFaulted(t => Logger.Write(LogLevel.Error, "Binding queue threw exception " + t.Exception.ToString()));
                             }
                         }
                         catch (Exception ex)
