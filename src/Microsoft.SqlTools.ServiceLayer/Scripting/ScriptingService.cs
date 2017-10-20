@@ -22,6 +22,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -181,22 +182,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, 
                                                                ScriptingScriptOperation operation, string scriptDestination)
         {
-            await Task.Run(async () => 
+            await requestContext.SendEvent(eventType, parameters);
+            switch (scriptDestination)
             {
-                await requestContext.SendEvent(eventType, parameters);
-                if (scriptDestination == "ToEditor")
-                {
+                case "ToEditor":
                     await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });
-                }
-                else if (scriptDestination == "ToSingleFile")
-                {
+                    break;
+                case "ToSingleFile":
                     await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
-                }
-                else
-                {
+                    break;
+                default:
                     await requestContext.SendError(string.Format("Operation {0} failed", operation.ToString()));
-                }
-            });
+                    break;
+            }
         }
 
         private Urn BuildScriptingObjectUrn(
@@ -301,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     ScriptingOperation temp;
                     this.ActiveOperations.TryRemove(operation.OperationId, out temp);
                 }
-            });
+            }).ContinueWithOnFaulted(null);
         }
 
         /// <summary>
