@@ -138,7 +138,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             if (removedOperation != null)
             {
                 removedOperation.Cancel();
-                removedOperation.SqlConnection.Close();
+                if (removedOperation.SqlConnection != null)
+                {
+                    removedOperation.SqlConnection.Close();
+                }
+                removedOperation.Dispose();
                 expandNodeQueue.Dispose();
             }
             await requestContext.SendResult(response);

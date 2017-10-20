@@ -106,6 +106,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         }
         #endregion
 
+        public void Dispose()
+        {
+            this.cancelSource.Dispose();
+        }
+
         public void PopulateFileTree()
         {
             this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
