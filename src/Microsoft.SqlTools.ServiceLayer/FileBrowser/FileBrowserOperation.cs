@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using System.Threading;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
