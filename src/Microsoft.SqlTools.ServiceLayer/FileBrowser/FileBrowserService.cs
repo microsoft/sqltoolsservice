@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -29,7 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private readonly ConcurrentDictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new ConcurrentDictionary<string, FileBrowserOperation>();
         private readonly ConcurrentDictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new ConcurrentDictionary<string, ValidatePathsCallback>();
         private ConnectionService connectionService;
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private ConnectedBindingQueue expandNodeQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private static int DefaultExpandTimeout = 60000;
 
         /// <summary>
         /// Signature for callback method that validates the selected file paths
@@ -135,16 +137,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             response.Succeeded = ownerToFileBrowserMap.TryRemove(fileBrowserParams.OwnerUri, out removedOperation);
             if (removedOperation != null)
             {
-                if (!removedOperation.FileTreeCreated)
-                {
-                    removedOperation.Cancel();
-                }
-                else
-                {
-                    removedOperation.SqlConnection.Close();
-                }
-            } 
-
+                removedOperation.Cancel();
+                removedOperation.SqlConnection.Close();
+                expandNodeQueue.Dispose();
+            }
             await requestContext.SendResult(response);
         }
 
@@ -153,38 +149,29 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
-            bool cancelRequested = false;
+            SqlConnection conn = null;
+            FileBrowserOperation browser = null;
 
             try
             {
                 ConnectionInfo connInfo;
                 this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
-                SqlConnection conn = null;
-
                 if (connInfo != null)
                 {
+                    // Open new connection for each Open request
                     conn = ConnectionService.OpenSqlConnection(connInfo, "RemoteFileBrowser");
                 }
-
                 if (conn != null)
                 {
-                    FileBrowserOperation browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
+                    browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
                     ownerToFileBrowserMap.AddOrUpdate(fileBrowserParams.OwnerUri, browser, (key, value) => browser);
 
                     // Create file browser tree
                     browser.PopulateFileTree();
 
-                    if (browser.IsCancellationRequested)
-                    {
-                        cancelRequested = true;
-                        conn.Close();
-                    }
-                    else
-                    {
-                        result.OwnerUri = fileBrowserParams.OwnerUri;
-                        result.FileTree = browser.FileTree;
-                        result.Succeeded = true;
-                    }
+                    result.OwnerUri = fileBrowserParams.OwnerUri;
+                    result.FileTree = browser.FileTree;
+                    result.Succeeded = true;
                 }
             }
             catch (Exception ex)
@@ -192,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 result.Message = ex.Message;
             }
 
-            if (!cancelRequested)
+            if (browser == null || !browser.IsCancellationRequested)
             {
                 await requestContext.SendEvent(FileBrowserOpenedNotification.Type, result);
             }
@@ -204,12 +191,29 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 FileBrowserOperation browser;
+                ConnectionInfo connInfo;
                 result.Succeeded = ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out browser);
-                if (result.Succeeded && browser != null)
+                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
+
+                if (result.Succeeded && browser != null && connInfo != null)
                 {
-                    result.ExpandPath = fileBrowserParams.ExpandPath;
-                    result.Children = browser.GetChildren(fileBrowserParams.ExpandPath).ToArray();
-                    result.OwnerUri = fileBrowserParams.OwnerUri;
+                    QueueItem queueItem = expandNodeQueue.QueueBindingOperation(
+                        key: expandNodeQueue.AddConnectionContext(connInfo, "FileBrowser"),
+                        bindingTimeout: DefaultExpandTimeout,
+                        waitForLockTimeout: DefaultExpandTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            result.ExpandPath = fileBrowserParams.ExpandPath;
+                            result.Children = browser.GetChildren(fileBrowserParams.ExpandPath).ToArray();
+                            result.OwnerUri = fileBrowserParams.OwnerUri;
+                            return result;
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+                    if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
+                    {
+                        result = queueItem.GetResultAsT<FileBrowserExpandedParams>();
+                    }
                 }
             }
             catch (Exception ex)

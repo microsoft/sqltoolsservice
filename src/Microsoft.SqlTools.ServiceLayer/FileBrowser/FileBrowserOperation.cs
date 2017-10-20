@@ -229,7 +229,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     children.Add(treeNode);
                 }
             }
-
             return children;
         }
 
