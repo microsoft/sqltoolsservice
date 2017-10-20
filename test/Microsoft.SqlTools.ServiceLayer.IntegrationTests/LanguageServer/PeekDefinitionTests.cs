@@ -214,8 +214,8 @@ GO";
                 It.IsAny<Func<Exception, object>>(),
                 It.IsAny<int?>(),
                 It.IsAny<int?>()))
-            .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, int?, int?>(
-                (key, bindOperation, timeoutOperation, t1, t2) =>
+            .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, Func<Exception, object>, int?, int?>(
+                (key, bindOperation, timeoutOperation, errHandler, t1, t2) =>
                 {
                     timeoutResult = (DefinitionResult)timeoutOperation((IBindingContext)null);
                     itemMock.Object.Result = timeoutResult;

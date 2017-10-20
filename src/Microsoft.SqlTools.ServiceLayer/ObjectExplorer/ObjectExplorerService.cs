@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                     }
                     return result;
-                });
+                }).ContinueWithOnFaulted(null);
             }
         }
 
@@ -537,7 +537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;
-            });
+            }).ContinueWithOnFaulted(null);
         }
 
         private async Task<ObjectExplorerTaskResult> RunTaskWithTimeout(Task task, int timeoutInSec)

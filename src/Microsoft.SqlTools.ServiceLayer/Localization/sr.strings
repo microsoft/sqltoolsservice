@@ -808,6 +808,8 @@ general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
 NeverBackedUp = Never
+Error_InvalidDirectoryName = Path {0} is not a valid directory 
+Error_ExistingDirectoryName = For directory {0} a file with name {1} already exists
 
 ############################################################################
 # Backup Service

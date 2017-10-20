@@ -150,7 +150,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 databaseInfo.Options.Add(itemPrefix + AdminServicesProviderOptionsHelper.IsPrimaryFile, file.IsPrimaryFile);
             }
 
+            AddAzureProperties(databaseInfo, prototype as DatabasePrototypeAzure);
+
             return databaseInfo;
+        }
+
+        private static void AddAzureProperties(DatabaseInfo databaseInfo, DatabasePrototypeAzure prototype)
+        {
+            if (prototype == null) { return; }
+
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.AzureEdition, prototype.AzureEditionDisplay);
+            databaseInfo.Options.Add(AdminServicesProviderOptionsHelper.ServiceLevelObjective, prototype.CurrentServiceLevelObjective);
+
         }
 
         private static string GetBackupDate(DateTime backupDate)

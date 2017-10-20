@@ -37,7 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public enum CacheVariable {
             IsSqlDw,
-            IsAzure
+            IsAzure,
+            IsCloud
         }
 
         #region CacheKey implementation
@@ -151,6 +152,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
+        public void AddOrUpdateIsCloud(IDbConnection connection, bool isCloud)
+        {
+            AddOrUpdateCache(connection, isCloud, CacheVariable.IsCloud);
+        }
+        
         public void AddOrUpdateIsAzure(IDbConnection connection, bool isAzure)
         {
             AddOrUpdateCache(connection, isAzure, CacheVariable.IsAzure);

@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -463,8 +464,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     OsVersion = serverInfo.OsVersion,
                     MachineName = serverInfo.MachineName
                 };
-                connectionInfo.IsAzure = serverInfo.IsCloud;
+                connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
+                connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
             }
             catch (Exception ex)
@@ -959,7 +961,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     };
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
-            });
+            }).ContinueWithOnFaulted(null);
         }
 
         /// <summary>
@@ -1293,7 +1295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         {
                             Properties = new Dictionary<string, string>
                             {
-                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsAzure.ToOneOrZeroString() }
+                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsCloud.ToOneOrZeroString() }
                             },
                             EventName = TelemetryEventNames.IntellisenseQuantile,
                             Measures = connectionInfo.IntellisenseMetrics.Quantile
