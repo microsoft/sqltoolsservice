@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private string[] fileFilters;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
-        private bool fileTreeCreated;
 
         #region Constructors
 
@@ -92,14 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
         }
 
-        public bool FileTreeCreated
-        {
-            get
-            {
-                return this.fileTreeCreated;
-            }
-        }
-
         public void Cancel()
         {
             this.cancelSource.Cancel();
@@ -108,6 +99,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         public void Dispose()
         {
+            if (this.sqlConnection != null)
+            {
+                this.sqlConnection.Close();
+            }
             this.cancelSource.Dispose();
         }
 
@@ -116,7 +111,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
             PopulateDrives();
             ExpandSelectedNode(this.expandPath);
-            this.fileTreeCreated = true;
         }
 
         /// <summary>
