@@ -73,8 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private DatabaseRestorePlanner restorePlanner;
         private string tailLogBackupFile;
         private BackupSetsFilterInfo backupSetsFilterInfo = new BackupSetsFilterInfo();
-        private bool? isTailLogBackupPossible = false;
-        private bool? isTailLogBackupWithNoRecoveryPossible = false;
+        private bool? isTailLogBackupPossible = null;
+        private bool? isTailLogBackupWithNoRecoveryPossible = null;
         private string backupMediaList = string.Empty;
         private Server server;
 
@@ -960,6 +960,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 this.RestorePlan = new RestorePlan(this.Server);
                 this.Util.AddCredentialNameForUrlBackupSet(this.RestorePlan, this.CredentialName);
+            }
+            else
+            {
+                ResetOptions();
             }
         }
 
