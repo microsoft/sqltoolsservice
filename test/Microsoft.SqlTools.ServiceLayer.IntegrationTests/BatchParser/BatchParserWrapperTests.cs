@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 Assert.Equal(1, batch.StartLine);
                 Assert.Equal(1, batch.StartColumn);
                 Assert.Equal(2, batch.EndLine);
-                Assert.Equal(sqlScript.Length, batch.EndColumn);
+                Assert.Equal(sqlScript.Length+1, batch.EndColumn);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 Assert.Equal(1, batch.StartLine);
                 Assert.Equal(1, batch.StartColumn);
                 Assert.Equal(2, batch.EndLine);
-                Assert.Equal(sqlScript.Length, batch.EndColumn);
+                Assert.Equal(sqlScript.Length+1, batch.EndColumn);
             }
         }
 
