@@ -463,8 +463,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     OsVersion = serverInfo.OsVersion,
                     MachineName = serverInfo.MachineName
                 };
-                connectionInfo.IsAzure = serverInfo.IsCloud;
+                connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
+                connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
             }
             catch (Exception ex)
@@ -1293,7 +1294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         {
                             Properties = new Dictionary<string, string>
                             {
-                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsAzure.ToOneOrZeroString() }
+                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsCloud.ToOneOrZeroString() }
                             },
                             EventName = TelemetryEventNames.IntellisenseQuantile,
                             Measures = connectionInfo.IntellisenseMetrics.Quantile

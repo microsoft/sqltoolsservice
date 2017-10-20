@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public ContainmentType databaseContainmentType;
             public PageVerify pageVerify;
             public AzureEdition azureEdition;
+            public string azureEditionDisplayValue;
             public string configuredServiceLevelObjective;
             public string currentServiceLevelObjective;
             public DbSize maxSize;
@@ -151,6 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.filestreamDirectoryName = String.Empty;
                 this.delayedDurability = DelayedDurability.Disabled;
                 this.azureEdition = AzureEdition.Standard;
+                this.azureEditionDisplayValue = AzureEdition.Standard.ToString();
                 this.configuredServiceLevelObjective = String.Empty;
                 this.currentServiceLevelObjective = String.Empty;
                 this.maxSize = new DbSize(0, DbSize.SizeUnits.MB);
@@ -264,6 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                 { //These properties are only available for Azure DBs
                     this.azureEdition = AzureEdition.Standard;
+                    this.azureEditionDisplayValue = azureEdition.ToString();
                     this.currentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(this.azureEdition);
                     this.configuredServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(this.azureEdition);
                     this.maxSize = AzureSqlDbHelper.GetDatabaseDefaultSize(this.azureEdition);                    
@@ -585,6 +588,7 @@ WHERE do.database_id = @DbID
                 //Only fill in the Azure properties when connected to an Azure server
                 if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                 {
+                    this.azureEditionDisplayValue = db.AzureEdition;
                     AzureEdition edition;
                     if (Enum.TryParse(db.AzureEdition, true, out edition))
                     {
@@ -592,8 +596,8 @@ WHERE do.database_id = @DbID
                     }
                     else
                     {
-                        //Unknown Azure DB Edition so we can't continue
-                        throw new Exception("CreateDatabaseOptionsSR.Error_UnknownAzureEdition(db.AzureEdition)");
+                        // Unknown Azure DB Edition so we can't set a value, leave as default Standard
+                        // Note that this is likely a 
                     }
 
                     //Size is in MB, but if it's greater than a GB we want to display the size in GB
@@ -725,6 +729,7 @@ WHERE do.database_id = @DbID
                 this.targetRecoveryTime = other.targetRecoveryTime;
                 this.delayedDurability = other.delayedDurability;
                 this.azureEdition = other.azureEdition;
+                this.azureEditionDisplayValue = other.azureEditionDisplayValue;
                 this.configuredServiceLevelObjective = other.configuredServiceLevelObjective;
                 this.currentServiceLevelObjective = other.currentServiceLevelObjective;
                 this.legacyCardinalityEstimation = other.legacyCardinalityEstimation;
@@ -1915,7 +1920,7 @@ WHERE do.database_id = @DbID
                        if (!FileNameHelper.IsValidFilename(this.FilestreamDirectoryName))
                        {
                            string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                           "CreateDatabaseOptionsSR.Error_InvalidDirectoryName {0}",
+                                                           SR.Error_InvalidDirectoryName,
                                                            this.FilestreamDirectoryName);
                            throw new ArgumentException(message);
                        }
@@ -1940,7 +1945,7 @@ WHERE do.database_id = @DbID
                        if (rowCount != 0)
                        {
                            string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                           "CreateDatabaseOptionsSR.Error_ExistingDirectoryName {0} {1}",
+                                                           SR.Error_ExistingDirectoryName,
                                                            this.FilestreamDirectoryName, this.Name);
                            throw new ArgumentException(message);
 

@@ -317,7 +317,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 Assert.True(serverInfo.ServerEdition == serverInfo2.ServerEdition);
                 Assert.True(serverInfo.IsCloud == serverInfo2.IsCloud);
                 Assert.True(serverInfo.AzureVersion == serverInfo2.AzureVersion);
-                Assert.True(serverInfo.IsAzureV1 == serverInfo2.IsAzureV1);
             }
         }
 

@@ -1827,6 +1827,14 @@
     <value>Never</value>
     <comment></comment>
   </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Path {0} is not a valid directory </value>
+    <comment></comment>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>For directory {0} a file with name {1} already exists</value>
+    <comment></comment>
+  </data>
   <data name="BackupTaskName" xml:space="preserve">
     <value>Backup Database</value>
     <comment></comment>

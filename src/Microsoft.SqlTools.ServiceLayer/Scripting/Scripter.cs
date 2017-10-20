@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlDatabase, "SqlAzureDatabaseEdition");
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlDataWarehouse, "SqlDatawarehouseEdition");
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlStretchDatabase, "SqlServerStretchEdition");
+            targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlManagedInstance, "SqlServerManagedInstance");
 
             // Mapping for database engine type
             serverVersionMap.Add(9, "Script90Compat");
