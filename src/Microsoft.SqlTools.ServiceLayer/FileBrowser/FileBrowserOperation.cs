@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     /// <summary>
     /// Implementation for file browser operation
     /// </summary>
-    internal class FileBrowserOperation : FileBrowserBase
+    internal class FileBrowserOperation : FileBrowserBase, IDisposable
     {
         private FileTree fileTree;
         private string expandPath;

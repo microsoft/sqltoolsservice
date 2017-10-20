@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     /// <summary>
     /// Main class for file browser service
     /// </summary>
-    public sealed class FileBrowserService
+    public sealed class FileBrowserService: IDisposable
     {
         private static readonly Lazy<FileBrowserService> LazyInstance = new Lazy<FileBrowserService>(() => new FileBrowserService());
         public static FileBrowserService Instance => LazyInstance.Value;
@@ -30,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private ConnectionService connectionService;
         private ConnectedBindingQueue expandNodeQueue = new ConnectedBindingQueue(needsMetadata: false);
         private static int DefaultExpandTimeout = 60000;
+        private string serviceName = "FileBrowser";
 
         /// <summary>
         /// Signature for callback method that validates the selected file paths
@@ -51,6 +52,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             {
                 connectionService = value;
             }
+        }
+
+        public FileBrowserService()
+        {
+            this.connectionService.RegisterConnectedQueue(this.serviceName, this.expandNodeQueue);
         }
 
         /// <summary>
@@ -80,6 +86,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             // Close the file browser
             serviceHost.SetRequestHandler(FileBrowserCloseRequest.Type, HandleFileBrowserCloseRequest);
+        }
+
+        public void Dispose()
+        {
+            if (this.expandNodeQueue != null)
+            {
+                this.expandNodeQueue.Dispose();
+            }
         }
 
         #region request handlers
@@ -137,7 +151,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             {
                 removedOperation.Cancel();
                 removedOperation.Dispose();
-                expandNodeQueue.Dispose();
+            }
+            if (expandNodeQueue != null)
+            {
+                this.expandNodeQueue.StopQueueProcessor(DefaultExpandTimeout);
             }
             await requestContext.SendResult(response);
         }
@@ -157,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (connInfo != null)
                 {
                     // Open new connection for each Open request
-                    conn = ConnectionService.OpenSqlConnection(connInfo, "RemoteFileBrowser");
+                    conn = ConnectionService.OpenSqlConnection(connInfo, this.serviceName);
                 }
                 if (conn != null)
                 {
@@ -196,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (result.Succeeded && browser != null && connInfo != null)
                 {
                     QueueItem queueItem = expandNodeQueue.QueueBindingOperation(
-                        key: expandNodeQueue.AddConnectionContext(connInfo, "FileBrowser"),
+                        key: expandNodeQueue.AddConnectionContext(connInfo, this.serviceName),
                         bindingTimeout: DefaultExpandTimeout,
                         waitForLockTimeout: DefaultExpandTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
