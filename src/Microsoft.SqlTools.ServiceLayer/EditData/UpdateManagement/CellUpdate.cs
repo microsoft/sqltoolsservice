@@ -49,10 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
             else if (columnType == typeof(string))
             {
-                // Special case for strings because the string value should stay the same as provided
-                // If user typed 'NULL' they mean NULL as text
-                Value = valueAsString == TextNullString ? NullString : valueAsString;
-                ValueAsString = valueAsString;
+                ProcessTextCell(valueAsString);
             }
             else if (columnType == typeof(Guid))
             {
@@ -243,6 +240,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             Value = DBNull.Value;
             ValueAsString = NullString;
+        }
+
+        private void ProcessTextCell(string valueAsString)
+        {
+            // Special case for strings because the string value should stay the same as provided
+            // If user typed 'NULL' they mean NULL as text
+            Value = valueAsString == TextNullString ? NullString : valueAsString;
+            
+            // Make sure that the value fits inside the size of the column
+            if (Column.ColumnSize.HasValue && valueAsString.Length > Column.ColumnSize)
+            {
+                string columnSizeString = $"({Column.ColumnSize.Value})";
+                string columnTypeString = Column.DataTypeName.ToUpperInvariant() + columnSizeString;
+                throw new FormatException(SR.EditDataValueTooLarge(valueAsString, columnTypeString));
+            }
+            
+            ValueAsString = valueAsString;
         }
 
         #endregion
