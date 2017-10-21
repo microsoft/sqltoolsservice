@@ -8,6 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
@@ -81,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I request to cancel a query that doesn't exist
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService.Object);
 
             var cancelParams = new QueryCancelParams { OwnerUri = "Doesn't Exist" };
             var cancelRequest = new EventFlowValidator<QueryCancelResult>()

@@ -29,6 +29,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
 
+        public static string NoSubscriptionsFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoSubscriptionsFound);
+            }
+        }
+
         public static string AzureServerNotFound
         {
             get
@@ -115,6 +123,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ResourceProvider.Core.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
+
+
+            public const string NoSubscriptionsFound = "NoSubscriptionsFound";
 
 
             public const string AzureServerNotFound = "AzureServerNotFound";

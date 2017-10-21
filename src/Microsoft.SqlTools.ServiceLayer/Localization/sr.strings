@@ -47,6 +47,11 @@ ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 
 ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
 
+### General connection service strings
+AzureSqlDbEdition = Azure SQL DB
+AzureSqlDwEdition = Azure SQL Data Warehouse
+AzureSqlStretchEdition = Azure SQL Stretch Database
+
 ############################################################################
 # Query Execution Service
 
@@ -226,6 +231,8 @@ EditDataComputedColumnPlaceholder = <TBD>
 EditDataTimeOver24Hrs = TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999
 
 EditDataNullNotAllowed = NULL is not allowed for this column
+
+EditDataValueTooLarge(string value, string columnType) = Value {0} is too large to fit in column of type {1}
 
 ############################################################################
 # DacFx Resources
@@ -802,6 +809,9 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+NeverBackedUp = Never
+Error_InvalidDirectoryName = Path {0} is not a valid directory 
+Error_ExistingDirectoryName = For directory {0} a file with name {1} already exists
 
 ############################################################################
 # Backup Service

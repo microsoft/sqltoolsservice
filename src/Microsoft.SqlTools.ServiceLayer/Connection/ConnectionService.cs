@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -29,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     public class ConnectionService
     {
         public const string AdminConnectionPrefix = "ADMIN:";
+        private const string SqlAzureEdition = "SQL Azure";
 
         /// <summary>
         /// Singleton service instance
@@ -456,14 +458,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     EngineEditionId = serverInfo.EngineEditionId,
                     ServerVersion = serverInfo.ServerVersion,
                     ServerLevel = serverInfo.ServerLevel,
-                    ServerEdition = serverInfo.ServerEdition,
+                    ServerEdition = MapServerEdition(serverInfo),
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
                     MachineName = serverInfo.MachineName
                 };
-                connectionInfo.IsAzure = serverInfo.IsCloud;
+                connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
+                connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
             }
             catch (Exception ex)
@@ -472,6 +475,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             return response;
+        }
+
+        private string MapServerEdition(ReliableConnectionHelper.ServerInfo serverInfo)
+        {
+            string serverEdition = serverInfo.ServerEdition;
+            if (string.IsNullOrWhiteSpace(serverEdition))
+            {
+                return string.Empty;
+            }
+            if (SqlAzureEdition.Equals(serverEdition, StringComparison.OrdinalIgnoreCase))
+            {
+                switch(serverInfo.EngineEditionId)
+                {
+                    case (int) DatabaseEngineEdition.SqlDataWarehouse:
+                        serverEdition = SR.AzureSqlDwEdition;
+                        break;
+                    case (int) DatabaseEngineEdition.SqlStretchDatabase:
+                        serverEdition = SR.AzureSqlStretchEdition;
+                        break;
+                    default:
+                        serverEdition =  SR.AzureSqlDbEdition;
+                        break;
+                }
+            }
+            return serverEdition;
         }
 
         /// <summary>
@@ -863,6 +891,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabase);
         }
 
         /// <summary> 
@@ -932,7 +961,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     };
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
-            });
+            }).ContinueWithOnFaulted(null);
         }
 
         /// <summary>
@@ -1166,6 +1195,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
+        /// Handles a request to change the database for a connection
+        /// </summary>
+        public async Task HandleChangeDatabase(
+            ChangeDatabaseParams changeDatabaseParams,
+            RequestContext<bool> requestContext)
+        {
+            ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase);
+            await requestContext.SendResult(true);
+        }
+
+        /// <summary>
         /// Change the database context of a connection.
         /// </summary>
         /// <param name="ownerUri">URI of the owner of the connection</param>
@@ -1255,7 +1295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         {
                             Properties = new Dictionary<string, string>
                             {
-                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsAzure.ToOneOrZeroString() }
+                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsCloud.ToOneOrZeroString() }
                             },
                             EventName = TelemetryEventNames.IntellisenseQuantile,
                             Measures = connectionInfo.IntellisenseMetrics.Quantile

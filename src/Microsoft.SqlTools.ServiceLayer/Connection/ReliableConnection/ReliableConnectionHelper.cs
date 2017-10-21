@@ -34,6 +34,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         // http://msdn.microsoft.com/en-us/library/ee336261.aspx
         private const int SqlAzureEngineEditionId = 5;
 
+        private static Lazy<HashSet<int>> cloudEditions = new Lazy<HashSet<int>>(() => new HashSet<int>()
+        {
+            (int)DatabaseEngineEdition.SqlDatabase,
+            (int)DatabaseEngineEdition.SqlDataWarehouse,
+            (int)DatabaseEngineEdition.SqlStretchDatabase,
+            // Note: for now, ignoring managed instance as it should be treated just like on prem.
+        });
+
         /// <summary>
         /// Opens the connection and sets the lock/command timeout and pooling=false.
         /// </summary>
@@ -457,7 +465,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         private static bool IsCloudEngineId(int engineEditionId)
         {
-            return engineEditionId == SqlAzureEngineEditionId;
+            return cloudEditions.Value.Contains(engineEditionId);
         }
 
         /// <summary>
@@ -685,14 +693,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             // of this, we must detect the presence of the column to determine if we can query for Selective Xml Indexes
             public bool IsSelectiveXmlIndexMetadataPresent;
 
-            public bool IsAzureV1
-            {
-                get
-                {
-                    return IsCloud && AzureVersion == 1;
-                }
-            }
-
             public string OsVersion;
 
             public string MachineName;
@@ -782,7 +782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
                     try
                     {
-                        CachedServerInfo.Instance.AddOrUpdateIsAzure(connection, serverInfo.IsCloud);
+                        CachedServerInfo.Instance.AddOrUpdateIsCloud(connection, serverInfo.IsCloud);
                     }
                     catch (Exception ex)
                     {
@@ -949,49 +949,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         }
 
                         // SQL Azure does not support custom DBCompat values.
-                        if (!serverInfo.IsAzureV1)
+                        SqlParameter databaseNameParameter = new SqlParameter(
+                            "@dbname",
+                            SqlDbType.NChar,
+                            128,
+                            ParameterDirection.Input,
+                            false,
+                            0,
+                            0,
+                            null,
+                            DataRowVersion.Default,
+                            tempDatabaseName);
+
+                        object compatibilityLevel;
+
+                        using (IDbCommand versionCommand = connection.CreateCommand())
                         {
-                            SqlParameter databaseNameParameter = new SqlParameter(
-                                "@dbname",
-                                SqlDbType.NChar,
-                                128,
-                                ParameterDirection.Input,
-                                false,
-                                0,
-                                0,
-                                null,
-                                DataRowVersion.Default,
-                                tempDatabaseName);
+                            versionCommand.CommandText = "SELECT compatibility_level FROM sys.databases WITH (NOLOCK) WHERE name = @dbname";
+                            versionCommand.CommandType = CommandType.Text;
+                            versionCommand.Parameters.Add(databaseNameParameter);
+                            compatibilityLevel = versionCommand.ExecuteScalar();
+                        }
 
-                            object compatibilityLevel;
-
-                            using (IDbCommand versionCommand = connection.CreateCommand())
-                            {
-                                versionCommand.CommandText = "SELECT compatibility_level FROM sys.databases WITH (NOLOCK) WHERE name = @dbname";
-                                versionCommand.CommandType = CommandType.Text;
-                                versionCommand.Parameters.Add(databaseNameParameter);
-                                compatibilityLevel = versionCommand.ExecuteScalar();
-                            }
-
-                            // value is null if db is not online
-                            foundVersion = compatibilityLevel != null && !(compatibilityLevel is DBNull);
-                            if(foundVersion)
-                            {
-                                tempDbCompatibilityLevel = (byte)compatibilityLevel;
-                            }
-                            else
-                            {
-                                string conString = connection.ConnectionString == null ? "null" : connection.ConnectionString;
-                                string dbName = tempDatabaseName == null ? "null" : tempDatabaseName;
-                                string message = string.Format(CultureInfo.CurrentCulture, 
-                                    "Querying database compatibility level failed. Connection string: '{0}'. dbname: '{1}'.",
-                                    conString, dbName);
-                                Tracer.TraceEvent(TraceEventType.Error, TraceId.CoreServices, message);
-                            }
+                        // value is null if db is not online
+                        foundVersion = compatibilityLevel != null && !(compatibilityLevel is DBNull);
+                        if(foundVersion)
+                        {
+                            tempDbCompatibilityLevel = (byte)compatibilityLevel;
                         }
                         else
                         {
-                            foundVersion = true;
+                            string conString = connection.ConnectionString == null ? "null" : connection.ConnectionString;
+                            string dbName = tempDatabaseName == null ? "null" : tempDatabaseName;
+                            string message = string.Format(CultureInfo.CurrentCulture, 
+                                "Querying database compatibility level failed. Connection string: '{0}'. dbname: '{1}'.",
+                                conString, dbName);
+                            Tracer.TraceEvent(TraceEventType.Error, TraceId.CoreServices, message);
                         }
                     },
                  catchException: null, // Always throw

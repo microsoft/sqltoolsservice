@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             ResultSet rs = new ResultSet(
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
-            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery), CancellationToken.None);
+            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, Constants.StandardQuery), CancellationToken.None);
 
             // ... Create a mock writer for writing the save as file
             Mock<IFileStreamWriter> saveWriter = GetMockWriter();
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             ResultSet rs = new ResultSet(
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
-            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery), CancellationToken.None);
+            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, Constants.StandardQuery), CancellationToken.None);
 
             // ... Create a mock writer for writing the save as file
             Mock<IFileStreamWriter> saveWriter = GetMockWriter();
@@ -171,9 +171,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             return mockFactory.Object;
         }
 
-        private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)
+        private static DbDataReader GetReader(TestResultSet[] dataSet, string query)
         {
-            var info = Common.CreateTestConnectionInfo(dataSet, throwOnRead);
+            var info = Common.CreateTestConnectionInfo(dataSet, false, false);
             var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
             var command = connection.CreateCommand();
             command.CommandText = query;

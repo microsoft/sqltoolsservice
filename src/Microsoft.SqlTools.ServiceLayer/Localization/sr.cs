@@ -77,6 +77,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string AzureSqlDbEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSqlDbEdition);
+            }
+        }
+
+        public static string AzureSqlDwEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSqlDwEdition);
+            }
+        }
+
+        public static string AzureSqlStretchEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSqlStretchEdition);
+            }
+        }
+
         public static string QueryServiceCancelAlreadyCompleted
         {
             get
@@ -3277,6 +3301,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string NeverBackedUp
+        {
+            get
+            {
+                return Keys.GetString(Keys.NeverBackedUp);
+            }
+        }
+
+        public static string Error_InvalidDirectoryName
+        {
+            get
+            {
+                return Keys.GetString(Keys.Error_InvalidDirectoryName);
+            }
+        }
+
+        public static string Error_ExistingDirectoryName
+        {
+            get
+            {
+                return Keys.GetString(Keys.Error_ExistingDirectoryName);
+            }
+        }
+
         public static string BackupTaskName
         {
             get
@@ -3603,6 +3651,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
         }
 
+        public static string EditDataValueTooLarge(string value, string columnType)
+        {
+            return Keys.GetString(Keys.EditDataValueTooLarge, value, columnType);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -3642,6 +3695,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionParamsValidateNullSqlAuth = "ConnectionParamsValidateNullSqlAuth";
+
+
+            public const string AzureSqlDbEdition = "AzureSqlDbEdition";
+
+
+            public const string AzureSqlDwEdition = "AzureSqlDwEdition";
+
+
+            public const string AzureSqlStretchEdition = "AzureSqlStretchEdition";
 
 
             public const string QueryServiceCancelAlreadyCompleted = "QueryServiceCancelAlreadyCompleted";
@@ -3873,6 +3935,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataNullNotAllowed = "EditDataNullNotAllowed";
+
+
+            public const string EditDataValueTooLarge = "EditDataValueTooLarge";
 
 
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";
@@ -4869,6 +4934,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string NeverBackedUp = "NeverBackedUp";
+
+
+            public const string Error_InvalidDirectoryName = "Error_InvalidDirectoryName";
+
+
+            public const string Error_ExistingDirectoryName = "Error_ExistingDirectoryName";
 
 
             public const string BackupTaskName = "BackupTaskName";

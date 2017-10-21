@@ -166,6 +166,18 @@
     <comment>.
  Parameters: 0 - component (string) </comment>
   </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Azure SQL DB</value>
+    <comment></comment>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Azure SQL Data Warehouse</value>
+    <comment></comment>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>The query has already completed, it cannot be cancelled</value>
     <comment></comment>
@@ -482,6 +494,11 @@
   <data name="EditDataNullNotAllowed" xml:space="preserve">
     <value>NULL is not allowed for this column</value>
     <comment></comment>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Value {0} is too large to fit in column of type {1}</value>
+    <comment>.
+ Parameters: 0 - value (string), 1 - columnType (string) </comment>
   </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
@@ -1809,6 +1826,18 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>No Applicable Filegroup</value>
+    <comment></comment>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>Never</value>
+    <comment></comment>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Path {0} is not a valid directory </value>
+    <comment></comment>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>For directory {0} a file with name {1} already exists</value>
     <comment></comment>
   </data>
   <data name="BackupTaskName" xml:space="preserve">

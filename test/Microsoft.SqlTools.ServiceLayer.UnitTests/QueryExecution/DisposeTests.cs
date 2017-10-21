@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using Xunit;
@@ -39,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind)
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I attempt to dispose a query that doesn't exist
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService.Object);
             var disposeParams = new QueryDisposeParams {OwnerUri = Constants.OwnerUri};
 
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
@@ -82,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // Setup:
             // ... We need a query service
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
 
             // If:
             // ... I execute some bogus query

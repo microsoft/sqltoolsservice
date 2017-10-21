@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             };
             object[][] rows = { new object[]{new byte[] {0x00}}};
             var testResultSet = new TestResultSet(cols, rows);
-            var testReader = new TestDbDataReader(new[] { testResultSet });
+            var testReader = new TestDbDataReader(new[] { testResultSet }, false);
             var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
             rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
 

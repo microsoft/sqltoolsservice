@@ -1,6 +1,7 @@
 ﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Data.Common;
@@ -17,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -25,10 +27,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
+        #region Constants
+        
         /// <summary>
         /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
         /// </summary>
         private const int DatabaseContextChangeErrorNumber = 5701;
+        
+        /// <summary>
+        /// ON keyword
+        /// </summary>
+        private const string On = "ON";
+
+        /// <summary>
+        /// OFF keyword
+        /// </summary>
+        private const string Off = "OFF";
+        
+        /// <summary>
+        /// showplan_xml statement
+        /// </summary>
+        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
+
+        /// <summary>
+        /// statistics xml statement
+        /// </summary>
+        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
+        
+        #endregion
 
         #region Member Variables
 
@@ -56,27 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Name of the new database if the database name was changed in the query
         /// </summary>
-        private string newDatabaseName;
-
-        /// <summary>
-        /// ON keyword
-        /// </summary>
-        private const string On = "ON";
-
-        /// <summary>
-        /// OFF keyword
-        /// </summary>
-        private const string Off = "OFF";
-
-        /// <summary>
-        /// showplan_xml statement
-        /// </summary>
-        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
-
-        /// <summary>
-        /// statistics xml statement
-        /// </summary>
-        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
+        private string newDatabaseName;        
 
         #endregion
 
@@ -140,6 +146,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Events
 
         /// <summary>
+        /// Delegate type for callback when a query completes or fails
+        /// </summary>
+        /// <param name="query">The query that completed</param>
+        public delegate Task QueryAsyncEventHandler(Query query);
+        
+        /// <summary>
+        /// Delegate type for callback when a query fails
+        /// </summary>
+        /// <param name="query">Query that raised the event</param>
+        /// <param name="exception">Exception that caused the query to fail</param>
+        public delegate Task QueryAsyncErrorEventHandler(Query query, Exception exception);
+        
+        /// <summary>
         /// Event to be called when a batch is completed.
         /// </summary>
         public event Batch.BatchAsyncEventHandler BatchCompleted;
@@ -153,12 +172,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Event to be called when a batch starts execution.
         /// </summary>
         public event Batch.BatchAsyncEventHandler BatchStarted;
-
-        /// <summary>
-        /// Delegate type for callback when a query connection fails
-        /// </summary>
-        /// <param name="message">Error message for the failing query</param>
-        public delegate Task QueryAsyncErrorEventHandler(Query q, Exception e);
 
         /// <summary>
         /// Callback for when the query has completed successfully
@@ -180,25 +193,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
-        /// Delegate type for callback when a query completes or fails
-        /// </summary>
-        /// <param name="q">The query that completed</param>
-        public delegate Task QueryAsyncEventHandler(Query q);
-
-        /// <summary>
         /// The batches which should run before the user batches 
         /// </summary>
-        internal List<Batch> BeforeBatches { get; set; }
+        private List<Batch> BeforeBatches { get; }
 
         /// <summary>
         /// The batches underneath this query
         /// </summary>
-        internal Batch[] Batches { get; set; }
+        internal Batch[] Batches { get; }
 
         /// <summary>
         /// The batches which should run after the user batches 
         /// </summary>
-        internal List<Batch> AfterBatches { get; set; }
+        internal List<Batch> AfterBatches { get; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -243,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The text of the query to execute
         /// </summary>
-        public string QueryText { get; set; }
+        public string QueryText { get; }
 
         #endregion
 
@@ -269,7 +276,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public void Execute()
         {
-            ExecutionTask = Task.Run(ExecuteInternal);
+            ExecutionTask = Task.Run(ExecuteInternal)
+                .ContinueWithOnFaulted(async t =>
+                {
+                    if (QueryFailed != null)
+                    {
+                        await QueryFailed(this, t.Exception);
+                    }
+                });
         }
 
         /// <summary>
@@ -338,34 +352,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private async Task ExecuteInternal()
         {
-            // Mark that we've internally executed
-            hasExecuteBeenCalled = true;
-
-            // Don't actually execute if there aren't any batches to execute
-            if (Batches.Length == 0)
-            {
-                if (BatchMessageSent != null)
-                {
-                    await BatchMessageSent(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
-                }
-                if (QueryCompleted != null)
-                {
-                    await QueryCompleted(this);
-                }
-                return;
-            }
-
-            // Locate and setup the connection
-            DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-            ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;
-            if (sqlConn != null)
-            {
-                // Subscribe to database informational messages
-                sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
-            }
-
+            ReliableSqlConnection sqlConn = null;
             try
             {
+                // Mark that we've internally executed
+                hasExecuteBeenCalled = true;
+    
+                // Don't actually execute if there aren't any batches to execute
+                if (Batches.Length == 0)
+                {
+                    if (BatchMessageSent != null)
+                    {
+                        await BatchMessageSent(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
+                    }
+                    if (QueryCompleted != null)
+                    {
+                        await QueryCompleted(this);
+                    }
+                    return;
+                }
+    
+                // Locate and setup the connection
+                DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
+                sqlConn = queryConnection as ReliableSqlConnection;
+                if (sqlConn != null)
+                {
+                    // Subscribe to database informational messages
+                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+                }
+
+            
                 // Execute beforeBatches synchronously, before the user defined batches 
                 foreach (Batch b in BeforeBatches)
                 {
@@ -393,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (QueryCompleted != null)
                 {
                     await QueryCompleted(this);
-                }         
+                }
             }
             catch (Exception e)
             {
@@ -405,16 +421,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             finally
             {
+                // Remove the message handler from the connection
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
-            }
-
-            if (newDatabaseName != null)
-            {
-                ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
+                
+                // If any message notified us we had changed databases, then we must let the connection service know 
+                if (newDatabaseName != null)
+                {
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
+                }
             }
         }
 

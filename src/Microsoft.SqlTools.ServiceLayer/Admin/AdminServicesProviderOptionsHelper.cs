@@ -46,6 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         internal const string FileGroup = "fileGroup";
         internal const string InitialSize = "initialSize";
         internal const string IsPrimaryFile = "isPrimaryFile";
+        internal const string AzureEdition = "azureEdition";
+        internal const string ServiceLevelObjective = "serviceLevelObjective";
 
 
         internal static AdminServicesProviderOptions BuildAdminServicesProviderOptions()

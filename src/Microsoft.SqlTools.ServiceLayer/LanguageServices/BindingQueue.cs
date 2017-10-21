@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {    
@@ -19,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         internal const int QueueThreadStackSize = 5 * 1024 * 1024;
 
-        private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
+        private CancellationTokenSource processQueueCancelToken = null;
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
 
@@ -43,8 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public BindingQueue()
         {
             this.BindingContextMap = new Dictionary<string, IBindingContext>();
+            this.StartQueueProcessor();
+        }
 
-            this.queueProcessorTask = StartQueueProcessor();
+        public void StartQueueProcessor()
+        {
+            this.queueProcessorTask = StartQueueProcessorAsync();
         }
 
         /// <summary>
@@ -58,12 +63,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Returns true if cancellation is requested
+        /// </summary>
+        /// <returns></returns>
+        public bool IsCancelRequested
+        {
+            get
+            {
+                return this.processQueueCancelToken.IsCancellationRequested;
+            }
+        }
+
+        /// <summary>
         /// Queue a binding request item
         /// </summary>
         public virtual QueueItem QueueBindingOperation(
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,
+            Func<Exception, object> errorHandler = null,
             int? bindingTimeout = null,
             int? waitForLockTimeout = null)
         {
@@ -78,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Key = key,
                 BindOperation = bindOperation,
                 TimeoutOperation = timeoutOperation,
+                ErrorHandler = errorHandler,
                 BindingTimeout = bindingTimeout,
                 WaitForLockTimeout = waitForLockTimeout
             };
@@ -90,6 +109,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.itemQueuedEvent.Set();
 
             return queueItem;
+        }
+
+        /// <summary>
+        /// Checks if a particular binding context is connected or not
+        /// </summary>
+        /// <param name="key"></param>
+        public bool IsBindingContextConnected(string key)
+        {
+            lock (this.bindingContextLock)
+            {
+                IBindingContext context;
+                if (this.BindingContextMap.TryGetValue(key, out context))
+                {
+                    return context.IsConnected;
+                }
+                return false;
+            } 
         }
 
         /// <summary>
@@ -162,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private bool HasPendingQueueItems
+        public bool HasPendingQueueItems
         {
             get
             {
@@ -194,10 +230,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Starts the queue processing thread
         /// </summary>        
-        private Task StartQueueProcessor()
+        private Task StartQueueProcessorAsync()
         {
+            if (this.processQueueCancelToken != null)
+            {
+                this.processQueueCancelToken.Dispose();
+            }
+            this.processQueueCancelToken = new CancellationTokenSource();
+
             return Task.Factory.StartNew(
-                ProcessQueue,                
+                ProcessQueue,
                 this.processQueueCancelToken.Token,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
@@ -268,21 +310,31 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             CancellationTokenSource cancelToken = new CancellationTokenSource();
                      
                             // run the operation in a separate thread
-                            var bindThread = new Thread(() =>
+                            var bindTask = Task.Run(() =>
                             {
-                                result = queueItem.BindOperation(
-                                     bindingContext,
-                                     cancelToken.Token); 
-                            }, BindingQueue<T>.QueueThreadStackSize);
-                            bindThread.Start();
-
+                                try
+                                {
+                                    result = queueItem.BindOperation(
+                                        bindingContext,
+                                        cancelToken.Token);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Write(LogLevel.Error, "Unexpected exception on the binding queue: " + ex.ToString());
+                                    if (queueItem.ErrorHandler != null)
+                                    {
+                                        result = queueItem.ErrorHandler(ex);
+                                    }
+                                }
+                            });
+  
                             // check if the binding tasks completed within the binding timeout                            
-                            if (bindThread.Join(bindTimeout))
+                            if (bindTask.Wait(bindTimeout))
                             {
                                 queueItem.Result = result;
                             }
                             else
-                            {       
+                            {
                                 cancelToken.Cancel();
 
                                 // if the task didn't complete then call the timeout callback
@@ -293,12 +345,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                 lockTaken = false;
 
-                                Task.Run(() =>
-                                {
-                                    // wait for the operation to complete before releasing the lock
-                                    bindThread.Join();
-                                    bindingContext.BindingLock.Set();
-                                });
+                                bindTask
+                                    .ContinueWith((a) => bindingContext.BindingLock.Set())
+                                    .ContinueWithOnFaulted(t => Logger.Write(LogLevel.Error, "Binding queue threw exception " + t.Exception.ToString()));
                             }
                         }
                         catch (Exception ex)
@@ -341,6 +390,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
+            if (this.processQueueCancelToken != null)
+            {
+                this.processQueueCancelToken.Dispose();
+            }
+
             if (itemQueuedEvent != null)
             {
                 itemQueuedEvent.Dispose();

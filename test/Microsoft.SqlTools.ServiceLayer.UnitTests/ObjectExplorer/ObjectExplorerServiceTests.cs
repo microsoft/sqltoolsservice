@@ -18,6 +18,7 @@ using Moq;
 using Xunit;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {

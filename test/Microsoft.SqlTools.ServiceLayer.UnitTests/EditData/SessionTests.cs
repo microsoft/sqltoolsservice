@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             };
 
             // @TODO: Fix when the connection service is fixed
-            ConnectionInfo ci = QueryExecution.Common.CreateConnectedConnectionInfo(results, false);
+            ConnectionInfo ci = QueryExecution.Common.CreateConnectedConnectionInfo(results, false, false);
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
             var fsf = MemoryFileSystem.GetFileStreamFactory();

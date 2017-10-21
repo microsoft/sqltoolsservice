@@ -12,7 +12,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 {
     public class EventFlowValidator<TRequestContext>
     {

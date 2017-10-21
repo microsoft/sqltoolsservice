@@ -8,7 +8,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="AzureSubscriptionFailedErrorMessage">
-        <source>An error occurred while getting Azure subscriptions</source>
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
         <target state="new">An error occurred while getting Azure subscriptions</target>
         <note></note>
       </trans-unit>
@@ -50,6 +50,11 @@
       <trans-unit id="FirewallRuleCreationFailedWithError">
         <source>An error occurred while creating a new firewall rule: '{0}'</source>
         <target state="new">An error occurred while creating a new firewall rule: '{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NoSubscriptionsFound">
+        <source>No subscriptions were found for the currently logged in user account.</source>
+        <target state="new">No subscriptions were found for the currently logged in user account.</target>
         <note></note>
       </trans-unit>
     </body>

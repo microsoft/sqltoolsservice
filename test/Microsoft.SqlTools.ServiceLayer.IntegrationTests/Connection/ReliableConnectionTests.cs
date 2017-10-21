@@ -317,7 +317,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 Assert.True(serverInfo.ServerEdition == serverInfo2.ServerEdition);
                 Assert.True(serverInfo.IsCloud == serverInfo2.IsCloud);
                 Assert.True(serverInfo.AzureVersion == serverInfo2.AzureVersion);
-                Assert.True(serverInfo.IsAzureV1 == serverInfo2.IsAzureV1);
             }
         }
 
@@ -735,6 +734,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             var retryPolicy = connection.CommandRetryPolicy;
             connection.CommandRetryPolicy = retryPolicy;
             Assert.True(connection.CommandRetryPolicy == retryPolicy);
+            connection.Open();
             connection.ChangeDatabase("master");
             Assert.True(connection.ConnectionTimeout > 0);
             connection.ClearPool();

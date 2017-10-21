@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -131,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a query that has results (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -155,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I ask for a set of results for a file that hasn't executed a query
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
                 .AddStandardErrorValidation()
@@ -170,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -192,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a query that doesn't have any result sets
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);

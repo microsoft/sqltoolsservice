@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         {
             // Given: A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
-            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, ws);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, false, ws);
 
             // If: I attempt to save a result set from a query that doesn't exist
             SaveResultsAsCsvRequestParams saveParams = new SaveResultsAsCsvRequestParams
@@ -54,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -99,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
@@ -141,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         {
             // Given: A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
-            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, ws);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, false, ws);
 
             // If: I attempt to save a result set from a query that doesn't exist
             SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams
@@ -166,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -209,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -250,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         {
             // Given: A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
-            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, ws);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, false, ws);
 
             // If: I attempt to save a result set from a query that doesn't exist
             SaveResultsAsExcelRequestParams saveParams = new SaveResultsAsExcelRequestParams
@@ -275,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -318,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };

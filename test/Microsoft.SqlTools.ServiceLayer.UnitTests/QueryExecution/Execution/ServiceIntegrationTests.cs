@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
@@ -203,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with all batches as no op
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.NoOpQuery));
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -238,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with no results
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -265,8 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with results
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false,
-                workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -294,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request to execute a valid query with one batch and multiple result sets
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
             var dataset = new[] {Common.StandardTestResultSet, Common.StandardTestResultSet};
-            var queryService = Common.GetPrimedExecutionService(dataset, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(dataset, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request a to execute a valid query with multiple batches
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Constants.StandardQuery));
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a query using a file URI that isn't connected
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -375,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             // Note, we don't care about the results of the first request
@@ -403,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             // Note, we don't care about the results of the first request
@@ -434,7 +434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I request to execute a query that is invalid
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, true, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, true, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
@@ -453,10 +453,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        // TODO https://github.com/Microsoft/vscode-mssql/issues/1003 reenable and make non-flaky
+        // [Fact]
         public async Task SimpleExecuteErrorWithNoResultsTest()
         {
-            var queryService = Common.GetPrimedExecutionService(null, true, false, null);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, null);
             var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
             var efv = new EventFlowValidator<SimpleExecuteResult>()
                 .AddSimpleExecuteErrorValidator(SR.QueryServiceResultSetHasNoResults)
@@ -478,7 +479,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Fact]
         public async Task SimpleExecuteVerifyResultsTest()
         {
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, null);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, null);
             var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
             var efv = new EventFlowValidator<SimpleExecuteResult>()
                 .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)
@@ -502,7 +503,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Fact]
         public async Task SimpleExecuteMultipleQueriesTest()
         {
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, null);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, null);
             var queryParams = new SimpleExecuteParams { OwnerUri = Constants.OwnerUri, QueryString = Constants.StandardQuery };
             var efv1 = new EventFlowValidator<SimpleExecuteResult>()
                 .AddSimpleExecuteQueryResultValidator(Common.StandardTestDataSet)

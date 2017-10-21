@@ -2275,6 +2275,42 @@
         <target state="new">No backupset selected to be restored</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="NeverBackedUp">
+        <source>Never</source>
+        <target state="new">Never</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSqlDbEdition">
+        <source>Azure SQL DB</source>
+        <target state="new">Azure SQL DB</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSqlDwEdition">
+        <source>Azure SQL Data Warehouse</source>
+        <target state="new">Azure SQL Data Warehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSqlStretchEdition">
+        <source>Azure SQL Stretch Database</source>
+        <target state="new">Azure SQL Stretch Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Error_InvalidDirectoryName">
+        <source>Path {0} is not a valid directory </source>
+        <target state="new">Path {0} is not a valid directory </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Error_ExistingDirectoryName">
+        <source>For directory {0} a file with name {1} already exists</source>
+        <target state="new">For directory {0} a file with name {1} already exists</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataValueTooLarge">
+        <source>Value {0} is too large to fit in column of type {1}</source>
+        <target state="new">Value {0} is too large to fit in column of type {1}</target>
+        <note>.
+ Parameters: 0 - value (string), 1 - columnType (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

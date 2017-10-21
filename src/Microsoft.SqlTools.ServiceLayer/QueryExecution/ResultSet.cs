@@ -137,12 +137,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
-        /// Whether the resultSet is in the process of being disposed
-        /// </summary>
-        /// <returns></returns>
-        internal bool IsBeingDisposed { get; private set; }
-
-        /// <summary>
         /// The columns for this result set
         /// </summary>
         public DbColumnWrapper[] Columns { get; private set; }
@@ -504,9 +498,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
             });
+            
+            // Add exception handling to the save task
+            Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(async t =>
+            {
+                if (failureHandler != null)
+                {
+                    await failureHandler(saveParams, t.Exception.Message);
+                }
+            });
 
             // If saving the task fails, return a failure
-            if (!SaveTasks.TryAdd(saveParams.FilePath, saveAsTask))
+            if (!SaveTasks.TryAdd(saveParams.FilePath, taskWithHandling))
             {
                 throw new InvalidOperationException(SR.QueryServiceSaveAsMiscStartingError);
             }
@@ -532,19 +535,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            IsBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
             if (!SaveTasks.IsEmpty)
             {
                 // Wait for tasks to finish before disposing ResultSet
-                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith((antecedent) =>
+                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith(antecedent =>
                 {
                     if (disposing)
                     {
                         fileStreamFactory.DisposeFile(outputFileName);
                     }
                     disposed = true;
-                    IsBeingDisposed = false;
                 });
             }
             else
@@ -555,14 +556,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     fileStreamFactory.DisposeFile(outputFileName);
                 }
                 disposed = true;
-                IsBeingDisposed = false;
             }
         }
 
         #endregion
 
         #region Private Helper Methods
-
+        
         /// <summary>
         /// If the result set represented by this class corresponds to a single XML
         /// column that contains results of "for xml" query, set isXml = true 
@@ -616,19 +616,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            if (!dbDataReader.HasRows)
+            // NOTE: We are no longer checking to see if the data reader has rows before reading 
+            // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
+            // read. In order to get appropriate errors back to the user, we'll read first.
+            // Returning false from .ReadAsync means there aren't any rows.
+
+            // Create a storage data reader, read it, make sure there were results
+            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+            if (!await dataReader.ReadAsync(CancellationToken.None))
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
-
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
-
+            
             using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
                 long currentFileOffset = totalBytesWritten;
                 writer.Seek(currentFileOffset);
-                await dataReader.ReadAsync(CancellationToken.None);
                 totalBytesWritten += writer.WriteRow(dataReader);
                 return currentFileOffset;
             }

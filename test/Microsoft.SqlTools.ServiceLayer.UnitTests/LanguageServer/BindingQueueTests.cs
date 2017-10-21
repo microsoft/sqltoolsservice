@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -131,6 +132,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Equal(1, this.bindCallCount);
             Assert.Equal(0, this.timeoutCallCount);  
             Assert.False(this.isCancelationRequested);
+        }
+
+        /// <summary>
+        /// Queues a single task
+        /// </summary>
+        [Fact]
+        public void QueueWithUnhandledExceptionTest()
+        {
+            InitializeTestSettings();
+            ManualResetEvent mre = new ManualResetEvent(false);
+            bool isExceptionHandled = false;
+            object defaultReturnObject = new object();
+            var queueItem = this.bindingQueue.QueueBindingOperation(
+                key: "testkey",
+                bindOperation: (context, CancellationToken) => { throw new Exception("Unhandled!!"); },
+                timeoutOperation: TestTimeoutOperation,
+                errorHandler: (exception) => {
+                    isExceptionHandled = true;
+                    mre.Set();
+                    return defaultReturnObject;
+                });
+
+            mre.WaitOne(10000);
+            
+            this.bindingQueue.StopQueueProcessor(15000);
+
+            Assert.True(isExceptionHandled);
+            var result = queueItem.GetResultAsT<object>();
+            Assert.Equal(defaultReturnObject, result);
         }
 
         /// <summary>
