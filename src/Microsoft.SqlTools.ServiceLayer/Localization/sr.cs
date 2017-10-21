@@ -3651,6 +3651,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
         }
 
+        public static string EditDataValueTooLarge(string value, string columnType)
+        {
+            return Keys.GetString(Keys.EditDataValueTooLarge, value, columnType);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -3930,6 +3935,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataNullNotAllowed = "EditDataNullNotAllowed";
+
+
+            public const string EditDataValueTooLarge = "EditDataValueTooLarge";
 
 
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";

@@ -1,6 +1,7 @@
 ﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System.Collections.Concurrent;
 using System.Data;
@@ -24,7 +25,7 @@ using HostingProtocol = Microsoft.SqlTools.Hosting.Protocol;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
-    public class Common
+    public static class Common
     {
         #region Constants
 
@@ -37,8 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public const int StandardColumns = 5;
 
         public const int StandardRows = 5;
-
-        public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
 
         public const SelectionData WholeDocument = null;
 
@@ -72,29 +71,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(Test.Common.Constants.StandardQuery, SubsectionDocument, 1,
+            Batch batch = new Batch(Constants.StandardQuery, SubsectionDocument, 1,
                 MemoryFileSystem.GetFileStreamFactory());
-            batch.Execute(CreateTestConnection(StandardTestDataSet, false), CancellationToken.None).Wait();
+            batch.Execute(CreateTestConnection(StandardTestDataSet, false, false), CancellationToken.None).Wait();
             return batch;
         }
 
         public static Batch GetExecutedBatchWithExecutionPlan()
         {
-            Batch batch = new Batch(Test.Common.Constants.StandardQuery, SubsectionDocument, 1,
+            Batch batch = new Batch(Constants.StandardQuery, SubsectionDocument, 1,
                 MemoryFileSystem.GetFileStreamFactory());
-            batch.Execute(CreateTestConnection(ExecutionPlanTestDataSet, false), CancellationToken.None).Wait();
+            batch.Execute(CreateTestConnection(ExecutionPlanTestDataSet, false, false), CancellationToken.None).Wait();
             return batch;
         }
 
         public static Query GetBasicExecutedQuery()
         {
-            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            Query query = new Query(Test.Common.Constants.StandardQuery, ci, new QueryExecutionSettings(), 
+            Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), 
                 MemoryFileSystem.GetFileStreamFactory());
             query.Execute();
             query.ExecutionTask.Wait();
@@ -103,13 +102,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public static Query GetBasicExecutedQuery(QueryExecutionSettings querySettings)
         {
-            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            Query query = new Query(Test.Common.Constants.StandardQuery, ci, querySettings, 
+            Query query = new Query(Constants.StandardQuery, ci, querySettings, 
                 MemoryFileSystem.GetFileStreamFactory());
             query.Execute();
             query.ExecutionTask.Wait();
@@ -135,14 +134,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         #region DbConnection Mocking
 
-        public static DbCommand CreateTestCommand(TestResultSet[] data, bool throwOnRead)
+        private static DbCommand CreateTestCommand(TestResultSet[] data, bool throwOnExecute, bool throwOnRead)
         {
             var commandMock = new Mock<DbCommand> { CallBase = true };
             var commandMockSetup = commandMock.Protected()
                 .Setup<DbDataReader>("ExecuteDbDataReader", It.IsAny<CommandBehavior>());
 
-            // Setup the expected behavior
-            if (throwOnRead)
+            // Setup the expected execute behavior
+            if (throwOnExecute)
             {
                 var mockException = new Mock<DbException>();
                 mockException.SetupGet(dbe => dbe.Message).Returns("Message");
@@ -150,19 +149,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             }
             else
             {
-                commandMockSetup.Returns(new TestDbDataReader(data));
+                commandMockSetup.Returns(new TestDbDataReader(data, throwOnRead));
             }
                 
 
             return commandMock.Object;
         }
 
-        public static DbConnection CreateTestConnection(TestResultSet[] data, bool throwOnRead)
+        private static DbConnection CreateTestConnection(TestResultSet[] data, bool throwOnExecute, bool throwOnRead)
         {
             var connectionMock = new Mock<DbConnection> { CallBase = true };
             connectionMock.Protected()
                 .Setup<DbCommand>("CreateDbCommand")
-                .Returns(() => CreateTestCommand(data, throwOnRead));
+                .Returns(() => CreateTestCommand(data, throwOnExecute, throwOnRead));
             connectionMock.Setup(dbc => dbc.Open())
                 .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Open));
             connectionMock.Setup(dbc => dbc.Close())
@@ -171,34 +170,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             return connectionMock.Object;
         }
 
-        public static ISqlConnectionFactory CreateMockFactory(TestResultSet[] data, bool throwOnRead)
+        private static ISqlConnectionFactory CreateMockFactory(TestResultSet[] data, bool throwOnExecute, bool throwOnRead)
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(() => CreateTestConnection(data, throwOnRead));
+                .Returns(() => CreateTestConnection(data, throwOnExecute, throwOnRead));
 
             return mockFactory.Object;
         }
 
-        public static ConnectionInfo CreateTestConnectionInfo(TestResultSet[] data, bool throwOnRead)
+        public static ConnectionInfo CreateTestConnectionInfo(TestResultSet[] data, bool throwOnExecute, bool throwOnRead)
         {
             // Create a connection info and add the default connection to it
-            ISqlConnectionFactory factory = CreateMockFactory(data, throwOnRead);
-            ConnectionInfo ci = new ConnectionInfo(factory, Test.Common.Constants.OwnerUri, StandardConnectionDetails);
+            ISqlConnectionFactory factory = CreateMockFactory(data, throwOnExecute, throwOnRead);
+            ConnectionInfo ci = new ConnectionInfo(factory, Constants.OwnerUri, StandardConnectionDetails);
             ci.ConnectionTypeToConnectionMap[ConnectionType.Default] = factory.CreateSqlConnection(null);
             return ci;
         }
 
-        public static ConnectionInfo CreateConnectedConnectionInfo(TestResultSet[] data, bool throwOnRead, string type = ConnectionType.Default)
+        public static ConnectionInfo CreateConnectedConnectionInfo(
+            TestResultSet[] data, 
+            bool throwOnExecute,
+            bool throwOnRead,
+            string type = ConnectionType.Default)
         {
             ConnectionService connectionService = ConnectionService.Instance;
             connectionService.OwnerToConnectionMap.Clear();
-            connectionService.ConnectionFactory = CreateMockFactory(data, throwOnRead);
+            connectionService.ConnectionFactory = CreateMockFactory(data, throwOnExecute, throwOnRead);
 
             ConnectParams connectParams = new ConnectParams
             {
                 Connection = StandardConnectionDetails,
-                OwnerUri = Test.Common.Constants.OwnerUri,
+                OwnerUri = Constants.OwnerUri,
                 Type = type
             };
 
@@ -210,8 +213,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         #region Service Mocking
 
-        public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data,
-            bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService,
+        public static QueryExecutionService GetPrimedExecutionService(
+            TestResultSet[] data,
+            bool isConnected, 
+            bool throwOnExecute, 
+            bool throwOnRead,
+            WorkspaceService<SqlToolsSettings> workspaceService,
             out ConcurrentDictionary<string, byte[]> storage)
         {
             // Create a place for the temp "files" to be written
@@ -219,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Mock the connection service
             var connectionService = new Mock<ConnectionService>();
-            ConnectionInfo ci = CreateConnectedConnectionInfo(data, throwOnRead);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(data, throwOnExecute, throwOnRead);
             ConnectionInfo outValMock;
             connectionService
                 .Setup(service => service.TryFindConnection(It.IsAny<string>(), out outValMock))
@@ -229,10 +236,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage) };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static QueryExecutionService GetPrimedExecutionService(
+            TestResultSet[] data, 
+            bool isConnected, 
+            bool throwOnExecute,
+            bool throwOnRead,
+            WorkspaceService<SqlToolsSettings> workspaceService)
         {
             ConcurrentDictionary<string, byte[]> storage;
-            return GetPrimedExecutionService(data, isConnected, throwOnRead, workspaceService, out storage);
+            return GetPrimedExecutionService(data, isConnected, throwOnExecute, throwOnRead, workspaceService, out storage);
         }
 
         public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService(string query)

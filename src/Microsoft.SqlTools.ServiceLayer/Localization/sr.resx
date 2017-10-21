@@ -495,6 +495,11 @@
     <value>NULL is not allowed for this column</value>
     <comment></comment>
   </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Value {0} is too large to fit in column of type {1}</value>
+    <comment>.
+ Parameters: 0 - value (string), 1 - columnType (string) </comment>
+  </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
     <comment></comment>
