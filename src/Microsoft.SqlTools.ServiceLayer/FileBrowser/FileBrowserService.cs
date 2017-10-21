@@ -74,9 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             // Open a file browser
             serviceHost.SetRequestHandler(FileBrowserOpenRequest.Type, HandleFileBrowserOpenRequest);
 
-            // Change file filter
-            serviceHost.SetRequestHandler(FileBrowserFilterRequest.Type, HandleFileBrowserFilterRequest);
-
             // Expand a folder node
             serviceHost.SetRequestHandler(FileBrowserExpandRequest.Type, HandleFileBrowserExpandRequest);
 
@@ -94,20 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams, requestContext))
-                    .ContinueWithOnFaulted(null);
-                await requestContext.SendResult(true);
-            }
-            catch
-            {
-                await requestContext.SendResult(false);
-            }
-        }
-
-        internal async Task HandleFileBrowserFilterRequest(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
-        {
-            try
-            {
-                var task = Task.Run(() => RunFileBrowserOpenTask(fileBrowserParams, requestContext, changeFilter: true))
                     .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
@@ -181,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             this.expandNodeQueue.Dispose();
         }
 
-        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext, bool changeFilter = false)
+        internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
             SqlConnection conn = null;
@@ -195,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
             try
             {
-                if (!changeFilter)
+                if (!fileBrowserParams.ChangeFilter)
                 {
                     ConnectionInfo connInfo;
                     this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
