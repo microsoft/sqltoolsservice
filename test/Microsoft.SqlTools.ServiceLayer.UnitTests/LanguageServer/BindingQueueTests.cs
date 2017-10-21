@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             object defaultReturnObject = new object();
             var queueItem = this.bindingQueue.QueueBindingOperation(
                 key: "testkey",
-                bindOperation: (context, CancellationToken) => throw new Exception("Unhandled!!"),
+                bindOperation: (context, CancellationToken) => { throw new Exception("Unhandled!!"); },
                 timeoutOperation: TestTimeoutOperation,
                 errorHandler: (exception) => {
                     isExceptionHandled = true;

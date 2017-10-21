@@ -8,23 +8,30 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
+    public class TestDbException : DbException
+    {
+    }
+    
     public class TestDbDataReader : DbDataReader, IDbColumnSchemaGenerator
     {
-
         #region Test Specific Implementations
-
+        
         private IEnumerable<TestResultSet> Data { get; }
 
-        public IEnumerator<TestResultSet> ResultSetEnumerator { get; }
+        private IEnumerator<TestResultSet> ResultSetEnumerator { get; }
 
         private IEnumerator<object[]> RowEnumerator { get; set; }
+        
+        private bool ThrowOnRead { get; }
 
-        public TestDbDataReader(IEnumerable<TestResultSet> data)
+        public TestDbDataReader(IEnumerable<TestResultSet> data, bool throwOnRead)
         {
+            ThrowOnRead = throwOnRead;
             Data = data;
             if (Data != null)
             {
@@ -59,6 +66,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <returns>True if tere were more rows, false otherwise</returns>
         public override bool Read()
         {
+            if (ThrowOnRead)
+            {
+                throw new TestDbException();
+            }
             if (RowEnumerator == null)
             {
                 RowEnumerator = ResultSetEnumerator.Current.GetEnumerator();
@@ -97,11 +108,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <returns>Number of cells in the current row</returns>
         public override int GetValues(object[] values)
         {
-            for (int i = 0; i < RowEnumerator.Current.Count(); i++)
+            for (int i = 0; i < RowEnumerator.Current.Length; i++)
             {
                 values[i] = this[i];
             }
-            return RowEnumerator.Current.Count();
+            return RowEnumerator.Current.Length;
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // If: I attempt to create a CellUpdate to set it to NULL
             const string nullString = "NULL";
-            DbColumnWrapper col = GetWrapper<string>("ntext", true);
+            DbColumnWrapper col = GetWrapper<string>("ntext");
             CellUpdate cu = new CellUpdate(col, nullString);
 
             // Then: The value should be a DBNull and the string value should be the same as what
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(nullString, cu.ValueAsString);
             Assert.Equal(col, cu.Column);
         }
-
+        
         [Fact]
         public void NullStringNotAllowedTest()
         {
@@ -67,6 +67,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal("NULL", cu.Value);
             Assert.Equal("'NULL'", cu.ValueAsString);
             Assert.Equal(col, cu.Column);
+        }
+
+        [Theory]
+        [InlineData("This is way too long")]
+        [InlineData("TooLong")]
+        public void StringTooLongTest(string value)
+        {
+            // If: I attempt to create a CellUpdate to set it to a large string
+            // Then: I should get an exception thrown
+            DbColumnWrapper col = GetWrapper<string>("nvarchar", false, 6);
+            Assert.Throws<FormatException>(() => new CellUpdate(col, value));
         }
 
         [Theory]
@@ -274,16 +285,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(ec.IsDirty);
         }
 
-        private static DbColumnWrapper GetWrapper<T>(string dataTypeName, bool allowNull = true)
+        private static DbColumnWrapper GetWrapper<T>(string dataTypeName, bool allowNull = true, int? colSize = null)
         {
-            return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName, allowNull));
+            return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName, allowNull, colSize));
         }
 
         private class CellUpdateTestDbColumn : DbColumn
         {
-            public CellUpdateTestDbColumn(Type dataType, string dataTypeName, bool allowNull = true)
+            public CellUpdateTestDbColumn(Type dataType, string dataTypeName, bool allowNull = true, int? colSize = null)
             {
                 AllowDBNull = allowNull;
+                ColumnSize = colSize;
                 DataType = dataType;
                 DataTypeName = dataTypeName;
             }
