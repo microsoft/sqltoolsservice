@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         internal const int QueueThreadStackSize = 5 * 1024 * 1024;
 
-        private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
+        private CancellationTokenSource processQueueCancelToken = null;
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
 
@@ -44,8 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public BindingQueue()
         {
             this.BindingContextMap = new Dictionary<string, IBindingContext>();
+            this.StartQueueProcessor();
+        }
 
-            this.queueProcessorTask = StartQueueProcessor();
+        public void StartQueueProcessor()
+        {
+            this.queueProcessorTask = StartQueueProcessorAsync();
         }
 
         /// <summary>
@@ -56,6 +60,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             this.processQueueCancelToken.Cancel();
             return this.queueProcessorTask.Wait(timeout);
+        }
+
+        /// <summary>
+        /// Returns true if cancellation is requested
+        /// </summary>
+        /// <returns></returns>
+        public bool IsCancelRequested
+        {
+            get
+            {
+                return this.processQueueCancelToken.IsCancellationRequested;
+            }
         }
 
         /// <summary>
@@ -182,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private bool HasPendingQueueItems
+        public bool HasPendingQueueItems
         {
             get
             {
@@ -214,10 +230,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Starts the queue processing thread
         /// </summary>        
-        private Task StartQueueProcessor()
+        private Task StartQueueProcessorAsync()
         {
+            if (this.processQueueCancelToken != null)
+            {
+                this.processQueueCancelToken.Dispose();
+            }
+            this.processQueueCancelToken = new CancellationTokenSource();
+
             return Task.Factory.StartNew(
-                ProcessQueue,                
+                ProcessQueue,
                 this.processQueueCancelToken.Token,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
@@ -368,6 +390,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
+            if (this.processQueueCancelToken != null)
+            {
+                this.processQueueCancelToken.Dispose();
+            }
+
             if (itemQueuedEvent != null)
             {
                 itemQueuedEvent.Dispose();
