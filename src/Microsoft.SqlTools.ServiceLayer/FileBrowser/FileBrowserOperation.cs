@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private FileTree fileTree;
         private string expandPath;
         private string[] fileFilters;
+        private bool fileTreeCreated;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
 
@@ -44,15 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         public FileBrowserOperation(SqlConnection connectionInfo, string expandPath, string[] fileFilters = null): this()
         {
             this.sqlConnection = connectionInfo;
-            this.expandPath = expandPath;
-            if (fileFilters == null)
-            {
-                this.fileFilters = new string[1] { "*" };
-            }
-            else
-            {
-                this.fileFilters = fileFilters;
-            }
+            this.Initialize(expandPath, fileFilters);
         }
 
         #endregion
@@ -72,6 +65,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             get
             {
                 return this.fileFilters;
+            }
+        }
+
+        public bool FileTreeCreated
+        {
+            get
+            {
+                return this.fileTreeCreated;
             }
         }
 
@@ -97,6 +98,19 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         }
         #endregion
 
+        public void Initialize(string expandPath, string[] fileFilters)
+        {
+            this.expandPath = expandPath;
+            if (fileFilters == null)
+            {
+                this.fileFilters = new string[1] { "*" };
+            }
+            else
+            {
+                this.fileFilters = fileFilters;
+            }
+        }
+
         public void Dispose()
         {
             if (this.sqlConnection != null)
@@ -108,9 +122,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         public void PopulateFileTree()
         {
+            this.fileTreeCreated = false;
             this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
             PopulateDrives();
             ExpandSelectedNode(this.expandPath);
+            this.fileTreeCreated = true;
         }
 
         /// <summary>
