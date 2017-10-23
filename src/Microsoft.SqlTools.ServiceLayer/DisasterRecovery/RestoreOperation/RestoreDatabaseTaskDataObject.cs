@@ -748,11 +748,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                 {
                     string currentDatabaseName = this.RestorePlanner.DatabaseName;
                     this.RestorePlanner.DatabaseName = value;
-
-                    if (string.Compare(currentDatabaseName, value, StringComparison.InvariantCultureIgnoreCase) != 0)
-                    {
-                        ResetOptions();
-                    }
                 }
             }
         }
