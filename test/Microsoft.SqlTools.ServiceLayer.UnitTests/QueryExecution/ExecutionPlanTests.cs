@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a query that has results in the form of an execution plan 
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I ask for an execution plan for a file that hasn't executed a query
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddStandardErrorValidation()
@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
@@ -219,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a query that doesn't have any result sets
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,

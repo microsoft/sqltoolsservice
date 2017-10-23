@@ -616,19 +616,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            if (!dbDataReader.HasRows)
+            // NOTE: We are no longer checking to see if the data reader has rows before reading 
+            // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
+            // read. In order to get appropriate errors back to the user, we'll read first.
+            // Returning false from .ReadAsync means there aren't any rows.
+
+            // Create a storage data reader, read it, make sure there were results
+            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+            if (!await dataReader.ReadAsync(CancellationToken.None))
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
-
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
-
+            
             using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
                 long currentFileOffset = totalBytesWritten;
                 writer.Seek(currentFileOffset);
-                await dataReader.ReadAsync(CancellationToken.None);
                 totalBytesWritten += writer.WriteRow(dataReader);
                 return currentFileOffset;
             }

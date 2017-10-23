@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
+using System.Data;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -69,8 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connectionInfo = result.ConnectionInfo;
             ConnectionDetails details = connectionInfo.ConnectionDetails;
-            string uri = connectionInfo.OwnerUri;
             string initialDatabaseName = details.DatabaseName;
+            string uri = connectionInfo.OwnerUri;
             string newDatabaseName = "tempdb";
             string changeDatabaseQuery = "use " + newDatabaseName;
 
@@ -83,7 +83,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             // All open DbConnections (Query and Default) should have initialDatabaseName as their database
             foreach (DbConnection connection in connectionInfo.AllConnections)
             {
-                Assert.Equal(connection.Database, initialDatabaseName);
+                if (connection != null && connection.State == ConnectionState.Open)
+                {
+                    Assert.Equal(connection.Database, initialDatabaseName);
+                }
             }
 
             // If we run a query to change the database
@@ -94,7 +97,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             // All open DbConnections (Query and Default) should have newDatabaseName as their database
             foreach (DbConnection connection in connectionInfo.AllConnections)
             {
-                Assert.Equal(connection.Database, newDatabaseName);
+                if (connection != null && connection.State == ConnectionState.Open) 
+                {
+                    Assert.Equal(connection.Database, newDatabaseName);
+                }
             }
         }
     }

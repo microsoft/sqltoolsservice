@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 ? Enumerable.Repeat(new object[] { "id", "1", "2", "3" }, rowCount)
                 : Enumerable.Repeat(new object[] { "1", "2", "3" }, rowCount);
             var testResultSet = new TestResultSet(columns, rows);
-            var reader = new TestDbDataReader(new[] { testResultSet });
+            var reader = new TestDbDataReader(new[] { testResultSet }, false);
             var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
             await resultSet.ReadResultToEnd(reader, CancellationToken.None);
             return resultSet;
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 ? new[] {new object[] {"id", "q", "q", "q"}}
                 : new[] {new object[] {"q", "q", "q"}};
             var testResultSet = new TestResultSet(columns, rows);
-            return new TestDbDataReader(new [] {testResultSet});
+            return new TestDbDataReader(new [] {testResultSet}, false);
         }
 
         public static void AddCells(RowEditBase rc, bool includeIdentity)

@@ -293,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }};
             object[][] rows = {};
             var testResultSet = new TestResultSet(cols, rows);
-            var testReader = new TestDbDataReader(new[] {testResultSet});
+            var testReader = new TestDbDataReader(new[] {testResultSet}, false);
             var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
             await rs.ReadResultToEnd(testReader, CancellationToken.None);
 

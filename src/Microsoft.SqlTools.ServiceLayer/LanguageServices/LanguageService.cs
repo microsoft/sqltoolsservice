@@ -1345,10 +1345,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal SignatureHelp GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
-            int startColumn = TextUtilities.PositionOfPrevDelimeter(
-                                scriptFile.Contents,
-                                textDocumentPosition.Position.Line,
-                                textDocumentPosition.Position.Character);
             int endColumn = textDocumentPosition.Position.Character;
 
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);

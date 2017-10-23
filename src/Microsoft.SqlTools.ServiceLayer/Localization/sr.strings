@@ -232,6 +232,8 @@ EditDataTimeOver24Hrs = TIME column values must be between 00:00:00.0000000 and 
 
 EditDataNullNotAllowed = NULL is not allowed for this column
 
+EditDataValueTooLarge(string value, string columnType) = Value {0} is too large to fit in column of type {1}
+
 ############################################################################
 # DacFx Resources
 

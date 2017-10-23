@@ -2305,6 +2305,12 @@
         <target state="new">For directory {0} a file with name {1} already exists</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataValueTooLarge">
+        <source>Value {0} is too large to fit in column of type {1}</source>
+        <target state="new">Value {0} is too large to fit in column of type {1}</target>
+        <note>.
+ Parameters: 0 - value (string), 1 - columnType (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
