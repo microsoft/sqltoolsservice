@@ -1201,8 +1201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangeDatabaseParams changeDatabaseParams,
             RequestContext<bool> requestContext)
         {
-            ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase);
-            await requestContext.SendResult(true);
+            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase));
         }
 
         /// <summary>
@@ -1210,7 +1209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
-        public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+        public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
         {
             ConnectionInfo info;
             if (TryFindConnection(ownerUri, out info))
@@ -1233,6 +1232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
                     ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                    return true;
                 }
                 catch (Exception e)
                 {
@@ -1246,6 +1246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     );
                 }
             }
+            return false;
         }
 
         /// <summary>
