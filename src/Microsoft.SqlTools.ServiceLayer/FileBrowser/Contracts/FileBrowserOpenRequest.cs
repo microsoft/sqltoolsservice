@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
         /// File extension filter (e.g. *.bak)
         /// </summary>
         public string[] FileFilters;
+
+        /// <summary>
+        /// True if this is a request to change file filter
+        /// </summary>
+        public bool ChangeFilter;
     }
 
     /// <summary>

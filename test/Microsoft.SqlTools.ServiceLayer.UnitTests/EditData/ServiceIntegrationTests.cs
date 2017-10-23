@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 .Returns(etm);
             
             // ... Create a query execution service that will return a successful query
-            var qes = QueryExecution.Common.GetPrimedExecutionService(mockQueryResults, true, false, null);
+            var qes = QueryExecution.Common.GetPrimedExecutionService(mockQueryResults, true, false, false, null);
             
             // ... Create a connection service that doesn't throw when asked for a connection
             var cs = new Mock<ConnectionService>();

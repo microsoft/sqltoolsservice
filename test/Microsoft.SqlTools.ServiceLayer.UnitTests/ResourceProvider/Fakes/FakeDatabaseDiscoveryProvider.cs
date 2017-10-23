@@ -20,9 +20,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
         
         public IExportableMetadata Metadata { get; set; }
         public ExportableStatus Status { get; }
-        IExportableMetadata IExportable.Metadata { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        IExportableMetadata IExportable.Metadata
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
 
-        ExportableStatus IExportable.Status => throw new NotImplementedException();
+        ExportableStatus IExportable.Status
+        {
+            get { throw new NotImplementedException(); }
+        }
 
         public Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabaseInstancesAsync(string serverName, CancellationToken cancellationToken)
         {

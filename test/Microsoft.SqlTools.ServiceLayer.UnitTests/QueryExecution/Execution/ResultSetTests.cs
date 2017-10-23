@@ -286,6 +286,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
+        public async Task AddRowThrowsOnRead()
+        {
+            // Setup:
+            // ... Create a standard result set with standard data
+            var fileFactory = MemoryFileSystem.GetFileStreamFactory();
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // ... Create a mock reader that will throw on read
+            var throwingReader = GetReader(new[] {new TestResultSet(5, 0)}, true, Constants.StandardQuery);
+            
+            // If: I add a row with a reader that throws on read
+            // Then:
+            // ... I should get an exception
+            await Assert.ThrowsAnyAsync<DbException>(() => resultSet.AddRow(throwingReader));
+            
+            // ... The row count should not have changed
+            Assert.Equal(Common.StandardRows, resultSet.RowCount); 
+        }
+
+        [Fact]
         public async Task AddRowSuccess()
         {
             // Setup: 
@@ -363,7 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)
         {
-            var info = Common.CreateTestConnectionInfo(dataSet, throwOnRead);
+            var info = Common.CreateTestConnectionInfo(dataSet, false, throwOnRead);
             var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
             var command = connection.CreateCommand();
             command.CommandText = query;

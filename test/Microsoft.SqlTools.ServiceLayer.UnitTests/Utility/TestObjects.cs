@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return new TestDbDataReader(Data);
+            return new TestDbDataReader(Data, false);
         }
 
         private List<DbParameter> listParams = new List<DbParameter>();

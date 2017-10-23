@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 b => batchEndCalls++,
                 m => messages.Add(m),
                 r => resultSetCalls++);
-            await batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None);
+            await batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false, false)), CancellationToken.None);
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // ... Build a data set to return
             const int resultSets = 1;
-            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false);
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a query that should get one result set
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // ... Build a data set to return
             const int resultSets = 2;
-            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false);
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a query that should get two result sets
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             List<ResultMessage> messages = new List<ResultMessage>();
 
             // If I execute a batch that is invalid
-            var ci = Common.CreateTestConnectionInfo(null, true);
+            var ci = Common.CreateTestConnectionInfo(null, true, false);
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
             BatchCallbackHelper(batch,
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             // Setup: Build a data set to return
             const int resultSets = 1;
-            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false);
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a batch
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();

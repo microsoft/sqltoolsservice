@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var commandMockSetup = commandMock.Protected()
                 .Setup<DbDataReader>("ExecuteDbDataReader", It.IsAny<CommandBehavior>());
 
-            commandMockSetup.Returns(() => new TestDbDataReader(data));
+            commandMockSetup.Returns(() => new TestDbDataReader(data, false));
 
             return commandMock.Object;
         }

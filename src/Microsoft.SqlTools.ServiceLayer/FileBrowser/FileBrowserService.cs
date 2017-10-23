@@ -5,14 +5,13 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
@@ -20,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     /// <summary>
     /// Main class for file browser service
     /// </summary>
-    public sealed class FileBrowserService
+    public sealed class FileBrowserService: IDisposable
     {
         private static readonly Lazy<FileBrowserService> LazyInstance = new Lazy<FileBrowserService>(() => new FileBrowserService());
         public static FileBrowserService Instance => LazyInstance.Value;
@@ -29,6 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private readonly ConcurrentDictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new ConcurrentDictionary<string, FileBrowserOperation>();
         private readonly ConcurrentDictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new ConcurrentDictionary<string, ValidatePathsCallback>();
         private ConnectionService connectionService;
+        private ConnectedBindingQueue expandNodeQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private static int DefaultExpandTimeout = 120000;
+        private string serviceName = "FileBrowser";
 
         /// <summary>
         /// Signature for callback method that validates the selected file paths
@@ -43,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
+                    connectionService.RegisterConnectedQueue(this.serviceName, this.expandNodeQueue);
                 }
                 return connectionService;
             }
@@ -133,54 +136,98 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             FileBrowserOperation removedOperation;
             response.Succeeded = ownerToFileBrowserMap.TryRemove(fileBrowserParams.OwnerUri, out removedOperation);
 
+            if (removedOperation != null && this.expandNodeQueue != null)
+            {
+                bool hasPendingQueueItems = this.expandNodeQueue.HasPendingQueueItems;
+                if (removedOperation.FileTreeCreated && !hasPendingQueueItems)
+                {
+                    removedOperation.Dispose();
+                    this.expandNodeQueue.CloseConnections(removedOperation.SqlConnection.DataSource, removedOperation.SqlConnection.Database, DefaultExpandTimeout);
+                }
+                else if (!removedOperation.FileTreeCreated)
+                {
+                    removedOperation.Cancel();
+                }
+                else if (hasPendingQueueItems)
+                { 
+                    this.expandNodeQueue.StopQueueProcessor(DefaultExpandTimeout);
+                }
+            }
+
             await requestContext.SendResult(response);
         }
 
         #endregion
 
+        public void Dispose()
+        {
+            this.expandNodeQueue.Dispose();
+        }
+
         internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
+            SqlConnection conn = null;
+            FileBrowserOperation browser = null;
+            bool isCancelRequested = false;
+
+            if (this.expandNodeQueue.IsCancelRequested)
+            {
+                this.expandNodeQueue.StartQueueProcessor();
+            }
 
             try
             {
-                ConnectionInfo connInfo;
-                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
-                SqlConnection conn = null;
-
-                if (connInfo != null)
+                if (!fileBrowserParams.ChangeFilter)
                 {
-                    DbConnection dbConn;
-                    connInfo.TryGetConnection(ConnectionType.Default, out dbConn);
-                    if (dbConn != null)
+                    ConnectionInfo connInfo;
+                    this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
+                    if (connInfo != null)
                     {
-                        conn = ReliableConnectionHelper.GetAsSqlConnection(dbConn);
+                        // Open new connection for each Open request
+                        conn = ConnectionService.OpenSqlConnection(connInfo, this.serviceName);
+                        browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
                     }
-                }
-
-                if (conn != null)
-                {
-                    FileBrowserOperation browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
-                    browser.PopulateFileTree();
-
-                    ownerToFileBrowserMap.AddOrUpdate(fileBrowserParams.OwnerUri, browser, (key, value) => browser);
-
-                    result.OwnerUri = fileBrowserParams.OwnerUri;
-                    result.FileTree = browser.FileTree;
-                    result.Succeeded = true;
                 }
                 else
                 {
-                    result.Succeeded = false;
+                    ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out browser);
+                    if (browser != null)
+                    {
+                        browser.Initialize(fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
+                    }
+                }
+
+                if (browser != null)
+                {
+                    ownerToFileBrowserMap.AddOrUpdate(fileBrowserParams.OwnerUri, browser, (key, value) => browser);
+
+                    // Create file browser tree
+                    browser.PopulateFileTree();
+
+                    // Check if cancel was requested
+                    if (browser.IsCancellationRequested)
+                    {
+                        browser.Dispose();
+                        isCancelRequested = true;
+                    }
+                    else
+                    {
+                        result.OwnerUri = fileBrowserParams.OwnerUri;
+                        result.FileTree = browser.FileTree;
+                        result.Succeeded = true;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                result.Succeeded = false;
                 result.Message = ex.Message;
             }
 
-            await requestContext.SendEvent(FileBrowserOpenedNotification.Type, result);
+            if (!isCancelRequested)
+            {
+                await requestContext.SendEvent(FileBrowserOpenedNotification.Type, result);
+            }
         }
 
         internal async Task RunFileBrowserExpandTask(FileBrowserExpandParams fileBrowserParams, RequestContext<bool> requestContext)
@@ -188,13 +235,35 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             FileBrowserExpandedParams result = new FileBrowserExpandedParams();
             try
             {
-                FileBrowserOperation browser;
-                result.Succeeded = ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out browser);
-                if (result.Succeeded && browser != null)
+                FileBrowserOperation operation;
+                ConnectionInfo connInfo;
+                result.Succeeded = ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out operation);
+                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
+
+                if (result.Succeeded && operation != null && connInfo != null)
                 {
-                    result.Children = browser.GetChildren(fileBrowserParams.ExpandPath).ToArray();
-                    result.ExpandPath = fileBrowserParams.ExpandPath;
-                    result.OwnerUri = fileBrowserParams.OwnerUri;
+                    QueueItem queueItem = expandNodeQueue.QueueBindingOperation(
+                        key: expandNodeQueue.AddConnectionContext(connInfo, this.serviceName),
+                        bindingTimeout: DefaultExpandTimeout,
+                        waitForLockTimeout: DefaultExpandTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            result.ExpandPath = fileBrowserParams.ExpandPath;
+                            result.Children = operation.GetChildren(fileBrowserParams.ExpandPath).ToArray();
+                            result.OwnerUri = fileBrowserParams.OwnerUri;
+                            return result;
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+
+                    if (this.expandNodeQueue.IsCancelRequested)
+                    {
+                        this.expandNodeQueue.CloseConnections(operation.SqlConnection.DataSource, operation.SqlConnection.Database, DefaultExpandTimeout);
+                    }
+                    else if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
+                    {
+                        result = queueItem.GetResultAsT<FileBrowserExpandedParams>();
+                    }
                 }
             }
             catch (Exception ex)
@@ -238,7 +307,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                result.Succeeded = false;
                 result.Message = ex.Message;
             }
 
