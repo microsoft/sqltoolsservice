@@ -520,6 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 if (!isTailLogBackupPossible.HasValue)
                 {
+                    //TODO: get the value from DatabaseRestorePlanner.IsTailLogBackupPossible
                     if (this.Server.Version.Major < 9 || String.IsNullOrEmpty(this.restorePlanner.DatabaseName))
                     {
                         isTailLogBackupPossible = false;
@@ -566,6 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 if (!isTailLogBackupWithNoRecoveryPossible.HasValue)
                 {
+                    //TODO: get the value from DatabaseRestorePlanner.IsTailLogBackupWithNoRecoveryPossible
                     string databaseName = this.RestorePlanner.DatabaseName;
                     if (!IsTailLogBackupPossible)
                     {
