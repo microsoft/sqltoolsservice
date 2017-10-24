@@ -29,6 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             this.BindingTimeout = 3000;
         }
 
+        public void Dispose()
+        {
+            this.BindingLock.Dispose();
+        }
+
         public bool IsConnected { get; set; }
 
         public ServerConnection ServerConnection { get; set; }
