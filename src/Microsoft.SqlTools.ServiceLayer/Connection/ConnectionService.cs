@@ -1219,32 +1219,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     info.ConnectionDetails.DatabaseName = newDatabaseName;
 
-                    foreach (KeyValuePair<string, DbConnection> pair in info.ConnectionMap)
+                    foreach (string key in info.AllConnectionTypes)
                     {
-                        if (pair.Value.State == ConnectionState.Open)
+                        DbConnection conn;
+                        info.TryGetConnection(key, out conn);
+                        if (conn != null && conn.State == ConnectionState.Open)
+                        {
+                            if (info.IsCloud && force)
                             {
-                                try
-                                {
-                                    pair.Value.ChangeDatabase(newDatabaseName);
-                                }
-                                catch (SqlException)
-                                {
-                                    if (force == true) {
-                                        pair.Value.Close();
-                                        pair.Value.Dispose();
-                                        info.RemoveConnection(pair.Key);
-                                        
-                                        string connectionString = BuildConnectionString(info.ConnectionDetails);
+                                conn.Close();
+                                conn.Dispose();
+                                info.RemoveConnection(key);
+                                
+                                string connectionString = BuildConnectionString(info.ConnectionDetails);
 
-                                        // create a sql connection instance
-                                        DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
-                                        connection.Open();
-                                        info.AddConnection(pair.Key, connection);
-                                    } else {
-                                        throw;
-                                    }
-                                }
+                                // create a sql connection instance
+                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
+                                connection.Open();
+                                info.AddConnection(key, connection);
                             }
+                            else
+                            {
+                                conn.ChangeDatabase(newDatabaseName);
+                            }
+                        }
+                        
                     }
 
                     // Fire a connection changed event

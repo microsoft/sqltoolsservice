@@ -57,13 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         internal readonly ConcurrentDictionary<string, DbConnection> ConnectionTypeToConnectionMap =
             new ConcurrentDictionary<string, DbConnection>();
 
-        public ConcurrentDictionary<string, DbConnection> ConnectionMap
-        {
-            get {
-                return ConnectionTypeToConnectionMap;
-            }
-        }
-
         /// <summary>
         /// Intellisense Metrics
         /// </summary>
