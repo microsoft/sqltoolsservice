@@ -1219,36 +1219,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     info.ConnectionDetails.DatabaseName = newDatabaseName;
 
-                    using(IEnumerator<KeyValuePair<string, DbConnection>> enumerableExecutor = info.AllConnectionWithTypes)
+                    foreach (KeyValuePair<string, DbConnection> pair in info.ConnectionMap)
                     {
-                        while(enumerableExecutor.MoveNext())
-                        {
-                            KeyValuePair<string, DbConnection> key = enumerableExecutor.Current;
-                            if (key.Value.State == ConnectionState.Open)
+                        if (pair.Value.State == ConnectionState.Open)
                             {
                                 try
                                 {
-                                    key.Value.ChangeDatabase(newDatabaseName);
+                                    pair.Value.ChangeDatabase(newDatabaseName);
                                 }
                                 catch (SqlException)
                                 {
                                     if (force == true) {
-                                        key.Value.Close();
-                                        key.Value.Dispose();
-                                        info.RemoveConnection(key.Key);
+                                        pair.Value.Close();
+                                        pair.Value.Dispose();
+                                        info.RemoveConnection(pair.Key);
                                         
                                         string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                         // create a sql connection instance
                                         DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
                                         connection.Open();
-                                        info.AddConnection(key.Key, connection);
+                                        info.AddConnection(pair.Key, connection);
                                     } else {
                                         throw;
                                     }
                                 }
                             }
-                        }
                     }
 
                     // Fire a connection changed event
