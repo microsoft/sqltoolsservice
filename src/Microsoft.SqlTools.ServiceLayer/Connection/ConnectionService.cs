@@ -1222,7 +1222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         DbConnection conn;
                         info.TryGetConnection(key, out conn);
-                        if (conn != null && conn.State == ConnectionState.Open)
+                        if (conn != null && conn.Database != newDatabaseName && conn.State == ConnectionState.Open)
                         {
                             if (info.IsCloud && force)
                             {

@@ -1307,5 +1307,152 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
             Assert.Equal(databaseName, connectionResult.ConnectionSummary.DatabaseName);
         }
+
+        [Fact]
+        public async Task CanChangeDatabase()
+        {
+            string ownerUri = "file://my/sample/file.sql";
+            const string masterDbName = "master";
+            const string otherDbName = "other";
+            // Given a connection that returns the database name
+            var connection = new TestSqlConnection(null);
+            
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+            .Returns((string connString) => 
+            {
+                connection.ConnectionString = connString;
+                SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
+
+                // Database name is respected. Follow heuristic where empty DB name really means Master
+                var dbName = string.IsNullOrEmpty(scsb.InitialCatalog) ? masterDbName : scsb.InitialCatalog;
+                connection.SetDatabase(dbName);
+                return connection;
+            });
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // When I connect to default
+            var connectionResult = await
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            connection.SetState(ConnectionState.Open);
+
+            connectionService.ChangeConnectionDatabaseContext(ownerUri, otherDbName);
+
+            Assert.Equal(otherDbName, connection.Database);
+        }
+
+        [Fact]
+        public async Task CanChangeDatabaseAzure()
+        {
+
+            string ownerUri = "file://my/sample/file.sql";
+            const string masterDbName = "master";
+            const string otherDbName = "other";
+            string dbName = masterDbName;
+            // Given a connection that returns the database name
+            var mockConnection = new Mock<DbConnection>();
+            mockConnection.Setup(conn => conn.ChangeDatabase(It.IsAny<string>()))
+            .Throws(new Exception());
+            mockConnection.SetupGet(conn => conn.Database).Returns(dbName);
+            mockConnection.SetupGet(conn => conn.State).Returns(ConnectionState.Open);
+            mockConnection.Setup(conn => conn.Close());
+            mockConnection.Setup(conn => conn.Open());
+            
+            var connection = mockConnection.Object;
+            
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+            .Returns((string connString) => 
+            {
+                connection.ConnectionString = connString;
+                SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
+
+                // Database name is respected. Follow heuristic where empty DB name really means Master
+                dbName = string.IsNullOrEmpty(scsb.InitialCatalog) ? masterDbName : scsb.InitialCatalog;
+                return connection;
+            });
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // When I connect to default
+            var connectionResult = await
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+            
+            ConnectionInfo testInfo;
+            connectionService.TryFindConnection(ownerUri, out testInfo);
+
+            Assert.NotNull(testInfo);
+
+            testInfo.IsCloud = true;
+
+            connectionService.ChangeConnectionDatabaseContext(ownerUri, otherDbName, true);
+
+            Assert.Equal(otherDbName, dbName);
+        }
+
+        [Fact]
+        public async Task ReturnsFalseIfNotForced()
+        {
+            string ownerUri = "file://my/sample/file.sql";
+            const string defaultDbName = "databaseName";
+            const string otherDbName = "other";
+            string dbName = defaultDbName;
+            // Given a connection that returns the database name
+            var mockConnection = new Mock<DbConnection>();
+            mockConnection.Setup(conn => conn.ChangeDatabase(It.IsAny<string>()))
+            .Throws(new Exception());
+            mockConnection.SetupGet(conn => conn.Database).Returns(dbName);
+            mockConnection.SetupGet(conn => conn.State).Returns(ConnectionState.Open);
+            mockConnection.Setup(conn => conn.Close());
+            mockConnection.Setup(conn => conn.Open());
+            
+            var connection = mockConnection.Object;
+            
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+            .Returns((string connString) => 
+            {
+                connection.ConnectionString = connString;
+                SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
+
+                // Database name is respected. Follow heuristic where empty DB name really means Master
+                dbName = string.IsNullOrEmpty(scsb.InitialCatalog) ? defaultDbName : scsb.InitialCatalog;
+                return connection;
+            });
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // When I connect to default
+            var connectionResult = await
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+            
+            ConnectionInfo testInfo;
+            connectionService.TryFindConnection(ownerUri, out testInfo);
+
+            Assert.NotNull(testInfo);
+
+            testInfo.IsCloud = true;
+
+            Assert.False(connectionService.ChangeConnectionDatabaseContext(ownerUri, otherDbName));
+
+            Assert.Equal(defaultDbName, dbName);
+        }
     }
 }
