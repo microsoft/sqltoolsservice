@@ -25,43 +25,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database db = context as Database;
             if (db != null)
             {
-                if ((db.Status & DatabaseStatus.Offline) == DatabaseStatus.Offline)
+                DatabaseStatus status;
+                try { 
+                    status = db.Status;
+                }
+                catch (SqlServer.Management.Common.ConnectionFailureException)
+                {
+                    // We get into this situation with DW Nodes which are paused.
+                    return "Unknown";
+                }
+                if ((status & DatabaseStatus.Offline) == DatabaseStatus.Offline)
                 {
                     return "Offline";
                 }
-                else if ((db.Status & DatabaseStatus.Recovering) == DatabaseStatus.Recovering)
+                else if ((status & DatabaseStatus.Recovering) == DatabaseStatus.Recovering)
                 {
                     return "Recovering";
                 }
-                else if ((db.Status & DatabaseStatus.RecoveryPending) == DatabaseStatus.RecoveryPending)
+                else if ((status & DatabaseStatus.RecoveryPending) == DatabaseStatus.RecoveryPending)
                 {
                     return "Recovery Pending";
                 }
-                else if ((db.Status & DatabaseStatus.Restoring) == DatabaseStatus.Restoring)
+                else if ((status & DatabaseStatus.Restoring) == DatabaseStatus.Restoring)
                 {
                     return "Restoring";
                 }
-                else if ((db.Status & DatabaseStatus.EmergencyMode) == DatabaseStatus.EmergencyMode)
+                else if ((status & DatabaseStatus.EmergencyMode) == DatabaseStatus.EmergencyMode)
                 {
                     return "Emergency Mode";
                 }
-                else if ((db.Status & DatabaseStatus.Inaccessible) == DatabaseStatus.Inaccessible)
+                else if ((status & DatabaseStatus.Inaccessible) == DatabaseStatus.Inaccessible)
                 {
                     return "Inaccessible";
                 }              
-                else if ((db.Status & DatabaseStatus.Shutdown) == DatabaseStatus.Shutdown)
+                else if ((status & DatabaseStatus.Shutdown) == DatabaseStatus.Shutdown)
                 {
                     return "Shutdown";
                 }
-                else if ((db.Status & DatabaseStatus.Standby) == DatabaseStatus.Standby)
+                else if ((status & DatabaseStatus.Standby) == DatabaseStatus.Standby)
                 {
                     return "Standby";
                 }
-                else if ((db.Status & DatabaseStatus.Suspect) == DatabaseStatus.Suspect)
+                else if ((status & DatabaseStatus.Suspect) == DatabaseStatus.Suspect)
                 {
                     return "Suspect";
                 }
-                else if ((db.Status & DatabaseStatus.AutoClosed) == DatabaseStatus.AutoClosed)
+                else if ((status & DatabaseStatus.AutoClosed) == DatabaseStatus.AutoClosed)
                 {
                     return "Auto Closed";
                 }	
