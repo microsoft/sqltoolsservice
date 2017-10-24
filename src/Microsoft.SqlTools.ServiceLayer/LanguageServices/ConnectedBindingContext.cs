@@ -36,6 +36,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Dispose resources
+        /// </summary>
+        public void Dispose()
+        {
+            this.bindingLock.Dispose();
+            if (this.serverConnection != null)
+            {
+                this.serverConnection.Disconnect();
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a flag indicating if the binder is connected
         /// </summary>
         public bool IsConnected { get; set; }
