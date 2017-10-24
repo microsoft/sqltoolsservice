@@ -1217,15 +1217,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    foreach (DbConnection connection in info.AllConnections)
+                    info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                    using(IEnumerator<KeyValuePair<string, DbConnection>> enumerableExecutor = info.AllConnectionWithTypes)
                     {
-                        if (connection.State == ConnectionState.Open)
+                        while(enumerableExecutor.MoveNext())
                         {
-                            connection.ChangeDatabase(newDatabaseName);
+                            KeyValuePair<string, DbConnection> key = enumerableExecutor.Current;
+                            if (key.Value.State == ConnectionState.Open)
+                            {
+                                try
+                                {
+                                    key.Value.ChangeDatabase(newDatabaseName);
+                                }
+                                catch (Exception e)
+                                {
+                                    key.Value.Close();
+                                    key.Value.Dispose();
+                                    info.RemoveConnection(key.Key);
+                                    
+                                    string connectionString = BuildConnectionString(info.ConnectionDetails);
+
+                                    // create a sql connection instance
+                                    DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
+                                    connection.Open();
+                                    info.AddConnection(key.Key, connection);
+                                }
+                            }
                         }
                     }
-
-                    info.ConnectionDetails.DatabaseName = newDatabaseName;
 
                     // Fire a connection changed event
                     ConnectionChangedParams parameters = new ConnectionChangedParams();
