@@ -1201,7 +1201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangeDatabaseParams changeDatabaseParams,
             RequestContext<bool> requestContext)
         {
-            ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase);
+            ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true);
             await requestContext.SendResult(true);
         }
 
@@ -1210,7 +1210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
-        public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+        public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
         {
             ConnectionInfo info;
             if (TryFindConnection(ownerUri, out info))
@@ -1230,18 +1230,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                                 {
                                     key.Value.ChangeDatabase(newDatabaseName);
                                 }
-                                catch (Exception e)
+                                catch (SqlException)
                                 {
-                                    key.Value.Close();
-                                    key.Value.Dispose();
-                                    info.RemoveConnection(key.Key);
-                                    
-                                    string connectionString = BuildConnectionString(info.ConnectionDetails);
+                                    if (force == true) {
+                                        key.Value.Close();
+                                        key.Value.Dispose();
+                                        info.RemoveConnection(key.Key);
+                                        
+                                        string connectionString = BuildConnectionString(info.ConnectionDetails);
 
-                                    // create a sql connection instance
-                                    DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
-                                    connection.Open();
-                                    info.AddConnection(key.Key, connection);
+                                        // create a sql connection instance
+                                        DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
+                                        connection.Open();
+                                        info.AddConnection(key.Key, connection);
+                                    } else {
+                                        throw;
+                                    }
                                 }
                             }
                         }
