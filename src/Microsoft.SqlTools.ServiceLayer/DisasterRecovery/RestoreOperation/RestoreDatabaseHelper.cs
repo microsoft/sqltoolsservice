@@ -67,6 +67,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         }
 
         /// <summary>
+        /// Cancels existing restore plan
+        /// </summary>
+        public bool CancelRestorePlan(RestoreParams restoreParams)
+        {
+            RestoreDatabaseTaskDataObject restoreTaskObject = null;
+            string sessionId = restoreParams.SessionId;
+            if (!string.IsNullOrEmpty(sessionId) && sessions.TryGetValue(sessionId, out restoreTaskObject))
+            {
+                ServerConnection connection = restoreTaskObject?.Server?.ConnectionContext;
+                if (connection != null && connection.IsOpen)
+                {
+                    connection.Disconnect();
+                }
+                sessions.TryRemove(sessionId, out restoreTaskObject);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Creates a restore plan, The result includes the information about the backup set, 
         /// the files and the database to restore to
         /// </summary>

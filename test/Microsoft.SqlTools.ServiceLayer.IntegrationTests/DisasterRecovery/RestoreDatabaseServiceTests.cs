@@ -440,6 +440,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         [Fact]
+        public async Task CancelRestorePlanRequestShouldCancelSuccessfully()
+        {
+            await VerifyBackupFileCreated();
+
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                string filePath = GetBackupFilePath(fullBackupFilePath);
+
+                RestoreParams restoreParams = new RestoreParams
+                {
+                    BackupFilePaths = filePath,
+                    OwnerUri = queryTempFile.FilePath
+                };
+
+                await RunAndVerify<RestorePlanResponse>(
+                    test: (requestContext) => service.HandleRestorePlanRequest(restoreParams, requestContext),
+                    verify: ((result) =>
+                    {
+                        restoreParams.SessionId = result.SessionId;
+                        Assert.True(result.DbFiles.Any());
+                    }));
+
+                await RunAndVerify<bool>(
+                   test: (requestContext) => service.HandleCancelRestorePlanRequest(restoreParams, requestContext),
+                   verify: ((result) =>
+                   {
+                       Assert.True(result);
+                   }));
+            }
+        }
+
+        [Fact]
         public async Task RestoreConfigInfoRequestShouldReturnResponse()
         {
             await VerifyBackupFileCreated();
