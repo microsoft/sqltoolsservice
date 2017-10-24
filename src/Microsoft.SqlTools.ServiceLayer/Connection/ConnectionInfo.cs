@@ -111,17 +111,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        /// <summary>
-        /// Get enumerator for types and connections
-        /// </summary>
-        public IEnumerator<KeyValuePair<string, DbConnection>> AllConnectionWithTypes
-        {
-            get
-            {
-                return ConnectionTypeToConnectionMap.GetEnumerator();
-            }
-        }
-
         public bool HasConnectionType(string connectionType)
         {
             connectionType = connectionType ?? ConnectionType.Default;
