@@ -6,6 +6,7 @@
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.Utility;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -83,20 +84,38 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         public bool GainAccessToDatabase()
         {
+            bool result = false;
             if (LockedDatabaseManager != null)
             {
-                return LockedDatabaseManager.GainFullAccessToDatabase(ServerName, DatabaseName);
+                result = LockedDatabaseManager.GainFullAccessToDatabase(ServerName, DatabaseName);
             }
-            return false;
+            if(result && SourceDatabas != null &&  string.Compare(DatabaseName , SourceDatabas, StringComparison.InvariantCultureIgnoreCase) != 0)
+            {
+                result = LockedDatabaseManager.GainFullAccessToDatabase(ServerName, SourceDatabas);
+            }
+            return result;
         }
 
         public bool ReleaseAccessToDatabase()
         {
+            bool result = false;
             if (LockedDatabaseManager != null)
             {
-                return LockedDatabaseManager.ReleaseAccess(ServerName, DatabaseName);
+                result = LockedDatabaseManager.ReleaseAccess(ServerName, DatabaseName);
             }
-            return false;
+            if (result && SourceDatabas != null && string.Compare(DatabaseName, SourceDatabas, StringComparison.InvariantCultureIgnoreCase) != 0)
+            {
+                result = LockedDatabaseManager.ReleaseAccess(ServerName, SourceDatabas);
+            }
+            return result;
+        }
+
+        private string SourceDatabas
+        {
+            get
+            {
+                return Server?.ConnectionContext.DatabaseName;
+            }
         }
     }
 }

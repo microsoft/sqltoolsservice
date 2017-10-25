@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -57,16 +58,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             DateTime dt = DateTime.MinValue;
 
-            //TODO: the code is moved from ssms and used for restore differential backups
-            //Uncomment when restore operation for differential backups is supported
-            /*
             string query = "SELECT GETDATE()";
-            DataSet dataset = this.server.ExecutionManager.ExecuteWithResults(query);
+            DataSet dataset = this.server.ExecutionManager.ConnectionContext.ExecuteWithResults(query);
             if (dataset != null && dataset.Tables.Count > 0 && dataset.Tables[0].Rows.Count > 0)
             {
-                dt = Convert.ToDateTime(dataset.Tables[0].Rows[0][0], SmoApplication.DefaultCulture);
+                dt = Convert.ToDateTime(dataset.Tables[0].Rows[0][0], CultureInfo.CurrentCulture);
             }
-            */
+            
             return dt;
         }
 
