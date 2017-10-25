@@ -2311,6 +2311,11 @@
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
       </trans-unit>
+      <trans-unit id="ScriptingUnexpectedError">
+        <source>Unexpected error while scripting: no result returned from script operation.</source>
+        <target state="new">Unexpected error while scripting: no result returned from script operation.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
