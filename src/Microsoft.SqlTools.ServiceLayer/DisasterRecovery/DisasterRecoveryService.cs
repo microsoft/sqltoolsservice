@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -114,6 +115,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             // Create restore plan
             serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
 
+            // Cancel restore plan
+            serviceHost.SetRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest);
+
             // Create restore config
             serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
 
@@ -161,6 +165,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handles a restore request
+        /// </summary>
+        internal async Task HandleCancelRestorePlanRequest(
+            RestoreParams restoreParams,
+            RequestContext<bool> requestContext)
+        {
+            bool result = false;
+            try
+            {
+                result = this.restoreDatabaseService.CancelRestorePlan(restoreParams);
+                await requestContext.SendResult(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Failed to cancel restore session. error: " + ex.Message);
+                await requestContext.SendResult(result);
             }
         }
 

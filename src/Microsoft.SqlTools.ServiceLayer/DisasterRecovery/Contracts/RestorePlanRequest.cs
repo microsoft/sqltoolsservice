@@ -87,4 +87,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
             RequestType<RestoreParams, RestorePlanResponse> Type =
                 RequestType<RestoreParams, RestorePlanResponse>.Create("disasterrecovery/restoreplan");
     }
+
+    public class CancelRestorePlanRequest
+    {
+        public static readonly
+            RequestType<RestoreParams, bool> Type =
+                RequestType<RestoreParams, bool>.Create("disasterrecovery/cancelrestoreplan");
+    }
 }
