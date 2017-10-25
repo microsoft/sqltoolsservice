@@ -369,20 +369,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // if a queue processing cancellation was requested then exit the loop
                         if (token.IsCancellationRequested)
                         {
-                            lock (this.bindingQueueLock)
-                            {
-                                this.bindingQueue.Clear();
-                            }
-
-                            lock (this.bindingContextLock)
-                            {
-                                foreach(var key in this.BindingContextMap.Keys)
-                                {
-                                    this.BindingContextMap[key].Dispose();
-                                }
-                                this.BindingContextMap.Clear();
-                            }
-
                             break;
                         }
                     } 
@@ -399,6 +385,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Clear queued items
+        /// </summary>
+        public void ClearQueuedItems()
+        {
+            lock (this.bindingQueueLock)
+            {
+                if (this.bindingQueue.Count > 0)
+                {
+                    this.bindingQueue.Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clear binding context map
+        /// </summary>
+        public void ClearContextMap()
+        {
+            lock (this.bindingContextLock)
+            {
+                foreach (var key in this.BindingContextMap.Keys)
+                {
+                    this.BindingContextMap[key].Dispose();
+                }
+                this.BindingContextMap.Clear();
             }
         }
 

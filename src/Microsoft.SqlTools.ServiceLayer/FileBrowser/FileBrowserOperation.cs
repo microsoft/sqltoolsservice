@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -24,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private bool fileTreeCreated;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
+        public object lockObject = new Object();
 
         #region Constructors
 
@@ -40,11 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <summary>
         /// Initializes a new instance of the <see cref="FileBrowser"/> class.
         /// </summary>
-        /// <param name="connectionInfo">The connection info</param>
+        /// <param name="connection">The connection object</param>
         /// <param name="fileFilters">The file extension filters</param>
-        public FileBrowserOperation(SqlConnection connectionInfo, string expandPath, string[] fileFilters = null): this()
+        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null): this()
         {
-            this.sqlConnection = connectionInfo;
+            this.connection = connection;
             this.Initialize(expandPath, fileFilters);
         }
 
@@ -73,14 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             get
             {
                 return this.fileTreeCreated;
-            }
-        }
-
-        public SqlConnection SqlConnection
-        {
-            get
-            {
-                return this.sqlConnection;
             }
         }
 
@@ -113,9 +107,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         public void Dispose()
         {
-            if (this.sqlConnection != null)
+            if (this.connection != null)
             {
-                this.sqlConnection.Close();
+                this.connection.Disconnect();
             }
             this.cancelSource.Dispose();
         }
@@ -123,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         public void PopulateFileTree()
         {
             this.fileTreeCreated = false;
-            this.PathSeparator = GetPathSeparator(this.Enumerator, this.sqlConnection);
+            this.PathSeparator = GetPathSeparator(this.Enumerator, this.connection);
             PopulateDrives();
             ExpandSelectedNode(this.expandPath);
             this.fileTreeCreated = true;
@@ -191,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             bool first = true;
             if (!cancelToken.IsCancellationRequested)
             {
-                foreach (var fileInfo in EnumerateDrives(Enumerator, sqlConnection))
+                foreach (var fileInfo in EnumerateDrives(Enumerator, connection))
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
@@ -221,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         public List<FileTreeNode> GetChildren(string filePath)
         { 
             List<FileTreeNode> children = new List<FileTreeNode>();
-            foreach (var file in EnumerateFilesInFolder(Enumerator, sqlConnection, filePath))
+            foreach (var file in EnumerateFilesInFolder(Enumerator, connection, filePath))
             {
                 bool isFile = !string.IsNullOrEmpty(file.fileName);
                 FileTreeNode treeNode = new FileTreeNode();

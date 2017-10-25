@@ -28,8 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private readonly ConcurrentDictionary<string, FileBrowserOperation> ownerToFileBrowserMap = new ConcurrentDictionary<string, FileBrowserOperation>();
         private readonly ConcurrentDictionary<string, ValidatePathsCallback> validatePathsCallbackMap = new ConcurrentDictionary<string, ValidatePathsCallback>();
         private ConnectionService connectionService;
-        private ConnectedBindingQueue expandNodeQueue = new ConnectedBindingQueue(needsMetadata: false);
-        private static int DefaultExpandTimeout = 120000;
+        private ConnectedBindingQueue fileBrowserQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private static int DefaultTimeout = 120000;
         private string serviceName = "FileBrowser";
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue(this.serviceName, this.expandNodeQueue);
+                    connectionService.RegisterConnectedQueue(this.serviceName, this.fileBrowserQueue);
                 }
                 return connectionService;
             }
@@ -132,90 +132,137 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             FileBrowserCloseParams fileBrowserParams,
             RequestContext<FileBrowserCloseResponse> requestContext)
         {
-            FileBrowserCloseResponse response = new FileBrowserCloseResponse();
-            FileBrowserOperation removedOperation;
-            response.Succeeded = ownerToFileBrowserMap.TryRemove(fileBrowserParams.OwnerUri, out removedOperation);
-
-            if (removedOperation != null && this.expandNodeQueue != null)
+            try
             {
-                bool hasPendingQueueItems = this.expandNodeQueue.HasPendingQueueItems;
-                if (removedOperation.FileTreeCreated && !hasPendingQueueItems)
-                {
-                    removedOperation.Dispose();
-                    this.expandNodeQueue.CloseConnections(removedOperation.SqlConnection.DataSource, removedOperation.SqlConnection.Database, DefaultExpandTimeout);
-                }
-                else if (!removedOperation.FileTreeCreated)
-                {
-                    removedOperation.Cancel();
-                }
-                else if (hasPendingQueueItems)
-                { 
-                    this.expandNodeQueue.StopQueueProcessor(DefaultExpandTimeout);
-                }
+                var task = Task.Run(() => RunFileBrowserCloseTask(fileBrowserParams, requestContext))
+                    .ContinueWithOnFaulted(null);
+                await requestContext.SendResult(new FileBrowserCloseResponse() { Succeeded = true });
             }
-
-            await requestContext.SendResult(response);
+            catch
+            {
+                await requestContext.SendResult(new FileBrowserCloseResponse());
+            }
         }
 
         #endregion
 
         public void Dispose()
         {
-            this.expandNodeQueue.Dispose();
+            this.fileBrowserQueue.Dispose();
+        }
+
+        internal async Task RunFileBrowserCloseTask(FileBrowserCloseParams fileBrowserParams, RequestContext<FileBrowserCloseResponse> requestContext)
+        {
+            FileBrowserCloseResponse result = new FileBrowserCloseResponse();
+            try
+            {
+                FileBrowserOperation operation = null;
+                ConnectionInfo connInfo;
+                ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out operation);
+                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
+
+                if (operation != null && connInfo != null)
+                {
+                    if (!operation.FileTreeCreated)
+                    {
+                        operation.Cancel();
+                    }
+
+                    // Clear queued items
+                    this.fileBrowserQueue.ClearQueuedItems();
+
+                    // Queue operation to clean up resources
+                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                        key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
+                        bindingTimeout: DefaultTimeout,
+                        waitForLockTimeout: DefaultTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            FileBrowserOperation removedOperation = null;
+                            ownerToFileBrowserMap.TryRemove(fileBrowserParams.OwnerUri, out removedOperation);
+                            if (removedOperation != null)
+                            {
+                                removedOperation.Dispose();
+                            }
+                            result.Succeeded = true;
+                            return result;
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+                    if (queueItem.GetResultAsT<FileBrowserCloseResponse>() != null)
+                    {
+                        result = queueItem.GetResultAsT<FileBrowserCloseResponse>();
+                    }
+
+                    this.fileBrowserQueue.CloseConnections(connInfo.ConnectionDetails.ServerName, connInfo.ConnectionDetails.DatabaseName, DefaultTimeout);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+            }
+
+            await requestContext.SendEvent(FileBrowserClosedNotification.Type, result);
         }
 
         internal async Task RunFileBrowserOpenTask(FileBrowserOpenParams fileBrowserParams, RequestContext<bool> requestContext)
         {
             FileBrowserOpenedParams result = new FileBrowserOpenedParams();
-            SqlConnection conn = null;
             FileBrowserOperation browser = null;
             bool isCancelRequested = false;
 
-            if (this.expandNodeQueue.IsCancelRequested)
-            {
-                this.expandNodeQueue.StartQueueProcessor();
-            }
-
             try
             {
-                if (!fileBrowserParams.ChangeFilter)
+                ConnectionInfo connInfo;
+                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
+                if (connInfo != null)
                 {
-                    ConnectionInfo connInfo;
-                    this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
-                    if (connInfo != null)
-                    {
-                        // Open new connection for each Open request
-                        conn = ConnectionService.OpenSqlConnection(connInfo, this.serviceName);
-                        browser = new FileBrowserOperation(conn, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
-                    }
-                }
-                else
-                {
-                    ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out browser);
-                    if (browser != null)
-                    {
-                        browser.Initialize(fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
-                    }
-                }
+                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                        key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
+                        bindingTimeout: DefaultTimeout,
+                        waitForLockTimeout: DefaultTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            if (!fileBrowserParams.ChangeFilter)
+                            {
+                                browser = new FileBrowserOperation(bindingContext.ServerConnection, fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
+                            }
+                            else
+                            {
+                                ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out browser);
+                                if (browser != null)
+                                {
+                                    browser.Initialize(fileBrowserParams.ExpandPath, fileBrowserParams.FileFilters);
+                                }
+                            }
 
-                if (browser != null)
-                {
-                    ownerToFileBrowserMap.AddOrUpdate(fileBrowserParams.OwnerUri, browser, (key, value) => browser);
+                            if (browser != null)
+                            {
+                                ownerToFileBrowserMap.AddOrUpdate(fileBrowserParams.OwnerUri, browser, (key, value) => browser);
 
-                    // Create file browser tree
-                    browser.PopulateFileTree();
+                                // Create file browser tree
+                                browser.PopulateFileTree();
 
-                    // Check if cancel was requested
-                    if (browser.IsCancellationRequested)
+                                if (browser.IsCancellationRequested)
+                                {
+                                    isCancelRequested = true;
+                                }
+                                else
+                                {
+                                    result.OwnerUri = fileBrowserParams.OwnerUri;
+                                    result.FileTree = browser.FileTree;
+                                    result.Succeeded = true;
+                                }
+                            }
+
+                            return result;
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+
+                    if (queueItem.GetResultAsT<FileBrowserOpenedParams>() != null)
                     {
-                        browser.Dispose();
-                        isCancelRequested = true;
-                    }
-                    else
-                    {
-                        result.OwnerUri = fileBrowserParams.OwnerUri;
-                        result.FileTree = browser.FileTree;
-                        result.Succeeded = true;
+                        result = queueItem.GetResultAsT<FileBrowserOpenedParams>();
                     }
                 }
             }
@@ -235,32 +282,29 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             FileBrowserExpandedParams result = new FileBrowserExpandedParams();
             try
             {
-                FileBrowserOperation operation;
+                FileBrowserOperation operation = null;
                 ConnectionInfo connInfo;
-                result.Succeeded = ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out operation);
+                ownerToFileBrowserMap.TryGetValue(fileBrowserParams.OwnerUri, out operation);
                 this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
 
-                if (result.Succeeded && operation != null && connInfo != null)
+                if (operation != null && connInfo != null)
                 {
-                    QueueItem queueItem = expandNodeQueue.QueueBindingOperation(
-                        key: expandNodeQueue.AddConnectionContext(connInfo, this.serviceName),
-                        bindingTimeout: DefaultExpandTimeout,
-                        waitForLockTimeout: DefaultExpandTimeout,
+                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                        key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
+                        bindingTimeout: DefaultTimeout,
+                        waitForLockTimeout: DefaultTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
                             result.ExpandPath = fileBrowserParams.ExpandPath;
                             result.Children = operation.GetChildren(fileBrowserParams.ExpandPath).ToArray();
                             result.OwnerUri = fileBrowserParams.OwnerUri;
+                            result.Succeeded = true;
                             return result;
                         });
 
                     queueItem.ItemProcessed.WaitOne();
 
-                    if (this.expandNodeQueue.IsCancelRequested)
-                    {
-                        this.expandNodeQueue.CloseConnections(operation.SqlConnection.DataSource, operation.SqlConnection.Database, DefaultExpandTimeout);
-                    }
-                    else if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
+                    if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
                     {
                         result = queueItem.GetResultAsT<FileBrowserExpandedParams>();
                     }
@@ -268,7 +312,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                result.Succeeded = false;
                 result.Message = ex.Message;
             }
 
@@ -282,22 +325,36 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             try
             {
                 ValidatePathsCallback callback;
+                ConnectionInfo connInfo;
+                this.ConnectionServiceInstance.TryFindConnection(fileBrowserParams.OwnerUri, out connInfo);
                 if (validatePathsCallbackMap.TryGetValue(fileBrowserParams.ServiceType, out callback)
                     && callback != null
+                    && connInfo != null
                     && fileBrowserParams.SelectedFiles != null
                     && fileBrowserParams.SelectedFiles.Length > 0)
                 {
-                    string errorMessage;
-                    result.Succeeded = callback(new FileBrowserValidateEventArgs
-                    {
-                        ServiceType = fileBrowserParams.ServiceType,
-                        OwnerUri = fileBrowserParams.OwnerUri,
-                        FilePaths = fileBrowserParams.SelectedFiles
-                    }, out errorMessage);
+                    QueueItem queueItem = fileBrowserQueue.QueueBindingOperation(
+                        key: fileBrowserQueue.AddConnectionContext(connInfo, this.serviceName),
+                        bindingTimeout: DefaultTimeout,
+                        waitForLockTimeout: DefaultTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            string errorMessage;
+                            result.Succeeded = callback(new FileBrowserValidateEventArgs
+                            {
+                                ServiceType = fileBrowserParams.ServiceType,
+                                OwnerUri = fileBrowserParams.OwnerUri,
+                                FilePaths = fileBrowserParams.SelectedFiles
+                            }, out errorMessage);
+                            result.Message = errorMessage;
+                            return result;
+                        });
 
-                    if (!string.IsNullOrEmpty(errorMessage))
+                    queueItem.ItemProcessed.WaitOne();
+
+                    if (queueItem.GetResultAsT<FileBrowserValidatedParams>() != null)
                     {
-                        result.Message = errorMessage;
+                        result = queueItem.GetResultAsT<FileBrowserValidatedParams>();
                     }
                 }
                 else
