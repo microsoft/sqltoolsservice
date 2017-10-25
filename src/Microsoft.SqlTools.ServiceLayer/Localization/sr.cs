@@ -2405,6 +2405,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ScriptingUnexpectedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingUnexpectedError);
+            }
+        }
+
         public static string unavailable
         {
             get
@@ -4598,6 +4606,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
+
+
+            public const string ScriptingUnexpectedError = "ScriptingUnexpectedError";
 
 
             public const string unavailable = "unavailable";
