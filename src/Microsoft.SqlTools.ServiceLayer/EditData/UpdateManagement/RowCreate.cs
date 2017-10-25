@@ -39,6 +39,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
+            
+            // Process the default cell values. If the column is calculated, then the value is a placeholder
+            DefaultValues = associatedMetadata.Columns.Select((col, index) => col.IsCalculated.HasTrue()
+                ? SR.EditDataComputedColumnPlaceholder
+                : col.DefaultValue).ToArray();
         }
 
         /// <summary>
@@ -47,6 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         protected override int SortId => 1;
 
+        /// <summary>
+        /// Default values for the row, will be applied as cell updates if there isn't a user-
+        /// provided cell update during commit
+        /// </summary>
+        public string[] DefaultValues { get; }
+        
         #region Public Methods
 
         /// <summary>
@@ -83,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 DbColumnWrapper column = AssociatedResultSet.Columns[i];
                 CellUpdate cell = newCells[i];
+                string defaultValue = DefaultValues[i]; 
 
                 // Add the column to the output
                 outColumns.Add($"inserted.{SqlScriptFormatter.FormatIdentifier(column.ColumnName)}");
@@ -93,10 +105,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                     continue;
                 }
 
-                // If we're missing a cell, then we cannot continue
+                // Make sure a value was provided for the cell 
                 if (cell == null)
                 {
-                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
+                    // If there isn't a default, then fail 
+                    if (defaultValue == null)
+                    {
+                        throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
+                    }
+                    
+                    // There is a default value, so trust the db will apply it
+                    continue;
                 }
 
                 // Create a parameter for the value and add it to the command
@@ -129,15 +148,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>EditRow of pending update</returns>
         public override EditRow GetEditRow(DbCellValue[] cachedRow)
         {
-            // Iterate over the new cells. If they are null, generate a blank value
-            EditCell[] editCells = newCells.Select(cell =>
-                {
-                    DbCellValue dbCell = cell == null
-                        ? new DbCellValue {DisplayValue = string.Empty, IsNull = false, RawObject = null}
-                        : cell.AsDbCellValue;
-                    return new EditCell(dbCell, true);
-                })
-                .ToArray();
+            // Get edit cells for each 
+            EditCell[] editCells = newCells.Select(GetEditCell).ToArray();
+            
             return new EditRow
             {
                 Id = RowId,
@@ -195,9 +208,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Remove the cell update from list of set cells
             newCells[columnId] = null;
-            return new EditRevertCellResult {IsRowDirty = true, Cell = null};
-            // @TODO: Return default value when we have support checked in
-            // @TODO: RETURN THE DEFAULT VALUE
+            return new EditRevertCellResult
+            {
+                IsRowDirty = true, 
+                Cell = GetEditCell(null, columnId)
+            };
         }
 
         /// <summary>
@@ -227,6 +242,28 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         #endregion
 
+        private EditCell GetEditCell(CellUpdate cell, int index)
+        {
+            DbCellValue dbCell;
+            if (cell == null)
+            {
+                // Cell hasn't been provided by user yet, attempt to use the default value
+                dbCell = new DbCellValue
+                {
+                    DisplayValue = DefaultValues[index] ?? string.Empty,
+                    IsNull = false,
+                    RawObject = null,
+                    RowId = RowId
+                };
+            }
+            else
+            {
+                // Cell has been provided by user, so use that
+                dbCell = cell.AsDbCellValue;
+            }
+            return new EditCell(dbCell, true);
+        }
+        
         private string GetTableClause()
         {
             // Get all the columns that will be provided
