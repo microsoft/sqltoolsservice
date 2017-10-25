@@ -229,13 +229,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         try
                         {
                             // check to make sure any results were recieved
-                            if (query.Batches.Length == 0 || query.Batches[0].ResultSets.Count == 0) 
+                            if (query.Batches.Length == 0 
+                                || query.Batches[0].ResultSets.Count == 0
+                                || query.Batches[0].ResultSets[0].RowCount == 0) 
                             {
                                 await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
                                 return;
                             } 
 
-                            var rowCount = query.Batches[0].ResultSets[0].RowCount;
+                            long rowCount = query.Batches[0].ResultSets[0].RowCount;
                             // check to make sure there is a safe amount of rows to load into memory
                             if (rowCount > Int32.MaxValue) 
                             {
