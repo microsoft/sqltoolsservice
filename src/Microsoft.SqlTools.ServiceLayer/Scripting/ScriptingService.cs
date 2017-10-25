@@ -23,7 +23,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -228,86 +227,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// Runs the async task that performs the scripting operation.
         /// </summary>
         private void RunSelectTask(ConnectionInfo connInfo, ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
-        {
-            Task.Run(() =>
-            {
-                try
+        {            
+            ConnectionServiceInstance.ConnectionQueue.QueueBindingOperation(
+                key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo, "Scripting"),
+                bindingTimeout: ScriptingOperationTimeout,
+                bindOperation: (bindingContext, cancelToken) =>
                 {
-                    QueueItem queueItem = ConnectionServiceInstance.ConnectionQueue.QueueBindingOperation(
-                        key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo, "Scripting"),
-                        bindingTimeout: ScriptingOperationTimeout,
-                        bindOperation: (bindingContext, cancelToken) =>
+                    string script = string.Empty;
+                    ScriptingObject scriptingObject = parameters.ScriptingObjects[0];
+                    try
+                    {
+                        Server server = new Server(bindingContext.ServerConnection);
+                        server.DefaultTextMode = true;
+
+                        // build object URN
+                        SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
+                        Urn objectUrn = BuildScriptingObjectUrn(server, connectionStringBuilder, scriptingObject);
+                        string typeName = objectUrn.GetNameForType(scriptingObject.Type);
+
+                        // select from service broker
+                        if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
                         {
-                            return DoScriptSelect(connInfo, parameters, bindingContext);
-                        });
-                        
-                    queueItem.ItemProcessed.WaitOne();
-                    var result = queueItem.GetResultAsT<ScriptingResultWithException>();
-                    if (result == null)
-                    {
-                        result = new ScriptingResultWithException()
-                        { 
-                            Exception = new ScriptingException(SR.ScriptingUnexpectedError)
-                        };
+                            script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
+                        }
+
+                        // select from queues
+                        else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
+                                 string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
+                        {
+                            script = Scripter.SelectAllValues(objectUrn);
+                        }
+
+                        // select from table or view
+                        else 
+                        {   
+                            Database db = server.Databases[connectionStringBuilder.InitialCatalog];
+                            bool isDw = db.IsSqlDw;
+                            script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
+                        }
+
+                        // send script result to client
+                        requestContext.SendResult(new ScriptingResult { Script = script });                          
                     }
-                    if (result.Exception == null)
+                    catch (Exception e)
                     {
-                        requestContext.SendResult(result).Wait();
+                        requestContext.SendError(e);
                     }
-                    else
-                    {
-                        requestContext.SendError(result.Exception);
-                    }
-                }
-                catch (Exception e)
-                {
-                    requestContext.SendError(e);
-                }
-            }).ContinueWithOnFaulted(null);
-        }
 
-        private ScriptingResult DoScriptSelect(ConnectionInfo connInfo, ScriptingParams parameters, IBindingContext bindingContext)
-        {
-            try
-            {
-                string script = string.Empty;
-                ScriptingObject scriptingObject = parameters.ScriptingObjects[0];
-                Server server = new Server(bindingContext.ServerConnection);
-                server.DefaultTextMode = true;
-
-                // build object URN
-                SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
-                Urn objectUrn = BuildScriptingObjectUrn(server, connectionStringBuilder, scriptingObject);
-                string typeName = objectUrn.GetNameForType(scriptingObject.Type);
-
-                // select from service broker
-                if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
-                {
-                    script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
-                }
-
-                // select from queues
-                else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
-                        string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
-                {
-                    script = Scripter.SelectAllValues(objectUrn);
-                }
-
-                // select from table or view
-                else 
-                {   
-                    Database db = server.Databases[connectionStringBuilder.InitialCatalog];
-                    bool isDw = db.IsSqlDw;
-                    script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
-                }
-
-                // send script result to client
-                return new ScriptingResult { Script = script };                          
-            }
-            catch (Exception e)
-            {
-                return new ScriptingResultWithException() { Exception = e};
-            }
+                    return null;
+                });
         }
 
         /// <summary>
@@ -348,11 +316,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     operation.Dispose();
                 }
             }
-        }
-
-        internal class ScriptingResultWithException : ScriptingResult
-        {
-            public Exception Exception { get; set; }
         }
     }
 }
