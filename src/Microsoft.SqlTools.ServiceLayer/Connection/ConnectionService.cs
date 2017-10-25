@@ -1201,7 +1201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangeDatabaseParams changeDatabaseParams,
             RequestContext<bool> requestContext)
         {
-            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase));
+            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
         }
 
         /// <summary>
@@ -1209,22 +1209,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
-        public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+        public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
         {
             ConnectionInfo info;
             if (TryFindConnection(ownerUri, out info))
             {
                 try
                 {
-                    foreach (DbConnection connection in info.AllConnections)
-                    {
-                        if (connection.State == ConnectionState.Open)
-                        {
-                            connection.ChangeDatabase(newDatabaseName);
-                        }
-                    }
-
                     info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                    foreach (string key in info.AllConnectionTypes)
+                    {
+                        DbConnection conn;
+                        info.TryGetConnection(key, out conn);
+                        if (conn != null && conn.Database != newDatabaseName && conn.State == ConnectionState.Open)
+                        {
+                            if (info.IsCloud && force)
+                            {
+                                conn.Close();
+                                conn.Dispose();
+                                info.RemoveConnection(key);
+                                
+                                string connectionString = BuildConnectionString(info.ConnectionDetails);
+
+                                // create a sql connection instance
+                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
+                                connection.Open();
+                                info.AddConnection(key, connection);
+                            }
+                            else
+                            {
+                                conn.ChangeDatabase(newDatabaseName);
+                            }
+                        }
+                        
+                    }
 
                     // Fire a connection changed event
                     ConnectionChangedParams parameters = new ConnectionChangedParams();

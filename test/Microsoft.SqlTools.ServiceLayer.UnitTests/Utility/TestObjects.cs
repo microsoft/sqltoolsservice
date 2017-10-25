@@ -194,8 +194,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     public class TestSqlConnection : DbConnection
     {
         private string _database;
+        private ConnectionState _state;
 
-        internal TestSqlConnection(TestResultSet[] data)
+        public TestSqlConnection() 
+        {
+
+        }
+
+        public TestSqlConnection(TestResultSet[] data)
         {
             Data = data;
         }
@@ -227,7 +233,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             get { return _database; }
         }
 
-        public override ConnectionState State { get; }
+        public override ConnectionState State
+        {
+            get { return _state; }
+        }
+
         public override string DataSource { get; }
         public override string ServerVersion { get; }
 
@@ -238,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override void ChangeDatabase(string databaseName)
         {
-            // No Op
+            _database = databaseName;
         }
 
         /// <summary>
@@ -248,6 +258,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void SetDatabase(string database)
         {
             this._database = database;
+        }
+
+        public void SetState(ConnectionState state)
+        {
+            this._state = state;
         }
     }
 
