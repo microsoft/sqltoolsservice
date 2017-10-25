@@ -402,21 +402,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        /// <summary>
-        /// Clear binding context map
-        /// </summary>
-        public void ClearContextMap()
-        {
-            lock (this.bindingContextLock)
-            {
-                foreach (var key in this.BindingContextMap.Keys)
-                {
-                    this.BindingContextMap[key].Dispose();
-                }
-                this.BindingContextMap.Clear();
-            }
-        }
-
         public void Dispose()
         {
             if (this.processQueueCancelToken != null)

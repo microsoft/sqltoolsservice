@@ -5,12 +5,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -25,7 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         private bool fileTreeCreated;
         private CancellationTokenSource cancelSource;
         private CancellationToken cancelToken;
-        public object lockObject = new Object();
 
         #region Constructors
 
