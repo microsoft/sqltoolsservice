@@ -32,7 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// </summary>
         public FileBrowserOperation()
         {
-            this.fileTree = new FileTree();
             this.cancelSource = new CancellationTokenSource();
             this.cancelToken = cancelSource.Token;
         }
@@ -92,6 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 
         public void Initialize(string expandPath, string[] fileFilters)
         {
+            this.fileTree = new FileTree();
             this.expandPath = expandPath;
             if (fileFilters == null)
             {
