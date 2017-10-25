@@ -690,8 +690,6 @@ ScriptingParams_FilePath_Property_Invalid = Invalid directory specified by the S
 
 ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.
 
-ScriptingUnexpectedError = Unexpected error while scripting: no result returned from script operation.
-
 
 
 

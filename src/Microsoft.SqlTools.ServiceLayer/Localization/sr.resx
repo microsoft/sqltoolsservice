@@ -1380,10 +1380,6 @@
     <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
     <comment></comment>
   </data>
-  <data name="ScriptingUnexpectedError" xml:space="preserve">
-    <value>Unexpected error while scripting: no result returned from script operation.</value>
-    <comment></comment>
-  </data>
   <data name="unavailable" xml:space="preserve">
     <value>Unavailable</value>
     <comment></comment>
