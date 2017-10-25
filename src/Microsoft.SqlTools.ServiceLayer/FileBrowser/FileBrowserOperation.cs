@@ -30,19 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <summary>
         /// Initializes a new instance of the <see cref="FileBrowser"/> class.
         /// </summary>
-        public FileBrowserOperation()
+        /// <param name="connection">The connection object</param>
+        /// <param name="fileFilters">The file extension filters</param>
+        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null)
         {
             this.cancelSource = new CancellationTokenSource();
             this.cancelToken = cancelSource.Token;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FileBrowser"/> class.
-        /// </summary>
-        /// <param name="connection">The connection object</param>
-        /// <param name="fileFilters">The file extension filters</param>
-        public FileBrowserOperation(ServerConnection connection, string expandPath, string[] fileFilters = null): this()
-        {
             this.connection = connection;
             this.Initialize(expandPath, fileFilters);
         }
