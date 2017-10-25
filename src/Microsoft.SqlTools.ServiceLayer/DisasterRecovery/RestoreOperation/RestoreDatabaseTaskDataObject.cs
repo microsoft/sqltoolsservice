@@ -256,7 +256,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         public override void Execute(TaskExecutionMode mode)
         {
+            RestorePlanToExecute = null;
             UpdateRestoreTaskObject();
+            if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
+            {
+                GetRestorePlanForExecutionAndScript();
+            }
 
             base.Execute(mode);
         }
@@ -291,19 +296,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         {
             try
             {
-                if (IsValid && RestorePlan.RestoreOperations != null && RestorePlan.RestoreOperations.Any())
+                if (RestorePlanToExecute != null)
                 {
                     // Restore Plan should be already created and updated at this point
 
-                    RestorePlan restorePlan = GetRestorePlanForExecutionAndScript();
-
-                    if (restorePlan != null && restorePlan.RestoreOperations.Count > 0)
+                    if (RestorePlanToExecute != null && RestorePlanToExecute.RestoreOperations.Count > 0)
                     {
-                        restorePlan.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
+                        RestorePlanToExecute.PercentComplete += (object sender, PercentCompleteEventArgs e) =>
                         {
                             OnMessageAdded(new TaskMessage { Description = $"{e.Percent}%", Status = SqlTaskStatus.InProgress });
                         };
-                        restorePlan.Execute();
+                        RestorePlanToExecute.Execute();
                     }
                 }
                 else
