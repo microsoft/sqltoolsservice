@@ -605,6 +605,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             string uri = string.Format(CultureInfo.InvariantCulture, "{0}{1}", uriPrefix, Uri.EscapeUriString(details.ServerName));
             uri = AppendIfExists(uri, "databaseName", details.DatabaseName);
             uri = AppendIfExists(uri, "user", details.UserName);
+            uri = AppendIfExists(uri, "groupId", details.GroupId);
+            uri = AppendIfExists(uri, "displayName", details.DatabaseDisplayName);
             return uri;
         }
 

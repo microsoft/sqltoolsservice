@@ -72,12 +72,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private string GetConnectionContextKey(ConnectionInfo connInfo)
         {
             ConnectionDetails details = connInfo.ConnectionDetails;
-            return string.Format("{0}_{1}_{2}_{3}",
+            string key = string.Format("{0}_{1}_{2}_{3}",
                 details.ServerName ?? "NULL",
                 details.DatabaseName ?? "NULL",
                 details.UserName ?? "NULL",
                 details.AuthenticationType ?? "NULL"
             );
+
+            if (!string.IsNullOrEmpty(details.DatabaseDisplayName))
+            {
+                key += "_" + details.DatabaseDisplayName;
+            }
+
+            if (!string.IsNullOrEmpty(details.GroupId))
+            {
+                key += "_" + details.GroupId;
+            }
+
+            return key;
         }
 
         /// <summary>

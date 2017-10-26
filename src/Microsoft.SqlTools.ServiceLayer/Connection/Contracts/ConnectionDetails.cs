@@ -467,7 +467,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
-       
+        /// <summary>
+        /// Gets or sets the group ID
+        /// </summary>
+        public string GroupId 
+        {
+            get
+            {
+                return GetOptionValue<string>("groupId");
+            }
+            set
+            {
+                SetOptionValue("groupId", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the database display name
+        /// </summary>
+        public string DatabaseDisplayName 
+        {
+            get
+            {
+                return GetOptionValue<string>("databaseDisplayName");
+            }
+            set
+            {
+                SetOptionValue("databaseDisplayName", value);
+            }
+        }
 
         public bool IsComparableTo(ConnectionDetails other)
         {
