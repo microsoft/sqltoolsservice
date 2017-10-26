@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {
@@ -94,8 +95,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Unexpected exception while handling file browser open request: " + ex.Message);
                 await requestContext.SendResult(false);
             }
         }
@@ -108,8 +110,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Unexpected exception while handling file browser expand request: " + ex.Message);
                 await requestContext.SendResult(false);
             }
         }
@@ -122,8 +125,9 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(true);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Unexpected exception while handling file browser validate request: " + ex.Message);
                 await requestContext.SendResult(false);
             }
         }
@@ -138,9 +142,10 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                     .ContinueWithOnFaulted(null);
                 await requestContext.SendResult(new FileBrowserCloseResponse() { Succeeded = true });
             }
-            catch
+            catch (Exception ex)
             {
-                await requestContext.SendResult(new FileBrowserCloseResponse());
+                Logger.Write(LogLevel.Error, "Unexpected exception while handling file browser close request: " + ex.Message);
+                await requestContext.SendResult(new FileBrowserCloseResponse() { Message = ex.Message });
             }
         }
 
@@ -199,6 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Unexpected exception while closing file browser: " + ex.Message);
                 result.Message = ex.Message;
             }
 
