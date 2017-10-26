@@ -388,6 +388,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Clear queued items
+        /// </summary>
+        public void ClearQueuedItems()
+        {
+            lock (this.bindingQueueLock)
+            {
+                if (this.bindingQueue.Count > 0)
+                {
+                    this.bindingQueue.Clear();
+                }
+            }
+        }
+
         public void Dispose()
         {
             if (this.processQueueCancelToken != null)

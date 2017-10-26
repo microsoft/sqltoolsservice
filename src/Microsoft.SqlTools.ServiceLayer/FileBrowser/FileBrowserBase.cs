@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
     public abstract class FileBrowserBase
     {
         private Enumerator enumerator = null;
-        protected SqlConnection sqlConnection = null;
+        protected ServerConnection connection = null;
 
         protected Enumerator Enumerator
         {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// Returns the PathSeparator values of the Server.
         /// </summary>
         /// <returns>PathSeparator</returns>
-        internal static char GetPathSeparator(Enumerator enumerator, SqlConnection connection)
+        internal static char GetPathSeparator(Enumerator enumerator, ServerConnection connection)
         {
             var req = new Request();
             req.Urn = "Server";
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="enumerator"></param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        internal static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, SqlConnection connection)
+        internal static IEnumerable<FileInfo> EnumerateDrives(Enumerator enumerator, ServerConnection connection)
         {
             // if not supplied, server name will be obtained from urn
             Request req = new Request();
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         /// <param name="connection"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        internal static IEnumerable<FileInfo> EnumerateFilesInFolder(Enumerator enumerator, SqlConnection connection, string path)
+        internal static IEnumerable<FileInfo> EnumerateFilesInFolder(Enumerator enumerator, ServerConnection connection, string path)
         {
             var request = new Request
             {

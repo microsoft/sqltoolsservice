@@ -76,6 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the database compatibility level
         /// </summary>
-        DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }        
+        DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }
     }
 }

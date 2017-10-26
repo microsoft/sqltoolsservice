@@ -42,4 +42,14 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
             RequestType<FileBrowserCloseParams, FileBrowserCloseResponse> Type =
                 RequestType<FileBrowserCloseParams, FileBrowserCloseResponse>.Create("filebrowser/close");
     }
+
+    /// <summary>
+    /// Notification for close completion
+    /// </summary>
+    public class FileBrowserClosedNotification
+    {
+        public static readonly
+            EventType<FileBrowserCloseResponse> Type =
+            EventType<FileBrowserCloseResponse>.Create("filebrowser/closecomplete");
+    }
 }
