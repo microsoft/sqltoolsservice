@@ -118,6 +118,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        public void RemoveBindigContext(ConnectionInfo connInfo)
+        {
+            string connectionKey = GetConnectionContextKey(connInfo);
+            if (BindingContextExists(connectionKey))
+            {
+                RemoveBindingContext(connectionKey);
+            }
+        }
+
         /// <summary>
         /// Use a ConnectionInfo item to create a connected binding context
         /// </summary>

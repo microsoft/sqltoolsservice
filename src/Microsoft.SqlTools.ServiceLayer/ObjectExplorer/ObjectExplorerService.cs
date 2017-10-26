@@ -44,7 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);        
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private string connectionName = "ObjectExplorer";
 
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             connectionService = provider.GetService<ConnectionService>();
             try
             {
-                connectionService.RegisterConnectedQueue("OE", bindingQueue);
+                connectionService.RegisterConnectedQueue(connectionName, bindingQueue);
 
             }
             catch(Exception ex)
@@ -298,7 +299,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (sessionMap.TryGetValue(uri, out session))
             {
                 // Remove the session from active sessions and disconnect
-                sessionMap.TryRemove(session.Uri, out session);
+                if(sessionMap.TryRemove(session.Uri, out session))
+                {
+                    if (session != null && session.ConnectionInfo != null)
+                    {
+                        bindingQueue.RemoveBindigContext(session.ConnectionInfo);
+                    }
+                }
                 connectionService.Disconnect(new DisconnectParams()
                 {
                     OwnerUri = uri
@@ -392,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
                     QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo, "OE"),
+                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -454,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                 int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
                 QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(connectionInfo),
+                           key: bindingQueue.AddConnectionContext(connectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
