@@ -18,7 +18,7 @@ SQL DB, and Azure SQL DW instances.
 ## Message Dispatcher
 
 The JSON-RPC mechanism is build on a message dispatcher.  Messages are read from stdio and serialized\deserialized
-using JSON.Net.  Message handlers are registered with the dispatcher.  Ass the messages are processed by
+using JSON.Net.  Message handlers are registered with the dispatcher.  As the messages are processed by
 the dispatcher queue they are routed to any registered handlers.  The dispatch queue processes messages 
 serially.
 
