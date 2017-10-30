@@ -184,22 +184,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         var objectType = reader[2] as string;
 
                         MetadataType metadataType;
+                        string metadataTypeName;
                         if (objectType.StartsWith("V"))
                         {
                             metadataType = MetadataType.View;
+                            metadataTypeName = "View";
                         }
                         else if (objectType.StartsWith("P"))
                         {
                             metadataType = MetadataType.SProc;
+                            metadataTypeName = "StoredProcedure";
                         }
                         else
                         {
                             metadataType = MetadataType.Table;
+                            metadataTypeName = "Table";
                         }
 
                         metadata.Add(new ObjectMetadata
                         {
                             MetadataType = metadataType,
+                            MetadataTypeName = metadataTypeName,
                             Schema = schemaName,
                             Name = objectName
                         });
