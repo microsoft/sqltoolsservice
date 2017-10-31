@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Concurrent;
+using Microsoft.SqlTools.ServiceLayer.AsyncRequest;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -148,29 +150,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 AdminService.ConnectionServiceInstance.TryFindConnection(
                         databaseParams.OwnerUri,
                         out connInfo);
-                DatabaseInfo info = null;
-                
-                if (connInfo != null) 
-                {
-                    info = GetDatabaseInfo(connInfo);
-                }
 
-                await requestContext.SendResult(new GetDatabaseInfoResponse(){
-                    DatabaseInfo = info
-                });
+                // Handling the request async so that it won't block other requests
+                AsyncRequestParams asyncRequestParams = new AsyncRequestParams
+                {
+                    ConnectionInfo = connInfo,
+                    OwnerUri = databaseParams.OwnerUri
+                };
+                AsyncRequestHandler<GetDatabaseInfoResponse>.HandleRequestAsync(requestContext, CreateDatabaseInfoResponse, asyncRequestParams, 0);
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
         }
-        
+
+        private static GetDatabaseInfoResponse CreateDatabaseInfoResponse(AsyncRequestParams asyncRequestParams)
+        {
+            DatabaseInfo databaseInfo = GetDatabaseInfo(asyncRequestParams.ConnectionInfo);
+            return new GetDatabaseInfoResponse()
+            {
+                DatabaseInfo = databaseInfo,
+                OwnerUri = asyncRequestParams.OwnerUri
+            };
+        }
+
         /// <summary>
         /// Return database info for a specific database
         /// </summary>
         /// <param name="connInfo"></param>
         /// <returns></returns>
-        internal static DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
+            internal static DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
         {
             using (DatabaseTaskHelper taskHelper = CreateDatabaseTaskHelper(connInfo, true))
             {
