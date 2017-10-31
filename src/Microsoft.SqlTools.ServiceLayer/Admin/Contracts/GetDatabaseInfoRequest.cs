@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.AsyncRequest;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
 {
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
     /// <summary>
     /// Response object for get database info
     /// </summary>
-    public class GetDatabaseInfoResponse
+    public class GetDatabaseInfoResponse : AsyncSqlResponse
     {
         /// <summary>
         /// The object containing the database info
