@@ -88,7 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     });
                 };
 
-                Task task = Task.Run(async () => await requestHandler());
+                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                {
+                    await requestContext.SendError(t.Exception.ToString());
+                });
             }
             catch (Exception ex)
             {

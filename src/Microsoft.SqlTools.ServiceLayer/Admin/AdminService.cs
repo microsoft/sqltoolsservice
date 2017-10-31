@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Concurrent;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -163,7 +164,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     });
                 };
 
-                Task task = Task.Run(async () => await requestHandler());
+                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                {
+                    await requestContext.SendError(t.Exception.ToString());
+                });
 
             }
             catch (Exception ex)
