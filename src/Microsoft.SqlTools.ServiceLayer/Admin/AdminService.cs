@@ -143,21 +143,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             RequestContext<GetDatabaseInfoResponse> requestContext)
         {
             try
-            {            
-                ConnectionInfo connInfo;
-                AdminService.ConnectionServiceInstance.TryFindConnection(
-                        databaseParams.OwnerUri,
-                        out connInfo);
-                DatabaseInfo info = null;
-                
-                if (connInfo != null) 
+            {
+                Func<Task> requestHandler = async () =>
                 {
-                    info = GetDatabaseInfo(connInfo);
-                }
+                    ConnectionInfo connInfo;
+                    AdminService.ConnectionServiceInstance.TryFindConnection(
+                            databaseParams.OwnerUri,
+                            out connInfo);
+                    DatabaseInfo info = null;
 
-                await requestContext.SendResult(new GetDatabaseInfoResponse(){
-                    DatabaseInfo = info
-                });
+                    if (connInfo != null)
+                    {
+                        info = GetDatabaseInfo(connInfo);
+                    }
+
+                    await requestContext.SendResult(new GetDatabaseInfoResponse()
+                    {
+                        DatabaseInfo = info
+                    });
+                };
+
+                Task.Run(() => requestHandler());
+
             }
             catch (Exception ex)
             {
