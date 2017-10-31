@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
@@ -66,23 +67,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             try
             {
-                ConnectionInfo connInfo;
-                MetadataService.ConnectionServiceInstance.TryFindConnection(
-                    metadataParams.OwnerUri,
-                    out connInfo);
-
-                var metadata = new List<ObjectMetadata>();
-                if (connInfo != null) 
-                {                    
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
-                    {
-                        ReadMetadata(sqlConn, metadata);
-                    }
-                }
-
-                await requestContext.SendResult(new MetadataQueryResult
+                Func<Task> requestHandler = async () =>
                 {
-                    Metadata = metadata.ToArray()
+                    ConnectionInfo connInfo;
+                    MetadataService.ConnectionServiceInstance.TryFindConnection(
+                        metadataParams.OwnerUri,
+                        out connInfo);
+
+                    var metadata = new List<ObjectMetadata>();
+                    if (connInfo != null)
+                    {
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
+                        {
+                            ReadMetadata(sqlConn, metadata);
+                        }
+                    }
+
+                    await requestContext.SendResult(new MetadataQueryResult
+                    {
+                        Metadata = metadata.ToArray()
+                    });
+                };
+
+                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                {
+                    await requestContext.SendError(t.Exception.ToString());
                 });
             }
             catch (Exception ex)

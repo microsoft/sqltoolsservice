@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Concurrent;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -143,21 +144,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             RequestContext<GetDatabaseInfoResponse> requestContext)
         {
             try
-            {            
-                ConnectionInfo connInfo;
-                AdminService.ConnectionServiceInstance.TryFindConnection(
-                        databaseParams.OwnerUri,
-                        out connInfo);
-                DatabaseInfo info = null;
-                
-                if (connInfo != null) 
+            {
+                Func<Task> requestHandler = async () =>
                 {
-                    info = GetDatabaseInfo(connInfo);
-                }
+                    ConnectionInfo connInfo;
+                    AdminService.ConnectionServiceInstance.TryFindConnection(
+                            databaseParams.OwnerUri,
+                            out connInfo);
+                    DatabaseInfo info = null;
 
-                await requestContext.SendResult(new GetDatabaseInfoResponse(){
-                    DatabaseInfo = info
+                    if (connInfo != null)
+                    {
+                        info = GetDatabaseInfo(connInfo);
+                    }
+
+                    await requestContext.SendResult(new GetDatabaseInfoResponse()
+                    {
+                        DatabaseInfo = info
+                    });
+                };
+
+                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                {
+                    await requestContext.SendError(t.Exception.ToString());
                 });
+
             }
             catch (Exception ex)
             {
