@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     });
                 };
 
-                Task.Run(() => requestHandler());
+                Task task = Task.Run(async () => await requestHandler());
 
             }
             catch (Exception ex)
