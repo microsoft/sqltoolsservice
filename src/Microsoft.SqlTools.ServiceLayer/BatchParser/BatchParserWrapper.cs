@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     // Generate the first batch definition list
                     int startLine = positions[0].Item1 + 1; //positions is 0 index based
                     int endLine = startLine;
-                    int lineDifference = startLine - 1;
+                    int lineDifference = 0;
                     int endColumn;
                     int offset = offsets[0];
                     int startColumn = positions[0].Item2;
