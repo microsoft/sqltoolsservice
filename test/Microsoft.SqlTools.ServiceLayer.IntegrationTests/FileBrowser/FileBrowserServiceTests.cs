@@ -91,9 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             };
 
             await service.HandleFileBrowserCloseRequest(inputParams, requestContext.Object);
-
-            // Result should return false since it's trying to close a filebrowser that was never opened
-            requestContext.Verify(x => x.SendResult(It.Is<FileBrowserCloseResponse>(p => p.Succeeded == false)));
+            requestContext.Verify(x => x.SendResult(It.Is<FileBrowserCloseResponse>(p => p.Succeeded == true)));
         }
 
         #endregion

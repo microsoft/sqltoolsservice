@@ -135,12 +135,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         new CategoryValue
                         {
                             Name = "WithRecovery",
-                            DisplayName = "RESTORE WITH RECOVERTY"
+                            DisplayName = "RESTORE WITH RECOVERY"
                         },
                         new CategoryValue
                         {
                             Name = "WithNoRecovery",
-                            DisplayName = "RESTORE WITH NORECOVERTY"
+                            DisplayName = "RESTORE WITH NORECOVERY"
                         },
                         new CategoryValue
                         {
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     Name = RestoreOptionsHelper.TailLogWithNoRecovery,
                     DisplayName = "Tail Log With NoRecovery",
-                    Description = "Leave source database in the restoring state(WITH NORECOVERTY)",
+                    Description = "Leave source database in the restoring state(WITH NORECOVERY)",
                     ValueType = ServiceOption.ValueTypeBoolean,
                     IsRequired = false,
                     GroupName = "Tail-Log backup"

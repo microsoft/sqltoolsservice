@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
         [Fact]
         public void FilterFilesTest()
         {
-            FileBrowserOperation operation = new FileBrowserOperation();
+            FileBrowserOperation operation = new FileBrowserOperation(null, "", null);
             string[] supportedFilePaths = new string[] {"te\\s/t1.txt", "te!s.t2.bak" };
             string[] unsupportedFilePaths = new string[] { "te.s*/t3.jpg", "t_est4.trn" };
             string[] filters = new string[] { "*.txt", "*.bak"};
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
         [Fact]
         public void ExpandNodeShouldThrowExceptionForInvalidPath()
         {
-            FileBrowserOperation operation = new FileBrowserOperation();
+            FileBrowserOperation operation = new FileBrowserOperation(null, "", null);
             Exception exception = null;
 
             try

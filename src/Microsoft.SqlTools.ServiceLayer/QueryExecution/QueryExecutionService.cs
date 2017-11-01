@@ -230,8 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             // check to make sure any results were recieved
                             if (query.Batches.Length == 0 
-                                || query.Batches[0].ResultSets.Count == 0
-                                || query.Batches[0].ResultSets[0].RowCount == 0) 
+                                || query.Batches[0].ResultSets.Count == 0) 
                             {
                                 await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
                                 return;
@@ -245,22 +244,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 return;
                             }
                             
-                            SubsetParams subsetRequestParams = new SubsetParams
-                            {
-                                OwnerUri = randomUri,
-                                BatchIndex = 0,
-                                ResultSetIndex = 0,
-                                RowsStartIndex = 0,
-                                RowsCount = Convert.ToInt32(rowCount)
-                            };
-                            // get the data to send back
-                            ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
                             SimpleExecuteResult result = new SimpleExecuteResult
                             {
-                                RowCount = query.Batches[0].ResultSets[0].RowCount,
+                                RowCount = rowCount,
                                 ColumnInfo = query.Batches[0].ResultSets[0].Columns,
-                                Rows = subset.Rows
+                                Rows = new DbCellValue[0][] 
                             };
+
+                            if (rowCount > 0)
+                            {
+                                SubsetParams subsetRequestParams = new SubsetParams
+                                {
+                                    OwnerUri = randomUri,
+                                    BatchIndex = 0,
+                                    ResultSetIndex = 0,
+                                    RowsStartIndex = 0,
+                                    RowsCount = Convert.ToInt32(rowCount)
+                                };
+                                // get the data to send back
+                                ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
+                                result.Rows = subset.Rows;
+                            }
                             await requestContext.SendResult(result);
                         } 
                         finally 

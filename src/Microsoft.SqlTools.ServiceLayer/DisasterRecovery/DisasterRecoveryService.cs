@@ -153,7 +153,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             if (sqlConn != null && !connInfo.IsCloud)
                             {
                                 BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-                                backupConfigInfo.DatabaseInfo = AdminService.GetDatabaseInfo(connInfo);
                                 response.BackupConfigInfo = backupConfigInfo;
                             }
                         }
