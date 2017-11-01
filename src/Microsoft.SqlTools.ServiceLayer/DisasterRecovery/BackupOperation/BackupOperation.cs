@@ -143,7 +143,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             BackupConfigInfo configInfo = new BackupConfigInfo();
             configInfo.RecoveryModel = GetRecoveryModel(databaseName);
             configInfo.DefaultBackupFolder = CommonUtilities.GetDefaultBackupFolder(this.serverConnection);
-            configInfo.LatestBackups = GetLatestBackupLocations(databaseName);
             configInfo.BackupEncryptors = GetBackupEncryptors();
             return configInfo;
         }

@@ -62,8 +62,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
 
             requestContext.Verify(x => x.SendResult(It.Is<BackupConfigInfoResponse>
                 (p => p.BackupConfigInfo.RecoveryModel != string.Empty
-                && p.BackupConfigInfo.DefaultBackupFolder != string.Empty
-                && p.BackupConfigInfo.DatabaseInfo != null)));
+                && p.BackupConfigInfo.DefaultBackupFolder != string.Empty)));
             
             testDb.Cleanup();
         }
