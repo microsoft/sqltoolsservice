@@ -257,10 +257,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 catch (SqlException e)
                 {
-                    //
-                    // Azure SQL Data Warehouse does not support @@servername, so fallback to SERVERPROPERTY.
-                    //
-
                     Logger.Write(
                         LogLevel.Verbose, 
                         string.Format("Exception getting server name", e));
