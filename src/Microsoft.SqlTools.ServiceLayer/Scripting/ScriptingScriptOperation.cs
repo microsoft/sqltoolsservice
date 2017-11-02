@@ -9,11 +9,11 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -246,14 +246,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             string serverName = null;
             using(SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand cmd = connection.CreateCommand())
-            {
+            { 
                 connection.Open();
 
                 try
                 {
-                    cmd.CommandText = "select @@servername";
-                    serverName = (string)cmd.ExecuteScalar();
+
+                    ServerConnection serverConnection = new ServerConnection(connection);
+                    serverName = serverConnection.TrueName;
                 }
                 catch (SqlException e)
                 {
@@ -263,10 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                     Logger.Write(
                         LogLevel.Verbose, 
-                        string.Format("Exception running query 'SELECT @@servername' {0}, fallback to SERVERPROPERTY query", e));
-
-                    cmd.CommandText = "select SERVERPROPERTY('ServerName') AS ServerName";
-                    serverName = (string)cmd.ExecuteScalar();
+                        string.Format("Exception getting server name", e));
                 }
             }
 
