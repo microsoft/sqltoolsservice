@@ -637,7 +637,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         if (!string.IsNullOrEmpty(this.DataFilesFolder))
                         {
-                            dbFile.PhysicalNameRelocate = PathWrapper.Combine(this.DataFilesFolder, fileName);
+                            dbFile.PhysicalNameRelocate = CombineToServerConnectionPath(this.DataFilesFolder, fileName);
                         }
                         else
                         {
@@ -648,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         if (!string.IsNullOrEmpty(this.LogFilesFolder))
                         {
-                            dbFile.PhysicalNameRelocate = PathWrapper.Combine(this.LogFilesFolder, fileName);
+                            dbFile.PhysicalNameRelocate = CombineToServerConnectionPath(this.LogFilesFolder, fileName);
                         }
                         else
                         {
@@ -661,6 +661,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 this.ActiveException = ex;
             }
+        }
+
+        /// <summary>
+        /// Combining the root and file name using the server connection file path seperator
+        /// </summary>
+        private string CombineToServerConnectionPath(string root, string filePath) 
+        {
+            string pathSeparatorFromServerConnection = PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext);
+            string combinedPath = PathWrapper.Combine(root, filePath);
+            
+            // Make sure all path seperators are server connection separator
+            string result = combinedPath.Replace(Path.DirectorySeparatorChar.ToString(), pathSeparatorFromServerConnection);
+
+            // Make sure there's not any double file seperator in the path
+            result = result.Replace(pathSeparatorFromServerConnection + pathSeparatorFromServerConnection, 
+            pathSeparatorFromServerConnection);
+            return result;
         }
 
         /// <summary>
