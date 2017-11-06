@@ -637,7 +637,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         if (!string.IsNullOrEmpty(this.DataFilesFolder))
                         {
-                            dbFile.PhysicalNameRelocate = CompibeToServerConnectionPath(this.DataFilesFolder, fileName);
+                            dbFile.PhysicalNameRelocate = CombineToServerConnectionPath(this.DataFilesFolder, fileName);
                         }
                         else
                         {
@@ -648,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         if (!string.IsNullOrEmpty(this.LogFilesFolder))
                         {
-                            dbFile.PhysicalNameRelocate = CompibeToServerConnectionPath(this.LogFilesFolder, fileName);
+                            dbFile.PhysicalNameRelocate = CombineToServerConnectionPath(this.LogFilesFolder, fileName);
                         }
                         else
                         {
@@ -666,7 +666,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <summary>
         /// Combining the root and file name using the server connection file path seperator
         /// </summary>
-        private string CompibeToServerConnectionPath(string root, string filePath) 
+        private string CombineToServerConnectionPath(string root, string filePath) 
         {
             string pathSeparatorFromServerConnection = PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext);
             string combinedPath = PathWrapper.Combine(root, filePath);
