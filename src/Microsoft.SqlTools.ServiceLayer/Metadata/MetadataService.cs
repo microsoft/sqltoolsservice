@@ -196,14 +196,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         {
                             metadataType = MetadataType.Table;
                         }
-                        if (metadataType == MetadataType.Table && objectName[0] != '#') 
+                        // remove temporary tables and stored procedures
+                        // since every temp object has a '#' in front of it
+                        if (objectName[0] == '#') 
                         {
-                            metadata.Add(new ObjectMetadata
+                            if (metadataType != MetadataType.Table && metadataType != MetadataType.SProc)
                             {
-                                MetadataType = metadataType,
-                                Schema = schemaName,
-                                Name = objectName
-                            });
+                                metadata.Add(new ObjectMetadata
+                                {
+                                    MetadataType = metadataType,
+                                    Schema = schemaName,
+                                    Name = objectName
+                                });
+                            }
                         }
                     }
                 }
