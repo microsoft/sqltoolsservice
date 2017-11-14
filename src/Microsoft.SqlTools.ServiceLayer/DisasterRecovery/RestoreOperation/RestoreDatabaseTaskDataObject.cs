@@ -682,19 +682,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         private string GetDirectoryName(string filePath) 
         {
-            string localPath = convertToLocalMachinePath(filePath);
+            string localPath = ConvertToLocalMachinePath(filePath);
             localPath = PathWrapper.GetDirectoryName(localPath);
-            return convertToServerConnectionPath(localPath);
+            return ConvertToServerConnectionPath(localPath);
         }
 
-        private string convertToLocalMachinePath(string filePath) {
+        private string ConvertToLocalMachinePath(string filePath) {
             string pathSeparator = Path.DirectorySeparatorChar.ToString();
             string localPath = filePath.Replace("/", pathSeparator);
             localPath = localPath.Replace("\\", pathSeparator);
             return localPath;
         }
 
-        private string convertToServerConnectionPath(string filePath) {
+        private string ConvertToServerConnectionPath(string filePath) {
             string pathSeparator = PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext);
             string serverPath = filePath.Replace("/", pathSeparator);
             serverPath = serverPath.Replace("\\", pathSeparator);
@@ -833,7 +833,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private string GetTargetDbFilePhysicalName(string sourceDbFilePhysicalLocation)
         {
-            string filePath = convertToLocalMachinePath(sourceDbFilePhysicalLocation);
+            string filePath = ConvertToLocalMachinePath(sourceDbFilePhysicalLocation);
             string fileName = Path.GetFileName(filePath);
             if (!string.IsNullOrEmpty(this.SourceDatabaseName) && !string.IsNullOrEmpty(this.targetDbName))
             {
