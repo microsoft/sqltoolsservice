@@ -448,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         }
                         else
                         {
-                            this.dataFilesFolder = PathWrapper.GetDirectoryName(value + PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext));
+                            this.dataFilesFolder = GetDirectoryName(value + PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext));
                         }
                         if (string.IsNullOrEmpty(this.dataFilesFolder))
                         {
@@ -496,7 +496,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         }
                         else
                         {
-                            this.logFilesFolder = PathWrapper.GetDirectoryName(value + PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext));
+                            this.logFilesFolder = GetDirectoryName(value + PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext));
                         }
                         if (string.IsNullOrEmpty(this.logFilesFolder))
                         {
@@ -680,6 +680,27 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             return result;
         }
 
+        private string GetDirectoryName(string filePath) 
+        {
+            string localPath = ConvertToLocalMachinePath(filePath);
+            localPath = PathWrapper.GetDirectoryName(localPath);
+            return ConvertToServerConnectionPath(localPath);
+        }
+
+        private string ConvertToLocalMachinePath(string filePath) {
+            string pathSeparator = Path.DirectorySeparatorChar.ToString();
+            string localPath = filePath.Replace("/", pathSeparator);
+            localPath = localPath.Replace("\\", pathSeparator);
+            return localPath;
+        }
+
+        private string ConvertToServerConnectionPath(string filePath) {
+            string pathSeparator = PathWrapper.PathSeparatorFromServerConnection(Server.ConnectionContext);
+            string serverPath = filePath.Replace("/", pathSeparator);
+            serverPath = serverPath.Replace("\\", pathSeparator);
+            return serverPath;
+        }
+
         /// <summary>
         /// Updates the Restore folder location of those db files whose orginal directory location
         /// is not present in the destination computer.
@@ -812,10 +833,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <returns></returns>
         private string GetTargetDbFilePhysicalName(string sourceDbFilePhysicalLocation)
         {
-            string pathSeparator = Path.DirectorySeparatorChar.ToString();
-            sourceDbFilePhysicalLocation = sourceDbFilePhysicalLocation.Replace("/", pathSeparator);
-            sourceDbFilePhysicalLocation = sourceDbFilePhysicalLocation.Replace("\\", pathSeparator);
-            string fileName = Path.GetFileName(sourceDbFilePhysicalLocation);
+            string filePath = ConvertToLocalMachinePath(sourceDbFilePhysicalLocation);
+            string fileName = Path.GetFileName(filePath);
             if (!string.IsNullOrEmpty(this.SourceDatabaseName) && !string.IsNullOrEmpty(this.targetDbName))
             {
                 string sourceFilename = fileName;
