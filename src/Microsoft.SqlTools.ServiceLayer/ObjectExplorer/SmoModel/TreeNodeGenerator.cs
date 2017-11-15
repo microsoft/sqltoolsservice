@@ -195,6 +195,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
            }
         }
 
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+           get
+           {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "Status",
+                   ValidFor = ValidForFlag.All
+                });
+                return properties;
+           }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {

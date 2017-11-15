@@ -9,6 +9,9 @@
     <Filters >
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
+    <Properties>
+      <Property Name="Status" ValidFor="All"/>
+    </Properties>
     <Child Name="SystemDatabases" IsSystemObject="1"/>
   </Node>
   <Node Name="ServerLevelSecurity" LocLabel="SR.SchemaHierarchy_Security" BaseClass="ModelBased" ValidFor="All">
