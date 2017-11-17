@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             Validate.IsNotNull(nameof(connection), connection);
 
             // Build the script and generate a command
-            ScriptBuildResult result = BuildInsertScript(true);
+            ScriptBuildResult result = BuildInsertScript(forCommand: true);
             
             DbCommand command = connection.CreateCommand();
             command.CommandText = result.ScriptText;
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>INSERT INTO statement</returns>
         public override string GetScript()
         {
-            return BuildInsertScript(false).ScriptText;
+            return BuildInsertScript(forCommand: false).ScriptText;
         }
 
         /// <summary>
@@ -172,6 +172,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         #endregion
 
+        /// <summary>
+        /// Generates an INSERT script that will insert this row
+        /// </summary>
+        /// <param name="forCommand">
+        /// If <c>true</c> the script will be generated with an OUTPUT clause for returning all
+        /// values in the inserted row (including computed values). The script will also generate
+        /// parameters for inserting the values.
+        /// If <c>false</c> the script will not have an OUTPUT clause and will have the values
+        /// directly inserted into the script (with proper escaping, of course). 
+        /// </param>
+        /// <returns>A script build result object with the script text and any parameters</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if there are columns that are not readonly, do not have default values, and were
+        /// not assigned values.
+        /// </exception>
         private ScriptBuildResult BuildInsertScript(bool forCommand)
         {           
             // Process all the columns in this table
@@ -213,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 if (forCommand)
                 {
                     // Since this script is for command use, add parameter for the input value to the list
-                    string paramName = $"@Value{RowId}{i}";
+                    string paramName = $"@Value{RowId}_{i}";
                     inValues.Add(paramName);
 
                     SqlParameter param = new SqlParameter(paramName, cell.Column.SqlDbType) {Value = cell.Value};
@@ -284,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 // Cell has been provided by user, so use that
                 dbCell = cell.AsDbCellValue;
             }
-            return new EditCell(dbCell, true);
+            return new EditCell(dbCell, isDirty: true);
         }
 
         private class ScriptBuildResult
