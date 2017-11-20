@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: 
             // ... I add updates to all the cells in the row
             RowUpdate ru = new RowUpdate(0, rs, etm);
-            Common.AddCells(ru, true);
+            Common.AddCells(ru, 1);
 
             // ... Then I update a cell back to it's old value
             var eucr = ru.SetCell(1, (string) rs.GetRow(0)[1].RawObject);
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask for a script to be generated for update
             RowUpdate ru = new RowUpdate(0, rs, etm);
-            Common.AddCells(ru, true);
+            Common.AddCells(ru, 1);
             string script = ru.GetScript();
 
             // Then:
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var rs = await Common.GetResultSet(columns, includeIdentity);
             var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
             RowUpdate ru = new RowUpdate(0, rs, etm);
-            Common.AddCells(ru, includeIdentity);
+            Common.AddCells(ru, includeIdentity ? 1 : 0);
 
             // ... Mock db connection for building the command
             var mockConn = new TestSqlConnection(null);

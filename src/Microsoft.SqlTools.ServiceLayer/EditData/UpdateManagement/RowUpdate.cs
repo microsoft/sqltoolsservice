@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             foreach (var updateElement in cellUpdates)
             {
                 string formattedColumnName = SqlScriptFormatter.FormatIdentifier(updateElement.Value.Column.ColumnName);
-                string paramName = $"@Value{RowId}{updateElement.Key}";
+                string paramName = $"@Value{RowId}_{updateElement.Key}";
                 setComponents.Add($"{formattedColumnName} = {paramName}");
                 SqlParameter parameter = new SqlParameter(paramName, updateElement.Value.Column.SqlDbType)
                 {
