@@ -167,31 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataFailedAddRow);
             }
 
-            // Set the default values of the row if we know them
-            string[] defaultValues = new string[objectMetadata.Columns.Length];
-            for(int i = 0; i < objectMetadata.Columns.Length; i++)
-            {
-                EditColumnMetadata col = objectMetadata.Columns[i];
-
-                // If the column is calculated, return the calculated placeholder as the display value
-                if (col.IsCalculated.HasTrue())
-                {
-                    defaultValues[i] = SR.EditDataComputedColumnPlaceholder;
-                }
-                else
-                {
-                    if (col.DefaultValue != null)
-                    {
-                        newRow.SetCell(i, col.DefaultValue);
-                    }
-                    defaultValues[i] = col.DefaultValue;
-                }
-            }
-
             EditCreateRowResult output = new EditCreateRowResult
             {
-                NewRowId = newRowId,
-                DefaultValues = defaultValues
+                NewRowId = newRow.RowId,
+                DefaultValues = newRow.DefaultValues
             };
             return output;
         }
