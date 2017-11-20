@@ -141,8 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 else
                 {
                     ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
-                    operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e);
-                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
+                    operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
+                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
                     operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
 
                     RunTask(requestContext, operation);
@@ -267,11 +267,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         }
 
                         // send script result to client
-                        requestContext.SendResult(new ScriptingResult { Script = script });                          
+                        requestContext.SendResult(new ScriptingResult { Script = script }).Wait();                          
                     }
                     catch (Exception e)
                     {
-                        requestContext.SendError(e);
+                        requestContext.SendError(e).Wait();
                     }
 
                     return null;
@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 try
                 {
@@ -292,14 +292,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 catch (Exception e)
                 {
-                    context.SendError(e);
+                    await context.SendError(e);
                 }
                 finally
                 {
                     ScriptingOperation temp;
                     this.ActiveOperations.TryRemove(operation.OperationId, out temp);
                 }
-            }).ContinueWithOnFaulted(null);
+            }).ContinueWithOnFaulted(async t => await context.SendError(t.Exception));
         }
 
         /// <summary>
