@@ -11,7 +11,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
@@ -67,31 +66,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             try
             {
-                Func<Task> requestHandler = async () =>
-                {
-                    ConnectionInfo connInfo;
-                    MetadataService.ConnectionServiceInstance.TryFindConnection(
-                        metadataParams.OwnerUri,
-                        out connInfo);
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
 
-                    var metadata = new List<ObjectMetadata>();
-                    if (connInfo != null)
+                var metadata = new List<ObjectMetadata>();
+                if (connInfo != null) 
+                {                    
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
                     {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
-                        {
-                            ReadMetadata(sqlConn, metadata);
-                        }
+                        ReadMetadata(sqlConn, metadata);
                     }
+                }
 
-                    await requestContext.SendResult(new MetadataQueryResult
-                    {
-                        Metadata = metadata.ToArray()
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                await requestContext.SendResult(new MetadataQueryResult
                 {
-                    await requestContext.SendError(t.Exception.ToString());
+                    Metadata = metadata.ToArray()
                 });
             }
             catch (Exception ex)
@@ -121,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Handle a table pr view metadata query request
+        /// Handle a table or view metadata query request
         /// </summary>        
         private static async Task HandleGetTableOrViewRequest(
             TableMetadataParams metadataParams,
@@ -193,30 +184,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         var objectType = reader[2] as string;
 
                         MetadataType metadataType;
-                        string metadataTypeName;
                         if (objectType.StartsWith("V"))
                         {
                             metadataType = MetadataType.View;
-                            metadataTypeName = "View";
                         }
                         else if (objectType.StartsWith("P"))
                         {
                             metadataType = MetadataType.SProc;
-                            metadataTypeName = "StoredProcedure";
                         }
                         else
                         {
                             metadataType = MetadataType.Table;
-                            metadataTypeName = "Table";
                         }
-
-                        metadata.Add(new ObjectMetadata
+                        // remove temporary tables and stored procedures
+                        // since every temp object has a '#' in front of it
+                        if (objectName[0] == '#') 
                         {
-                            MetadataType = metadataType,
-                            MetadataTypeName = metadataTypeName,
-                            Schema = schemaName,
-                            Name = objectName
-                        });
+                            if (metadataType != MetadataType.Table && metadataType != MetadataType.SProc)
+                            {
+                                metadata.Add(new ObjectMetadata
+                                {
+                                    MetadataType = metadataType,
+                                    Schema = schemaName,
+                                    Name = objectName
+                                });
+                            }
+                        }
                     }
                 }
             }
