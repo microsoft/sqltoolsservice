@@ -475,9 +475,10 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataCreateScriptMissingValue">
-        <source>A required cell value is missing</source>
+        <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
         <target state="new">A required cell value is missing</target>
-        <note></note>
+        <note>.
+ Parameters: 0 - colName (string) </note>
       </trans-unit>
       <trans-unit id="EditDataDeleteSetCell">
         <source>A delete is pending for this row, a cell update cannot be applied.</source>

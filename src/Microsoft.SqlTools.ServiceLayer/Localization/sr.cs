@@ -565,14 +565,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EditDataCreateScriptMissingValue
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataCreateScriptMissingValue);
-            }
-        }
-
         public static string EditDataDeleteSetCell
         {
             get
@@ -3649,6 +3641,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string EditDataUnsupportedObjectType(string typeName)
         {
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
+        }
+
+        public static string EditDataCreateScriptMissingValue(string colName)
+        {
+            return Keys.GetString(Keys.EditDataCreateScriptMissingValue, colName);
         }
 
         public static string EditDataValueTooLarge(string value, string columnType)

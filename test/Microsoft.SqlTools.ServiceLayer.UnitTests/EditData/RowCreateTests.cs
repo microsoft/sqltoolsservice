@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -27,17 +26,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create the values to store
             const long rowId = 100;
-            DbColumn[] columns = Common.GetColumns(false);
-            ResultSet rs = await Common.GetResultSet(columns, false);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I create a RowCreate instance
-            RowCreate rc = new RowCreate(rowId, rs, etm);
+            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
             Assert.Equal(rowId, rc.RowId);
             Assert.Equal(rs, rc.AssociatedResultSet);
-            Assert.Equal(etm, rc.AssociatedObjectMetadata);
+            Assert.Equal(data.TableMetadata, rc.AssociatedObjectMetadata);
         }
 
         #region GetScript Tests
@@ -57,31 +55,49 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             get
             {
-                yield return new object[] {true, 0, 1, new RegexExpectedOutput(3, 3, 0)};    // Has identity, no defaults, all values set
-                yield return new object[] {true, 2, 1, new RegexExpectedOutput(3, 3, 0)};    // Has identity, some defaults, all values set
-                yield return new object[] {true, 2, 2, new RegexExpectedOutput(2, 2, 0)};    // Has identity, some defaults, defaults not set
-                yield return new object[] {true, 4, 1, new RegexExpectedOutput(3, 3, 0)};    // Has identity, all defaults, all values set
-                yield return new object[] {true, 4, 4, null};                                // Has identity, all defaults, defaults not set
-                yield return new object[] {false, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // No identity, no defaults, all values set
-                yield return new object[] {false, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // No identity, some defaults, all values set
-                yield return new object[] {false, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // No identity, some defaults, defaults not set
-                yield return new object[] {false, 3, 0, new RegexExpectedOutput(3, 3, 0)};   // No identity, all defaults, all values set
-                yield return new object[] {false, 3, 3, null};                               // No identity, all defaults, defaults not set
+                // NOTE: Test matrix is defined in TableTestMatrix.txt, test cases here are identified by test ID
+                yield return new object[] {true, 0, 0, 1, new RegexExpectedOutput(3, 3, 0)};    // 01
+                yield return new object[] {true, 0, 1, 1, new RegexExpectedOutput(3, 3, 0)};    // 04
+                yield return new object[] {true, 0, 1, 2, new RegexExpectedOutput(2, 2, 0)};    // 05
+                yield return new object[] {true, 0, 3, 1, new RegexExpectedOutput(3, 3, 0)};    // 07
+                yield return new object[] {true, 0, 3, 2, new RegexExpectedOutput(2, 2, 0)};    // 08
+                yield return new object[] {true, 0, 3, 4, null};                                // 09
+                yield return new object[] {true, 1, 0, 1, new RegexExpectedOutput(3, 3, 0)};    // 10
+                yield return new object[] {true, 1, 0, 2, new RegexExpectedOutput(2, 2, 0)};    // 11
+                yield return new object[] {true, 1, 1, 1, new RegexExpectedOutput(3, 3, 0)};    // 13
+                yield return new object[] {true, 1, 1, 2, new RegexExpectedOutput(2, 2, 0)};    // 14
+                yield return new object[] {true, 1, 1, 3, new RegexExpectedOutput(1, 1, 0)};    // 15
+                yield return new object[] {true, 3, 0, 1, new RegexExpectedOutput(3, 3, 0)};    // 17
+                yield return new object[] {true, 3, 0, 2, new RegexExpectedOutput(2, 2, 0)};    // 18
+                yield return new object[] {true, 3, 0, 4, null};                                // 19
+                yield return new object[] {false, 0, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 01
+                yield return new object[] {false, 0, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // 04
+                yield return new object[] {false, 0, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // 05
+                yield return new object[] {false, 0, 3, 0, new RegexExpectedOutput(3, 3, 0)};   // 07
+                yield return new object[] {false, 0, 3, 1, new RegexExpectedOutput(2, 2, 0)};   // 08
+                yield return new object[] {false, 0, 3, 3, null};                               // 09
+                yield return new object[] {false, 1, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 10
+                yield return new object[] {false, 1, 0, 1, new RegexExpectedOutput(2, 2, 0)};   // 11
+                yield return new object[] {false, 1, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // 13
+                yield return new object[] {false, 1, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // 14
+                yield return new object[] {false, 1, 1, 2, new RegexExpectedOutput(1, 1, 0)};   // 15
+                yield return new object[] {false, 3, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 17
+                yield return new object[] {false, 3, 0, 1, new RegexExpectedOutput(2, 2, 0)};   // 18
+                yield return new object[] {false, 3, 0, 0, null};                               // 19
             }
         }
         
         [Theory]
         [MemberData(nameof(GetScriptData))]
-        public async Task GetScript(bool includeIdentity, int defaultCols, int valuesToSkipSetting, RegexExpectedOutput expectedOutput)
+        public async Task GetScript(bool includeIdentity, int colsWithDefaultConstraints, int colsThatAllowNull, int valuesToSkipSetting, RegexExpectedOutput expectedOutput)
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            DbColumn[] columns = Common.GetColumns(includeIdentity);
-            ResultSet rs = await Common.GetResultSet(columns, includeIdentity);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, includeIdentity, defaultCols);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, colsWithDefaultConstraints, colsThatAllowNull);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
             
             // ... Create a row create and set the appropriate number of cells 
-            RowCreate rc = new RowCreate(100, rs, etm);
+            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
             Common.AddCells(rc, valuesToSkipSetting);
             
             // If: I ask for the script for the row insert
@@ -137,15 +153,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: 
             // ... Generate the parameters for the row create
             const long rowId = 100;
-            DbColumn[] columns = Common.GetColumns(includeIdentity);
-            ResultSet rs = await Common.GetResultSet(columns, includeIdentity);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, includeIdentity);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
 
             // ... Setup a db reader for the result of an insert
-            var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
+            var newRowReader = Common.GetNewRowDataReader(data.DbColumns, includeIdentity);
 
             // If: I ask for the change to be applied
-            RowCreate rc = new RowCreate(rowId, rs, etm);
+            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
             await rc.ApplyChanges(newRowReader);
 
             // Then: The result set should have an additional row in it
@@ -181,35 +196,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             get
             {
-                yield return new object[] {true, 0, 1, new RegexExpectedOutput(3, 3, 4)};    // Has identity, no defaults, all values set
-                yield return new object[] {true, 2, 1, new RegexExpectedOutput(3, 3, 4)};    // Has identity, some defaults, all values set
-                yield return new object[] {true, 2, 2, new RegexExpectedOutput(2, 2, 4)};    // Has identity, some defaults, defaults not set
-                yield return new object[] {true, 4, 1, new RegexExpectedOutput(3, 3, 4)};    // Has identity, all defaults, all values set
-                yield return new object[] {true, 4, 4, new RegexExpectedOutput(0, 0, 4)};    // Has identity, all defaults, defaults not set
-                yield return new object[] {false, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // No identity, no defaults, all values set
-                yield return new object[] {false, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // No identity, some defaults, all values set
-                yield return new object[] {false, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // No identity, some defaults, defaults not set
-                yield return new object[] {false, 3, 0, new RegexExpectedOutput(3, 3, 3)};   // No identity, all defaults, all values set
-                yield return new object[] {false, 3, 3, new RegexExpectedOutput(0, 0, 3)};   // No identity, all defaults, defaults not set
+                // NOTE: Test matrix is defined in TableTestMatrix.txt, test cases here are identified by test ID
+                yield return new object[] {true, 0, 0, 1, new RegexExpectedOutput(3, 3, 4)};    // 01
+                yield return new object[] {true, 0, 1, 1, new RegexExpectedOutput(3, 3, 4)};    // 04
+                yield return new object[] {true, 0, 1, 2, new RegexExpectedOutput(2, 2, 4)};    // 05
+                yield return new object[] {true, 0, 3, 1, new RegexExpectedOutput(3, 3, 4)};    // 07
+                yield return new object[] {true, 0, 3, 2, new RegexExpectedOutput(2, 2, 4)};    // 08
+                yield return new object[] {true, 0, 3, 4, null};                                // 09
+                yield return new object[] {true, 1, 0, 1, new RegexExpectedOutput(3, 3, 4)};    // 10
+                yield return new object[] {true, 1, 0, 2, new RegexExpectedOutput(2, 2, 4)};    // 11
+                yield return new object[] {true, 1, 1, 1, new RegexExpectedOutput(3, 3, 4)};    // 13
+                yield return new object[] {true, 1, 1, 2, new RegexExpectedOutput(2, 2, 4)};    // 14
+                yield return new object[] {true, 1, 1, 3, new RegexExpectedOutput(1, 1, 4)};    // 15
+                yield return new object[] {true, 3, 0, 1, new RegexExpectedOutput(3, 3, 4)};    // 17
+                yield return new object[] {true, 3, 0, 2, new RegexExpectedOutput(2, 2, 4)};    // 18
+                yield return new object[] {true, 3, 0, 4, null};                                // 19
+                yield return new object[] {false, 0, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 01
+                yield return new object[] {false, 0, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // 04
+                yield return new object[] {false, 0, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // 05
+                yield return new object[] {false, 0, 3, 0, new RegexExpectedOutput(3, 3, 3)};   // 07
+                yield return new object[] {false, 0, 3, 1, new RegexExpectedOutput(2, 2, 3)};   // 08
+                yield return new object[] {false, 0, 3, 3, null};                               // 09
+                yield return new object[] {false, 1, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 10
+                yield return new object[] {false, 1, 0, 1, new RegexExpectedOutput(2, 2, 3)};   // 11
+                yield return new object[] {false, 1, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // 13
+                yield return new object[] {false, 1, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // 14
+                yield return new object[] {false, 1, 1, 2, new RegexExpectedOutput(1, 1, 3)};   // 15
+                yield return new object[] {false, 3, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 17
+                yield return new object[] {false, 3, 0, 1, new RegexExpectedOutput(2, 2, 3)};   // 18
+                yield return new object[] {false, 3, 0, 0, null};                               // 19
             }
         }
         
         [Theory]
         [MemberData(nameof(GetCommandData))]
-        public async Task GetCommand(bool includeIdentity, int defaultCols, int valuesToSkipSetting, RegexExpectedOutput expectedOutput)
+        public async Task GetCommand(bool includeIdentity, int defaultCols, int nullableCols, int valuesToSkip, RegexExpectedOutput expectedOutput)
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            DbColumn[] columns = Common.GetColumns(includeIdentity);
-            ResultSet rs = await Common.GetResultSet(columns, includeIdentity);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, includeIdentity, defaultCols);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
             
             // ... Mock db connection for building the command
             var mockConn = new TestSqlConnection(null);
             
             // ... Create a row create and set the appropriate number of cells 
-            RowCreate rc = new RowCreate(100, rs, etm);
-            Common.AddCells(rc, valuesToSkipSetting);
+            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            Common.AddCells(rc, valuesToSkip);
             
             // If: I ask for the command for the row insert
             DbCommand cmd = rc.GetCommand(mockConn);
@@ -304,10 +337,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate a row create with default values
             const long rowId = 100;
-            DbColumn[] columns = Common.GetColumns(false);
-            ResultSet rs = await Common.GetResultSet(columns, false);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, false, columns.Length);
-            RowCreate rc = new RowCreate(rowId, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
+            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
             
             // If: I request an edit row from the row create
             EditRow er = rc.GetEditRow(null);
@@ -335,10 +367,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate a row create with an identity column
             const long rowId = 100;
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = await Common.GetResultSet(columns, true);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, true);
-            RowCreate rc = new RowCreate(rowId, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
+            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
             
             // If: I request an edit row from the row created
             EditRow er = rc.GetEditRow(null);
@@ -463,7 +494,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             await rs.ReadResultToEnd(testReader, CancellationToken.None);
 
             // ... Generate the metadata
-            var etm = Common.GetStandardMetadata(cols);
+            var etm = Common.GetCustomEditTableMetadata(cols);
 
             // ... Create the row create
             RowCreate rc = new RowCreate(100, rs, etm);
@@ -534,16 +565,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task RevertCellNotSet(bool hasDefaultValues)
+        [InlineData(1)]
+        [InlineData(0)]
+        public async Task RevertCellNotSet(int defaultCols)
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            DbColumn[] columns = Common.GetColumns(false);
-            ResultSet rs = await Common.GetResultSet(columns, false);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, false, hasDefaultValues ? 1 : 0);
-            RowCreate rc = new RowCreate(100, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, defaultCols, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
+            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
 
             // If: I attempt to revert a cell that has not been set
             EditRevertCellResult result = rc.RevertCell(0);
@@ -553,7 +583,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(result);
 
             // ... We should get back an edit cell with a value based on the default value
-            string expectedDisplayValue = hasDefaultValues ? Common.DefaultValue : string.Empty; 
+            string expectedDisplayValue = defaultCols > 0 ? Common.DefaultValue : string.Empty; 
             Assert.NotNull(result.Cell);
             Assert.Equal(expectedDisplayValue, result.Cell.DisplayValue);
             Assert.False(result.Cell.IsNull);    // TODO: Modify to support null defaults
@@ -566,16 +596,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task RevertCellThatWasSet(bool hasDefaultValues)
+        [InlineData(1)]
+        [InlineData(0)]
+        public async Task RevertCellThatWasSet(int defaultCols)
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            DbColumn[] columns = Common.GetColumns(false);
-            ResultSet rs = await Common.GetResultSet(columns, false);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, false, hasDefaultValues ? 1 : 0);
-            RowCreate rc = new RowCreate(100, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, defaultCols, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
+            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
             rc.SetCell(0, "1");
 
             // If: I attempt to revert a cell that was set
@@ -586,7 +615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(result);
 
             // ... We should get back an edit cell with a value based on the default value
-            string expectedDisplayValue = hasDefaultValues ? Common.DefaultValue : string.Empty; 
+            string expectedDisplayValue = defaultCols > 0 ? Common.DefaultValue : string.Empty; 
             Assert.NotNull(result.Cell);
             Assert.Equal(expectedDisplayValue, result.Cell.DisplayValue);
             Assert.False(result.Cell.IsNull);    // TODO: Modify to support null defaults
@@ -602,10 +631,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         
         private static async Task<RowCreate> GetStandardRowCreate()
         {
-            var cols = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(cols, false);
-            var etm = Common.GetStandardMetadata(cols);
-            return new RowCreate(100, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            return new RowCreate(100, rs, data.TableMetadata);
         }
 
         public class RegexExpectedOutput
@@ -617,9 +645,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 ExpectedOutColumns = expectedOutColumns;
             }
             
-            public int ExpectedInColumns { get; set; }
-            public int ExpectedInValues { get; set; }
-            public int ExpectedOutColumns { get; set; }
+            public int ExpectedInColumns { get; }
+            public int ExpectedInValues { get; }
+            public int ExpectedOutColumns { get; }
         }
     }
 }

@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -24,17 +23,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task RowDeleteConstruction()
         {
             // Setup: Create the values to store
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = await Common.GetResultSet(columns, true);
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: I create a RowCreate instance
-            RowDelete rc = new RowDelete(100, rs, etm);
+            RowDelete rc = new RowDelete(100, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
             Assert.Equal(100, rc.RowId);
             Assert.Equal(rs, rc.AssociatedResultSet);
-            Assert.Equal(etm, rc.AssociatedObjectMetadata);
+            Assert.Equal(data.TableMetadata, rc.AssociatedObjectMetadata);
         }
 
         [Theory]
@@ -42,12 +40,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(false)]
         public async Task GetScriptTest(bool isMemoryOptimized)
         {
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = await Common.GetResultSet(columns, true);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, false, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: I ask for a script to be generated for delete
-            RowDelete rd = new RowDelete(0, rs, etm);
+            RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
             string script = rd.GetScript();
 
             // Then:
@@ -55,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(script);
 
             // ... It should be formatted as a delete script
-            string scriptStart = $"DELETE FROM {etm.EscapedMultipartName}";
+            string scriptStart = $"DELETE FROM {data.TableMetadata.EscapedMultipartName}";
             if (isMemoryOptimized)
             {
                 scriptStart += " WITH(SNAPSHOT)";
@@ -67,12 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task ApplyChanges()
         {
             // Setup: Generate the parameters for the row delete object
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I ask for the change to be applied
-            RowDelete rd = new RowDelete(0, rs, etm);
+            RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
             await rd.ApplyChanges(null);      // Reader not used, can be null
 
             // Then : The result set should have one less row in it
@@ -88,10 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a row delete
-            var columns = Common.GetColumns(includeIdentity);
-            var rs = await Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
-            RowDelete rd = new RowDelete(0, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, includeIdentity, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
+            RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
 
             // ... Mock db connection for building the command
             var mockConn = new TestSqlConnection(null);
@@ -117,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... There should be a table
             string tbl = m.Groups[1].Value;
-            Assert.Equal(etm.EscapedMultipartName, tbl);
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
             string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
@@ -142,10 +137,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task GetEditRow()
         {
             // Setup: Create a row delete
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowDelete rd = new RowDelete(0, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
 
             // If: I attempt to get an edit row
             DbCellValue[] cells = rs.GetRow(0).ToArray();
@@ -208,10 +202,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private async Task<RowDelete> GetStandardRowDelete()
         {
-            var cols = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(cols, false);
-            var etm = Common.GetStandardMetadata(cols);
-            return new RowDelete(0, rs, etm);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            return new RowDelete(0, rs, data.TableMetadata);
         }
     }
 }

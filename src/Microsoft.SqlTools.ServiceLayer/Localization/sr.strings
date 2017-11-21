@@ -212,7 +212,7 @@ EditDataInvalidFormatBinary = Invalid format for binary column
 
 EditDataInvalidFormatBoolean = Allowed values for boolean columns are 0, 1, "true", or "false"
 
-EditDataCreateScriptMissingValue = A required cell value is missing
+EditDataCreateScriptMissingValue(string colName) = The column '{0}' is defined as NOT NULL but was not given a value
 
 EditDataDeleteSetCell = A delete is pending for this row, a cell update cannot be applied.
 

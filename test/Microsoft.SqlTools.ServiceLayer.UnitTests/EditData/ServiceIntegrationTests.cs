@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
 
@@ -357,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var cols = mockQueryResults[0].Columns;
             
             // ... Create a metadata factory that will return some generic column information
-            var etm = Common.GetStandardMetadata(cols.ToArray());
+            var etm = Common.GetCustomEditTableMetadata(cols.ToArray());
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
@@ -442,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             EditSession s = await Common.GetCustomSession(q, etm);
             return s;
         }
