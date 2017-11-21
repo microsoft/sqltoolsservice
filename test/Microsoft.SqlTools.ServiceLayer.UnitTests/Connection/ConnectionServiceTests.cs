@@ -1250,7 +1250,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             connInfo = service.OwnerToConnectionMap[connectionParameters.OwnerUri];
             Assert.NotNull(defaultConn);
             Assert.Equal(connInfo.AllConnections.Count, 1);
-            
+
+            // Verify that if the query connection was closed, it will be reopened on requesting the connection again
+            Assert.Equal(ConnectionState.Open, queryConn.State);
+            queryConn.Close();
+            Assert.Equal(ConnectionState.Closed, queryConn.State);
+            queryConn = await service.GetOrOpenConnection(connectionParameters.OwnerUri, ConnectionType.Query);
+            Assert.Equal(ConnectionState.Open, queryConn.State);
         }
 
         [Fact]
