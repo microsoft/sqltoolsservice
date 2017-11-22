@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -158,6 +159,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
+        public async Task BatchExecuteMultiExecutions()
+        {
+            // Setup: 
+            // ... Keep track of callbacks being called
+            int batchStartCalls = 0;
+            int batchEndCalls = 0;
+            int resultSetCalls = 0;
+            List<ResultMessage> messages = new List<ResultMessage>();
+
+            // ... Build a data set to return
+            const int resultSets = 1;
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
+
+            // If I execute a query that should get one result set, but execute it twice using "GO 2" syntax
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory, 2);
+            BatchCallbackHelper(batch,
+                b => batchStartCalls++,
+                b => batchEndCalls++,
+                m => messages.Add(m),
+                r => resultSetCalls++);
+            await batch.Execute(GetConnection(ci), CancellationToken.None);
+
+            // Then:
+            // ... Callbacks should have been called the appropriate number of times
+            Assert.Equal(1, batchStartCalls);
+            Assert.Equal(1, batchEndCalls);
+            Assert.Equal(2, resultSetCalls);
+
+            // ... There should be exactly two result sets
+            ValidateBatch(batch, resultSets, false);
+            ValidateBatchSummary(batch);
+            // ... And there should be additional loop start and end messages
+            ValidateMessages(batch, 3, messages);
+        }
+
+        [Fact]
         public async Task BatchExecuteInvalidQuery()
         {
             // Setup: 
@@ -193,6 +231,44 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 Assert.True(m.IsError);
                 Assert.Equal(batch.Id, m.BatchId);
             });
+        }
+
+        [Fact]
+        public async Task BatchExecuteInvalidQueryMultiExecutions()
+        {
+            // Setup: 
+            // ... Keep track of callbacks being called
+            int batchStartCalls = 0;
+            int batchEndCalls = 0;
+            List<ResultMessage> messages = new List<ResultMessage>();
+
+            // If I execute a batch that is invalid, and if "GO 2" is added to execute more than once
+            var ci = Common.CreateTestConnectionInfo(null, true, false);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            Batch batch = new Batch(Constants.StandardQuery + Environment.NewLine, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory, 2);
+            BatchCallbackHelper(batch,
+                b => batchStartCalls++,
+                b => batchEndCalls++,
+                m => messages.Add(m),
+                r => { throw new Exception("ResultSet callback was called when it should not have been."); });
+            await batch.Execute(GetConnection(ci), CancellationToken.None);
+
+            // Then:
+            // ... Callbacks should have been called the appropriate number of times
+            Assert.Equal(1, batchStartCalls);
+            Assert.Equal(1, batchEndCalls);
+
+            // ... It should have executed with error
+            ValidateBatch(batch, 0, true);
+            ValidateBatchSummary(batch);
+
+            // ... There should be two error messages returned and 4 info messages (loop start/end, plus 2 for ignoring the error)
+            Assert.Equal(6, messages.Count);
+            Assert.All(messages, m =>
+            {
+                Assert.Equal(batch.Id, m.BatchId);
+            });
+            Assert.Equal(2, messages.Where(m => m.IsError).Count());
         }
 
         [Fact]

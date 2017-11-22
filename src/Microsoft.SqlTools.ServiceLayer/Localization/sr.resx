@@ -537,7 +537,7 @@
     <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Execution completed {0} times...</value>
+    <value>Batch execution completed {0} times...</value>
     <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
@@ -552,8 +552,8 @@
     <value>An error occurred while the batch was being executed, but the error has been ignored.</value>
     <comment></comment>
   </data>
-  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
-    <value>Starting execution loop of {0} times...</value>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Beginning execution loop</value>
     <comment></comment>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">

@@ -397,7 +397,7 @@
         
         <note/>
       </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Starting execution loop of {0} times...</source>
         <target state="new">{0} 번 루프 실행을 시작 하는 중...</target>
         

@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Пользователь отменил запрос.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>При выполнении пакета произошла ошибка.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>Начало цикла выполнения {0} раз...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Начало цикла выполнения {0} раз...</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>Команда {0} не поддерживается.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Переменная {0} не найдена.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Ошибка выполнения SQL: {0}</value></data>
@@ -478,4 +478,6 @@
   <data name="BackupPathIsFolderError"><value>Указанное имя файла является также именем каталога: {0}</value></data>
   <data name="InvalidBackupPathError"><value>Невозможно проверить существование расположения файла резервной копии: {0}</value></data>
   <data name="InvalidPathError"><value>Указанный путь на сервере недоступен: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>Для восстановления не выбран резервный набор данных</value></data>
+  <data name="NeverBackedUp"><value>Никогда </value></data>
   </root>

@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Se canceló la consulta.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Se produjo un error mientras se ejecutaba el lote.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Se produjo un error mientras se ejecutaba el lote, pero se ha omitido el error.</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>Iniciando bucle de ejecución de {0} veces...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Iniciando bucle de ejecución de {0} veces...</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>No se admite el comando {0}.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>La variable {0} no se encontró.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Error de ejecución de SQL: {0}</value></data>
@@ -478,4 +478,12 @@
   <data name="BackupPathIsFolderError"><value>El nombre del archivo especificado es un nombre de directorio: {0}</value></data>
   <data name="InvalidBackupPathError"><value>No se puede verificar la existencia de la ubicación del archivo de copia de seguridad: {0}</value></data>
   <data name="InvalidPathError"><value>No se puede acceder a la ruta de acceso especificada en el servidor: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>Ningún backupset seleccionado para ser restaurado</value></data>
+  <data name="NeverBackedUp"><value>Nunca</value></data>
+  <data name="AzureSqlDbEdition"><value>Azure SQL Database </value></data>
+  <data name="AzureSqlDwEdition"><value>Azure SQL Data Warehouse</value></data>
+  <data name="AzureSqlStretchEdition"><value>Azure SQL Stretch Database</value></data>
+  <data name="Error_InvalidDirectoryName"><value>La ruta de acceso [{0}] no es un directorio válido</value></data>
+  <data name="Error_ExistingDirectoryName"><value>Ya existe un archivo {1} en el directorio '{0}'</value></data>
+  <data name="EditDataValueTooLarge"><value>El valor {0} es muy grande para el tipo de columna {1} </value></data>
   </root>

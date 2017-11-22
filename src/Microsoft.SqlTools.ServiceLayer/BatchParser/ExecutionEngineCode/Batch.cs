@@ -214,6 +214,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         //index of the batch in collection of batches
         private int index = 0;
 
+        private int expectedExecutionCount = 1;
+
         private long totalAffectedRows = 0;
 
         private bool hasErrors;
@@ -343,6 +345,22 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
         }
 
+        /// <summary>
+        /// The number of times this batch is expected to be executed. Will be 1 by default, but for statements
+        /// with "GO 2" or other numerical values, will have a number > 1
+        /// </summary>
+        public int ExpectedExecutionCount
+        {
+            get
+            {
+                return expectedExecutionCount;
+            }
+
+            set
+            {
+                expectedExecutionCount = value;
+            }
+        }
 
         /// <summary>
         /// Returns how many rows were affected. It should be the value that can be shown
