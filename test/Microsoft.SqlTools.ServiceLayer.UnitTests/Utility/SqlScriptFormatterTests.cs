@@ -78,6 +78,61 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         #endregion
 
+        #region FormatColumnType Tests
+
+        [Theory]
+        [MemberData(nameof(ValidDbColumnTestData))]
+        public void ValidDbColumnTest(DbColumn column, string expected)
+        {
+            // If: I format the db column type
+            string output = SqlScriptFormatter.FormatColumnType(column);
+
+            // Then: It should look like the expected output
+            Assert.Equal(expected, output);
+        }
+
+        public static IEnumerable<object[]> ValidDbColumnTestData
+        {
+            get
+            {
+                yield return new object[] {new FormatterTestDbColumn("bigint"), "BIGINT"};
+                yield return new object[] {new FormatterTestDbColumn("bit"), "BIT"};
+                yield return new object[] {new FormatterTestDbColumn("decimal", 2, 4), "DECIMAL(2,4)"};
+                yield return new object[] {new FormatterTestDbColumn("int"), "INT"};
+                yield return new object[] {new FormatterTestDbColumn("money"), "MONEY"};
+                yield return new object[] {new FormatterTestDbColumn("numeric", 2, 4), "NUMERIC(2,4)"};
+                yield return new object[] {new FormatterTestDbColumn("smallint"), "SMALLINT"};
+                yield return new object[] {new FormatterTestDbColumn("smallmoney"), "SMALLMONEY"};
+                yield return new object[] {new FormatterTestDbColumn("tinyint"), "TINYINT"};
+                yield return new object[] {new FormatterTestDbColumn("float"), "FLOAT"};
+                yield return new object[] {new FormatterTestDbColumn("real"), "REAL"};
+                yield return new object[] {new FormatterTestDbColumn("date"), "DATE"};
+                yield return new object[] {new FormatterTestDbColumn("datetime2", scale: 3), "DATETIME2(3)"};
+                yield return new object[] {new FormatterTestDbColumn("datetime"), "DATETIME"};
+                yield return new object[] {new FormatterTestDbColumn("datetimeoffset", scale: 3), "DATETIMEOFFSET(3)"};
+                yield return new object[] {new FormatterTestDbColumn("smalldatetime"), "SMALLDATETIME"};
+                yield return new object[] {new FormatterTestDbColumn("time", scale: 3), "INT"};
+                yield return new object[] {new FormatterTestDbColumn("timestamp"), "VARBINARY(8)"};
+                yield return new object[] {new FormatterTestDbColumn("char", size: 10), "CHAR(10)"};
+                yield return new object[] {new FormatterTestDbColumn("char", size: int.MaxValue), "CHAR(max)"};
+                yield return new object[] {new FormatterTestDbColumn("text"), "TEXT"};
+                yield return new object[] {new FormatterTestDbColumn("varchar", size: 10), "VARCHAR(10)"};
+                yield return new object[] {new FormatterTestDbColumn("varchar", size: int.MaxValue), "VARCHAR(max)"};
+                yield return new object[] {new FormatterTestDbColumn("nchar", size: 10), "NCHAR(10)"};
+                yield return new object[] {new FormatterTestDbColumn("nchar", size: int.MaxValue), "NCHAR(max)"};
+                yield return new object[] {new FormatterTestDbColumn("ntext"), "TEXT"};
+                yield return new object[] {new FormatterTestDbColumn("nvarchar", size: 10), "NVARCHAR(10)"};
+                yield return new object[] {new FormatterTestDbColumn("nvarchar", size: int.MaxValue), "NVARCHAR(max)"};
+                yield return new object[] {new FormatterTestDbColumn("binary", size: 10), "BINARY(10)"};
+                yield return new object[] {new FormatterTestDbColumn("binary", size: int.MaxValue), "BINARY(max)"};
+                yield return new object[] {new FormatterTestDbColumn("image"), "TEXT"};
+                yield return new object[] {new FormatterTestDbColumn("varbinary", size: 10), "VARBINARY(10)"};
+                yield return new object[] {new FormatterTestDbColumn("varbinary", size: int.MaxValue), "VARBINARY(max)"};
+            }
+        }
+
+        #endregion
+        
         #region FormatValue Tests
 
         [Fact]
@@ -96,6 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.Throws<ArgumentNullException>(() => SqlScriptFormatter.FormatValue(new DbCellValue(), null));
         }
 
+        [Fact]
         public void UnsupportedColumnTest()
         {
             // If: I attempt to format an unsupported datatype
@@ -374,11 +430,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         private class FormatterTestDbColumn : DbColumn
         {
-            public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null)
+            public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null, int? size = null)
             {
                 DataTypeName = dataType;
                 NumericPrecision = precision;
                 NumericScale = scale;
+                ColumnSize = size;
             }
         }
     }

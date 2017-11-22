@@ -64,6 +64,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 // sql_variant       - casting logic isn't good enough
                 // sysname           - it doesn't appear possible to insert a sysname column
            };
+        
+        private static readonly Dictionary<string, Func<DbColumn, string>> ColumnFormatFunctions = 
+            new Dictionary<string, Func<DbColumn, string>>
+            {
+                {"decimal", PreciseScaleColumnFormatter},
+                {"numeric", PreciseScaleColumnFormatter},
+                {"datetime2", ScaledColumnFormatter},
+                {"datetimeoffset", ScaledColumnFormatter},
+                {"time", ScaledColumnFormatter},
+                {"char", SizedColumnFormatter},
+                {"nchar", SizedColumnFormatter},
+                {"varchar", SizedColumnFormatter},
+                {"nvarchar", SizedColumnFormatter},
+                {"binary", SizedColumnFormatter},
+                {"varbinary", SizedColumnFormatter},
+                {"timestamp", c => "VARBINARY(8)"}        // Timestamps can't be inserted, so use their semantically equivalent type
+            };
 
         private static readonly Type[] NumericTypes = 
         {
@@ -80,6 +97,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         #endregion
 
+        public static string FormatColumnType(DbColumn column)
+        {
+            Validate.IsNotNull(nameof(column), column);
+            
+            // Try to get a formatter function for the column, if it doesn't exist, try with the simple formatter
+            Func<DbColumn, string> formatFunction;
+            if (!ColumnFormatFunctions.TryGetValue(column.DataTypeName.ToLowerInvariant(), out formatFunction))
+            {
+                // NOTE: Using the simple formatter isn't guaranteed to work for all cases, 
+                // especially if the datatype isn't a valid type
+                formatFunction = SimpleColumnFormatter;
+            }
+
+            return formatFunction(column);
+        }
+        
         /// <summary>
         /// Converts an object into a string for SQL script
         /// </summary>
@@ -255,6 +288,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         #region Private Helpers
 
+        private static string SimpleColumnFormatter(DbColumn column)
+        {
+            return column.ColumnName.ToUpperInvariant();
+        }
+
+        private static string ScaledColumnFormatter(DbColumn column)
+        {
+            Validate.IsNotNull(nameof(column.NumericScale), column.NumericScale);
+            return string.Format("{0}({1})", column.ColumnName.ToUpperInvariant(), column.NumericScale);
+        }
+        
+        private static string SizedColumnFormatter(DbColumn column)
+        {
+            Validate.IsNotNull(nameof(column.ColumnSize), column.ColumnSize);
+            string size = column.ColumnSize == int.MaxValue
+                ? "max"
+                : column.ColumnSize.ToString();
+            return string.Format("{0}({1})", column.ColumnName.ToUpperInvariant(), size);
+        }
+        
+        private static string PreciseScaleColumnFormatter(DbColumn column)
+        {
+            Validate.IsNotNull(nameof(column.NumericPrecision), column.NumericPrecision);
+            Validate.IsNotNull(nameof(column.NumericScale), column.NumericScale);
+            return string.Format("{0}({1},{2})", column.ColumnName.ToUpperInvariant(), column.NumericPrecision, column.NumericPrecision);
+        }
+        
         private static string SimpleFormatter(object value)
         {
             return value.ToString();
