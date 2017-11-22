@@ -351,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
-            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
             RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             long oldBytesWritten = rs.totalBytesWritten;

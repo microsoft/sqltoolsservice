@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task RowDeleteConstruction()
         {
             // Setup: Create the values to store
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: I create a RowCreate instance
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(false)]
         public async Task GetScriptTest(bool isMemoryOptimized)
         {
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, false, 0, 0);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, true, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: I ask for a script to be generated for delete
