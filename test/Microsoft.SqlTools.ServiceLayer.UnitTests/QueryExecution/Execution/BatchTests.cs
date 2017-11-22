@@ -189,10 +189,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(2, resultSetCalls);
 
             // ... There should be exactly two result sets
-            ValidateBatch(batch, resultSets, false);
+            ValidateBatch(batch, 2, false);
             ValidateBatchSummary(batch);
-            // ... And there should be additional loop start and end messages
-            ValidateMessages(batch, 3, messages);
+            // ... And there should be an additional loop start in addition to the batch end message
+            ValidateMessages(batch, 2, messages);
         }
 
         [Fact]
