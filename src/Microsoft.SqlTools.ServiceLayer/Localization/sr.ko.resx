@@ -1,96 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -105,1371 +27,465 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>연결 매개 변수는 null 일 수 없습니다.</value>
-  </data>
-  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri은 null 이거나 비어 있을 수 없습니다.</value>
-  </data>
-  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUrl '{0}'는 기존 연결이 없습니다.</value>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>AuthenticationType  값으로 ' {0} '이 (가) 잘못 되었습니다. 유효한 값은 'Integrated'나 'SqlLogin' 입니다.</value>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>ApplicationIntent 값으로 ' {0} '이 (가) 잘못 되었습니다. 유효한 값은 'ReadWrite'나 'ReadOnly' 입니다.</value>
-  </data>
-  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
-    <value>연결이 취소되었습니다.</value>
-  </data>
-  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri는 null 이나 빈값일 수 없습니다</value>
-  </data>
-  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>연결 세부 정보 개체는 null이 될 수 없습니다.</value>
-  </data>
-  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
-    <value>서버 이름은 null이거나 비어 있을 수 없습니다.</value>
-  </data>
-  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>SqlLogin 인증 사용 시 {0}은(는) null이나 빈값일 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
-    <value>쿼리가 이미 완료되어 취소할 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>쿼리 취소가 완료되었으나 쿼리를 삭제하는데 실패했습니다. Owner URI를 찾을 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>사용자가 쿼리를 취소 했습니다.</value>
-  </data>
-  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
-    <value>일괄 처리가 아직 완료되지 않았습니다.</value>
-  </data>
-  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
-    <value>일괄 처리 인덱스는 0 미만 이거나 일괄 처리 갯수 보다 클 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
-    <value>결과 집합 인덱스는 0 미만 이거나 결과 집합의 갯수보다 클 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
-    <value>반환되는 최대 바이트 수는 0보다 커야 합니다.</value>
-  </data>
-  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
-    <value>반환되는 최대 문자 수는 0보다 커야 합니다.</value>
-  </data>
-  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
-    <value>반환되는 최대 XML 바이트 수는 0보다 커야 합니다.</value>
-  </data>
-  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>액세스 방법은 쓰기 전용이 될 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
-    <value>FileStreamWrapper 는 작업을 수행 하기 전에 초기화 해야 합니다.</value>
-  </data>
-  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
-    <value>FileStreamWrapper 는 쓰기용으로 사용할 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>(1 개 행이 영향을 받음)</value>
-  </data>
-  <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} 개 행이 영향을 받음)</value>
-  </data>
-  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>명령이 성공적으로 완료 되었습니다.</value>
-  </data>
-  <data name="QueryServiceErrorFormat" xml:space="preserve">
-    <value>메시지 {0}, 수준 {1}, 상태 {2}, 줄 {3} {4} {5}.</value>
-  </data>
-  <data name="QueryServiceQueryFailed" xml:space="preserve">
-    <value>쿼리 실패: {0}</value>
-  </data>
-  <data name="QueryServiceColumnNull" xml:space="preserve">
-    <value>(열 이름 없음)</value>
-  </data>
-  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
-    <value>요청한 쿼리가 존재하지 않습니다.</value>
-  </data>
-  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>편집기가 데이터베이스에 연결되지 않았습니다.</value>
-  </data>
-  <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>쿼리가 현재 편집기 세션에서 이미 실행 중입니다. 쿼리를 취소하거나 완료 될 때까지 대기 하십시오.</value>
-  </data>
-  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
-    <value>OnInfoMessage 이벤트 발신자는 SqlConnection 이어야 합니다.</value>
-  </data>
-  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
-    <value>결과는 쿼리 실행이 완료 될 때까지 저장할 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
-    <value>저장 작업을 시작 하는 동안 내부 오류가 발생 했습니다.</value>
-  </data>
-  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
-    <value>동일한 경로로 저장 요청이 진행 중입니다.</value>
-  </data>
-  <data name="QueryServiceSaveAsFail" xml:space="preserve">
-    <value>저장 실패 {0}:{1}</value>
-  </data>
-  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
-    <value>서버로부터 결과를 모두 읽기 전에는 일부 결과를 읽을 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
-    <value>시작 행은 0 미만이거나 결과 집합의 행의 갯수보다 클 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
-    <value>행 수는 양수여야 합니다.</value>
-  </data>
-  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
-    <value>결과 집합의 열 스키마를 검색할 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>결과 집합에서 실행 계획을 검색할 수 없습니다.</value>
-  </data>
-  <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>현재 이 기능은 Azure SQL DB와 데이터 웨어하우스에서 지원 되지 않습니다: {0}</value>
-  </data>
-  <data name="PeekDefinitionError" xml:space="preserve">
-    <value>정의 피킹을 실행하는 동안 예상치 못한 오류가 발생했습니다: {0}</value>
-  </data>
-  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
-    <value>결과가 없습니다.</value>
-  </data>
-  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
-    <value>검색된 데이터베이스 개체가 없습니다.</value>
-  </data>
-  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
-    <value>서버에 연결 하십시오.</value>
-  </data>
-  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
-    <value>작업 제한 시간이 초과 되었습니다.</value>
-  </data>
-  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>현재 이 개체 형식은 지원되지 않습니다.</value>
-  </data>
-  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>위치가 파일 줄 범위를 벗어났습니다.</value>
-  </data>
-  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>위치가 줄 {0} 의 열 범위를 벗어났습니다.</value>
-  </data>
-  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>시작 위치 ({0}, {1})은(는) 반드시 끝 위치 ({2}, {3}) 과 같거나 이전이어야 합니다.</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>메시지 {0}, 수준{1}, 상태 {2}, 줄 {3}</value>
-  </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>메시지 {0}, 수준 {1}, 상태 {2}, 프로시저 {3}, 줄 {4}</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>메시지 {0}, 수준 {1}, 상태 {2}</value>
-  </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>일괄 처리를 처리 하는 동안 하는 동안 오류가 발생 합니다. 오류 메시지: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} 개 행이 영향을 받음)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>이전 실행이 아직 완료 되지 않았습니다.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>스크립팅 오류가 발생 했습니다.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>{0}에 잘못된 구문이 발견되었습니다.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>치명적인 오류가 발생 했습니다.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>실행 완료 {0} 회</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>쿼리를 취소 했습니다.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>일괄 처리를 실행 하는 동안 오류가 발생 합니다.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>일괄 처리를 실행 하는 동안 오류가 발생했으나 그 오류는 무시되었습니다.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
-    <value>{0} 번 루프 실행을 시작 하는 중...</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>{0} 명령은 지원되지 않습니다.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>{0} 변수를 찾을 수 없습니다.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>SQL 실행 오류: {0}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>일괄처리 구문분석 래퍼 실행: {0} 발견... 줄 {1}: {2} 설명: {3}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 메시지를 받았습니다. 메시지: {0} 자세한 메시지: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 처리하고 있습니다. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 완료했습니다.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>일괄 처리 파서 래퍼 일괄 처리 실행을 취소하고 있습니다.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>스크립팅 경고.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>이 오류에 대한 추가 정보는 제품 설명서의 문제 해결 항목을 참조하십시오.</value>
-  </data>
-  <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>' {0} '이 (가) 재귀적으로 포함 된 파일입니다.</value>
-  </data>
-  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>주석 끝 표시 ' * /' 누락 .</value>
-  </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>문자열에 닫히지 않은 인용 부호.</value>
-  </data>
-  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>'{0}'을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</value>
-  </data>
-  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>{0} 변수가 정의되지 않았습니다.</value>
-  </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>테스트</value>
-  </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ConnectionServiceConnectErrorNullParams"><value>연결 매개 변수는 null 일 수 없습니다.</value></data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri"><value>OwnerUri은 null 이거나 비어 있을 수 없습니다.</value></data>
+  <data name="ConnectionServiceListDbErrorNotConnected"><value>SpecifiedUrl '{0}'는 기존 연결이 없습니다.</value></data>
+  <data name="ConnectionServiceConnStringInvalidAuthType"><value>AuthenticationType  값으로 ' {0} '이 (가) 잘못 되었습니다. 유효한 값은 'Integrated'나 'SqlLogin' 입니다.</value></data>
+  <data name="ConnectionServiceConnStringInvalidIntent"><value>ApplicationIntent 값으로 ' {0} '이 (가) 잘못 되었습니다. 유효한 값은 'ReadWrite'나 'ReadOnly' 입니다.</value></data>
+  <data name="ConnectionServiceConnectionCanceled"><value>연결이 취소되었습니다.</value></data>
+  <data name="ConnectionParamsValidateNullOwnerUri"><value>OwnerUri는 null 이나 빈값일 수 없습니다</value></data>
+  <data name="ConnectionParamsValidateNullConnection"><value>연결 세부 정보 개체는 null이 될 수 없습니다.</value></data>
+  <data name="ConnectionParamsValidateNullServerName"><value>서버 이름은 null이거나 비어 있을 수 없습니다.</value></data>
+  <data name="ConnectionParamsValidateNullSqlAuth"><value>SqlLogin 인증 사용 시 {0}은(는) null이나 빈값일 수 없습니다.</value></data>
+  <data name="QueryServiceCancelAlreadyCompleted"><value>쿼리가 이미 완료되어 취소할 수 없습니다.</value></data>
+  <data name="QueryServiceCancelDisposeFailed"><value>쿼리 취소가 완료되었으나 쿼리를 삭제하는데 실패했습니다. Owner URI를 찾을 수 없습니다.</value></data>
+  <data name="QueryServiceQueryCancelled"><value>사용자가 쿼리를 취소 했습니다.</value></data>
+  <data name="QueryServiceSubsetBatchNotCompleted"><value>일괄 처리가 아직 완료되지 않았습니다.</value></data>
+  <data name="QueryServiceSubsetBatchOutOfRange"><value>일괄 처리 인덱스는 0 미만 이거나 일괄 처리 갯수 보다 클 수 없습니다.</value></data>
+  <data name="QueryServiceSubsetResultSetOutOfRange"><value>결과 집합 인덱스는 0 미만 이거나 결과 집합의 갯수보다 클 수 없습니다.</value></data>
+  <data name="QueryServiceDataReaderByteCountInvalid"><value>반환되는 최대 바이트 수는 0보다 커야 합니다.</value></data>
+  <data name="QueryServiceDataReaderCharCountInvalid"><value>반환되는 최대 문자 수는 0보다 커야 합니다.</value></data>
+  <data name="QueryServiceDataReaderXmlCountInvalid"><value>반환되는 최대 XML 바이트 수는 0보다 커야 합니다.</value></data>
+  <data name="QueryServiceFileWrapperWriteOnly"><value>액세스 방법은 쓰기 전용이 될 수 없습니다.</value></data>
+  <data name="QueryServiceFileWrapperNotInitialized"><value>FileStreamWrapper 는 작업을 수행 하기 전에 초기화 해야 합니다.</value></data>
+  <data name="QueryServiceFileWrapperReadOnly"><value>FileStreamWrapper 는 쓰기용으로 사용할 수 없습니다.</value></data>
+  <data name="QueryServiceAffectedOneRow"><value>(1 개 행이 영향을 받음)</value></data>
+  <data name="QueryServiceAffectedRows"><value>({0} 개 행이 영향을 받음)</value></data>
+  <data name="QueryServiceCompletedSuccessfully"><value>명령이 성공적으로 완료 되었습니다.</value></data>
+  <data name="QueryServiceErrorFormat"><value>메시지 {0}, 수준 {1}, 상태 {2}, 줄 {3} {4} {5}.</value></data>
+  <data name="QueryServiceQueryFailed"><value>쿼리 실패: {0}</value></data>
+  <data name="QueryServiceColumnNull"><value>(열 이름 없음)</value></data>
+  <data name="QueryServiceRequestsNoQuery"><value>요청한 쿼리가 존재하지 않습니다.</value></data>
+  <data name="QueryServiceQueryInvalidOwnerUri"><value>편집기가 데이터베이스에 연결되지 않았습니다.</value></data>
+  <data name="QueryServiceQueryInProgress"><value>쿼리가 현재 편집기 세션에서 이미 실행 중입니다. 쿼리를 취소하거나 완료 될 때까지 대기 하십시오.</value></data>
+  <data name="QueryServiceMessageSenderNotSql"><value>OnInfoMessage 이벤트 발신자는 SqlConnection 이어야 합니다.</value></data>
+  <data name="QueryServiceSaveAsResultSetNotComplete"><value>결과는 쿼리 실행이 완료 될 때까지 저장할 수 없습니다.</value></data>
+  <data name="QueryServiceSaveAsMiscStartingError"><value>저장 작업을 시작 하는 동안 내부 오류가 발생 했습니다.</value></data>
+  <data name="QueryServiceSaveAsInProgress"><value>동일한 경로로 저장 요청이 진행 중입니다.</value></data>
+  <data name="QueryServiceSaveAsFail"><value>저장 실패 {0}:{1}</value></data>
+  <data name="QueryServiceResultSetNotRead"><value>서버로부터 결과를 모두 읽기 전에는 일부 결과를 읽을 수 없습니다.</value></data>
+  <data name="QueryServiceResultSetStartRowOutOfRange"><value>시작 행은 0 미만이거나 결과 집합의 행의 갯수보다 클 수 없습니다.</value></data>
+  <data name="QueryServiceResultSetRowCountOutOfRange"><value>행 수는 양수여야 합니다.</value></data>
+  <data name="QueryServiceResultSetNoColumnSchema"><value>결과 집합의 열 스키마를 검색할 수 없습니다.</value></data>
+  <data name="QueryServiceExecutionPlanNotFound"><value>결과 집합에서 실행 계획을 검색할 수 없습니다.</value></data>
+  <data name="PeekDefinitionAzureError"><value>현재 이 기능은 Azure SQL DB와 데이터 웨어하우스에서 지원 되지 않습니다: {0}</value></data>
+  <data name="PeekDefinitionError"><value>정의 피킹을 실행하는 동안 예상치 못한 오류가 발생했습니다: {0}</value></data>
+  <data name="PeekDefinitionNoResultsError"><value>결과가 없습니다.</value></data>
+  <data name="PeekDefinitionDatabaseError"><value>검색된 데이터베이스 개체가 없습니다.</value></data>
+  <data name="PeekDefinitionNotConnectedError"><value>서버에 연결 하십시오.</value></data>
+  <data name="PeekDefinitionTimedoutError"><value>작업 제한 시간이 초과 되었습니다.</value></data>
+  <data name="PeekDefinitionTypeNotSupportedError"><value>현재 이 개체 형식은 지원되지 않습니다.</value></data>
+  <data name="WorkspaceServicePositionLineOutOfRange"><value>위치가 파일 줄 범위를 벗어났습니다.</value></data>
+  <data name="WorkspaceServicePositionColumnOutOfRange"><value>위치가 줄 {0} 의 열 범위를 벗어났습니다.</value></data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder"><value>시작 위치 ({0}, {1})은(는) 반드시 끝 위치 ({2}, {3}) 과 같거나 이전이어야 합니다.</value></data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo"><value>메시지 {0}, 수준{1}, 상태 {2}, 줄 {3}</value></data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>메시지 {0}, 수준 {1}, 상태 {2}, 프로시저 {3}, 줄 {4}</value></data>
+  <data name="EE_BatchSqlMessageNoLineInfo"><value>메시지 {0}, 수준 {1}, 상태 {2}</value></data>
+  <data name="EE_BatchError_Exception"><value>일괄 처리를 처리 하는 동안 하는 동안 오류가 발생 합니다. 오류 메시지: {0}</value></data>
+  <data name="EE_BatchExecutionInfo_RowsAffected"><value>({0} 개 행이 영향을 받음)</value></data>
+  <data name="EE_ExecutionNotYetCompleteError"><value>이전 실행이 아직 완료 되지 않았습니다.</value></data>
+  <data name="EE_ScriptError_Error"><value>스크립팅 오류가 발생 했습니다.</value></data>
+  <data name="EE_ScriptError_ParsingSyntax"><value>{0}에 잘못된 구문이 발견되었습니다.</value></data>
+  <data name="EE_ScriptError_FatalError"><value>치명적인 오류가 발생 했습니다.</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>실행 완료 {0} 회</value></data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>쿼리를 취소 했습니다.</value></data>
+  <data name="EE_BatchExecutionError_Halting"><value>일괄 처리를 실행 하는 동안 오류가 발생 합니다.</value></data>
+  <data name="EE_BatchExecutionError_Ignoring"><value>일괄 처리를 실행 하는 동안 오류가 발생했으나 그 오류는 무시되었습니다.</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>{0} 번 루프 실행을 시작 하는 중...</value></data>
+  <data name="EE_ExecutionError_CommandNotSupported"><value>{0} 명령은 지원되지 않습니다.</value></data>
+  <data name="EE_ExecutionError_VariableNotFound"><value>{0} 변수를 찾을 수 없습니다.</value></data>
+  <data name="BatchParserWrapperExecutionEngineError"><value>SQL 실행 오류: {0}</value></data>
+  <data name="BatchParserWrapperExecutionError"><value>일괄처리 구문분석 래퍼 실행: {0} 발견... 줄 {1}: {2} 설명: {3}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage"><value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 메시지를 받았습니다. 메시지: {0} 자세한 메시지: {1}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing"><value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 처리하고 있습니다. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished"><value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 완료했습니다.</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling"><value>일괄 처리 파서 래퍼 일괄 처리 실행을 취소하고 있습니다.</value></data>
+  <data name="EE_ScriptError_Warning"><value>스크립팅 경고.</value></data>
+  <data name="TroubleshootingAssistanceMessage"><value>이 오류에 대한 추가 정보는 제품 설명서의 문제 해결 항목을 참조하십시오.</value></data>
+  <data name="BatchParser_CircularReference"><value>' {0} '이 (가) 재귀적으로 포함 된 파일입니다.</value></data>
+  <data name="BatchParser_CommentNotTerminated"><value>주석 끝 표시 ' * /' 누락 .</value></data>
+  <data name="BatchParser_StringNotTerminated"><value>문자열에 닫히지 않은 인용 부호.</value></data>
+  <data name="BatchParser_IncorrectSyntax"><value>'{0}'을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</value></data>
+  <data name="BatchParser_VariableNotDefined"><value>{0} 변수가 정의되지 않았습니다.</value></data>
+  <data name="TestLocalizationConstant"><value>테스트</value></data>
+  <data name="ErrorEmptyStringReplacement"><value>
 votes
-빈 문자열을 빈 문자열로 대체.</value>
-  </data>
-  <data name="EditDataSessionNotFound" xml:space="preserve">
-    <value>편집 세션이 존재하지 않습니다.</value>
-  </data>
-  <data name="EditDataQueryNotCompleted" xml:space="preserve">
-    <value>쿼리 실행이 완료되지 않았습니다.</value>
-  </data>
-  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
-    <value>쿼리가 정확히 하나의 결과 집합을 생성하지 않았습니다.</value>
-  </data>
-  <data name="EditDataFailedAddRow" xml:space="preserve">
-    <value>업데이트 캐시에 새로운 행 추가를 실패했습니다.</value>
-  </data>
-  <data name="EditDataRowOutOfRange" xml:space="preserve">
-    <value>지정된 row ID가 수정 중인 캐시의 행 범위 밖에 있습니다.</value>
-  </data>
-  <data name="EditDataUpdatePending" xml:space="preserve">
-    <value>이 행에 대한 업데이트가 이미 보류 중이므로 먼저 되돌려야 합니다.</value>
-  </data>
-  <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>주어진 row ID에 보류 중인 업데이트가 없습니다.</value>
-  </data>
-  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
-    <value>테이블이나 뷰 메타 데이터를 찾을 수 없습니다.</value>
-  </data>
-  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
-    <value>이진 열에 형식이 잘못되었습니다.</value>
-  </data>
-  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Boolean 열은 반드시 숫자 1이나 0 혹은 문자 true나 false여야 합니다.</value>
-  </data>
-  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>필수 셀 값이 누락되었습니다.</value>
-  </data>
-  <data name="EditDataDeleteSetCell" xml:space="preserve">
-    <value>행 삭제가 보류 중이므로, 셀을 업데이트할 수 없습니다.</value>
-  </data>
-  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
-    <value>열 ID는 쿼리의 열 범위 내에 있어야 합니다.</value>
-  </data>
-  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
-    <value>열을 편집할 수 없습니다.</value>
-  </data>
-  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
-    <value>키 열이 없습니다.</value>
-  </data>
-  <data name="EditDataScriptFilePathNull" xml:space="preserve">
-    <value>출력 파일명이 필요합니다.</value>
-  </data>
-  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
-    <value>데이터베이스 개체 {0} 는 편집할 수 없습니다.</value>
-  </data>
-  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>지정된 Uri ' {0} '에 기본 연결이 지정되지 않았습니다.</value>
-  </data>
-  <data name="EditDataCommitInProgress" xml:space="preserve">
-    <value>커밋 작업이 진행 중입니다. 완료될 때까지 기다리세요.</value>
-  </data>
-  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>Decimal 형식 열에 전체 자릿수 또는 소수 자릿수가 없습니다.</value>
-  </data>
-  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
-    <value>&lt;TBD&gt;</value>
-  </data>
-  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>결과 버퍼에 새로운 행을 추가할 수 없거나 데이터 리더에 행이 없습니다.</value>
-  </data>
-  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>TIME 열의 값은 00:00:00.0000000과 23:59:59.9999999 사이의 값만 허용됩니다.</value>
-  </data>
-  <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>이 열은 NULL을 허용하지 않습니다.</value>
-  </data>
-  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
-    <value>편집 세션이 이미 존재합니다.</value>
-  </data>
-  <data name="EditDataSessionNotInitialized" xml:space="preserve">
-    <value>편집 세션이 초기화 되지 않았습니다.</value>
-  </data>
-  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
-    <value>편집 세션이 이미 초기화 되었습니다.</value>
-  </data>
-  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
-    <value>편집 세션이 이미 초기화 되었거나 초기화 중입니다.</value>
-  </data>
-  <data name="EditDataQueryFailed" xml:space="preserve">
-    <value>쿼리 실행에 실패했습니다. 자세한 정보는 메시지를 참조하세요.</value>
-  </data>
-  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
-    <value>결과 제한은 음수가 될 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceCellNull" xml:space="preserve">
-    <value>NULL</value>
-  </data>
-  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
-    <value>개체 이름이 필요합니다.</value>
-  </data>
-  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
-    <value>서버와 데이터베이스를 명시적으로 지정할 수 없습니다.</value>
-  </data>
-  <data name="EditDataMetadataNotExtended" xml:space="preserve">
-    <value>테이블 메타데이터에 확장 속성이 없습니다.</value>
-  </data>
-  <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>편집하려는 테이블이나 뷰를 찾을 수 없습니다</value>
-  </data>
-  <data name="TreeNodeError" xml:space="preserve">
-    <value>오류 확장: {0}</value>
-  </data>
-  <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>{0}에 연결하는 동안 오류가 발생했습니다.</value>
-  </data>
-  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>집계</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>서버 역할</value>
-  </data>
-  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>응용 프로그램 역할</value>
-  </data>
-  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>어셈블리</value>
-  </data>
-  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>어셈블리 파일</value>
-  </data>
-  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>비대칭 키</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>비대칭 키</value>
-  </data>
-  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>데이터 압축 옵션</value>
-  </data>
-  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>인증서</value>
-  </data>
-  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>FileTables</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>인증서</value>
-  </data>
-  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Check 제약 조건</value>
-  </data>
-  <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>열</value>
-  </data>
-  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>제약 조건</value>
-  </data>
-  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>계약</value>
-  </data>
-  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>자격 증명</value>
-  </data>
-  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>오류 메시지</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>서버 역할 멤버 자격</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>데이터베이스 옵션</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>데이터베이스 역할</value>
-  </data>
-  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>역할 멤버 자격</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>데이터베이스 트리거</value>
-  </data>
-  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>기본 제약 조건</value>
-  </data>
-  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>기본값</value>
-  </data>
-  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>시퀀스</value>
-  </data>
-  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>끝점</value>
-  </data>
-  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>이벤트 알림</value>
-  </data>
-  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>서버 이벤트 알림</value>
-  </data>
-  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>확장 속성</value>
-  </data>
-  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>파일 그룹</value>
-  </data>
-  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>외래 키</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>전체 텍스트 카탈로그</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>전체 텍스트 인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>함수</value>
-  </data>
-  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>인라인 함수</value>
-  </data>
-  <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>키</value>
-  </data>
-  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>연결된 서버</value>
-  </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>연결된 서버 로그인</value>
-  </data>
-  <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>로그인</value>
-  </data>
-  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>마스터 키</value>
-  </data>
-  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>마스터 키</value>
-  </data>
-  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>메시지 유형</value>
-  </data>
-  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>테이블 반환 함수</value>
-  </data>
-  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>매개 변수</value>
-  </data>
-  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>파티션 함수</value>
-  </data>
-  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>파티션 구성표</value>
-  </data>
-  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>사용 권한</value>
-  </data>
-  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>기본 키</value>
-  </data>
-  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>프로그래밍 기능</value>
-  </data>
-  <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>큐</value>
-  </data>
-  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>원격 서비스 바인딩</value>
-  </data>
-  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>반환 열</value>
-  </data>
-  <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>역할</value>
-  </data>
-  <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>경로</value>
-  </data>
-  <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>규칙</value>
-  </data>
-  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>스키마</value>
-  </data>
-  <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>보안</value>
-  </data>
-  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>서버 개체</value>
-  </data>
-  <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>관리</value>
-  </data>
-  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>트리거</value>
-  </data>
-  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>서비스</value>
-  </data>
-  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>서명</value>
-  </data>
-  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>로그 파일</value>
-  </data>
-  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>통계</value>
-  </data>
-  <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>저장소</value>
-  </data>
-  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>저장 프로시저</value>
-  </data>
-  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>대칭 키</value>
-  </data>
-  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>동의어</value>
-  </data>
-  <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>테이블</value>
-  </data>
-  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>트리거</value>
-  </data>
-  <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>유형</value>
-  </data>
-  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>고유 키</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>사용자 정의 데이터 형식</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>사용자 정의 형식 (CLR)</value>
-  </data>
-  <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>사용자</value>
-  </data>
-  <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>뷰</value>
-  </data>
-  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML 인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML 스키마 컬렉션</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>사용자 정의 테이블 형식</value>
-  </data>
-  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>파일</value>
-  </data>
-  <data name="MissingCaption" xml:space="preserve">
-    <value>캡션 누락</value>
-  </data>
-  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>브로커 우선 순위</value>
-  </data>
-  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>암호화 공급자</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>데이터베이스 감사 사양</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>데이터베이스 암호화 키</value>
-  </data>
-  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>이벤트 세션</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>전체 텍스트 중지 목록</value>
-  </data>
-  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>리소스 풀</value>
-  </data>
-  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>감사</value>
-  </data>
-  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>서버 감사 사양</value>
-  </data>
-  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>공간 인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>작업 그룹</value>
-  </data>
-  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL 파일</value>
-  </data>
-  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>서버 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL 유형</value>
-  </data>
-  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>서버 옵션</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>데이터베이스 다이어그램</value>
-  </data>
-  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>시스템 테이블</value>
-  </data>
-  <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>데이터베이스</value>
-  </data>
-  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>시스템 계약</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>시스템 데이터베이스</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>시스템 메시지 유형</value>
-  </data>
-  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>시스템 큐</value>
-  </data>
-  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>시스템 서비스</value>
-  </data>
-  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>시스템 저장 프로시저</value>
-  </data>
-  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>시스템 뷰</value>
-  </data>
-  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>데이터 계층 응용 프로그램</value>
-  </data>
-  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>확장 저장 프로시저</value>
-  </data>
-  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>집계 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>근사치</value>
-  </data>
-  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>이진 문자열</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>문자열</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR 데이터 형식</value>
-  </data>
-  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>구성 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>커서 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>시스템 데이터 형식</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>날짜 및 시간</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>날짜 및 시간 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>정확한 수치</value>
-  </data>
-  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>시스템 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>계층 구조 ID 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>수학 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>메타데이터 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>기타 데이터 형식</value>
-  </data>
-  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>기타 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>행 집합 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>보안 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>공간 데이터 형식</value>
-  </data>
-  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>문자열 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>시스템 통계 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>텍스트 및 이미지 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>유니코드 문자열</value>
-  </data>
-  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>집계 함수</value>
-  </data>
-  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>스칼라 반환 함수</value>
-  </data>
-  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>테이블 반환 함수</value>
-  </data>
-  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>시스템 확장 저장 프로시저</value>
-  </data>
-  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>기본 제공 유형</value>
-  </data>
-  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>기본 제공 서버 역할</value>
-  </data>
-  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>암호가 있는 사용자</value>
-  </data>
-  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>검색 속성 목록</value>
-  </data>
-  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>보안 정책</value>
-  </data>
-  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>보안 조건자</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>서버 역할</value>
-  </data>
-  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>검색 속성 목록</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>열 저장 인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>테이블 형식 인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>선택적 XML 인덱스</value>
-  </data>
-  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML 네임스페이스</value>
-  </data>
-  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML 유형의 공유된 경로</value>
-  </data>
-  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL 유형의 공유된 경로</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>데이터베이스 범위 자격 증명</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>외부 데이터 원본</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>외부 파일 형식</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>외부 리소스</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>외부 테이블</value>
-  </data>
-  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted 키</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>열 마스터 키</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>열 암호화 키</value>
-  </data>
-  <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>서버</value>
-  </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>ScriptingParams.ConnectionString 속성 분석을 하는 동안 오류가 발생했습니다.</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>ScriptingParams.FilePath 속성에 잘못된 디렉터리 지정</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>ScriptingListObjectsCompleteParams.ConnectionSring 속성을 분석할때 오류가 생겼습니다.</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
-    <value>{0}({1}, {2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>기본값 없음</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>입력</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>입/출력</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>입력/읽기 전용</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>입/출력/읽기 전용</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>기본값</value>
-  </data>
-  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>Null</value>
-  </data>
-  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>Not Null</value>
-  </data>
-  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
-    <value>{0}({1}, {2})</value>
-  </data>
-  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
-    <value>{0}({1})</value>
-  </data>
-  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0}({1}계산됨, {2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0}({1}계산됨)</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0}(열 집합, {1})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0}(열 집합, {1}{2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0}(열 집합, {1}, {2}, {3})</value>
-  </data>
-  <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>고유</value>
-  </data>
-  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>고유하지 않음</value>
-  </data>
-  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>클러스터형</value>
-  </data>
-  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>비클러스터형</value>
-  </data>
-  <data name="History_LabelPart" xml:space="preserve">
-    <value>기록</value>
-  </data>
-  <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>시스템 버전 관리</value>
-  </data>
-  <data name="unavailable" xml:space="preserve">
-    <value>사용할 수 없음</value>
-  </data>
-  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
-    <value>현재 기본 파일 그룹: {0}</value>
-  </data>
-  <data name="filegroup_dialog_title" xml:space="preserve">
-    <value>{0}에 대한 새 파일 그룹</value>
-  </data>
-  <data name="filegroups_default" xml:space="preserve">
-    <value>기본값</value>
-  </data>
-  <data name="filegroups_files" xml:space="preserve">
-    <value>파일</value>
-  </data>
-  <data name="filegroups_name" xml:space="preserve">
-    <value>이름</value>
-  </data>
-  <data name="filegroups_readonly" xml:space="preserve">
-    <value>읽기 전용</value>
-  </data>
-  <data name="general_autogrowth" xml:space="preserve">
-    <value>자동 증가 / 최대 크기</value>
-  </data>
-  <data name="general_builderText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="general_default" xml:space="preserve">
-    <value>&lt;기본값&gt;</value>
-  </data>
-  <data name="general_fileGroup" xml:space="preserve">
-    <value>파일 그룹</value>
-  </data>
-  <data name="general_fileName" xml:space="preserve">
-    <value>논리적 이름</value>
-  </data>
-  <data name="general_fileType" xml:space="preserve">
-    <value>파일 형식</value>
-  </data>
-  <data name="general_initialSize" xml:space="preserve">
-    <value>처음 크기 (MB)</value>
-  </data>
-  <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;새 파일 그룹&gt;</value>
-  </data>
-  <data name="general_path" xml:space="preserve">
-    <value>경로</value>
-  </data>
-  <data name="general_physicalFileName" xml:space="preserve">
-    <value>파일 이름</value>
-  </data>
-  <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;원시 장치&gt;</value>
-  </data>
-  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
-    <value>대량 로그</value>
-  </data>
-  <data name="general_recoveryModel_full" xml:space="preserve">
-    <value>전체</value>
-  </data>
-  <data name="general_recoveryModel_simple" xml:space="preserve">
-    <value>단순</value>
-  </data>
-  <data name="general_titleSearchOwner" xml:space="preserve">
-    <value>데이터베이스 소유자 선택</value>
-  </data>
-  <data name="prototype_autogrowth_disabled" xml:space="preserve">
-    <value>없음</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
-    <value>{0} MB 단위로 {1} MB까지 제한됨</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
-    <value>{0} % 단위로 {1} MB까지 제한됨</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
-    <value>{0} MB 단위로, 제한 없음</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
-    <value>{0} % 단위로, 제한 없음</value>
-  </data>
-  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
-    <value>제한 없음</value>
-  </data>
-  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
-    <value>{0} MB로 제한됨</value>
-  </data>
-  <data name="prototype_db_category_automatic" xml:space="preserve">
-    <value>자동</value>
-  </data>
-  <data name="prototype_db_category_servicebroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="prototype_db_category_collation" xml:space="preserve">
-    <value>데이터 정렬</value>
-  </data>
-  <data name="prototype_db_category_cursor" xml:space="preserve">
-    <value>커서</value>
-  </data>
-  <data name="prototype_db_category_misc" xml:space="preserve">
-    <value>기타</value>
-  </data>
-  <data name="prototype_db_category_recovery" xml:space="preserve">
-    <value>복구</value>
-  </data>
-  <data name="prototype_db_category_state" xml:space="preserve">
-    <value>상태</value>
-  </data>
-  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
-    <value>ANSI NULL 기본값</value>
-  </data>
-  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
-    <value>ANSI NULLS 사용</value>
-  </data>
-  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
-    <value>ANSI 패딩 설정</value>
-  </data>
-  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
-    <value>ANSI Warnings 사용</value>
-  </data>
-  <data name="prototype_db_prop_arithabort" xml:space="preserve">
-    <value>산술 연산 중단 설정</value>
-  </data>
-  <data name="prototype_db_prop_autoClose" xml:space="preserve">
-    <value>자동 닫기</value>
-  </data>
-  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
-    <value>통계 자동 작성</value>
-  </data>
-  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
-    <value>자동 축소</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
-    <value>통계 자동 업데이트</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
-    <value>통계를 비동기적으로 자동 업데이트</value>
-  </data>
-  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
-    <value>대/소문자 구분</value>
-  </data>
-  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
-    <value>커밋 시 커서 닫기 설정</value>
-  </data>
-  <data name="prototype_db_prop_collation" xml:space="preserve">
-    <value>데이터 정렬</value>
-  </data>
-  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
-    <value>Null 연결 시 Null 생성</value>
-  </data>
-  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
-    <value>데이터베이스 호환성 수준</value>
-  </data>
-  <data name="prototype_db_prop_databaseState" xml:space="preserve">
-    <value>데이터베이스 상태</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
-    <value>기본 커서</value>
-  </data>
-  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
-    <value>전체 텍스트 인덱싱 설정</value>
-  </data>
-  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
-    <value>숫자 반올림 시 중단</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
-    <value>페이지 확인</value>
-  </data>
-  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
-    <value>따옴표 붙은 식별자 설정</value>
-  </data>
-  <data name="prototype_db_prop_readOnly" xml:space="preserve">
-    <value>데이터베이스 읽기 전용</value>
-  </data>
-  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
-    <value>재귀적 트리거 설정</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
-    <value>액세스 제한</value>
-  </data>
-  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
-    <value>SELECT INTO/대량 복사</value>
-  </data>
-  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
-    <value>Broker 우선 순위 인식</value>
-  </data>
-  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
-    <value>Service Broker 식별자</value>
-  </data>
-  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
-    <value>Broker 활성화</value>
-  </data>
-  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
-    <value>검사점에서 로그 자름</value>
-  </data>
-  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
-    <value>데이터베이스 간 소유권 체인 사용</value>
-  </data>
-  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
-    <value>신뢰</value>
-  </data>
-  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>날짜 상관관계 최적화 설정</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
-    <value>강제</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
-    <value>단순</value>
-  </data>
-  <data name="prototype_file_dataFile" xml:space="preserve">
-    <value>ROWS 데이터</value>
-  </data>
-  <data name="prototype_file_logFile" xml:space="preserve">
-    <value>로그</value>
-  </data>
-  <data name="prototype_file_filestreamFile" xml:space="preserve">
-    <value>FILESTREAM 데이터</value>
-  </data>
-  <data name="prototype_file_noFileGroup" xml:space="preserve">
-    <value>해당 사항 없음</value>
-  </data>
-  <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;기본 경로&gt;</value>
-  </data>
-  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>연결 열기</value>
-  </data>
-  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>데이터베이스 속성을 변경하기 위해, SQL Server가 database_ 에  다른 연결을 모두 닫아야 합니다. 속성을 변경하고 다른 연결을 모두 닫으시겠습니까?</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
-    <value>AUTO_CLOSED</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
-    <value>긴급</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
-    <value>INACCESSIBLE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
-    <value>NORMAL</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
-    <value>오프라인</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
-    <value>복구 중</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
-    <value>복구 보류 중</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
-    <value>RESTORING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
-    <value>SHUTDOWN</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
-    <value>STANDBY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
-    <value>SUSPECT</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
-    <value>GLOBAL</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
-    <value>LOCAL</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
-    <value>MULTI_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
-    <value>RESTRICTED_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
-    <value>SINGLE_USER</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
-    <value>CHECKSUM</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
-    <value>NONE</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
-    <value>TORN_PAGE_DETECTION</value>
-  </data>
-  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
-    <value>VarDecimal 저장소 형식 사용</value>
-  </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-  </data>
-  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
-    <value>암호화 사용</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
-    <value>OFF</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
-    <value>ON</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
-    <value>PRIMARY</value>
-  </data>
-  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
-    <value>배포 정책이 HASH인 경우 선행 해시 열 수는 선택 사항이지만, 선택할 경우 1개에서 16개 사이의 열로 지정해야 합니다.</value>
-  </data>
-  <data name="compatibilityLevel_denali" xml:space="preserve">
-    <value>SQL Server 2012 (110)</value>
-  </data>
-  <data name="compatibilityLevel_sql14" xml:space="preserve">
-    <value>SQL Server 2014 (120)</value>
-  </data>
-  <data name="compatibilityLevel_sql15" xml:space="preserve">
-    <value>SQL Server 2016 (130)</value>
-  </data>
-  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
-    <value>SQL Server vNext (140)</value>
-  </data>
-  <data name="general_containmentType_None" xml:space="preserve">
-    <value>없음</value>
-  </data>
-  <data name="general_containmentType_Partial" xml:space="preserve">
-    <value>부분</value>
-  </data>
-  <data name="filegroups_filestreamFiles" xml:space="preserve">
-    <value>FILESTREAM 파일</value>
-  </data>
-  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
-    <value>해당 파일 그룹 없음</value>
-  </data>
-  <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>{0} 데이터베이스에 액세스할 수 없습니다.</value>
-  </data>
-  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>쿼리 반환 결과 없음</value>
-  </data>
-  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>결과 집합의 행 수가 너무 많아서 안전하게 불러들일 수 없습니다.</value>
-  </data>
-  <data name="prototype_db_prop_parameterization" xml:space="preserve">
-    <value>매개 변수화</value>
-  </data>
-  <data name="ConflictWithNoRecovery" xml:space="preserve">
-    <value>NORECOVERY 옵션을 사용하여 백업을 복원하는 동안 이 옵션을 지정할 수 없습니다.</value>
-  </data>
-  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
-    <value>데이터베이스 파일의 경로가 잘못되었습니다. '{0}'</value>
-  </data>
-  <data name="Log" xml:space="preserve">
-    <value>로그</value>
-  </data>
-  <data name="RestorePlanFailed" xml:space="preserve">
-    <value>복원 계획을 만들지 못했습니다</value>
-  </data>
-  <data name="RestoreNotSupported" xml:space="preserve">
-    <value>데이터베이스 복원은 지원되지 않습니다.</value>
-  </data>
-  <data name="RestoreTaskName" xml:space="preserve">
-    <value>데이터베이스 복원</value>
-  </data>
-  <data name="RestoreCopyOnly" xml:space="preserve">
-    <value>복사 전용</value>
-  </data>
-  <data name="RestoreBackupSetComponent" xml:space="preserve">
-    <value>구성 요소</value>
-  </data>
-  <data name="RestoreBackupSetType" xml:space="preserve">
-    <value>형식</value>
-  </data>
-  <data name="RestoreBackupSetServer" xml:space="preserve">
-    <value>서버</value>
-  </data>
-  <data name="RestoreBackupSetDatabase" xml:space="preserve">
-    <value>데이터베이스</value>
-  </data>
-  <data name="RestoreBackupSetPosition" xml:space="preserve">
-    <value>위치</value>
-  </data>
-  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
-    <value>첫 번째 LSN</value>
-  </data>
-  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
-    <value>마지막 LSN</value>
-  </data>
-  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
-    <value>검사점 LSN</value>
-  </data>
-  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
-    <value>전체 LSN</value>
-  </data>
-  <data name="RestoreBackupSetStartDate" xml:space="preserve">
-    <value>시작 날짜</value>
-  </data>
-  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
-    <value>완료 날짜</value>
-  </data>
-  <data name="RestoreBackupSetSize" xml:space="preserve">
-    <value>크기</value>
-  </data>
-  <data name="RestoreBackupSetUserName" xml:space="preserve">
-    <value>사용자 이름</value>
-  </data>
-  <data name="RestoreBackupSetExpiration" xml:space="preserve">
-    <value>만료</value>
-  </data>
-  <data name="RestoreBackupSetName" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="TheLastBackupTaken" xml:space="preserve">
-    <value>수행된 마지막 백업({0})</value>
-  </data>
-  <data name="BackupTaskName" xml:space="preserve">
-    <value>데이터베이스 백업</value>
-  </data>
-  <data name="TaskInProgress" xml:space="preserve">
-    <value>진행 중</value>
-  </data>
-  <data name="TaskCompleted" xml:space="preserve">
-    <value>완료됨</value>
-  </data>
-  <data name="ScriptTaskName" xml:space="preserve">
-    <value>스크립팅</value>
-  </data>
-  <data name="ProfilerConnectionNotFound" xml:space="preserve">
-    <value>연결 없음</value>
-  </data>
-  <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>지정한 파일 이름은 디렉터리 이름이기도 합니다: {0}</value>
-  </data>
-  <data name="InvalidBackupPathError" xml:space="preserve">
-    <value>백업 파일 위치를 확인할 수 없습니다: {0}</value>
-  </data>
-  <data name="InvalidPathError" xml:space="preserve">
-    <value>서버에서 지정된 경로에 액세스할 수 없습니다: {0}</value>
-  </data>
-</root>
+빈 문자열을 빈 문자열로 대체.</value></data>
+  <data name="EditDataSessionNotFound"><value>편집 세션이 존재하지 않습니다.</value></data>
+  <data name="EditDataQueryNotCompleted"><value>쿼리 실행이 완료되지 않았습니다.</value></data>
+  <data name="EditDataQueryImproperResultSets"><value>쿼리가 정확히 하나의 결과 집합을 생성하지 않았습니다.</value></data>
+  <data name="EditDataFailedAddRow"><value>업데이트 캐시에 새로운 행 추가를 실패했습니다.</value></data>
+  <data name="EditDataRowOutOfRange"><value>지정된 row ID가 수정 중인 캐시의 행 범위 밖에 있습니다.</value></data>
+  <data name="EditDataUpdatePending"><value>이 행에 대한 업데이트가 이미 보류 중이므로 먼저 되돌려야 합니다.</value></data>
+  <data name="EditDataUpdateNotPending"><value>주어진 row ID에 보류 중인 업데이트가 없습니다.</value></data>
+  <data name="EditDataObjectMetadataNotFound"><value>테이블이나 뷰 메타 데이터를 찾을 수 없습니다.</value></data>
+  <data name="EditDataInvalidFormatBinary"><value>이진 열에 형식이 잘못되었습니다.</value></data>
+  <data name="EditDataInvalidFormatBoolean"><value>Boolean 열은 반드시 숫자 1이나 0 혹은 문자 true나 false여야 합니다.</value></data>
+  <data name="EditDataCreateScriptMissingValue"><value>필수 셀 값이 누락되었습니다.</value></data>
+  <data name="EditDataDeleteSetCell"><value>행 삭제가 보류 중이므로, 셀을 업데이트할 수 없습니다.</value></data>
+  <data name="EditDataColumnIdOutOfRange"><value>열 ID는 쿼리의 열 범위 내에 있어야 합니다.</value></data>
+  <data name="EditDataColumnCannotBeEdited"><value>열을 편집할 수 없습니다.</value></data>
+  <data name="EditDataColumnNoKeyColumns"><value>키 열이 없습니다.</value></data>
+  <data name="EditDataScriptFilePathNull"><value>출력 파일명이 필요합니다.</value></data>
+  <data name="EditDataUnsupportedObjectType"><value>데이터베이스 개체 {0} 는 편집할 수 없습니다.</value></data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected"><value>지정된 Uri ' {0} '에 기본 연결이 지정되지 않았습니다.</value></data>
+  <data name="EditDataCommitInProgress"><value>커밋 작업이 진행 중입니다. 완료될 때까지 기다리세요.</value></data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision"><value>Decimal 형식 열에 전체 자릿수 또는 소수 자릿수가 없습니다.</value></data>
+  <data name="EditDataComputedColumnPlaceholder"><value>&lt;TBD&gt;</value></data>
+  <data name="QueryServiceResultSetAddNoRows"><value>결과 버퍼에 새로운 행을 추가할 수 없거나 데이터 리더에 행이 없습니다.</value></data>
+  <data name="EditDataTimeOver24Hrs"><value>TIME 열의 값은 00:00:00.0000000과 23:59:59.9999999 사이의 값만 허용됩니다.</value></data>
+  <data name="EditDataNullNotAllowed"><value>이 열은 NULL을 허용하지 않습니다.</value></data>
+  <data name="EditDataSessionAlreadyExists"><value>편집 세션이 이미 존재합니다.</value></data>
+  <data name="EditDataSessionNotInitialized"><value>편집 세션이 초기화 되지 않았습니다.</value></data>
+  <data name="EditDataSessionAlreadyInitialized"><value>편집 세션이 이미 초기화 되었습니다.</value></data>
+  <data name="EditDataSessionAlreadyInitializing"><value>편집 세션이 이미 초기화 되었거나 초기화 중입니다.</value></data>
+  <data name="EditDataQueryFailed"><value>쿼리 실행에 실패했습니다. 자세한 정보는 메시지를 참조하세요.</value></data>
+  <data name="EditDataFilteringNegativeLimit"><value>결과 제한은 음수가 될 수 없습니다.</value></data>
+  <data name="QueryServiceCellNull"><value>NULL</value></data>
+  <data name="EditDataMetadataObjectNameRequired"><value>개체 이름이 필요합니다.</value></data>
+  <data name="EditDataMetadataTooManyIdentifiers"><value>서버와 데이터베이스를 명시적으로 지정할 수 없습니다.</value></data>
+  <data name="EditDataMetadataNotExtended"><value>테이블 메타데이터에 확장 속성이 없습니다.</value></data>
+  <data name="EditDataObjectNotFound"><value>편집하려는 테이블이나 뷰를 찾을 수 없습니다</value></data>
+  <data name="TreeNodeError"><value>오류 확장: {0}</value></data>
+  <data name="ServerNodeConnectionError"><value>{0}에 연결하는 동안 오류가 발생했습니다.</value></data>
+  <data name="SchemaHierarchy_Aggregates"><value>집계</value></data>
+  <data name="SchemaHierarchy_ServerRoles"><value>서버 역할</value></data>
+  <data name="SchemaHierarchy_ApplicationRoles"><value>응용 프로그램 역할</value></data>
+  <data name="SchemaHierarchy_Assemblies"><value>어셈블리</value></data>
+  <data name="SchemaHierarchy_AssemblyFiles"><value>어셈블리 파일</value></data>
+  <data name="SchemaHierarchy_AsymmetricKeys"><value>비대칭 키</value></data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys"><value>비대칭 키</value></data>
+  <data name="SchemaHierarchy_DataCompressionOptions"><value>데이터 압축 옵션</value></data>
+  <data name="SchemaHierarchy_Certificates"><value>인증서</value></data>
+  <data name="SchemaHierarchy_FileTables"><value>FileTables</value></data>
+  <data name="SchemaHierarchy_DatabaseCertificates"><value>인증서</value></data>
+  <data name="SchemaHierarchy_CheckConstraints"><value>Check 제약 조건</value></data>
+  <data name="SchemaHierarchy_Columns"><value>열</value></data>
+  <data name="SchemaHierarchy_Constraints"><value>제약 조건</value></data>
+  <data name="SchemaHierarchy_Contracts"><value>계약</value></data>
+  <data name="SchemaHierarchy_Credentials"><value>자격 증명</value></data>
+  <data name="SchemaHierarchy_ErrorMessages"><value>오류 메시지</value></data>
+  <data name="SchemaHierarchy_ServerRoleMembership"><value>서버 역할 멤버 자격</value></data>
+  <data name="SchemaHierarchy_DatabaseOptions"><value>데이터베이스 옵션</value></data>
+  <data name="SchemaHierarchy_DatabaseRoles"><value>데이터베이스 역할</value></data>
+  <data name="SchemaHierarchy_RoleMemberships"><value>역할 멤버 자격</value></data>
+  <data name="SchemaHierarchy_DatabaseTriggers"><value>데이터베이스 트리거</value></data>
+  <data name="SchemaHierarchy_DefaultConstraints"><value>기본 제약 조건</value></data>
+  <data name="SchemaHierarchy_Defaults"><value>기본값</value></data>
+  <data name="SchemaHierarchy_Sequences"><value>시퀀스</value></data>
+  <data name="SchemaHierarchy_Endpoints"><value>끝점</value></data>
+  <data name="SchemaHierarchy_EventNotifications"><value>이벤트 알림</value></data>
+  <data name="SchemaHierarchy_ServerEventNotifications"><value>서버 이벤트 알림</value></data>
+  <data name="SchemaHierarchy_ExtendedProperties"><value>확장 속성</value></data>
+  <data name="SchemaHierarchy_FileGroups"><value>파일 그룹</value></data>
+  <data name="SchemaHierarchy_ForeignKeys"><value>외래 키</value></data>
+  <data name="SchemaHierarchy_FullTextCatalogs"><value>전체 텍스트 카탈로그</value></data>
+  <data name="SchemaHierarchy_FullTextIndexes"><value>전체 텍스트 인덱스</value></data>
+  <data name="SchemaHierarchy_Functions"><value>함수</value></data>
+  <data name="SchemaHierarchy_Indexes"><value>인덱스</value></data>
+  <data name="SchemaHierarchy_InlineFunctions"><value>인라인 함수</value></data>
+  <data name="SchemaHierarchy_Keys"><value>키</value></data>
+  <data name="SchemaHierarchy_LinkedServers"><value>연결된 서버</value></data>
+  <data name="SchemaHierarchy_LinkedServerLogins"><value>연결된 서버 로그인</value></data>
+  <data name="SchemaHierarchy_Logins"><value>로그인</value></data>
+  <data name="SchemaHierarchy_MasterKey"><value>마스터 키</value></data>
+  <data name="SchemaHierarchy_MasterKeys"><value>마스터 키</value></data>
+  <data name="SchemaHierarchy_MessageTypes"><value>메시지 유형</value></data>
+  <data name="SchemaHierarchy_MultiSelectFunctions"><value>테이블 반환 함수</value></data>
+  <data name="SchemaHierarchy_Parameters"><value>매개 변수</value></data>
+  <data name="SchemaHierarchy_PartitionFunctions"><value>파티션 함수</value></data>
+  <data name="SchemaHierarchy_PartitionSchemes"><value>파티션 구성표</value></data>
+  <data name="SchemaHierarchy_Permissions"><value>사용 권한</value></data>
+  <data name="SchemaHierarchy_PrimaryKeys"><value>기본 키</value></data>
+  <data name="SchemaHierarchy_Programmability"><value>프로그래밍 기능</value></data>
+  <data name="SchemaHierarchy_Queues"><value>큐</value></data>
+  <data name="SchemaHierarchy_RemoteServiceBindings"><value>원격 서비스 바인딩</value></data>
+  <data name="SchemaHierarchy_ReturnedColumns"><value>반환 열</value></data>
+  <data name="SchemaHierarchy_Roles"><value>역할</value></data>
+  <data name="SchemaHierarchy_Routes"><value>경로</value></data>
+  <data name="SchemaHierarchy_Rules"><value>규칙</value></data>
+  <data name="SchemaHierarchy_Schemas"><value>스키마</value></data>
+  <data name="SchemaHierarchy_Security"><value>보안</value></data>
+  <data name="SchemaHierarchy_ServerObjects"><value>서버 개체</value></data>
+  <data name="SchemaHierarchy_Management"><value>관리</value></data>
+  <data name="SchemaHierarchy_ServerTriggers"><value>트리거</value></data>
+  <data name="SchemaHierarchy_ServiceBroker"><value>Service Broker</value></data>
+  <data name="SchemaHierarchy_Services"><value>서비스</value></data>
+  <data name="SchemaHierarchy_Signatures"><value>서명</value></data>
+  <data name="SchemaHierarchy_LogFiles"><value>로그 파일</value></data>
+  <data name="SchemaHierarchy_Statistics"><value>통계</value></data>
+  <data name="SchemaHierarchy_Storage"><value>저장소</value></data>
+  <data name="SchemaHierarchy_StoredProcedures"><value>저장 프로시저</value></data>
+  <data name="SchemaHierarchy_SymmetricKeys"><value>대칭 키</value></data>
+  <data name="SchemaHierarchy_Synonyms"><value>동의어</value></data>
+  <data name="SchemaHierarchy_Tables"><value>테이블</value></data>
+  <data name="SchemaHierarchy_Triggers"><value>트리거</value></data>
+  <data name="SchemaHierarchy_Types"><value>유형</value></data>
+  <data name="SchemaHierarchy_UniqueKeys"><value>고유 키</value></data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes"><value>사용자 정의 데이터 형식</value></data>
+  <data name="SchemaHierarchy_UserDefinedTypes"><value>사용자 정의 형식 (CLR)</value></data>
+  <data name="SchemaHierarchy_Users"><value>사용자</value></data>
+  <data name="SchemaHierarchy_Views"><value>뷰</value></data>
+  <data name="SchemaHierarchy_XmlIndexes"><value>XML 인덱스</value></data>
+  <data name="SchemaHierarchy_XMLSchemaCollections"><value>XML 스키마 컬렉션</value></data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes"><value>사용자 정의 테이블 형식</value></data>
+  <data name="SchemaHierarchy_FilegroupFiles"><value>파일</value></data>
+  <data name="MissingCaption"><value>캡션 누락</value></data>
+  <data name="SchemaHierarchy_BrokerPriorities"><value>브로커 우선 순위</value></data>
+  <data name="SchemaHierarchy_CryptographicProviders"><value>암호화 공급자</value></data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications"><value>데이터베이스 감사 사양</value></data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys"><value>데이터베이스 암호화 키</value></data>
+  <data name="SchemaHierarchy_EventSessions"><value>이벤트 세션</value></data>
+  <data name="SchemaHierarchy_FullTextStopLists"><value>전체 텍스트 중지 목록</value></data>
+  <data name="SchemaHierarchy_ResourcePools"><value>리소스 풀</value></data>
+  <data name="SchemaHierarchy_ServerAudits"><value>감사</value></data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications"><value>서버 감사 사양</value></data>
+  <data name="SchemaHierarchy_SpatialIndexes"><value>공간 인덱스</value></data>
+  <data name="SchemaHierarchy_WorkloadGroups"><value>작업 그룹</value></data>
+  <data name="SchemaHierarchy_SqlFiles"><value>SQL 파일</value></data>
+  <data name="SchemaHierarchy_ServerFunctions"><value>서버 함수</value></data>
+  <data name="SchemaHierarchy_SqlType"><value>SQL 유형</value></data>
+  <data name="SchemaHierarchy_ServerOptions"><value>서버 옵션</value></data>
+  <data name="SchemaHierarchy_DatabaseDiagrams"><value>데이터베이스 다이어그램</value></data>
+  <data name="SchemaHierarchy_SystemTables"><value>시스템 테이블</value></data>
+  <data name="SchemaHierarchy_Databases"><value>데이터베이스</value></data>
+  <data name="SchemaHierarchy_SystemContracts"><value>시스템 계약</value></data>
+  <data name="SchemaHierarchy_SystemDatabases"><value>시스템 데이터베이스</value></data>
+  <data name="SchemaHierarchy_SystemMessageTypes"><value>시스템 메시지 유형</value></data>
+  <data name="SchemaHierarchy_SystemQueues"><value>시스템 큐</value></data>
+  <data name="SchemaHierarchy_SystemServices"><value>시스템 서비스</value></data>
+  <data name="SchemaHierarchy_SystemStoredProcedures"><value>시스템 저장 프로시저</value></data>
+  <data name="SchemaHierarchy_SystemViews"><value>시스템 뷰</value></data>
+  <data name="SchemaHierarchy_DataTierApplications"><value>데이터 계층 응용 프로그램</value></data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures"><value>확장 저장 프로시저</value></data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions"><value>집계 함수</value></data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics"><value>근사치</value></data>
+  <data name="SchemaHierarchy_SystemBinaryStrings"><value>이진 문자열</value></data>
+  <data name="SchemaHierarchy_SystemCharacterStrings"><value>문자열</value></data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes"><value>CLR 데이터 형식</value></data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions"><value>구성 함수</value></data>
+  <data name="SchemaHierarchy_SystemCursorFunctions"><value>커서 함수</value></data>
+  <data name="SchemaHierarchy_SystemDataTypes"><value>시스템 데이터 형식</value></data>
+  <data name="SchemaHierarchy_SystemDateAndTime"><value>날짜 및 시간</value></data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions"><value>날짜 및 시간 함수</value></data>
+  <data name="SchemaHierarchy_SystemExactNumerics"><value>정확한 수치</value></data>
+  <data name="SchemaHierarchy_SystemFunctions"><value>시스템 함수</value></data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions"><value>계층 구조 ID 함수</value></data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions"><value>수학 함수</value></data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions"><value>메타데이터 함수</value></data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes"><value>기타 데이터 형식</value></data>
+  <data name="SchemaHierarchy_SystemOtherFunctions"><value>기타 함수</value></data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions"><value>행 집합 함수</value></data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions"><value>보안 함수</value></data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes"><value>공간 데이터 형식</value></data>
+  <data name="SchemaHierarchy_SystemStringFunctions"><value>문자열 함수</value></data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions"><value>시스템 통계 함수</value></data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions"><value>텍스트 및 이미지 함수</value></data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings"><value>유니코드 문자열</value></data>
+  <data name="SchemaHierarchy_AggregateFunctions"><value>집계 함수</value></data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions"><value>스칼라 반환 함수</value></data>
+  <data name="SchemaHierarchy_TableValuedFunctions"><value>테이블 반환 함수</value></data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures"><value>시스템 확장 저장 프로시저</value></data>
+  <data name="SchemaHierarchy_BuiltInType"><value>기본 제공 유형</value></data>
+  <data name="SchemaHierarchy_BuiltInServerRole"><value>기본 제공 서버 역할</value></data>
+  <data name="SchemaHierarchy_UserWithPassword"><value>암호가 있는 사용자</value></data>
+  <data name="SchemaHierarchy_SearchPropertyList"><value>검색 속성 목록</value></data>
+  <data name="SchemaHierarchy_SecurityPolicies"><value>보안 정책</value></data>
+  <data name="SchemaHierarchy_SecurityPredicates"><value>보안 조건자</value></data>
+  <data name="SchemaHierarchy_ServerRole"><value>서버 역할</value></data>
+  <data name="SchemaHierarchy_SearchPropertyLists"><value>검색 속성 목록</value></data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes"><value>열 저장 인덱스</value></data>
+  <data name="SchemaHierarchy_TableTypeIndexes"><value>테이블 형식 인덱스</value></data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes"><value>선택적 XML 인덱스</value></data>
+  <data name="SchemaHierarchy_XmlNamespaces"><value>XML 네임스페이스</value></data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths"><value>XML 유형의 공유된 경로</value></data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths"><value>T-SQL 유형의 공유된 경로</value></data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials"><value>데이터베이스 범위 자격 증명</value></data>
+  <data name="SchemaHierarchy_ExternalDataSources"><value>외부 데이터 원본</value></data>
+  <data name="SchemaHierarchy_ExternalFileFormats"><value>외부 파일 형식</value></data>
+  <data name="SchemaHierarchy_ExternalResources"><value>외부 리소스</value></data>
+  <data name="SchemaHierarchy_ExternalTables"><value>외부 테이블</value></data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys"><value>Always Encrypted 키</value></data>
+  <data name="SchemaHierarchy_ColumnMasterKeys"><value>열 마스터 키</value></data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys"><value>열 암호화 키</value></data>
+  <data name="SchemaHierarchy_Server"><value>서버</value></data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid"><value>ScriptingParams.ConnectionString 속성 분석을 하는 동안 오류가 발생했습니다.</value></data>
+  <data name="ScriptingParams_FilePath_Property_Invalid"><value>ScriptingParams.FilePath 속성에 잘못된 디렉터리 지정</value></data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid"><value>ScriptingListObjectsCompleteParams.ConnectionSring 속성을 분석할때 오류가 생겼습니다.</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString"><value>{0}({1}, {2}, {3})</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel"><value>기본값 없음</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel"><value>입력</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel"><value>입/출력</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel"><value>입력/읽기 전용</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel"><value>입/출력/읽기 전용</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel"><value>기본값</value></data>
+  <data name="SchemaHierarchy_NullColumn_Label"><value>Null</value></data>
+  <data name="SchemaHierarchy_NotNullColumn_Label"><value>Not Null</value></data>
+  <data name="SchemaHierarchy_UDDTLabelWithType"><value>{0}({1}, {2})</value></data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType"><value>{0}({1})</value></data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType"><value>{0}({1}계산됨, {2}, {3})</value></data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType"><value>{0}({1}계산됨)</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType"><value>{0}(열 집합, {1})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType"><value>{0}(열 집합, {1}{2}, {3})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString"><value>{0}(열 집합, {1}, {2}, {3})</value></data>
+  <data name="UniqueIndex_LabelPart"><value>고유</value></data>
+  <data name="NonUniqueIndex_LabelPart"><value>고유하지 않음</value></data>
+  <data name="ClusteredIndex_LabelPart"><value>클러스터형</value></data>
+  <data name="NonClusteredIndex_LabelPart"><value>비클러스터형</value></data>
+  <data name="History_LabelPart"><value>기록</value></data>
+  <data name="SystemVersioned_LabelPart"><value>시스템 버전 관리</value></data>
+  <data name="unavailable"><value>사용할 수 없음</value></data>
+  <data name="filegroup_dialog_defaultFilegroup"><value>현재 기본 파일 그룹: {0}</value></data>
+  <data name="filegroup_dialog_title"><value>{0}에 대한 새 파일 그룹</value></data>
+  <data name="filegroups_default"><value>기본값</value></data>
+  <data name="filegroups_files"><value>파일</value></data>
+  <data name="filegroups_name"><value>이름</value></data>
+  <data name="filegroups_readonly"><value>읽기 전용</value></data>
+  <data name="general_autogrowth"><value>자동 증가 / 최대 크기</value></data>
+  <data name="general_builderText"><value>...</value></data>
+  <data name="general_default"><value>&lt;기본값&gt;</value></data>
+  <data name="general_fileGroup"><value>파일 그룹</value></data>
+  <data name="general_fileName"><value>논리적 이름</value></data>
+  <data name="general_fileType"><value>파일 형식</value></data>
+  <data name="general_initialSize"><value>처음 크기 (MB)</value></data>
+  <data name="general_newFilegroup"><value>&lt;새 파일 그룹&gt;</value></data>
+  <data name="general_path"><value>경로</value></data>
+  <data name="general_physicalFileName"><value>파일 이름</value></data>
+  <data name="general_rawDevice"><value>&lt;원시 장치&gt;</value></data>
+  <data name="general_recoveryModel_bulkLogged"><value>대량 로그</value></data>
+  <data name="general_recoveryModel_full"><value>전체</value></data>
+  <data name="general_recoveryModel_simple"><value>단순</value></data>
+  <data name="general_titleSearchOwner"><value>데이터베이스 소유자 선택</value></data>
+  <data name="prototype_autogrowth_disabled"><value>없음</value></data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB"><value>{0} MB 단위로 {1} MB까지 제한됨</value></data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent"><value>{0} % 단위로 {1} MB까지 제한됨</value></data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB"><value>{0} MB 단위로, 제한 없음</value></data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent"><value>{0} % 단위로, 제한 없음</value></data>
+  <data name="prototype_autogrowth_unlimitedfilestream"><value>제한 없음</value></data>
+  <data name="prototype_autogrowth_limitedfilestream"><value>{0} MB로 제한됨</value></data>
+  <data name="prototype_db_category_automatic"><value>자동</value></data>
+  <data name="prototype_db_category_servicebroker"><value>Service Broker</value></data>
+  <data name="prototype_db_category_collation"><value>데이터 정렬</value></data>
+  <data name="prototype_db_category_cursor"><value>커서</value></data>
+  <data name="prototype_db_category_misc"><value>기타</value></data>
+  <data name="prototype_db_category_recovery"><value>복구</value></data>
+  <data name="prototype_db_category_state"><value>상태</value></data>
+  <data name="prototype_db_prop_ansiNullDefault"><value>ANSI NULL 기본값</value></data>
+  <data name="prototype_db_prop_ansiNulls"><value>ANSI NULLS 사용</value></data>
+  <data name="prototype_db_prop_ansiPadding"><value>ANSI 패딩 설정</value></data>
+  <data name="prototype_db_prop_ansiWarnings"><value>ANSI Warnings 사용</value></data>
+  <data name="prototype_db_prop_arithabort"><value>산술 연산 중단 설정</value></data>
+  <data name="prototype_db_prop_autoClose"><value>자동 닫기</value></data>
+  <data name="prototype_db_prop_autoCreateStatistics"><value>통계 자동 작성</value></data>
+  <data name="prototype_db_prop_autoShrink"><value>자동 축소</value></data>
+  <data name="prototype_db_prop_autoUpdateStatistics"><value>통계 자동 업데이트</value></data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync"><value>통계를 비동기적으로 자동 업데이트</value></data>
+  <data name="prototype_db_prop_caseSensitive"><value>대/소문자 구분</value></data>
+  <data name="prototype_db_prop_closeCursorOnCommit"><value>커밋 시 커서 닫기 설정</value></data>
+  <data name="prototype_db_prop_collation"><value>데이터 정렬</value></data>
+  <data name="prototype_db_prop_concatNullYieldsNull"><value>Null 연결 시 Null 생성</value></data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel"><value>데이터베이스 호환성 수준</value></data>
+  <data name="prototype_db_prop_databaseState"><value>데이터베이스 상태</value></data>
+  <data name="prototype_db_prop_defaultCursor"><value>기본 커서</value></data>
+  <data name="prototype_db_prop_fullTextIndexing"><value>전체 텍스트 인덱싱 설정</value></data>
+  <data name="prototype_db_prop_numericRoundAbort"><value>숫자 반올림 시 중단</value></data>
+  <data name="prototype_db_prop_pageVerify"><value>페이지 확인</value></data>
+  <data name="prototype_db_prop_quotedIdentifier"><value>따옴표 붙은 식별자 설정</value></data>
+  <data name="prototype_db_prop_readOnly"><value>데이터베이스 읽기 전용</value></data>
+  <data name="prototype_db_prop_recursiveTriggers"><value>재귀적 트리거 설정</value></data>
+  <data name="prototype_db_prop_restrictAccess"><value>액세스 제한</value></data>
+  <data name="prototype_db_prop_selectIntoBulkCopy"><value>SELECT INTO/대량 복사</value></data>
+  <data name="prototype_db_prop_honorBrokerPriority"><value>Broker 우선 순위 인식</value></data>
+  <data name="prototype_db_prop_serviceBrokerGuid"><value>Service Broker 식별자</value></data>
+  <data name="prototype_db_prop_brokerEnabled"><value>Broker 활성화</value></data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint"><value>검사점에서 로그 자름</value></data>
+  <data name="prototype_db_prop_dbChaining"><value>데이터베이스 간 소유권 체인 사용</value></data>
+  <data name="prototype_db_prop_trustworthy"><value>신뢰</value></data>
+  <data name="prototype_db_prop_dateCorrelationOptimization"><value>날짜 상관관계 최적화 설정</value></data>
+  <data name="prototype_db_prop_parameterization_value_forced"><value>강제</value></data>
+  <data name="prototype_db_prop_parameterization_value_simple"><value>단순</value></data>
+  <data name="prototype_file_dataFile"><value>ROWS 데이터</value></data>
+  <data name="prototype_file_logFile"><value>로그</value></data>
+  <data name="prototype_file_filestreamFile"><value>FILESTREAM 데이터</value></data>
+  <data name="prototype_file_noFileGroup"><value>해당 사항 없음</value></data>
+  <data name="prototype_file_defaultpathstring"><value>&lt;기본 경로&gt;</value></data>
+  <data name="title_openConnectionsMustBeClosed"><value>연결 열기</value></data>
+  <data name="warning_openConnectionsMustBeClosed"><value>데이터베이스 속성을 변경하기 위해, SQL Server가 database_ 에  다른 연결을 모두 닫아야 합니다. 속성을 변경하고 다른 연결을 모두 닫으시겠습니까?</value></data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed"><value>AUTO_CLOSED</value></data>
+  <data name="prototype_db_prop_databaseState_value_emergency"><value>긴급</value></data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible"><value>INACCESSIBLE</value></data>
+  <data name="prototype_db_prop_databaseState_value_normal"><value>NORMAL</value></data>
+  <data name="prototype_db_prop_databaseState_value_offline"><value>오프라인</value></data>
+  <data name="prototype_db_prop_databaseState_value_recovering"><value>복구 중</value></data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending"><value>복구 보류 중</value></data>
+  <data name="prototype_db_prop_databaseState_value_restoring"><value>RESTORING</value></data>
+  <data name="prototype_db_prop_databaseState_value_shutdown"><value>SHUTDOWN</value></data>
+  <data name="prototype_db_prop_databaseState_value_standby"><value>STANDBY</value></data>
+  <data name="prototype_db_prop_databaseState_value_suspect"><value>SUSPECT</value></data>
+  <data name="prototype_db_prop_defaultCursor_value_global"><value>GLOBAL</value></data>
+  <data name="prototype_db_prop_defaultCursor_value_local"><value>LOCAL</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple"><value>MULTI_USER</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted"><value>RESTRICTED_USER</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_single"><value>SINGLE_USER</value></data>
+  <data name="prototype_db_prop_pageVerify_value_checksum"><value>CHECKSUM</value></data>
+  <data name="prototype_db_prop_pageVerify_value_none"><value>NONE</value></data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection"><value>TORN_PAGE_DETECTION</value></data>
+  <data name="prototype_db_prop_varDecimalEnabled"><value>VarDecimal 저장소 형식 사용</value></data>
+  <data name="compatibilityLevel_katmai"><value>SQL Server 2008 (100)</value></data>
+  <data name="prototype_db_prop_encryptionEnabled"><value>암호화 사용</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off"><value>OFF</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on"><value>ON</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary"><value>PRIMARY</value></data>
+  <data name="error_db_prop_invalidleadingColumns"><value>배포 정책이 HASH인 경우 선행 해시 열 수는 선택 사항이지만, 선택할 경우 1개에서 16개 사이의 열로 지정해야 합니다.</value></data>
+  <data name="compatibilityLevel_denali"><value>SQL Server 2012 (110)</value></data>
+  <data name="compatibilityLevel_sql14"><value>SQL Server 2014 (120)</value></data>
+  <data name="compatibilityLevel_sql15"><value>SQL Server 2016 (130)</value></data>
+  <data name="compatibilityLevel_sqlvNext"><value>SQL Server vNext (140)</value></data>
+  <data name="general_containmentType_None"><value>없음</value></data>
+  <data name="general_containmentType_Partial"><value>부분</value></data>
+  <data name="filegroups_filestreamFiles"><value>FILESTREAM 파일</value></data>
+  <data name="prototype_file_noApplicableFileGroup"><value>해당 파일 그룹 없음</value></data>
+  <data name="DatabaseNotAccessible"><value>{0} 데이터베이스에 액세스할 수 없습니다.</value></data>
+  <data name="QueryServiceResultSetHasNoResults"><value>쿼리 반환 결과 없음</value></data>
+  <data name="QueryServiceResultSetTooLarge"><value>결과 집합의 행 수가 너무 많아서 안전하게 불러들일 수 없습니다.</value></data>
+  <data name="prototype_db_prop_parameterization"><value>매개 변수화</value></data>
+  <data name="ConflictWithNoRecovery"><value>NORECOVERY 옵션을 사용하여 백업을 복원하는 동안 이 옵션을 지정할 수 없습니다.</value></data>
+  <data name="InvalidPathForDatabaseFile"><value>데이터베이스 파일의 경로가 잘못되었습니다. '{0}'</value></data>
+  <data name="Log"><value>로그</value></data>
+  <data name="RestorePlanFailed"><value>복원 계획을 만들지 못했습니다</value></data>
+  <data name="RestoreNotSupported"><value>데이터베이스 복원은 지원되지 않습니다.</value></data>
+  <data name="RestoreTaskName"><value>데이터베이스 복원</value></data>
+  <data name="RestoreCopyOnly"><value>복사 전용</value></data>
+  <data name="RestoreBackupSetComponent"><value>구성 요소</value></data>
+  <data name="RestoreBackupSetType"><value>형식</value></data>
+  <data name="RestoreBackupSetServer"><value>서버</value></data>
+  <data name="RestoreBackupSetDatabase"><value>데이터베이스</value></data>
+  <data name="RestoreBackupSetPosition"><value>위치</value></data>
+  <data name="RestoreBackupSetFirstLsn"><value>첫 번째 LSN</value></data>
+  <data name="RestoreBackupSetLastLsn"><value>마지막 LSN</value></data>
+  <data name="RestoreBackupSetCheckpointLsn"><value>검사점 LSN</value></data>
+  <data name="RestoreBackupSetFullLsn"><value>전체 LSN</value></data>
+  <data name="RestoreBackupSetStartDate"><value>시작 날짜</value></data>
+  <data name="RestoreBackupSetFinishDate"><value>완료 날짜</value></data>
+  <data name="RestoreBackupSetSize"><value>크기</value></data>
+  <data name="RestoreBackupSetUserName"><value>사용자 이름</value></data>
+  <data name="RestoreBackupSetExpiration"><value>만료</value></data>
+  <data name="RestoreBackupSetName"><value>Name</value></data>
+  <data name="TheLastBackupTaken"><value>수행된 마지막 백업({0})</value></data>
+  <data name="BackupTaskName"><value>데이터베이스 백업</value></data>
+  <data name="TaskInProgress"><value>진행 중</value></data>
+  <data name="TaskCompleted"><value>완료됨</value></data>
+  <data name="ScriptTaskName"><value>스크립팅</value></data>
+  <data name="ProfilerConnectionNotFound"><value>연결 없음</value></data>
+  <data name="BackupPathIsFolderError"><value>지정한 파일 이름은 디렉터리 이름이기도 합니다: {0}</value></data>
+  <data name="InvalidBackupPathError"><value>백업 파일 위치를 확인할 수 없습니다: {0}</value></data>
+  <data name="InvalidPathError"><value>서버에서 지정된 경로에 액세스할 수 없습니다: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>복원하려는 백업 세트를 선택하지 않았습니다</value></data>
+  <data name="NeverBackedUp"><value>안 함 </value></data>
+  <data name="AzureSqlDbEdition"><value>Azure SQL DB</value></data>
+  <data name="AzureSqlDwEdition"><value>Azure SQL Data Warehouse</value></data>
+  <data name="AzureSqlStretchEdition"><value>Azure SQL 신축성 데이터베이스</value></data>
+  <data name="Error_InvalidDirectoryName"><value>경로 [{0}]은(는) 올바른 디렉터리가 아닙니다.</value></data>
+  <data name="Error_ExistingDirectoryName"><value>디렉터리 {0}에 대한 파일{1} 이 이미 존재합니다. </value></data>
+  <data name="EditDataValueTooLarge"><value>값 {0}이 너무 커서 {1} 유형의 열에 들어갈 수 없습니다.</value></data>
+  </root>

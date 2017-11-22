@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -61,7 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, SelectionData selection, int ordinalId,
+            IFileStreamFactory outputFileFactory, int executionCount = 1)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -77,6 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             resultSets = new List<ResultSet>();
             this.outputFileFactory = outputFileFactory;
             specialAction = new SpecialAction();
+            BatchExecutionCount = executionCount > 0 ? executionCount : 1;
         }
 
         #region Events
@@ -123,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public string BatchText { get; set; }
 
+        public int BatchExecutionCount { get; private set; }
         /// <summary>
         /// Localized timestamp for when the execution completed.
         /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
@@ -237,92 +241,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await BatchStart(this);
             }
-
+            
             try
             {
-                // Make sure we haven't cancelled yet
-                cancellationToken.ThrowIfCancellationRequested();
-
-                // Register the message listener to *this instance* of the batch
-                // Note: This is being done to associate messages with batches
-                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
-                DbCommand dbCommand;
-                if (sqlConn != null)
-                {
-                    // Register the message listener to *this instance* of the batch
-                    // Note: This is being done to associate messages with batches
-                    sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
-                    dbCommand = sqlConn.GetUnderlyingConnection().CreateCommand();
-
-                    // Add a handler for when the command completes
-                    SqlCommand sqlCommand = (SqlCommand)dbCommand;
-                    sqlCommand.StatementCompleted += StatementCompletedHandler;
-                }
-                else
-                {
-                    dbCommand = conn.CreateCommand();
-                }
-
-                // Make sure we aren't using a ReliableCommad since we do not want automatic retry
-                Debug.Assert(!(dbCommand is ReliableSqlConnection.ReliableSqlCommand),
-                    "ReliableSqlCommand command should not be used to execute queries");
-
-                // Create a command that we'll use for executing the query
-                using (dbCommand)
-                {
-                    // Make sure that we cancel the command if the cancellation token is cancelled
-                    cancellationToken.Register(() => dbCommand?.Cancel());
-                    
-                    // Setup the command for executing the batch
-                    dbCommand.CommandText = BatchText;
-                    dbCommand.CommandType = CommandType.Text;
-                    dbCommand.CommandTimeout = 0;
-                    executionStartTime = DateTime.Now;
-
-                    // Execute the command to get back a reader
-                    using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
-                    {
-                        int resultSetOrdinal = 0;
-                        do
-                        {
-                            // Verify that the cancellation token hasn't benn cancelled
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
-                            if (!reader.HasRows && reader.FieldCount == 0)
-                            {
-                                continue;
-                            }
-
-                            // This resultset has results (ie, SELECT/etc queries)
-                            ResultSet resultSet = new ResultSet(resultSetOrdinal, Id, outputFileFactory);
-                            resultSet.ResultCompletion += ResultSetCompletion;
-
-                            // Add the result set to the results of the query
-                            lock (resultSets)
-                            {
-                                resultSets.Add(resultSet);
-                                resultSetOrdinal++;
-                            }
-
-                            // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(reader, cancellationToken);
-
-                        } while (await reader.NextResultAsync(cancellationToken));
-
-                        // If there were no messages, for whatever reason (NO COUNT set, messages 
-                        // were emitted, records returned), output a "successful" message
-                        if (!messagesSent)
-                        {
-                            await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
-                        }
-                    }
-                }
-            }
-            catch (DbException dbe)
-            {
-                HasError = true;
-                await UnwrapDbException(dbe);
+                await DoExecute(conn, cancellationToken);
             }
             catch (TaskCanceledException)
             {
@@ -353,6 +275,131 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (BatchCompletion != null)
                 {
                     await BatchCompletion(this);
+                }
+            }
+
+        }
+
+        private async Task DoExecute(DbConnection conn, CancellationToken cancellationToken)
+        {
+            bool canContinue = true;
+            int timesLoop = this.BatchExecutionCount;
+
+            await SendMessageIfExecutingMultipleTimes(SR.EE_ExecutionInfo_InitializingLoop, false);
+
+            while (canContinue && timesLoop > 0)
+            {
+                try
+                {
+                    await ExecuteOnce(conn, cancellationToken);
+                }
+                catch (DbException dbe)
+                {
+                    HasError = true;
+                    canContinue = await UnwrapDbException(dbe);
+                    if (canContinue)
+                    {
+                        // If it's a multi-batch, we notify the user that we're ignoring a single failure.
+                        await SendMessageIfExecutingMultipleTimes(SR.EE_BatchExecutionError_Ignoring, false);
+                    }
+                }
+                timesLoop--;
+            }
+
+            await SendMessageIfExecutingMultipleTimes(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, this.BatchExecutionCount), false);
+        }
+
+        private async Task SendMessageIfExecutingMultipleTimes(string message, bool isError)
+        {
+            if (IsExecutingMultipleTimes())
+            {
+                await SendMessage(message, isError);
+            }
+        }
+
+        private bool IsExecutingMultipleTimes()
+        {
+            return this.BatchExecutionCount > 1;
+        }
+
+        private async Task ExecuteOnce(DbConnection conn, CancellationToken cancellationToken)
+        {
+            // Make sure we haven't cancelled yet
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Register the message listener to *this instance* of the batch
+            // Note: This is being done to associate messages with batches
+            ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+            DbCommand dbCommand;
+            if (sqlConn != null)
+            {
+                // Register the message listener to *this instance* of the batch
+                // Note: This is being done to associate messages with batches
+                sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
+                dbCommand = sqlConn.GetUnderlyingConnection().CreateCommand();
+
+                // Add a handler for when the command completes
+                SqlCommand sqlCommand = (SqlCommand)dbCommand;
+                sqlCommand.StatementCompleted += StatementCompletedHandler;
+            }
+            else
+            {
+                dbCommand = conn.CreateCommand();
+            }
+
+            // Make sure we aren't using a ReliableCommad since we do not want automatic retry
+            Debug.Assert(!(dbCommand is ReliableSqlConnection.ReliableSqlCommand),
+                "ReliableSqlCommand command should not be used to execute queries");
+
+            // Create a command that we'll use for executing the query
+            using (dbCommand)
+            {
+                // Make sure that we cancel the command if the cancellation token is cancelled
+                cancellationToken.Register(() => dbCommand?.Cancel());
+
+                // Setup the command for executing the batch
+                dbCommand.CommandText = BatchText;
+                dbCommand.CommandType = CommandType.Text;
+                dbCommand.CommandTimeout = 0;
+                executionStartTime = DateTime.Now;
+
+                // Execute the command to get back a reader
+                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
+                {
+                    int resultSetOrdinal = 0;
+                    do
+                    {
+                        // Verify that the cancellation token hasn't benn cancelled
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
+                        if (!reader.HasRows && reader.FieldCount == 0)
+                        {
+                            continue;
+                        }
+
+                        // This resultset has results (ie, SELECT/etc queries)
+                        ResultSet resultSet = new ResultSet(resultSetOrdinal, Id, outputFileFactory);
+                        resultSet.ResultCompletion += ResultSetCompletion;
+
+                        // Add the result set to the results of the query
+                        lock (resultSets)
+                        {
+                            resultSets.Add(resultSet);
+                            resultSetOrdinal++;
+                        }
+
+                        // Read until we hit the end of the result set
+                        await resultSet.ReadResultToEnd(reader, cancellationToken);
+
+                    } while (await reader.NextResultAsync(cancellationToken));
+
+                    // If there were no messages, for whatever reason (NO COUNT set, messages 
+                    // were emitted, records returned), output a "successful" message
+                    if (!messagesSent)
+                    {
+                        await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
+                    }
                 }
             }
         }
@@ -487,8 +534,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// converted to SqlException, the message is written to the messages list.
         /// </summary>
         /// <param name="dbe">The exception to unwrap</param>
-        private async Task UnwrapDbException(Exception dbe)
+        /// <returns>true is exception can be ignored when in a loop, false otherwise</returns>
+        private async Task<bool> UnwrapDbException(Exception dbe)
         {
+            bool canIgnore = true;
             SqlException se = dbe as SqlException;
             if (se != null)
             {
@@ -499,6 +548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // User cancellation error, add the single message
                     await SendMessage(SR.QueryServiceQueryCancelled, false);
+                    canIgnore = false;
                 }
                 else
                 {
@@ -517,6 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await SendMessage(dbe.Message, true);
             }
+            return canIgnore;
         }
 
         /// <summary>

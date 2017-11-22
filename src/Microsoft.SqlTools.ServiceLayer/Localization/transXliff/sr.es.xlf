@@ -397,7 +397,7 @@
         
         <note/>
       </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Starting execution loop of {0} times...</source>
         <target state="new">Iniciando bucle de ejecución de {0} veces...</target>
         

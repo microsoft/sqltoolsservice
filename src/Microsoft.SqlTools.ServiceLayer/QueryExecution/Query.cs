@@ -118,7 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batchDefinition.StartColumn-1,
                             batchDefinition.EndLine-1,
                             batchDefinition.EndColumn-1),                       
-                        index, outputFactory));
+                        index, outputFactory,
+                        batchDefinition.BatchExecutionCount));
 
             Batches = batchSelection.ToArray();
 
@@ -462,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private static void AddBatch(string query, ICollection<Batch> batchSet, IFileStreamFactory outputFactory)
         {
-            batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory));
+            batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
 
         #endregion

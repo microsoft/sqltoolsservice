@@ -1,4 +1,5 @@
-﻿using Microsoft.SqlTools.ServiceLayer.BatchParser;
+﻿using System;
+using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Xunit;
 
@@ -20,6 +21,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 Assert.Equal(1, batch.StartColumn);
                 Assert.Equal(2, batch.EndLine);
                 Assert.Equal(sqlScript.Length+1, batch.EndColumn);
+                Assert.Equal(1, batch.BatchExecutionCount);
+            }
+        }
+
+        [Fact]
+        public void CheckSQLBatchStatementWithRepeatExecution()
+        {
+            using (BatchParserWrapper parserWrapper = new BatchParserWrapper())
+            {
+                string sqlScript = "select * from sys.object" + Environment.NewLine + "GO 2";
+                var batches = parserWrapper.GetBatches(sqlScript);
+                Assert.Equal(1, batches.Count);
+                BatchDefinition batch = batches[0];
+                Assert.Equal(2, batch.BatchExecutionCount);
             }
         }
 
