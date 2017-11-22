@@ -749,11 +749,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EE_ExecutionInfo_InitilizingLoop
+        public static string EE_ExecutionInfo_InitializingLoop
         {
             get
             {
-                return Keys.GetString(Keys.EE_ExecutionInfo_InitilizingLoop);
+                return Keys.GetString(Keys.EE_ExecutionInfo_InitializingLoop);
             }
         }
 
@@ -3979,7 +3979,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EE_BatchExecutionError_Ignoring = "EE_BatchExecutionError_Ignoring";
 
 
-            public const string EE_ExecutionInfo_InitilizingLoop = "EE_ExecutionInfo_InitilizingLoop";
+            public const string EE_ExecutionInfo_InitializingLoop = "EE_ExecutionInfo_InitializingLoop";
 
 
             public const string EE_ExecutionError_CommandNotSupported = "EE_ExecutionError_CommandNotSupported";

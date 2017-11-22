@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>您已取消查詢。</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>執行此批次時發生錯誤。</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>執行批次，但被忽略的錯誤時，就會發生錯誤。</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>正在啟動 {0} 次執行迴圈...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>正在啟動 {0} 次執行迴圈...</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>不支援命令 {0}。</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>找不到變數 {0}。</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>SQL 執行錯誤︰ {0}</value></data>
@@ -480,4 +480,12 @@ ANSI Padding 已啟用</value></data>
   <data name="BackupPathIsFolderError"><value>指定的檔案名稱也是目錄名稱: {0}</value></data>
   <data name="InvalidBackupPathError"><value>無法確認備份檔案位置的存在: {0}</value></data>
   <data name="InvalidPathError"><value>無法存取伺服器上指定的路徑: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>無選擇的備份集可還原</value></data>
+  <data name="NeverBackedUp"><value>永不</value></data>
+  <data name="AzureSqlDbEdition"><value>Azure SQL DB</value></data>
+  <data name="AzureSqlDwEdition"><value>Azure SQL 資料倉儲</value></data>
+  <data name="AzureSqlStretchEdition"><value>Azure SQL 延展資料庫</value></data>
+  <data name="Error_InvalidDirectoryName"><value>路徑 {0} 不是有效的目錄</value></data>
+  <data name="Error_ExistingDirectoryName"><value>因目錄 {0} 中已有存在的檔案名稱 {1}</value></data>
+  <data name="EditDataValueTooLarge"><value>數值 {0} 太大以致於無法符合欄位型態 {1}</value></data>
   </root>

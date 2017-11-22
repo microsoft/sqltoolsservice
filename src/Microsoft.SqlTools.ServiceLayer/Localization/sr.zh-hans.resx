@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>您已取消查询。</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>执行批次处理时发生错误。</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>执行批次处理时发生错误，但该错误已被忽略。</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>正在开始执行循环的次数为 {0} 次...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>正在开始执行循环的次数为 {0} 次...</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>不支持命令 {0}。</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>找不到变量 {0}。</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>SQL 执行错误︰ {0}</value></data>
@@ -475,7 +475,15 @@
   <data name="TaskCompleted"><value>已完成</value></data>
   <data name="ScriptTaskName"><value>开始执行脚本操作</value></data>
   <data name="ProfilerConnectionNotFound"><value>找不到连接</value></data>
-  <data name="BackupPathIsFolderError"><value>指定的文件名也是一个目录名: {0}</value></data>
-  <data name="InvalidBackupPathError"><value>无法验证备份文件位置是否存在: {0}</value></data>
+  <data name="BackupPathIsFolderError"><value>所指定的文件名同时也是一个文件目录名: {0}</value></data>
+  <data name="InvalidBackupPathError"><value>无法验证备份文件的位置是否存在: {0}</value></data>
   <data name="InvalidPathError"><value>无法访问服务器上的指定路径: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>未选择用于还原的备份集</value></data>
+  <data name="NeverBackedUp"><value>从不</value></data>
+  <data name="AzureSqlDbEdition"><value>Azure SQL 数据库</value></data>
+  <data name="AzureSqlDwEdition"><value>Azure SQL 数据仓库</value></data>
+  <data name="AzureSqlStretchEdition"><value>Azure SQL Stretch Database</value></data>
+  <data name="Error_InvalidDirectoryName"><value>路径 {0} 不是有效的目录</value></data>
+  <data name="Error_ExistingDirectoryName"><value>{0} 文件夹中已存在名为 {1} 的文件</value></data>
+  <data name="EditDataValueTooLarge"><value>值 {0} 太大，无法放入类型为 {1} 的列</value></data>
   </root>
