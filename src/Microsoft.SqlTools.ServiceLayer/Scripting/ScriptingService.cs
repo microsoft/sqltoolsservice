@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-            Task.Run(async () =>
+            ScriptingTask = Task.Run(async () =>
             {
                 try
                 {
@@ -368,6 +368,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
             }).ContinueWithOnFaulted(async t => await context.SendError(t.Exception));
         }
+
+        internal Task ScriptingTask { get; set; }
 
         /// <summary>
         /// Disposes the scripting service and all active scripting operations.
