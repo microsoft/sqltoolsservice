@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// <summary>
     /// Class to represent an in-progress script operation.
     /// </summary>
-    public sealed class ScriptingScriptOperation : ScriptingOperation
+    public class ScriptingScriptOperation : ScriptingOperation
     {
         private bool disposed = false;
 
@@ -37,9 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             this.Parameters = parameters;
         }
 
-        private ScriptingParams Parameters { get; set; }
+        protected ScriptingParams Parameters { get; set; }
 
-        public string ScriptText { get; private set; }
+        public string ScriptText { get; protected set; }
 
         /// <summary>
         /// Event raised when a scripting operation has resolved which database objects will be scripted.
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
+        protected void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
             this.SetCommonEventProperties(parameters);
             this.CompleteNotification?.Invoke(this, parameters);
@@ -153,13 +153,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             this.PlanNotification?.Invoke(this, parameters);
         }
 
-        private void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
+        protected void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
             this.SetCommonEventProperties(parameters);
             this.ProgressNotification?.Invoke(this, parameters);
         }
 
-        private void SetCommonEventProperties(ScriptingEventParams parameters)
+        protected void SetCommonEventProperties(ScriptingEventParams parameters)
         {
             parameters.OperationId = this.OperationId;
             parameters.SequenceNumber = this.eventSequenceNumber;
@@ -242,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return publishModel;
         }
 
-        private string GetServerNameFromLiveInstance(string connectionString)
+        protected string GetServerNameFromLiveInstance(string connectionString)
         {
             string serverName = null;
             using(SqlConnection connection = new SqlConnection(connectionString))
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return serverName;
         }
 
-        private static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, SqlScriptOptions advancedOptions)
+        protected static void PopulateAdvancedScriptOptions(ScriptOptions scriptOptionsParameters, object advancedOptions)
         {
             if (scriptOptionsParameters == null)
             {
@@ -302,7 +302,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     object smoValue = null;
                     if (optionPropInfo.PropertyType == typeof(bool?))
                     {
-                        smoValue = (bool)optionValue ? BooleanTypeOptions.True : BooleanTypeOptions.False;
+                        if (advancedOptionPropInfo.PropertyType == typeof(bool))
+                        {
+
+                            smoValue = (bool)optionValue;
+                        }
+                        else
+                        {
+                            smoValue = (bool)optionValue ? BooleanTypeOptions.True : BooleanTypeOptions.False;
+                        }
                     }
                     else
                     {
@@ -321,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private void ValidateScriptDatabaseParams()
+        protected void ValidateScriptDatabaseParams()
         {
             try
             {
@@ -344,7 +352,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private void OnPublishModelScriptError(object sender, ScriptEventArgs e)
+        protected void OnPublishModelScriptError(object sender, ScriptEventArgs e)
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -372,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             });
         }
 
-        private void OnPublishModelScriptItemsCollected(object sender, ScriptItemsArgs e)
+        protected void OnPublishModelScriptItemsCollected(object sender, ScriptItemsArgs e)
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -395,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             });
         }
 
-        private void OnPublishModelScriptProgress(object sender, ScriptEventArgs e)
+        protected void OnPublishModelScriptProgress(object sender, ScriptEventArgs e)
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 

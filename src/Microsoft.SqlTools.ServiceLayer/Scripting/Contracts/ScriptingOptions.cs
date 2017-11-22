@@ -94,6 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default is true.
         /// </remarks>
         public bool? Default { get; set; } = true;
+        public bool? DriDefault { get { return Default; } }
+
 
         /// <summary>
         /// Script Object CREATE/DROP statements.  
@@ -208,11 +210,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default value is true.
         /// </remarks>
         public bool? ScriptCheckConstraints { get; set; } = true;
+        public bool? DriChecks { get { return ScriptCheckConstraints; } }
 
         /// <summary>
         /// Scripts the data compression information.
         /// </summary>
         public bool? ScriptDataCompressionOptions { get; set; } = false;
+        public bool? ScriptDataCompression { get { return ScriptDataCompressionOptions; } }
+
 
         /// <summary>
         /// Script the foreign keys for each table scripted.
@@ -221,11 +226,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default value is true.
         /// </remarks>
         public bool? ScriptForeignKeys { get; set; } = true;
+        public bool? DriForeignKeys { get { return ScriptForeignKeys; } }
+
 
         /// <summary>
         /// Script the full-text indexes for each table or indexed view scripted.
         /// </summary>
         public bool? ScriptFullTextIndexes { get; set; } = true;
+        public bool? FullTextIndexes { get { return ScriptFullTextIndexes; } }
+
 
         /// <summary>
         /// Script the indexes (including XML and clustered indexes) for each table or indexed view scripted.
@@ -234,6 +243,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default value is true.
         /// </remarks>
         public bool? ScriptIndexes { get; set; } = true;
+        public bool? DriIndexes { get { return ScriptIndexes; } }
+
 
         /// <summary>
         /// Script the primary keys for each table or view scripted
@@ -242,11 +253,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default value is true.
         /// </remarks>
         public bool? ScriptPrimaryKeys { get; set; } = true;
+        public bool? DriPrimaryKey { get { return ScriptPrimaryKeys; } }
+
 
         /// <summary>
         /// Script the triggers for each table or view scripted
         /// </summary>
         public bool? ScriptTriggers { get; set; } = true;
+        public bool? Triggers { get { return ScriptTriggers; } }
+
 
         /// <summary>
         /// Script the unique keys for each table or view scripted.
@@ -255,5 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default value is true.
         /// </remarks>
         public bool? UniqueKeys { get; set; } = true;
+        public bool? DriUniqueKeys { get { return UniqueKeys; } }
+
     }
 }
