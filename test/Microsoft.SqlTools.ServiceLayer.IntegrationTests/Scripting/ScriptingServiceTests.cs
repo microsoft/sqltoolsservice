@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Schema = "dbo",
                 Type = "View"
             };
-            string expectedScript = "CREATE VIEW testView1 AS";
+            string expectedScript = "CREATE VIEW [dbo].[testView1] AS";
 
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Schema = "dbo",
                 Type = "StoredProcedure"
             };
-            string expectedScript = "CREATE PROCEDURE testSp1 AS";
+            string expectedScript = "CREATE PROCEDURE [dbo].[testSp1] AS";
 
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }

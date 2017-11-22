@@ -50,7 +50,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
                     options.WithDependencies = false;
                     options.ScriptData = false;
-                    options.SchemaQualify = true;
+
+                    // setting this forces SMO to correctly script objects that have been renamed
+                    options.EnforceScriptingOptions = true;
+
+                    //We always want role memberships for users and database roles to be scripted
+                    options.IncludeDatabaseRoleMemberships = true;
+
                     // TODO: Not including the header by default. We have to get this option from client
                     options.IncludeHeaders = false;
                     scripter.Options = options;
