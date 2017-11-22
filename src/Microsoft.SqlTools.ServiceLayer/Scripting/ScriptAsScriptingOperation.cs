@@ -12,78 +12,20 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Specialized;
 using System.Text;
-using System.Linq;
 using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
-    public class ScriptAsScriptingOperation : ScriptingScriptOperation
+    /// <summary>
+    /// Class to generate script as for one smo object
+    /// </summary>
+    public class ScriptAsScriptingOperation : SmoScriptingOperation
     {
         public ScriptAsScriptingOperation(ScriptingParams parameters): base(parameters)
         {
-            Validate.IsNotNull("parameters", parameters);
-
-            this.Parameters = parameters;
         }
 
         private string BatchTerminator = "GO";
-
-        private string GetScript(ScriptingOptions options, StringCollection stringCollection)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var item in stringCollection)
-            {
-                sb.Append(item);
-                if (options != null && !options.NoCommandTerminator)
-                {
-                    //Ensure the batch separator is always on a new line (to avoid syntax errors)
-                    //but don't write an extra if we already have one as this can affect definitions
-                    //of objects such as Stored Procedures (see TFS#9125366)
-                    sb.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}{2}",
-                        item.EndsWith(Environment.NewLine) ? string.Empty : Environment.NewLine,
-                        this.BatchTerminator,
-                        Environment.NewLine);
-                }
-                else
-                {
-                    sb.AppendFormat(CultureInfo.InvariantCulture, Environment.NewLine);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        private UrnCollection CreateUrns()
-        {
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
-
-            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
-            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
-            UrnCollection urnCollection = new UrnCollection();
-            foreach (var scriptingObject in selectedObjects)
-            {
-                urnCollection.Add(scriptingObject.ToUrn(server, database));
-            }
-            return urnCollection;
-        }
-
-        private void SetScriptBehavior(ScriptingOptions options)
-        {
-            switch(this.Parameters.ScriptOptions.ScriptCreateDrop)
-            {
-                case "ScriptCreate":
-                    options.ScriptDrops = false;
-                    break;
-                case "ScriptDrop":
-                    options.ScriptDrops = true;
-                    break;
-                default:
-                    options.ScriptDrops = false;
-                    break;
-
-            }
-        }
 
         public override void Execute()
         {
@@ -96,6 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
+                // TODO: try to use one of the existing connections
                 using (SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString))
                 {
                     ServerConnection serverConnection = new ServerConnection(sqlConnection);
@@ -105,9 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     SetScriptBehavior(options);
                     PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
                     options.WithDependencies = false;
+                    // TODO: Not including the header by default. We have to get this option from client
                     options.IncludeHeaders = false;
-                    options.IncludeScriptingParametersHeader = false;
-                    options.IncludeDatabaseContext = false;
                     scripter.Options = options;
                     scripter.ScriptingError += ScripterScriptingError;
                     UrnCollection urns = CreateUrns();
@@ -158,6 +100,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     scripter.ScriptingError -= this.ScripterScriptingError;
                 }
+            }
+        }
+
+        private string GetScript(ScriptingOptions options, StringCollection stringCollection)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var item in stringCollection)
+            {
+                sb.Append(item);
+                if (options != null && !options.NoCommandTerminator)
+                {
+                    //Ensure the batch separator is always on a new line (to avoid syntax errors)
+                    //but don't write an extra if we already have one as this can affect definitions
+                    //of objects such as Stored Procedures (see TFS#9125366)
+                    sb.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}{2}",
+                        item.EndsWith(Environment.NewLine) ? string.Empty : Environment.NewLine,
+                        this.BatchTerminator,
+                        Environment.NewLine);
+                }
+                else
+                {
+                    sb.AppendFormat(CultureInfo.InvariantCulture, Environment.NewLine);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private UrnCollection CreateUrns()
+        {
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
+
+            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
+            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            UrnCollection urnCollection = new UrnCollection();
+            foreach (var scriptingObject in selectedObjects)
+            {
+                urnCollection.Add(scriptingObject.ToUrn(server, database));
+            }
+            return urnCollection;
+        }
+
+        private void SetScriptBehavior(ScriptingOptions options)
+        {
+            // TODO: have to add Scripting behavior to Smo ScriptingOptions class 
+            // so it would support ScriptDropAndScreate
+            switch (this.Parameters.ScriptOptions.ScriptCreateDrop)
+            {
+                case "ScriptCreate":
+                    options.ScriptDrops = false;
+                    break;
+                case "ScriptDrop":
+                    options.ScriptDrops = true;
+                    break;
+                default:
+                    options.ScriptDrops = false;
+                    break;
+
             }
         }
 

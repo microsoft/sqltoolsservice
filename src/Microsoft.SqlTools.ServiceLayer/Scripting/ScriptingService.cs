@@ -163,7 +163,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 else
                 {
                     ScriptAsScriptingOperation operation = new ScriptAsScriptingOperation(parameters);
-                    operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e);
                     operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
                     operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
 
@@ -248,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, 
-                                                               ScriptingScriptOperation operation, string scriptDestination)
+                                                               SmoScriptingOperation operation, string scriptDestination)
         {
             await requestContext.SendEvent(eventType, parameters);
             switch (scriptDestination)
