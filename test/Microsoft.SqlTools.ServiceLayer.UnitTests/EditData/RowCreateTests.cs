@@ -40,11 +40,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region GetScript Tests
 
-        [Fact]
-        public async Task GetScriptMissingCell()
+        public static IEnumerable<object[]> GetScriptMissingCellsData
+        {
+            get
+            {
+                // NOTE: Test matrix is defined in TableTestMatrix.txt, test cases here are identified by test ID
+                yield return new object[] {true, 0, 0, 2};    // 02
+                yield return new object[] {true, 0, 0, 4};    // 03
+                yield return new object[] {true, 0, 1, 4};    // 06
+                yield return new object[] {true, 1, 0, 4};    // 12
+                yield return new object[] {true, 1, 1, 4};    // 16
+                yield return new object[] {false, 0, 0, 1};   // 21
+                yield return new object[] {false, 0, 0, 3};   // 22
+                yield return new object[] {false, 0, 1, 3};   // 25
+                yield return new object[] {false, 1, 0, 3};   // 31
+                yield return new object[] {false, 1, 1, 3};   // 35
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(GetScriptMissingCellsData))]
+        public async Task GetScriptMissingCell(bool includeIdentity, int defaultCols, int nullableCols, int valuesToSkipSetting)
         {
             // Setup: Generate the parameters for the row create
-            RowCreate rc = await GetStandardRowCreate();
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
+            var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
+            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
@@ -70,20 +91,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 yield return new object[] {true, 3, 0, 1, new RegexExpectedOutput(3, 3, 0)};    // 17
                 yield return new object[] {true, 3, 0, 2, new RegexExpectedOutput(2, 2, 0)};    // 18
                 yield return new object[] {true, 3, 0, 4, null};                                // 19
-                yield return new object[] {false, 0, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 01
-                yield return new object[] {false, 0, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // 04
-                yield return new object[] {false, 0, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // 05
-                yield return new object[] {false, 0, 3, 0, new RegexExpectedOutput(3, 3, 0)};   // 07
-                yield return new object[] {false, 0, 3, 1, new RegexExpectedOutput(2, 2, 0)};   // 08
-                yield return new object[] {false, 0, 3, 3, null};                               // 09
-                yield return new object[] {false, 1, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 10
-                yield return new object[] {false, 1, 0, 1, new RegexExpectedOutput(2, 2, 0)};   // 11
-                yield return new object[] {false, 1, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // 13
-                yield return new object[] {false, 1, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // 14
-                yield return new object[] {false, 1, 1, 2, new RegexExpectedOutput(1, 1, 0)};   // 15
-                yield return new object[] {false, 3, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 17
-                yield return new object[] {false, 3, 0, 1, new RegexExpectedOutput(2, 2, 0)};   // 18
-                yield return new object[] {false, 3, 0, 0, null};                               // 19
+                yield return new object[] {false, 0, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 20
+                yield return new object[] {false, 0, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // 23
+                yield return new object[] {false, 0, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // 24
+                yield return new object[] {false, 0, 3, 0, new RegexExpectedOutput(3, 3, 0)};   // 26
+                yield return new object[] {false, 0, 3, 1, new RegexExpectedOutput(2, 2, 0)};   // 27
+                yield return new object[] {false, 0, 3, 3, null};                               // 28
+                yield return new object[] {false, 1, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 29
+                yield return new object[] {false, 1, 0, 1, new RegexExpectedOutput(2, 2, 0)};   // 30
+                yield return new object[] {false, 1, 1, 0, new RegexExpectedOutput(3, 3, 0)};   // 32
+                yield return new object[] {false, 1, 1, 1, new RegexExpectedOutput(2, 2, 0)};   // 33
+                yield return new object[] {false, 1, 1, 2, new RegexExpectedOutput(1, 1, 0)};   // 34
+                yield return new object[] {false, 3, 0, 0, new RegexExpectedOutput(3, 3, 0)};   // 36
+                yield return new object[] {false, 3, 0, 1, new RegexExpectedOutput(2, 2, 0)};   // 37
+                yield return new object[] {false, 3, 0, 3, null};                               // 38
             }
         }
         
@@ -179,16 +200,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then: It should throw an exception
             Assert.Throws<ArgumentNullException>(() => rc.GetCommand(null));
         }
-        
-        [Fact]
-        public async Task GetCommandMissingCellNoDefault()
-        {
-            // Setup: Generate the parameters for the row create
-            RowCreate rc = await GetStandardRowCreate();
-            var mockConn = new TestSqlConnection(null);
 
-            // If: I ask for a script to be generated without setting any values
-            // Then: An exception should be thrown for missing cells
+        public static IEnumerable<object[]> GetCommandMissingCellsData
+        {
+            get
+            {
+                // NOTE: Test matrix is defined in TableTestMatrix.txt, test cases here are identified by test ID
+                yield return new object[] {true, 0, 0, 2};    // 02
+                yield return new object[] {true, 0, 0, 4};    // 03
+                yield return new object[] {true, 0, 1, 4};    // 06
+                yield return new object[] {true, 1, 0, 4};    // 12
+                yield return new object[] {true, 1, 1, 4};    // 16
+                yield return new object[] {false, 0, 0, 1};   // 21
+                yield return new object[] {false, 0, 0, 3};   // 22
+                yield return new object[] {false, 0, 1, 3};   // 25
+                yield return new object[] {false, 1, 0, 3};   // 31
+                yield return new object[] {false, 1, 1, 3};   // 35
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(GetCommandMissingCellsData))]
+        public async Task GetCommandMissingCellNoDefault(bool includeIdentity, int defaultCols, int nullableCols,
+            int valuesToSkip)
+        {
+            // Setup: 
+            // ... Generate the row create object
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
+            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            
+            // ... Create a mock db connection for building the command
+            var mockConn = new TestSqlConnection();
+            
+            // If: I ask for a script to be generated without setting all the required values
+            // Then: An exception should be thrown for the missing cells
             Assert.Throws<InvalidOperationException>(() => rc.GetCommand(mockConn));
         }
 
@@ -202,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 yield return new object[] {true, 0, 1, 2, new RegexExpectedOutput(2, 2, 4)};    // 05
                 yield return new object[] {true, 0, 3, 1, new RegexExpectedOutput(3, 3, 4)};    // 07
                 yield return new object[] {true, 0, 3, 2, new RegexExpectedOutput(2, 2, 4)};    // 08
-                yield return new object[] {true, 0, 3, 4, null};                                // 09
+                yield return new object[] {true, 0, 3, 4, new RegexExpectedOutput(0, 0, 4)};    // 09
                 yield return new object[] {true, 1, 0, 1, new RegexExpectedOutput(3, 3, 4)};    // 10
                 yield return new object[] {true, 1, 0, 2, new RegexExpectedOutput(2, 2, 4)};    // 11
                 yield return new object[] {true, 1, 1, 1, new RegexExpectedOutput(3, 3, 4)};    // 13
@@ -210,21 +256,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 yield return new object[] {true, 1, 1, 3, new RegexExpectedOutput(1, 1, 4)};    // 15
                 yield return new object[] {true, 3, 0, 1, new RegexExpectedOutput(3, 3, 4)};    // 17
                 yield return new object[] {true, 3, 0, 2, new RegexExpectedOutput(2, 2, 4)};    // 18
-                yield return new object[] {true, 3, 0, 4, null};                                // 19
-                yield return new object[] {false, 0, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 01
-                yield return new object[] {false, 0, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // 04
-                yield return new object[] {false, 0, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // 05
-                yield return new object[] {false, 0, 3, 0, new RegexExpectedOutput(3, 3, 3)};   // 07
-                yield return new object[] {false, 0, 3, 1, new RegexExpectedOutput(2, 2, 3)};   // 08
-                yield return new object[] {false, 0, 3, 3, null};                               // 09
-                yield return new object[] {false, 1, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 10
-                yield return new object[] {false, 1, 0, 1, new RegexExpectedOutput(2, 2, 3)};   // 11
-                yield return new object[] {false, 1, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // 13
-                yield return new object[] {false, 1, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // 14
-                yield return new object[] {false, 1, 1, 2, new RegexExpectedOutput(1, 1, 3)};   // 15
-                yield return new object[] {false, 3, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 17
-                yield return new object[] {false, 3, 0, 1, new RegexExpectedOutput(2, 2, 3)};   // 18
-                yield return new object[] {false, 3, 0, 0, null};                               // 19
+                yield return new object[] {true, 3, 0, 4, new RegexExpectedOutput(0, 0, 4)};    // 19
+                yield return new object[] {false, 0, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 20
+                yield return new object[] {false, 0, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // 23
+                yield return new object[] {false, 0, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // 24
+                yield return new object[] {false, 0, 3, 0, new RegexExpectedOutput(3, 3, 3)};   // 26
+                yield return new object[] {false, 0, 3, 1, new RegexExpectedOutput(2, 2, 3)};   // 27
+                yield return new object[] {false, 0, 3, 3, new RegexExpectedOutput(0, 0, 3)};   // 28
+                yield return new object[] {false, 1, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 29
+                yield return new object[] {false, 1, 0, 1, new RegexExpectedOutput(2, 2, 3)};   // 30
+                yield return new object[] {false, 1, 1, 0, new RegexExpectedOutput(3, 3, 3)};   // 32
+                yield return new object[] {false, 1, 1, 1, new RegexExpectedOutput(2, 2, 3)};   // 33
+                yield return new object[] {false, 1, 1, 2, new RegexExpectedOutput(1, 1, 3)};   // 34
+                yield return new object[] {false, 3, 0, 0, new RegexExpectedOutput(3, 3, 3)};   // 36
+                yield return new object[] {false, 3, 0, 1, new RegexExpectedOutput(2, 2, 3)};   // 37
+                yield return new object[] {false, 3, 0, 3, new RegexExpectedOutput(0, 0, 3)};   // 38
             }
         }
         
@@ -337,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate a row create with default values
             const long rowId = 100;
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 3, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
             RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
             
@@ -367,8 +413,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate a row create with an identity column
             const long rowId = 100;
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
-            ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
             RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
             
             // If: I request an edit row from the row created
@@ -523,7 +569,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task SetCellNull()
         {
             // Setup: Generate a row create
-            RowCreate rc = await GetStandardRowCreate();
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 3);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
 
             // If: I set a cell in the newly created row to null
             const string nullValue = "NULL";

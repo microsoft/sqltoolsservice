@@ -151,6 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                         DefaultValue = null
                     };
                     dbColumns.Add(dbColumn);
+                    columnWrappers.Add(new DbColumnWrapper(dbColumn));
                     columnMetadatas.Add(columnMetadata);
 
                     startingOrdinal++;
@@ -163,10 +164,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     DbColumn dbColumn;
                     EditColumnMetadata columnMetadata;
                     
-                    if (i < defaultCols)
+                    if (i < defaultCols + startingOrdinal)
                     {
                         // This column will have a default value
-                        dbColumn = new TestDbColumn(colName);
+                        dbColumn = new TestDbColumn(colName) {AllowDBNull = false};
                         columnMetadata = new EditColumnMetadata
                         {
                             EscapedName = colName,
@@ -174,10 +175,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                             DefaultValue = DefaultValue
                         };
                     }
-                    else if (i < nullableCols + defaultCols)
+                    else if (i < nullableCols + defaultCols + startingOrdinal)
                     {
                         // This column will be nullable
-                        dbColumn = new TestDbColumn(colName) { AllowDBNull = true };
+                        dbColumn = new TestDbColumn(colName) {AllowDBNull = true};
                         columnMetadata = new EditColumnMetadata
                         {
                             EscapedName = colName,
@@ -188,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     else
                     {
                         // This column doesn't have a default value or is nullable
-                        dbColumn = new TestDbColumn(colName);
+                        dbColumn = new TestDbColumn(colName) {AllowDBNull = false};
                         columnMetadata = new EditColumnMetadata
                         {
                             EscapedName = colName,
