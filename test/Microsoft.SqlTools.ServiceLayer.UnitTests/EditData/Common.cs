@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.Components.DictionaryAdapter;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -22,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     public class Common
     {
         public const string OwnerUri = "testFile";
+        public const string DefaultValue = "defaultValue";
+        public const string TableName = "tbl";
 
         public static EditInitializeParams BasicInitializeParameters
         {
@@ -62,17 +65,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return session;
         }
 
-        public static EditTableMetadata GetStandardMetadata(DbColumn[] columns, bool isMemoryOptimized = false)
+        public static EditTableMetadata GetStandardMetadata(DbColumn[] columns, bool isMemoryOptimized = false, int defaultColumns = 0)
         {
-            // Create column metadata providers
-            var columnMetas = columns.Select((c, i) =>
+            // Create column metadata providers            
+            var columnMetas = columns.Select((c, i) => new EditColumnMetadata
             {
-                var ecm = new EditColumnMetadata
-                {
-                    EscapedName = c.ColumnName,
-                    Ordinal = i
-                };
-                return ecm;
+                EscapedName = c.ColumnName,
+                Ordinal = i,
+                DefaultValue = i < defaultColumns ? DefaultValue : null 
             }).ToArray();
 
             // Create column wrappers
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditTableMetadata editTableMetadata = new EditTableMetadata
             {
                 Columns = columnMetas,
-                EscapedMultipartName = "tbl",
+                EscapedMultipartName = TableName,
                 IsMemoryOptimized = isMemoryOptimized
             };
             editTableMetadata.Extend(columnWrappers);
@@ -133,11 +133,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return new TestDbDataReader(new [] {testResultSet}, false);
         }
 
-        public static void AddCells(RowEditBase rc, bool includeIdentity)
+        public static void AddCells(RowEditBase rc, int colsToSkip)
         {
             // Skip the first column since if identity, since identity columns can't be updated
-            int start = includeIdentity ? 1 : 0;
-            for (int i = start; i < rc.AssociatedResultSet.Columns.Length; i++)
+            for (int i = colsToSkip; i < rc.AssociatedResultSet.Columns.Length; i++)
             {
                 rc.SetCell(i, "123");
             }

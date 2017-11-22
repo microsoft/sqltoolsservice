@@ -2555,6 +2555,7 @@ Enabledprototype_db_prop_parameterization = Parameterization</target>
       </trans-unit>
       <trans-unit id="RestorePlanFailed">
         <source>Failed to create restore plan</source>
+        <target state="new">リストア プランの作成に失敗しました。</target>
         
         <note/>
       </trans-unit>
@@ -2572,6 +2573,7 @@ Enabledprototype_db_prop_parameterization = Parameterization</target>
       </trans-unit>
       <trans-unit id="RestoreCopyOnly">
         <source>(Copy Only)</source>
+        <target state="new">(コピーのみ)</target>
         
         <note/>
       </trans-unit>
@@ -2697,18 +2699,19 @@ Enabledprototype_db_prop_parameterization = Parameterization</target>
       </trans-unit>
       <trans-unit id="ProfilerConnectionNotFound">
         <source>Connection not found</source>
+        <target state="new">接続が見つかりません。</target>
         
         <note/>
       </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
-        <source>The provided path specifies a directory but a file path is required: {0}</source>
-        <target state="new">指定されたファイル名はディレクトリ名と重複します: {0}</target>
+        <source>Please provide a file path instead of directory path</source>
+        <target state="new">指定されたファイル名がディレクトリ名と同じです: {0}</target>
         
         <note/>
       </trans-unit>
       <trans-unit id="InvalidBackupPathError">
-        <source> Cannot verify the existence of the backup file location: {0}</source>
-        <target state="new">バックアップ ファイルの場所が存在するかどうかを確認できません: {0}</target>
+        <source> The provided path is invalid</source>
+        <target state="new">バックアップ ファイルの場所が存在するかどうか確認できません: {0}</target>
         
         <note/>
       </trans-unit>
@@ -2717,6 +2720,55 @@ Enabledprototype_db_prop_parameterization = Parameterization</target>
         <target state="new">サーバーで指定されたパスにアクセスできません: {0}</target>
         
         <note/>
+      </trans-unit>
+      <trans-unit id="NoBackupsetsToRestore">
+        <source>No backupset selected to be restored</source>
+        <target state="new">リストアするバックアップセットが選択されていません</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="NeverBackedUp">
+        <source>Never</source>
+        <target state="new">行わない</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="AzureSqlDbEdition">
+        <source>Azure SQL DB</source>
+        <target state="new">Azure SQL DB</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="AzureSqlDwEdition">
+        <source>Azure SQL Data Warehouse</source>
+        <target state="new">Azure SQL Data Warehouse</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="AzureSqlStretchEdition">
+        <source>Azure SQL Stretch Database</source>
+        <target state="new">Azure SQL Stretch Database</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Error_InvalidDirectoryName">
+        <source>Path {0} is not a valid directory </source>
+        <target state="new">パス {0} は有効なディレクトリではありません</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Error_ExistingDirectoryName">
+        <source>For directory {0} a file with name {1} already exists</source>
+        <target state="new">ディレクトリ {0} 内に {1} という名前のファイルは既に存在します</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataValueTooLarge">
+        <source>Value {0} is too large to fit in column of type {1}</source>
+        <target state="new">値 {0} は大きすぎるため、型 {1} の列に収まりません</target>
+        
+        <note>.
+ Parameters: 0 - value (string), 1 - columnType (string) </note>
       </trans-unit>
     </body>
   </file>

@@ -233,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 var result = Task.Run(() => testService.Script(requestParams));
                 ScriptingProgressNotificationParams progressParams = await testService.Driver.WaitForEvent(ScriptingProgressNotificationEvent.Type, TimeSpan.FromSeconds(10));
-                Task.Run(() => testService.CancelScript(progressParams.OperationId));
+                Task.Run(() => testService.CancelScript(progressParams.OperationId).Wait());
                 ScriptingCompleteParams cancelEvent = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(cancelEvent.Canceled);
             }

@@ -613,6 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Make sure a default connection exists
+            DbConnection connection;
             DbConnection defaultConnection;
             if (!connectionInfo.TryGetConnection(ConnectionType.Default, out defaultConnection))
             {
@@ -622,40 +623,97 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if(IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
             {
                 // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
-                return defaultConnection;
+                connection = defaultConnection;
+            }
+            else
+            {
+                // Try to get the DbConnection and create if it doesn't already exist
+                if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
+                {
+                    connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
+                }
             }
 
-            // Try to get the DbConnection
-            DbConnection connection;
-            if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
-            {
-                // If the DbConnection does not exist and is not the default connection, create one.
-                // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
-                // if Connect() has not yet been called.
-                bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
-                if (alwaysPersistSecurity)
-                {
-                    connectionInfo.ConnectionDetails.PersistSecurityInfo = true;
-                }
-                ConnectParams connectParams = new ConnectParams
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectionInfo.ConnectionDetails,
-                    Type = connectionType
-                };
-                try
-                {
-                    await Connect(connectParams);
-                }
-                finally
-                {
-                    connectionInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-                }
-                
-                connectionInfo.TryGetConnection(connectionType, out connection);
-            }
+            VerifyConnectionOpen(connection);
 
             return connection;
+        }
+
+        private async Task<DbConnection> TryOpenConnectionForConnectionType(string ownerUri, string connectionType, 
+            bool alwaysPersistSecurity, ConnectionInfo connectionInfo)
+        {
+            // If the DbConnection does not exist and is not the default connection, create one.
+            // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
+            // if Connect() has not yet been called.
+            bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
+            if (alwaysPersistSecurity)
+            {
+                connectionInfo.ConnectionDetails.PersistSecurityInfo = true;
+            }
+            ConnectParams connectParams = new ConnectParams
+            {
+                OwnerUri = ownerUri,
+                Connection = connectionInfo.ConnectionDetails,
+                Type = connectionType
+            };
+            try
+            {
+                await Connect(connectParams);
+            }
+            finally
+            {
+                connectionInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+            }
+
+            DbConnection connection;
+            connectionInfo.TryGetConnection(connectionType, out connection);
+            return connection;
+        }
+
+        private void VerifyConnectionOpen(DbConnection connection)
+        {
+            if (connection == null)
+            {
+                // Ignore this connection
+                return;
+            }
+
+            if (connection.State != ConnectionState.Open)
+            {
+                // Note: this will fail and throw to the caller if something goes wrong.
+                // This seems the right thing to do but if this causes serviceability issues where stack trace
+                // is unexpected, might consider catching and allowing later code to fail. But given we want to get
+                // an opened connection for any action using this, it seems OK to handle in this manner
+                ClearPool(connection);
+                connection.Open();
+            }
+        }
+
+        /// <summary>
+        /// Clears the connection pool if this is a SqlConnection of some kind.
+        /// </summary>
+        private void ClearPool(DbConnection connection)
+        {
+            SqlConnection sqlConn;
+            if (TryGetAsSqlConnection(connection, out sqlConn))
+            {
+                SqlConnection.ClearPool(sqlConn);
+            }
+        }
+
+        private bool TryGetAsSqlConnection(DbConnection dbConn, out SqlConnection sqlConn)
+        {
+            ReliableSqlConnection reliableConn = dbConn as ReliableSqlConnection;
+            if (reliableConn != null)
+            {
+                sqlConn = reliableConn.GetUnderlyingConnection();
+            }
+            else
+            {
+                sqlConn = dbConn as SqlConnection;
+            }
+
+            return sqlConn != null;
         }
 
         /// <summary>
