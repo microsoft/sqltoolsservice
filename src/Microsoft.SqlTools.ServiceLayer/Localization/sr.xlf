@@ -315,7 +315,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Execution completed {0} times...</source>
+        <source>Batch execution completed {0} times...</source>
         <target state="new">Execution completed {0} times...</target>
         <note></note>
       </trans-unit>
@@ -334,8 +334,8 @@
         <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
-        <source>Starting execution loop of {0} times...</source>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
         <target state="new">Starting execution loop of {0} times...</target>
         <note></note>
       </trans-unit>

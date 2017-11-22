@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>È stata annullata la query.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Si è verificato un errore durante l'esecuzione del batch.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Si è verificato un errore durante l'esecuzione del batch, ma l'errore è stato ignorato.</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>Avvio ciclo di esecuzione di {0} volte...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Avvio ciclo di esecuzione di {0} volte...</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>Il comando {0} non è supportato.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Impossibile trovare la variabile {0}.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Errore di esecuzione di SQL: {0}</value></data>
@@ -478,4 +478,12 @@
   <data name="BackupPathIsFolderError"><value>Il nome file specificato è anche un nome di cartella: {0}</value></data>
   <data name="InvalidBackupPathError"><value>Impossibile verificare l'esistenza della posizione del file di backup: {0}</value></data>
   <data name="InvalidPathError"><value>Impossibile accedere al percorso specificato sul server: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>Nessun insieme di backup selezionato per il ripristino</value></data>
+  <data name="NeverBackedUp"><value>Mai</value></data>
+  <data name="AzureSqlDbEdition"><value>Azure SQL DB</value></data>
+  <data name="AzureSqlDwEdition"><value>Azure SQL Data Warehouse</value></data>
+  <data name="AzureSqlStretchEdition"><value>Azure SQL Stretch Database</value></data>
+  <data name="Error_InvalidDirectoryName"><value>Il percorso [{0}] non è una directory valida.</value></data>
+  <data name="Error_ExistingDirectoryName"><value>Nella directory '{0}' esiste già il file {1}</value></data>
+  <data name="EditDataValueTooLarge"><value>Il valore {0} è troppo grande per essere contenuto in una colonna di tipo {1}</value></data>
   </root>

@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Vous avez annulé la requête.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Une erreur s'est produite lors de l'exécution du lot.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Une erreur s'est produite lors de l'exécution du lot, mais elle a été ignorée.</value></data>
-  <data name="EE_ExecutionInfo_InitilizingLoop"><value>Démarrage de la boucle d'exécution pour {0} fois...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Démarrage de la boucle d'exécution pour {0} fois...</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>La commande {0} n'est pas prise en charge.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Impossible de trouver la variable {0}.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Erreur d’exécution de SQL : {0}</value></data>
@@ -478,4 +478,12 @@
   <data name="BackupPathIsFolderError"><value>Le nom de fichier spécifié est également un nom de répertoire: {0}</value></data>
   <data name="InvalidBackupPathError"><value>Impossible de vérifier l'existence de l'emplacement du fichier de sauvegarde: {0}</value></data>
   <data name="InvalidPathError"><value>Impossible d'accéder au chemin d'accès spécifié sur le serveur: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>Aucun jeu de sauvegarde n'a été sélectionné pour être restauré.</value></data>
+  <data name="NeverBackedUp"><value>Jamais</value></data>
+  <data name="AzureSqlDbEdition"><value>Azure SQL DB</value></data>
+  <data name="AzureSqlDwEdition"><value>Azure SQL Data Warehouse</value></data>
+  <data name="AzureSqlStretchEdition"><value>Azure SQL Stretch Database</value></data>
+  <data name="Error_InvalidDirectoryName"><value>Le chemin {0} n'est pas un répertoire valide.</value></data>
+  <data name="Error_ExistingDirectoryName"><value> Pour le répertoire {0} un fichier avec le nom {1} existe déjà</value></data>
+  <data name="EditDataValueTooLarge"><value>La valeur {0} est trop grande pour tenir dans la colonne de type {1}</value></data>
   </root>
