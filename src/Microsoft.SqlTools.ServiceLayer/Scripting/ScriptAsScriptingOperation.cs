@@ -14,6 +14,7 @@ using System.Collections.Specialized;
 using System.Text;
 using System.Globalization;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -22,11 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// </summary>
     public class ScriptAsScriptingOperation : SmoScriptingOperation
     {
+        private static Dictionary<string, SqlServerVersion> scriptCompatabilityMap = LoadScriptCompatabilityMap();
+
         public ScriptAsScriptingOperation(ScriptingParams parameters): base(parameters)
         {
         }
-
-        private string BatchTerminator = "GO";
 
         public override void Execute()
         {
@@ -124,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     //of objects such as Stored Procedures (see TFS#9125366)
                     sb.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}{2}",
                         item.EndsWith(Environment.NewLine) ? string.Empty : Environment.NewLine,
-                        this.BatchTerminator,
+                        CommonConstants.DefaultBatchSeperator,
                         Environment.NewLine);
                 }
                 else
@@ -169,6 +170,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
+        private static Dictionary<string, SqlServerVersion> LoadScriptCompatabilityMap()
+        {
+            Dictionary<string, SqlServerVersion> map = new Dictionary<string, SqlServerVersion>();
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script140Compat.ToString(), SqlServerVersion.Version140);
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script130Compat.ToString(), SqlServerVersion.Version130);
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script120Compat.ToString(), SqlServerVersion.Version120);
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script110Compat.ToString(), SqlServerVersion.Version110);
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script105Compat.ToString(), SqlServerVersion.Version105);
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script100Compat.ToString(), SqlServerVersion.Version100);
+            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script90Compat.ToString(), SqlServerVersion.Version90);
+
+            return map;
+        }
+
         private void SetScriptingOptions(ScriptingOptions scriptingOptions)
         {
             scriptingOptions.AllowSystemObjects = true;
@@ -178,34 +193,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             //We always want role memberships for users and database roles to be scripted
             scriptingOptions.IncludeDatabaseRoleMemberships = true;
-
-            if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script140Compat.ToString())
+            SqlServerVersion targetServerVersion;
+            if(scriptCompatabilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
             {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version140;
-            }
-            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script130Compat.ToString())
-            {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version130;
-            }
-            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script120Compat.ToString())
-            {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version120;
-            }
-            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script110Compat.ToString())
-            {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version110;
-            }
-            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script105Compat.ToString())
-            {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version105;
-            }
-            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script100Compat.ToString())
-            {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version100;
-            }
-            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script90Compat.ToString())
-            {
-                scriptingOptions.TargetServerVersion = SqlServerVersion.Version90;
+                scriptingOptions.TargetServerVersion = targetServerVersion;
             }
             else
             {

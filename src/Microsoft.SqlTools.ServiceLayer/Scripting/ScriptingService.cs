@@ -39,7 +39,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public static ScriptingService Instance => LazyInstance.Value;
 
         private static ConnectionService connectionService = null;
-        private static LanguageService languageServices = null;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
@@ -64,26 +63,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 connectionService = value;
             }
         }
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static LanguageService LanguageServiceInstance
-        {
-            get
-            {
-                if (languageServices == null)
-                {
-                    languageServices = LanguageService.Instance;
-                }
-                return languageServices;
-            }
-            set
-            {
-                languageServices = value;
-            }
-        }
-
 
         /// <summary>
         /// The collection of active operations

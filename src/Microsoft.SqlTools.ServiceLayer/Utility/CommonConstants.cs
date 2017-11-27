@@ -15,5 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         public const string MsdbDatabaseName = "msdb";
         public const string ModelDatabaseName = "model";
         public const string TempDbDatabaseName = "tempdb";
+
+        public const string DefaultBatchSeperator = "GO";
     }
 }
