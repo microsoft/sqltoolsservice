@@ -146,6 +146,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {
+                if(string.IsNullOrEmpty(scriptingObject.Schema))
+                {
+                    // TODO: get the default schema
+                    scriptingObject.Schema = "dbo";
+                }
                 urnCollection.Add(scriptingObject.ToUrn(server, database));
             }
             return urnCollection;

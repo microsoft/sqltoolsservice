@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string createSyntax = null;
             if (objectScriptMap.ContainsKey(objectType.ToLower()))
             {
-                createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType.ToLower()]);
+                createSyntax = string.Format("CREATE");
                 foreach (string line in lines)
                 {
                     if (LineContainsObject(line, objectName, createSyntax))
