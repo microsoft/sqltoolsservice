@@ -146,6 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
+                        connInfo.ConnectionDetails.PersistSecurityInfo = true;
                         parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                     }
                     else

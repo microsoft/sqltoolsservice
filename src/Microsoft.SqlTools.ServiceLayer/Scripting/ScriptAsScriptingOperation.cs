@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Specialized;
 using System.Text;
 using System.Globalization;
+using Microsoft.SqlServer.Management.SqlScriptPublish;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -50,12 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
                     options.WithDependencies = false;
                     options.ScriptData = false;
-
-                    // setting this forces SMO to correctly script objects that have been renamed
-                    options.EnforceScriptingOptions = true;
-
-                    //We always want role memberships for users and database roles to be scripted
-                    options.IncludeDatabaseRoleMemberships = true;
+                    SetScriptingOptions(options);
 
                     // TODO: Not including the header by default. We have to get this option from client
                     options.IncludeHeaders = false;
@@ -98,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     Logger.Write(LogLevel.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     {
+                        OperationId = OperationId,
                         HasError = true,
                         ErrorMessage = e.Message,
                         ErrorDetails = e.ToString(),
@@ -169,6 +166,134 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     options.ScriptDrops = false;
                     break;
 
+            }
+        }
+
+        private void SetScriptingOptions(ScriptingOptions scriptingOptions)
+        {
+            scriptingOptions.AllowSystemObjects = true;
+
+            // setting this forces SMO to correctly script objects that have been renamed
+            scriptingOptions.EnforceScriptingOptions = true;
+
+            //We always want role memberships for users and database roles to be scripted
+            scriptingOptions.IncludeDatabaseRoleMemberships = true;
+
+            if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script140Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version140;
+            }
+            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script130Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version130;
+            }
+            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script120Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version120;
+            }
+            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script110Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version110;
+            }
+            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script105Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version105;
+            }
+            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script100Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version100;
+            }
+            else if (this.Parameters.ScriptOptions.ScriptCompatibilityOption == SqlScriptOptions.ScriptCompatabilityOptions.Script90Compat.ToString())
+            {
+                scriptingOptions.TargetServerVersion = SqlServerVersion.Version90;
+            }
+            else
+            {
+                //If you are getting this assertion fail it means you are working for higher
+                //version of SQL Server. You need to update this part of code.
+                 Logger.Write(LogLevel.Warning, "This part of the code is not updated corresponding to latest version change");
+            }
+
+            // for cloud scripting to work we also have to have Script Compat set to 105.
+            // the defaults from scripting options should take care of it
+            object targetDatabaseEngineType;
+            if (Enum.TryParse(typeof(SqlScriptOptions.ScriptDatabaseEngineType), this.Parameters.ScriptOptions.TargetDatabaseEngineType, out targetDatabaseEngineType))
+            {
+                switch ((SqlScriptOptions.ScriptDatabaseEngineType)targetDatabaseEngineType)
+                {
+                    case SqlScriptOptions.ScriptDatabaseEngineType.SingleInstance:
+                        scriptingOptions.TargetDatabaseEngineType = DatabaseEngineType.Standalone;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineType.SqlAzure:
+                        scriptingOptions.TargetDatabaseEngineType = DatabaseEngineType.SqlAzureDatabase;
+                        break;
+                }
+            }
+
+            object targetDatabaseEngineEdition;
+            if (Enum.TryParse(typeof(SqlScriptOptions.ScriptDatabaseEngineEdition), this.Parameters.ScriptOptions.TargetDatabaseEngineEdition, out targetDatabaseEngineEdition))
+            {
+                switch ((SqlScriptOptions.ScriptDatabaseEngineEdition)targetDatabaseEngineEdition)
+                {
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerPersonalEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Personal;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerStandardEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Standard;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerEnterpriseEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Enterprise;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerExpressEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Express;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlAzureDatabaseEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlDatabase;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlDatawarehouseEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlDataWarehouse;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerStretchEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlStretchDatabase;
+                        break;
+                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerManagedInstanceEdition:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlManagedInstance;
+                        break;
+                    default:
+                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Standard;
+                        break;
+                }
+            }
+
+            scriptingOptions.NoVardecimal = false; //making IncludeVarDecimal true for DPW
+
+            // scripting of stats is a combination of the Statistics
+            // and the OptimizerData flag
+            object scriptStatistics;
+            if (Enum.TryParse(typeof(SqlScriptOptions.ScriptStatisticsOptions), this.Parameters.ScriptOptions.ScriptStatistics, out scriptStatistics))
+            {
+                switch ((SqlScriptOptions.ScriptStatisticsOptions)scriptStatistics)
+                {
+                    case SqlScriptOptions.ScriptStatisticsOptions.ScriptStatsAll:
+                        scriptingOptions.Statistics = true;
+                        scriptingOptions.OptimizerData = true;
+                        break;
+                    case SqlScriptOptions.ScriptStatisticsOptions.ScriptStatsDDL:
+                        scriptingOptions.Statistics = true;
+                        scriptingOptions.OptimizerData = false;
+                        break;
+                    case SqlScriptOptions.ScriptStatisticsOptions.ScriptStatsNone:
+                        scriptingOptions.Statistics = false;
+                        scriptingOptions.OptimizerData = false;
+                        break;
+                }
+            }
+
+            // If Histogram and Update Statics are True then include DriIncludeSystemNames and AnsiPadding by default
+            if (scriptingOptions.Statistics == true && scriptingOptions.OptimizerData == true)
+            {
+                scriptingOptions.DriIncludeSystemNames = true;
+                scriptingOptions.AnsiPadding = true;
             }
         }
 

@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Generate ANSI padding statements
         /// </summary>
         public bool? ScriptAnsiPadding { get; set; } = false;
+        public bool? AnsiPadding { get { return ScriptAnsiPadding; } }
 
         /// <summary>
         /// Append the generated script to a file
@@ -32,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Convert user-defined data types to base types.
         /// </summary>
         public bool? ConvertUDDTToBaseType { get; set; } = false;
+        public bool? ConvertUserDefinedDataTypesToBaseType { get { return ConvertUDDTToBaseType; } }
 
         /// <summary>
         /// Generate script for dependent objects for each object scripted.
@@ -48,6 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default is true.
         /// </remarks>
         public bool? IncludeDescriptiveHeaders { get; set; } = true;
+        public bool? IncludeHeaders { get { return IncludeDescriptiveHeaders; } }
 
         /// <summary>
         /// Check that an object with the given name exists before dropping or altering or that an object with the given name does not exist before creating.
@@ -63,6 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Include system generated constraint names to enforce declarative referential integrity.
         /// </summary>
         public bool? ScriptDriIncludeSystemNames { get; set; } = false;
+        public bool? DriIncludeSystemNames { get { return ScriptDriIncludeSystemNames; } }
 
         /// <summary>
         /// Include statements in the script that are not supported on the specified SQL Server database engine type.
@@ -76,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default is true.
         /// </remarks>
         public bool? SchemaQualify { get; set; } = true;
+        public bool? SchemaQualifyForeignKeysReferences { get { return SchemaQualify; } }
 
         /// <summary>
         /// Script options to set bindings option.
@@ -86,6 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Script the objects that use collation.
         /// </summary>
         public bool? Collation { get; set; } = false;
+        public bool? NoCollation { get { return !Collation; } }
 
         /// <summary>
         /// Script the default values.
@@ -94,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default is true.
         /// </remarks>
         public bool? Default { get; set; } = true;
-        public bool? DriDefault { get { return Default; } }
+        public bool? DriDefaults { get { return Default; } }
 
 
         /// <summary>
@@ -117,6 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default is true.
         /// </remarks>
         public bool? ScriptExtendedProperties { get; set; } = true;
+        public bool? ExtendedProperties { get { return ScriptExtendedProperties; } }
+
 
         /// <summary>
         /// Script only features compatible with the specified version of SQL Server.  Possible values:
@@ -163,6 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Generate object-level permissions.
         /// </summary>
         public bool? ScriptObjectLevelPermissions { get; set; } = false;
+        public bool? Permissions { get { return ScriptObjectLevelPermissions; } }
 
         /// <summary>
         /// Script owner for the objects.
@@ -180,6 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// The default value is ScriptStatsNone.
         /// </remarks>
         public string ScriptStatistics { get; set; } = "ScriptStatsNone";
+        public string Statistics { get { return ScriptStatistics; } }
+
 
         /// <summary>
         /// Generate USE DATABASE statement.
@@ -202,6 +213,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Scripts the change tracking information.
         /// </summary>
         public bool? ScriptChangeTracking { get; set; } = false;
+        public bool? ChangeTracking { get { return ScriptChangeTracking; } }
+
 
         /// <summary>
         /// Script the check constraints for each table or view scripted.
