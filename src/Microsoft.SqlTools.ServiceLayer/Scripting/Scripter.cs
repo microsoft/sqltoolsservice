@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // Mapping for supported type
             AddSupportedType(DeclarationType.Table, "Table", "table", typeof(Table));
             AddSupportedType(DeclarationType.View, "View", "view", typeof(View));
-            AddSupportedType(DeclarationType.StoredProcedure, "Procedure", "stored procedure", typeof(StoredProcedure));
+            AddSupportedType(DeclarationType.StoredProcedure, "StoredProcedure", "stored procedure", typeof(StoredProcedure));
             AddSupportedType(DeclarationType.Schema, "Schema", "schema", typeof(Schema));
             AddSupportedType(DeclarationType.UserDefinedDataType, "UserDefinedDataType", "user-defined data type", typeof(UserDefinedDataType));
             AddSupportedType(DeclarationType.UserDefinedTableType, "UserDefinedTableType", "user-defined table type", typeof(UserDefinedTableType));

@@ -23,6 +23,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;        
+        private static ConnectionService connectionService = null;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
@@ -61,8 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 connectionService = value;
             }
-        }     
-
+        }
 
         /// <summary>
         /// The collection of active operations
@@ -76,6 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
+            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -101,6 +102,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 RunTask(requestContext, operation);
 
                 await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to start the scripting operation
+        /// </summary>
+        public async Task HandleScriptingScriptAsRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        {
+            try
+            {
+                // if a connection string wasn't provided as a parameter then
+                // use the owner uri property to lookup its associated ConnectionInfo
+                // and then build a connection string out of that
+                ConnectionInfo connInfo = null;
+                if (parameters.ConnectionString == null || parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+                {
+                    ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    if (connInfo != null)
+                    {
+                        connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                        parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    }
+                    else
+                    {
+                        throw new Exception("Could not find ConnectionInfo");
+                    }
+                }
+
+                // if the scripting operation is for SELECT then handle that message differently
+                // for SELECT we'll build the SQL directly whereas other scripting operations depend on SMO
+                if (parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+                {
+                    RunSelectTask(connInfo, parameters, requestContext);
+                }
+                else
+                {
+                    ScriptAsScriptingOperation operation = new ScriptAsScriptingOperation(parameters);
+                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
+                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+
+                    RunTask(requestContext, operation);
+                }
             }
             catch (Exception e)
             {
@@ -180,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, 
-                                                               ScriptingScriptOperation operation, string scriptDestination)
+                                                               SmoScriptingOperation operation, string scriptDestination)
         {
             await requestContext.SendEvent(eventType, parameters);
             switch (scriptDestination)
@@ -283,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-            Task.Run(async () =>
+            ScriptingTask = Task.Run(async () =>
             {
                 try
                 {
@@ -301,6 +348,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
             }).ContinueWithOnFaulted(async t => await context.SendError(t.Exception));
         }
+
+        internal Task ScriptingTask { get; set; }
 
         /// <summary>
         /// Disposes the scripting service and all active scripting operations.
