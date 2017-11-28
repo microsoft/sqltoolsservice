@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     public class SmoChildFactoryBase : ChildFactory
     {
+        private IEnumerable<NodeSmoProperty> smoPropertis;
         public override IEnumerable<string> ApplicableParents()
         {
             return null;
@@ -230,6 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             else
             {
+                smoPropertis = SmoProperties;
                 SmoTreeNode childAsMeItem = (SmoTreeNode)child;
                 childAsMeItem.CacheInfoFromModel(smoObj);
                 SmoQueryContext smoContext = parent.GetContextAs<SmoQueryContext>();
@@ -241,8 +243,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     childAsMeItem.NodeValue = customizedName;
                 }
 
-                childAsMeItem.NodeSubType = GetNodeSubType(context);
-                childAsMeItem.NodeStatus = GetNodeStatus(context);
+                childAsMeItem.NodeSubType = GetNodeSubType(context, smoContext);
+                childAsMeItem.NodeStatus = GetNodeStatus(context, smoContext);
             }
         }
 
@@ -270,6 +272,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
+        internal IEnumerable<NodeSmoProperty> CachedSmoProperties
+        {
+            get
+            {
+                return smoPropertis == null ? SmoProperties : smoPropertis;
+            }
+        }
+
         /// <summary>
         /// Returns true if any final validation of the object to be added passes, and false
         /// if validation fails. This provides a chance to filter specific items out of a list 
@@ -282,14 +292,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return true;
         }
 
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
             return string.Empty;
         }
 
-        public override string GetNodeStatus(object context)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
             return string.Empty;
+        }
+
+        public static bool IsPropertySupported(string propertyName, SmoQueryContext context, NamedSmoObject smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
+        {
+            var property = supportedProperties.FirstOrDefault(x => x.Name == propertyName);
+            if (property != null)
+            {
+                return ServerVersionHelper.IsValidFor(context.ValidFor, property.ValidFor);
+            }
+            else
+            {
+                // Return true if cannot find the proeprty, SMO still tries to get that property but adding the proeprty to supported list can make loading the nodes faster
+                Logger.Write(LogLevel.Verbose, $"Smo property name {propertyName} for Smo type {smoObj.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
+                return true;
+            }
         }
 
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)

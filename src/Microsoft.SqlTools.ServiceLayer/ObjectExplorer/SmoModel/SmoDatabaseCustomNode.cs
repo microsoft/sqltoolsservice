@@ -4,6 +4,8 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -12,21 +14,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class DatabasesChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object context)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
-            return DatabasesCustomNodeHelper.GetStatus(context);
+            return DatabasesCustomNodeHelper.GetStatus(smoObject, smoContext, CachedSmoProperties);
         }
     }
 
     internal static class DatabasesCustomNodeHelper
     {
-        internal static string GetStatus(object context)
+        internal static string GetStatus(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            Database db = context as Database;
-            if (db != null)
+            Database db = smoObject as Database;
+            if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", smoContext, db, supportedProperties))
             {
                 DatabaseStatus status;
-                try { 
+                try
+                { 
                     status = db.Status;
                 }
                 catch (SqlServer.Management.Common.ConnectionFailureException)
