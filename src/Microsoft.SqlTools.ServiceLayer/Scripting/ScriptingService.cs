@@ -142,11 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    ScriptAsScriptingOperation operation = new ScriptAsScriptingOperation(parameters);
-                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
-                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
-
-                    RunTask(requestContext, operation);
+                    RunScriptAsTask(connInfo, parameters, requestContext);
                 }
             }
             catch (Exception e)
@@ -155,10 +151,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        /// <summary>
-        /// Handles request to start the scripting operation
-        /// </summary>
-        public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        private void RunScriptAsTask(ConnectionInfo connInfo, ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        {
+            ScriptAsScriptingOperation operation = new ScriptAsScriptingOperation(parameters);
+            ConnectionServiceInstance.ConnectionQueue.QueueBindingOperation(
+                key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo, "Scripting"),
+                bindingTimeout: ScriptingOperationTimeout,
+                bindOperation: (bindingContext, cancelToken) =>
+                {
+                    string script = string.Empty;
+                    operation.ServerConnection = bindingContext.ServerConnection;
+                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
+                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+
+                    RunTask(requestContext, operation);
+
+                    return null;
+                },
+                timeoutOperation: (bindingContext) =>
+                {
+                    this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, new ScriptingCompleteParams { Success = false }, operation, parameters.ScriptDestination);
+                    return null;
+                });
+        }
+
+            /// <summary>
+            /// Handles request to start the scripting operation
+            /// </summary>
+            public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             try
             {
@@ -314,7 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         }
 
                         // send script result to client
-                        requestContext.SendResult(new ScriptingResult { Script = script }).Wait();                          
+                        requestContext.SendResult(new ScriptingResult { Script = script }).Wait();
                     }
                     catch (Exception e)
                     {

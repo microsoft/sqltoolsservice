@@ -507,7 +507,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptDestination = "ToEditor"
             };
 
-            return new ScriptAsScriptingOperation(parameters);
+            return new ScriptAsScriptingOperation(parameters, serverConnection);
         }
 
         internal string GetTargetDatabaseEngineEdition() 
