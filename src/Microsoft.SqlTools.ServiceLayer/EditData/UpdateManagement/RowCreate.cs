@@ -214,13 +214,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 // Make sure a value was provided for the cell 
                 if (cell == null)
                 {
-                    // If there isn't a default, then fail 
-                    if (DefaultValues[i] == null)
+                    // If the column is not nullable and there is no default defined, then fail
+                    if (!column.AllowDBNull.HasTrue() && DefaultValues[i] == null)
                     {
-                        throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
+                        throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue(column.ColumnName));
                     }
                     
-                    // There is a default value, so trust the db will apply it
+                    // There is a default value (or omitting the value is fine), so trust the db will apply it correctly
                     continue;
                 }
 

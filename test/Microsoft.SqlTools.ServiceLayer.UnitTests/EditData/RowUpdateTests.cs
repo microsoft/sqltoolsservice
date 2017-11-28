@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -23,20 +22,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     public class RowUpdateTests
     {
         [Fact]
-        public void RowUpdateConstruction()
+        public async Task RowUpdateConstruction()
         {
             // Setup: Create the values to store
             const long rowId = 0;
-            ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I create a RowUpdate instance
-            RowUpdate rc = new RowUpdate(rowId, rs, etm);
+            RowUpdate rc = new RowUpdate(rowId, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
             Assert.Equal(rowId, rc.RowId);
             Assert.Equal(rs, rc.AssociatedResultSet);
-            Assert.Equal(etm, rc.AssociatedObjectMetadata);
+            Assert.Equal(data.TableMetadata, rc.AssociatedObjectMetadata);
         }
 
         [Fact]
@@ -88,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
 
             // ... Generate the metadata
-            var etm = Common.GetStandardMetadata(cols);
+            var etm = Common.GetCustomEditTableMetadata(cols);
 
             // ... Create the row update
             RowUpdate ru = new RowUpdate(0, rs, etm);
@@ -121,13 +120,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task SetCellImplicitRevertTest()
         {
             // Setup: Create a fake table to update
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = await Common.GetResultSet(columns, true);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: 
             // ... I add updates to all the cells in the row
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             Common.AddCells(ru, 1);
 
             // ... Then I update a cell back to it's old value
@@ -159,16 +157,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.All(updateSplit, s => Assert.Equal(2, s.Split('=').Length));
         }
 
+        [Fact]
         public async Task SetCellImplicitRowRevertTests()
         {
             // Setup: Create a fake column to update
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = await Common.GetResultSet(columns, true);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If:
             // ... I add updates to one cell in the row
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(1, "qqq");
 
             // ... Then I update the cell to its original value
@@ -198,12 +196,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task GetScriptTest(bool isMemoryOptimized)
         {
             // Setup: Create a fake table to update
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = await Common.GetResultSet(columns, true);
-            EditTableMetadata etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
+            var data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, true, 0, 0);
+            ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: I ask for a script to be generated for update
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             Common.AddCells(ru, 1);
             string script = ru.GetScript();
 
@@ -223,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             string tbl = m.Groups[1].Value;
             string updates = m.Groups[2].Value;
             string[] updateSplit = updates.Split(',');
-            Assert.Equal(etm.EscapedMultipartName, tbl);
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
             Assert.Equal(3, updateSplit.Length);
             Assert.All(updateSplit, s => Assert.Equal(2, s.Split('=').Length));
         }
@@ -237,10 +234,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update with cell updates
-            var columns = Common.GetColumns(includeIdentity);
-            var rs = await Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, includeIdentity, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             Common.AddCells(ru, includeIdentity ? 1 : 0);
 
             // ... Mock db connection for building the command
@@ -268,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... There should be a table
             string tbl = m.Groups[1].Value;
-            Assert.Equal(etm.EscapedMultipartName, tbl);
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be 3 parameters for input
             string[] inCols = m.Groups[2].Value.Split(',');
@@ -301,10 +297,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task GetEditRow()
         {
             // Setup: Create a row update with a cell set
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(0, "foo");
 
             // If: I attempt to get an edit row
@@ -356,14 +351,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
-            var columns = Common.GetColumns(includeIdentity);
-            var rs = await Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             long oldBytesWritten = rs.totalBytesWritten;
 
             // ... Setup a db reader for the result of an update
-            var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
+            var newRowReader = Common.GetNewRowDataReader(data.DbColumns, includeIdentity);
 
             // If: I ask for the change to be applied
             await ru.ApplyChanges(newRowReader);
@@ -379,10 +373,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
-            var columns = Common.GetColumns(true);
-            var rs = await Common.GetResultSet(columns, true);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, true);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
 
             // If: I  ask for the changes to be applied with a null db reader
             // Then: I should get an exception
@@ -397,10 +390,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
 
             // If: I attempt to revert a cell that is out of range
             // Then: I should get an exception
@@ -412,10 +404,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
-            var columns = Common.GetColumns(true);
-            var rs = await Common.GetResultSet(columns, true);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, true);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
 
             // If: I attempt to revert a cell that has not been set
             EditRevertCellResult result = ru.RevertCell(0);
@@ -441,10 +432,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Create a row update
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(0, "qqq");
             ru.SetCell(1, "qqq");
 
@@ -472,10 +462,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a row update
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(0, "qqq");
 
             // If: I attempt to revert a cell that was set
@@ -499,10 +488,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private async Task<RowUpdate> GetStandardRowUpdate()
         {
-            var columns = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            return new RowUpdate(0, rs, etm);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            return new RowUpdate(0, rs, data.TableMetadata);
         }
     }
 }

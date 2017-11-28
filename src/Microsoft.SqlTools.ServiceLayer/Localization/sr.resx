@@ -456,8 +456,9 @@
     <comment></comment>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>A required cell value is missing</value>
-    <comment></comment>
+    <value>The column '{0}' is defined as NOT NULL but was not given a value</value>
+    <comment>.
+ Parameters: 0 - colName (string) </comment>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>A delete is pending for this row, a cell update cannot be applied.</value>

@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             EditSession s = await Common.GetCustomSession(q, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             EditSession s = await Common.GetCustomSession(q, etm);
 
             // If: I add a row to the session
@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             etm.Extend(cols);
 
             // ... Create a result set
-            var q = await Common.GetQuery(cols, false);
+            var q = await Common.GetQuery(cols.Cast<DbColumn>().ToArray(), false);
 
             // ... Create a session from all this
             EditSession s = await Common.GetCustomSession(q, etm);
@@ -273,10 +273,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
                 // Revert Cell
                 Action<EditSession, long> revertCellAction = (s, l) => s.RevertCell(l, 0);
-                yield return new object[] {-1L, revertRowAction};
-                yield return new object[] {0L, revertRowAction};    // This is invalid b/c there isn't an edit pending for this row
-                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction};
-                yield return new object[] {100L, revertRowAction};
+                yield return new object[] {-1L, revertCellAction};
+                yield return new object[] {0L, revertCellAction};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertCellAction};
+                yield return new object[] {100L, revertCellAction};
             }
         }
 
@@ -410,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup:
             // ... Create a metadata factory that will return some generic column information
             var b = QueryExecution.Common.GetBasicExecutedBatch();
-            var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
+            var etm = Common.GetCustomEditTableMetadata(b.ResultSets[0].Columns.Cast<DbColumn>().ToArray());
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
@@ -449,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup:
             // ... Create a metadata factory that will return some generic column information
             var b = QueryExecution.Common.GetBasicExecutedBatch();
-            var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
+            var etm = Common.GetCustomEditTableMetadata(b.ResultSets[0].Columns.Cast<DbColumn>().ToArray());
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
@@ -488,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a metadata factory that will return some generic column information
             var q = QueryExecution.Common.GetBasicExecutedQuery();
             var rs = q.Batches[0].ResultSets[0];
-            var etm = Common.GetStandardMetadata(rs.Columns);
+            var etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
@@ -499,7 +499,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a query runner that will return a successful query
             Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
             qr.Setup(r => r(It.IsAny<string>()))
-                .Returns(Task.FromResult(new EditSession.EditSessionQueryExecutionState(q, null)));
+                .Returns(Task.FromResult(new EditSession.EditSessionQueryExecutionState(q)));
 
             // ... Create a mock for verifying the failure handler will be called
             var successHandler = DoNothingSuccessMock;
@@ -755,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             EditSession s = await Common.GetCustomSession(q, etm);
 
             // If: I ask for 3 rows from session skipping the first
@@ -1129,15 +1129,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void ConstructQueryWithoutLimit()
         {
             // Setup: Create a metadata provider for some basic columns
-            var cols = Common.GetColumns(false);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
 
             // If: I generate a query for selecting rows without a limit
             EditInitializeFiltering eif = new EditInitializeFiltering
             {
                 LimitResults = null
             };
-            string query = EditSession.ConstructInitializeQuery(etm, eif);
+            string query = EditSession.ConstructInitializeQuery(data.TableMetadata, eif);
 
             // Then:
             // ... The query should look like a select statement
@@ -1146,10 +1145,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(match.Success);
 
             // ... There should be columns in it
-            Assert.Equal(etm.Columns.Length, match.Groups[1].Value.Split(',').Length);
+            Assert.Equal(data.DbColumns.Length, match.Groups[1].Value.Split(',').Length);
 
             // ... The table name should be in it
-            Assert.Equal(etm.EscapedMultipartName, match.Groups[2].Value);
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, match.Groups[2].Value);
 
             // ... It should NOT have a TOP clause in it
             Assert.DoesNotContain("TOP", query);
@@ -1159,8 +1158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void ConstructQueryNegativeLimit()
         {
             // Setup: Create a metadata provider for some basic columns
-            var cols = Common.GetColumns(false);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
 
             // If: I generate a query for selecting rows with a negative limit
             // Then: An exception should be thrown
@@ -1168,7 +1166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             {
                 LimitResults = -1
             };
-            Assert.Throws<ArgumentOutOfRangeException>(() => EditSession.ConstructInitializeQuery(etm, eif));
+            Assert.Throws<ArgumentOutOfRangeException>(() => EditSession.ConstructInitializeQuery(data.TableMetadata, eif));
         }
 
         [Theory]
@@ -1178,15 +1176,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void ConstructQueryWithLimit(int limit)
         {
             // Setup: Create a metadata provider for some basic columns
-            var cols = Common.GetColumns(false);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
 
             // If: I generate a query for selecting rows without a limit
             EditInitializeFiltering eif = new EditInitializeFiltering
             {
                 LimitResults = limit
             };
-            string query = EditSession.ConstructInitializeQuery(etm, eif);
+            string query = EditSession.ConstructInitializeQuery(data.TableMetadata, eif);
 
             // Then:
             // ... The query should look like a select statement
@@ -1195,10 +1192,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(match.Success);
 
             // ... There should be columns in it
-            Assert.Equal(etm.Columns.Length, match.Groups[2].Value.Split(',').Length);
+            Assert.Equal(data.DbColumns.Length, match.Groups[2].Value.Split(',').Length);
 
             // ... The table name should be in it
-            Assert.Equal(etm.EscapedMultipartName, match.Groups[3].Value);
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, match.Groups[3].Value);
 
             // ... The top count should be equal to what we provided
             int limitFromQuery;
@@ -1251,7 +1248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             return await Common.GetCustomSession(q, etm);
         }
     }
