@@ -261,6 +261,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
             }
 
+            if (scriptingOptions.TargetDatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse)
+            {
+                scriptingOptions.Triggers = false;
+            }
+
             scriptingOptions.NoVardecimal = false; //making IncludeVarDecimal true for DPW
 
             // scripting of stats is a combination of the Statistics
