@@ -33,8 +33,8 @@ NodeType: Column Label: SickLeaveHours (smallint, not null) SubType: Status:
 NodeType: Column Label: CurrentFlag (Flag(bit), not null) SubType: Status:
 NodeType: Column Label: rowguid (uniqueidentifier, not null) SubType: Status:
 NodeType: Column Label: ModifiedDate (datetime, not null) SubType: Status:
-NodeType: Key Label: FK_Employee_Person_BusinessEntityID SubType:ForeignKey Status:
 NodeType: Key Label: PK_Employee_BusinessEntityID SubType:PrimaryKey Status:
+NodeType: Key Label: FK_Employee_Person_BusinessEntityID SubType:ForeignKey Status:
 NodeType: Constraint Label: CK_Employee_BirthDate SubType: Status:
 NodeType: Constraint Label: CK_Employee_Gender SubType: Status:
 NodeType: Constraint Label: CK_Employee_HireDate SubType: Status:
@@ -153,7 +153,6 @@ NodeType: DatabaseRole Label: db_securityadmin SubType: Status:
 NodeType: DatabaseRole Label: public SubType: Status:
 NodeType: DatabaseRole Label: SalesManagers SubType: Status:
 NodeType: DatabaseRole Label: SalesPersons SubType: Status:
-NodeType: Schema Label: dbo SubType: Status:
 NodeType: Schema Label: db_accessadmin SubType: Status:
 NodeType: Schema Label: db_backupoperator SubType: Status:
 NodeType: Schema Label: db_datareader SubType: Status:
@@ -163,6 +162,7 @@ NodeType: Schema Label: db_denydatareader SubType: Status:
 NodeType: Schema Label: db_denydatawriter SubType: Status:
 NodeType: Schema Label: db_owner SubType: Status:
 NodeType: Schema Label: db_securityadmin SubType: Status:
+NodeType: Schema Label: dbo SubType: Status:
 NodeType: Schema Label: Demo SubType: Status:
 NodeType: Schema Label: guest SubType: Status:
 NodeType: Schema Label: HumanResources SubType: Status:
