@@ -93,24 +93,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         public static EditTableMetadata GetCustomEditTableMetadata(DbColumn[] columns)
         {
-            // Create column metadata providers            
-            var columnMetas = columns.Select((c, i) => new EditColumnMetadata
+            // Create column metadata providers and column wrappers          
+            var columnMetas = new List<EditColumnMetadata>();
+            var columnWrappers = new List<DbColumnWrapper>();
+            for (int i = 0; i < columns.Length; i++)
             {
-                EscapedName = c.ColumnName,
-                Ordinal = i 
-            }).ToArray();
-
-            // Create column wrappers
-            var columnWrappers = columns.Select(c => new DbColumnWrapper(c)).ToArray();
+                columnMetas.Add(new EditColumnMetadata
+                {
+                    EscapedName = columns[i].ColumnName,
+                    Ordinal = i
+                });
+                columnWrappers.Add(new DbColumnWrapper(columns[i]));
+            }
 
             // Create the table metadata
             EditTableMetadata editTableMetadata = new EditTableMetadata
             {
-                Columns = columnMetas,
+                Columns = columnMetas.ToArray(),
                 EscapedMultipartName = TableName,
                 IsMemoryOptimized = false
             };
-            editTableMetadata.Extend(columnWrappers);
+            editTableMetadata.Extend(columnWrappers.ToArray());
             return editTableMetadata;
         }
         
