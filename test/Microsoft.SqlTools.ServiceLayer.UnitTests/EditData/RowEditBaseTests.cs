@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     new TestDbColumn("col1")
                 },
                 new object[] { "id", "1" });
-            var etm = Common.GetStandardMetadata(rs.Columns);
+            var etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
 
             // If: I validate a column ID that is out of range
             // Then: It should throw
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     new TestDbColumn("col1")
                 },
                 new object[] { "id", "1" });
-            var etm = Common.GetStandardMetadata(rs.Columns);
+            var etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
 
             // If: I validate a column ID that is not updatable
             // Then: It should throw
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with a single column
             var cols = new[] {col};
             ResultSet rs = await GetResultSet(cols, new[] {val});
-            EditTableMetadata etm = Common.GetStandardMetadata(cols);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseSingleKey(nullClause);
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with multiple key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = await GetResultSet(cols, new object[] {"abc", "def"});
-            EditTableMetadata etm = Common.GetStandardMetadata(cols);
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseMultipleKeys();
@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with no key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = await GetResultSet(cols, new object[] {"abc", "def"});
-            EditTableMetadata etm = Common.GetStandardMetadata(new DbColumn[] {});
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(new DbColumn[] {});
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseNoKeys();
@@ -152,16 +152,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task SortingByTypeTest()
         {
             // Setup: Create a result set and metadata we can reuse
-            var cols = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(cols, false);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I request to sort a list of the three different edit operations
             List<RowEditBase> rowEdits = new List<RowEditBase>
             {
-                new RowDelete(0, rs, etm),
-                new RowUpdate(0, rs, etm),
-                new RowCreate(0, rs, etm)
+                new RowDelete(0, rs, data.TableMetadata),
+                new RowUpdate(0, rs, data.TableMetadata),
+                new RowCreate(0, rs, data.TableMetadata)
             };
             rowEdits.Sort();
 
@@ -174,16 +173,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task SortingUpdatesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
-            var cols = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(cols, false, 4);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false, 4);
 
             // If: I sort 3 edit operations of the same type
             List<RowEditBase> rowEdits = new List<RowEditBase>
             {
-                new RowUpdate(3, rs, etm),
-                new RowUpdate(1, rs, etm),
-                new RowUpdate(2, rs, etm)
+                new RowUpdate(3, rs, data.TableMetadata),
+                new RowUpdate(1, rs, data.TableMetadata),
+                new RowUpdate(2, rs, data.TableMetadata)
             };
             rowEdits.Sort();
 
@@ -197,16 +195,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task SortingCreatesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
-            var cols = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(cols, false);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I sort 3 edit operations of the same type
             List<RowEditBase> rowEdits = new List<RowEditBase>
             {
-                new RowCreate(3, rs, etm),
-                new RowCreate(1, rs, etm),
-                new RowCreate(2, rs, etm)
+                new RowCreate(3, rs, data.TableMetadata),
+                new RowCreate(1, rs, data.TableMetadata),
+                new RowCreate(2, rs, data.TableMetadata)
             };
             rowEdits.Sort();
 
@@ -220,16 +217,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task SortingDeletesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
-            var cols = Common.GetColumns(false);
-            var rs = await Common.GetResultSet(cols, false);
-            var etm = Common.GetStandardMetadata(cols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I sort 3 delete operations of the same type
             List<RowEditBase> rowEdits = new List<RowEditBase>
             {
-                new RowDelete(1, rs, etm),
-                new RowDelete(3, rs, etm),
-                new RowDelete(2, rs, etm)
+                new RowDelete(1, rs, data.TableMetadata),
+                new RowDelete(3, rs, data.TableMetadata),
+                new RowDelete(2, rs, data.TableMetadata)
             };
             rowEdits.Sort();
 
