@@ -133,6 +133,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             {
                 if (filePath.StartsWith(@"file://"))
                 {
+                    // VS Code encodes the ':' character in the drive name, which can lead to problems parsing
+                    // the URI, so unencode it if present. See https://github.com/Microsoft/vscode/issues/2990
+                    filePath = filePath.Replace("%3A/", ":/", StringComparison.OrdinalIgnoreCase);
+
                     // Client sent the path in URI format, extract the local path and trim
                     // any extraneous slashes
                     Uri fileUri = new Uri(filePath);
