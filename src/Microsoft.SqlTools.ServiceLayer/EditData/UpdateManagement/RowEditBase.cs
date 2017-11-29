@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <summary>
         /// Internal parameterless constructor, required for mocking
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         protected internal RowEditBase() { }
 
         /// <summary>
@@ -204,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                         else
                         {
                             // Add the clause component with the formatted value
-                            cellDataClause = $"= {SqlScriptFormatter.FormatValue(cellData, col.DbColumn)}";
+                            cellDataClause = $"= {ToSqlScript.FormatValue(cellData, col.DbColumn)}";
                         }
                     }
                 }

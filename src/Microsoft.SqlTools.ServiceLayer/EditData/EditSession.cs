@@ -15,7 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -440,12 +440,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         public static string[] GetEditTargetName(EditInitializeParams initParams)
         {
-            // Step 1) Look up the SMO metadata
-            if (initParams.SchemaName != null)
-            {
-                return new [] { initParams.SchemaName, initParams.ObjectName };
-            }
-            return SqlScriptFormatter.DecodeMultipartIdenfitier(initParams.ObjectName);
+            return initParams.SchemaName != null
+                ? new [] { initParams.SchemaName, initParams.ObjectName }
+                : FromSqlScript.DecodeMultipartIdenfitier(initParams.ObjectName);
         }
 
         private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)

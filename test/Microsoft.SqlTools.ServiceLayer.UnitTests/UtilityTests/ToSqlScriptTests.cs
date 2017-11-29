@@ -1,83 +1,15 @@
-﻿//
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
 {
-    public class SqlScriptFormatterTests
+    public class ToSqlScriptTests
     {
-        #region Format Identifier Tests
-
-        [Fact]
-        public void FormatIdentifierNull()
-        {
-            // If: I attempt to format null as an identifier
-            // Then: I should get an exception thrown
-            Assert.Throws<ArgumentNullException>(() => SqlScriptFormatter.FormatIdentifier(null));
-        }
-
-        [Theory]
-        [InlineData("test", "[test]")]          // No escape characters
-        [InlineData("]test", "[]]test]")]       // Escape character at beginning
-        [InlineData("te]st", "[te]]st]")]       // Escape character in middle
-        [InlineData("test]", "[test]]]")]       // Escape character at end
-        [InlineData("t]]est", "[t]]]]est]")]    // Multiple escape characters
-        public void FormatIdentifierTest(string value, string expectedOutput)
-        {
-            // If: I attempt to format a value as an identifier
-            string output = SqlScriptFormatter.FormatIdentifier(value);
-
-            // Then: The output should match the expected output
-            Assert.Equal(expectedOutput, output);
-        }
-
-        [Theory]
-        [InlineData("test", "[test]")]                          // No splits, no escape characters
-        [InlineData("test.test", "[test].[test]")]              // One split, no escape characters
-        [InlineData("test.te]st", "[test].[te]]st]")]           // One split, one escape character
-        [InlineData("test.test.test", "[test].[test].[test]")]  // Two splits, no escape characters
-        public void FormatMultipartIdentifierTest(string value, string expectedOutput)
-        {
-            // If: I attempt to format a value as a multipart identifier
-            string output = SqlScriptFormatter.FormatMultipartIdentifier(value);
-
-            // Then: The output should match the expected output
-            Assert.Equal(expectedOutput, output);
-        }
-
-        [Theory]
-        [MemberData(nameof(GetMultipartIdentifierArrays))]
-        public void FormatMultipartIdentifierArrayTest(string expectedOutput, string[] splits)
-        {
-            // If: I attempt to format a value as a multipart identifier
-            string output = SqlScriptFormatter.FormatMultipartIdentifier(splits);
-
-            // Then: The output should match the expected output
-            Assert.Equal(expectedOutput, output);
-        }
-
-        public static IEnumerable<object[]> GetMultipartIdentifierArrays
-        {
-            get
-            {
-                yield return new object[] {"[test]", new[] {"test"}};                                   // No splits, no escape characters
-                yield return new object[] {"[test].[test]", new[] {"test", "test"}};                    // One split, no escape characters
-                yield return new object[] {"[test].[te]]st]", new[] {"test", "te]st"}};                 // One split, one escape character
-                yield return new object[] {"[test].[test].[test]", new[] {"test", "test", "test"}};     // Two splits, no escape characters
-            }
-        }
-
-        #endregion
-
         #region FormatValue Tests
 
         [Fact]
@@ -85,7 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             // If: I attempt to format a null db cell
             // Then: It should throw
-            Assert.Throws<ArgumentNullException>(() => SqlScriptFormatter.FormatValue(null, new FormatterTestDbColumn(null)));
+            DbColumn column = new FormatterTestDbColumn(null);
+            Assert.Throws<ArgumentNullException>(() => ToSqlScript.FormatValue(null, column));
         }
 
         [Fact]
@@ -93,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             // If: I attempt to format a null db column
             // Then: It should throw
-            Assert.Throws<ArgumentNullException>(() => SqlScriptFormatter.FormatValue(new DbCellValue(), null));
+            Assert.Throws<ArgumentNullException>(() => ToSqlScript.FormatValue(new DbCellValue(), null));
         }
 
         public void UnsupportedColumnTest()
@@ -101,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // If: I attempt to format an unsupported datatype
             // Then: It should throw
             DbColumn column = new FormatterTestDbColumn("unsupported");
-            Assert.Throws<ArgumentOutOfRangeException>(() => SqlScriptFormatter.FormatValue(new DbCellValue(), column));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ToSqlScript.FormatValue(new DbCellValue(), column));
         }
 
         [Fact]
@@ -109,8 +42,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             // If: I attempt to format a db cell that contains null
             // Then: I should get the null string back
-            string formattedString = SqlScriptFormatter.FormatValue(new DbCellValue(), new FormatterTestDbColumn(null));
-            Assert.Equal(SqlScriptFormatter.NullString, formattedString);
+            DbColumn column = new FormatterTestDbColumn(null);
+            string formattedString = ToSqlScript.FormatValue(new DbCellValue(), new FormatterTestDbColumn(null));
+            Assert.Equal(ToSqlScript.NullString, formattedString);
         }
 
 
@@ -126,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = (long)123 };
 
             // If: I attempt to format an integer type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a long
             Assert.Equal(cell.RawObject, long.Parse(output));
@@ -144,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = 123.45m };
 
             // If: I attempt to format a decimal type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: It should match a something like CAST(123.45 AS MONEY)
             Regex castRegex = new Regex($@"CAST\([\d\.]+ AS {regex}", RegexOptions.IgnoreCase);
@@ -159,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = 3.14159d };
 
             // If: I attempt to format a approx numeric type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a double
             Assert.Equal(cell.RawObject, double.Parse(output));
@@ -173,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = (float)3.14159 };
 
             // If: I attempt to format a approx numeric type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a double
             Assert.Equal(cell.RawObject, float.Parse(output));
@@ -191,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = DateTime.Now };
 
             // If: I attempt to format a datetime type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a datetime
             Regex dateTimeRegex = new Regex("N'(.*)'");
@@ -207,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = DateTimeOffset.Now };
 
             // If: I attempt to format a datetime offset type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a datetime offset
             Regex dateTimeRegex = new Regex("N'(.*)'");
@@ -223,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = TimeSpan.FromHours(12) };
 
             // If: I attempt to format a time type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a timespan
             Regex dateTimeRegex = new Regex("N'(.*)'");
@@ -244,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = input };
 
             // If: I attempt to format a string type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be quoted and escaped properly
             Assert.Equal(expectedOutput, output);
@@ -264,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = "test string" };
 
             // If: I attempt to format a string type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should match the output string
             Assert.Equal("N'test string'", output);
@@ -284,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             };
 
             // If: I attempt to format a string type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should match the output string
             Regex regex = new Regex("0x[0-9A-F]+", RegexOptions.IgnoreCase);
@@ -299,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             DbCellValue cell = new DbCellValue { RawObject = Guid.NewGuid() };
 
             // If: I attempt to format a string type column
-            string output = SqlScriptFormatter.FormatValue(cell, column);
+            string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should match the output string
             Regex regex = new Regex(@"N'[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}'", RegexOptions.IgnoreCase);
@@ -307,71 +241,70 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         #endregion
+        
+        #region Format Identifier Tests
 
-        #region DecodeMultipartIdentifier Tests
-
-        [Theory]
-        [MemberData(nameof(DecodeMultipartIdentifierTestData))]
-        public void DecodeMultipartIdentifierTest(string input, string[] output)
+        [Fact]
+        public void FormatIdentifierNull()
         {
-            // If: I decode the input
-            string[] decoded = SqlScriptFormatter.DecodeMultipartIdenfitier(input);
-
-            // Then: The output should match what was expected
-            Assert.Equal(output, decoded);
+            // If: I attempt to format null as an identifier
+            // Then: I should get an exception thrown
+            Assert.Throws<ArgumentNullException>(() => ToSqlScript.FormatIdentifier(null));
         }
 
-        public static IEnumerable<object> DecodeMultipartIdentifierTestData
+        [Theory]
+        [InlineData("test", "[test]")]          // No escape characters
+        [InlineData("]test", "[]]test]")]       // Escape character at beginning
+        [InlineData("te]st", "[te]]st]")]       // Escape character in middle
+        [InlineData("test]", "[test]]]")]       // Escape character at end
+        [InlineData("t]]est", "[t]]]]est]")]    // Multiple escape characters
+        public void FormatIdentifierTest(string value, string expectedOutput)
+        {
+            // If: I attempt to format a value as an identifier
+            string output = ToSqlScript.FormatIdentifier(value);
+
+            // Then: The output should match the expected output
+            Assert.Equal(expectedOutput, output);
+        }
+
+        [Theory]
+        [InlineData("test", "[test]")]                          // No splits, no escape characters
+        [InlineData("test.test", "[test].[test]")]              // One split, no escape characters
+        [InlineData("test.te]st", "[test].[te]]st]")]           // One split, one escape character
+        [InlineData("test.test.test", "[test].[test].[test]")]  // Two splits, no escape characters
+        public void FormatMultipartIdentifierTest(string value, string expectedOutput)
+        {
+            // If: I attempt to format a value as a multipart identifier
+            string output = ToSqlScript.FormatMultipartIdentifier(value);
+
+            // Then: The output should match the expected output
+            Assert.Equal(expectedOutput, output);
+        }
+
+        public static IEnumerable<object[]> GetMultipartIdentifierArrays
         {
             get
             {
-                yield return new object[] {"identifier", new[] {"identifier"}};
-                yield return new object[] {"simple.split", new[] {"simple", "split"}};
-                yield return new object[] {"multi.simple.split", new[] {"multi", "simple", "split"}};
-                yield return new object[] {"[escaped]", new[] {"escaped"}};
-                yield return new object[] {"[escaped].[split]", new[] {"escaped", "split"}};
-                yield return new object[] {"[multi].[escaped].[split]", new[] {"multi", "escaped", "split"}};
-                yield return new object[] {"[escaped]]characters]", new[] {"escaped]characters"}};
-                yield return new object[] {"[multi]]escaped]]chars]", new[] {"multi]escaped]chars"}};
-                yield return new object[] {"[multi]]]]chars]", new[] {"multi]]chars"}};
-                yield return new object[] {"unescaped]chars", new[] {"unescaped]chars"}};
-                yield return new object[] {"multi]unescaped]chars", new[] {"multi]unescaped]chars"}};
-                yield return new object[] {"multi]]chars", new[] {"multi]]chars"}};
-                yield return new object[] {"[escaped.dot]", new[] {"escaped.dot"}};
-                yield return new object[] {"mixed.[escaped]", new[] {"mixed", "escaped"}};
-                yield return new object[] {"[escaped].mixed", new[] {"escaped", "mixed"}};
-                yield return new object[] {"dbo.[[].weird", new[] {"dbo", "[", "weird"}};
+                yield return new object[] {"[test]", new[] {"test"}};                                   // No splits, no escape characters
+                yield return new object[] {"[test].[test]", new[] {"test", "test"}};                    // One split, no escape characters
+                yield return new object[] {"[test].[te]]st]", new[] {"test", "te]st"}};                 // One split, one escape character
+                yield return new object[] {"[test].[test].[test]", new[] {"test", "test", "test"}};     // Two splits, no escape characters
             }
         }
-
+        
         [Theory]
-        [InlineData("[bracket]closed")]
-        [InlineData("[bracket][closed")]
-        [InlineData(".stuff")]
-        [InlineData(".")]
-        public void DecodeMultipartIdentifierFailTest(string input)
+        [MemberData(nameof(GetMultipartIdentifierArrays))]
+        public void FormatMultipartIdentifierArrayTest(string expectedOutput, string[] splits)
         {
-            // If: I decode an invalid input
-            // Then: It should throw an exception
-            Assert.Throws<FormatException>(() => SqlScriptFormatter.DecodeMultipartIdenfitier(input));
+            // If: I attempt to format a value as a multipart identifier
+            string output = ToSqlScript.FormatMultipartIdentifier(splits);
+
+            // Then: The output should match the expected output
+            Assert.Equal(expectedOutput, output);
         }
 
         #endregion
-
-        [Theory]
-        [InlineData("(0)", "0")]
-        [InlineData("((0))", "0")]
-        [InlineData("('')", "")]
-        [InlineData("('stuff')", "stuff")]
-        [InlineData("(N'')", "")]
-        [InlineData("(N'stuff')", "stuff")]
-        [InlineData("('''stuff')", "'stuff")]
-        [InlineData("(N'stu''''ff')", "stu''ff")]
-        public void UnescapeTest(string input, string output)
-        {
-            Assert.Equal(output, SqlScriptFormatter.UnwrapLiteral(input));
-        }
-
+        
         private class FormatterTestDbColumn : DbColumn
         {
             public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null)

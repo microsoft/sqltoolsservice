@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -92,12 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // The default value may be escaped
                 string defaultValue = smoColumn.DefaultConstraint == null
                     ? null
-                    : SqlScriptFormatter.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
+                    : FromSqlScript.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
 
                 EditColumnMetadata column = new EditColumnMetadata
                 {
                     DefaultValue = defaultValue,
-                    EscapedName = SqlScriptFormatter.FormatIdentifier(smoColumn.Name),
+                    EscapedName = ToSqlScript.FormatIdentifier(smoColumn.Name),
                     Ordinal = i,
                 };
                 editColumns.Add(column);
@@ -114,13 +114,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Escape the parts of the name
             string[] objectNameParts = {smoResult.Schema, smoResult.Name};
-            string escapedMultipartName = SqlScriptFormatter.FormatMultipartIdentifier(objectNameParts);
+            string escapedMultipartName = ToSqlScript.FormatMultipartIdentifier(objectNameParts);
 
             return new EditTableMetadata
             {
                 Columns = editColumns.ToArray(),
                 EscapedMultipartName = escapedMultipartName,
-                IsMemoryOptimized = isMemoryOptimized,
+                IsMemoryOptimized = isMemoryOptimized
             };
         }
     }
