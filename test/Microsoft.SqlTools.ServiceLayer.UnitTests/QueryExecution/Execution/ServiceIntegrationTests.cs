@@ -476,7 +476,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             
         }
         
-        [Fact]
+        // TODO reenable and make non-flaky
+        // [Fact]
         public async Task SimpleExecuteVerifyResultsTest()
         {
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, null);
