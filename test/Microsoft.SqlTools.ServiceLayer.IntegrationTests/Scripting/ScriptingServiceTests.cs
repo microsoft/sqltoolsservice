@@ -102,6 +102,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         }
 
         [Fact]
+        public async void VerifyScriptAsExecuteStoredProcedure()
+        {
+            string query = "CREATE PROCEDURE testSp1 @StartProductID [int] AS  BEGIN Select * from sys.all_columns END";
+            string scriptCreateDrop = "ScriptExecute";
+            ScriptingObject scriptingObject = new ScriptingObject
+            {
+                Name = "testSp1",
+                Schema = "dbo",
+                Type = "StoredProcedure"
+            };
+            string expectedScript = "EXECUTE @RC = [dbo].[testSp1]";
+
+            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
+        public async void VerifyScriptAsSelectTable()
+        {
+            string query = "CREATE TABLE testTable1 (c1 int)";
+            string scriptCreateDrop = "ScriptSelect";
+            ScriptingObject scriptingObject = new ScriptingObject
+            {
+                Name = "testTable1",
+                Schema = "dbo",
+                Type = "Table"
+            };
+            string expectedScript = "SELECT TOP (1000) [c1]";
+
+            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
         public async void VerifyScriptAsCreateView()
         {
             string query = "CREATE VIEW testView1 AS SELECT * from sys.all_columns";
@@ -202,6 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                     scriptingParams.ScriptOptions = new ScriptOptions
                     {
                         ScriptCreateDrop = scriptCreateDrop,
+                        ScriptingEngineType = ScriptingEngineType.ScriptMaker
 
                     };
 
@@ -212,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
 
                     ScriptingService service = new ScriptingService();
-                    await service.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
+                    await service.HandleScriptExecuteRequest(scriptingParams, requestContext.Object);
                     Thread.Sleep(2000);
                     await service.ScriptingTask;
 

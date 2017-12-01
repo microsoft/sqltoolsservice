@@ -15,6 +15,7 @@ using System.Text;
 using System.Globalization;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -24,14 +25,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     public class ScriptAsScriptingOperation : SmoScriptingOperation
     {
         private static Dictionary<string, SqlServerVersion> scriptCompatabilityMap = LoadScriptCompatabilityMap();
+        /// <summary>
+        /// Left delimiter for an named object
+        /// </summary>
+        public const char LeftDelimiter = '[';
+
+        /// <summary>
+        /// right delimiter for a named object
+        /// </summary>
+        public const char RightDelimiter = ']';
 
         public ScriptAsScriptingOperation(ScriptingParams parameters): base(parameters)
         {
         }
 
+        private string serverName;
+        private string databaseName;
+
         public override void Execute()
         {
-            SqlServer.Management.Smo.Scripter scripter = null;
             try
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -46,22 +58,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     sqlConnection.Open();
                     ServerConnection serverConnection = new ServerConnection(sqlConnection);
                     Server server = new Server(serverConnection);
-                    scripter = new SqlServer.Management.Smo.Scripter(server);
-                    ScriptingOptions options = new ScriptingOptions();
-                    SetScriptBehavior(options);
-                    PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
-                    options.WithDependencies = false;
-                    options.ScriptData = false;
-                    SetScriptingOptions(options);
-
-                    // TODO: Not including the header by default. We have to get this option from client
-                    options.IncludeHeaders = false;
-                    scripter.Options = options;
-                    scripter.Options.ScriptData = false;
-                    scripter.ScriptingError += ScripterScriptingError;
                     UrnCollection urns = CreateUrns(serverConnection);
-                    var result = scripter.Script(urns);
-                    resultScript = GetScript(options, result);
+
+                    switch (this.Parameters.ScriptOptions.ScriptCreateDrop)
+                    {
+                        case "ScriptCreate":
+                        case "ScriptDrop":
+                        case "ScriptCreateDrop":
+                        case "ScriptAlter":
+
+                            resultScript = GenerateScriptAs(server, urns);
+                            break;
+                        case "ScriptSelect":
+                            resultScript = GenerateScriptSelect(server, urns);
+                            break;
+                        case "ScriptExecute":
+                            resultScript = GenerareScriptAsExecute(server, urns);
+                            break;
+                    }
                 }
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -104,11 +118,331 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             finally
             {
+                
+            }
+        }
+
+        private string GenerateScriptSelect(Server server, UrnCollection urns)
+        {
+            string script = string.Empty;
+            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
+            Urn objectUrn = urns[0];
+            string typeName = objectUrn.GetNameForType(scriptingObject.Type);
+
+            // select from service broker
+            if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
+            {
+                script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
+            }
+
+            // select from queues
+            else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
+                     string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
+            {
+                script = Scripter.SelectAllValues(objectUrn);
+            }
+
+            // select from table or view
+            else
+            {
+                Database db = server.Databases[databaseName];
+                bool isDw = db.IsSqlDw;
+                script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
+            }
+
+            return script;
+        }
+
+        private string GenerareScriptAsExecute(Server server, UrnCollection urns)
+        {
+            string script = string.Empty;
+            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
+            Urn urn = urns[0];
+
+            ScriptingOptions options = new ScriptingOptions();
+            SetScriptBehavior(options);
+            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
+
+            // get the object
+            StoredProcedure sp = server.GetSmoObject(urn) as StoredProcedure;
+
+            Database parentObject = server.GetSmoObject(urn.Parent) as Database;
+
+            StringBuilder executeStatement = new StringBuilder();
+
+            // list of DECLARE <variable> <type>
+            StringBuilder declares = new StringBuilder();
+            // Parameters to be passed
+            StringBuilder parameterList = new StringBuilder();
+            if (sp == null || parentObject == null)
+            {
+
+            }
+            WriteUseDatabase(parentObject, executeStatement, options);
+
+            // character string to put in front of each parameter. First one is just carriage return
+            // the rest will have a "," in front as well.
+            string paramListPreChar = "\r\n   ";
+            for (int i = 0; i < sp.Parameters.Count; i++)
+            {
+                StoredProcedureParameter spp = sp.Parameters[i];
+
+                declares.AppendFormat("DECLARE {0} {1}\r\n"
+                                      , QuoteObjectName(spp.Name)
+                                      , GetDatatype(spp.DataType, options));
+
+                parameterList.AppendFormat("{0}{1}"
+                                           , paramListPreChar
+                                           , QuoteObjectName(spp.Name));
+
+                // if this is the first time through change the prefix to include a ","
+                if (i == 0)
+                {
+                    paramListPreChar = "\r\n  ,";
+                }
+
+                // mark any output parameters as such.
+                if (spp.IsOutputParameter)
+                {
+                    parameterList.Append(" OUTPUT");
+                }
+            }
+
+            // build the execute statement
+            if (sp.ImplementationType == ImplementationType.TransactSql)
+            {
+                executeStatement.Append("EXECUTE @RC = ");
+            }
+            else
+            {
+                executeStatement.Append("EXECUTE ");
+            }
+
+            // get the object name
+            executeStatement.Append(GenerateSchemaQualifiedName(sp.Schema, sp.Name, options.SchemaQualify));
+
+            string formatString = sp.ImplementationType == ImplementationType.TransactSql
+                                  ? "DECLARE @RC int\r\n{0}\r\n{1}\r\n\r\n{2} {3}"
+                                  : "{0}\r\n{1}\r\n\r\n{2} {3}";
+
+            script = string.Format(CultureInfo.InvariantCulture, formatString,
+                declares,
+                "-- TODO: Set parameter values here.",
+                executeStatement,
+                parameterList);
+
+            return script;
+        }
+
+        /// <summary>
+        /// Generate a schema qualified name (e.g. [schema].[objectName]) for an object if the option for SchemaQualify is true
+        /// </summary>
+        /// <param name="schema">The schema name. May be null or empty in which case it will be ignored</param>
+        /// <param name="objectName">The object name.</param>
+        /// <param name="schemaQualify">Whether to schema qualify the object or not</param>
+        /// <returns>The object name, quoted as appropriate and schema-qualified if the option is set</returns>
+        static private string GenerateSchemaQualifiedName(string schema, string objectName, bool schemaQualify)
+        {
+            var qualifiedName = new StringBuilder();
+
+            if (schemaQualify && !String.IsNullOrEmpty(schema))
+            {
+                // schema.name
+                qualifiedName.AppendFormat(CultureInfo.InvariantCulture, "{0}.{1}", GetDelimitedString(schema), GetDelimitedString(objectName));
+            }
+            else
+            {
+                // name
+                qualifiedName.AppendFormat(CultureInfo.InvariantCulture, "{0}", GetDelimitedString(objectName));
+            }
+
+            return qualifiedName.ToString();
+        }
+
+        /// <summary>
+        /// getting delimited string
+        /// </summary>
+        /// <param name="str">string</param>
+        /// <returns>string</returns>
+        static private string GetDelimitedString(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return String.Empty;
+            }
+            else
+            {
+                StringBuilder qualifiedName = new StringBuilder();
+                qualifiedName.AppendFormat("{0}{1}{2}",
+                                       LeftDelimiter,
+                                       QuoteObjectName(str),
+                                       RightDelimiter);
+                return qualifiedName.ToString();
+            }
+        }
+
+        /// <summary>
+        /// turn a smo datatype object into a type that can be inserted into tsql, e.g. nvarchar(20)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        internal static string GetDatatype(DataType type, ScriptingOptions options)
+        {
+            // string we'll return.
+            string rv = string.Empty;
+
+            string dataType = type.Name;
+            switch (type.SqlDataType)
+            {
+                // char, nchar, nchar, nvarchar, varbinary, nvarbinary are all displayed as type(length)
+                // length of -1 is taken to be type(max). max isn't localizable.
+                case SqlDataType.Char:
+                case SqlDataType.NChar:
+                case SqlDataType.VarChar:
+                case SqlDataType.NVarChar:
+                case SqlDataType.Binary:
+                case SqlDataType.VarBinary:
+                    rv = string.Format(CultureInfo.InvariantCulture,
+                                       "{0}({1})",
+                                       dataType,
+                                       type.MaximumLength);
+                    break;
+                case SqlDataType.VarCharMax:
+                case SqlDataType.NVarCharMax:
+                case SqlDataType.VarBinaryMax:
+                    rv = string.Format(CultureInfo.InvariantCulture,
+                                       "{0}(max)",
+                                       dataType);
+                    break;
+                // numeric and decimal are displayed as type precision,scale
+                case SqlDataType.Numeric:
+                case SqlDataType.Decimal:
+                    rv = string.Format(CultureInfo.InvariantCulture,
+                                       "{0}({1},{2})",
+                                       dataType,
+                                       type.NumericPrecision,
+                                       type.NumericScale);
+                    break;
+                //time, datetimeoffset and datetime2 are displayed as type scale
+                case SqlDataType.Time:
+                case SqlDataType.DateTimeOffset:
+                case SqlDataType.DateTime2:
+                    rv = string.Format(CultureInfo.InvariantCulture,
+                                       "{0}({1})",
+                                       dataType,
+                                       type.NumericScale);
+                    break;
+                // anything else is just type.
+                case SqlDataType.Xml:
+                    if (type.Schema != null && type.Schema.Length > 0 && dataType != null && dataType.Length > 0)
+                    {
+                        rv = String.Format(CultureInfo.InvariantCulture
+                            , "xml ({0}{2}{1}.{0}{3}{1})"
+                            , LeftDelimiter
+                            , RightDelimiter
+                            , QuoteObjectName(type.Schema)
+                            , QuoteObjectName(dataType));
+                    }
+                    else
+                    {
+                        rv = "xml";
+                    }
+                    break;
+                case SqlDataType.UserDefinedDataType:
+                case SqlDataType.UserDefinedTableType:
+                case SqlDataType.UserDefinedType:
+                    //User defined types may be in a non-DBO schema so append it if necessary
+                    rv = GenerateSchemaQualifiedName(type.Schema, dataType, options.SchemaQualify);
+                    break;
+                default:
+                    rv = dataType;
+                    break;
+
+            }
+            return rv;
+        }
+
+        /// <summary>
+        /// Double quotes certain characters in object name
+        /// </summary>
+        /// <param name="sqlObject"></param>
+        public static string QuoteObjectName(string sqlObject)
+        {
+
+            int len = sqlObject.Length;
+            StringBuilder result = new StringBuilder(sqlObject.Length);
+            for (int i = 0; i < len; i++)
+            {
+                if (sqlObject[i] == ']')
+                {
+                    result.Append(']');
+                }
+                result.Append(sqlObject[i]);
+            }
+
+            return result.ToString();
+        }
+
+        private static void WriteUseDatabase(Database parentObject, StringBuilder stringBuilder , ScriptingOptions options)
+        {
+            if (options.IncludeDatabaseContext)
+            {
+                string useDb = string.Format(CultureInfo.InvariantCulture, "USE {0}", CommonConstants.DefaultBatchSeperator);
+                if (!options.NoCommandTerminator)
+                {
+                    stringBuilder.Append(useDb);
+                    
+                }
+                else
+                {
+                    stringBuilder.Append(useDb);
+                    stringBuilder.Append(Environment.NewLine);
+                }
+            }
+        }
+
+        private string GenerateScriptAs(Server server, UrnCollection urns)
+        {
+            SqlServer.Management.Smo.Scripter scripter = null;
+            string resultScript = string.Empty;
+            try
+            {
+                scripter = new SqlServer.Management.Smo.Scripter(server);
+                ScriptingOptions options = new ScriptingOptions();
+                SetScriptBehavior(options);
+                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
+                options.WithDependencies = false;
+
+                // Scripting data is not avaialable in the scripter
+                options.ScriptData = false;
+                SetScriptingOptions(options);
+
+                if(options.ScriptForAlter)
+                {
+                    // TODO
+                }
+
+                // TODO: Not including the header by default. We have to get this option from client
+                options.IncludeHeaders = false;
+                scripter.Options = options;
+                scripter.ScriptingError += ScripterScriptingError;
+                var result = scripter.Script(urns);
+                resultScript = GetScript(options, result);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
                 if (scripter != null)
                 {
                     scripter.ScriptingError -= this.ScripterScriptingError;
                 }
             }
+
+            return resultScript;
         }
 
         private string GetScript(ScriptingOptions options, StringCollection stringCollection)
@@ -141,8 +475,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
-            string server = serverConnection.TrueName;
-            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            serverName = serverConnection.TrueName;
+            databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {
@@ -151,7 +485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     // TODO: get the default schema
                     scriptingObject.Schema = "dbo";
                 }
-                urnCollection.Add(scriptingObject.ToUrn(server, database));
+                urnCollection.Add(scriptingObject.ToUrn(serverName, databaseName));
             }
             return urnCollection;
         }
@@ -167,6 +501,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     break;
                 case "ScriptDrop":
                     options.ScriptDrops = true;
+                    break;
+                case "ScriptAlter":
+                    options.ScriptForAlter = true;
                     break;
                 default:
                     options.ScriptDrops = false;

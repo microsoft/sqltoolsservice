@@ -138,11 +138,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   ScriptDrop
         ///   ScriptCreateDrop
         ///   ScriptSelect
+        ///   ScriptAlter
+        ///   ScriptExecute
         /// </summary>
         /// <remarks>
         /// The default is ScriptCreate.
         /// </remarks>
         public string ScriptCreateDrop { get; set; } = "ScriptCreate";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ScriptingEngineType ScriptingEngineType { get; set; } = ScriptingEngineType.PublishModel;
 
         /// <summary>
         /// Script the Extended Properties for each object scripted.

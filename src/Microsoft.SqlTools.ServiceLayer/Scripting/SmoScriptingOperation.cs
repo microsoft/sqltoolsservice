@@ -42,6 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         public event EventHandler<ScriptingProgressNotificationParams> ProgressNotification;
 
+        /// <summary>
+        /// Event raised when a scripting operation has resolved which database objects will be scripted.
+        /// </summary>
+        public event EventHandler<ScriptingPlanNotificationParams> PlanNotification;
+
         protected virtual void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
             this.CompleteNotification?.Invoke(this, parameters);
@@ -50,6 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         protected virtual void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
             this.ProgressNotification?.Invoke(this, parameters);
+        }
+
+        protected virtual void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
+        {
+            this.PlanNotification?.Invoke(this, parameters);
         }
 
         protected string GetServerNameFromLiveInstance(string connectionString)

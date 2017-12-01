@@ -76,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -112,52 +111,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to start the scripting operation
         /// </summary>
-        public async Task HandleScriptingScriptAsRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
-        {
-            try
-            {
-                // if a connection string wasn't provided as a parameter then
-                // use the owner uri property to lookup its associated ConnectionInfo
-                // and then build a connection string out of that
-                ConnectionInfo connInfo = null;
-                if (parameters.ConnectionString == null || parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
-                {
-                    ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-                    if (connInfo != null)
-                    {
-                        connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                        parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    }
-                    else
-                    {
-                        throw new Exception("Could not find ConnectionInfo");
-                    }
-                }
-
-                // if the scripting operation is for SELECT then handle that message differently
-                // for SELECT we'll build the SQL directly whereas other scripting operations depend on SMO
-                if (parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
-                {
-                    RunSelectTask(connInfo, parameters, requestContext);
-                }
-                else
-                {
-                    ScriptAsScriptingOperation operation = new ScriptAsScriptingOperation(parameters);
-                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
-                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
-
-                    RunTask(requestContext, operation);
-                }
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        /// <summary>
-        /// Handles request to start the scripting operation
-        /// </summary>
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             try
@@ -178,22 +131,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         throw new Exception("Could not find ConnectionInfo");
                     }
                 }
-                      
-                // if the scripting operation is for SELECT then handle that message differently
-                // for SELECT we'll build the SQL directly whereas other scripting operations depend on SMO
-                if (parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+
+                SmoScriptingOperation operation = null;
+                if (parameters.ScriptOptions.ScriptingEngineType == ScriptingEngineType.PublishModel)
                 {
-                    RunSelectTask(connInfo, parameters, requestContext);
-                }
-                else
-                {
-                    ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
+                    operation = new ScriptingScriptOperation(parameters);
                     operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
                     operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
                     operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
-
-                    RunTask(requestContext, operation);
                 }
+                else
+                {
+                    operation = new ScriptAsScriptingOperation(parameters);
+                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
+                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+
+                }
+                RunTask(requestContext, operation);
+
             }
             catch (Exception e)
             {
@@ -244,6 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
+        /*
         private Urn BuildScriptingObjectUrn(
             Server server, 
             SqlConnectionStringBuilder connectionStringBuilder, 
@@ -270,6 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return new Urn(urnString);
         }
 
+        
         /// <summary>
         /// Runs the async task that performs the scripting operation.
         /// </summary>
@@ -324,6 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     return null;
                 });
         }
+        */
 
         /// <summary>
         /// Runs the async task that performs the scripting operation.
