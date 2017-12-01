@@ -9,7 +9,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
     /// <summary>
-    /// The options for Script as operation
+    /// A wrpaper of ScriptOptions to map the option name with the oen in SMO.ScriptingOptions
     /// </summary>
     public class ScriptAsOptions : ScriptOptions
     {

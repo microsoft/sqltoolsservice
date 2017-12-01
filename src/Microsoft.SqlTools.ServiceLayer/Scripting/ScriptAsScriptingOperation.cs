@@ -50,6 +50,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // TODO: try to use one of the existing connections
 
                 Server server = new Server(ServerConnection);
+                if (!ServerConnection.IsOpen)
+                {
+                    ServerConnection.Connect();
+                }
                 scripter = new SqlServer.Management.Smo.Scripter(server);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);

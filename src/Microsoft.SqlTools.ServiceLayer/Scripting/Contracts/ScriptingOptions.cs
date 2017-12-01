@@ -125,6 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   Script120Compat
         ///   Script130Compat
         ///   Script140Compat  
+        ///   Script150Compat  
         /// </summary>
         /// <remarks>
         /// The default is Script140Compat.
@@ -138,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   SqlAzure
         /// </summary>
         public virtual string TargetDatabaseEngineType { get; set; } = "SingleInstance";
-        
+
         /// <summary>
         /// Script only features compatible with the specified SQL Server database engine edition.
         /// Possible Values:
@@ -149,6 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   SqlAzureDatabaseEdition
         ///   SqlDatawarehouseEdition
         ///   SqlServerStretchEdition 
+        ///   SqlManagedInstanceEdition 
         /// </summary>
         public virtual string TargetDatabaseEngineEdition { get; set; } = "SqlServerEnterpriseEdition";
 
