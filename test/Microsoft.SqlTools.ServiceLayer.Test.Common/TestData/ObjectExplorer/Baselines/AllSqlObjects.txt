@@ -42,6 +42,7 @@ NodeType: Constraint Label: CK_Employee_MaritalStatus SubType: Status:
 NodeType: Constraint Label: CK_Employee_SickLeaveHours SubType: Status:
 NodeType: Constraint Label: CK_Employee_VacationHours SubType: Status:
 NodeType: Index Label: NonClusteredIndex-Login (Non-Unique, Non-Clustered) SubType: Status:
+NodeType: Index Label: PK_Employee_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: NonClusteredIndex-Login SubType: Status:
 NodeType: Statistic Label: PK_Employee_BusinessEntityID SubType: Status:
 NodeType: Table Label: HumanResources.Employee_Temporal (System-Versioned) SubType:Temporal Status:
@@ -60,6 +61,7 @@ NodeType: Column Label: SickLeaveHours (smallint, not null) SubType: Status:
 NodeType: Column Label: ValidFrom (datetime2(7), not null) SubType: Status:
 NodeType: Column Label: ValidTo (datetime2(7), not null) SubType: Status:
 NodeType: Key Label: PK_Employee_History_BusinessEntityID SubType:PrimaryKey Status:
+NodeType: Index Label: PK_Employee_History_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: PK_Employee_History_BusinessEntityID SubType: Status:
 NodeType: HistoryTable Label: HumanResources.Employee_Temporal_History (History) SubType: Status:
 NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
@@ -93,6 +95,7 @@ NodeType: Key Label: PK_Person_BusinessEntityID SubType:PrimaryKey Status:
 NodeType: Constraint Label: CK_Person_EmailPromotion SubType: Status:
 NodeType: Constraint Label: CK_Person_PersonType SubType: Status:
 NodeType: Trigger Label: TableTrigger SubType: Status:
+NodeType: Index Label: PK_Person_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: PK_Person_BusinessEntityID SubType: Status:
 NodeType: View Label: HumanResources.vEmployee SubType: Status:
 NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:

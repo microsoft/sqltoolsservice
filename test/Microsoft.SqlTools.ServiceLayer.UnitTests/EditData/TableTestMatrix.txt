@@ -1,0 +1,58 @@
+ID | Identity Column | Default Cols | Nullable Cols | Values Set | INSERT VALID                                                 | In Cols | In Vals | Out Vals
+---+-----------------+--------------+---------------+------------+--------------------------------------------------------------+------------------------------
+01 | Y               | 0 (None)     | 0 (None)      | 3/1        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 4
+02 | Y               | 0 (None)     | 0 (None)      | 2/2        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+03 | Y               | 0 (None)     | 0 (None)      | 0/4        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+04 | Y               | 0 (None)     | 1 (Some)      | 3/1        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 4
+05 | Y               | 0 (None)     | 1 (Some)      | 2/2        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 4
+06 | Y               | 0 (None)     | 1 (Some)      | 0/4        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+07 | Y               | 0 (None)     | 3 (All)       | 3/1        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 4
+08 | Y               | 0 (None)     | 3 (All)       | 2/2        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 4
+09 | Y               | 0 (None)     | 3 (All)       | 0/4        | INSERT INTO [test] DEFAULT VALUES                            | NULL    | NULL    | 4
+10 | Y               | 1 (Some)     | 0 (None)      | 3/1        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 4
+11 | Y               | 1 (Some)     | 0 (None)      | 2/2        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 4
+12 | Y               | 1 (Some)     | 0 (None)      | 0/4        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+13 | Y               | 1 (Some)     | 1 (Some)      | 3/1        | INSERT INTO [test] (col1, col2, col3) VALUES ('a', 'b', 'c') | 3       | 3       | 4
+14 | Y               | 1 (Some)     | 1 (Some)      | 2/2        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 4
+15 | Y               | 1 (Some)     | 1 (Some)      | 1/3        | INSERT INTO [test] (col3) VALUES ('c')                       | 1       | 1       | 4
+16 | Y               | 1 (Some)     | 1 (Some)      | 0/4        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+!! | Y               | 1 (Some)     | 3 (All)       | 3/1        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 1 (Some)     | 3 (All)       | 2/2        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 1 (Some)     | 3 (All)       | 0/4        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+17 | Y               | 3 (All)      | 0 (None)      | 3/1        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 4
+18 | Y               | 3 (All)      | 0 (None)      | 2/2        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 4
+19 | Y               | 3 (All)      | 0 (None)      | 0/4        | INSERT INTO [test] DEFAULT VALUES                            | NULL    | NULL    | 4
+!! | Y               | 3 (All)      | 1 (Some)      | 3/1        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 3 (All)      | 1 (Some)      | 2/2        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 3 (All)      | 1 (Some)      | 0/4        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 3 (All)      | 3 (All)       | 3/1        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 3 (All)      | 3 (All)       | 2/2        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | Y               | 3 (All)      | 3 (All)       | 0/4        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+20 | N               | 0 (None)     | 0 (None)      | 3/0        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 3
+21 | N               | 0 (None)     | 0 (None)      | 2/1        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+22 | N               | 0 (None)     | 0 (None)      | 0/3        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+23 | N               | 0 (None)     | 1 (Some)      | 3/0        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 3
+24 | N               | 0 (None)     | 1 (Some)      | 2/1        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 3
+25 | N               | 0 (None)     | 1 (Some)      | 0/3        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+26 | N               | 0 (None)     | 3 (All)       | 3/0        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 3
+27 | N               | 0 (None)     | 3 (All)       | 2/1        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 3
+28 | N               | 0 (None)     | 3 (All)       | 0/3        | INSERT INTO [test] DEFAULT VALUES                            | NULL    | NULL    | 3
+29 | N               | 1 (Some)     | 0 (None)      | 3/0        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 3
+30 | N               | 1 (Some)     | 0 (None)      | 2/1        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 3
+31 | N               | 1 (Some)     | 0 (None)      | 0/3        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+32 | N               | 1 (Some)     | 1 (Some)      | 3/0        | INSERT INTO [test] (col1, col2, col3) VALUES ('a', 'b', 'c') | 3       | 3       | 3
+33 | N               | 1 (Some)     | 1 (Some)      | 2/1        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 3
+34 | N               | 1 (Some)     | 1 (Some)      | 1/2        | INSERT INTO [test] (col3) VALUES ('c')                       | 1       | 1       | 3
+35 | N               | 1 (Some)     | 1 (Some)      | 0/3        | INVALID - Values missing                                     | N/A     | N/A     | N/A
+!! | N               | 1 (Some)     | 3 (All)       | 3/0        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 1 (Some)     | 3 (All)       | 2/1        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 1 (Some)     | 3 (All)       | 0/3        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+36 | N               | 3 (All)      | 0 (None)      | 3/0        | INSERT INTO [test] (col0, col1, col2) VALUES ('a', 'b', 'c') | 3       | 3       | 3
+37 | N               | 3 (All)      | 0 (None)      | 2/1        | INSERT INTO [test] (col2, col3) VALUES ('b', 'c')            | 2       | 2       | 3
+38 | N               | 3 (All)      | 0 (None)      | 0/3        | INSERT INTO [test] DEFAULT VALUES                            | NULL    | NULL    | 3
+!! | N               | 3 (All)      | 1 (Some)      | 3/0        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 3 (All)      | 1 (Some)      | 2/1        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 3 (All)      | 1 (Some)      | 0/3        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 3 (All)      | 3 (All)       | 3/0        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 3 (All)      | 3 (All)       | 2/1        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
+!! | N               | 3 (All)      | 3 (All)       | 0/3        | INVALID - Too many columns defined                           | N/A     | N/A     | N/A
