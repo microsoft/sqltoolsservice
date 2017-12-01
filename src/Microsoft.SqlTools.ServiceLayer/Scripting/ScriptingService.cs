@@ -113,6 +113,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
+            SmoScriptingOperation operation = null;
+
             try
             {
                 // if a connection string wasn't provided as a parameter then
@@ -132,8 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     }
                 }
 
-                SmoScriptingOperation operation = null;
-                if (parameters.ScriptOptions.ScriptingEngineType == ScriptingEngineType.PublishModel)
+                if (!CreateScriptAsOperation(parameters))
                 {
                     operation = new ScriptingScriptOperation(parameters);
                     operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
@@ -153,6 +154,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+            }
+        }
+
+        private bool CreateScriptAsOperation(ScriptingParams parameters)
+        {
+            // Scripting as oepration should be used to script one object.
+            // Scripting data and scripting to file is not supported by scripting as operation
+            // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
+            if( (parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.FilePath == null) || 
+                parameters.Operation == "Select" || parameters.Operation == "Alter" || parameters.Operation == "Execute") 
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -198,90 +215,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     break;
             }
         }
-
-        /*
-        private Urn BuildScriptingObjectUrn(
-            Server server, 
-            SqlConnectionStringBuilder connectionStringBuilder, 
-            ScriptingObject scriptingObject)
-        {
-            string serverName = server.Name.ToUpper();
-
-            // remove the port from server name if specified
-            int commaPos = serverName.IndexOf(',');
-            if (commaPos >= 0) 
-            {
-                serverName = serverName.Substring(0, commaPos);
-            }
-
-            // build the URN
-            string urnString = string.Format(
-                "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
-                serverName,
-                connectionStringBuilder.InitialCatalog,
-                scriptingObject.Type,
-                scriptingObject.Name,
-                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", scriptingObject.Schema) : string.Empty);                  
-
-            return new Urn(urnString);
-        }
-
-        
-        /// <summary>
-        /// Runs the async task that performs the scripting operation.
-        /// </summary>
-        private void RunSelectTask(ConnectionInfo connInfo, ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
-        {            
-            ConnectionServiceInstance.ConnectionQueue.QueueBindingOperation(
-                key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo, "Scripting"),
-                bindingTimeout: ScriptingOperationTimeout,
-                bindOperation: (bindingContext, cancelToken) =>
-                {
-                    string script = string.Empty;
-                    ScriptingObject scriptingObject = parameters.ScriptingObjects[0];
-                    try
-                    {
-                        Server server = new Server(bindingContext.ServerConnection);
-                        server.DefaultTextMode = true;
-
-                        // build object URN
-                        SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
-                        Urn objectUrn = BuildScriptingObjectUrn(server, connectionStringBuilder, scriptingObject);
-                        string typeName = objectUrn.GetNameForType(scriptingObject.Type);
-
-                        // select from service broker
-                        if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
-                        {
-                            script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
-                        }
-
-                        // select from queues
-                        else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
-                                 string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
-                        {
-                            script = Scripter.SelectAllValues(objectUrn);
-                        }
-
-                        // select from table or view
-                        else 
-                        {   
-                            Database db = server.Databases[connectionStringBuilder.InitialCatalog];
-                            bool isDw = db.IsSqlDw;
-                            script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
-                        }
-
-                        // send script result to client
-                        requestContext.SendResult(new ScriptingResult { Script = script }).Wait();                          
-                    }
-                    catch (Exception e)
-                    {
-                        requestContext.SendError(e).Wait();
-                    }
-
-                    return null;
-                });
-        }
-        */
 
         /// <summary>
         /// Runs the async task that performs the scripting operation.

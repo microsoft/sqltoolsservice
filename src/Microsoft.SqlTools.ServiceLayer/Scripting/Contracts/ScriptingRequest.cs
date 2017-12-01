@@ -73,6 +73,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
 
+        /// <summary>
+        /// The script operation
+        ///  Possible values: 
+        ///   Create
+        ///   Drop
+        ///   Select
+        ///   Alter
+        ///   Execute
+        /// </summary>
+        public string Operation { get; set; }
+
     }
 
     /// <summary>

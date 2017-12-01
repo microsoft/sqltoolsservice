@@ -12,9 +12,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class KeysChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(context);
+            return IndexCustomeNodeHelper.GetSubType(smoObject);
         }
     }
 
@@ -23,9 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class IndexesChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(context);
+            return IndexCustomeNodeHelper.GetSubType(smoObject);
         }
 
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
@@ -39,9 +39,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class UserDefinedTableTypeKeysChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(context);
+            return IndexCustomeNodeHelper.GetSubType(smoObject);
         }
     }
 

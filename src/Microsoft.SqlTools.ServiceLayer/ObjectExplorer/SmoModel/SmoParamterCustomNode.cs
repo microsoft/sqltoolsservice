@@ -18,9 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
         }
 
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(context);
+            return ParameterCustomeNodeHelper.GetSubType(smoObject);
         }
     }
 
@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
         }
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(context);
+            return ParameterCustomeNodeHelper.GetSubType(smoObject);
         }
     }
 
@@ -48,9 +48,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
         }
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(context);
+            return ParameterCustomeNodeHelper.GetSubType(smoObject);
         }
     }
 
@@ -63,9 +63,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
         }
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(context);
+            return ParameterCustomeNodeHelper.GetSubType(smoObject);
         }
     }
 

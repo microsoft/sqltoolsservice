@@ -35,12 +35,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         public const char RightDelimiter = ']';
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters): base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, ServerConnection serverConnection): base(parameters)
         {
+            Validate.IsNotNull("serverConnection", serverConnection);
+            ServerConnection = serverConnection;
         }
+
+        public ScriptAsScriptingOperation(ScriptingParams parameters) : base(parameters)
+        {
+            SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
+            ServerConnection = new ServerConnection(sqlConnection);
+            disconnectAtDispose = true;
+        }
+
+        internal ServerConnection ServerConnection { get; set; }
 
         private string serverName;
         private string databaseName;
+        private bool disconnectAtDispose = false;
 
         public override void Execute()
         {
@@ -53,30 +65,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 // TODO: try to use one of the existing connections
-                using (SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString))
+
+                Server server = new Server(ServerConnection);
+                if (!ServerConnection.IsOpen)
                 {
-                    sqlConnection.Open();
-                    ServerConnection serverConnection = new ServerConnection(sqlConnection);
-                    Server server = new Server(serverConnection);
-                    UrnCollection urns = CreateUrns(serverConnection);
-
-                    switch (this.Parameters.ScriptOptions.ScriptCreateDrop)
-                    {
-                        case "ScriptCreate":
-                        case "ScriptDrop":
-                        case "ScriptCreateDrop":
-                        case "ScriptAlter":
-
-                            resultScript = GenerateScriptAs(server, urns);
-                            break;
-                        case "ScriptSelect":
-                            resultScript = GenerateScriptSelect(server, urns);
-                            break;
-                        case "ScriptExecute":
-                            resultScript = GenerareScriptAsExecute(server, urns);
-                            break;
-                    }
+                    ServerConnection.Connect();
                 }
+                
+                UrnCollection urns = CreateUrns(ServerConnection);
+
+                switch (this.Parameters.Operation)
+                {
+                    case "Create":
+                    case "Drop":
+                    case "Alter":
+
+                        resultScript = GenerateScriptAs(server, urns);
+                        break;
+                    case "Select":
+                        resultScript = GenerateScriptSelect(server, urns);
+                        break;
+                    case "Execute":
+                        resultScript = GenerareScriptAsExecute(server, urns);
+                        break;
+                }
+
 
                 this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -118,7 +131,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             finally
             {
-                
+                if (disconnectAtDispose && ServerConnection != null && ServerConnection.IsOpen)
+                {
+                    ServerConnection.Disconnect();
+                }
             }
         }
 
@@ -596,6 +612,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Standard;
                         break;
                 }
+            }
+
+            if (scriptingOptions.TargetDatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse)
+            {
+                scriptingOptions.Triggers = false;
             }
 
             scriptingOptions.NoVardecimal = false; //making IncludeVarDecimal true for DPW
