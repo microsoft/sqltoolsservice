@@ -227,7 +227,7 @@
       </trans-unit>
       <trans-unit id="QueryServiceResultSetNotRead">
         <source>Cannot read subset unless the results have been read from the server</source>
-        <target state="new">無法讀取子集，除非已經從伺服器讀取結果</target>
+        <target state="new">從伺服器讀取結果前，無法讀取子集</target>
         
         <note/>
       </trans-unit>
@@ -327,13 +327,13 @@
       </trans-unit>
       <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
         <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
-        <target state="new">訊息 {0} 層級 {1} 狀態 {2} 程序 {3}、 第 {4} 行</target>
+        <target state="new">訊息 {0} ，層級 {1}， 狀態 {2}， 程序 {3}，第 {4} 行</target>
         
         <note/>
       </trans-unit>
       <trans-unit id="EE_BatchSqlMessageNoLineInfo">
         <source>Msg {0}, Level {1}, State {2}</source>
-        <target state="new">Msg {0}，層級 {1} 狀態 {2}</target>
+        <target state="new">訊息 {0}，層級 {1} ，狀態 {2}</target>
         
         <note/>
       </trans-unit>
@@ -374,7 +374,7 @@
         <note/>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Execution completed {0} times...</source>
+        <source>Batch execution completed {0} times...</source>
         <target state="new">已執行完成 {0} 次...</target>
         
         <note/>
@@ -393,13 +393,13 @@
       </trans-unit>
       <trans-unit id="EE_BatchExecutionError_Ignoring">
         <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">執行批次，但被忽略的錯誤時，就會發生錯誤。</target>
+        <target state="new">執行此批次時發生錯誤，但錯誤以忽略。</target>
         
         <note/>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Starting execution loop of {0} times...</source>
-        <target state="new">正在啟動 {0} 次執行迴圈...</target>
+        <source>Beginning execution loop</source>
+        <target state="new">開始執行迴圈 {0} 次...</target>
         
         <note/>
       </trans-unit>
@@ -465,7 +465,7 @@
       </trans-unit>
       <trans-unit id="BatchParser_CircularReference">
         <source>File '{0}' recursively included.</source>
-        <target state="new">檔案 '{0}' 被遞迴方式包含。</target>
+        <target state="new">檔案 '{0}' 具有遞迴。</target>
         
         <note/>
       </trans-unit>
@@ -477,7 +477,7 @@
       </trans-unit>
       <trans-unit id="BatchParser_StringNotTerminated">
         <source>Unclosed quotation mark after the character string.</source>
-        <target state="new">未封閉的雙引號記號之後的字元字串。</target>
+        <target state="new">字元字串後有未封閉的雙引號</target>
         
         <note/>
       </trans-unit>
@@ -566,10 +566,11 @@
         <note/>
       </trans-unit>
       <trans-unit id="EditDataCreateScriptMissingValue">
-        <source>A required cell value is missing</source>
+        <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
         <target state="new">必填儲存格未填</target>
         
-        <note/>
+        <note>.
+ Parameters: 0 - colName (string) </note>
       </trans-unit>
       <trans-unit id="EditDataDeleteSetCell">
         <source>A delete is pending for this row, a cell update cannot be applied.</source>
