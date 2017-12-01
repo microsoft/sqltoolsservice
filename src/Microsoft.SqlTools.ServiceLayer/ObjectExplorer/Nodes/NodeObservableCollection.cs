@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,6 +28,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public bool IsPopulating
         {
             get { return numInits.HasValue && numInits != 0; }
+        }
+
+        public bool IsSorted
+        {
+            get
+            {
+                // SMO objects are already sorted so no need to sort them again
+                return this.FirstOrDefault() is SmoTreeNode;
+            }
         }
 
         public void BeginInit()
@@ -54,7 +64,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             {
                 try
                 {
-                    DoSort();
+                    if (!IsSorted)
+                    {
+                        DoSort();
+                    }
 
                     if (deferredChildren != null)
                     {
