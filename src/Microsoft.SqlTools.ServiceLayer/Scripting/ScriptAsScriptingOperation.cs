@@ -25,9 +25,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     {
         private static Dictionary<string, SqlServerVersion> scriptCompatabilityMap = LoadScriptCompatabilityMap();
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters): base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, ServerConnection serverConnection): base(parameters)
+        {
+            ServerConnection = serverConnection;
+        }
+
+        public ScriptAsScriptingOperation(ScriptingParams parameters) : base(parameters)
         {
         }
+
+        internal ServerConnection ServerConnection { get; set; }
 
         public override void Execute()
         {
@@ -41,28 +48,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 // TODO: try to use one of the existing connections
-                using (SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString))
-                {
-                    sqlConnection.Open();
-                    ServerConnection serverConnection = new ServerConnection(sqlConnection);
-                    Server server = new Server(serverConnection);
-                    scripter = new SqlServer.Management.Smo.Scripter(server);
-                    ScriptingOptions options = new ScriptingOptions();
-                    SetScriptBehavior(options);
-                    PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
-                    options.WithDependencies = false;
-                    options.ScriptData = false;
-                    SetScriptingOptions(options);
 
-                    // TODO: Not including the header by default. We have to get this option from client
-                    options.IncludeHeaders = false;
-                    scripter.Options = options;
-                    scripter.Options.ScriptData = false;
-                    scripter.ScriptingError += ScripterScriptingError;
-                    UrnCollection urns = CreateUrns(serverConnection);
-                    var result = scripter.Script(urns);
-                    resultScript = GetScript(options, result);
+                Server server = new Server(ServerConnection);
+                if (!ServerConnection.IsOpen)
+                {
+                    ServerConnection.Connect();
                 }
+                scripter = new SqlServer.Management.Smo.Scripter(server);
+                ScriptingOptions options = new ScriptingOptions();
+                SetScriptBehavior(options);
+                ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
+                PopulateAdvancedScriptOptions(scriptAsOptions, options);
+                options.WithDependencies = false;
+                options.ScriptData = false;
+                SetScriptingOptions(options);
+
+                // TODO: Not including the header by default. We have to get this option from client
+                options.IncludeHeaders = false;
+                scripter.Options = options;
+                scripter.Options.ScriptData = false;
+                scripter.ScriptingError += ScripterScriptingError;
+                UrnCollection urns = CreateUrns(ServerConnection);
+                var result = scripter.Script(urns);
+                resultScript = GetScript(options, result);
+
 
                 this.CancellationToken.ThrowIfCancellationRequested();
 
