@@ -35,8 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             get
             {
                 // SMO objects are already sorted so no need to sort them again
-                TreeNode firstITem = this.FirstOrDefault();
-                return firstITem != null && firstITem is SmoTreeNode;
+                return this.FirstOrDefault() is SmoTreeNode;
             }
         }
 

@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     public class SmoChildFactoryBase : ChildFactory
     {
-        private IEnumerable<NodeSmoProperty> smoPropertis;
+        private IEnumerable<NodeSmoProperty> smoProperties;
         public override IEnumerable<string> ApplicableParents()
         {
             return null;
@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             else
             {
-                smoPropertis = SmoProperties;
+                smoProperties = SmoProperties;
                 SmoTreeNode childAsMeItem = (SmoTreeNode)child;
                 childAsMeItem.CacheInfoFromModel(smoObj);
                 SmoQueryContext smoContext = parent.GetContextAs<SmoQueryContext>();
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             get
             {
-                return smoPropertis == null ? SmoProperties : smoPropertis;
+                return smoProperties == null ? SmoProperties : smoProperties;
             }
         }
 
@@ -304,14 +304,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public static bool IsPropertySupported(string propertyName, SmoQueryContext context, NamedSmoObject smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            var property = supportedProperties.FirstOrDefault(x => x.Name == propertyName);
+            var property = supportedProperties.FirstOrDefault(x => string.Compare(x.Name, propertyName, StringComparison.InvariantCultureIgnoreCase) == 0);
             if (property != null)
             {
                 return ServerVersionHelper.IsValidFor(context.ValidFor, property.ValidFor);
             }
             else
             {
-                // Return true if cannot find the proeprty, SMO still tries to get that property but adding the proeprty to supported list can make loading the nodes faster
+                // Return true if cannot find the proeprty, SMO still tries to get that property but adding the property to supported list can make loading the nodes faster
                 Logger.Write(LogLevel.Verbose, $"Smo property name {propertyName} for Smo type {smoObj.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
                 return true;
             }
