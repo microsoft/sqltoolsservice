@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Xunit;
 
@@ -304,14 +305,82 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         }
 
         #endregion
+
+        #region FormatColumnType Tests
+
+        public static IEnumerable<object[]> FormatColumnTypeData
+        {
+            get
+            {
+                yield return new object[] {new FormatterTestDbColumn("biGint"), "BIGINT"};
+                yield return new object[] {new FormatterTestDbColumn("biT"), "BIT"};
+                yield return new object[] {new FormatterTestDbColumn("deCimal", precision: 18, scale: 0), "DECIMAL(18, 0)"};
+                yield return new object[] {new FormatterTestDbColumn("deCimal", precision: 22, scale: 2), "DECIMAL(22, 2)"};
+                yield return new object[] {new FormatterTestDbColumn("inT"), "INT"};
+                yield return new object[] {new FormatterTestDbColumn("moNey"), "MONEY"};
+                yield return new object[] {new FormatterTestDbColumn("nuMeric", precision: 18, scale: 0), "NUMERIC(18, 0)"};
+                yield return new object[] {new FormatterTestDbColumn("nuMeric", precision: 22, scale: 2), "NUMERIC(22, 2)"};
+                yield return new object[] {new FormatterTestDbColumn("smAllint"), "SMALLINT"};
+                yield return new object[] {new FormatterTestDbColumn("smAllmoney"), "SMALLMONEY"};
+                yield return new object[] {new FormatterTestDbColumn("tiNyint"), "TINYINT"};
+                yield return new object[] {new FormatterTestDbColumn("biNary", size: 255), "BINARY(255)"};
+                yield return new object[] {new FormatterTestDbColumn("biNary", size: 10), "BINARY(10)"};
+                yield return new object[] {new FormatterTestDbColumn("vaRbinary", size: 255), "VARBINARY(255)"};
+                yield return new object[] {new FormatterTestDbColumn("vaRbinary", size: 10), "VARBINARY(10)"};
+                yield return new object[] {new FormatterTestDbColumn("vaRbinary", size: int.MaxValue), "VARBINARY(MAX)"};
+                yield return new object[] {new FormatterTestDbColumn("imAge"), "IMAGE"};
+                yield return new object[] {new FormatterTestDbColumn("smAlldatetime"), "SMALLDATETIME"};
+                yield return new object[] {new FormatterTestDbColumn("daTetime"), "DATETIME"};
+                yield return new object[] {new FormatterTestDbColumn("daTetime2", scale: 7), "DATETIME2(7)"};
+                yield return new object[] {new FormatterTestDbColumn("daTetime2", scale: 0), "DATETIME2(0)"};
+                yield return new object[] {new FormatterTestDbColumn("daTetimeoffset", scale: 7), "DATETIMEOFFSET(7)"};
+                yield return new object[] {new FormatterTestDbColumn("daTetimeoffset", scale: 0), "DATETIMEOFFSET(0)"};
+                yield return new object[] {new FormatterTestDbColumn("tiMe", scale: 7), "TIME(7)"};
+                yield return new object[] {new FormatterTestDbColumn("flOat"), "FLOAT"};
+                yield return new object[] {new FormatterTestDbColumn("reAl"), "REAL"};
+                yield return new object[] {new FormatterTestDbColumn("chAr", size: 1), "CHAR(1)"};
+                yield return new object[] {new FormatterTestDbColumn("chAr", size: 255), "CHAR(255)"};
+                yield return new object[] {new FormatterTestDbColumn("ncHar", size: 1), "NCHAR(1)"};
+                yield return new object[] {new FormatterTestDbColumn("ncHar", size: 255), "NCHAR(255)"};
+                yield return new object[] {new FormatterTestDbColumn("vaRchar", size: 1), "VARCHAR(1)"};
+                yield return new object[] {new FormatterTestDbColumn("vaRchar", size: 255), "VARCHAR(255)"};
+                yield return new object[] {new FormatterTestDbColumn("vaRchar", size: int.MaxValue), "VARCHAR(MAX)"};
+                yield return new object[] {new FormatterTestDbColumn("nvArchar", size: 1), "NVARCHAR(1)"};
+                yield return new object[] {new FormatterTestDbColumn("nvArchar", size: 255), "NVARCHAR(255)"};
+                yield return new object[] {new FormatterTestDbColumn("nvArchar", size: int.MaxValue), "NVARCHAR(MAX)"};
+                yield return new object[] {new FormatterTestDbColumn("teXt"), "TEXT"};
+                yield return new object[] {new FormatterTestDbColumn("nteXt"), "NTEXT"};
+                yield return new object[] {new FormatterTestDbColumn("unIqueidentifier"), "UNIQUEIDENTIFIER"};
+                yield return new object[] {new FormatterTestDbColumn("sqL_variant"), "SQL_VARIANT"};
+                yield return new object[] {new FormatterTestDbColumn("somEthing.sys.hierarchyid"), "SOMETHING.SYS.HIERARCHYID"};
+                yield return new object[] {new FormatterTestDbColumn("geOgraphy"), "GEOGRAPHY"};
+                yield return new object[] {new FormatterTestDbColumn("geOmetry"), "GEOMETRY"};
+                yield return new object[] {new FormatterTestDbColumn("sySname"), "SYSNAME"};
+                yield return new object[] {new FormatterTestDbColumn("tiMestamp"), "TIMESTAMP"};
+            }
+        }
+        
+        [Theory]
+        [MemberData(nameof(FormatColumnTypeData))]
+        public void FormatColumnType(DbColumn input, string expectedOutput)
+        {
+            // If: I supply the input columns 
+            string output = ToSqlScript.FormatColumnType(input);
+            
+            // Then: The output should match the expected output
+            Assert.Equal(expectedOutput, output);
+        }
+
+        #endregion
         
         private class FormatterTestDbColumn : DbColumn
         {
-            public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null)
+            public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null, int? size = null)
             {
                 DataTypeName = dataType;
                 NumericPrecision = precision;
                 NumericScale = scale;
+                ColumnSize = size;
             }
         }
     }

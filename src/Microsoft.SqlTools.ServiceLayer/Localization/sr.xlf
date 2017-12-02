@@ -523,7 +523,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
-        <source>Decimal column is missing numeric precision or numeric scale</source>
+        <source>Exact numeric column is missing numeric precision or numeric scale</source>
         <target state="new">Decimal column is missing numeric precision or numeric scale</target>
         <note></note>
       </trans-unit>
@@ -2311,6 +2311,22 @@
         <target state="new">Value {0} is too large to fit in column of type {1}</target>
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormat">
+        <source>Invalid format for column '{0}', column is defined as {1}</source>
+        <target state="new">Invalid format for column '{0}', column is defined as {1}</target>
+        <note>.
+ Parameters: 0 - colName (string), 1 - colType (string) </note>
+      </trans-unit>
+      <trans-unit id="SqlScriptFormatterLengthTypeMissingSize">
+        <source>Column with length is missing size</source>
+        <target state="new">Column with length is missing size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
+        <source>Scalar column missing scale</source>
+        <target state="new">Scalar column missing scale</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

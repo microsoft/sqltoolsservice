@@ -885,6 +885,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlScriptFormatterLengthTypeMissingSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlScriptFormatterLengthTypeMissingSize);
+            }
+        }
+
+        public static string SqlScriptFormatterScalarTypeMissingScale
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlScriptFormatterScalarTypeMissingScale);
+            }
+        }
+
         public static string TreeNodeError
         {
             get
@@ -3643,6 +3659,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
         }
 
+        public static string EditDataInvalidFormat(string colName, string colType)
+        {
+            return Keys.GetString(Keys.EditDataInvalidFormat, colName, colType);
+        }
+
         public static string EditDataCreateScriptMissingValue(string colName)
         {
             return Keys.GetString(Keys.EditDataCreateScriptMissingValue, colName);
@@ -3898,6 +3919,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EditDataObjectMetadataNotFound = "EditDataObjectMetadataNotFound";
 
 
+            public const string EditDataInvalidFormat = "EditDataInvalidFormat";
+
+
             public const string EditDataInvalidFormatBinary = "EditDataInvalidFormatBinary";
 
 
@@ -4028,6 +4052,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlScriptFormatterDecimalMissingPrecision = "SqlScriptFormatterDecimalMissingPrecision";
+
+
+            public const string SqlScriptFormatterLengthTypeMissingSize = "SqlScriptFormatterLengthTypeMissingSize";
+
+
+            public const string SqlScriptFormatterScalarTypeMissingScale = "SqlScriptFormatterScalarTypeMissingScale";
 
 
             public const string TreeNodeError = "TreeNodeError";

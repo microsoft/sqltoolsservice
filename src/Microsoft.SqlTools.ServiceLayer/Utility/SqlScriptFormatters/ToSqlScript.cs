@@ -32,10 +32,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
                 {"int", (val, col) => SimpleFormatter(val)},                                        // int
                 {"smallint", (val, col) => SimpleFormatter(val)},                                   // short
                 {"tinyint", (val, col) => SimpleFormatter(val)},                                    // byte
-                {"money", (val, col) => FormatMoney(val, "MONEY")},                                 // Decimal
-                {"smallmoney", (val, col) => FormatMoney(val, "SMALLMONEY")},                       // Decimal
-                {"decimal", (val, col) => FormatPreciseNumeric(val, col, "DECIMAL")},               // Decimal
-                {"numeric", (val, col) => FormatPreciseNumeric(val, col, "NUMERIC")},               // Decimal
+                {"money", FormatDecimalLike},                                                       // Decimal
+                {"smallmoney", FormatDecimalLike},                                                  // Decimal
+                {"decimal", FormatDecimalLike},                                                     // Decimal
+                {"numeric", FormatDecimalLike},                                                     // Decimal
                 {"real", (val, col) => FormatFloat(val)},                                           // float
                 {"float", (val, col) => FormatDouble(val)},                                         // double
                 {"smalldatetime", (val, col) => FormatDateTime(val, "yyyy-MM-dd HH:mm:ss")},        // DateTime
@@ -67,6 +67,67 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
         #endregion
         
         #region Public Methods
+
+        /// <summary>
+        /// Extracts a DbColumn's datatype and turns it into script ready 
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        /// <seealso cref="Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.SmoColumnCustomNodeHelper.GetTypeSpecifierLabel"/>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static string FormatColumnType(DbColumn column)
+        {
+            string typeName = column.DataTypeName.ToUpperInvariant();
+            
+            // TODO: This doesn't support UDTs at all.
+            // TODO: It's unclear if this will work on a case-sensitive db collation
+            
+            // If the type supports length parameters, the add those
+            switch (column.DataTypeName.ToLowerInvariant())
+            {
+                // Types with length
+                case "char":
+                case "nchar":
+                case "varchar":
+                case "nvarchar":
+                case "binary":
+                case "varbinary":
+                    if (!column.ColumnSize.HasValue)
+                    {
+                        throw new InvalidOperationException(SR.SqlScriptFormatterLengthTypeMissingSize);
+                    }
+
+                    string length = column.ColumnSize.Value == int.MaxValue
+                        ? "MAX"
+                        : column.ColumnSize.Value.ToString();
+
+                    typeName += $"({length})";
+                    break;
+                    
+                // Types with precision and scale
+                case "numeric":
+                case "decimal":
+                    if (!column.NumericPrecision.HasValue || !column.NumericScale.HasValue)
+                    {
+                        throw new InvalidOperationException(SR.SqlScriptFormatterDecimalMissingPrecision);
+                    }
+                    typeName += $"({column.NumericPrecision}, {column.NumericScale})";
+                    break;
+                
+                // Types with scale only
+                case "datetime2":
+                case "datetimeoffset":
+                case "time":
+                    if (!column.NumericScale.HasValue)
+                    {
+                        throw new InvalidOperationException(SR.SqlScriptFormatterScalarTypeMissingScale);
+                    }
+                    typeName += $"({column.NumericScale})";
+                    break;
+            }
+
+            return typeName;
+        }
         
         /// <summary>
         /// Escapes an identifier such as a table name or column name by wrapping it in square brackets
@@ -222,27 +283,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
             // The "R" formatting means "Round Trip", which preserves fidelity
             return ((float)value).ToString("R");
         }
-        
-        private static string FormatMoney(object value, string type)
-        {
-            // we have to manually format the string by ToStringing the value first, and then converting 
-            // the potential (European formatted) comma to a period.
-            string numericString = ((decimal)value).ToString(CultureInfo.InvariantCulture);
-            return $"CAST({numericString} AS {type})";
-        }
-        
-        private static string FormatPreciseNumeric(object value, DbColumn column, string type)
-        {
-            // Make sure we have numeric precision and numeric scale
-            if (!column.NumericPrecision.HasValue || !column.NumericScale.HasValue)
-            {
-                throw new InvalidOperationException(SR.SqlScriptFormatterDecimalMissingPrecision);
-            }
 
-            // Convert the value to a decimal, then convert that to a string
+        private static string FormatDecimalLike(object value, DbColumn column)
+        {
             string numericString = ((decimal)value).ToString(CultureInfo.InvariantCulture);
-            return string.Format(CultureInfo.InvariantCulture, "CAST({0} AS {1}({2}, {3}))",
-                numericString, type, column.NumericPrecision.Value, column.NumericScale.Value);
+            string typeString = FormatColumnType(column);
+            return $"CAST({numericString} AS {typeString})";
         }
         
         private static string FormatTimeSpan(object value)

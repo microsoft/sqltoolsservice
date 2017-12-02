@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -34,50 +35,60 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             Validate.IsNotNull(nameof(valueAsString), valueAsString);
 
             // Store the state that won't be changed
-            Column = column;
-            Type columnType = column.DataType;
+            try
+            {
+                Column = column;
+                Type columnType = column.DataType;
 
-            // Check for null
-            if (valueAsString == NullString)
-            {
-                ProcessNullValue();
+                // Check for null
+                if (valueAsString == NullString)
+                {
+                    ProcessNullValue();
+                }
+                else if (columnType == typeof(byte[]))
+                {
+                    // Binary columns need special attention
+                    ProcessBinaryCell(valueAsString);
+                }
+                else if (columnType == typeof(string))
+                {
+                    ProcessTextCell(valueAsString);
+                }
+                else if (columnType == typeof(Guid))
+                {
+                    Value = Guid.Parse(valueAsString);
+                    ValueAsString = Value.ToString();
+                }
+                else if (columnType == typeof(TimeSpan))
+                {
+                    ProcessTimespanColumn(valueAsString);
+                }
+                else if (columnType == typeof(DateTimeOffset))
+                {
+                    Value = DateTimeOffset.Parse(valueAsString, CultureInfo.CurrentCulture);
+                    ValueAsString = Value.ToString();
+                }
+                else if (columnType == typeof(bool))
+                {
+                    ProcessBooleanCell(valueAsString);
+                }
+                // @TODO: Microsoft.SqlServer.Types.SqlHierarchyId
+                else
+                {
+                    // Attempt to go straight to the destination type, if we know what it is, otherwise
+                    // leave it as a string
+                    Value = columnType != null
+                        ? Convert.ChangeType(valueAsString, columnType, CultureInfo.CurrentCulture)
+                        : valueAsString;
+                    ValueAsString = Value.ToString();
+                }
             }
-            else if (columnType == typeof(byte[]))
+            catch (FormatException fe)
             {
-                // Binary columns need special attention
-                ProcessBinaryCell(valueAsString);
-            }
-            else if (columnType == typeof(string))
-            {
-                ProcessTextCell(valueAsString);
-            }
-            else if (columnType == typeof(Guid))
-            {
-                Value = Guid.Parse(valueAsString);
-                ValueAsString = Value.ToString();
-            }
-            else if (columnType == typeof(TimeSpan))
-            {
-                ProcessTimespanColumn(valueAsString);
-            }
-            else if (columnType == typeof(DateTimeOffset))
-            {
-                Value = DateTimeOffset.Parse(valueAsString, CultureInfo.CurrentCulture);
-                ValueAsString = Value.ToString();
-            }
-            else if (columnType == typeof(bool))
-            {
-                ProcessBooleanCell(valueAsString);
-            }
-            // @TODO: Microsoft.SqlServer.Types.SqlHierarchyId
-            else
-            {
-                // Attempt to go straight to the destination type, if we know what it is, otherwise
-                // leave it as a string
-                Value = columnType != null 
-                    ? Convert.ChangeType(valueAsString, columnType, CultureInfo.CurrentCulture) 
-                    : valueAsString;
-                ValueAsString = Value.ToString();
+                // Pretty up the exception so the user can learn a bit from it
+                // NOTE: Other formatting errors raised by helpers are InvalidOperationException to
+                //       avoid being prettied here
+                throw new FormatException(SR.EditDataInvalidFormat(column.ColumnName, ToSqlScript.FormatColumnType(column)), fe);
             }
         }
 
@@ -181,8 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
             else
             {
-                // Invalid format
-                throw new FormatException(SR.EditDataInvalidFormatBinary);
+                throw new InvalidOperationException(SR.EditDataInvalidFormatBinary);
             }
 
             // Generate the hex string as the return value
@@ -205,8 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                         Value = false;
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(valueAsString),
-                            SR.EditDataInvalidFormatBoolean);
+                        throw new InvalidOperationException(SR.EditDataInvalidFormatBoolean);
                 }
             }
             else
@@ -253,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 string columnSizeString = $"({Column.ColumnSize.Value})";
                 string columnTypeString = Column.DataTypeName.ToUpperInvariant() + columnSizeString;
-                throw new FormatException(SR.EditDataValueTooLarge(valueAsString, columnTypeString));
+                throw new InvalidOperationException(SR.EditDataValueTooLarge(valueAsString, columnTypeString));
             }
             
             ValueAsString = valueAsString;
