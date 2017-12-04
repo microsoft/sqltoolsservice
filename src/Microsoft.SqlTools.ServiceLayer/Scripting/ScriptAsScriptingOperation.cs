@@ -76,15 +76,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 switch (this.Parameters.Operation)
                 {
-                    case "Create":
-                    case "Drop":
-                    case "Delete": // Using Delete here is wrong. delete usually means delete rows from table but sqlopsstudio sending the operation name as delete instead of drop
+                    case ScriptingOperationType.Create:
+                    case ScriptingOperationType.Delete: // Using Delete here is wrong. delete usually means delete rows from table but sqlopsstudio sending the operation name as delete instead of drop
                         resultScript = GenerateScriptAs(server, urns);
                         break;
-                    case "Select":
+                    case ScriptingOperationType.Select:
                         resultScript = GenerateScriptSelect(server, urns);
                         break;
-                    case "Execute":
+                    case ScriptingOperationType.Execute:
                         resultScript = GenerareScriptAsExecute(server, urns);
                         break;
                 }

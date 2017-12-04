@@ -75,13 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 
         /// <summary>
         /// The script operation
-        ///  Possible values: 
-        ///   Create
-        ///   Drop
-        ///   Select
-        ///   Execute
         /// </summary>
-        public string Operation { get; set; }
+        public ScriptingOperationType Operation { get; set; }
 
     }
 
