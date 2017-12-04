@@ -2312,6 +2312,11 @@
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
       </trans-unit>
+      <trans-unit id="StoredProcedureScriptParameterComment">
+        <source>-- TODO: Set parameter values here.</source>
+        <target state="new">-- TODO: Set parameter values here.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

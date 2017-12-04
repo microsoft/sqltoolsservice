@@ -79,7 +79,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   Create
         ///   Drop
         ///   Select
-        ///   Alter
         ///   Execute
         /// </summary>
         public string Operation { get; set; }

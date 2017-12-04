@@ -2397,6 +2397,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string StoredProcedureScriptParameterComment
+        {
+            get
+            {
+                return Keys.GetString(Keys.StoredProcedureScriptParameterComment);
+            }
+        }
+
         public static string unavailable
         {
             get
@@ -4595,6 +4603,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
+
+
+            public const string StoredProcedureScriptParameterComment = "StoredProcedureScriptParameterComment";
 
 
             public const string unavailable = "unavailable";

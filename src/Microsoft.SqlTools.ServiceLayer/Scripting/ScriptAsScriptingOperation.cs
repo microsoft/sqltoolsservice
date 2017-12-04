@@ -78,8 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     case "Create":
                     case "Drop":
-                    case "Alter":
-
+                    case "Delete": // Using Delete here is wrong. delete usually means delete rows from table but sqlopsstudio sending the operation name as delete instead of drop
                         resultScript = GenerateScriptAs(server, urns);
                         break;
                     case "Select":
@@ -243,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             script = string.Format(CultureInfo.InvariantCulture, formatString,
                 declares,
-                "-- TODO: Set parameter values here.",
+                SR.StoredProcedureScriptParameterComment,
                 executeStatement,
                 parameterList);
 
@@ -434,11 +433,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 options.ScriptData = false;
                 SetScriptingOptions(options);
 
-                if(options.ScriptForAlter)
-                {
-                    // TODO
-                }
-
                 // TODO: Not including the header by default. We have to get this option from client
                 options.IncludeHeaders = false;
                 scripter.Options = options;
@@ -517,9 +511,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     break;
                 case "ScriptDrop":
                     options.ScriptDrops = true;
-                    break;
-                case "ScriptAlter":
-                    options.ScriptForAlter = true;
                     break;
                 default:
                     options.ScriptDrops = false;
