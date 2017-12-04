@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     }
                 }
 
-                if (!CreateScriptAsOperation(parameters))
+                if (!ShouldCreateScriptAsOperation(parameters))
                 {
                     operation = new ScriptingScriptOperation(parameters);
                     operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private bool CreateScriptAsOperation(ScriptingParams parameters)
+        private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)
         {
             // Scripting as oepration should be used to script one object.
             // Scripting data and scripting to file is not supported by scripting as operation
