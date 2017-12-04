@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)
         {
-            // Scripting as oepration should be used to script one object.
+            // Scripting as operation should be used to script one object.
             // Scripting data and scripting to file is not supported by scripting as operation
             // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
             if( (parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") || 

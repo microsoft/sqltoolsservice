@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// The script operation
         /// </summary>
-        public ScriptingOperationType Operation { get; set; }
+        public ScriptingOperationType Operation { get; set; } = ScriptingOperationType.Create;
 
     }
 
