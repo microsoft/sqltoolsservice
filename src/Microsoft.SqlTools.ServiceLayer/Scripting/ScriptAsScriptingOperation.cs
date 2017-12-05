@@ -207,14 +207,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // character string to put in front of each parameter. First one is just carriage return
             // the rest will have a "," in front as well.
-            string paramListPreChar = "\r\n   ";
+            string newLine = Environment.NewLine;
+            string paramListPreChar = $"{newLine}   ";
             for (int i = 0; i < sp.Parameters.Count; i++)
             {
                 StoredProcedureParameter spp = sp.Parameters[i];
 
-                declares.AppendFormat("DECLARE {0} {1}\r\n"
+                declares.AppendFormat("DECLARE {0} {1}{2}"
                                       , QuoteObjectName(spp.Name)
-                                      , GetDatatype(spp.DataType, options));
+                                      , GetDatatype(spp.DataType, options)
+                                      , newLine);
 
                 parameterList.AppendFormat("{0}{1}"
                                            , paramListPreChar
@@ -223,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // if this is the first time through change the prefix to include a ","
                 if (i == 0)
                 {
-                    paramListPreChar = "\r\n  ,";
+                    paramListPreChar = $"{newLine}  ,";
                 }
 
                 // mark any output parameters as such.
@@ -247,15 +249,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             executeStatement.Append(GenerateSchemaQualifiedName(sp.Schema, sp.Name, options.SchemaQualify));
 
             string formatString = sp.ImplementationType == ImplementationType.TransactSql
-                                  ? "DECLARE @RC int\r\n{0}\r\n{1}\r\n\r\n{2} {3}\r\n{4}"
-                                  : "{0}\r\n{1}\r\n\r\n{2} {3}\r\n{4}";
+                                  ? "DECLARE @RC int{5}{0}{5}{1}{5}{5}{2} {3}{5}{4}"
+                                  : "{0}{5}{1}{5}{5}{2} {3}{5}{4}";
 
             script = string.Format(CultureInfo.InvariantCulture, formatString,
                 declares,
                 SR.StoredProcedureScriptParameterComment,
                 executeStatement,
                 parameterList,
-                CommonConstants.DefaultBatchSeperator);
+                CommonConstants.DefaultBatchSeperator,
+                newLine);
 
             return script;
         }
