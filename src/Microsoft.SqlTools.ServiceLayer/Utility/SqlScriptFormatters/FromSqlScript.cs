@@ -16,6 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
     /// </summary>
     public static class FromSqlScript
     {
+        // Regex: optionally starts with N, captures string wrapped in single quotes
         private static readonly Regex StringRegex = new Regex("^N?'(.*)'$", RegexOptions.Compiled);
         
         /// <summary>
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
         /// Thrown if an invalid state transition is made, indicating that the multipart identifer
         /// is not valid. 
         /// </exception>
-        public static string[] DecodeMultipartIdenfitier(string multipartIdentifier)
+        public static string[] DecodeMultipartIdentifier(string multipartIdentifier)
         {
             StringBuilder sb = new StringBuilder();
             List<string> namedParts = new List<string>();

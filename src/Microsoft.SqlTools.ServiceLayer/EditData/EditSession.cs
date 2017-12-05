@@ -442,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             return initParams.SchemaName != null
                 ? new [] { initParams.SchemaName, initParams.ObjectName }
-                : FromSqlScript.DecodeMultipartIdenfitier(initParams.ObjectName);
+                : FromSqlScript.DecodeMultipartIdentifier(initParams.ObjectName);
         }
 
         private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)

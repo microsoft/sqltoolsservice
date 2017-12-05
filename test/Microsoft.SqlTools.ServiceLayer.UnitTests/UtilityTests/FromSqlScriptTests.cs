@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Xunit;
@@ -37,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         public void DecodeMultipartIdentifierTest(string input, string[] output)
         {
             // If: I decode the input
-            string[] decoded = FromSqlScript.DecodeMultipartIdenfitier(input);
+            string[] decoded = FromSqlScript.DecodeMultipartIdentifier(input);
 
             // Then: The output should match what was expected
             Assert.Equal(output, decoded);
@@ -52,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // If: I decode an invalid input
             // Then: It should throw an exception
-            Assert.Throws<FormatException>(() => FromSqlScript.DecodeMultipartIdenfitier(input));
+            Assert.Throws<FormatException>(() => FromSqlScript.DecodeMultipartIdentifier(input));
         }
 
         #endregion
