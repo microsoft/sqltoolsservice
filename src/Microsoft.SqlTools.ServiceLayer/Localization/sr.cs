@@ -2405,6 +2405,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ScriptingGeneralError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingGeneralError);
+            }
+        }
+
+        public static string ScriptingExecuteNotSupportedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingExecuteNotSupportedError);
+            }
+        }
+
         public static string unavailable
         {
             get
@@ -4606,6 +4622,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string StoredProcedureScriptParameterComment = "StoredProcedureScriptParameterComment";
+
+
+            public const string ScriptingGeneralError = "ScriptingGeneralError";
+
+
+            public const string ScriptingExecuteNotSupportedError = "ScriptingExecuteNotSupportedError";
 
 
             public const string unavailable = "unavailable";

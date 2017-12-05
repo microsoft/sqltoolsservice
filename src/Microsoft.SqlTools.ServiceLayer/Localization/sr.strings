@@ -693,6 +693,9 @@ ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error par
 
 StoredProcedureScriptParameterComment = -- TODO: Set parameter values here.
 
+ScriptingGeneralError = An error occurred while scripting the objects
+ScriptingExecuteNotSupportedError = Scripting as Execute is only supported for Stored Procedures
+
 ############################################################################
 # Admin Service
 

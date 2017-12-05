@@ -102,9 +102,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         }
 
         [Fact]
+        public async void VerifyScriptAsExecuteTableFailes()
+        {
+            string query = "CREATE TABLE testTable1 (c1 int)";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Execute;
+            ScriptingObject scriptingObject = new ScriptingObject
+            {
+                Name = "testTable1",
+                Schema = "dbo",
+                Type = "Table"
+            };
+            string expectedScript = null;
+
+            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
         public async void VerifyScriptAsExecuteStoredProcedure()
         {
-            string query = "CREATE PROCEDURE testSp1 @StartProductID [int] AS  BEGIN Select * from sys.all_columns END";
+            string query = @"CREATE PROCEDURE testSp1 
+                @BusinessEntityID [int], 
+                @JobTitle [nvarchar](50), 
+                @HireDate [datetime], 
+                @RateChangeDate [datetime], 
+                @Rate [money], 
+                @PayFrequency [tinyint]
+                AS  
+                BEGIN Select * from sys.all_columns END";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Execute;
             ScriptingObject scriptingObject = new ScriptingObject
             {
@@ -277,7 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
         private static bool VerifyScriptingResult(ScriptingResult result, string expected)
         {
-            return !string.IsNullOrEmpty(result.Script) && result.Script.Contains(expected);
+            return string.IsNullOrEmpty(expected) ? string.IsNullOrEmpty(result.Script) : !string.IsNullOrEmpty(result.Script) && result.Script.Contains(expected);
         }
     }
 }

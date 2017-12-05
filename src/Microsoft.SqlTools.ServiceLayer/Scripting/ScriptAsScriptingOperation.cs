@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     {
                         OperationId = OperationId,
                         HasError = true,
-                        ErrorMessage = $"An error occurred while scripting the objects. {e.Message}",
+                        ErrorMessage = $"{SR.ScriptingGeneralError} {e.Message}",
                         ErrorDetails = e.ToString(),
                     });
                 }
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             StringBuilder parameterList = new StringBuilder();
             if (sp == null || parentObject == null)
             {
-
+                throw new InvalidOperationException(SR.ScriptingExecuteNotSupportedError);
             }
             WriteUseDatabase(parentObject, executeStatement, options);
 
