@@ -1386,7 +1386,7 @@
     <comment></comment>
   </data>
   <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>An error occurred while scripting the objects</value>
+    <value>An error occurred while scripting the objects.</value>
     <comment></comment>
   </data>
   <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">

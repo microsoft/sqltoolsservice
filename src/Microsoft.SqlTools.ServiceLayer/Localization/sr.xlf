@@ -2318,7 +2318,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="ScriptingGeneralError">
-        <source>An error occurred while scripting the objects</source>
+        <source>An error occurred while scripting the objects.</source>
         <target state="new">An error occurred while scripting the objects</target>
         <note></note>
       </trans-unit>
