@@ -101,7 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   ScriptCreate
         ///   ScriptDrop
         ///   ScriptCreateDrop
-        ///   ScriptSelect
         /// </summary>
         /// <remarks>
         /// The default is ScriptCreate.
