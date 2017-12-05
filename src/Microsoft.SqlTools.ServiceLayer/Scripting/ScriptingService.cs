@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
                 ConnectionInfo connInfo = null;
-                if (parameters.ConnectionString == null || parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+                if (parameters.ConnectionString == null)
                 {
                     ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
@@ -137,17 +137,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
                     operation = new ScriptingScriptOperation(parameters);
-                    operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
-                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
-                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
                 }
                 else
                 {
                     operation = new ScriptAsScriptingOperation(parameters);
-                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
-                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
-
                 }
+
+                operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
+                operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
+                operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+
                 RunTask(requestContext, operation);
 
             }
