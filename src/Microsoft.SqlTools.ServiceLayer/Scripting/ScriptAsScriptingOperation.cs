@@ -73,21 +73,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 
                 UrnCollection urns = CreateUrns(ServerConnection);
+                ScriptingOptions options = new ScriptingOptions();
+                SetScriptBehavior(options);
+                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
+                options.WithDependencies = false;
+                // TODO: Not including the header by default. We have to get this option from client
+                options.IncludeHeaders = false;
+
+                // Scripting data is not avaialable in the scripter
+                options.ScriptData = false;
+                SetScriptingOptions(options);
 
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Create:
                     case ScriptingOperationType.Delete: // Using Delete here is wrong. delete usually means delete rows from table but sqlopsstudio sending the operation name as delete instead of drop
-                        resultScript = GenerateScriptAs(server, urns);
+                        resultScript = GenerateScriptAs(server, urns, options);
                         break;
                     case ScriptingOperationType.Select:
                         resultScript = GenerateScriptSelect(server, urns);
                         break;
                     case ScriptingOperationType.Execute:
-                        resultScript = GenerareScriptAsExecute(server, urns);
+                        resultScript = GenerareScriptAsExecute(server, urns, options);
                         break;
                 }
-
 
                 this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -103,6 +112,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                 {
                     Success = true,
+                });
+
+                this.SendPlanNotificationEvent(new ScriptingPlanNotificationParams
+                {
+                    ScriptingObjects = this.Parameters.ScriptingObjects,
+                    Count = 1,
                 });
             }
             catch (Exception e)
@@ -122,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     {
                         OperationId = OperationId,
                         HasError = true,
-                        ErrorMessage = e.Message,
+                        ErrorMessage = $"An error occurred while scripting the objects. {e.Message}",
                         ErrorDetails = e.ToString(),
                     });
                 }
@@ -167,15 +182,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return script;
         }
 
-        private string GenerareScriptAsExecute(Server server, UrnCollection urns)
+        private string GenerareScriptAsExecute(Server server, UrnCollection urns, ScriptingOptions options)
         {
             string script = string.Empty;
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
             Urn urn = urns[0];
-
-            ScriptingOptions options = new ScriptingOptions();
-            SetScriptBehavior(options);
-            PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
 
             // get the object
             StoredProcedure sp = server.GetSmoObject(urn) as StoredProcedure;
@@ -236,14 +247,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             executeStatement.Append(GenerateSchemaQualifiedName(sp.Schema, sp.Name, options.SchemaQualify));
 
             string formatString = sp.ImplementationType == ImplementationType.TransactSql
-                                  ? "DECLARE @RC int\r\n{0}\r\n{1}\r\n\r\n{2} {3}"
-                                  : "{0}\r\n{1}\r\n\r\n{2} {3}";
+                                  ? "DECLARE @RC int\r\n{0}\r\n{1}\r\n\r\n{2} {3}\r\n{4}"
+                                  : "{0}\r\n{1}\r\n\r\n{2} {3}\r\n{4}";
 
             script = string.Format(CultureInfo.InvariantCulture, formatString,
                 declares,
                 SR.StoredProcedureScriptParameterComment,
                 executeStatement,
-                parameterList);
+                parameterList,
+                CommonConstants.DefaultBatchSeperator);
 
             return script;
         }
@@ -416,24 +428,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private string GenerateScriptAs(Server server, UrnCollection urns)
+        private string GenerateScriptAs(Server server, UrnCollection urns, ScriptingOptions options)
         {
             SqlServer.Management.Smo.Scripter scripter = null;
             string resultScript = string.Empty;
             try
             {
                 scripter = new SqlServer.Management.Smo.Scripter(server);
-                ScriptingOptions options = new ScriptingOptions();
-                SetScriptBehavior(options);
-                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
-                options.WithDependencies = false;
 
-                // Scripting data is not avaialable in the scripter
-                options.ScriptData = false;
-                SetScriptingOptions(options);
-
-                // TODO: Not including the header by default. We have to get this option from client
-                options.IncludeHeaders = false;
                 scripter.Options = options;
                 scripter.ScriptingError += ScripterScriptingError;
                 var result = scripter.Script(urns);

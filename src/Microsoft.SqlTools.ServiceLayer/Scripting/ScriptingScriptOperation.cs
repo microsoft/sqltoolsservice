@@ -113,24 +113,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         protected override void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
-            this.SetCommonEventProperties(parameters);
             base.SendCompletionNotificationEvent(parameters);
         }
 
         protected override void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
         {
-            this.SetCommonEventProperties(parameters);
+            base.SendPlanNotificationEvent(parameters);
         }
 
         protected override void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
-            this.SetCommonEventProperties(parameters);
             base.SendProgressNotificationEvent(parameters);
         }
 
-        private void SetCommonEventProperties(ScriptingEventParams parameters)
+        protected override void SetCommonEventProperties(ScriptingEventParams parameters)
         {
-            parameters.OperationId = this.OperationId;
+            base.SetCommonEventProperties(parameters);
             parameters.SequenceNumber = this.eventSequenceNumber;
             this.eventSequenceNumber += 1;
         }
