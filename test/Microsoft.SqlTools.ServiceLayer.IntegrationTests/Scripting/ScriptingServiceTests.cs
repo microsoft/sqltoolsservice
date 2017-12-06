@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -113,8 +114,49 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Type = "Table"
             };
             string expectedScript = null;
-
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
+        public async void VerifyScriptAsAlter()
+        {
+            string query = @"CREATE PROCEDURE testSp1 @StartProductID [int] AS  BEGIN Select * from sys.all_columns END
+                            GO
+                            CREATE VIEW testView1 AS SELECT * from sys.all_columns
+                            GO
+                            CREATE FUNCTION testFun1() RETURNS [int] AS BEGIN RETURN 1 END
+                            GO";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Alter;
+
+            List<ScriptingObject> scriptingObjects = new List<ScriptingObject>
+            {
+                new ScriptingObject
+                {
+                    Name = "testSp1",
+                    Schema = "dbo",
+                    Type = "StoredProcedure"
+                },
+                new ScriptingObject
+                {
+                    Name = "testView1",
+                    Schema = "dbo",
+                    Type = "View"
+                },
+                new ScriptingObject
+                {
+                    Name = "testFun1",
+                    Schema = "dbo",
+                    Type = "UserDefinedFunction"
+                }
+            };
+            List<string> expectedScripts = new List<string>
+            {
+                "ALTER PROCEDURE [dbo].[testSp1]",
+                "ALTER VIEW [dbo].[testView1]",
+                "ALTER FUNCTION [dbo].[testFun1]"
+            };
+
+            await VerifyScriptAsForMultipleObjects(query, scriptingObjects, scriptCreateDrop, expectedScripts);
         }
 
         [Fact]
@@ -239,6 +281,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
         private async Task VerifyScriptAs(string query, ScriptingObject scriptingObject, ScriptingOperationType operation, string expectedScript)
         {
+            await VerifyScriptAsForMultipleObjects(query, new List<ScriptingObject> { scriptingObject }, operation, new List<string> { expectedScript });
+        }
+
+        private async Task VerifyScriptAsForMultipleObjects(string query, List<ScriptingObject> scriptingObjects, ScriptingOperationType operation, List<string> expectedScripts)
+        {
             var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "ScriptingTests");
             try
             {
@@ -271,10 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                         ScriptCreateDrop = scriptCreateOperation,
                     };
 
-                    scriptingParams.ScriptingObjects = new List<ScriptingObject>
-                     {
-                        scriptingObject
-                    };
+                    scriptingParams.ScriptingObjects = scriptingObjects;
 
 
                     ScriptingService service = new ScriptingService();
@@ -282,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                     Thread.Sleep(2000);
                     await service.ScriptingTask;
 
-                    requestContext.Verify(x => x.SendResult(It.Is<ScriptingResult>(r => VerifyScriptingResult(r, expectedScript))));
+                    requestContext.Verify(x => x.SendResult(It.Is<ScriptingResult>(r => VerifyScriptingResult(r, expectedScripts))));
                     connectionService.Disconnect(new ServiceLayer.Connection.Contracts.DisconnectParams
                     {
                         OwnerUri = queryTempFile.FilePath
@@ -299,9 +343,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             }
         }
 
-        private static bool VerifyScriptingResult(ScriptingResult result, string expected)
+        private static bool VerifyScriptingResult(ScriptingResult result, List<string> expectedScripts)
         {
-            return string.IsNullOrEmpty(expected) ? string.IsNullOrEmpty(result.Script) : !string.IsNullOrEmpty(result.Script) && result.Script.Contains(expected);
+            if (expectedScripts == null || (expectedScripts.Count > 0 && expectedScripts.All(x => x == null)))
+            {
+                return string.IsNullOrEmpty(result.Script);
+            }
+
+            foreach (string expectedScript in expectedScripts)
+            {
+                if (!result.Script.Contains(expectedScript))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

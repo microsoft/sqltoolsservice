@@ -163,7 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
             if( (parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
                 && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") || 
-                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute) 
+                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute || 
+                parameters.Operation == ScriptingOperationType.Alter) 
             {
                 return true;
             }

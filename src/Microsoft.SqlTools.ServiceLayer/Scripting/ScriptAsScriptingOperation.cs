@@ -87,6 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Create:
+                    case ScriptingOperationType.Alter:
                     case ScriptingOperationType.Delete: // Using Delete here is wrong. delete usually means delete rows from table but sqlopsstudio sending the operation name as delete instead of drop
                         resultScript = GenerateScriptAs(server, urns, options);
                         break;
@@ -438,6 +439,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             try
             {
                 scripter = new SqlServer.Management.Smo.Scripter(server);
+                if(this.Parameters.Operation == ScriptingOperationType.Alter)
+                {
+                    options.ScriptForAlter = true;
+                    foreach (var urn in urns)
+                    {
+                        SqlSmoObject smoObject = server.GetSmoObject(urn);
+
+                        // without calling the toch method, no alter script get generated from smo
+                        smoObject.Touch();
+                    }
+                }
 
                 scripter.Options = options;
                 scripter.ScriptingError += ScripterScriptingError;

@@ -15,6 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         Insert = 2,
         Update = 3,
         Delete = 4,
-        Execute = 5
+        Execute = 5,
+        Alter = 6
     }
 }
