@@ -29,11 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
         }
 
-        /// <summary>
-        /// Event raised when a scripting operation has resolved which database objects will be scripted.
-        /// </summary>
-        public event EventHandler<ScriptingPlanNotificationParams> PlanNotification;
-
         public override void Execute()
         {
             SqlScriptPublishModel publishModel = null;
@@ -118,25 +113,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         protected override void SendCompletionNotificationEvent(ScriptingCompleteParams parameters)
         {
-            this.SetCommonEventProperties(parameters);
             base.SendCompletionNotificationEvent(parameters);
         }
 
-        private void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
+        protected override void SendPlanNotificationEvent(ScriptingPlanNotificationParams parameters)
         {
-            this.SetCommonEventProperties(parameters);
-            this.PlanNotification?.Invoke(this, parameters);
+            base.SendPlanNotificationEvent(parameters);
         }
 
         protected override void SendProgressNotificationEvent(ScriptingProgressNotificationParams parameters)
         {
-            this.SetCommonEventProperties(parameters);
             base.SendProgressNotificationEvent(parameters);
         }
 
-        private void SetCommonEventProperties(ScriptingEventParams parameters)
+        protected override void SetCommonEventProperties(ScriptingEventParams parameters)
         {
-            parameters.OperationId = this.OperationId;
+            base.SetCommonEventProperties(parameters);
             parameters.SequenceNumber = this.eventSequenceNumber;
             this.eventSequenceNumber += 1;
         }

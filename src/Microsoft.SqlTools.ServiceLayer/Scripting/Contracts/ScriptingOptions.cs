@@ -13,17 +13,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// Generate ANSI padding statements
         /// </summary>
-        public bool? ScriptAnsiPadding { get; set; } = false;
-
-        /// <summary>
-        /// Returns Generate ANSI padding statements
-        /// </summary>
-        public bool? AnsiPadding { get { return ScriptAnsiPadding; } }
+        public virtual bool? ScriptAnsiPadding { get; set; } = false;
 
         /// <summary>
         /// Append the generated script to a file
         /// </summary>
-        public bool? AppendToFile { get; set; } = false;
+        public virtual bool? AppendToFile { get; set; } = false;
 
         /// <summary>
         /// Continue to script if an error occurs. Otherwise, stop.
@@ -31,17 +26,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default is true.
         /// </remarks>
-        public bool? ContinueScriptingOnError { get; set; } = true;
+        public virtual bool? ContinueScriptingOnError { get; set; } = true;
 
         /// <summary>
         /// Convert user-defined data types to base types.
         /// </summary>
-        public bool? ConvertUDDTToBaseType { get; set; } = false;
-
-        /// <summary>
-        /// Returns ConvertUDDTToBaseType
-        /// </summary>
-        public bool? ConvertUserDefinedDataTypesToBaseType { get { return ConvertUDDTToBaseType; } }
+        public virtual bool? ConvertUDDTToBaseType { get; set; } = false;
 
         /// <summary>
         /// Generate script for dependent objects for each object scripted.
@@ -49,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default is false.
         /// </remarks>
-        public bool? GenerateScriptForDependentObjects { get; set; } = false;
+        public virtual bool? GenerateScriptForDependentObjects { get; set; } = false;
 
         /// <summary>
         /// Include descriptive headers for each object generated.
@@ -57,37 +47,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default is true.
         /// </remarks>
-        public bool? IncludeDescriptiveHeaders { get; set; } = true;
-
-        /// <summary>
-        /// Returns IncludeDescriptiveHeaders
-        /// </summary>
-        public bool? IncludeHeaders { get { return IncludeDescriptiveHeaders; } }
+        public virtual bool? IncludeDescriptiveHeaders { get; set; } = true;
 
         /// <summary>
         /// Check that an object with the given name exists before dropping or altering or that an object with the given name does not exist before creating.
         /// </summary>
-        public bool? IncludeIfNotExists { get; set; } = false;
+        public virtual bool? IncludeIfNotExists { get; set; } = false;
 
         /// <summary>
         /// Script options to set vardecimal storage format.
         /// </summary>
-        public bool? IncludeVarDecimal { get; set; } = true;
+        public virtual bool? IncludeVarDecimal { get; set; } = true;
 
         /// <summary>
         /// Include system generated constraint names to enforce declarative referential integrity.
         /// </summary>
-        public bool? ScriptDriIncludeSystemNames { get; set; } = false;
-
-        /// <summary>
-        /// Returns ScriptDriIncludeSystemNames
-        /// </summary>
-        public bool? DriIncludeSystemNames { get { return ScriptDriIncludeSystemNames; } }
+        public virtual bool? ScriptDriIncludeSystemNames { get; set; } = false;
 
         /// <summary>
         /// Include statements in the script that are not supported on the specified SQL Server database engine type.
         /// </summary>
-        public bool? IncludeUnsupportedStatements { get; set; } = true;
+        public virtual bool? IncludeUnsupportedStatements { get; set; } = true;
 
         /// <summary>
         /// Prefix object names with the object schema.
@@ -95,27 +75,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default is true.
         /// </remarks>
-        public bool? SchemaQualify { get; set; } = true;
-
-        /// <summary>
-        /// Returns SchemaQualify
-        /// </summary>
-        public bool? SchemaQualifyForeignKeysReferences { get { return SchemaQualify; } }
+        public virtual bool? SchemaQualify { get; set; } = true;
 
         /// <summary>
         /// Script options to set bindings option.
         /// </summary>
-        public bool? Bindings { get; set; } = false;
+        public virtual bool? Bindings { get; set; } = false;
 
         /// <summary>
         /// Script the objects that use collation.
         /// </summary>
-        public bool? Collation { get; set; } = false;
-
-        /// <summary>
-        /// Returns false if Collation is true
-        /// </summary>
-        public bool? NoCollation { get { return !Collation; } }
+        public virtual bool? Collation { get; set; } = false;
 
         /// <summary>
         /// Script the default values.
@@ -123,13 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default is true.
         /// </remarks>
-        public bool? Default { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of Default Property
-        /// </summary>
-        public bool? DriDefaults { get { return Default; } }
-
+        public virtual bool? Default { get; set; } = true;
 
         /// <summary>
         /// Script Object CREATE/DROP statements.  
@@ -137,12 +101,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   ScriptCreate
         ///   ScriptDrop
         ///   ScriptCreateDrop
-        ///   ScriptSelect
         /// </summary>
         /// <remarks>
         /// The default is ScriptCreate.
         /// </remarks>
-        public string ScriptCreateDrop { get; set; } = "ScriptCreate";
+        public virtual string ScriptCreateDrop { get; set; } = "ScriptCreate";
 
         /// <summary>
         /// Script the Extended Properties for each object scripted.
@@ -150,13 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default is true.
         /// </remarks>
-        public bool? ScriptExtendedProperties { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptExtendedProperties Property
-        /// </summary>
-        public bool? ExtendedProperties { get { return ScriptExtendedProperties; } }
-
+        public virtual bool? ScriptExtendedProperties { get; set; } = true;
 
         /// <summary>
         /// Script only features compatible with the specified version of SQL Server.  Possible values:
@@ -167,11 +124,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   Script120Compat
         ///   Script130Compat
         ///   Script140Compat  
+        ///   Script150Compat  
         /// </summary>
         /// <remarks>
         /// The default is Script140Compat.
         /// </remarks>
-        public string ScriptCompatibilityOption { get; set; } = "Script140Compat";
+        public virtual string ScriptCompatibilityOption { get; set; } = "Script140Compat";
 
         /// <summary>
         /// Script only features compatible with the specified SQL Server database engine type.
@@ -179,8 +137,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   SingleInstance
         ///   SqlAzure
         /// </summary>
-        public string TargetDatabaseEngineType { get; set; } = "SingleInstance";
-        
+        public virtual string TargetDatabaseEngineType { get; set; } = "SingleInstance";
+
         /// <summary>
         /// Script only features compatible with the specified SQL Server database engine edition.
         /// Possible Values:
@@ -191,28 +149,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   SqlAzureDatabaseEdition
         ///   SqlDatawarehouseEdition
         ///   SqlServerStretchEdition 
+        ///   SqlManagedInstanceEdition 
         /// </summary>
-        public string TargetDatabaseEngineEdition { get; set; } = "SqlServerEnterpriseEdition";
+        public virtual string TargetDatabaseEngineEdition { get; set; } = "SqlServerEnterpriseEdition";
 
         /// <summary>
         /// Script all logins available on the server. Passwords will not be scripted.
         /// </summary>
-        public bool? ScriptLogins { get; set; } = false;
+        public virtual bool? ScriptLogins { get; set; } = false;
 
         /// <summary>
         /// Generate object-level permissions.
         /// </summary>
-        public bool? ScriptObjectLevelPermissions { get; set; } = false;
-
-        /// <summary>
-        /// Returns the value of ScriptObjectLevelPermissions Property
-        /// </summary>
-        public bool? Permissions { get { return ScriptObjectLevelPermissions; } }
+        public virtual bool? ScriptObjectLevelPermissions { get; set; } = false;
 
         /// <summary>
         /// Script owner for the objects.
         /// </summary>
-        public bool? ScriptOwner { get; set; } = false;
+        public virtual bool? ScriptOwner { get; set; } = false;
 
         /// <summary>
         /// Script statistics, and optionally include histograms, for each selected table or view.
@@ -224,18 +178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is ScriptStatsNone.
         /// </remarks>
-        public string ScriptStatistics { get; set; } = "ScriptStatsNone";
-
-        /// <summary>
-        /// Returns the value of ScriptStatistics Property
-        /// </summary>
-        public string Statistics { get { return ScriptStatistics; } }
-
+        public virtual string ScriptStatistics { get; set; } = "ScriptStatsNone";
 
         /// <summary>
         /// Generate USE DATABASE statement.
         /// </summary>
-        public bool? ScriptUseDatabase { get; set; } = true;
+        public virtual bool? ScriptUseDatabase { get; set; } = true;
 
         /// <summary>
         /// Generate script that contains schema only or schema and data.
@@ -247,18 +195,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is SchemaOnly.
         /// </remarks>
-        public string TypeOfDataToScript { get; set; } = "SchemaOnly";
+        public virtual string TypeOfDataToScript { get; set; } = "SchemaOnly";
 
         /// <summary>
         /// Scripts the change tracking information.
         /// </summary>
-        public bool? ScriptChangeTracking { get; set; } = false;
-
-        /// <summary>
-        /// Returns the value of ScriptChangeTracking Property
-        /// </summary>
-        public bool? ChangeTracking { get { return ScriptChangeTracking; } }
-
+        public virtual bool? ScriptChangeTracking { get; set; } = false;
 
         /// <summary>
         /// Script the check constraints for each table or view scripted.
@@ -266,23 +208,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is true.
         /// </remarks>
-        public bool? ScriptCheckConstraints { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptCheckConstraints Property
-        /// </summary>
-        public bool? DriChecks { get { return ScriptCheckConstraints; } }
+        public virtual bool? ScriptCheckConstraints { get; set; } = true;
 
         /// <summary>
         /// Scripts the data compression information.
         /// </summary>
-        public bool? ScriptDataCompressionOptions { get; set; } = false;
-
-        /// <summary>
-        /// Returns the value of ScriptDataCompressionOptions Property
-        /// </summary>
-        public bool? ScriptDataCompression { get { return ScriptDataCompressionOptions; } }
-
+        public virtual bool? ScriptDataCompressionOptions { get; set; } = false;
 
         /// <summary>
         /// Script the foreign keys for each table scripted.
@@ -290,24 +221,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is true.
         /// </remarks>
-        public bool? ScriptForeignKeys { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptForeignKeys Property
-        /// </summary>
-        public bool? DriForeignKeys { get { return ScriptForeignKeys; } }
-
+        public virtual bool? ScriptForeignKeys { get; set; } = true;
 
         /// <summary>
         /// Script the full-text indexes for each table or indexed view scripted.
         /// </summary>
-        public bool? ScriptFullTextIndexes { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptFullTextIndexes Property
-        /// </summary>
-        public bool? FullTextIndexes { get { return ScriptFullTextIndexes; } }
-
+        public virtual bool? ScriptFullTextIndexes { get; set; } = true;
 
         /// <summary>
         /// Script the indexes (including XML and clustered indexes) for each table or indexed view scripted.
@@ -315,13 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is true.
         /// </remarks>
-        public bool? ScriptIndexes { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptIndexes Property
-        /// </summary>
-        public bool? DriIndexes { get { return ScriptIndexes; } }
-
+        public virtual bool? ScriptIndexes { get; set; } = true;
 
         /// <summary>
         /// Script the primary keys for each table or view scripted
@@ -329,24 +242,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is true.
         /// </remarks>
-        public bool? ScriptPrimaryKeys { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptPrimaryKeys Property
-        /// </summary>
-        public bool? DriPrimaryKey { get { return ScriptPrimaryKeys; } }
-
+        public virtual bool? ScriptPrimaryKeys { get; set; } = true;
 
         /// <summary>
         /// Script the triggers for each table or view scripted
         /// </summary>
-        public bool? ScriptTriggers { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of ScriptTriggers Property
-        /// </summary>
-        public bool? Triggers { get { return ScriptTriggers; } }
-
+        public virtual bool? ScriptTriggers { get; set; } = true;
 
         /// <summary>
         /// Script the unique keys for each table or view scripted.
@@ -354,12 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <remarks>
         /// The default value is true.
         /// </remarks>
-        public bool? UniqueKeys { get; set; } = true;
-
-        /// <summary>
-        /// Returns the value of UniqueKeys Property
-        /// </summary>
-        public bool? DriUniqueKeys { get { return UniqueKeys; } }
-
+        public virtual bool? UniqueKeys { get; set; } = true;
+            
     }
 }

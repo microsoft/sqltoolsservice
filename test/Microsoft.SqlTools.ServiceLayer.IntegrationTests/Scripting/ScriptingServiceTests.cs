@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         public async void VerifyScriptAsCreateTable()
         {
             string query = "CREATE TABLE testTable1 (c1 int)";
-            string scriptCreateDrop = "ScriptCreate";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Create;
             ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = "testTable1",
@@ -102,10 +102,66 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         }
 
         [Fact]
+        public async void VerifyScriptAsExecuteTableFailes()
+        {
+            string query = "CREATE TABLE testTable1 (c1 int)";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Execute;
+            ScriptingObject scriptingObject = new ScriptingObject
+            {
+                Name = "testTable1",
+                Schema = "dbo",
+                Type = "Table"
+            };
+            string expectedScript = null;
+
+            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
+        public async void VerifyScriptAsExecuteStoredProcedure()
+        {
+            string query = @"CREATE PROCEDURE testSp1 
+                @BusinessEntityID [int], 
+                @JobTitle [nvarchar](50), 
+                @HireDate [datetime], 
+                @RateChangeDate [datetime], 
+                @Rate [money], 
+                @PayFrequency [tinyint]
+                AS  
+                BEGIN Select * from sys.all_columns END";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Execute;
+            ScriptingObject scriptingObject = new ScriptingObject
+            {
+                Name = "testSp1",
+                Schema = "dbo",
+                Type = "StoredProcedure"
+            };
+            string expectedScript = "EXECUTE @RC = [dbo].[testSp1]";
+
+            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
+        public async void VerifyScriptAsSelectTable()
+        {
+            string query = "CREATE TABLE testTable1 (c1 int)";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Select;
+            ScriptingObject scriptingObject = new ScriptingObject
+            {
+                Name = "testTable1",
+                Schema = "dbo",
+                Type = "Table"
+            };
+            string expectedScript = "SELECT TOP (1000) [c1]";
+
+            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+        }
+
+        [Fact]
         public async void VerifyScriptAsCreateView()
         {
             string query = "CREATE VIEW testView1 AS SELECT * from sys.all_columns";
-            string scriptCreateDrop = "ScriptCreate";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Create;
             ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = "testView1",
@@ -121,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         public async void VerifyScriptAsCreateStoredProcedure()
         {
             string query = "CREATE PROCEDURE testSp1 AS  BEGIN Select * from sys.all_columns END";
-            string scriptCreateDrop = "ScriptCreate";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Create;
             ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = "testSp1",
@@ -137,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         public async void VerifyScriptAsDropTable()
         {
             string query = "CREATE TABLE testTable1 (c1 int)";
-            string scriptCreateDrop = "ScriptDrop";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Delete;
             ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = "testTable1",
@@ -153,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         public async void VerifyScriptAsDropView()
         {
             string query = "CREATE VIEW testView1 AS SELECT * from sys.all_columns";
-            string scriptCreateDrop = "ScriptDrop";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Delete;
             ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = "testView1",
@@ -169,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         public async void VerifyScriptAsDropStoredProcedure()
         {
             string query = "CREATE PROCEDURE testSp1 AS  BEGIN Select * from sys.all_columns END";
-            string scriptCreateDrop = "ScriptDrop";
+            ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Delete;
             ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = "testSp1",
@@ -181,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        private async Task VerifyScriptAs(string query, ScriptingObject scriptingObject, string scriptCreateDrop, string expectedScript)
+        private async Task VerifyScriptAs(string query, ScriptingObject scriptingObject, ScriptingOperationType operation, string expectedScript)
         {
             var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "ScriptingTests");
             try
@@ -196,13 +252,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                     var scriptingParams = new ScriptingParams
                     {
                         OwnerUri = queryTempFile.FilePath,
-                        ScriptDestination = "ToEditor"
+                        ScriptDestination = "ToEditor",
+                        Operation = operation
                     };
 
+                    string scriptCreateOperation = "ScriptCreate";
+                    if(operation == ScriptingOperationType.Delete)
+                    {
+                        scriptCreateOperation = "ScriptDrop";
+                    }
+                    else
+                    {
+                        scriptCreateOperation = $"Script{operation}";
+                    }
+                    
                     scriptingParams.ScriptOptions = new ScriptOptions
                     {
-                        ScriptCreateDrop = scriptCreateDrop,
-
+                        ScriptCreateDrop = scriptCreateOperation,
                     };
 
                     scriptingParams.ScriptingObjects = new List<ScriptingObject>
@@ -212,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
 
                     ScriptingService service = new ScriptingService();
-                    await service.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
+                    await service.HandleScriptExecuteRequest(scriptingParams, requestContext.Object);
                     Thread.Sleep(2000);
                     await service.ScriptingTask;
 
@@ -235,7 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
         private static bool VerifyScriptingResult(ScriptingResult result, string expected)
         {
-            return !string.IsNullOrEmpty(result.Script) && result.Script.Contains(expected);
+            return string.IsNullOrEmpty(expected) ? string.IsNullOrEmpty(result.Script) : !string.IsNullOrEmpty(result.Script) && result.Script.Contains(expected);
         }
     }
 }

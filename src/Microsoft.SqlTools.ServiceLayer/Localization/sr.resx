@@ -1394,6 +1394,18 @@
     <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
     <comment></comment>
   </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>An error occurred while scripting the objects.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Scripting as Execute is only supported for Stored Procedures</value>
+    <comment></comment>
+  </data>
   <data name="unavailable" xml:space="preserve">
     <value>Unavailable</value>
     <comment></comment>
