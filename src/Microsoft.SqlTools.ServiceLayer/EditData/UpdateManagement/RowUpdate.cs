@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             List<string> setComponents = new List<string>();
             foreach (var updateElement in cellUpdates)
             {
-                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(updateElement.Value.Column.ColumnName);
+                string formattedColumnName = ToSqlScript.FormatIdentifier(updateElement.Value.Column.ColumnName);
                 string paramName = $"@Value{RowId}_{updateElement.Key}";
                 setComponents.Add($"{formattedColumnName} = {paramName}");
                 SqlParameter parameter = new SqlParameter(paramName, updateElement.Value.Column.SqlDbType)
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Build the "OUTPUT" portion of the statement
             var outColumns = from c in AssociatedResultSet.Columns
-                             let formatted = SqlScriptFormatter.FormatIdentifier(c.ColumnName)
+                             let formatted = ToSqlScript.FormatIdentifier(c.ColumnName)
                              select $"inserted.{formatted}";
             string outColumnsJoined = string.Join(", ", outColumns);
 
@@ -148,8 +148,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Build the "SET" portion of the statement
             var setComponents = cellUpdates.Values.Select(cellUpdate =>
             {
-                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(cellUpdate.Column.ColumnName);
-                string formattedValue = SqlScriptFormatter.FormatValue(cellUpdate.Value, cellUpdate.Column);
+                string formattedColumnName = ToSqlScript.FormatIdentifier(cellUpdate.Column.ColumnName);
+                string formattedValue = ToSqlScript.FormatValue(cellUpdate.Value, cellUpdate.Column);
                 return $"{formattedColumnName} = {formattedValue}";
             });
             string setClause = string.Join(", ", setComponents);

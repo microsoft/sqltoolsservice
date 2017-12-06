@@ -208,6 +208,8 @@ EditDataUpdateNotPending = Given row ID does not have pending update
 
 EditDataObjectMetadataNotFound = Table or view metadata could not be found
 
+EditDataInvalidFormat(string colName, string colType) = Invalid format for column '{0}', column is defined as {1}
+
 EditDataInvalidFormatBinary = Invalid format for binary column
 
 EditDataInvalidFormatBoolean = Allowed values for boolean columns are 0, 1, "true", or "false"
@@ -303,7 +305,11 @@ TestLocalizationConstant = test
 ############################################################################
 # Utilities
 
-SqlScriptFormatterDecimalMissingPrecision = Decimal column is missing numeric precision or numeric scale
+SqlScriptFormatterDecimalMissingPrecision = Exact numeric column is missing numeric precision or numeric scale
+
+SqlScriptFormatterLengthTypeMissingSize = Column with length is missing size
+
+SqlScriptFormatterScalarTypeMissingScale = Scalar column missing scale
 
 ############################################################################
 # Object Explorer Service
