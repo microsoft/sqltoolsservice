@@ -2328,6 +2328,21 @@
         <target state="new">Scalar column missing scale</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="StoredProcedureScriptParameterComment">
+        <source>-- TODO: Set parameter values here.</source>
+        <target state="new">-- TODO: Set parameter values here.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingGeneralError">
+        <source>An error occurred while scripting the objects.</source>
+        <target state="new">An error occurred while scripting the objects.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingExecuteNotSupportedError">
+        <source>Scripting as Execute is only supported for Stored Procedures</source>
+        <target state="new">Scripting as Execute is only supported for Stored Procedures</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
