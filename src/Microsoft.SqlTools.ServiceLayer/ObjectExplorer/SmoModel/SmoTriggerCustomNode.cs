@@ -12,25 +12,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class TriggersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object context)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(context);
+            return TriggersCustomeNodeHelper.GetStatus(smoObject);
         }
     }
 
     internal partial class ServerLevelServerTriggersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object context)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(context);
+            return TriggersCustomeNodeHelper.GetStatus(smoObject);
         }
     }
 
     internal partial class DatabaseTriggersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object context)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(context);
+            return TriggersCustomeNodeHelper.GetStatus(smoObject);
         }
     }
 

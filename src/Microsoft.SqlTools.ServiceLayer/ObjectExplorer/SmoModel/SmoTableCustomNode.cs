@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Table table = smoObject as Table;
-                if (table != null && table.IsSystemVersioned)
+                if (table != null && IsPropertySupported("IsSystemVersioned", smoContext, table, CachedSmoProperties) && table.IsSystemVersioned)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
                 }
@@ -30,12 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        public override string GetNodeSubType(object context)
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
             try
             {
-                Table table = context as Table;
-                if (table != null && table.TemporalType != TableTemporalType.None)
+                Table table = smoObject as Table;
+                if (table != null && IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
                 {
                     return "Temporal";
                 }

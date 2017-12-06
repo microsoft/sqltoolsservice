@@ -676,13 +676,11 @@ GO";
         /// Get Definition for a object by putting the cursor on 3 different
         /// objects
         /// </summary>
-       // [Fact]
+        [Fact]
         public async void GetDefinitionFromChildrenAndParents()
         {
             string queryString = "select * from master.sys.objects";
-
             // place the cursor on every token
-
 
             //cursor on objects
             TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
@@ -692,8 +690,8 @@ GO";
 
             //cursor on master
             TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(17, OwnerUri);
-
-            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null, OwnerUri);
+            
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             connInfo.RemoveAllConnections();
@@ -733,7 +731,7 @@ GO";
             connInfo.RemoveAllConnections();
         }
 
-       // [Fact]
+        [Fact]
         public async void GetDefinitionFromProcedures()
         {
 
@@ -750,7 +748,7 @@ GO";
             //cursor on master
             TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10, TestUri);
 
-            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null, TestUri);
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             connInfo.RemoveAllConnections();

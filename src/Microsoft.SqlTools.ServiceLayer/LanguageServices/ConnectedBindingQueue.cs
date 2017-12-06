@@ -125,7 +125,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
                 {
-                    bindingContext.ServerConnection.Connect();
+                    try
+                    {
+                        bindingContext.ServerConnection.Connect();
+                    }
+                    catch
+                    {
+                        //TODO: remove the binding context? 
+                    }
                 }
             }
         }

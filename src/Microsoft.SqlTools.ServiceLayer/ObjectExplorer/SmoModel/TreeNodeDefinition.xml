@@ -9,6 +9,9 @@
     <Filters >
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
+    <Properties>
+      <Property Name="Status" ValidFor="All"/>
+    </Properties>
     <Child Name="SystemDatabases" IsSystemObject="1"/>
   </Node>
   <Node Name="ServerLevelSecurity" LocLabel="SR.SchemaHierarchy_Security" BaseClass="ModelBased" ValidFor="All">
@@ -191,7 +194,7 @@
   </Node>
 
   <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort=""/>
-  <Node Name="Keys" LocLabel="SR.SchemaHierarchy_Keys" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Key" ChildQuerierTypes="SqlIndex;SqlForeignKeyConstraint" >
+  <Node Name="Keys" LocLabel="SR.SchemaHierarchy_Keys" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Key" ChildQuerierTypes="SqlIndex;SqlForeignKeyConstraint" ValidFor="NotSqlDw">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
         <Value>IndexKeyType.DriPrimaryKey</Value>
@@ -206,6 +209,8 @@
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
         <Value>IndexKeyType.None</Value>
+        <Value>IndexKeyType.DriPrimaryKey</Value>
+        <Value>IndexKeyType.DriUniqueKey</Value>
       </Filter>
     </Filters>
   </Node>

@@ -73,6 +73,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
 
+        /// <summary>
+        /// The script operation
+        /// </summary>
+        public ScriptingOperationType Operation { get; set; } = ScriptingOperationType.Create;
+
     }
 
     /// <summary>

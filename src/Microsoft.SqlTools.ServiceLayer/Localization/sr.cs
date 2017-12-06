@@ -565,14 +565,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EditDataCreateScriptMissingValue
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataCreateScriptMissingValue);
-            }
-        }
-
         public static string EditDataDeleteSetCell
         {
             get
@@ -749,11 +741,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EE_ExecutionInfo_InitilizingLoop
+        public static string EE_ExecutionInfo_InitializingLoop
         {
             get
             {
-                return Keys.GetString(Keys.EE_ExecutionInfo_InitilizingLoop);
+                return Keys.GetString(Keys.EE_ExecutionInfo_InitializingLoop);
             }
         }
 
@@ -2405,6 +2397,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string StoredProcedureScriptParameterComment
+        {
+            get
+            {
+                return Keys.GetString(Keys.StoredProcedureScriptParameterComment);
+            }
+        }
+
+        public static string ScriptingGeneralError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingGeneralError);
+            }
+        }
+
+        public static string ScriptingExecuteNotSupportedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingExecuteNotSupportedError);
+            }
+        }
+
         public static string unavailable
         {
             get
@@ -3651,6 +3667,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
         }
 
+        public static string EditDataCreateScriptMissingValue(string colName)
+        {
+            return Keys.GetString(Keys.EditDataCreateScriptMissingValue, colName);
+        }
+
         public static string EditDataValueTooLarge(string value, string columnType)
         {
             return Keys.GetString(Keys.EditDataValueTooLarge, value, columnType);
@@ -3979,7 +4000,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EE_BatchExecutionError_Ignoring = "EE_BatchExecutionError_Ignoring";
 
 
-            public const string EE_ExecutionInfo_InitilizingLoop = "EE_ExecutionInfo_InitilizingLoop";
+            public const string EE_ExecutionInfo_InitializingLoop = "EE_ExecutionInfo_InitializingLoop";
 
 
             public const string EE_ExecutionError_CommandNotSupported = "EE_ExecutionError_CommandNotSupported";
@@ -4598,6 +4619,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
+
+
+            public const string StoredProcedureScriptParameterComment = "StoredProcedureScriptParameterComment";
+
+
+            public const string ScriptingGeneralError = "ScriptingGeneralError";
+
+
+            public const string ScriptingExecuteNotSupportedError = "ScriptingExecuteNotSupportedError";
 
 
             public const string unavailable = "unavailable";

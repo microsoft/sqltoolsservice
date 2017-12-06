@@ -23,6 +23,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;        
+        private static ConnectionService connectionService = null;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
@@ -61,8 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 connectionService = value;
             }
-        }     
-
+        }
 
         /// <summary>
         /// The collection of active operations
@@ -113,13 +113,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
+            SmoScriptingOperation operation = null;
+
             try
             {
                 // if a connection string wasn't provided as a parameter then
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
                 ConnectionInfo connInfo = null;
-                if (parameters.ConnectionString == null || parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+                if (parameters.ConnectionString == null)
                 {
                     ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
@@ -131,26 +133,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         throw new Exception("Could not find ConnectionInfo");
                     }
                 }
-                      
-                // if the scripting operation is for SELECT then handle that message differently
-                // for SELECT we'll build the SQL directly whereas other scripting operations depend on SMO
-                if (parameters.ScriptOptions.ScriptCreateDrop == "ScriptSelect")
+
+                if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    RunSelectTask(connInfo, parameters, requestContext);
+                    operation = new ScriptingScriptOperation(parameters);
                 }
                 else
                 {
-                    ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
-                    operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e);
-                    operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
-                    operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
-
-                    RunTask(requestContext, operation);
+                    operation = new ScriptAsScriptingOperation(parameters);
                 }
+
+                operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
+                operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
+                operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+
+                RunTask(requestContext, operation);
+
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+            }
+        }
+
+        private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)
+        {
+            // Scripting as operation should be used to script one object.
+            // Scripting data and scripting to file is not supported by scripting as operation
+            // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
+            if( (parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
+                && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") || 
+                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute) 
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -180,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, 
-                                                               ScriptingScriptOperation operation, string scriptDestination)
+                                                               SmoScriptingOperation operation, string scriptDestination)
         {
             await requestContext.SendEvent(eventType, parameters);
             switch (scriptDestination)
@@ -197,93 +216,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private Urn BuildScriptingObjectUrn(
-            Server server, 
-            SqlConnectionStringBuilder connectionStringBuilder, 
-            ScriptingObject scriptingObject)
-        {
-            string serverName = server.Name.ToUpper();
-
-            // remove the port from server name if specified
-            int commaPos = serverName.IndexOf(',');
-            if (commaPos >= 0) 
-            {
-                serverName = serverName.Substring(0, commaPos);
-            }
-
-            // build the URN
-            string urnString = string.Format(
-                "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
-                serverName,
-                connectionStringBuilder.InitialCatalog,
-                scriptingObject.Type,
-                scriptingObject.Name,
-                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", scriptingObject.Schema) : string.Empty);                  
-
-            return new Urn(urnString);
-        }
-
-        /// <summary>
-        /// Runs the async task that performs the scripting operation.
-        /// </summary>
-        private void RunSelectTask(ConnectionInfo connInfo, ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
-        {            
-            ConnectionServiceInstance.ConnectionQueue.QueueBindingOperation(
-                key: ConnectionServiceInstance.ConnectionQueue.AddConnectionContext(connInfo, "Scripting"),
-                bindingTimeout: ScriptingOperationTimeout,
-                bindOperation: (bindingContext, cancelToken) =>
-                {
-                    string script = string.Empty;
-                    ScriptingObject scriptingObject = parameters.ScriptingObjects[0];
-                    try
-                    {
-                        Server server = new Server(bindingContext.ServerConnection);
-                        server.DefaultTextMode = true;
-
-                        // build object URN
-                        SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
-                        Urn objectUrn = BuildScriptingObjectUrn(server, connectionStringBuilder, scriptingObject);
-                        string typeName = objectUrn.GetNameForType(scriptingObject.Type);
-
-                        // select from service broker
-                        if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
-                        {
-                            script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
-                        }
-
-                        // select from queues
-                        else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
-                                 string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
-                        {
-                            script = Scripter.SelectAllValues(objectUrn);
-                        }
-
-                        // select from table or view
-                        else 
-                        {   
-                            Database db = server.Databases[connectionStringBuilder.InitialCatalog];
-                            bool isDw = db.IsSqlDw;
-                            script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
-                        }
-
-                        // send script result to client
-                        requestContext.SendResult(new ScriptingResult { Script = script });                          
-                    }
-                    catch (Exception e)
-                    {
-                        requestContext.SendError(e);
-                    }
-
-                    return null;
-                });
-        }
-
         /// <summary>
         /// Runs the async task that performs the scripting operation.
         /// </summary>
         private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-            Task.Run(() =>
+            ScriptingTask = Task.Run(async () =>
             {
                 try
                 {
@@ -292,15 +230,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 catch (Exception e)
                 {
-                    context.SendError(e);
+                    await context.SendError(e);
                 }
                 finally
                 {
                     ScriptingOperation temp;
                     this.ActiveOperations.TryRemove(operation.OperationId, out temp);
                 }
-            }).ContinueWithOnFaulted(null);
+            }).ContinueWithOnFaulted(async t => await context.SendError(t.Exception));
         }
+
+        internal Task ScriptingTask { get; set; }
 
         /// <summary>
         /// Disposes the scripting service and all active scripting operations.

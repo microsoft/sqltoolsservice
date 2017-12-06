@@ -216,6 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public override void Close()
         {
             // No Op
+            this._state = ConnectionState.Closed;
         }
 
         public override void Open()
@@ -225,6 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             {
                 throw new Exception("Invalid credentials provided");
             }
+            this._state = ConnectionState.Open;
         }
 
         public override string ConnectionString { get; set; }

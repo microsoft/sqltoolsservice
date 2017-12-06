@@ -195,6 +195,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
            }
         }
 
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+           get
+           {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "Status",
+                   ValidFor = ValidForFlag.All
+                });
+                return properties;
+           }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
@@ -1305,6 +1319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Keys,
                 IsSystemObject = false,
+                ValidFor = ValidForFlag.NotSqlDw,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1588,7 +1603,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12,
                    Values = new List<object>
                    {
-                      { IndexKeyType.None }
+                      { IndexKeyType.None },
+                      { IndexKeyType.DriPrimaryKey },
+                      { IndexKeyType.DriUniqueKey }
                    }
                 });
                 return filters;

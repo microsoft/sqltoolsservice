@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
-            ScriptingScriptOperation operation = InitScriptOperation(objectName, schemaName, objectType);
+            SmoScriptingOperation operation = InitScriptOperation(objectName, schemaName, objectType);
             operation.Execute();
             string script = operation.ScriptText;
 
@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string createSyntax = null;
             if (objectScriptMap.ContainsKey(objectType.ToLower()))
             {
-                createSyntax = string.Format("CREATE {0}", objectScriptMap[objectType.ToLower()]);
+                createSyntax = string.Format("CREATE");
                 foreach (string line in lines)
                 {
                     if (LineContainsObject(line, objectName, createSyntax))
@@ -458,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="objectType"></param>
         /// <param name="tempFileName"></param>
         /// <returns></returns>
-        internal ScriptingScriptOperation InitScriptOperation(string objectName, string schemaName, string objectType)
+        internal SmoScriptingOperation InitScriptOperation(string objectName, string schemaName, string objectType)
         {            
             // object that has to be scripted
             ScriptingObject scriptingObject = new ScriptingObject 
@@ -507,7 +507,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptDestination = "ToEditor"
             };
 
-            return new ScriptingScriptOperation(parameters);
+            return new ScriptAsScriptingOperation(parameters, serverConnection);
         }
 
         internal string GetTargetDatabaseEngineEdition() 

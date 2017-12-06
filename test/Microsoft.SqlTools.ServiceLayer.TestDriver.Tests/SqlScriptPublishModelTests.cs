@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(15));
                 Assert.True(parameters.HasError);
-                Assert.Equal("An error occurred while scripting the objects.", parameters.ErrorMessage);
+                Assert.True(parameters.ErrorMessage.Contains("An error occurred while scripting the objects."));
                 Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.ErrorDetails);
             }
         }
@@ -233,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 var result = Task.Run(() => testService.Script(requestParams));
                 ScriptingProgressNotificationParams progressParams = await testService.Driver.WaitForEvent(ScriptingProgressNotificationEvent.Type, TimeSpan.FromSeconds(10));
-                Task.Run(() => testService.CancelScript(progressParams.OperationId));
+                Task.Run(() => testService.CancelScript(progressParams.OperationId).Wait());
                 ScriptingCompleteParams cancelEvent = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(cancelEvent.Canceled);
             }
@@ -297,7 +297,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     OwnerUri = tempFile.FilePath,
                     ScriptOptions = new ScriptOptions
                     {
-                        ScriptCreateDrop = "ScriptSelect"
                     },
                     ScriptingObjects = new List<ScriptingObject> 
                     {
@@ -307,7 +306,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                             Schema = "dbo",
                             Name = "Customers",
                         }
-                    }
+                    },
+                    Operation = ScriptingOperationType.Select
                 };
                 ScriptingResult result = await testService.Script(requestParams);
                 Assert.True(result.Script.Contains("SELECT"));

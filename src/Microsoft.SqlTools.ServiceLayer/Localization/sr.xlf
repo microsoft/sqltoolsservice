@@ -315,7 +315,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Execution completed {0} times...</source>
+        <source>Batch execution completed {0} times...</source>
         <target state="new">Execution completed {0} times...</target>
         <note></note>
       </trans-unit>
@@ -334,8 +334,8 @@
         <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
-        <source>Starting execution loop of {0} times...</source>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
         <target state="new">Starting execution loop of {0} times...</target>
         <note></note>
       </trans-unit>
@@ -475,9 +475,10 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataCreateScriptMissingValue">
-        <source>A required cell value is missing</source>
+        <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
         <target state="new">A required cell value is missing</target>
-        <note></note>
+        <note>.
+ Parameters: 0 - colName (string) </note>
       </trans-unit>
       <trans-unit id="EditDataDeleteSetCell">
         <source>A delete is pending for this row, a cell update cannot be applied.</source>
@@ -2310,6 +2311,21 @@
         <target state="new">Value {0} is too large to fit in column of type {1}</target>
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
+      </trans-unit>
+      <trans-unit id="StoredProcedureScriptParameterComment">
+        <source>-- TODO: Set parameter values here.</source>
+        <target state="new">-- TODO: Set parameter values here.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingGeneralError">
+        <source>An error occurred while scripting the objects.</source>
+        <target state="new">An error occurred while scripting the objects</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingExecuteNotSupportedError">
+        <source>Scripting as Execute is only supported for Stored Procedures</source>
+        <target state="new">Scripting as Execute is only supported for Stored Procedures</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

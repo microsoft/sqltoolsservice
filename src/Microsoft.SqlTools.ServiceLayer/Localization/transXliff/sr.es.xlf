@@ -397,7 +397,7 @@
         
         <note/>
       </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Starting execution loop of {0} times...</source>
         <target state="new">Iniciando bucle de ejecución de {0} veces...</target>
         
@@ -2703,13 +2703,13 @@
         <note/>
       </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
-        <source>The provided path specifies a directory but a file path is required: {0}</source>
+        <source>Please provide a file path instead of directory path</source>
         <target state="new">El nombre del archivo especificado es un nombre de directorio: {0}</target>
         
         <note/>
       </trans-unit>
       <trans-unit id="InvalidBackupPathError">
-        <source> Cannot verify the existence of the backup file location: {0}</source>
+        <source> The provided path is invalid</source>
         <target state="new">No se puede verificar la existencia de la ubicación del archivo de copia de seguridad: {0}</target>
         
         <note/>
@@ -2719,6 +2719,55 @@
         <target state="new">No se puede acceder a la ruta de acceso especificada en el servidor: {0}</target>
         
         <note/>
+      </trans-unit>
+      <trans-unit id="NoBackupsetsToRestore">
+        <source>No backupset selected to be restored</source>
+        <target state="new">Ningún backupset seleccionado para ser restaurado</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="NeverBackedUp">
+        <source>Never</source>
+        <target state="new">Nunca</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="AzureSqlDbEdition">
+        <source>Azure SQL DB</source>
+        <target state="new">Azure SQL Database </target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="AzureSqlDwEdition">
+        <source>Azure SQL Data Warehouse</source>
+        <target state="new">Azure SQL Data Warehouse</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="AzureSqlStretchEdition">
+        <source>Azure SQL Stretch Database</source>
+        <target state="new">Azure SQL Stretch Database</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Error_InvalidDirectoryName">
+        <source>Path {0} is not a valid directory </source>
+        <target state="new">La ruta de acceso [{0}] no es un directorio válido</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="Error_ExistingDirectoryName">
+        <source>For directory {0} a file with name {1} already exists</source>
+        <target state="new">Ya existe un archivo {1} en el directorio '{0}'</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataValueTooLarge">
+        <source>Value {0} is too large to fit in column of type {1}</source>
+        <target state="new">El valor {0} es muy grande para el tipo de columna {1} </target>
+        
+        <note>.
+ Parameters: 0 - value (string), 1 - columnType (string) </note>
       </trans-unit>
     </body>
   </file>

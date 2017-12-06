@@ -72,7 +72,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             {
                 try
                 {
-                    // Parsing mode we execute only once
                     if (conditions.IsParseOnly)
                     {
                         numBatchExecutionTimes = 1;
@@ -81,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                     int timesLoop = numBatchExecutionTimes;
                     if (numBatchExecutionTimes > 1)
                     {
-                        RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_InitilizingLoop, numBatchExecutionTimes));
+                        RaiseBatchMessage(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_InitializingLoop));
                     }
 
                     while (timesLoop > 0 && result != ScriptExecutionResult.Cancel && result != ScriptExecutionResult.Halted)
@@ -116,13 +115,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
                     if (result == ScriptExecutionResult.Cancel)
                     {
-                        RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_QueryCancelledbyUser));
+                        RaiseBatchMessage(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_QueryCancelledbyUser));
                     }
                     else
                     {
                         if (numBatchExecutionTimes > 1)
                         {
-                            RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, numBatchExecutionTimes));
+                            RaiseBatchMessage(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, numBatchExecutionTimes));
                         }
                     }
                 }
@@ -391,6 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 currentBatch.Text = batchScript;
                 currentBatch.TextSpan = textSpan;
                 currentBatch.BatchIndex = currentBatchIndex;
+                currentBatch.ExpectedExecutionCount = numBatchExecutionTimes;
                 
                 currentBatchIndex++;
 
@@ -489,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                         result = ScriptExecutionResult.Failure;
                         string info = ex.Text;
 
-                        RaiseScriptError(String.Format(CultureInfo.CurrentCulture, SR.EE_ScriptError_ParsingSyntax, info), ScriptMessageType.FatalError);
+                        RaiseScriptError(string.Format(CultureInfo.CurrentCulture, SR.EE_ScriptError_ParsingSyntax, info), ScriptMessageType.FatalError);
                     }
                 }
                 catch (Exception ex)
@@ -730,13 +730,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 // SET SHOWPLAN_TEXT cannot be used with other statements in the batch
                 preConditionBatches.Insert(0,
                     new Batch(
-                        String.Format(CultureInfo.CurrentCulture, "{0} ", ExecutionEngineConditions.ShowPlanTextStatement(true)),
+                        string.Format(CultureInfo.CurrentCulture, "{0} ", ExecutionEngineConditions.ShowPlanTextStatement(true)),
                         false,
                         executionTimeout));
 
                 postConditionBatches.Insert(0,
                     new Batch(
-                        String.Format(CultureInfo.CurrentCulture, "{0} ", ExecutionEngineConditions.ShowPlanTextStatement(false)),
+                        string.Format(CultureInfo.CurrentCulture, "{0} ", ExecutionEngineConditions.ShowPlanTextStatement(false)),
                         false,
                         executionTimeout));
             }
@@ -938,7 +938,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             if (isSqlCmdConnection)
             {
-                RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, "Disconnection from server {0}", ReliableConnectionHelper.GetServerName(connection)));
+                RaiseBatchMessage(string.Format(CultureInfo.CurrentCulture, "Disconnection from server {0}", ReliableConnectionHelper.GetServerName(connection)));
                 CloseConnection(connection);
             }
         }

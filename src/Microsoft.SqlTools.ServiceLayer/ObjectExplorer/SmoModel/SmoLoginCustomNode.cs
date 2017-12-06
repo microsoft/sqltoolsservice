@@ -12,9 +12,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class ServerLevelLoginsChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object context)
+        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
-            return LoginCustomNodeHelper.GetStatus(context);
+            return LoginCustomNodeHelper.GetStatus(smoObject);
         }
     }
 

@@ -456,8 +456,9 @@
     <comment></comment>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>A required cell value is missing</value>
-    <comment></comment>
+    <value>The column '{0}' is defined as NOT NULL but was not given a value</value>
+    <comment>.
+ Parameters: 0 - colName (string) </comment>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>A delete is pending for this row, a cell update cannot be applied.</value>
@@ -537,7 +538,7 @@
     <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Execution completed {0} times...</value>
+    <value>Batch execution completed {0} times...</value>
     <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
@@ -552,8 +553,8 @@
     <value>An error occurred while the batch was being executed, but the error has been ignored.</value>
     <comment></comment>
   </data>
-  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
-    <value>Starting execution loop of {0} times...</value>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Beginning execution loop</value>
     <comment></comment>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
@@ -1378,6 +1379,18 @@
   </data>
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
+    <comment></comment>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>An error occurred while scripting the objects.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Scripting as Execute is only supported for Stored Procedures</value>
     <comment></comment>
   </data>
   <data name="unavailable" xml:space="preserve">

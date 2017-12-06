@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.EE_ExecutionError_CommandNotSupported);
             Assert.NotNull(ServiceLayerSr.EE_ExecutionError_VariableNotFound);
             Assert.NotNull(ServiceLayerSr.EE_ExecutionInfo_FinalizingLoop);
-            Assert.NotNull(ServiceLayerSr.EE_ExecutionInfo_InitilizingLoop);
+            Assert.NotNull(ServiceLayerSr.EE_ExecutionInfo_InitializingLoop);
             Assert.NotNull(ServiceLayerSr.EE_ExecutionInfo_QueryCancelledbyUser);
             Assert.NotNull(ServiceLayerSr.EE_ExecutionNotYetCompleteError);
             Assert.NotNull(ServiceLayerSr.EE_ScriptError_Error);
