@@ -399,7 +399,7 @@
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Beginning execution loop</source>
-        <target state="new">Avvio ciclo di esecuzione di {0} volte...</target>
+        <target state="new">Beginning execution loop</target>
         
         <note/>
       </trans-unit>

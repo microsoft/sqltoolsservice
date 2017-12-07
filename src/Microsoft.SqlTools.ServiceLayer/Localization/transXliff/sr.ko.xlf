@@ -399,7 +399,7 @@
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Beginning execution loop</source>
-        <target state="new">루프 {0}회 실행 시작 중...</target>
+        <target state="new">Beginning execution loop</target>
         
         <note/>
       </trans-unit>
