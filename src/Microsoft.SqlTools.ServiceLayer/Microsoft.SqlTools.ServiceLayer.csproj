@@ -18,8 +18,8 @@
     <Reference Include="System.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
-    <PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.8" />
+	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.9" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
