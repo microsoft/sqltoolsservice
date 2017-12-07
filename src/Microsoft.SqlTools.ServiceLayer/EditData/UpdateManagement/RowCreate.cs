@@ -24,11 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowCreate : RowEditBase
     {
-        private const string InsertScriptStart = "INSERT INTO {0}";
-        private const string InsertScriptColumns = "({0})";
-        private const string InsertScriptOut = " OUTPUT {0}";
-        private const string InsertScriptDefault = " DEFAULT VALUES";
-        private const string InsertScriptValues = " VALUES ({0})";
+        private const string DeclareStatement = "DECLARE {0} TABLE ({1})";
+        private const string InsertOutputDefaultStatement = "INSERT INTO {0} OUTPUT {1} INTO {2} DEFAULT VALUES";
+        private const string InsertOutputValuesStatement = "INSERT INTO {0}({1}) OUTPUT {2} INTO {3} VALUES ({4})";
+        private const string InsertScriptDefaultStatement = "INSERT INTO {0} DEFAULT VALUES";
+        private const string InsertScriptValuesStatement = "INSERT INTO {0}({1}) VALUES ({2})";
+        private const string SelectStatement = "SELECT {0} FROM {1}";
 
         internal readonly CellUpdate[] newCells;
 
@@ -88,13 +89,68 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
             Validate.IsNotNull(nameof(connection), connection);
 
-            // Build the script and generate a command
-            ScriptBuildResult result = BuildInsertScript(forCommand: true);
+            // Process the cells and columns
+            List<string> inColumnNames = new List<string>();
+            List<string> inValues = new List<string>();
+            List<SqlParameter> inParameters = new List<SqlParameter>();
+            List<string> outTableColumns = new List<string>();
+            List<string> outStatementColumnNames = new List<string>();
+            List<string> selectColumns = new List<string>();
+            for(int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
+            {
+                DbColumnWrapper column = AssociatedResultSet.Columns[i];
+                EditColumnMetadata metadata = AssociatedObjectMetadata.Columns[i];
+                CellUpdate cell = newCells[i];
+                
+                // Add the output columns regardless of whether the column is read only
+                outStatementColumnNames.Add($"inserted.{metadata.EscapedName}");
+                outTableColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(column)}");
+                selectColumns.Add(metadata.EscapedName);
+
+                // Continue if we're not inserting a value for this column
+                if (!IsCellValueProvided(column, cell, DefaultValues[i]))
+                {
+                    continue;
+                }
+                
+                // Add the input column
+                inColumnNames.Add(metadata.EscapedName);
+                
+                // Add the input values as parameters
+                string paramName = $"@Value{RowId}_{i}";
+                inValues.Add(paramName);
+                inParameters.Add(new SqlParameter(paramName, column.SqlDbType) {Value = cell.Value});
+            }
             
+            // Put everything together into a single query            
+            // Step 1) Build a temp table for inserting output values into
+            string tempTableName = $"@Insert{RowId}Output";
+            string declareStatement = string.Format(DeclareStatement, tempTableName, string.Join(", ", outTableColumns));
+
+            // Step 2) Build the insert statement
+            string insertStatement = inValues.Count > 0
+                ? string.Format(InsertOutputValuesStatement, 
+                    AssociatedObjectMetadata.EscapedMultipartName,
+                    string.Join(", ", inColumnNames), 
+                    string.Join(", ", outStatementColumnNames), 
+                    tempTableName,
+                    string.Join(", ", inValues))
+                : string.Format(InsertOutputDefaultStatement, 
+                    AssociatedObjectMetadata.EscapedMultipartName,
+                    string.Join(", ", outStatementColumnNames), 
+                    tempTableName);
+
+            // Step 3) Build the select statement
+            string selectStatement = string.Format(SelectStatement, tempTableName, string.Join(", ", selectColumns));
+            
+            // Step 4) Put it all together into a results object
+            string query = $"{declareStatement} {insertStatement} {selectStatement}";
+            
+            // Build the command
             DbCommand command = connection.CreateCommand();
-            command.CommandText = result.ScriptText;
+            command.CommandText = query;
             command.CommandType = CommandType.Text;
-            command.Parameters.AddRange(result.ScriptParameters);
+            command.Parameters.AddRange(inParameters.ToArray());
                 
             return command;
         }
@@ -123,7 +179,32 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>INSERT INTO statement</returns>
         public override string GetScript()
         {
-            return BuildInsertScript(forCommand: false).ScriptText;
+            // Process the cells and columns
+            List<string> inColumns = new List<string>();
+            List<string> inValues = new List<string>();
+            for (int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
+            {
+                DbColumnWrapper column = AssociatedResultSet.Columns[i];
+                CellUpdate cell = newCells[i];
+                
+                // Continue if we're not inserting a value for this column
+                if (!IsCellValueProvided(column, cell, DefaultValues[i]))
+                {
+                    continue;
+                }
+                
+                // Column is provided
+                inColumns.Add(AssociatedObjectMetadata.Columns[i].EscapedName);
+                inValues.Add(ToSqlScript.FormatValue(cell.AsDbCellValue, column));
+            }
+            
+            // Build the insert statement
+            return inValues.Count > 0
+                ? string.Format(InsertScriptValuesStatement, 
+                    AssociatedObjectMetadata.EscapedMultipartName,
+                    string.Join(", ", inColumns), 
+                    string.Join(", ", inValues))
+                : string.Format(InsertScriptDefaultStatement, AssociatedObjectMetadata.EscapedMultipartName);
         }
 
         /// <summary>
@@ -173,111 +254,40 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         #endregion
 
         /// <summary>
-        /// Generates an INSERT script that will insert this row
+        /// Verifies the column and cell, ensuring a column that needs a value has one.
         /// </summary>
-        /// <param name="forCommand">
-        /// If <c>true</c> the script will be generated with an OUTPUT clause for returning all
-        /// values in the inserted row (including computed values). The script will also generate
-        /// parameters for inserting the values.
-        /// If <c>false</c> the script will not have an OUTPUT clause and will have the values
-        /// directly inserted into the script (with proper escaping, of course). 
-        /// </param>
-        /// <returns>A script build result object with the script text and any parameters</returns>
+        /// <param name="column">Column that will be inserted into</param>
+        /// <param name="cell">Current cell value for this row</param>
+        /// <param name="defaultCell">Default value for the column in this row</param>
         /// <exception cref="InvalidOperationException">
-        /// Thrown if there are columns that are not readonly, do not have default values, and were
-        /// not assigned values.
+        /// Thrown if the column needs a value but it is not provided
         /// </exception>
-        private ScriptBuildResult BuildInsertScript(bool forCommand)
-        {           
-            // Process all the columns in this table
-            List<string> inValues = new List<string>();
-            List<string> inColumns = new List<string>();
-            List<string> outColumns = new List<string>();
-            List<SqlParameter> sqlParameters = new List<SqlParameter>(); 
-            for (int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
+        /// <returns>
+        /// <c>true</c> If the column has a value provided 
+        /// <c>false</c> If the column does not have a value provided (column is read-only, has default, etc)
+        /// </returns>
+        private static bool IsCellValueProvided(DbColumnWrapper column, CellUpdate cell, string defaultCell)
+        {
+            // Skip columns that cannot be updated
+            if (!column.IsUpdatable)
             {
-                DbColumnWrapper column = AssociatedResultSet.Columns[i];
-                CellUpdate cell = newCells[i];
+                return false;
+            }
                 
-                // Add an out column if we're doing this for a command
-                if (forCommand)
+            // Make sure a value was provided for the cell
+            if (cell == null)
+            {
+                // If the column is not nullable and there is not default defined, then fail
+                if (!column.AllowDBNull.HasTrue() && defaultCell == null)
                 {
-                    outColumns.Add($"inserted.{ToSqlScript.FormatIdentifier(column.ColumnName)}");
+                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue(column.ColumnName));
                 }
-                
-                // Skip columns that cannot be updated
-                if (!column.IsUpdatable)
-                {
-                    continue;
-                }
-                
-                // Make sure a value was provided for the cell 
-                if (cell == null)
-                {
-                    // If the column is not nullable and there is no default defined, then fail
-                    if (!column.AllowDBNull.HasTrue() && DefaultValues[i] == null)
-                    {
-                        throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue(column.ColumnName));
-                    }
                     
-                    // There is a default value (or omitting the value is fine), so trust the db will apply it correctly
-                    continue;
-                }
-
-                // Add the input values
-                if (forCommand)
-                {
-                    // Since this script is for command use, add parameter for the input value to the list
-                    string paramName = $"@Value{RowId}_{i}";
-                    inValues.Add(paramName);
-
-                    SqlParameter param = new SqlParameter(paramName, cell.Column.SqlDbType) {Value = cell.Value};
-                    sqlParameters.Add(param);
-                }
-                else
-                {
-                    // This script isn't for command use, add the value, formatted for insertion
-                    inValues.Add(ToSqlScript.FormatValue(cell.Value, column));
-                }
-                
-                // Add the column to the in columns
-                inColumns.Add(ToSqlScript.FormatIdentifier(column.ColumnName));
-            }
-            
-            // Begin the script (ie, INSERT INTO blah)
-            StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.AppendFormat(InsertScriptStart, AssociatedObjectMetadata.EscapedMultipartName);
-            
-            // Add the input columns (if there are any)
-            if (inColumns.Count > 0)
-            {
-                string joinedInColumns = string.Join(", ", inColumns);
-                queryBuilder.AppendFormat(InsertScriptColumns, joinedInColumns);
-            }
-            
-            // Add the output columns (this will be empty if we are not building for command)
-            if (outColumns.Count > 0)
-            {
-                string joinedOutColumns = string.Join(", ", outColumns);
-                queryBuilder.AppendFormat(InsertScriptOut, joinedOutColumns);
-            }
-            
-            // Add the input values (if there any) or use the default values
-            if (inValues.Count > 0)
-            {
-                string joinedInValues = string.Join(", ", inValues);
-                queryBuilder.AppendFormat(InsertScriptValues, joinedInValues);
-            }
-            else
-            {
-                queryBuilder.AppendFormat(InsertScriptDefault);
+                // There is a default value (or omitting the value is fine), so trust the db will apply it correctly
+                return false;
             }
 
-            return new ScriptBuildResult
-            {
-                ScriptText = queryBuilder.ToString(),
-                ScriptParameters = sqlParameters.ToArray()
-            };
+            return true;
         }
         
         private EditCell GetEditCell(CellUpdate cell, int index)
@@ -301,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
             return new EditCell(dbCell, isDirty: true);
         }
-
+        
         private class ScriptBuildResult
         {
             public string ScriptText { get; set; }

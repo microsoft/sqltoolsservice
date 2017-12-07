@@ -306,18 +306,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private static void ValidateCommandAgainstRegex(string sql, RegexExpectedOutput expectedOutput)
         {
+            // Check the declare statement first
+            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\) INSERT");
+            Match declareMatch = declareRegex.Match(sql);
+            Assert.True(declareMatch.Success);
+            
+            // Declared table name matches
+            Assert.True(declareMatch.Groups[1].Value.StartsWith("Insert"));
+            Assert.True(declareMatch.Groups[1].Value.EndsWith("Output"));
+            
+            // Correct number of columns in declared table
+            string[] declareCols = declareMatch.Groups[2].Value.Split(", ");
+            Assert.Equal(expectedOutput.ExpectedOutColumns, declareCols.Length);
+            
+            // Check the insert statement in the middle 
             if (expectedOutput.ExpectedInColumns == 0 || expectedOutput.ExpectedInValues == 0)
             {
                 // If expected output was null make sure we match the default values reges
-                Regex r = new Regex(@"INSERT INTO (.+) OUTPUT (.+) DEFAULT VALUES");
-                Match m = r.Match(sql);
-                Assert.True(m.Success);
+                Regex insertRegex = new Regex(@"INSERT INTO (.+) OUTPUT (.+) INTO @(.+) DEFAULT VALUES");
+                Match insertMatch = insertRegex.Match(sql);
+                Assert.True(insertMatch.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, m.Groups[1].Value);
+                Assert.Equal(Common.TableName, insertMatch.Groups[1].Value);
                 
                 // Output columns match
-                string[] outCols = m.Groups[2].Value.Split(", ");
+                string[] outCols = insertMatch.Groups[2].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
                 Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
             }
@@ -345,6 +359,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.Equal(expectedOutput.ExpectedInValues, inVals.Length);
                 Assert.All(inVals, val => Assert.Matches(@"@.+\d+", val));
             }
+            
+            // Check the select statement last
+            Regex selectRegex = new Regex(@"SELECT @(.+) FROM (.+)$");
+            Match selectMatch = selectRegex.Match(sql);
+            Assert.True(declareMatch.Success);
+            
+            // Declared table name matches
+            Assert.True(selectMatch.Groups[1].Value.StartsWith("Insert"));
+            Assert.True(selectMatch.Groups[1].Value.EndsWith("Output"));
+            
+            // Correct number of columns in declared table
+            string[] selectCols = declareMatch.Groups[2].Value.Split(", ");
+            Assert.Equal(expectedOutput.ExpectedOutColumns, selectCols.Length);
         }
         
         #endregion
