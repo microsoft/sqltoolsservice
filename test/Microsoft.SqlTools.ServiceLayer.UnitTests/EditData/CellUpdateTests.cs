@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I attempt to create a CellUpdate to set it to a large string
             // Then: I should get an exception thrown
             DbColumnWrapper col = GetWrapper<string>("nvarchar", false, 6);
-            Assert.Throws<FormatException>(() => new CellUpdate(col, value));
+            Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, value));
         }
 
         [Theory]
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I attempt to create a CellUpdate for a binary column
             // Then: It should throw an exception
             DbColumnWrapper col = GetWrapper<byte[]>("binary");
-            Assert.Throws<FormatException>(() => new CellUpdate(col, "this is totally invalid"));
+            Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, "this is totally invalid"));
         }
 
         [Theory]
@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I create a CellUpdate for a bool column and provide an invalid numeric value
             // Then: It should throw an exception
             DbColumnWrapper col = GetWrapper<bool>("bit");
-            Assert.Throws<ArgumentOutOfRangeException>(() => new CellUpdate(col, "12345"));
+            Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, "12345"));
         }
 
         [Theory]

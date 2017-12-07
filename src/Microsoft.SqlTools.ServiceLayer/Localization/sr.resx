@@ -447,6 +447,11 @@
     <value>Table or view metadata could not be found</value>
     <comment></comment>
   </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>Invalid format for column '{0}', column is defined as {1}</value>
+    <comment>.
+ Parameters: 0 - colName (string), 1 - colType (string) </comment>
+  </data>
   <data name="EditDataInvalidFormatBinary" xml:space="preserve">
     <value>Invalid format for binary column</value>
     <comment></comment>
@@ -622,7 +627,15 @@
     <comment></comment>
   </data>
   <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>Decimal column is missing numeric precision or numeric scale</value>
+    <value>Exact numeric column is missing numeric precision or numeric scale</value>
+    <comment></comment>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>Column with length is missing size</value>
+    <comment></comment>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>Scalar column missing scale</value>
     <comment></comment>
   </data>
   <data name="TreeNodeError" xml:space="preserve">

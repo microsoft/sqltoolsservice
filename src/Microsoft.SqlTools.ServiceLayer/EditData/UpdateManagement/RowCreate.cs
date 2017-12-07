@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 // Add an out column if we're doing this for a command
                 if (forCommand)
                 {
-                    outColumns.Add($"inserted.{SqlScriptFormatter.FormatIdentifier(column.ColumnName)}");
+                    outColumns.Add($"inserted.{ToSqlScript.FormatIdentifier(column.ColumnName)}");
                 }
                 
                 // Skip columns that cannot be updated
@@ -237,11 +237,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 else
                 {
                     // This script isn't for command use, add the value, formatted for insertion
-                    inValues.Add(SqlScriptFormatter.FormatValue(cell.Value, column));
+                    inValues.Add(ToSqlScript.FormatValue(cell.Value, column));
                 }
                 
                 // Add the column to the in columns
-                inColumns.Add(SqlScriptFormatter.FormatIdentifier(column.ColumnName));
+                inColumns.Add(ToSqlScript.FormatIdentifier(column.ColumnName));
             }
             
             // Begin the script (ie, INSERT INTO blah)
