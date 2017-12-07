@@ -104,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 
                 // Add the output columns regardless of whether the column is read only
                 outStatementColumnNames.Add($"inserted.{metadata.EscapedName}");
-                outTableColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(column)}");
+                outTableColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(column, useSemanticEquivalent: true)}");
                 selectColumns.Add(metadata.EscapedName);
 
                 // Continue if we're not inserting a value for this column
@@ -141,16 +141,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                     tempTableName);
 
             // Step 3) Build the select statement
-            string selectStatement = string.Format(SelectStatement, tempTableName, string.Join(", ", selectColumns));
+            string selectStatement = string.Format(SelectStatement, string.Join(", ", selectColumns), tempTableName);
             
             // Step 4) Put it all together into a results object
-            string query = $"{declareStatement} {insertStatement} {selectStatement}";
+            StringBuilder query = new StringBuilder();
+            query.AppendLine(declareStatement);
+            query.AppendLine(insertStatement);
+            query.Append(selectStatement);
             
             // Build the command
             DbCommand command = connection.CreateCommand();
-            command.CommandText = query;
+            command.CommandText = query.ToString();
             command.CommandType = CommandType.Text;
             command.Parameters.AddRange(inParameters.ToArray());
+            
+            Logger.Write(LogLevel.Normal, command.CommandText);
                 
             return command;
         }
@@ -310,12 +315,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 dbCell = cell.AsDbCellValue;
             }
             return new EditCell(dbCell, isDirty: true);
-        }
-        
-        private class ScriptBuildResult
-        {
-            public string ScriptText { get; set; }
-            public SqlParameter[] ScriptParameters { get; set; }
         }
     }
 }

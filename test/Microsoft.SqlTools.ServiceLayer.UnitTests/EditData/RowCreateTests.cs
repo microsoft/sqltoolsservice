@@ -306,9 +306,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private static void ValidateCommandAgainstRegex(string sql, RegexExpectedOutput expectedOutput)
         {
+            // Break the query into parts
+            string[] splitSql = sql.Split(Environment.NewLine);
+            Assert.Equal(3, splitSql.Length);
+            
             // Check the declare statement first
-            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\) INSERT");
-            Match declareMatch = declareRegex.Match(sql);
+            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
+            Match declareMatch = declareRegex.Match(splitSql[0]);
             Assert.True(declareMatch.Success);
             
             // Declared table name matches
@@ -323,8 +327,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             if (expectedOutput.ExpectedInColumns == 0 || expectedOutput.ExpectedInValues == 0)
             {
                 // If expected output was null make sure we match the default values reges
-                Regex insertRegex = new Regex(@"INSERT INTO (.+) OUTPUT (.+) INTO @(.+) DEFAULT VALUES");
-                Match insertMatch = insertRegex.Match(sql);
+                Regex insertRegex = new Regex(@"^INSERT INTO (.+) OUTPUT (.+) INTO @(.+) DEFAULT VALUES$");
+                Match insertMatch = insertRegex.Match(splitSql[1]);
                 Assert.True(insertMatch.Success);
                 
                 // Table name matches
@@ -338,8 +342,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             else
             {
                 // Do the whole validation
-                Regex r = new Regex(@"INSERT INTO (.+)\((.+)\) OUTPUT (.+) VALUES \((.+)\)");
-                Match m = r.Match(sql);
+                Regex r = new Regex(@"^INSERT INTO (.+)\((.+)\) OUTPUT (.+) VALUES \((.+)\)$");
+                Match m = r.Match(splitSql[1]);
                 Assert.True(m.Success);
                 
                 // Table name matches
@@ -361,17 +365,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
             
             // Check the select statement last
-            Regex selectRegex = new Regex(@"SELECT @(.+) FROM (.+)$");
-            Match selectMatch = selectRegex.Match(sql);
-            Assert.True(declareMatch.Success);
-            
-            // Declared table name matches
-            Assert.True(selectMatch.Groups[1].Value.StartsWith("Insert"));
-            Assert.True(selectMatch.Groups[1].Value.EndsWith("Output"));
+            Regex selectRegex = new Regex(@"^SELECT (.+) FROM @(.+)$");
+            Match selectMatch = selectRegex.Match(splitSql[2]);
+            Assert.True(selectMatch.Success);
             
             // Correct number of columns in declared table
-            string[] selectCols = declareMatch.Groups[2].Value.Split(", ");
+            string[] selectCols = selectMatch.Groups[1].Value.Split(", ");
             Assert.Equal(expectedOutput.ExpectedOutColumns, selectCols.Length);
+            
+            // Declared table name matches
+            Assert.True(selectMatch.Groups[2].Value.StartsWith("Insert"));
+            Assert.True(selectMatch.Groups[2].Value.EndsWith("Output"));
         }
         
         #endregion

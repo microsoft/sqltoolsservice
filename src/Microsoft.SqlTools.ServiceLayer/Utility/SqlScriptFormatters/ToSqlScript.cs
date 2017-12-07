@@ -75,23 +75,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
         /// <returns></returns>
         /// <seealso cref="Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.SmoColumnCustomNodeHelper.GetTypeSpecifierLabel"/>
         /// <exception cref="InvalidOperationException"></exception>
-        public static string FormatColumnType(DbColumn column)
+        public static string FormatColumnType(DbColumn column, bool useSemanticEquivalent = false)
         {
             string typeName = column.DataTypeName.ToUpperInvariant();
             
             // TODO: This doesn't support UDTs at all.
             // TODO: It's unclear if this will work on a case-sensitive db collation
             
+            // Strip any unecessary info from the front certain types
+            if (typeName.EndsWith("HIERARCHYID") || typeName.EndsWith("GEOGRAPHY") || typeName.EndsWith("GEOMETRY"))
+            {
+                string[] typeNameComponents = typeName.Split(".");
+                typeName = typeNameComponents[typeNameComponents.Length - 1];
+            }
+            
+            // Replace timestamp columns with semantic equivalent if requested
+            if (useSemanticEquivalent && typeName == "TIMESTAMP")
+            {
+                typeName = "VARBINARY(8)";
+            }
+            
             // If the type supports length parameters, the add those
-            switch (column.DataTypeName.ToLowerInvariant())
+            switch (typeName)
             {
                 // Types with length
-                case "char":
-                case "nchar":
-                case "varchar":
-                case "nvarchar":
-                case "binary":
-                case "varbinary":
+                case "CHAR":
+                case "NCHAR":
+                case "VARCHAR":
+                case "NVARCHAR":
+                case "BINARY":
+                case "VARBINARY":
                     if (!column.ColumnSize.HasValue)
                     {
                         throw new InvalidOperationException(SR.SqlScriptFormatterLengthTypeMissingSize);
@@ -105,8 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
                     break;
                     
                 // Types with precision and scale
-                case "numeric":
-                case "decimal":
+                case "NUMERIC":
+                case "DECIMAL":
                     if (!column.NumericPrecision.HasValue || !column.NumericScale.HasValue)
                     {
                         throw new InvalidOperationException(SR.SqlScriptFormatterDecimalMissingPrecision);
@@ -115,9 +128,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
                     break;
                 
                 // Types with scale only
-                case "datetime2":
-                case "datetimeoffset":
-                case "time":
+                case "DATETIME2":
+                case "DATETIMEOFFSET":
+                case "TIME":
                     if (!column.NumericScale.HasValue)
                     {
                         throw new InvalidOperationException(SR.SqlScriptFormatterScalarTypeMissingScale);
