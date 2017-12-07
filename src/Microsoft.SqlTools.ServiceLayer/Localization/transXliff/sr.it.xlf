@@ -374,7 +374,7 @@
         <note/>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Execution completed {0} times...</source>
+        <source>Batch execution completed {0} times...</source>
         <target state="new">Esecuzione completata {0} volte...</target>
         
         <note/>
@@ -398,8 +398,8 @@
         <note/>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Starting execution loop of {0} times...</source>
-        <target state="new">Avvio ciclo di esecuzione di {0} volte...</target>
+        <source>Beginning execution loop</source>
+        <target state="new">Beginning execution loop</target>
         
         <note/>
       </trans-unit>
@@ -566,10 +566,11 @@
         <note/>
       </trans-unit>
       <trans-unit id="EditDataCreateScriptMissingValue">
-        <source>A required cell value is missing</source>
+        <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
         <target state="new">Il valore di cella richiesto è mancante</target>
         
-        <note/>
+        <note>.
+ Parameters: 0 - colName (string) </note>
       </trans-unit>
       <trans-unit id="EditDataDeleteSetCell">
         <source>A delete is pending for this row, a cell update cannot be applied.</source>
