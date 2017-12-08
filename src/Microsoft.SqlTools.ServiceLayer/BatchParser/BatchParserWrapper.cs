@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
@@ -349,7 +350,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             {
 
                 Logger.Write(LogLevel.Verbose, SR.BatchParserWrapperExecutionError);
-                throw new Exception(SR.BatchParserWrapperExecutionEngineError);
+                throw new Exception(string.Format(CultureInfo.CurrentCulture,
+                    SR.BatchParserWrapperExecutionEngineError, args.Message + Environment.NewLine + '\t' + args.Description));
 
             }
         }
