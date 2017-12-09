@@ -684,6 +684,10 @@ History_LabelPart = History
 
 SystemVersioned_LabelPart = System-Versioned
 
+External_LabelPart = External
+
+FileTable_LabelPart = File Table
+
 DatabaseNotAccessible = The database {0} is not accessible.
 
 

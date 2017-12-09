@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Vous avez annulé la requête.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Une erreur s'est produite lors de l'exécution du lot.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Une erreur s'est produite lors de l'exécution du lot, mais elle a été ignorée.</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>Démarrage de la boucle d'exécution pour {0} fois...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>La commande {0} n'est pas prise en charge.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Impossible de trouver la variable {0}.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Erreur d’exécution de SQL : {0}</value></data>

@@ -1378,6 +1378,14 @@
     <value>System-Versioned</value>
     <comment></comment>
   </data>
+  <data name="External_LabelPart" xml:space="preserve">
+    <value>External</value>
+    <comment></comment>
+  </data>
+  <data name="FileTable_LabelPart" xml:space="preserve">
+    <value>File Table</value>
+    <comment></comment>
+  </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
     <value>The database {0} is not accessible.</value>
     <comment></comment>

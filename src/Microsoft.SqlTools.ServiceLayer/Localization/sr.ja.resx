@@ -87,11 +87,11 @@
   <data name="EE_ScriptError_Error"><value>スクリプト エラーが発生しました。</value></data>
   <data name="EE_ScriptError_ParsingSyntax"><value>{0} の解析中に不正な構文が見つかりました。</value></data>
   <data name="EE_ScriptError_FatalError"><value>致命的なエラーが発生しました。</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>{0} 回の実行が完了...</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>実行を {0} 回完了しました...</value></data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>クエリをキャンセルしました。</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>バッチの実行中にエラーが発生しました。</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>バッチの実行中にエラーが発生しましたが、エラーを無視しました。</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>{0} 回の実行ループを開始しています.</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>コマンド {0} はサポートされていません。</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>変数 {0} が見つかりませんでした。</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>SQL の実行エラー: {0}</value></data>

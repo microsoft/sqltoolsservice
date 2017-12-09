@@ -21,6 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
                 }
+                else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
+                {
+                    return $"{table.Schema}.{table.Name} ({SR.External_LabelPart})"; 
+                }
+                else if (table != null && IsPropertySupported("IsFileTable", smoContext, table, CachedSmoProperties) && table.IsFileTable)
+                {
+                    return $"{table.Schema}.{table.Name} ({SR.FileTable_LabelPart})"; 
+                }
             }
             catch
             {
@@ -39,6 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return "Temporal";
                 }
+                // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
+                // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
+                // {
+                //     return "External";
+                // }
                // return string.Empty;
 
             }

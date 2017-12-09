@@ -786,12 +786,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 var properties = new List<NodeSmoProperty>();
                 properties.Add(new NodeSmoProperty
                 {
+                   Name = "IsFileTable",
+                   ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017
+                });
+                properties.Add(new NodeSmoProperty
+                {
                    Name = "IsSystemVersioned",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
                 });
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "TemporalType",
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsExternal",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
                 });
                 return properties;

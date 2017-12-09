@@ -63,7 +63,7 @@
   <data name="QueryServiceSaveAsMiscStartingError"><value>在儲存工作啟動時，發生內部錯誤</value></data>
   <data name="QueryServiceSaveAsInProgress"><value>相同路徑的儲存要求正在進行中</value></data>
   <data name="QueryServiceSaveAsFail"><value>無法儲存 {0}: {1}</value></data>
-  <data name="QueryServiceResultSetNotRead"><value>無法讀取子集，除非已經從伺服器讀取結果</value></data>
+  <data name="QueryServiceResultSetNotRead"><value>從伺服器讀取結果前，無法讀取子集</value></data>
   <data name="QueryServiceResultSetStartRowOutOfRange"><value>開始資料列不能小於 0 或大於結果集中的資料列總數</value></data>
   <data name="QueryServiceResultSetRowCountOutOfRange"><value>資料列計數必須是正整數</value></data>
   <data name="QueryServiceResultSetNoColumnSchema"><value>無法從結果集擷取資料行結構描述</value></data>
@@ -79,8 +79,8 @@
   <data name="WorkspaceServicePositionColumnOutOfRange"><value>第 {0} 行位置超出資料行範圍</value></data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder"><value>開始位置 （{0}，{1}） 必須先於或等於結束位置 （{2}，{3}）</value></data>
   <data name="EE_BatchSqlMessageNoProcedureInfo"><value>訊息 {0}，層級 {1} ，狀態 {2}，第 {3} 行</value></data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>訊息 {0} 層級 {1} 狀態 {2} 程序 {3}、 第 {4} 行</value></data>
-  <data name="EE_BatchSqlMessageNoLineInfo"><value>Msg {0}，層級 {1} 狀態 {2}</value></data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>訊息 {0} ，層級 {1}， 狀態 {2}， 程序 {3}，第 {4} 行</value></data>
+  <data name="EE_BatchSqlMessageNoLineInfo"><value>訊息 {0}，層級 {1} ，狀態 {2}</value></data>
   <data name="EE_BatchError_Exception"><value>處理批次時，發生錯誤。錯誤訊息是︰ {0}</value></data>
   <data name="EE_BatchExecutionInfo_RowsAffected"><value>（{0} 個資料列受到影響）</value></data>
   <data name="EE_ExecutionNotYetCompleteError"><value>前一個執行尚未完成。</value></data>
@@ -90,8 +90,8 @@
   <data name="EE_ExecutionInfo_FinalizingLoop"><value>已執行完成 {0} 次...</value></data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>您已取消查詢。</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>執行此批次時發生錯誤。</value></data>
-  <data name="EE_BatchExecutionError_Ignoring"><value>執行批次，但被忽略的錯誤時，就會發生錯誤。</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>正在啟動 {0} 次執行迴圈...</value></data>
+  <data name="EE_BatchExecutionError_Ignoring"><value>執行此批次時發生錯誤，但錯誤以忽略。</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>不支援命令 {0}。</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>找不到變數 {0}。</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>SQL 執行錯誤︰ {0}</value></data>
@@ -102,9 +102,9 @@
   <data name="BatchParserWrapperExecutionEngineBatchCancelling"><value>正在取消批次剖析器包裝函式的批次執行。</value></data>
   <data name="EE_ScriptError_Warning"><value>指令碼警告。</value></data>
   <data name="TroubleshootingAssistanceMessage"><value>有關此錯誤的詳細資訊，請參閱產品文件中的疑難排解主題。</value></data>
-  <data name="BatchParser_CircularReference"><value>檔案 '{0}' 被遞迴方式包含。</value></data>
+  <data name="BatchParser_CircularReference"><value>檔案 '{0}' 具有遞迴。</value></data>
   <data name="BatchParser_CommentNotTerminated"><value>遺漏結束的註解記號 ' * /'。</value></data>
-  <data name="BatchParser_StringNotTerminated"><value>未封閉的雙引號記號之後的字元字串。</value></data>
+  <data name="BatchParser_StringNotTerminated"><value>字元字串後有未封閉的雙引號</value></data>
   <data name="BatchParser_IncorrectSyntax"><value>正在剖析 {0} 時遇到不正確的語法。</value></data>
   <data name="BatchParser_VariableNotDefined"><value>未定義變數 {0}。</value></data>
   <data name="TestLocalizationConstant"><value>測試</value></data>
