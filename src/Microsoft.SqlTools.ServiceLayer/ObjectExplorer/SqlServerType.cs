@@ -45,7 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <returns></returns>
         public static bool IsValidFor(ValidForFlag serverVersion, ValidForFlag validFor)
         {
-            return validFor == ValidForFlag.None || validFor.HasFlag(serverVersion);
+            // If either the flag is not set or if the serverVersion has a default value of "all", allow the check
+            // Otherwise, actually do the comparison of the flags
+            return validFor == ValidForFlag.None || serverVersion == ValidForFlag.All || validFor.HasFlag(serverVersion);
         }
 
         /// <summary>
@@ -106,6 +108,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 else if (serverVersion.StartsWith("14", StringComparison.Ordinal))
                 {
+                    serverType = SqlServerType.Sql2017;
+                }
+                else
+                {
+                    // vNext case - default to latest version
                     serverType = SqlServerType.Sql2017;
                 }
             }

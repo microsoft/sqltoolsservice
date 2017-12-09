@@ -2343,6 +2343,16 @@
         <target state="new">Scripting as Execute is only supported for Stored Procedures</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="External_LabelPart">
+        <source>External</source>
+        <target state="new">External</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FileTable_LabelPart">
+        <source>File Table</source>
+        <target state="new">File Table</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

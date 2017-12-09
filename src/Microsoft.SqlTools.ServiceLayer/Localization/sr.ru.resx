@@ -87,11 +87,11 @@
   <data name="EE_ScriptError_Error"><value>Произошла ошибка сценария.</value></data>
   <data name="EE_ScriptError_ParsingSyntax"><value>Обнаружен неправильный синтаксис при обработке {0}.</value></data>
   <data name="EE_ScriptError_FatalError"><value>Произошла неустранимая ошибка.</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>Выполнено {0} раз...</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>Выполнение завершено такое количество раз: {0}...</value></data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Пользователь отменил запрос.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>При выполнении пакета произошла ошибка.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>Начало цикла выполнения {0} раз...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>Команда {0} не поддерживается.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Переменная {0} не найдена.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Ошибка выполнения SQL: {0}</value></data>

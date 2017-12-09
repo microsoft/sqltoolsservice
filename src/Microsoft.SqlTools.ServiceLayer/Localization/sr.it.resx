@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>È stata annullata la query.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Si è verificato un errore durante l'esecuzione del batch.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Si è verificato un errore durante l'esecuzione del batch, ma l'errore è stato ignorato.</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>Avvio ciclo di esecuzione di {0} volte...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>Il comando {0} non è supportato.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Impossibile trovare la variabile {0}.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Errore di esecuzione di SQL: {0}</value></data>

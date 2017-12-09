@@ -87,11 +87,11 @@
   <data name="EE_ScriptError_Error"><value>Ein Skriptfehler ist aufgetreten.</value></data>
   <data name="EE_ScriptError_ParsingSyntax"><value>Ein Syntaxfehler ist aufgetreten der bei Analyse von {0}</value></data>
   <data name="EE_ScriptError_FatalError"><value>Ein schwerwiegender Fehler ist aufgetreten.</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>Die Ausführung wurde {0} Mal abgeschlossen...</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>{0}-mal ausgeführt...</value></data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Sie haben die Abfrage abgebrochen.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Fehler während der Batchausführung.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Fehler während der Batchausführung, aber des Fehlers wurde ignoriert.</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>{0}-malige Batchausführung wurde gestartet.</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>Befehl {0} wird nicht unterstützt.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>Die Variable {0} konnte nicht gefunden werden.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Fehler bei der SQL-Ausführung: {0}</value></data>

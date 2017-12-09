@@ -91,7 +91,7 @@
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Você cancelou a consulta.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Ocorreu um erro enquanto o lote estava sendo executado.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Ocorreu um erro enquanto o lote estava sendo executado, mas o erro foi ignorado.</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>Iniciando a execução do loop {0} vezes...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>Comando {0} não é suportado.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>A variável {0} não pôde ser encontrada.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Erro de execução de SQL: {0}</value></data>
