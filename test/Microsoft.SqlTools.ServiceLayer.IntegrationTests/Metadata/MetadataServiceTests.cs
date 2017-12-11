@@ -156,6 +156,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                             CREATE VIEW testView1 AS SELECT * from sys.all_columns
                             GO
                             CREATE FUNCTION testFun1() RETURNS [int] AS BEGIN RETURN 1 END
+                            GO
+                            CREATE FUNCTION [testFun2](@CityID int)
+                            RETURNS TABLE
+                            WITH SCHEMABINDING
+                            AS
+                            RETURN SELECT 1 AS AccessResult
                             GO";
             
             List<ObjectMetadata> expectedMetadataList = new List<ObjectMetadata>
@@ -186,6 +192,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                     MetadataType = MetadataType.Function,
                     MetadataTypeName = "UserDefinedFunction",
                     Name = "testFun1",
+                    Schema = "dbo"
+                },
+                 new ObjectMetadata
+                {
+                    MetadataType = MetadataType.Function,
+                    MetadataTypeName = "UserDefinedFunction",
+                    Name = "testFun2",
                     Schema = "dbo"
                 }
             };
