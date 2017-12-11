@@ -87,11 +87,11 @@
   <data name="EE_ScriptError_Error"><value>Se ha producido un error de secuencias de comandos.</value></data>
   <data name="EE_ScriptError_ParsingSyntax"><value>Se encontró sintaxis incorrecta mientras se estaba analizando {0}.</value></data>
   <data name="EE_ScriptError_FatalError"><value>Se ha producido un error grave.</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>La ejecución completó {0} veces...</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>La ejecución se completó {0} veces...</value></data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Se canceló la consulta.</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>Se produjo un error mientras se ejecutaba el lote.</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>Se produjo un error mientras se ejecutaba el lote, pero se ha omitido el error.</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>Iniciando bucle de ejecución de {0} veces...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>No se admite el comando {0}.</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>La variable {0} no se encontró.</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>Error de ejecución de SQL: {0}</value></data>

@@ -38,7 +38,7 @@
   <data name="ConnectionParamsValidateNullServerName"><value>ServerName 不能是 null 或是空白</value></data>
   <data name="ConnectionParamsValidateNullSqlAuth"><value>使用 SqlLogin 身份验证时，{0} 不可是 null 或是空</value></data>
   <data name="QueryServiceCancelAlreadyCompleted"><value>查询已完成，无法取消</value></data>
-  <data name="QueryServiceCancelDisposeFailed"><value>查询成功取消，无法处理查询。找不到的 URI 的所有者。</value></data>
+  <data name="QueryServiceCancelDisposeFailed"><value>查询成功取消，无法处理查询。找不到 URI 的所有者。</value></data>
   <data name="QueryServiceQueryCancelled"><value>查询已被用户取消</value></data>
   <data name="QueryServiceSubsetBatchNotCompleted"><value>该批处理尚未完成</value></data>
   <data name="QueryServiceSubsetBatchOutOfRange"><value>批量索引不能小于 0 或大于批量的总数</value></data>
@@ -87,11 +87,11 @@
   <data name="EE_ScriptError_Error"><value>出现脚本错误。</value></data>
   <data name="EE_ScriptError_ParsingSyntax"><value>正在分析 {0} 时发现语法错误。</value></data>
   <data name="EE_ScriptError_FatalError"><value>出现严重错误。</value></data>
-  <data name="EE_ExecutionInfo_FinalizingLoop"><value>执行已完成 {0} 次...</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>已执行完 {0} 次...</value></data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>您已取消查询。</value></data>
   <data name="EE_BatchExecutionError_Halting"><value>执行批次处理时发生错误。</value></data>
   <data name="EE_BatchExecutionError_Ignoring"><value>执行批次处理时发生错误，但该错误已被忽略。</value></data>
-  <data name="EE_ExecutionInfo_InitializingLoop"><value>正在开始执行循环的次数为 {0} 次...</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
   <data name="EE_ExecutionError_CommandNotSupported"><value>不支持命令 {0}。</value></data>
   <data name="EE_ExecutionError_VariableNotFound"><value>找不到变量 {0}。</value></data>
   <data name="BatchParserWrapperExecutionEngineError"><value>SQL 执行错误︰ {0}</value></data>

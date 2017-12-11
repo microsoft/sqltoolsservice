@@ -2381,6 +2381,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string External_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.External_LabelPart);
+            }
+        }
+
+        public static string FileTable_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.FileTable_LabelPart);
+            }
+        }
+
         public static string DatabaseNotAccessible
         {
             get
@@ -4637,6 +4653,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SystemVersioned_LabelPart = "SystemVersioned_LabelPart";
+
+
+            public const string External_LabelPart = "External_LabelPart";
+
+
+            public const string FileTable_LabelPart = "FileTable_LabelPart";
 
 
             public const string DatabaseNotAccessible = "DatabaseNotAccessible";
