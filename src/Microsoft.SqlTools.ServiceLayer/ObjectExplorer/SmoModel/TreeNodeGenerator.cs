@@ -1517,7 +1517,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Property = "IndexKeyType",
                    Type = typeof(Enum),
                    TypeToReverse = typeof(SqlIndexQuerier),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12,
+                   ValidFor = ValidForFlag.AzureV12|ValidForFlag.AllOnPrem,
                    Values = new List<object>
                    {
                       { IndexKeyType.DriPrimaryKey },
@@ -1610,7 +1610,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Property = "IndexKeyType",
                    Type = typeof(Enum),
                    TypeToReverse = typeof(SqlIndexQuerier),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12,
+                   ValidFor = ValidForFlag.AzureV12|ValidForFlag.AllOnPrem,
                    Values = new List<object>
                    {
                       { IndexKeyType.None },

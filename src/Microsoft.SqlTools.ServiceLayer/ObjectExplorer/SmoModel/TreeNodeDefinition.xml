@@ -198,7 +198,7 @@
   <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort=""/>
   <Node Name="Keys" LocLabel="SR.SchemaHierarchy_Keys" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Key" ChildQuerierTypes="SqlIndex;SqlForeignKeyConstraint" ValidFor="NotSqlDw">
     <Filters>
-      <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
+      <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
         <Value>IndexKeyType.DriPrimaryKey</Value>
         <Value>IndexKeyType.DriUniqueKey</Value>
       </Filter>
@@ -209,7 +209,7 @@
   <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
   <Node Name="Indexes" LocLabel="SR.SchemaHierarchy_Indexes" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Index" ChildQuerierTypes="SqlIndex;SqlFullTextIndex">
     <Filters>
-      <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
+      <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
         <Value>IndexKeyType.None</Value>
         <Value>IndexKeyType.DriPrimaryKey</Value>
         <Value>IndexKeyType.DriUniqueKey</Value>
