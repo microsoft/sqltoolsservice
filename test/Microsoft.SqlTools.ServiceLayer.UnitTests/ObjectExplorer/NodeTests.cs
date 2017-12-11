@@ -415,6 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.Equal(dbName, dbNode.NodeValue);
             Assert.Equal(dbName, dbNode.Label);
             Assert.False(dbNode.IsAlwaysLeaf);
+            Assert.True(dbNode.Properties.ContainsKey("databaseUnavailable"));
             
             // Note: would like to verify Database in the context, but cannot since it's a Sealed class and isn't easily mockable
         }

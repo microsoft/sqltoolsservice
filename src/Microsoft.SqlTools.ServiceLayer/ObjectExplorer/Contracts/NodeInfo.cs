@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
@@ -58,5 +59,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Error message returned from the engine for a object explorer node failure reason, if any.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Dictionary containing additional node properties
+        /// </summary>
+        public Dictionary<string, object> Properties { get; set; }
     }
 }

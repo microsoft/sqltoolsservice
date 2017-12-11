@@ -245,6 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
                 childAsMeItem.NodeSubType = GetNodeSubType(context, smoContext);
                 childAsMeItem.NodeStatus = GetNodeStatus(context, smoContext);
+                childAsMeItem.Properties = GetExtraProperties(context, smoContext);
             }
         }
 
@@ -320,6 +321,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
             return string.Empty;
+        }
+
+        public override Dictionary<string, object> GetExtraProperties(object smoObject, SmoQueryContext smoQueryContext)
+        {
+            return new Dictionary<string, object>();
         }
     }
 }

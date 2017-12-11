@@ -60,6 +60,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public abstract bool CanCreateChild(TreeNode parent, object context);
         public abstract TreeNode CreateChild(TreeNode parent, object context);
 
+        /// <summary>
+        /// Get the node's properties dictionary
+        /// </summary>
+        public abstract Dictionary<string, object> GetExtraProperties(object smoObject, SmoQueryContext smoContext);
+
         // TODO Consider whether Remove operations need to be supported
         //public abstract bool CanRemoveChild(TreeNode parent, object context);
         //public abstract int GetChildIndexToRemove(TreeNode parent, object context);
