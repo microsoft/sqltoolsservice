@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <summary>
         /// Handle a metadata query request
         /// </summary>        
-        internal static async Task HandleMetadataListRequest(
+        internal async Task HandleMetadataListRequest(
             MetadataQueryParams metadataParams,
             RequestContext<MetadataQueryResult> requestContext)
         {
@@ -93,12 +93,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     await requestContext.SendError(t.Exception.ToString());
                 });
+                MetadataListTask = task;
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
         }
+
+        internal Task MetadataListTask { get; set; }
 
         /// <summary>
         /// Handle a table metadata query request
@@ -169,11 +172,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// </summary>
         internal static void ReadMetadata(SqlConnection sqlConn, List<ObjectMetadata> metadata)
         {
-            string sql = 
+            string sql =
                 @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
                   FROM sys.all_objects o
                     INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
-                  WHERE (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U') ";
+                  WHERE (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U' OR o.[type] = 'AF' OR o.[type] = 'FN' OR o.[type] = 'IF') ";
    
             if (!IsSystemDatabase(sqlConn.Database))
             {
@@ -203,6 +206,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         {
                             metadataType = MetadataType.SProc;
                             metadataTypeName = "StoredProcedure";
+                        }
+                        else if (objectType == "AF" || objectType == "FN" || objectType == "IF")
+                        {
+                            metadataType = MetadataType.Function;
+                            metadataTypeName = "UserDefinedFunction";
                         }
                         else
                         {
