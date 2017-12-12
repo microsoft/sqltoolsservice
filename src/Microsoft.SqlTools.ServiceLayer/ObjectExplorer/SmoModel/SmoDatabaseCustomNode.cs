@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     internal static class DatabasesCustomNodeHelper
     {
-        private static readonly DatabaseStatus[] unavailableDatabaseStatuses = { DatabaseStatus.Inaccessible, DatabaseStatus.Offline, DatabaseStatus.Recovering,
+        private static readonly DatabaseStatus[] UnavailableDatabaseStatuses = { DatabaseStatus.Inaccessible, DatabaseStatus.Offline, DatabaseStatus.Recovering,
             DatabaseStatus.RecoveryPending, DatabaseStatus.Restoring, DatabaseStatus.Suspect, DatabaseStatus.Shutdown };
 
         internal static bool GetDatabaseIsUnavailable(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return true;
                 }
 
-                foreach (DatabaseStatus unavailableStatus in DatabasesCustomNodeHelper.unavailableDatabaseStatuses)
+                foreach (DatabaseStatus unavailableStatus in DatabasesCustomNodeHelper.UnavailableDatabaseStatuses)
                 {
                     if (status.HasFlag(unavailableStatus))
                     {
