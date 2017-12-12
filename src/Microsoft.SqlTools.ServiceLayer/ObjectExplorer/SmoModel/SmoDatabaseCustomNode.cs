@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class DatabasesChildFactory : SmoChildFactoryBase
     {
-        private const string databaseUnavailableKey = "databaseUnavailable";
+        private const string DatabaseUnavailableKey = "databaseUnavailable";
 
         public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override Dictionary<string, object> GetExtraProperties(object smoObject, SmoQueryContext smoQueryContext)
         {
             var properties = base.GetExtraProperties(smoObject, smoQueryContext);
-            properties.Add(databaseUnavailableKey, DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(smoObject, smoQueryContext, CachedSmoProperties));
+            properties.Add(DatabaseUnavailableKey, DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(smoObject, smoQueryContext, CachedSmoProperties));
             return properties;
         }
     }
