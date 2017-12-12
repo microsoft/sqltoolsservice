@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Dictionary<string, object> GetExtraProperties(object smoObject, SmoQueryContext smoQueryContext)
         {
-            var properties = new Dictionary<string, object>();
+            var properties = base.GetExtraProperties(smoObject, smoQueryContext);
             properties.Add(databaseUnavailableKey, DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(smoObject, smoQueryContext, CachedSmoProperties));
             return properties;
         }
