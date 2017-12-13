@@ -18,10 +18,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return DatabasesCustomNodeHelper.GetStatus(smoObject, smoContext, CachedSmoProperties);
         }
+
+        protected override void InitializeChild(TreeNode parent, TreeNode child, object context)
+        {
+            base.InitializeChild(parent, child, context);
+            var smoTreeNode = child as SmoTreeNode;
+            if (smoTreeNode != null && smoTreeNode.SmoObject != null
+                && DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(smoTreeNode.SmoObject, parent.GetContextAs<SmoQueryContext>(), CachedSmoProperties))
+            {
+                child.IsAlwaysLeaf = true;
+            }
+        }
     }
 
     internal static class DatabasesCustomNodeHelper
     {
+        private static readonly DatabaseStatus[] UnavailableDatabaseStatuses = { DatabaseStatus.Inaccessible, DatabaseStatus.Offline, DatabaseStatus.Recovering,
+            DatabaseStatus.RecoveryPending, DatabaseStatus.Restoring, DatabaseStatus.Suspect, DatabaseStatus.Shutdown };
+
+        internal static bool GetDatabaseIsUnavailable(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
+        {
+            Database db = smoObject as Database;
+            if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", smoContext, db, supportedProperties))
+            {
+                DatabaseStatus status;
+                try
+                { 
+                    status = db.Status;
+                }
+                catch (SqlServer.Management.Common.ConnectionFailureException)
+                {
+                    // We get into this situation with DW Nodes which are paused.
+                    return true;
+                }
+
+                foreach (DatabaseStatus unavailableStatus in DatabasesCustomNodeHelper.UnavailableDatabaseStatuses)
+                {
+                    if (status.HasFlag(unavailableStatus))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         internal static string GetStatus(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             Database db = smoObject as Database;
