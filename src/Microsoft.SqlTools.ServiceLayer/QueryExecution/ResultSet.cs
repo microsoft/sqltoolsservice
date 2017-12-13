@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -362,6 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
                 SingleColumnXmlJsonResultSet();
+                CheckForIsJson();
             }
             finally
             {
@@ -585,6 +587,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;
                     rowCountOverride = 1;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check columns for json type and set isJson if needed
+        /// </summary>
+        private void CheckForIsJson()
+        {
+            if (Columns?.Length > 0 && RowCount != 0)
+            {
+                Regex regex = new Regex(@"({.*?})");
+                var row = GetRow(0);
+                for (int i = 0; i < Columns.Length; i++)
+                {
+                    if (Columns[i].DataTypeName.Equals("nvarchar"))
+                    {
+                        if (regex.IsMatch(row[i].DisplayValue))
+                        {
+                            Columns[i].IsJson = true;
+                        }
+                    }
                 }
             }
         }
