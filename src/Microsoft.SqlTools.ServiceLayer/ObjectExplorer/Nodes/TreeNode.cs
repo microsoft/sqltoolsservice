@@ -147,11 +147,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 nodePath = null;
             }
         }
-
-        /// <summary>
-        /// Dictionary containing additional node properties
-        /// </summary>
-        public Dictionary<string, object> Properties { get; set; }
         
         /// <summary>
         /// Path identifying this node: for example a table will be at ["server", "database", "tables", "tableName"].
@@ -215,8 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
                 NodeSubType = this.NodeSubType,
-                ErrorMessage = this.ErrorMessage,
-                Properties = this.Properties
+                ErrorMessage = this.ErrorMessage
             };
         }
 

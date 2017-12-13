@@ -14,18 +14,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class DatabasesChildFactory : SmoChildFactoryBase
     {
-        private const string DatabaseUnavailableKey = "databaseUnavailable";
-
         public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
             return DatabasesCustomNodeHelper.GetStatus(smoObject, smoContext, CachedSmoProperties);
         }
 
-        public override Dictionary<string, object> GetExtraProperties(object smoObject, SmoQueryContext smoQueryContext)
+        protected override void InitializeChild(TreeNode parent, TreeNode child, object context)
         {
-            var properties = base.GetExtraProperties(smoObject, smoQueryContext);
-            properties.Add(DatabaseUnavailableKey, DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(smoObject, smoQueryContext, CachedSmoProperties));
-            return properties;
+            base.InitializeChild(parent, child, context);
+            var smoTreeNode = child as SmoTreeNode;
+            if (smoTreeNode != null && smoTreeNode.SmoObject != null
+                && DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(smoTreeNode.SmoObject, parent.GetContextAs<SmoQueryContext>(), CachedSmoProperties))
+            {
+                child.IsAlwaysLeaf = true;
+            }
         }
     }
 
