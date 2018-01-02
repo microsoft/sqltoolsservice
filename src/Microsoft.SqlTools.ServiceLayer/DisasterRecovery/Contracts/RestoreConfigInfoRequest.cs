@@ -38,6 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     {
         public static readonly
             RequestType<RestoreConfigInfoRequestParams, RestoreConfigInfoResponse> Type =
-                RequestType<RestoreConfigInfoRequestParams, RestoreConfigInfoResponse>.Create("disasterrecovery/restoreconfiginfo");
+                RequestType<RestoreConfigInfoRequestParams, RestoreConfigInfoResponse>.Create("restore/restoreconfiginfo");
     }
 }

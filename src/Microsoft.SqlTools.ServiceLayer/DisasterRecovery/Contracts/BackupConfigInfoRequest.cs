@@ -22,6 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     {
         public static readonly
             RequestType<DefaultDatabaseInfoParams, BackupConfigInfoResponse> Type =
-                RequestType<DefaultDatabaseInfoParams, BackupConfigInfoResponse>.Create("disasterrecovery/backupconfiginfo");
+                RequestType<DefaultDatabaseInfoParams, BackupConfigInfoResponse>.Create("backup/backupconfiginfo");
     }
 }
