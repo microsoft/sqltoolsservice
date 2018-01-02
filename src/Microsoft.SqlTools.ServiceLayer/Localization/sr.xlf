@@ -316,7 +316,7 @@
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
         <source>Batch execution completed {0} times...</source>
-        <target state="new">Execution completed {0} times...</target>
+        <target state="new">Batch execution completed {0} times...</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
@@ -336,7 +336,7 @@
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Beginning execution loop</source>
-        <target state="new">Starting execution loop of {0} times...</target>
+        <target state="new">Beginning execution loop</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionError_CommandNotSupported">
@@ -456,7 +456,7 @@
       </trans-unit>
       <trans-unit id="EditDataUpdateNotPending">
         <source>Given row ID does not have pending update</source>
-        <target state="new">Given row ID does not have pending updated</target>
+        <target state="new">Given row ID does not have pending update</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataObjectMetadataNotFound">
@@ -471,12 +471,12 @@
       </trans-unit>
       <trans-unit id="EditDataInvalidFormatBoolean">
         <source>Allowed values for boolean columns are 0, 1, "true", or "false"</source>
-        <target state="new">Boolean columns must be numeric 1 or 0, or string true or false</target>
+        <target state="new">Allowed values for boolean columns are 0, 1, "true", or "false"</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataCreateScriptMissingValue">
         <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
-        <target state="new">A required cell value is missing</target>
+        <target state="new">The column '{0}' is defined as NOT NULL but was not given a value</target>
         <note>.
  Parameters: 0 - colName (string) </note>
       </trans-unit>
@@ -524,7 +524,7 @@
       </trans-unit>
       <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
         <source>Exact numeric column is missing numeric precision or numeric scale</source>
-        <target state="new">Decimal column is missing numeric precision or numeric scale</target>
+        <target state="new">Exact numeric column is missing numeric precision or numeric scale</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataComputedColumnPlaceholder">
@@ -1529,7 +1529,7 @@
       </trans-unit>
       <trans-unit id="NonClusteredIndex_LabelPart">
         <source>Non-Clustered</source>
-        <target state="new">Non-Clustere</target>
+        <target state="new">Non-Clustered</target>
         <note></note>
       </trans-unit>
       <trans-unit id="History_LabelPart">
@@ -1879,7 +1879,7 @@
       </trans-unit>
       <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
         <source>Date Correlation Optimization Enabled</source>
-        <target state="new">Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</target>
+        <target state="new">Date Correlation Optimization Enabled</target>
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_db_prop_parameterization_value_forced">
@@ -2258,12 +2258,12 @@
       </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
         <source>Please provide a file path instead of directory path</source>
-        <target state="new">The file name specified is also a directory name: {0}</target>
+        <target state="new">Please provide a file path instead of directory path</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidBackupPathError">
         <source> The provided path is invalid</source>
-        <target state="new"> Cannot verify the existence of the backup file location: {0}</target>
+        <target state="new"> The provided path is invalid</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidPathError">
