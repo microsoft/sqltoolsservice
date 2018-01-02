@@ -575,6 +575,11 @@ Task("SRGen")
         // Update XLF file from new Resx file
         var doc = new XliffParser.XlfDocument(outputXlf);
         doc.UpdateFromSource();
+        var outputXlfFile = doc.Files.Single();
+        foreach (var unit in outputXlfFile.TransUnits)
+        {
+            unit.Target = unit.Source;
+        }
         doc.Save();
 
         // Update ResX files from new xliff files
