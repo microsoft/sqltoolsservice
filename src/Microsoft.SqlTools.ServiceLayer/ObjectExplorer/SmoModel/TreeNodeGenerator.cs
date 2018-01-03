@@ -1778,6 +1778,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.TableValuedFunctions,
                 IsSystemObject = false,
+                ValidFor = ValidForFlag.NotSqlDw,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1819,6 +1820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemTableValuedFunctions,
                 IsSystemObject = true,
+                ValidFor = ValidForFlag.NotSqlDw,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -2870,7 +2872,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Property = "FunctionType",
                    Type = typeof(Enum),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12,
+                   ValidFor = ValidForFlag.NotSqlDw,
                    Values = new List<object>
                    {
                       { UserDefinedFunctionType.Scalar }
@@ -2917,6 +2919,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Property = "FunctionType",
                    Type = typeof(Enum),
+                   ValidFor = ValidForFlag.NotSqlDw,
                    Values = new List<object>
                    {
                       { UserDefinedFunctionType.Scalar }
