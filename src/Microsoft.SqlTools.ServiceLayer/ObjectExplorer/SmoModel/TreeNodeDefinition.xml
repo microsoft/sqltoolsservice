@@ -320,7 +320,7 @@
   </Node>
   <Node Name="StoredProcedureParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="StoredProcedureParameter" Strategy="StoredProcedureParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
 
-  <Node Name="TableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode">
+  <Node Name="TableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode" ValidFor="NotSqlDw">
     <Filters >
       <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Table</Value>
@@ -328,7 +328,7 @@
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="SystemTableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode">
+  <Node Name="SystemTableValuedFunctions" LocLabel="SR.SchemaHierarchy_TableValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="TableValuedFunctionTreeNode" ValidFor="NotSqlDw">
     <Filters >
       <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Table</Value>
@@ -344,7 +344,7 @@
 
   <Node Name="ScalarValuedFunctions" LocLabel="SR.SchemaHierarchy_ScalarValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="ScalarValuedFunctionTreeNode" >
     <Filters>
-      <Filter Property="FunctionType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
+      <Filter Property="FunctionType" Type="Enum" ValidFor="NotSqlDw">
         <Value>UserDefinedFunctionType.Scalar</Value>
       </Filter>
       <Filter  Property="IsSystemObject" Value="0" Type="bool" />
@@ -352,7 +352,7 @@
   </Node>
   <Node Name="SystemScalarValuedFunctions" LocLabel="SR.SchemaHierarchy_ScalarValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="ScalarValuedFunctionTreeNode" >
     <Filters>
-      <Filter Property="FunctionType" Type="Enum">
+      <Filter Property="FunctionType" Type="Enum" ValidFor="NotSqlDw">
         <Value>UserDefinedFunctionType.Scalar</Value>
       </Filter>
       <Filter  Property="IsSystemObject" Value="1" Type="bool" />
