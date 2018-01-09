@@ -90,11 +90,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             Validate.IsNotNull(nameof(connection), connection);
 
             // Process the cells and columns
+            List<string> declareColumns = new List<string>();
             List<string> inColumnNames = new List<string>();
+            List<string> outClauseColumnNames = new List<string>();
             List<string> inValues = new List<string>();
             List<SqlParameter> inParameters = new List<SqlParameter>();
-            List<string> outTableColumns = new List<string>();
-            List<string> outStatementColumnNames = new List<string>();
             List<string> selectColumns = new List<string>();
             for(int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
             {
@@ -103,8 +103,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 CellUpdate cell = newCells[i];
                 
                 // Add the output columns regardless of whether the column is read only
-                outStatementColumnNames.Add($"inserted.{metadata.EscapedName}");
-                outTableColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(column, useSemanticEquivalent: true)}");
+                outClauseColumnNames.Add($"inserted.{metadata.EscapedName}");
+                declareColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(column, useSemanticEquivalent: true)}");
                 selectColumns.Add(metadata.EscapedName);
 
                 // Continue if we're not inserting a value for this column
@@ -125,19 +125,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Put everything together into a single query            
             // Step 1) Build a temp table for inserting output values into
             string tempTableName = $"@Insert{RowId}Output";
-            string declareStatement = string.Format(DeclareStatement, tempTableName, string.Join(", ", outTableColumns));
+            string declareStatement = string.Format(DeclareStatement, tempTableName, string.Join(", ", declareColumns));
 
             // Step 2) Build the insert statement
+            string joinedOutClauseNames = string.Join(", ", outClauseColumnNames);
             string insertStatement = inValues.Count > 0
                 ? string.Format(InsertOutputValuesStatement, 
                     AssociatedObjectMetadata.EscapedMultipartName,
                     string.Join(", ", inColumnNames), 
-                    string.Join(", ", outStatementColumnNames), 
+                    joinedOutClauseNames,
                     tempTableName,
                     string.Join(", ", inValues))
                 : string.Format(InsertOutputDefaultStatement, 
                     AssociatedObjectMetadata.EscapedMultipartName,
-                    string.Join(", ", outStatementColumnNames), 
+                    joinedOutClauseNames,
                     tempTableName);
 
             // Step 3) Build the select statement
@@ -154,8 +155,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             command.CommandText = query.ToString();
             command.CommandType = CommandType.Text;
             command.Parameters.AddRange(inParameters.ToArray());
-            
-            Logger.Write(LogLevel.Normal, command.CommandText);
                 
             return command;
         }

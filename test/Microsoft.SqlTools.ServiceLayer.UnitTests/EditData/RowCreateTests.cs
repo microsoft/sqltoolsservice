@@ -338,30 +338,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 string[] outCols = insertMatch.Groups[2].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
                 Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
+                
+                // Output table name matches
+                Assert.StartsWith("Insert", insertMatch.Groups[3].Value);
+                Assert.EndsWith("Output", insertMatch.Groups[3].Value);
             }
             else
             {
                 // Do the whole validation
-                Regex r = new Regex(@"^INSERT INTO (.+)\((.+)\) OUTPUT (.+) VALUES \((.+)\)$");
-                Match m = r.Match(splitSql[1]);
-                Assert.True(m.Success);
+                Regex insertRegex = new Regex(@"^INSERT INTO (.+)\((.+)\) OUTPUT (.+) INTO @(.+) VALUES \((.+)\)$");
+                Match insertMatch = insertRegex.Match(splitSql[1]);
+                Assert.True(insertMatch.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, m.Groups[1].Value);
+                Assert.Equal(Common.TableName, insertMatch.Groups[1].Value);
                 
                 // Output columns match
-                string[] outCols = m.Groups[3].Value.Split(", ");
+                string[] outCols = insertMatch.Groups[3].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
                 Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
                 
                 // In columns match
-                string[] inCols = m.Groups[2].Value.Split(", ");
+                string[] inCols = insertMatch.Groups[2].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedInColumns, inCols.Length);
                 
+                // Output table name matches
+                Assert.StartsWith("Insert", insertMatch.Groups[4].Value);
+                Assert.EndsWith("Output", insertMatch.Groups[4].Value);
+                
                 // In values match
-                string[] inVals = m.Groups[4].Value.Split(", ");
+                string[] inVals = insertMatch.Groups[5].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedInValues, inVals.Length);
-                Assert.All(inVals, val => Assert.Matches(@"@.+\d+", val));
+                Assert.All(inVals, val => Assert.Matches(@"@.+\d+_\d+", val));
             }
             
             // Check the select statement last
