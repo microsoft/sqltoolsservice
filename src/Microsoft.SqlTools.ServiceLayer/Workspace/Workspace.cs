@@ -104,7 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
                 if (IsUntitled(resolvedFile.FilePath)
-                    || !resolvedFile.CanReadFromDisk)
+                    || !resolvedFile.CanReadFromDisk
+                    || !File.Exists(resolvedFile.FilePath))
                 {
                     // It's either not a registered untitled file, or not a valid file on disk
                     // so any attempt to read from disk will fail.
