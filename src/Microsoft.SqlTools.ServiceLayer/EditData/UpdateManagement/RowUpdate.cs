@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -23,11 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowUpdate : RowEditBase
     {
-        private const string UpdateScriptStart = @"UPDATE {0}";
-        private const string UpdateScriptStartMemOptimized = @"UPDATE {0} WITH (SNAPSHOT)";
-
-        private const string UpdateScript = @"{0} SET {1} {2}";
-        private const string UpdateScriptOutput = @"{0} SET {1} OUTPUT {2} {3}";
+        private const string DeclareStatement = "DECLARE {0} TABLE ({1})";
+        private const string UpdateOutput = "UPDATE {0} SET {1} OUTPUT {2} INTO {3} {4}";
+        private const string UpdateOutputMemOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} OUTPUT {2} INTO {3} {4}";
+        private const string UpdateScript = "UPDATE {0} SET {1} {2}";
+        private const string UpdateScriptMemOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
+        private const string SelectStatement = "SELECT {0} FROM {1}";
 
         internal readonly ConcurrentDictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
@@ -75,40 +77,66 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override DbCommand GetCommand(DbConnection connection)
         {
             Validate.IsNotNull(nameof(connection), connection);
-            DbCommand command = connection.CreateCommand();
-
-            // Build the "SET" portion of the statement
+            
+            // Process the cells and columns
+            List<string> declareColumns = new List<string>();
+            List<SqlParameter> inParameters = new List<SqlParameter>();
             List<string> setComponents = new List<string>();
-            foreach (var updateElement in cellUpdates)
+            List<string> outClauseColumns = new List<string>();
+            List<string> selectColumns = new List<string>();
+            for (int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
             {
-                string formattedColumnName = ToSqlScript.FormatIdentifier(updateElement.Value.Column.ColumnName);
-                string paramName = $"@Value{RowId}_{updateElement.Key}";
-                setComponents.Add($"{formattedColumnName} = {paramName}");
-                SqlParameter parameter = new SqlParameter(paramName, updateElement.Value.Column.SqlDbType)
+                EditColumnMetadata metadata = AssociatedObjectMetadata.Columns[i];
+                
+                // Add the output columns regardless of whether the column is read only
+                declareColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(metadata.DbColumn, useSemanticEquivalent: true)}");
+                outClauseColumns.Add($"inserted.{metadata.EscapedName}");
+                selectColumns.Add(metadata.EscapedName);
+                
+                // If we have a new value for the column, proccess it now
+                CellUpdate cellUpdate;
+                if (cellUpdates.TryGetValue(i, out cellUpdate))
                 {
-                    Value = updateElement.Value.Value
-                };
-                command.Parameters.Add(parameter);
+                    string paramName = $"@Value{RowId}_{i}";
+                    setComponents.Add($"{metadata.EscapedName} = {paramName}");
+                    inParameters.Add(new SqlParameter(paramName, AssociatedResultSet.Columns[i].SqlDbType) {Value = cellUpdate.Value});
+                }
             }
-            string setComponentsJoined = string.Join(", ", setComponents);
-
-            // Build the "OUTPUT" portion of the statement
-            var outColumns = from c in AssociatedResultSet.Columns
-                             let formatted = ToSqlScript.FormatIdentifier(c.ColumnName)
-                             select $"inserted.{formatted}";
-            string outColumnsJoined = string.Join(", ", outColumns);
-
-            // Get the where clause
-            WhereClause where = GetWhereClause(true);
-            command.Parameters.AddRange(where.Parameters.ToArray());
-
-            // Get the start of the statement
-            string statementStart = GetStatementStart();
-
-            // Put the whole #! together
-            command.CommandText = string.Format(UpdateScriptOutput, statementStart, setComponentsJoined,
-                outColumnsJoined, where.CommandText);
+            
+            // Put everything together into a single query
+            // Step 1) Build a temp table for inserting output values into
+            string tempTableName = $"@Update{RowId}Output";
+            string declareStatement = string.Format(DeclareStatement, tempTableName, string.Join(", ", declareColumns));
+            
+            // Step 2) Build the update statement
+            WhereClause whereClause = GetWhereClause(true);
+            
+            string updateStatementFormat = AssociatedObjectMetadata.IsMemoryOptimized 
+                ? UpdateOutputMemOptimized 
+                : UpdateOutput;
+            string updateStatement = string.Format(updateStatementFormat,
+                AssociatedObjectMetadata.EscapedMultipartName,
+                string.Join(", ", setComponents),
+                string.Join(", ", outClauseColumns),
+                tempTableName,
+                whereClause.CommandText);
+            
+            // Step 3) Build the select statement
+            string selectStatement = string.Format(SelectStatement, string.Join(", ", selectColumns), tempTableName);
+            
+            // Step 4) Put it all together into a results object
+            StringBuilder query = new StringBuilder();
+            query.AppendLine(declareStatement);
+            query.AppendLine(updateStatement);
+            query.Append(selectStatement);
+            
+            // Build the command
+            DbCommand command = connection.CreateCommand();
+            command.CommandText = query.ToString();
             command.CommandType = CommandType.Text;
+            command.Parameters.AddRange(inParameters.ToArray());
+            command.Parameters.AddRange(whereClause.Parameters.ToArray());
+
             return command;
         }
 
@@ -153,15 +181,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 return $"{formattedColumnName} = {formattedValue}";
             });
             string setClause = string.Join(", ", setComponents);
-
-            // Get the where clause
+            
+            // Put everything together into a single query
             string whereClause = GetWhereClause(false).CommandText;
+            string updateStatementFormat = AssociatedObjectMetadata.IsMemoryOptimized
+                ? UpdateScriptMemOptimized
+                : UpdateScript;
 
-            // Get the start of the statement
-            string statementStart = GetStatementStart();
-
-            // Put the whole #! together
-            return string.Format(UpdateScript, statementStart, setClause, whereClause);
+            return string.Format(updateStatementFormat,
+                AssociatedObjectMetadata.EscapedMultipartName,
+                setClause,
+                whereClause
+            );
         }
 
         /// <summary>
@@ -226,14 +257,5 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         #endregion
-
-        private string GetStatementStart()
-        {
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
-                ? UpdateScriptStartMemOptimized
-                : UpdateScriptStart;
-
-            return string.Format(formatString, AssociatedObjectMetadata.EscapedMultipartName);
-        }
     }
 }

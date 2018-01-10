@@ -306,45 +306,84 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private static void ValidateCommandAgainstRegex(string sql, RegexExpectedOutput expectedOutput)
         {
+            // Break the query into parts
+            string[] splitSql = sql.Split(Environment.NewLine);
+            Assert.Equal(3, splitSql.Length);
+            
+            // Check the declare statement first
+            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
+            Match declareMatch = declareRegex.Match(splitSql[0]);
+            Assert.True(declareMatch.Success);
+            
+            // Declared table name matches
+            Assert.True(declareMatch.Groups[1].Value.StartsWith("Insert"));
+            Assert.True(declareMatch.Groups[1].Value.EndsWith("Output"));
+            
+            // Correct number of columns in declared table
+            string[] declareCols = declareMatch.Groups[2].Value.Split(", ");
+            Assert.Equal(expectedOutput.ExpectedOutColumns, declareCols.Length);
+            
+            // Check the insert statement in the middle 
             if (expectedOutput.ExpectedInColumns == 0 || expectedOutput.ExpectedInValues == 0)
             {
                 // If expected output was null make sure we match the default values reges
-                Regex r = new Regex(@"INSERT INTO (.+) OUTPUT (.+) DEFAULT VALUES");
-                Match m = r.Match(sql);
-                Assert.True(m.Success);
+                Regex insertRegex = new Regex(@"^INSERT INTO (.+) OUTPUT (.+) INTO @(.+) DEFAULT VALUES$");
+                Match insertMatch = insertRegex.Match(splitSql[1]);
+                Assert.True(insertMatch.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, m.Groups[1].Value);
+                Assert.Equal(Common.TableName, insertMatch.Groups[1].Value);
                 
                 // Output columns match
-                string[] outCols = m.Groups[2].Value.Split(", ");
+                string[] outCols = insertMatch.Groups[2].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
                 Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
+                
+                // Output table name matches
+                Assert.StartsWith("Insert", insertMatch.Groups[3].Value);
+                Assert.EndsWith("Output", insertMatch.Groups[3].Value);
             }
             else
             {
                 // Do the whole validation
-                Regex r = new Regex(@"INSERT INTO (.+)\((.+)\) OUTPUT (.+) VALUES \((.+)\)");
-                Match m = r.Match(sql);
-                Assert.True(m.Success);
+                Regex insertRegex = new Regex(@"^INSERT INTO (.+)\((.+)\) OUTPUT (.+) INTO @(.+) VALUES \((.+)\)$");
+                Match insertMatch = insertRegex.Match(splitSql[1]);
+                Assert.True(insertMatch.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, m.Groups[1].Value);
+                Assert.Equal(Common.TableName, insertMatch.Groups[1].Value);
                 
                 // Output columns match
-                string[] outCols = m.Groups[3].Value.Split(", ");
+                string[] outCols = insertMatch.Groups[3].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
                 Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
                 
                 // In columns match
-                string[] inCols = m.Groups[2].Value.Split(", ");
+                string[] inCols = insertMatch.Groups[2].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedInColumns, inCols.Length);
                 
+                // Output table name matches
+                Assert.StartsWith("Insert", insertMatch.Groups[4].Value);
+                Assert.EndsWith("Output", insertMatch.Groups[4].Value);
+                
                 // In values match
-                string[] inVals = m.Groups[4].Value.Split(", ");
+                string[] inVals = insertMatch.Groups[5].Value.Split(", ");
                 Assert.Equal(expectedOutput.ExpectedInValues, inVals.Length);
-                Assert.All(inVals, val => Assert.Matches(@"@.+\d+", val));
+                Assert.All(inVals, val => Assert.Matches(@"@.+\d+_\d+", val));
             }
+            
+            // Check the select statement last
+            Regex selectRegex = new Regex(@"^SELECT (.+) FROM @(.+)$");
+            Match selectMatch = selectRegex.Match(splitSql[2]);
+            Assert.True(selectMatch.Success);
+            
+            // Correct number of columns in declared table
+            string[] selectCols = selectMatch.Groups[1].Value.Split(", ");
+            Assert.Equal(expectedOutput.ExpectedOutColumns, selectCols.Length);
+            
+            // Declared table name matches
+            Assert.True(selectMatch.Groups[2].Value.StartsWith("Insert"));
+            Assert.True(selectMatch.Groups[2].Value.EndsWith("Output"));
         }
         
         #endregion

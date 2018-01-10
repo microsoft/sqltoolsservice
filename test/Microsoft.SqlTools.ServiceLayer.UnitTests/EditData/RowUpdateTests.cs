@@ -38,84 +38,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(data.TableMetadata, rc.AssociatedObjectMetadata);
         }
 
-        [Fact]
-        public async Task SetCell()
+        #region SetCell Tests
+        
+        [Theory]
+        [InlineData(-1)]        // Negative
+        [InlineData(3)]         // At edge of acceptable values
+        [InlineData(100)]       // Way too large value
+        public async Task SetCellOutOfRange(int columnId)
         {
-            // Setup: Create a row update
+            // Setup: Generate a row create
             RowUpdate ru = await GetStandardRowUpdate();
 
-            // If: I set a cell that can be updated
-            EditUpdateCellResult eucr = ru.SetCell(0, "col1");
-
-            // Then:
-            // ... A edit cell was returned
-            Assert.NotNull(eucr);
-            Assert.NotNull(eucr.Cell);
-
-            // ... The new value we provided should be returned
-            Assert.Equal("col1", eucr.Cell.DisplayValue);
-            Assert.False(eucr.Cell.IsNull);
-
-            // ... The row is still dirty
-            Assert.True(eucr.IsRowDirty);
-
-            // ... The cell should be dirty
-            Assert.True(eucr.Cell.IsDirty);
-
-            // ... There should be a cell update in the cell list
-            Assert.Contains(0, ru.cellUpdates.Keys);
-            Assert.NotNull(ru.cellUpdates[0]);
+            // If: I attempt to set a cell on a column that is out of range, I should get an exception
+            Assert.Throws<ArgumentOutOfRangeException>(() => ru.SetCell(columnId, string.Empty));
         }
-
-        [Fact]
-        public void SetCellHasCorrections()
-        {
-            // Setup: 
-            // ... Generate a result set with a single binary column
-            DbColumn[] cols =
-            {
-                new TestDbColumn
-                {
-                    DataType = typeof(byte[]),
-                    DataTypeName = "binary"
-                }
-            };
-            object[][] rows = { new object[]{new byte[] {0x00}}};
-            var testResultSet = new TestResultSet(cols, rows);
-            var testReader = new TestDbDataReader(new[] { testResultSet }, false);
-            var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
-            rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
-
-            // ... Generate the metadata
-            var etm = Common.GetCustomEditTableMetadata(cols);
-
-            // ... Create the row update
-            RowUpdate ru = new RowUpdate(0, rs, etm);
-
-            // If: I set a cell in the newly created row to something that will be corrected
-            EditUpdateCellResult eucr = ru.SetCell(0, "1000");
-
-            // Then:
-            // ... A edit cell was returned
-            Assert.NotNull(eucr);
-            Assert.NotNull(eucr.Cell);
-
-            // ... The value we used won't be returned
-            Assert.NotEmpty(eucr.Cell.DisplayValue);
-            Assert.NotEqual("1000", eucr.Cell.DisplayValue);
-            Assert.False(eucr.Cell.IsNull);
-
-            // ... The cell should be dirty
-            Assert.True(eucr.Cell.IsDirty);
-
-            // ... The row is still dirty
-            Assert.True(eucr.IsRowDirty);
-
-            // ... There should be a cell update in the cell list
-            Assert.Contains(0, ru.cellUpdates.Keys);
-            Assert.NotNull(ru.cellUpdates[0]);
-        }
-
+        
         [Fact]
         public async Task SetCellImplicitRevertTest()
         {
@@ -189,6 +126,86 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // TODO: Make sure that the script and command things will return null
         }
+        
+        [Fact]
+        public void SetCellHasCorrections()
+        {
+            // Setup: 
+            // ... Generate a result set with a single binary column
+            DbColumn[] cols =
+            {
+                new TestDbColumn
+                {
+                    DataType = typeof(byte[]),
+                    DataTypeName = "binary"
+                }
+            };
+            object[][] rows = { new object[]{new byte[] {0x00}}};
+            var testResultSet = new TestResultSet(cols, rows);
+            var testReader = new TestDbDataReader(new[] { testResultSet }, false);
+            var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
+
+            // ... Generate the metadata
+            var etm = Common.GetCustomEditTableMetadata(cols);
+
+            // ... Create the row update
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+
+            // If: I set a cell in the newly created row to something that will be corrected
+            EditUpdateCellResult eucr = ru.SetCell(0, "1000");
+
+            // Then:
+            // ... A edit cell was returned
+            Assert.NotNull(eucr);
+            Assert.NotNull(eucr.Cell);
+
+            // ... The value we used won't be returned
+            Assert.NotEmpty(eucr.Cell.DisplayValue);
+            Assert.NotEqual("1000", eucr.Cell.DisplayValue);
+            Assert.False(eucr.Cell.IsNull);
+
+            // ... The cell should be dirty
+            Assert.True(eucr.Cell.IsDirty);
+
+            // ... The row is still dirty
+            Assert.True(eucr.IsRowDirty);
+
+            // ... There should be a cell update in the cell list
+            Assert.Contains(0, ru.cellUpdates.Keys);
+            Assert.NotNull(ru.cellUpdates[0]);
+        }
+        
+        [Fact]
+        public async Task SetCell()
+        {
+            // Setup: Create a row update
+            RowUpdate ru = await GetStandardRowUpdate();
+
+            // If: I set a cell that can be updated
+            EditUpdateCellResult eucr = ru.SetCell(0, "col1");
+
+            // Then:
+            // ... A edit cell was returned
+            Assert.NotNull(eucr);
+            Assert.NotNull(eucr.Cell);
+
+            // ... The new value we provided should be returned
+            Assert.Equal("col1", eucr.Cell.DisplayValue);
+            Assert.False(eucr.Cell.IsNull);
+
+            // ... The row is still dirty
+            Assert.True(eucr.IsRowDirty);
+
+            // ... The cell should be dirty
+            Assert.True(eucr.Cell.IsDirty);
+
+            // ... There should be a cell update in the cell list
+            Assert.Contains(0, ru.cellUpdates.Keys);
+            Assert.NotNull(ru.cellUpdates[0]);
+        }
+        
+        #endregion
 
         [Theory]
         [InlineData(true)]
@@ -224,6 +241,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(3, updateSplit.Length);
             Assert.All(updateSplit, s => Assert.Equal(2, s.Split('=').Length));
         }
+        
+        #region GetCommand Tests
 
         [Theory]
         [InlineData(true, true)]
@@ -249,37 +268,66 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The command should not be null
             Assert.NotNull(cmd);
 
+            // ... Validate the command's makeup
+            // Break the query into parts
+            string[] splitSql = cmd.CommandText.Split(Environment.NewLine);
+            Assert.Equal(3, splitSql.Length);
+            
+            // Check the declare statement first
+            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
+            Match declareMatch = declareRegex.Match(splitSql[0]);
+            Assert.True(declareMatch.Success);
+            
+            // Declared table name matches
+            Assert.True(declareMatch.Groups[1].Value.StartsWith("Update"));
+            Assert.True(declareMatch.Groups[1].Value.EndsWith("Output"));
+            
+            // Correct number of columns in declared table
+            string[] declareCols = declareMatch.Groups[2].Value.Split(", ");
+            Assert.Equal(rs.Columns.Length, declareCols.Length);
+            
+            // Check the update statement in the middle
+            string regex = isMemoryOptimized
+                ? @"^UPDATE (.+) WITH \(SNAPSHOT\) SET (.+) OUTPUT (.+) INTO @(.+) WHERE .+$"
+                : @"^UPDATE (.+) SET (.+) OUTPUT (.+) INTO @(.+) WHERE .+$";
+            Regex updateRegex = new Regex(regex);
+            Match updateMatch = updateRegex.Match(splitSql[1]);
+            Assert.True(updateMatch.Success);
+            
+            // Table name matches
+            Assert.Equal(Common.TableName, updateMatch.Groups[1].Value);
+            
+            // Output columns match
+            string[] outCols = updateMatch.Groups[3].Value.Split(", ");
+            Assert.Equal(rs.Columns.Length, outCols.Length);
+            Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
+            
+            // Set columns match
+            string[] setCols = updateMatch.Groups[2].Value.Split(", ");
+            Assert.Equal(3, setCols.Length);
+            Assert.All(setCols, s => Assert.Matches(@".+ = @Value\d+_\d+", s));
+            
+            // Output table name matches
+            Assert.StartsWith("Update", updateMatch.Groups[4].Value);
+            Assert.EndsWith("Output", updateMatch.Groups[4].Value);
+            
+            // Check the select statement last
+            Regex selectRegex = new Regex(@"^SELECT (.+) FROM @(.+)$");
+            Match selectMatch = selectRegex.Match(splitSql[2]);
+            Assert.True(selectMatch.Success);
+            
+            // Correct number of columns in select statement
+            string[] selectCols = selectMatch.Groups[1].Value.Split(", ");
+            Assert.Equal(rs.Columns.Length, selectCols.Length);
+            
+            // Select table name matches
+            Assert.StartsWith("Update", selectMatch.Groups[2].Value);
+            Assert.EndsWith("Output", selectMatch.Groups[2].Value);
+            
             // ... There should be an appropriate number of parameters in it
             //     (1 or 3 keys, 3 value parameters)
             int expectedKeys = includeIdentity ? 1 : 3;
             Assert.Equal(expectedKeys + 3, cmd.Parameters.Count);
-
-            // ... It should be formatted into an update script with output
-            string regexFormat = isMemoryOptimized
-                ? @"UPDATE (.+) WITH \(SNAPSHOT\) SET (.+) OUTPUT (.+) WHERE (.+)"
-                : @"UPDATE (.+) SET (.+) OUTPUT(.+) WHERE (.+)";
-            Regex r = new Regex(regexFormat);
-            var m = r.Match(cmd.CommandText);
-            Assert.True(m.Success);
-
-            // ... There should be a table
-            string tbl = m.Groups[1].Value;
-            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
-
-            // ... There should be 3 parameters for input
-            string[] inCols = m.Groups[2].Value.Split(',');
-            Assert.Equal(3, inCols.Length);
-            Assert.All(inCols, s => Assert.Matches(@"\[.+\] = @Value\d+", s));
-
-            // ... There should be 3 OR 4 columns for output
-            string[] outCols = m.Groups[3].Value.Split(',');
-            Assert.Equal(includeIdentity ? 4 : 3, outCols.Length);
-            Assert.All(outCols, s => Assert.StartsWith("inserted.", s.Trim()));
-
-            // ... There should be 1 OR 3 columns for where components
-            string[] whereComponents = m.Groups[4].Value.Split(new[] {"AND"}, StringSplitOptions.None);
-            Assert.Equal(expectedKeys, whereComponents.Length);
-            Assert.All(whereComponents, s => Assert.Matches(@"\(.+ = @Param\d+\)", s));
         }
 
         [Fact]
@@ -292,7 +340,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then: It should throw an exception
             Assert.Throws<ArgumentNullException>(() => ru.GetCommand(null));
         }
+        
+        #endregion
 
+        #region GetEditRow Tests
+        
         [Fact]
         public async Task GetEditRow()
         {
@@ -344,6 +396,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => ru.GetEditRow(null));
         }
 
+        #endregion
+        
+        #region ApplyChanges Tests
+        
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -382,6 +438,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             await Assert.ThrowsAsync<ArgumentNullException>(() => ru.ApplyChanges(null));
         }
 
+        #endregion
+        
+        #region RevertCell Tests
+        
         [Theory]
         [InlineData(-1)]        // Negative
         [InlineData(3)]         // At edge of acceptable values
@@ -485,6 +545,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The cell should no longer be set
             Assert.DoesNotContain(0, ru.cellUpdates.Keys);
         }
+        
+        #endregion
 
         private async Task<RowUpdate> GetStandardRowUpdate()
         {
