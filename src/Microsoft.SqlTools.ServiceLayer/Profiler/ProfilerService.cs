@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 ADD EVENT sqlserver.sql_batch_starting(
                     ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
                     WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0))))
-                ADD TARGET package0.ring_buffer(SET max_events_limit=(10000),max_memory=(51200))
+                ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
                 WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
 
             connection.ServerConnection.ExecuteNonQuery(createSessionSql);
