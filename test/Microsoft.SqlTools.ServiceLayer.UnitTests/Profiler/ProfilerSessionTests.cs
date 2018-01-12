@@ -48,6 +48,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.Equal(newProfilerEvents.Count, 0);
         }
 
+
+        /// <summary>
+        /// Test the FilterProfilerEvents method
+        /// </summary>
+        [Fact]
+        public void TestFilterProfilerEvents()
+        {
+            // create a profiler session and get some test events
+            var profilerSession = new ProfilerSession();
+            var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
+                        
+            int expectedEventCount = profilerEvents.Count;
+                        
+            // add a new "Profiler Polling" event
+            var newEvent = new ProfilerEvent("sql_batch_completed", "1/1/2017");
+            newEvent.Values.Add("batch_text", "SELECT target_data FROM sys.dm_xe_session_targets");
+            profilerEvents.Add(newEvent);
+
+            // verify that the polling event is removed
+            Assert.Equal(profilerEvents.Count, expectedEventCount + 1);
+            var newProfilerEvents = profilerSession.FilterProfilerEvents(profilerEvents);
+            Assert.Equal(newProfilerEvents.Count, expectedEventCount);           
+        }
+
         /// <summary>
         /// Test the TryEnterPolling method
         /// </summary>
