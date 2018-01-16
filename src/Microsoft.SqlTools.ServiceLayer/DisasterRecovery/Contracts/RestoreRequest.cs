@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     {
         public static readonly
             RequestType<RestoreParams, RestoreResponse> Type =
-                RequestType<RestoreParams, RestoreResponse>.Create("disasterrecovery/restore");
+                RequestType<RestoreParams, RestoreResponse>.Create("restore/restore");
     }
 
    
