@@ -89,6 +89,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// Determine if an event was caused by the XEvent polling queries
+        /// </summary>
         private bool IsProfilerEvent(ProfilerEvent currentEvent)
         {
             if (string.IsNullOrWhiteSpace(currentEvent.Name) ||  currentEvent.Values == null)
@@ -105,7 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             return false;
         }
-
+        
+        /// <summary>
+        /// Removed profiler polling events from event list
+        /// </summary>        
         public List<ProfilerEvent> FilterProfilerEvents(List<ProfilerEvent> events)
         {
             int idx = events.Count;
