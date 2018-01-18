@@ -160,7 +160,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.IsPolling = false;
             }
 
-            return session.FilterOldEvents(events);
+            return session.FilterProfilerEvents(
+                session.FilterOldEvents(events)
+            );
         }
 
         /// <summary>
