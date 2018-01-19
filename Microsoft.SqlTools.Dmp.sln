@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.0.0
+MinimumVisualStudioVersion = 10.0.0.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{356601C4-7DBE-4560-91B0-E49435F6C75D}"
+				ProjectSection(SolutionItems) = preProject
+								.gitignore = .gitignore
+				EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{82EF7BB7-AE44-4882-ADE2-1298D4F2853F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Dmp.Contracts", "src\Microsoft.SqlTools.Dmp.Contracts\Microsoft.SqlTools.Dmp.Contracts.csproj", "{47DC776F-C8E1-41C4-A2DC-8DEA7CA73E7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Dmp.Hosting", "src\Microsoft.SqlTools.Dmp.Hosting\Microsoft.SqlTools.Dmp.Hosting.csproj", "{0F8E79F1-477A-481A-9BE6-6559B32CE177}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D8F28553-1655-4F6D-864F-E3D4859A3690}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Dmp.Hosting.UnitTests", "test\Microsoft.SqlTools.Dmp.Hosting.UnitTests\Microsoft.SqlTools.Dmp.Hosting.UnitTests.csproj", "{BA3C9622-ABFF-45A2-91AA-CC5189083256}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProgram", "test\TestProgram\TestProgram.csproj", "{2A987A36-A294-448D-BF1D-E05ADAC00AD4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{47DC776F-C8E1-41C4-A2DC-8DEA7CA73E7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47DC776F-C8E1-41C4-A2DC-8DEA7CA73E7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47DC776F-C8E1-41C4-A2DC-8DEA7CA73E7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47DC776F-C8E1-41C4-A2DC-8DEA7CA73E7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F8E79F1-477A-481A-9BE6-6559B32CE177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F8E79F1-477A-481A-9BE6-6559B32CE177}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F8E79F1-477A-481A-9BE6-6559B32CE177}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F8E79F1-477A-481A-9BE6-6559B32CE177}.Release|Any CPU.Build.0 = Release|Any CPU
+		{026D0BB4-6E56-4CC7-A19D-150E921B7017}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{026D0BB4-6E56-4CC7-A19D-150E921B7017}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{026D0BB4-6E56-4CC7-A19D-150E921B7017}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{026D0BB4-6E56-4CC7-A19D-150E921B7017}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40876C88-E32C-4B93-A2A8-ADEA93116F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40876C88-E32C-4B93-A2A8-ADEA93116F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40876C88-E32C-4B93-A2A8-ADEA93116F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40876C88-E32C-4B93-A2A8-ADEA93116F43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{47DC776F-C8E1-41C4-A2DC-8DEA7CA73E7F} = {82EF7BB7-AE44-4882-ADE2-1298D4F2853F}
+		{0F8E79F1-477A-481A-9BE6-6559B32CE177} = {82EF7BB7-AE44-4882-ADE2-1298D4F2853F}
+		{026D0BB4-6E56-4CC7-A19D-150E921B7017} = {D8F28553-1655-4F6D-864F-E3D4859A3690}
+		{40876C88-E32C-4B93-A2A8-ADEA93116F43} = {82EF7BB7-AE44-4882-ADE2-1298D4F2853F}
+		{BA3C9622-ABFF-45A2-91AA-CC5189083256} = {D8F28553-1655-4F6D-864F-E3D4859A3690}
+		{2A987A36-A294-448D-BF1D-E05ADAC00AD4} = {D8F28553-1655-4F6D-864F-E3D4859A3690}
+	EndGlobalSection
+EndGlobal
