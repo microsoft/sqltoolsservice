@@ -46,6 +46,10 @@ HostingHeaderMissingContentLengthHeader = Fatal error: Content-Length header mus
 
 HostingHeaderMissingContentLengthValue = Fatal error: Content-Length value is not an integer
 
+HostingJsonRpcHostAlreadyStarted = JSON RPC host has already started
+
+HostingJsonRpcHostNotStarted = JSON RPC host has not started
+
 HostingJsonRpcVersionMissing = JSON RPC version parameter is missing or invalid
 
 HostingMessageMissingMethod = JSON RPC message is missing required method parameter

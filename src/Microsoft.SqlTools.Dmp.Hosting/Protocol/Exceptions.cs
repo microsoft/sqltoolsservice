@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
     public class MethodHandlerDoesNotExistException : Exception
     {
         public MethodHandlerDoesNotExistException(MessageType type, string method)
-            : base(string.Format(SR.HostingMethodHandlerDoesNotExist, type, method))
+            : base(SR.HostingMethodHandlerDoesNotExist(type.ToString(), method))
         {
         }
     }

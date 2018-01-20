@@ -109,6 +109,22 @@ namespace Microsoft.SqlTools.Dmp.Hosting
             }
         }
 
+        public static string HostingJsonRpcHostAlreadyStarted
+        {
+            get
+            {
+                return Keys.GetString(Keys.HostingJsonRpcHostAlreadyStarted);
+            }
+        }
+
+        public static string HostingJsonRpcHostNotStarted
+        {
+            get
+            {
+                return Keys.GetString(Keys.HostingJsonRpcHostNotStarted);
+            }
+        }
+
         public static string HostingJsonRpcVersionMissing
         {
             get
@@ -166,6 +182,12 @@ namespace Microsoft.SqlTools.Dmp.Hosting
 
 
             public const string HostingHeaderMissingContentLengthValue = "HostingHeaderMissingContentLengthValue";
+
+
+            public const string HostingJsonRpcHostAlreadyStarted = "HostingJsonRpcHostAlreadyStarted";
+
+
+            public const string HostingJsonRpcHostNotStarted = "HostingJsonRpcHostNotStarted";
 
 
             public const string HostingJsonRpcVersionMissing = "HostingJsonRpcVersionMissing";

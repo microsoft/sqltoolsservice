@@ -61,8 +61,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
             // If we've already started, we can't start up again
             if (isStarted)
             {
-                // TODO: Localize
-                throw new InvalidOperationException("JSON RPC host has already started");
+                throw new InvalidOperationException(SR.HostingJsonRpcHostAlreadyStarted);
             }
             
             // Make sure no other calls try to start the endpoint during startup
@@ -85,8 +84,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
             // If we haven't started, we can't stop
             if (!isStarted)
             {
-                // TODO: Localize
-                throw new InvalidOperationException("JSON RPC host has not started");
+                throw new InvalidOperationException(SR.HostingJsonRpcHostNotStarted);
             }
             
             // Make sure no future calls try to stop the endpoint during shutdown
@@ -106,8 +104,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
             // If we haven't started everything, we can't wait for exit
             if (!isStarted)
             {
-                // TODO: Localize
-                throw new InvalidOperationException("JSON RPC host has not started");
+                throw new InvalidOperationException(SR.HostingJsonRpcHostNotStarted);
             }
             
             // Join the input and output threads to this thread

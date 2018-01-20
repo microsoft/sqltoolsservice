@@ -18,8 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D8F28553-1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Dmp.Hosting.UnitTests", "test\Microsoft.SqlTools.Dmp.Hosting.UnitTests\Microsoft.SqlTools.Dmp.Hosting.UnitTests.csproj", "{BA3C9622-ABFF-45A2-91AA-CC5189083256}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProgram", "test\TestProgram\TestProgram.csproj", "{2A987A36-A294-448D-BF1D-E05ADAC00AD4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,10 +44,6 @@ Global
 		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA3C9622-ABFF-45A2-91AA-CC5189083256}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A987A36-A294-448D-BF1D-E05ADAC00AD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +54,5 @@ Global
 		{026D0BB4-6E56-4CC7-A19D-150E921B7017} = {D8F28553-1655-4F6D-864F-E3D4859A3690}
 		{40876C88-E32C-4B93-A2A8-ADEA93116F43} = {82EF7BB7-AE44-4882-ADE2-1298D4F2853F}
 		{BA3C9622-ABFF-45A2-91AA-CC5189083256} = {D8F28553-1655-4F6D-864F-E3D4859A3690}
-		{2A987A36-A294-448D-BF1D-E05ADAC00AD4} = {D8F28553-1655-4F6D-864F-E3D4859A3690}
 	EndGlobalSection
 EndGlobal

@@ -68,6 +68,16 @@
         <note>.
  Parameters: 0 - messageType (string), 1 - method (string) </note>
       </trans-unit>
+      <trans-unit id="HostingJsonRpcHostAlreadyStarted">
+        <source>JSON RPC host has already started</source>
+        <target state="new">JSON RPC host has already started</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingJsonRpcHostNotStarted">
+        <source>JSON RPC host has not started</source>
+        <target state="new">JSON RPC host has not started</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

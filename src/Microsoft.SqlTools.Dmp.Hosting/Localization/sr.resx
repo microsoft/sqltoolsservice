@@ -157,6 +157,14 @@
     <value>Fatal error: Content-Length value is not an integer</value>
     <comment></comment>
   </data>
+  <data name="HostingJsonRpcHostAlreadyStarted" xml:space="preserve">
+    <value>JSON RPC host has already started</value>
+    <comment></comment>
+  </data>
+  <data name="HostingJsonRpcHostNotStarted" xml:space="preserve">
+    <value>JSON RPC host has not started</value>
+    <comment></comment>
+  </data>
   <data name="HostingJsonRpcVersionMissing" xml:space="preserve">
     <value>JSON RPC version parameter is missing or invalid</value>
     <comment></comment>

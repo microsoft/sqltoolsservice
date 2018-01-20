@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
                 messageObject.TryGetValue("params", out messageParams);
                 if (!messageObject.TryGetValue("method", out token))
                 {
-                    throw new MessageParseException(SR.HostingMessageMissingMethod);
+                    throw new MessageParseException(null, SR.HostingMessageMissingMethod);
                 }
 
                 return new Message(MessageType.Request, messageParams) {Id = messageId, Method = token.ToString()};
@@ -197,7 +197,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
 
                 if (!messageObject.TryGetValue("method", out token))
                 {
-                    throw new MessageParseException(SR.HostingMessageMissingMethod);
+                    throw new MessageParseException(null, SR.HostingMessageMissingMethod);
                 }
 
                 return new Message(MessageType.Event, messageParams) {Method = token.ToString()};

@@ -134,7 +134,6 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
                 // closed unexpectedly (usually due to the client application
                 // ending suddenly).  For now, just terminate the language
                 // server immediately.
-                // TODO: Provide a more graceful shutdown path
                 throw new EndOfStreamException(SR.HostingUnexpectedEndOfStream);
             }
 
