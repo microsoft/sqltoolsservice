@@ -16,7 +16,6 @@ branches:
     - dev
 
 language: csharp
-solution: sqltoolsservice.sln
 
 env:
   # Since we are building from root, current directory is the project path
@@ -31,9 +30,12 @@ before_install:
     fi
 
 install:
-  - dotnet restore
+  - dotnet restore sqltoolsservice.sln
+  - dotnet restore Microsoft.SqlTools.Dmp.sln
 
 script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
+  - dotnet build src/Microsoft.SqlTools.Dmp.Hosting
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  - dotnet test test/Microsoft.SqlTools.Dmp.Hosting.UnitTests
 
