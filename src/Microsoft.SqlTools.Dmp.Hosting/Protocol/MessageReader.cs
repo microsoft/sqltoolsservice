@@ -186,17 +186,13 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
                 string contentLengthString;
                 if (!messageHeaders.TryGetValue("Content-Length", out contentLengthString))
                 {
-                    // TODO: Reinstate proper localization
-                    //throw new MessageParseException("", SR.HostingHeaderMissingContentLengthHeader);
-                    throw new MessageParseException("", "Missing content length header");
+                    throw new MessageParseException("", SR.HostingHeaderMissingContentLengthHeader);
                 }
 
                 // Parse the content length to an integer
                 if (!int.TryParse(contentLengthString, out expectedContentLength))
                 {
-                    // TODO: Reinstate proper localization
-                    //throw new MessageParseException("", SR.HostingHeaderMissingContentLengthValue);
-                    throw new MessageParseException("", "Content-length header is not an integer");
+                    throw new MessageParseException("", SR.HostingHeaderMissingContentLengthValue);
                 }
             }
             catch (Exception)

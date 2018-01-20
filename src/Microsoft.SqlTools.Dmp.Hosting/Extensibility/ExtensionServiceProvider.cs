@@ -16,6 +16,17 @@ using Microsoft.SqlTools.Dmp.Hosting.Utility;
 
 namespace Microsoft.SqlTools.Dmp.Hosting.Extensibility
 {
+    /// <summary>
+    /// A MEF-based service provider. Supports any MEF-based configuration but is optimized for 
+    /// service discovery over a set of DLLs in an application scope. Any service registering using
+    /// the <c>[Export(IServiceContract)]</c> attribute will be discovered and used by this service
+    /// provider if it's in the set of Assemblies / Types specified during its construction. Manual
+    /// override of this is supported by calling 
+    /// <see cref="RegisteredServiceProvider.RegisterSingleService" /> and similar methods, since
+    /// this will initialize that service contract and avoid the MEF-based search and discovery 
+    /// process. This allows the service provider to link into existing singleton / known services
+    /// while using MEF-based dependency injection and inversion of control for most of the code.
+    /// </summary>
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
         private readonly Func<ConventionBuilder, ContainerConfiguration> config;

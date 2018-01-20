@@ -2,31 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" original="sr.resx" source-language="en">
     <body>
-      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
-        <source>Invalid CriticalHandle!</source>
-        <target state="new">Invalid CriticalHandle!</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialsServicePasswordLengthExceeded">
-        <source>The password has exceeded 512 bytes</source>
-        <target state="new">The password has exceeded 512 bytes</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialsServiceTargetForDelete">
-        <source>Target must be specified to delete a credential</source>
-        <target state="new">Target must be specified to delete a credential</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialsServiceTargetForLookup">
-        <source>Target must be specified to check existance of a credential</source>
-        <target state="new">Target must be specified to check existance of a credential</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialServiceWin32CredentialDisposed">
-        <source>Win32Credential object is already disposed</source>
-        <target state="new">Win32Credential object is already disposed</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="HostingUnexpectedEndOfStream">
         <source>MessageReader's input stream ended unexpectedly, terminating</source>
         <target state="new">MessageReader's input stream ended unexpectedly, terminating</target>
@@ -76,6 +51,22 @@
         <source>Service of Type {0} is not compatible with registered Type {1}</source>
         <target state="new">Service of Type {0} is not compatible with registered Type {1}</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="HostingJsonRpcVersionMissing">
+        <source>JSON RPC version parameter is missing or invalid</source>
+        <target state="new">JSON RPC version parameter is missing or invalid</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingMessageMissingMethod">
+        <source>JSON RPC message is missing required method parameter</source>
+        <target state="new">JSON RPC message is missing required method parameter</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingMethodHandlerDoesNotExist">
+        <source>{0} handler for method '{1}' does not exist.</source>
+        <target state="new">{0} handler for method '{1}' does not exist.</target>
+        <note>.
+ Parameters: 0 - messageType (string), 1 - method (string) </note>
       </trans-unit>
     </body>
   </file>

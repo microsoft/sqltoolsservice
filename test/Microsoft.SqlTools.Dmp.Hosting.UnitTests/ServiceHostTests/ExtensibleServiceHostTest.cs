@@ -62,14 +62,14 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ServiceHostTests
             // If: I create a default server extensible host with a null provider
             // Then: I should get an exception
             var cb = new Mock<ChannelBase>();
-            Assert.Throws<ArgumentNullException>(() => ExtensibleServiceHost.CreateDefaultExtensibleServer(null, new ProviderDetails(), new LanguageServiceCapabilities()));
+            Assert.Throws<ArgumentNullException>(() => ExtensibleServiceHost.CreateDefaultExtensibleServer(".", null, new ProviderDetails(), new LanguageServiceCapabilities()));
         }
         
         [Fact]
         public void CreateDefaultExtensibleHost()
         {
             // If: I create a default server extensible host
-            var esh = ExtensibleServiceHost.CreateDefaultExtensibleServer(new string[] { }, new ProviderDetails(), new LanguageServiceCapabilities());
+            var esh = ExtensibleServiceHost.CreateDefaultExtensibleServer(".", new string[] { }, new ProviderDetails(), new LanguageServiceCapabilities());
             
             // Then: 
             // ... The service provider should be setup

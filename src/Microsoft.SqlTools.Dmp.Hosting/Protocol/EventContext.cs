@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
         
         public EventContext(BlockingCollection<Message> outgoingMessageQueue)
         {
-            // TODO: Either 1) make this constructor internal and provide a tes framework for validating
+            // TODO: Either 1) make this constructor internal and provide a test framework for validating
             //       or 2) extract an interface for eventcontext to allow users to mock
             messageQueue = outgoingMessageQueue;
         }

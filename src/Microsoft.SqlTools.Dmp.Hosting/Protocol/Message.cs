@@ -162,13 +162,12 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
             // Ensure there's a JSON RPC version or else it's invalid
             if (!messageObject.TryGetValue("jsonrpc", out token) || token.Value<string>() != JsonRpcVersion)
             {
-                // TODO: Localize
-                throw new ArgumentException("JSON RPC version parameter is missing or invalid");
+                throw new MessageParseException(null, SR.HostingJsonRpcVersionMissing);
             }
 
             if (messageObject.TryGetValue("id", out token))
             {
-                // Message is a Request or Response
+                // Message with ID is a Request or Response
                 string messageId = token.ToString();
 
                 if (messageObject.TryGetValue("result", out token))
@@ -180,12 +179,12 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
                     return new Message(MessageType.ResponseError, token) {Id = messageId};
                 }
                 
+                // Message without result/error is a Request
                 JToken messageParams;
                 messageObject.TryGetValue("params", out messageParams);
                 if (!messageObject.TryGetValue("method", out token))
                 {
-                    // TODO: Localize
-                    throw new ArgumentException("JSON RPC notification is missing required method parameter");
+                    throw new MessageParseException(SR.HostingMessageMissingMethod);
                 }
 
                 return new Message(MessageType.Request, messageParams) {Id = messageId, Method = token.ToString()};
@@ -198,8 +197,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
 
                 if (!messageObject.TryGetValue("method", out token))
                 {
-                    // TODO: Localize
-                    throw new ArgumentException("JSON RPC notification is missing required method parameter");
+                    throw new MessageParseException(SR.HostingMessageMissingMethod);
                 }
 
                 return new Message(MessageType.Event, messageParams) {Method = token.ToString()};

@@ -71,36 +71,36 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ExtensibilityTests
             Assert.Equal(service, returnedServices.Single());
         }
 
-//        [Fact]
-//        public void RegisterServiceProviderShouldThrowIfServiceIsIncompatible()
-//        {
-//            MyProviderService service = new MyProviderService();
-//            Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(typeof(OtherService), service));
-//        }
-//        [Fact]
-//        public void RegisterServiceProviderShouldThrowIfServiceAlreadyRegistered()
-//        {
-//            MyProviderService service = new MyProviderService();
-//            provider.RegisterSingleService(service);
-//
-//            Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(service));
-//        }
-//        
-//        [Fact]
-//        public void RegisterShouldThrowIfServiceAlreadyRegistered()
-//        {
-//            MyProviderService service = new MyProviderService();
-//            provider.RegisterSingleService(service);
-//
-//            Assert.Throws<InvalidOperationException>(() => provider.Register(() => service.AsSingleItemEnumerable()));
-//        }
-//
-//        [Fact]
-//        public void RegisterShouldThrowIfServicesAlreadyRegistered()
-//        {
-//            provider.Register(() => new [] { new MyProviderService(), new MyProviderService() });
-//            Assert.Throws<InvalidOperationException>(() => provider.Register(() => new MyProviderService().AsSingleItemEnumerable()));
-//        }
+        [Fact]
+        public void RegisterServiceProviderShouldThrowIfServiceIsIncompatible()
+        {
+            MyProviderService service = new MyProviderService();
+            Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(typeof(OtherService), service));
+        }
+        [Fact]
+        public void RegisterServiceProviderShouldThrowIfServiceAlreadyRegistered()
+        {
+            MyProviderService service = new MyProviderService();
+            provider.RegisterSingleService(service);
+
+            Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(service));
+        }
+        
+        [Fact]
+        public void RegisterShouldThrowIfServiceAlreadyRegistered()
+        {
+            MyProviderService service = new MyProviderService();
+            provider.RegisterSingleService(service);
+
+            Assert.Throws<InvalidOperationException>(() => provider.Register(() => service.AsSingleItemEnumerable()));
+        }
+
+        [Fact]
+        public void RegisterShouldThrowIfServicesAlreadyRegistered()
+        {
+            provider.Register(() => new [] { new MyProviderService(), new MyProviderService() });
+            Assert.Throws<InvalidOperationException>(() => provider.Register(() => new MyProviderService().AsSingleItemEnumerable()));
+        }
     }
 
 

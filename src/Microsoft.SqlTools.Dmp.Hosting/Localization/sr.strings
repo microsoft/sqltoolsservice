@@ -45,3 +45,9 @@ HostingHeaderMissingColon = Message header must separate key and value using ':'
 HostingHeaderMissingContentLengthHeader = Fatal error: Content-Length header must be provided
 
 HostingHeaderMissingContentLengthValue = Fatal error: Content-Length value is not an integer
+
+HostingJsonRpcVersionMissing = JSON RPC version parameter is missing or invalid
+
+HostingMessageMissingMethod = JSON RPC message is missing required method parameter
+
+HostingMethodHandlerDoesNotExist(string messageType, string method) = {0} handler for method '{1}' does not exist.

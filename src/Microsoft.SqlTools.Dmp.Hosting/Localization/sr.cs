@@ -29,46 +29,6 @@ namespace Microsoft.SqlTools.Dmp.Hosting
         }
 
 
-        public static string CredentialsServiceInvalidCriticalHandle
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServiceInvalidCriticalHandle);
-            }
-        }
-
-        public static string CredentialsServicePasswordLengthExceeded
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServicePasswordLengthExceeded);
-            }
-        }
-
-        public static string CredentialsServiceTargetForDelete
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServiceTargetForDelete);
-            }
-        }
-
-        public static string CredentialsServiceTargetForLookup
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServiceTargetForLookup);
-            }
-        }
-
-        public static string CredentialServiceWin32CredentialDisposed
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialServiceWin32CredentialDisposed);
-            }
-        }
-
         public static string ServiceAlreadyRegistered
         {
             get
@@ -149,27 +109,33 @@ namespace Microsoft.SqlTools.Dmp.Hosting
             }
         }
 
+        public static string HostingJsonRpcVersionMissing
+        {
+            get
+            {
+                return Keys.GetString(Keys.HostingJsonRpcVersionMissing);
+            }
+        }
+
+        public static string HostingMessageMissingMethod
+        {
+            get
+            {
+                return Keys.GetString(Keys.HostingMessageMissingMethod);
+            }
+        }
+
+        public static string HostingMethodHandlerDoesNotExist(string messageType, string method)
+        {
+            return Keys.GetString(Keys.HostingMethodHandlerDoesNotExist, messageType, method);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.Hosting.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.Dmp.Hosting.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
-
-
-            public const string CredentialsServiceInvalidCriticalHandle = "CredentialsServiceInvalidCriticalHandle";
-
-
-            public const string CredentialsServicePasswordLengthExceeded = "CredentialsServicePasswordLengthExceeded";
-
-
-            public const string CredentialsServiceTargetForDelete = "CredentialsServiceTargetForDelete";
-
-
-            public const string CredentialsServiceTargetForLookup = "CredentialsServiceTargetForLookup";
-
-
-            public const string CredentialServiceWin32CredentialDisposed = "CredentialServiceWin32CredentialDisposed";
 
 
             public const string ServiceAlreadyRegistered = "ServiceAlreadyRegistered";
@@ -202,6 +168,15 @@ namespace Microsoft.SqlTools.Dmp.Hosting
             public const string HostingHeaderMissingContentLengthValue = "HostingHeaderMissingContentLengthValue";
 
 
+            public const string HostingJsonRpcVersionMissing = "HostingJsonRpcVersionMissing";
+
+
+            public const string HostingMessageMissingMethod = "HostingMessageMissingMethod";
+
+
+            public const string HostingMethodHandlerDoesNotExist = "HostingMethodHandlerDoesNotExist";
+
+
             private Keys()
             { }
 
@@ -220,6 +195,12 @@ namespace Microsoft.SqlTools.Dmp.Hosting
             public static string GetString(string key)
             {
                 return resourceManager.GetString(key, _culture);
+            }
+
+
+            public static string GetString(string key, object arg0, object arg1)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1);
             }
 
         }

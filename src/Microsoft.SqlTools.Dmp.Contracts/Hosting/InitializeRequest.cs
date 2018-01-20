@@ -7,6 +7,9 @@ using System;
 
 namespace Microsoft.SqlTools.Dmp.Contracts.Hosting
 {
+    /// <summary>
+    /// Parameters sent by the tools service client to the tools service server to initialize it
+    /// </summary>
     public class InitializeParams
     {
         /// <summary>
@@ -24,17 +27,19 @@ namespace Microsoft.SqlTools.Dmp.Contracts.Hosting
         /// without having a workspace open.
         /// </summary>
         /// <remarks>If both RootPath and RootUri are available, RootUri is preferred</remarks>
-        [Obsolete]
+        [Obsolete("RootPath is deprecated in favor RootUri")]
         public string RootPath { get; set; }
         
         /// <summary>
         /// Root path of the editor's open workspace. If null, it is assumed that a file was opened
         /// without having a workspace open.
         /// </summary>
-        [Obsolete]
         public string RootUri { get; set; }
     }
 
+    /// <summary>
+    /// Data type of the response error if the initialize request fails
+    /// </summary>
     public class InitializeError
     {
         /// <summary>
@@ -44,6 +49,9 @@ namespace Microsoft.SqlTools.Dmp.Contracts.Hosting
         public bool Retry { get; set;}
     }
     
+    /// <summary>
+    /// The result returned from an initialize request
+    /// </summary>
     public class InitializeResult
     {
         /// <summary>
@@ -52,6 +60,11 @@ namespace Microsoft.SqlTools.Dmp.Contracts.Hosting
         public LanguageServiceCapabilities Capabilities { get; set; }
     }
 
+    /// <summary>
+    /// The initialize request is sent from the client to the server. It is sent once as the 
+    /// request after starting up the server. The requests parameter is of type 
+    /// <see cref="InitializeParams"/> the response is of type <see cref="InitializeResult"/>.
+    /// </summary>
     public class InitializeRequest
     {
         public static readonly

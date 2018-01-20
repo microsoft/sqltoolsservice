@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,26 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
-    <value>Invalid CriticalHandle!</value>
-    <comment></comment>
-  </data>
-  <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
-    <value>The password has exceeded 512 bytes</value>
-    <comment></comment>
-  </data>
-  <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
-    <value>Target must be specified to delete a credential</value>
-    <comment></comment>
-  </data>
-  <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
-    <value>Target must be specified to check existance of a credential</value>
-    <comment></comment>
-  </data>
-  <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
-    <value>Win32Credential object is already disposed</value>
-    <comment></comment>
-  </data>
   <data name="ServiceAlreadyRegistered" xml:space="preserve">
     <value>Cannot register service for type {0}, one or more services already registered</value>
     <comment></comment>
@@ -176,5 +156,18 @@
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
     <value>Fatal error: Content-Length value is not an integer</value>
     <comment></comment>
+  </data>
+  <data name="HostingJsonRpcVersionMissing" xml:space="preserve">
+    <value>JSON RPC version parameter is missing or invalid</value>
+    <comment></comment>
+  </data>
+  <data name="HostingMessageMissingMethod" xml:space="preserve">
+    <value>JSON RPC message is missing required method parameter</value>
+    <comment></comment>
+  </data>
+  <data name="HostingMethodHandlerDoesNotExist" xml:space="preserve">
+    <value>{0} handler for method '{1}' does not exist.</value>
+    <comment>.
+ Parameters: 0 - messageType (string), 1 - method (string) </comment>
   </data>
 </root>

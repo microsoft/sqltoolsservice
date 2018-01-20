@@ -7,6 +7,9 @@ using System;
 
 namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
 {
+    /// <summary>
+    /// Exception thrown when parsing a message from input stream fails.
+    /// </summary>
     public class MessageParseException : Exception
     {
         public string OriginalMessageText { get; }
@@ -18,13 +21,13 @@ namespace Microsoft.SqlTools.Dmp.Hosting.Protocol
         }
     }
 
+    /// <summary>
+    /// Exception thrown when a handler for a given request/event method does not exist
+    /// </summary>
     public class MethodHandlerDoesNotExistException : Exception
     {
-        // TODO: Localize
-        private const string MessageFormat = "{0} handler for method '{1}' does not exist."; 
-
         public MethodHandlerDoesNotExistException(MessageType type, string method)
-            : base(string.Format(MessageFormat, type, method))
+            : base(string.Format(SR.HostingMethodHandlerDoesNotExist, type, method))
         {
         }
     }

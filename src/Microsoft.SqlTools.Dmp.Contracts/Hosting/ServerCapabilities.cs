@@ -5,28 +5,65 @@
 
 namespace Microsoft.SqlTools.Dmp.Contracts.Hosting
 {
+    /// <summary>
+    /// VSCode language service capabilities
+    /// See https://github.com/Microsoft/vscode-languageserver-node/ for more details
+    /// </summary>
     public class LanguageServiceCapabilities
     {
+        /// <summary>
+        /// How the tools service accepts notifications to indicate open documents have changed
+        /// </summary>
         public TextDocumentSyncKind? TextDocumentSync { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides text hover functionality
+        /// </summary>
         public bool? HoverProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides auto-complete functionality
+        /// </summary>
         public CompletionOptions CompletionProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides tool tips for method, etc signatures
+        /// </summary>
         public SignatureHelpOptions SignatureHelpProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides method, etc definitions
+        /// </summary>
         public bool? DefinitionProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides lists of project references for tokens
+        /// </summary>
         public bool? ReferencesProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides document highlighting functionality
+        /// </summary>
         public bool? DocumentHighlightProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides document formatting functionality
+        /// </summary>
         public bool? DocumentFormattingProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides text selection formatting functionality
+        /// </summary>
         public bool? DocumentRangeFormattingProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides document-scoped symbol functionality
+        /// </summary>
         public bool? DocumentSymbolProvider { get; set; }
 
+        /// <summary>
+        /// Whether or not this tools service provides workspace-scoped symbol functionality
+        /// </summary>
         public bool? WorkspaceSymbolProvider { get; set; }
     }
 

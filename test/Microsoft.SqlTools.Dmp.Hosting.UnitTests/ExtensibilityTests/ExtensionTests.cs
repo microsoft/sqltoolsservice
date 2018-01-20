@@ -1,20 +1,20 @@
-﻿//
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿////
+//// Copyright (c) Microsoft. All rights reserved.
+//// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+////
 //
-
-using System;
-using System.Composition;
-using System.Linq;
-using System.Reflection;
-using Microsoft.SqlTools.Dmp.Hosting.Extensibility;
-using Xunit;
-
-namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ExtensibilityTests
-{
-    public class ExtensionTests
-    {
-
+//using System;
+//using System.Composition;
+//using System.Linq;
+//using System.Reflection;
+//using Microsoft.SqlTools.Dmp.Hosting.Extensibility;
+//using Xunit;
+//
+//namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ExtensibilityTests
+//{
+//    public class ExtensionTests
+//    {
+//
 //        [Fact]
 //        public void CreateAssemblyStoreShouldFindTypesInAssembly()
 //        {
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ExtensibilityTests
 //            // But for a different type, expect throw as the store only contains MyExportType
 //            Assert.Throws<InvalidCastException>(() => store.GetExports<MyOtherType>().Count());
 //        }
-        
+//        
 //        [Fact]
 //        public void CreateDefaultLoaderShouldFindTypesOnlyInMainAssembly()
 //        {
@@ -64,23 +64,23 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ExtensibilityTests
 //            Assert.Equal(2, myStore.GetExports<MyExportType>().Count());
 //            Assert.NotEmpty(querierStore.GetExports<ASTNodeFormatterFactory>());
 //        }        
-    }
-
-    // Note: in order for the MEF lookup to succeed, one class must have 
-    [Export(typeof(MyExportType))]
-    public class MyExportType
-    {
-
-    }
-    
-    public class MyExportSubType : MyExportType
-    {
-
-    }
-
-    public class MyOtherType
-    {
-
-    }
-}
-
+//    }
+//
+//    // Note: in order for the MEF lookup to succeed, one class must have 
+//    [Export(typeof(MyExportType))]
+//    public class MyExportType
+//    {
+//
+//    }
+//    
+//    public class MyExportSubType : MyExportType
+//    {
+//
+//    }
+//
+//    public class MyOtherType
+//    {
+//
+//    }
+//}
+//
