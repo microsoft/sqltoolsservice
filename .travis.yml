@@ -31,11 +31,11 @@ before_install:
 
 install:
   - dotnet restore sqltoolsservice.sln
-  - dotnet restore Microsoft.SqlTools.Dmp.sln
+  - dotnet restore Microsoft.SqlTools.DataProtocol.sln
 
 script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
-  - dotnet build src/Microsoft.SqlTools.Dmp.Hosting
+  - dotnet build src/Microsoft.SqlTools.DataProtocol.Hosting
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
-  - dotnet test test/Microsoft.SqlTools.Dmp.Hosting.UnitTests
+  - dotnet test test/Microsoft.SqlTools.DataProtocol.Hosting.UnitTests
 
