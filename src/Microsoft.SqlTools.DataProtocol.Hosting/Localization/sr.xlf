@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en">
+    <body>
+      <trans-unit id="HostingUnexpectedEndOfStream">
+        <source>MessageReader's input stream ended unexpectedly, terminating</source>
+        <target state="new">MessageReader's input stream ended unexpectedly, terminating</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingColon">
+        <source>Message header must separate key and value using ':'</source>
+        <target state="new">Message header must separate key and value using ':'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthHeader">
+        <source>Fatal error: Content-Length header must be provided</source>
+        <target state="new">Fatal error: Content-Length header must be provided</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthValue">
+        <source>Fatal error: Content-Length value is not an integer</source>
+        <target state="new">Fatal error: Content-Length value is not an integer</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceAlreadyRegistered">
+        <source>Cannot register service for type {0}, one or more services already registered</source>
+        <target state="new">Cannot register service for type {0}, one or more services already registered</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MultipleServicesFound">
+        <source>Multiple services found for type {0}, expected only 1</source>
+        <target state="new">Multiple services found for type {0}, expected only 1</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IncompatibleServiceForExtensionLoader">
+        <source>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</source>
+        <target state="new">Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceProviderNotSet">
+        <source>SetServiceProvider() was not called to establish the required service provider</source>
+        <target state="new">SetServiceProvider() was not called to establish the required service provider</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceNotFound">
+        <source>Service {0} was not found in the service provider</source>
+        <target state="new">Service {0} was not found in the service provider</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceNotOfExpectedType">
+        <source>Service of Type {0} is not compatible with registered Type {1}</source>
+        <target state="new">Service of Type {0} is not compatible with registered Type {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingJsonRpcVersionMissing">
+        <source>JSON RPC version parameter is missing or invalid</source>
+        <target state="new">JSON RPC version parameter is missing or invalid</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingMessageMissingMethod">
+        <source>JSON RPC message is missing required method parameter</source>
+        <target state="new">JSON RPC message is missing required method parameter</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingMethodHandlerDoesNotExist">
+        <source>{0} handler for method '{1}' does not exist.</source>
+        <target state="new">{0} handler for method '{1}' does not exist.</target>
+        <note>.
+ Parameters: 0 - messageType (string), 1 - method (string) </note>
+      </trans-unit>
+      <trans-unit id="HostingJsonRpcHostAlreadyStarted">
+        <source>JSON RPC host has already started</source>
+        <target state="new">JSON RPC host has already started</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingJsonRpcHostNotStarted">
+        <source>JSON RPC host has not started</source>
+        <target state="new">JSON RPC host has not started</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
