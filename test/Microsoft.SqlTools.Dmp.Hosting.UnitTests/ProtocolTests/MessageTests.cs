@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ProtocolTests
         {
             // If: I deserialize a json string that doesn't have a JSON RPC version
             // Then: I should get an exception
-            Assert.Throws<ArgumentException>(() => Message.Deserialize("{\"id\": 123}"));
+            Assert.Throws<MessageParseException>(() => Message.Deserialize("{\"id\": 123}"));
         }
         
         [Fact]
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ProtocolTests
         {
             // If: I deserialize an event json string that is missing a method
             // Then: I should get an exception
-            Assert.Throws<ArgumentException>(() => Message.Deserialize("{\"jsonrpc\": \"2.0\", \"params\": {}}")); 
+            Assert.Throws<MessageParseException>(() => Message.Deserialize("{\"jsonrpc\": \"2.0\", \"params\": {}}")); 
         }
 
         [Fact]
@@ -242,7 +242,7 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ProtocolTests
         {
             // If: I deserialize a request that doesn't have a method parameter
             // Then: I should get an exception
-            Assert.Throws<ArgumentException>(() => Message.Deserialize("{\"jsonrpc\": \"2.0\", \"params\": {}, \"id\": \"123\"}"));
+            Assert.Throws<MessageParseException>(() => Message.Deserialize("{\"jsonrpc\": \"2.0\", \"params\": {}, \"id\": \"123\"}"));
         }
 
         [Fact]

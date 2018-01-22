@@ -46,12 +46,9 @@ namespace Microsoft.SqlTools.Dmp.Hosting.UnitTests.ServiceHostTests
             var esh = new ExtensibleServiceHost(sp.Object, cb.Object, new ProviderDetails(), new LanguageServiceCapabilities());
             
             // Then:
-            // ... The service provider should have had the IHostedService registered
-            sp.Verify(o => o.RegisterSingleService(It.IsAny<Type>(), It.IsAny<IHostedService>()), Times.Once);
-            
+           
             // ... The service should have been initialized
-            hs.Verify(o => o.InitializeService(esh), Times.Once());
-            
+            hs.Verify(o => o.InitializeService(esh), Times.Once());            
             // ... The service host should have it's provider exposed
             Assert.Equal(sp.Object, esh.ServiceProvider);
         }
