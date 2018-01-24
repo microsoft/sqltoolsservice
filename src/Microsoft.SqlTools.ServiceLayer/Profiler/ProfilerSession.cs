@@ -90,6 +90,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Determine if an event was caused by the XEvent polling queries
+        /// </summary>
+        private bool IsProfilerEvent(ProfilerEvent currentEvent)
+        {
+            if (string.IsNullOrWhiteSpace(currentEvent.Name) ||  currentEvent.Values == null)
+            {
+                return false;
+            }
+
+            if ((currentEvent.Name.Equals("sql_batch_completed")
+                || currentEvent.Name.Equals("sql_batch_starting"))
+                && currentEvent.Values.ContainsKey("batch_text"))
+            {
+                return currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_session_targets");
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Removed profiler polling events from event list
+        /// </summary>        
+        public List<ProfilerEvent> FilterProfilerEvents(List<ProfilerEvent> events)
+        {
+            int idx = events.Count;
+            while (--idx >= 0)
+            {               
+                if (IsProfilerEvent(events[idx]))
+                {
+                    events.RemoveAt(idx);
+                }
+            }
+            return events;
+        }
+
+        /// <summary>
         /// Filter the event list to not include previously seen events
         /// </summary>
         public List<ProfilerEvent> FilterOldEvents(List<ProfilerEvent> events)

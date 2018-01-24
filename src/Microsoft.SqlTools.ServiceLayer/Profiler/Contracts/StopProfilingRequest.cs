@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// </summary>
     public class StopProfilingParams
     {
-        public string SessionId { get; set; }
+        public string OwnerUri { get; set; }
     }
 
     public class StopProfilingResult
