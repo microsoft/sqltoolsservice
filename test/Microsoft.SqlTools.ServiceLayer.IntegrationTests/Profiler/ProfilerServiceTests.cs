@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
                 // stop the session
                 var stopParams = new StopProfilingParams()
                 {
-                    SessionId = sessionId
+                    OwnerUri = sessionId
                 };
 
                 var stopContext = new Mock<RequestContext<StopProfilingResult>>();
