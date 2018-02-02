@@ -35,26 +35,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
+                var requestParams = new GetAgentJobActivityParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                };
+
+                var requestContext = new Mock<RequestContext<GetAgentJobActivityResult>>();
+
                 AgentService service = new AgentService();
+                await service.HandleGetAgentJobActivityRequest(requestParams, requestContext.Object);
 
-                // // start a new session
-                // var startParams = new StartProfilingParams();
-                // startParams.OwnerUri = connectionResult.ConnectionInfo.OwnerUri;
-                // startParams.TemplateName = "Standard";
-
-                // string sessionId = null;
-                // var startContext = new Mock<RequestContext<StartProfilingResult>>();
-                // startContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                //     .Returns<StartProfilingResult>((result) => 
-                //     {
-                //         // capture the session id for sending the stop message
-                //         sessionId = result.SessionId;
-                //         return Task.FromResult(0);
-                //     });
-
-                // await service.HandleStartProfilingRequest(startParams, startContext.Object);
-
-                //startContext.VerifyAll();
+                requestContext.VerifyAll();
             }           
         }
     }

@@ -5,9 +5,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -84,6 +87,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(GetAgentJobActivityRequest.Type, HandleGetAgentJobActivityRequest);
         }
 
+
+        private const string cUrnEnumerateAgentJobs = "Server/JobServer/Job";
+        private const string cUrnJobName = "JobName";
+        private const string cUrnJobId = "JobID";
+        private const string cUrnJobCategoryId = "RunStatus";
+
+        private void TestApi(Server server)
+        {
+            var job = this.jobs.Last().Value;            
+            //job.
+
+            var filter = new JobHistoryFilter();
+            filter.JobID = job.JobID;
+            var dt = server.JobServer.EnumJobHistory(filter);
+
+            StringBuilder sb = new StringBuilder();
+
+            int count = dt.Rows.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                string jobName = Convert.ToString(dt.Rows[i][cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                int jobCategoryId = Convert.ToInt32(dt.Rows[i][cUrnJobCategoryId], System.Globalization.CultureInfo.InvariantCulture);
+                Guid jobId = (Guid) (dt.Rows[i][cUrnJobId]);
+
+                sb.AppendFormat("{0}, {1}, {2}\n", jobId, jobName, jobCategoryId);
+
+              //  logSources[i] = new LogSourceJobHistory(jobName, sqlCi, customCommandHandler, jobCategoryId, jobId, this.serviceProvider);
+            }
+
+
+            string outp = sb.ToString();
+
+
+        }
+
+
+        /*
+        
+            Request req = new Request();
+            Enumerator en = new Enumerator();
+
+            req.Urn = cUrnEnumerateAgentJobs;
+            req.Fields = new string[] { cUrnJobName, cUrnJobCategoryId, cUrnJobId };
+            req.OrderByList = new OrderBy[] { new OrderBy(cUrnJobName, OrderBy.Direction.Asc) };
+
+            DataTable dt = en.Process(sqlCi, req);
+            int count = dt.Rows.Count;
+
+            logSources = new ILogSource[count];
+            for (int i = 0; i < count; ++i)
+            {
+                string jobName = Convert.ToString(dt.Rows[i][cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                int jobCategoryId = Convert.ToInt32(dt.Rows[i][cUrnJobCategoryId], System.Globalization.CultureInfo.InvariantCulture);
+                Guid jobId = (Guid) (dt.Rows[i][cUrnJobId]);
+
+                logSources[i] = new LogSourceJobHistory(jobName, sqlCi, customCommandHandler, jobCategoryId, jobId, this.serviceProvider);
+            }
+         */
+
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
@@ -104,9 +166,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     var server = new Server(serverConnection);
                     var fetcher = new JobFetcher(serverConnection);
                     var filter = new JobActivityFilter();
-                    var jobs = fetcher.FetchJobs(filter);
-                }
+                    this.jobs = fetcher.FetchJobs(filter);
 
+                    TestApi(server);
+                }
+                
                 await requestContext.SendResult(result);
             }
             catch (Exception e)
