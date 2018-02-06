@@ -691,7 +691,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Returns the value of ScriptIndexes Property
         /// </summary>
-        public bool? DriIndexes { get { return ScriptOptions.ScriptIndexes; } }
+        public bool? Indexes { get { return ScriptOptions.ScriptIndexes; } }
 
 
         /// <summary>
