@@ -141,7 +141,6 @@ NodeType: UserDefinedTableType Label: Demo.SalesOrderDetailType_inmem SubType: S
 NodeType: UserDefinedTableTypeColumn Label: OrderQty (smallint, not null) SubType: Status:
 NodeType: UserDefinedTableTypeColumn Label: ProductID (int, not null) SubType: Status:
 NodeType: UserDefinedTableTypeColumn Label: SpecialOfferID (int, not null) SubType: Status:
-NodeType: UserDefinedTableTypeConstraint Label: DF__TT_SalesO__Produ__36B12243 SubType: Status:
 NodeType: UserDefinedTableType Label: Demo.SalesOrderDetailType_ondisk SubType: Status:
 NodeType: UserDefinedTableTypeColumn Label: OrderQty (smallint, not null) SubType: Status:
 NodeType: UserDefinedTableTypeColumn Label: ProductID (int, not null) SubType: Status:
