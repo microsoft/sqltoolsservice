@@ -487,17 +487,42 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            Column parentColumn = context.Parent as Column;
-            if (parentColumn != null)
+            Table parentTable = context.Parent as Table;
+            if (parentTable != null)
             {
-                var retValue = parentColumn.DefaultConstraint;
+                var retValue = parentTable.Columns;
                 if (retValue != null)
                 {
-                    if (refresh)
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    List<DefaultConstraint> subFieldResult = new List<DefaultConstraint>();
+                    foreach(Column field in retValue)
                     {
-                        parentColumn.DefaultConstraint.Refresh();
+                        DefaultConstraint subField = field.DefaultConstraint;
+                        if (subField != null)
+                        {
+                            subFieldResult.Add(subField);
+                        }
                     }
-                    return new SqlSmoObject[] { retValue };
+                    return subFieldResult.Where(c => PassesFinalFilters(parentTable, c));
+                }
+            }
+            UserDefinedTableType parentUserDefinedTableType = context.Parent as UserDefinedTableType;
+            if (parentUserDefinedTableType != null)
+            {
+                var retValue = parentUserDefinedTableType.Columns;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    List<DefaultConstraint> subFieldResult = new List<DefaultConstraint>();
+                    foreach(Column field in retValue)
+                    {
+                        DefaultConstraint subField = field.DefaultConstraint;
+                        if (subField != null)
+                        {
+                            subFieldResult.Add(subField);
+                        }
+                    }
+                    return subFieldResult.Where(c => PassesFinalFilters(parentUserDefinedTableType, c));
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
