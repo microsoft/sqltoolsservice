@@ -45,7 +45,7 @@
 ### How to add a new SQL object type
 To add a new object type, 
 * Add the type to TreeNodeDefinition.xml and SmoQueryModelDefinition.xml. 
-* Regenerate the classes by running Build.cmd/build.sh -target=SRGen
+* Regenerate the classes by running Build.cmd/build.sh -target=CodeGen
 
 
 

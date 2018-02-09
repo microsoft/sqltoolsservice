@@ -37,7 +37,7 @@
 
   <Node Name="SqlTable" Parent="Database" />
   <Node Name="SqlHistoryTable" Type="Table" Parent="Table" >
-    <NavigationPath Parent="Table" Type="Table" Field="Parent.Tables" FieldForUrn="Parent" />
+    <NavigationPath Parent="Table" Type="Table" Field="Parent.Tables" />
   </Node>
   
   <Node Name="SqlView" Parent="Database" />
@@ -51,7 +51,12 @@
 
   <Node Name="SqlCheck" Parent="Table"/>
   <Node Name="SqlForeignKeyConstraint" Type="ForeignKey" Parent="Table" />
-  <Node Name="SqlDefaultConstraint" Parent="Column" Collection="False" />
+  <Node Name="SqlDefaultConstraint" Collection="True" >
+    <Parent>Table</Parent>
+    <Parent>UserDefinedTableType</Parent>
+    <NavigationPath Parent="Table" Field="Columns" SubField="DefaultConstraint" FieldType="Column" />
+    <NavigationPath Parent="UserDefinedTableType" Field="Columns" SubField="DefaultConstraint" FieldType="Column" />
+  </Node>
   <Node Name="SqlDmlTrigger" Type="Trigger" Parent="Table" ValidFor="NotSqlDw" />
   <Node Name="SqlFullTextIndex" Parent="Table" Collection="False" ValidFor="NotSqlDw" />
   <Node Name="SqlStatistic" Parent="TableViewBase"/>
