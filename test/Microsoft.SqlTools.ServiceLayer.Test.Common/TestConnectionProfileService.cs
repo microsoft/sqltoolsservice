@@ -182,6 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectParams.Connection = new ConnectionDetails();
             connectParams.Connection.ServerName = connectionProfile.ServerName;
             connectParams.Connection.DatabaseName = connectionProfile.Database;
+            connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
             connectParams.Connection.UserName = connectionProfile.User;
             connectParams.Connection.Password = connectionProfile.Password;
             connectParams.Connection.MaxPoolSize = 200;
@@ -189,6 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (!string.IsNullOrEmpty(databaseName))
             {
                 connectParams.Connection.DatabaseName = databaseName;
+                connectParams.Connection.DatabaseDisplayName = databaseName;
             }
             if (key == DefaultSqlAzureInstanceKey || key == DefaultSqlAzureV12InstanceKey)
             {
