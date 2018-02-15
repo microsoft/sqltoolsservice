@@ -134,6 +134,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
         [Fact]
+        public async Task CreateSessionRequestWithDefaultConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "testdb",
+                ServerName = "serverName",
+                DatabaseDisplayName = ""
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
         public async Task ExpandNodeGivenValidSessionShouldReturnTheNodeChildren()
         {
             await ExpandAndVerifyServerNodes();

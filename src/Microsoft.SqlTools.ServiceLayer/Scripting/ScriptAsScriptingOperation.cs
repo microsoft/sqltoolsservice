@@ -75,7 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 UrnCollection urns = CreateUrns(ServerConnection);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
-                PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, options);
+                ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
+                PopulateAdvancedScriptOptions(scriptAsOptions, options);
                 options.WithDependencies = false;
                 // TODO: Not including the header by default. We have to get this option from client
                 options.IncludeHeaders = false;

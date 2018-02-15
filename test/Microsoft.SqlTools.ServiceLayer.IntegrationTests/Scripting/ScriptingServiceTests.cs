@@ -89,7 +89,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void VerifyScriptAsCreateTable()
         {
-            string query = "CREATE TABLE testTable1 (c1 int)";
+            string query = @"CREATE TABLE testTable1 (c1 int) 
+                            GO
+                            CREATE CLUSTERED INDEX [ClusteredIndex-1] ON [dbo].[testTable1]
+                            (
+	                            [c1] ASC
+                            )
+                            GO
+                            ";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Create;
             ScriptingObject scriptingObject = new ScriptingObject
             {
@@ -97,9 +104,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                 Schema = "dbo",
                 Type = "Table"
             };
-            string expectedScript = "CREATE TABLE [dbo].[testTable1]";
+            List<string> expectedScripts = new List<string> { "CREATE TABLE [dbo].[testTable1]", "CREATE CLUSTERED INDEX [ClusteredIndex-1] ON [dbo].[testTable1]" };
 
-            await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
+
+            await VerifyScriptAsForMultipleObjects(query, new List<ScriptingObject> { scriptingObject }, scriptCreateDrop, expectedScripts);
         }
 
         [Fact]

@@ -41,6 +41,12 @@ NodeType: Constraint Label: CK_Employee_HireDate SubType: Status:
 NodeType: Constraint Label: CK_Employee_MaritalStatus SubType: Status:
 NodeType: Constraint Label: CK_Employee_SickLeaveHours SubType: Status:
 NodeType: Constraint Label: CK_Employee_VacationHours SubType: Status:
+NodeType: Constraint Label: DF_Employee_SalariedFlag SubType: Status:
+NodeType: Constraint Label: DF_Employee_VacationHours SubType: Status:
+NodeType: Constraint Label: DF_Employee_SickLeaveHours SubType: Status:
+NodeType: Constraint Label: DF_Employee_CurrentFlag SubType: Status:
+NodeType: Constraint Label: DF_Employee_rowguid SubType: Status:
+NodeType: Constraint Label: DF_Employee_ModifiedDate SubType: Status:
 NodeType: Index Label: NonClusteredIndex-Login (Non-Unique, Non-Clustered) SubType: Status:
 NodeType: Index Label: PK_Employee_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: NonClusteredIndex-Login SubType: Status:
@@ -94,6 +100,10 @@ NodeType: Column Label: ModifiedDate (datetime, not null) SubType: Status:
 NodeType: Key Label: PK_Person_BusinessEntityID SubType:PrimaryKey Status:
 NodeType: Constraint Label: CK_Person_EmailPromotion SubType: Status:
 NodeType: Constraint Label: CK_Person_PersonType SubType: Status:
+NodeType: Constraint Label: DF_Person_NameStyle SubType: Status:
+NodeType: Constraint Label: DF_Person_EmailPromotion SubType: Status:
+NodeType: Constraint Label: DF_Person_rowguid SubType: Status:
+NodeType: Constraint Label: DF_Person_ModifiedDate SubType: Status:
 NodeType: Trigger Label: TableTrigger SubType: Status:
 NodeType: Index Label: PK_Person_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: PK_Person_BusinessEntityID SubType: Status:

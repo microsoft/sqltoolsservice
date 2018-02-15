@@ -458,6 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
+                bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
@@ -479,7 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -728,11 +729,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
             {
                 ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
-                if (!DatabaseUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
+                if (!isDefaultOrSystemDatabase)
                 {
                     // Assuming the databases are in a folder under server node
                     DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);
