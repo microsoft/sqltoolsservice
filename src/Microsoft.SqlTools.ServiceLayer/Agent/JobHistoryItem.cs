@@ -1,4 +1,4 @@
-    //
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -12,6 +12,9 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using SMO = Microsoft.SqlServer.Management.Smo;
+using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Admin;
+using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -73,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     }
 
 
-    internal class LogSourceJobHistory // : ILogSource, ILogCommandTarget, IDisposable, ITypedColumns
+    internal class LogSourceJobHistory : ILogSource, IDisposable //, ITypedColumns, ILogCommandTarget
     {
         internal const string JobDialogParameterTemplate = "<params><jobid></jobid></params>";
         internal const string JobStepDialogParameterTemplate = "<params><jobid></jobid><acceptedits>true</acceptedits></params>";
@@ -101,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private TypedColumnCollection columnTypes;
         private IServiceProvider serviceProvider = null;
 
-        ILogCommandHandler m_customCommandHandler = null;
+       // ILogCommandHandler m_customCommandHandler = null;
 
         private static string historyTableDeclaration   = "declare @tmp_sp_help_jobhistory table";
         private static string historyTableDeclaration80 = "create table #tmp_sp_help_jobhistory";
@@ -207,9 +210,8 @@ ORDER BY [InstanceID] ASC";
         #region Constructor
         
 
-        public LogSourceJobHistory(string jobName, SqlConnectionInfo sqlCi, ILogCommandHandler customCommandHandler, int jobCategoryId, Guid JobId, IServiceProvider serviceProvider)
+        public LogSourceJobHistory(string jobName, SqlConnectionInfo sqlCi, object customCommandHandler, int jobCategoryId, Guid JobId, IServiceProvider serviceProvider)
         {
-            Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sqlCi != null);
             m_logName = jobName;
             m_jobCategoryId = jobCategoryId;
             m_jobId = JobId;
@@ -219,19 +221,19 @@ ORDER BY [InstanceID] ASC";
             m_sqlConnectionInfo = sqlCi;
             m_fieldNames = new string[] 
             {
-                LogViewerSR.Field_StepID,
-                LogViewerSR.Field_Server,
-                LogViewerSR.Field_JobName,
-                LogViewerSR.Field_StepName,
-                LogViewerSR.Field_Notifications,
-                LogViewerSR.Field_Message,
-                LogViewerSR.Field_Duration,
-                LogViewerSR.Field_SqlSeverity,
-                LogViewerSR.Field_SqlMessageID,
-                LogViewerSR.Field_OperatorEmailed,
-                LogViewerSR.Field_OperatorNetsent,
-                LogViewerSR.Field_OperatorPaged,
-                LogViewerSR.Field_RetriesAttempted
+                "LogViewerSR.Field_StepID",
+                "LogViewerSR.Field_Server",
+                "LogViewerSR.Field_JobName",
+                "LogViewerSR.Field_StepName",
+                "LogViewerSR.Field_Notifications",
+                "LogViewerSR.Field_Message",
+                "LogViewerSR.Field_Duration",
+                "LogViewerSR.Field_SqlSeverity",
+                "LogViewerSR.Field_SqlMessageID",
+                "LogViewerSR.Field_OperatorEmailed",
+                "LogViewerSR.Field_OperatorNetsent",
+                "LogViewerSR.Field_OperatorPaged",
+                "LogViewerSR.Field_RetriesAttempted"
             };
 
             columnTypes = new TypedColumnCollection();
@@ -240,7 +242,7 @@ ORDER BY [InstanceID] ASC";
                 columnTypes.AddColumnType(m_fieldNames[i], SourceColumnTypes[i]);
             }
 
-            m_customCommandHandler = customCommandHandler;
+            //m_customCommandHandler = customCommandHandler;
             
             this.serviceProvider = serviceProvider;
         }
@@ -348,9 +350,7 @@ ORDER BY [InstanceID] ASC";
 
         ILogSource ILogSource.GetRefreshedClone()
         {
-        Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_jobName != null);
-            Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_sqlConnectionInfo != null);
-            return new LogSourceJobHistory(m_jobName, m_sqlConnectionInfo, m_customCommandHandler, m_jobCategoryId, m_jobId, this.serviceProvider);
+            return new LogSourceJobHistory(m_jobName, m_sqlConnectionInfo, null, m_jobCategoryId, m_jobId, this.serviceProvider);
 
         }
         #endregion
@@ -361,10 +361,6 @@ ORDER BY [InstanceID] ASC";
         /// </summary>
         private void InitializeInternal()
         {
-            Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_sqlConnectionInfo != null);
-            Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_jobName != null);
-            Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_jobName.Length != 0);
-
             m_logEntries.Clear();
 
             IDbConnection connection = null;
@@ -373,14 +369,13 @@ ORDER BY [InstanceID] ASC";
                 connection = m_sqlConnectionInfo.CreateConnectionObject();
                 connection.Open();
 
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(connection.State == ConnectionState.Open,
-                                                "Connection should be open at this point");
-
                 IDbCommand command = connection.CreateCommand();
 
                 string jobId = this.m_jobId.ToString();
 
-                string query = (this.m_sqlConnectionInfo.ServerVersion.Major >= 9) ?
+                string query = 
+                      (this.m_sqlConnectionInfo.ServerVersion == null 
+                    || this.m_sqlConnectionInfo.ServerVersion.Major >= 9) ?
 
                                 String.Format(jobHistoryQuery,
                                               historyTableDeclaration,
@@ -408,10 +403,6 @@ ORDER BY [InstanceID] ASC";
                     // we will create here only the job outcomes (0) - entries, and skip non 0
                     // job outcome (step 0) it will extract the sub-entries (steps 1...n) itself
                     ILogEntry jobOutcome = new LogEntryJobHistory(m_jobName, dtJobHistory, rowno);
-
-                    Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(jobOutcome != null);
-                    Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(jobOutcome.SubEntries != null, "all 'job outcome' entries should have (non-null) 'step' subentries");
-                    Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(jobOutcome.SubEntries.Count > 0, "all 'job outcome' entries should have (non-zero) 'step' subentries");
 
                     int skippedSubentries = (jobOutcome.SubEntries == null) ? 0 : jobOutcome.SubEntries.Count;
                     rowno += skippedSubentries; // skip subentries
@@ -487,12 +478,6 @@ ORDER BY [InstanceID] ASC";
             /// <param name="rowno">index for row that describes 'job outcome', rowno+1..n will describe 'job steps'</param>
             public LogEntryJobHistory(string sourceName, DataTable dt, int rowno)
             {
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName.Trim().Length > 0);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dt != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dt.Rows != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(rowno < dt.Rows.Count);
-
                 InitializeJobHistoryStepSubEntries(sourceName, dt, rowno); // create subentries, until we hit job outcome or end of history
 
                 // initialize job outcome
@@ -506,8 +491,6 @@ ORDER BY [InstanceID] ASC";
                     }
                     else
                     {
-                        Microsoft.SqlServer.Management.Diagnostics.STrace.Assert((rowno + m_subEntries.Count) == dt.Rows.Count, "if we have a running job we should have processed all the entries");
-
                         // there is no row with stepID=0 that coresponds to a job job outcome for a job that is running
                         // since agent will write the outcome only after it finishes the job therefore we will build ourselves
                         // an entry describing the running job, to which we will host the subentries for job steps already executed
@@ -515,12 +498,9 @@ ORDER BY [InstanceID] ASC";
                     }
                 }
                 else
-                {
-                    Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(false, "seems we got stepID=0 indicating job outcome, for a job with 0 subentries");
+                {                   
                     InitializeJobHistoryFromDataRow(sourceName, dt.Rows[rowno]);
-                }
-
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(((m_fieldStepID == null) || (m_fieldStepID == "0")), "this constructor should produce parent-entries coresponding to 'job outcome' (StepID==0) or jobs in progress (no StepID available)");
+                }                
             }
 
             /// <summary>
@@ -530,13 +510,7 @@ ORDER BY [InstanceID] ASC";
             /// <param name="dr">row describing subentry</param>
             public LogEntryJobHistory(string sourceName, DataRow dr)
             {
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName.Trim().Length > 0);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dr != null);
-
-                InitializeJobHistoryFromDataRow(sourceName, dr); // initialize intself
-
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_fieldStepID != "0", "constructor using 'DataRow dr' should be called only to build 'job step' sub-entries (StepID!=0)");
+                InitializeJobHistoryFromDataRow(sourceName, dr); // initialize intself                
             }
             #endregion
 
@@ -547,9 +521,6 @@ ORDER BY [InstanceID] ASC";
             /// <param name="dr"></param>
             private void InitializeJobHistoryFromDataRow(string sourceName, DataRow dr)
             {
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName.Trim().Length != 0);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dr != null);
                 try
                 {
                     m_originalSourceName = sourceName;
@@ -577,8 +548,7 @@ ORDER BY [InstanceID] ASC";
                         case CompletionResult.Unknown:
                             m_severity = SeverityClass.Unknown;
                             break;
-                        default:
-                            Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(false, "unhandled Microsoft.SqlServer.Management.Smo.Agent.CompletionResult");
+                        default:                            
                             m_severity = SeverityClass.Unknown;
                             break;
                     }
@@ -645,10 +615,6 @@ ORDER BY [InstanceID] ASC";
             /// <param name="rowno">points to 1st subentry => points to 1st 'job step'</param>
             private void InitializeJobHistoryStepSubEntries(string sourceName, DataTable dt, int rowno)
             {
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dt != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dt.Rows != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(rowno < dt.Rows.Count);
-
                 if (m_subEntries == null)
                 {
                     m_subEntries = new List<ILogEntry>();
@@ -663,11 +629,8 @@ ORDER BY [InstanceID] ASC";
                 {
                     DataRow dr = dt.Rows[i];
 
-                    Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dr != null);
-
                     object o = dr[cUrnStepID];
 
-                    Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(o != null);
                     try
                     {
                         int stepID = Convert.ToInt32(o, System.Globalization.CultureInfo.InvariantCulture);
@@ -686,14 +649,11 @@ ORDER BY [InstanceID] ASC";
                         m_subEntries.Insert(0, new LogEntryJobHistory(sourceName, dr));
                     }
                     catch (InvalidCastException)
-                    {
-                        Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(false, "got invalid data from enumerator - ignoring it");
+                    {                       
                     }
 
                     ++i;
-                }
-
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(m_subEntries.Count > 0, "no 'job steps' found. Did this job finish before it ran its first step, perhaps due to a permissions problem running the job?");
+                }                
             }
 
             /// <summary>
@@ -703,9 +663,6 @@ ORDER BY [InstanceID] ASC";
             /// <param name="dr">points to last entry - which should corespond to first step - so we can compute job name and duration</param>
             private void InitializeJobHistoryForRunningJob(string sourceName, DataRow dr)
             {
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName != null);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(sourceName.Trim().Length != 0);
-                Microsoft.SqlServer.Management.Diagnostics.STrace.Assert(dr != null);
                 try
                 {
                     m_originalSourceName = sourceName;
@@ -717,7 +674,7 @@ ORDER BY [InstanceID] ASC";
 
                     m_fieldStepID = null;
                     m_fieldStepName = null;
-                    m_fieldMessage = DropObjectsSR.InProgressStatus; // $FUTURE - assign its own string when string resources got un-freezed
+                    m_fieldMessage = "DropObjectsSR.InProgressStatus"; // $FUTURE - assign its own string when string resources got un-freezed
                     m_fieldSqlSeverity = null;
                     m_fieldSqlMessageID = null;
                     m_fieldOperatorEmailed = null;
@@ -740,7 +697,7 @@ ORDER BY [InstanceID] ASC";
             {
                 get
                 {
-                    return LogViewerSR.LogSourceTypeJobHistory;
+                    return "LogViewerSR.LogSourceTypeJobHistory";
                 }
             }
 
@@ -772,56 +729,56 @@ ORDER BY [InstanceID] ASC";
             {
                 get
                 {
-                    if (fieldName == LogViewerSR.Field_JobName ||
-                        fieldName == LogViewerSR.Field_Source)
-                    {
-                        return m_fieldJobName;
-                    }
-                    else if (fieldName == LogViewerSR.Field_StepID)
-                    {
-                        return m_fieldStepID;
-                    }
-                    else if (fieldName == LogViewerSR.Field_StepName)
-                    {
-                        return m_fieldStepName;
-                    }
-                    else if (fieldName == LogViewerSR.Field_Message)
-                    {
-                        return m_fieldMessage;
-                    }
-                    else if (fieldName == LogViewerSR.Field_Duration)
-                    {
-                        return m_fieldDuration;
-                    }
-                    else if (fieldName == LogViewerSR.Field_SqlSeverity)
-                    {
-                        return m_fieldSqlSeverity;
-                    }
-                    else if (fieldName == LogViewerSR.Field_SqlMessageID)
-                    {
-                        return m_fieldSqlMessageID;
-                    }
-                    else if (fieldName == LogViewerSR.Field_OperatorEmailed)
-                    {
-                        return m_fieldOperatorEmailed;
-                    }
-                    else if (fieldName == LogViewerSR.Field_OperatorNetsent)
-                    {
-                        return m_fieldOperatorNetsent;
-                    }
-                    else if (fieldName == LogViewerSR.Field_OperatorPaged)
-                    {
-                        return m_fieldOperatorPaged;
-                    }
-                    else if (fieldName == LogViewerSR.Field_RetriesAttempted)
-                    {
-                        return m_fieldRetriesAttempted;
-                    }
-                    else if (fieldName == LogViewerSR.Field_Server)
-                    {
-                        return m_serverName;
-                    }
-                    else
+                    // if (fieldName == LogViewerSR.Field_JobName ||
+                    //     fieldName == LogViewerSR.Field_Source)
+                    // {
+                    //     return m_fieldJobName;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_StepID)
+                    // {
+                    //     return m_fieldStepID;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_StepName)
+                    // {
+                    //     return m_fieldStepName;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_Message)
+                    // {
+                    //     return m_fieldMessage;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_Duration)
+                    // {
+                    //     return m_fieldDuration;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_SqlSeverity)
+                    // {
+                    //     return m_fieldSqlSeverity;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_SqlMessageID)
+                    // {
+                    //     return m_fieldSqlMessageID;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_OperatorEmailed)
+                    // {
+                    //     return m_fieldOperatorEmailed;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_OperatorNetsent)
+                    // {
+                    //     return m_fieldOperatorNetsent;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_OperatorPaged)
+                    // {
+                    //     return m_fieldOperatorPaged;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_RetriesAttempted)
+                    // {
+                    //     return m_fieldRetriesAttempted;
+                    // }
+                    // else if (fieldName == LogViewerSR.Field_Server)
+                    // {
+                    //     return m_serverName;
+                    // }
+                    // else
                     {
                         return null;
                     }
@@ -843,10 +800,10 @@ ORDER BY [InstanceID] ASC";
 
         #region ILogCommandTarget interface implementation
 
-        ILogCommandHandler ILogCommandTarget.GetCommandHandler(LogViewerCommand command)
-        {
-            return (command == LogViewerCommand.Delete) ? m_customCommandHandler : null;
-        }
+        // ILogCommandHandler ILogCommandTarget.GetCommandHandler(LogViewerCommand command)
+        // {
+        //     return (command == LogViewerCommand.Delete) ? m_customCommandHandler : null;
+        // }
 
         #endregion
 
@@ -878,75 +835,75 @@ ORDER BY [InstanceID] ASC";
         /// <param name="hyperlink"></param>
         /// <param name="row"></param>
         /// <param name="column"></param>
-        public void HyperLinkClicked(string sourcename, string columnname, string hyperlink, long row, int column)
-        {
-            if (LogViewerSR.Field_JobName == columnname)
-            {
-                this.LaunchFormHelper(DialogType.JobDialog, null);
-            }
-            else if (LogViewerSR.Field_StepID == columnname)
-            {
-                // get step ID from hyper linked step id in log history
-                int stepId = int.Parse(hyperlink);
-                if (int.TryParse(hyperlink, out stepId))
-                {
-                    // stepid received is index that starts from 1, in JobSteps.Steps[] is id zero based
-                    if (stepId > 0)
-                    {
-                        int? currentJobStepId = (int?)(stepId - 1);
-                        this.LaunchFormHelper(DialogType.JobStepDialog, currentJobStepId);
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException("Step ID received was invalid integer");
-                }
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+        // public void HyperLinkClicked(string sourcename, string columnname, string hyperlink, long row, int column)
+        // {
+        //     if (LogViewerSR.Field_JobName == columnname)
+        //     {
+        //         this.LaunchFormHelper(DialogType.JobDialog, null);
+        //     }
+        //     else if (LogViewerSR.Field_StepID == columnname)
+        //     {
+        //         // get step ID from hyper linked step id in log history
+        //         int stepId = int.Parse(hyperlink);
+        //         if (int.TryParse(hyperlink, out stepId))
+        //         {
+        //             // stepid received is index that starts from 1, in JobSteps.Steps[] is id zero based
+        //             if (stepId > 0)
+        //             {
+        //                 int? currentJobStepId = (int?)(stepId - 1);
+        //                 this.LaunchFormHelper(DialogType.JobStepDialog, currentJobStepId);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             throw new InvalidOperationException("Step ID received was invalid integer");
+        //         }
+        //     }
+        //     else
+        //     {
+        //         throw new NotImplementedException();
+        //     }
 
-        }
+        // }
 
         /// <summary>
         /// helper method to launch specified dialog, optionally accepts stepid parameter
         /// </summary>
         /// <param name="dialogType"></param>
         /// <param name="jobStepId"></param>
-        private void LaunchFormHelper(DialogType dialogType, int? jobStepId) 
-        {
-            CDataContainer dataContainer = null;
-            ISqlControlCollection control = null;
+        // private void LaunchFormHelper(DialogType dialogType, int? jobStepId) 
+        // {
+        //     CDataContainer dataContainer = null;
+        //     ISqlControlCollection control = null;
 
-            switch (dialogType)
-            {
-                case DialogType.JobDialog:
-                    dataContainer = this.CreateDataContainerToLaunchJobDialog(JobDialogParameterTemplate);
-                    control = new JobPropertySheet(dataContainer);
-                    break;
+        //     switch (dialogType)
+        //     {
+        //         case DialogType.JobDialog:
+        //             dataContainer = this.CreateDataContainerToLaunchJobDialog(JobDialogParameterTemplate);
+        //             control = new JobPropertySheet(dataContainer);
+        //             break;
 
-                case DialogType.JobStepDialog:
-                    if (null == jobStepId)
-                    {
-                        throw new ArgumentNullException("jobStepId");
-                    }
+        //         case DialogType.JobStepDialog:
+        //             if (null == jobStepId)
+        //             {
+        //                 throw new ArgumentNullException("jobStepId");
+        //             }
 
-                    dataContainer = this.CreateDataContainerToLaunchJobDialog(JobStepDialogParameterTemplate);
-                    JobData jobData = new JobData(dataContainer);
-                    control = new JobStepPropertySheet(dataContainer, (JobStepData)jobData.JobSteps.Steps[(int)jobStepId], this.serviceProvider);
-                    break;
+        //             dataContainer = this.CreateDataContainerToLaunchJobDialog(JobStepDialogParameterTemplate);
+        //             JobData jobData = new JobData(dataContainer);
+        //             control = new JobStepPropertySheet(dataContainer, (JobStepData)jobData.JobSteps.Steps[(int)jobStepId], this.serviceProvider);
+        //             break;
 
-                default:
-                    throw new InvalidArgumentException("dialogType");
-            }
+        //         default:
+        //             throw new InvalidArgumentException("dialogType");
+        //     }
 
-            // launch form
-            using (LaunchForm lf = new LaunchForm(control, this.serviceProvider))
-            {
-                lf.ShowDialog();
-            }
-        }
+        //     // launch form
+        //     using (LaunchForm lf = new LaunchForm(control, this.serviceProvider))
+        //     {
+        //         lf.ShowDialog();
+        //     }
+        // }
 
         #endregion
     }

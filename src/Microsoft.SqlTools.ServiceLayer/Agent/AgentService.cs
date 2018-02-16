@@ -88,21 +88,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
 
-        private const string cUrnEnumerateAgentJobs = "Server/JobServer/Job";
+        //private const string cUrnEnumerateAgentJobs = "Server/JobServer/Job";
         private const string cUrnJobName = "JobName";
         private const string cUrnJobId = "JobID";
         private const string cUrnJobCategoryId = "RunStatus";
 
-        private void TestApi(Server server)
+        private void TestApi(ServerConnection serverConnection)
         {
+            var server = new Server(serverConnection);
             var job = this.jobs.Last().Value;            
-            //job.
 
             var filter = new JobHistoryFilter();
             filter.JobID = job.JobID;
             var dt = server.JobServer.EnumJobHistory(filter);
 
             StringBuilder sb = new StringBuilder();
+
+            var connInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
 
             int count = dt.Rows.Count;
             for (int i = 0; i < count; ++i)
@@ -113,18 +115,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 sb.AppendFormat("{0}, {1}, {2}\n", jobId, jobName, jobCategoryId);
 
-              //  logSources[i] = new LogSourceJobHistory(jobName, sqlCi, customCommandHandler, jobCategoryId, jobId, this.serviceProvider);
+                var t = new LogSourceJobHistory(jobName, connInfo, null, jobCategoryId, jobId, null);
+                var tlog = t as ILogSource;
+                tlog.Initialize();
             }
 
-
             string outp = sb.ToString();
-
-
         }
 
 
-        /*
-        
+        /* alternate approach to get DataTable
             Request req = new Request();
             Enumerator en = new Enumerator();
 
@@ -162,13 +162,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (connInfo != null)
                 {
                     var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                    var serverConnection = new ServerConnection(sqlConnection);
-                    var server = new Server(serverConnection);
+                    var serverConnection = new ServerConnection(sqlConnection);                    
                     var fetcher = new JobFetcher(serverConnection);
                     var filter = new JobActivityFilter();
                     this.jobs = fetcher.FetchJobs(filter);
 
-                    TestApi(server);
+                    TestApi(serverConnection);
                 }
                 
                 await requestContext.SendResult(result);

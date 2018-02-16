@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using SMO = Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -471,6 +472,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 this.nextRun = Convert.ToDateTime(row["NextRunDate"], CultureInfo.InvariantCulture);
             }
+        }
+
+        public AgentJobInfo ConvertToAgentJobInfo()
+        {
+            return new AgentJobInfo
+            {
+                Name = this.name,
+                CurrentExecutionStatus = this.currentExecutionStatus,
+                LastRunOutcome = this.lastRunOutcome,
+                CurrentExecutionStep = this.currentExecutionStep,
+                Enabled = this.enabled,
+                HasTarget = this.hasTarget,
+                HasSchedule = this.hasSchedule,
+                HasStep = this.hasStep, 
+                Runnable = this.runnable,
+                Category = this.category,
+                CategoryId = this.categoryID,
+                CategoryType = this.categoryType,
+                LastRun = this.lastRun != null ? this.lastRun.ToString() : string.Empty,
+                NextRun = this.nextRun != null ? this.nextRun.ToString() : string.Empty,
+                JobId = this.JobID != null ? this.JobID.ToString() : null
+            };
         }
 
         public bool Runnable
