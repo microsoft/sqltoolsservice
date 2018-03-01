@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-  interface IFilterDefinition
+    interface IFilterDefinition
     {
         object ShallowClone();
 

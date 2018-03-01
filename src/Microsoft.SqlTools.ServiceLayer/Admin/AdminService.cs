@@ -3,16 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using System;
-using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.SqlServer.Management.Smo;
-using System.Collections.Concurrent;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {

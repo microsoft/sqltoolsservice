@@ -9,6 +9,7 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
@@ -92,6 +93,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             AdminService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(AdminService.Instance);
+
+            AgentService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(AgentService.Instance);
 
             DisasterRecoveryService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);

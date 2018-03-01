@@ -12,9 +12,10 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -84,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(GetAgentJobActivityRequest.Type, HandleGetAgentJobActivityRequest);
+            this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
         }
 
 
@@ -149,11 +150,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
-        internal async Task HandleGetAgentJobActivityRequest(GetAgentJobActivityParams parameters, RequestContext<GetAgentJobActivityResult> requestContext)
+        internal async Task HandleAgentJobsRequest(AgentJobsParams parameters, RequestContext<AgentJobsResult> requestContext)
         {
             try
             {
-                var result = new GetAgentJobActivityResult();
+                var result = new AgentJobsResult();
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
@@ -167,7 +168,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     var filter = new JobActivityFilter();
                     this.jobs = fetcher.FetchJobs(filter);
 
-                    TestApi(serverConnection);
+                    var agentJobs = new List<AgentJobInfo>();
+                    if (this.jobs != null)
+                    {
+                        
+                        foreach (var job in this.jobs.Values)
+                        {
+                            agentJobs.Add(job.ConvertToAgentJobInfo());
+                        }
+                    }
+                    result.Succeeded = true;
+                    result.Jobs = agentJobs.ToArray();
                 }
                 
                 await requestContext.SendResult(result);

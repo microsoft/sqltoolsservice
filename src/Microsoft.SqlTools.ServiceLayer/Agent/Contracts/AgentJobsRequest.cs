@@ -7,12 +7,12 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
     /// <summary>
     /// SQL Agent Job activity parameters
     /// </summary>
-    public class GetAgentJobActivityParams : GeneralRequestDetails
+    public class AgentJobsParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
     }
@@ -20,24 +20,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// <summary>
     /// SQL Agent Job activity result
     /// </summary>
-    public class GetAgentJobActivityResult
+    public class AgentJobsResult
     {
 
         public bool Succeeded { get; set; }
 
         public string ErrorMessage { get; set; }
+
+        public AgentJobInfo[] Jobs { get; set; }
     }
 
     /// <summary>
-    /// SQL Agent Job activity request type
+    /// SQL Agent Jobs request type
     /// </summary>
-    public class GetAgentJobActivityRequest
+    public class AgentJobsRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<GetAgentJobActivityParams, GetAgentJobActivityResult> Type =
-            RequestType<GetAgentJobActivityParams, GetAgentJobActivityResult>.Create("agent/activity");
+            RequestType<AgentJobsParams, AgentJobsResult> Type =
+            RequestType<AgentJobsParams, AgentJobsResult>.Create("agent/jobs");
     }
 }

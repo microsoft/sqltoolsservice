@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// a class for storing various properties of agent jobs, 
     /// used by the Job Activity Monitor
     /// </summary>
-    internal class AgentJobInfo
+    public class AgentJobInfo
     {
         public string Name { get; set; }
         public int CurrentExecutionStatus { get; set; }
