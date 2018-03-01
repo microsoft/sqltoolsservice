@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Agent
         public async Task TestGetActivityRequest()
         {
             var service = new AgentService();
-            await service.HandleGetAgentJobActivityRequest(null, null);
+            await service.HandleAgentJobsRequest(null, null);
 
             // profilerService.SessionMonitor.AddSessionListener(sessionListener);
             // profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();

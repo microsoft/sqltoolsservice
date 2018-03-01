@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
@@ -35,15 +36,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                var requestParams = new GetAgentJobActivityParams()
+                var requestParams = new AgentJobsParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 };
 
-                var requestContext = new Mock<RequestContext<GetAgentJobActivityResult>>();
+                var requestContext = new Mock<RequestContext<AgentJobsResult>>();
 
                 AgentService service = new AgentService();
-                await service.HandleGetAgentJobActivityRequest(requestParams, requestContext.Object);
+                await service.HandleAgentJobsRequest(requestParams, requestContext.Object);
 
                 requestContext.VerifyAll();
             }           
