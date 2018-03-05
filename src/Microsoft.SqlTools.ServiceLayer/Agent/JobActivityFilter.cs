@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion
 
-        #region IFilterDefinition - inteface implementation
+        #region IFilterDefinition - interface implementation
         /// <summary>
         /// resets values of this object to default contraint values
         /// </summary>

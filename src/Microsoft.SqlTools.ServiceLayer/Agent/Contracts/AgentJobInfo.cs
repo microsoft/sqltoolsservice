@@ -30,4 +30,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string NextRun { get; set; }
         public string JobId { get; set; }
     }
+    
 }
