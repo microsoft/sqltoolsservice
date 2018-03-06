@@ -26,6 +26,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Properties;
+using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -688,6 +691,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             applicableFactories.Add(factory);
         }
+
+		public string GetNodePathFromMetadata(ObjectMetadata metadata)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(Resources.TreeNodeDefinition);
+		}
 
         internal class ObjectExplorerTaskResult
         {

@@ -30,7 +30,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <None Include="Localization\sr.strings" />
+    <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">
@@ -38,6 +43,11 @@
     </Compile>
     <Compile Update="Connection\ReliableConnection\ReliableSqlConnection.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
