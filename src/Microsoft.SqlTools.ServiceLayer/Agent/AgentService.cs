@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,22 +91,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 
         //private const string cUrnEnumerateAgentJobs = "Server/JobServer/Job";
-        private const string cUrnJobName = "JobName";
-        private const string cUrnJobId = "JobID";
-        private const string cUrnRunStatus = "RunStatus";
-        private const string cUrnInstanceID = "InstanceID";
-        private const string cUrnSqlMessageID = "SqlMessageID";
-        private const string cUrnMessage = "Message";
-        private const string cUrnStepID = "StepID";
-        private const string cUrnStepName = "StepName";
-        private const string cUrnSqlSeverity = "SqlSeverity";
-        private const string cUrnRunDate = "RunDate";
-        private const string cUrnRunDuration = "RunDuration";
-        private const string cUrnOperatorEmailed = "OperatorEmailed";
-        private const string cUrnOperatorNetsent = "OperatorNetsent";
-        private const string cUrnOperatorPaged = "OperatorPaged";
-        private const string cUrnRetriesAttempted = "RetriesAttempted";
-        private const string cUrnServer = "Server";
+        private const string urnJobName = "JobName";
+        private const string urnJobId = "JobId";
+        private const string urnRunStatus = "RunStatus";
+        private const string urnInstanceID = "InstanceId";
+        private const string urnSqlMessageID = "SqlMessageId";
+        private const string urnMessage = "Message";
+        private const string urnStepID = "StepId";
+        private const string urnStepName = "StepName";
+        private const string urnSqlSeverity = "SqlSeverity";
+        private const string urnRunDate = "RunDate";
+        private const string urnRunDuration = "RunDuration";
+        private const string urnOperatorEmailed = "OperatorEmailed";
+        private const string urnOperatorNetsent = "OperatorNetsent";
+        private const string urnOperatorPaged = "OperatorPaged";
+        private const string urnRetriesAttempted = "RetriesAttempted";
+        private const string urnServer = "Server";
 
         private void TestApi(ServerConnection serverConnection)
         {
@@ -123,9 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             int count = dt.Rows.Count;
             for (int i = 0; i < count; ++i)
             {
-                string jobName = Convert.ToString(dt.Rows[i][cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                int jobCategoryId = Convert.ToInt32(dt.Rows[i][cUrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-                Guid jobId = (Guid) (dt.Rows[i][cUrnJobId]);
+                string jobName = Convert.ToString(dt.Rows[i][urnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                int jobCategoryId = Convert.ToInt32(dt.Rows[i][urnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                Guid jobId = (Guid) (dt.Rows[i][urnJobId]);
 
                 sb.AppendFormat("{0}, {1}, {2}\n", jobId, jobName, jobCategoryId);
 
@@ -205,7 +206,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to get Agent Job history
         /// </summary>
-        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext) {
+        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext) 
+        {
             try 
             {
                 var result = new AgentJobHistoryResult();
@@ -244,25 +246,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         }
 
-        private AgentJobHistoryInfo ConvertToAgentJobHistoryInfo(System.Data.DataRow job, SqlConnectionInfo sqlConnInfo) {
-
+        private static AgentJobHistoryInfo ConvertToAgentJobHistoryInfo(DataRow jobRow, SqlConnectionInfo sqlConnInfo) 
+        {
             // get all the values for a job history
-            int instanceID = Convert.ToInt32(job[cUrnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
-            int sqlMessageID = Convert.ToInt32(job[cUrnSqlMessageID], System.Globalization.CultureInfo.InvariantCulture);
-            string message = Convert.ToString(job[cUrnMessage], System.Globalization.CultureInfo.InvariantCulture);
-            int stepID = Convert.ToInt32(job[cUrnStepID], System.Globalization.CultureInfo.InvariantCulture);
-            string stepName = Convert.ToString(job[cUrnStepName], System.Globalization.CultureInfo.InvariantCulture);
-            int sqlSeverity = Convert.ToInt32(job[cUrnSqlSeverity], System.Globalization.CultureInfo.InvariantCulture);
-            Guid jobId = (Guid) job[cUrnJobId];
-            string jobName = Convert.ToString(job[cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-            int runStatus = Convert.ToInt32(job[cUrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-            DateTime runDate = Convert.ToDateTime(job[cUrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
-            int runDuration = Convert.ToInt32(job[cUrnRunDuration], System.Globalization.CultureInfo.InvariantCulture);
-            string operatorEmailed = Convert.ToString(job[cUrnOperatorEmailed], System.Globalization.CultureInfo.InvariantCulture);
-            string operatorNetsent = Convert.ToString(job[cUrnOperatorNetsent], System.Globalization.CultureInfo.InvariantCulture);
-            string operatorPaged = Convert.ToString(job[cUrnOperatorPaged], System.Globalization.CultureInfo.InvariantCulture);
-            int retriesAttempted = Convert.ToInt32(job[cUrnRetriesAttempted], System.Globalization.CultureInfo.InvariantCulture);
-            string server = Convert.ToString(job[cUrnServer], System.Globalization.CultureInfo.InvariantCulture);
+            int instanceId = Convert.ToInt32(jobRow[urnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
+            int sqlMessageId = Convert.ToInt32(jobRow[urnSqlMessageID], System.Globalization.CultureInfo.InvariantCulture);
+            string message = Convert.ToString(jobRow[urnMessage], System.Globalization.CultureInfo.InvariantCulture);
+            int stepId = Convert.ToInt32(jobRow[urnStepID], System.Globalization.CultureInfo.InvariantCulture);
+            string stepName = Convert.ToString(jobRow[urnStepName], System.Globalization.CultureInfo.InvariantCulture);
+            int sqlSeverity = Convert.ToInt32(jobRow[urnSqlSeverity], System.Globalization.CultureInfo.InvariantCulture);
+            Guid jobId = (Guid) jobRow[urnJobId];
+            string jobName = Convert.ToString(jobRow[urnJobName], System.Globalization.CultureInfo.InvariantCulture);
+            int runStatus = Convert.ToInt32(jobRow[urnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+            DateTime runDate = Convert.ToDateTime(jobRow[urnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+            int runDuration = Convert.ToInt32(jobRow[urnRunDuration], System.Globalization.CultureInfo.InvariantCulture);
+            string operatorEmailed = Convert.ToString(jobRow[urnOperatorEmailed], System.Globalization.CultureInfo.InvariantCulture);
+            string operatorNetsent = Convert.ToString(jobRow[urnOperatorNetsent], System.Globalization.CultureInfo.InvariantCulture);
+            string operatorPaged = Convert.ToString(jobRow[urnOperatorPaged], System.Globalization.CultureInfo.InvariantCulture);
+            int retriesAttempted = Convert.ToInt32(jobRow[urnRetriesAttempted], System.Globalization.CultureInfo.InvariantCulture);
+            string server = Convert.ToString(jobRow[urnServer], System.Globalization.CultureInfo.InvariantCulture);
 
             // initialize logger
             var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
@@ -271,13 +273,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             // return new job history object as a result
             var jobHistoryInfo = new AgentJobHistoryInfo();    
-            jobHistoryInfo.InstanceID = instanceID;
-            jobHistoryInfo.SqlMessageID = sqlMessageID;
+            jobHistoryInfo.InstanceId = instanceId;
+            jobHistoryInfo.SqlMessageId = sqlMessageId;
             jobHistoryInfo.Message = message;
-            jobHistoryInfo.StepID = stepID;
+            jobHistoryInfo.StepId = stepId;
             jobHistoryInfo.StepName = stepName;
             jobHistoryInfo.SqlSeverity = sqlSeverity;
-            jobHistoryInfo.JobID = jobId;
+            jobHistoryInfo.JobId = jobId;
             jobHistoryInfo.JobName = jobName;
             jobHistoryInfo.RunStatus = runStatus;
             jobHistoryInfo.RunDate = runDate;

@@ -41,6 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// </summary>
         public static readonly
             RequestType<AgentJobsParams, AgentJobHistoryResult> Type =
-            RequestType<AgentJobsParams, AgentJobHistoryResult>.Create("agent/jobHistory");
+            RequestType<AgentJobsParams, AgentJobHistoryResult>.Create("agent/jobhistory");
     }
 }
