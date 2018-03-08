@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// Verify that a start profiling request starts a profiling session
         /// </summary>
         [Fact]
-        public async Task TestHandleStartAndStopProfilingRequests()
+        public async Task TestHandleAgentJobsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {

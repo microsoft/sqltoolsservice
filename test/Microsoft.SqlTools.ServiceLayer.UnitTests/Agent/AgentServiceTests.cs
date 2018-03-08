@@ -52,3 +52,4 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Agent
         }
     }
 }
+
