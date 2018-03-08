@@ -45,9 +45,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 
                 AgentService service = new AgentService();
                 await service.HandleAgentJobsRequest(requestParams, requestContext.Object);
-
                 requestContext.VerifyAll();
             }           
+        }
+
+        /// <summary>
+        /// Verify that a job history request returns the job history
+        /// </summary>
+        [Fact]
+        public async Task TestHandleJobHistoryRequests() 
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                var requestParams = new AgentJobHistoryParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    JobId = "e9420919-b8c2-4a3d-a26c-b7ffde5342cf"
+                };
+
+                var requestContext = new Mock<RequestContext<AgentJobHistoryResult>>();
+
+                AgentService service = new AgentService();
+                await service.HandleJobHistoryRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
+            }       
         }
     }
 }

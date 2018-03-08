@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,9 +91,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 
         //private const string cUrnEnumerateAgentJobs = "Server/JobServer/Job";
-        private const string cUrnJobName = "JobName";
-        private const string cUrnJobId = "JobID";
-        private const string cUrnJobCategoryId = "RunStatus";
+        private const string urnJobName = "JobName";
+        private const string urnJobId = "JobId";
+        private const string urnRunStatus = "RunStatus";
+        private const string urnInstanceID = "InstanceId";
+        private const string urnSqlMessageID = "SqlMessageId";
+        private const string urnMessage = "Message";
+        private const string urnStepID = "StepId";
+        private const string urnStepName = "StepName";
+        private const string urnSqlSeverity = "SqlSeverity";
+        private const string urnRunDate = "RunDate";
+        private const string urnRunDuration = "RunDuration";
+        private const string urnOperatorEmailed = "OperatorEmailed";
+        private const string urnOperatorNetsent = "OperatorNetsent";
+        private const string urnOperatorPaged = "OperatorPaged";
+        private const string urnRetriesAttempted = "RetriesAttempted";
+        private const string urnServer = "Server";
 
         private void TestApi(ServerConnection serverConnection)
         {
@@ -110,9 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             int count = dt.Rows.Count;
             for (int i = 0; i < count; ++i)
             {
-                string jobName = Convert.ToString(dt.Rows[i][cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                int jobCategoryId = Convert.ToInt32(dt.Rows[i][cUrnJobCategoryId], System.Globalization.CultureInfo.InvariantCulture);
-                Guid jobId = (Guid) (dt.Rows[i][cUrnJobId]);
+                string jobName = Convert.ToString(dt.Rows[i][urnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                int jobCategoryId = Convert.ToInt32(dt.Rows[i][urnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                Guid jobId = (Guid) (dt.Rows[i][urnJobId]);
 
                 sb.AppendFormat("{0}, {1}, {2}\n", jobId, jobName, jobCategoryId);
 
@@ -187,6 +201,96 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 await requestContext.SendError(e);
             }
+        }
+
+        /// <summary>
+        /// Handle request to get Agent Job history
+        /// </summary>
+        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext) 
+        {
+            try 
+            {
+                var result = new AgentJobHistoryResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+                if (connInfo != null)
+                {
+                    var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+                    var serverConnection = new ServerConnection(sqlConnection);     
+                    var server = new Server(serverConnection);       
+                    var filter = new JobHistoryFilter(); 
+                    filter.JobID = new Guid(parameters.JobId);
+                    var dt = server.JobServer.EnumJobHistory(filter);
+
+                    var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
+
+                    int count = dt.Rows.Count;
+                    var agentJobs = new List<AgentJobHistoryInfo>();
+                    for (int i = 0; i < count; ++i)
+                    {
+                        var job = dt.Rows[i];
+                        agentJobs.Add(ConvertToAgentJobHistoryInfo(job, sqlConnInfo));
+                    }
+                    
+                    result.Succeeded = true;
+                    result.Jobs = agentJobs.ToArray();
+                    await requestContext.SendResult(result);
+                }
+            }
+            catch (Exception e) 
+            {
+                await requestContext.SendError(e);
+            }
+
+        }
+
+        private static AgentJobHistoryInfo ConvertToAgentJobHistoryInfo(DataRow jobRow, SqlConnectionInfo sqlConnInfo) 
+        {
+            // get all the values for a job history
+            int instanceId = Convert.ToInt32(jobRow[urnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
+            int sqlMessageId = Convert.ToInt32(jobRow[urnSqlMessageID], System.Globalization.CultureInfo.InvariantCulture);
+            string message = Convert.ToString(jobRow[urnMessage], System.Globalization.CultureInfo.InvariantCulture);
+            int stepId = Convert.ToInt32(jobRow[urnStepID], System.Globalization.CultureInfo.InvariantCulture);
+            string stepName = Convert.ToString(jobRow[urnStepName], System.Globalization.CultureInfo.InvariantCulture);
+            int sqlSeverity = Convert.ToInt32(jobRow[urnSqlSeverity], System.Globalization.CultureInfo.InvariantCulture);
+            Guid jobId = (Guid) jobRow[urnJobId];
+            string jobName = Convert.ToString(jobRow[urnJobName], System.Globalization.CultureInfo.InvariantCulture);
+            int runStatus = Convert.ToInt32(jobRow[urnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+            DateTime runDate = Convert.ToDateTime(jobRow[urnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+            int runDuration = Convert.ToInt32(jobRow[urnRunDuration], System.Globalization.CultureInfo.InvariantCulture);
+            string operatorEmailed = Convert.ToString(jobRow[urnOperatorEmailed], System.Globalization.CultureInfo.InvariantCulture);
+            string operatorNetsent = Convert.ToString(jobRow[urnOperatorNetsent], System.Globalization.CultureInfo.InvariantCulture);
+            string operatorPaged = Convert.ToString(jobRow[urnOperatorPaged], System.Globalization.CultureInfo.InvariantCulture);
+            int retriesAttempted = Convert.ToInt32(jobRow[urnRetriesAttempted], System.Globalization.CultureInfo.InvariantCulture);
+            string server = Convert.ToString(jobRow[urnServer], System.Globalization.CultureInfo.InvariantCulture);
+
+            // initialize logger
+            var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
+            var tlog = t as ILogSource;
+            tlog.Initialize();
+
+            // return new job history object as a result
+            var jobHistoryInfo = new AgentJobHistoryInfo();    
+            jobHistoryInfo.InstanceId = instanceId;
+            jobHistoryInfo.SqlMessageId = sqlMessageId;
+            jobHistoryInfo.Message = message;
+            jobHistoryInfo.StepId = stepId;
+            jobHistoryInfo.StepName = stepName;
+            jobHistoryInfo.SqlSeverity = sqlSeverity;
+            jobHistoryInfo.JobId = jobId;
+            jobHistoryInfo.JobName = jobName;
+            jobHistoryInfo.RunStatus = runStatus;
+            jobHistoryInfo.RunDate = runDate;
+            jobHistoryInfo.RunDuration = runDuration;
+            jobHistoryInfo.OperatorEmailed = operatorEmailed;
+            jobHistoryInfo.OperatorNetsent = operatorNetsent;
+            jobHistoryInfo.OperatorPaged = operatorPaged;
+            jobHistoryInfo.RetriesAttempted = retriesAttempted;
+            jobHistoryInfo.Server = server;
+
+            return jobHistoryInfo;
         }
     }
 }
