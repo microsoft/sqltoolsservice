@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Composition;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
@@ -27,7 +28,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Properties;
 using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
@@ -49,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
+        private Dictionary<string, List<TreeFolder>> typeMap;
 
 
         /// <summary>
@@ -139,6 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
+            serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest);
             WorkspaceService<SqlToolsSettings> workspaceService = WorkspaceService;
             if (workspaceService != null)
             {
@@ -296,6 +298,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             await HandleRequestAsync(closeSession, context, "HandleCloseSessionRequest");
         }
 
+        internal async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
+        {
+            var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
+            if (foundNodes == null)
+            {
+                foundNodes = new List<TreeNode>();
+            }
+            await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
+        }
+
         internal void CloseSession(string uri)
         {
             ObjectExplorerSession session;
@@ -430,6 +442,64 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    Logger.Write(LogLevel.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
                                    // We should just try to change the connection. If it fails, there's not much we can do
                                }
+                            //    try
+                            //    {
+                            //         foreach (var testNode in nodes)
+                            //         {
+                            //             try
+                            //             {
+                            //                 if (testNode.Metadata == null)
+                            //                 {
+                            //                     Logger.Write(LogLevel.Normal, "Metadata is null for node " + testNode.Label);
+                            //                     continue;
+                            //                 }
+                            //                 var databaseName = testNode.NodePath;
+                            //                 if (databaseName.IndexOf("/System Databases/") != -1)
+                            //                 {
+                            //                     var startIndex = databaseName.IndexOf("/System Databases/") + 18;
+                            //                     var nextIndex = databaseName.IndexOf('/', startIndex);
+                            //                     if (nextIndex != -1)
+                            //                     {
+                            //                         databaseName = databaseName.Substring(startIndex, nextIndex - startIndex);
+                            //                     }
+                            //                 }
+                            //                 else if (databaseName.IndexOf("/Databases/") != -1)
+                            //                 {
+                            //                     var startIndex = databaseName.IndexOf("/Databases/") + 11;
+                            //                     var nextIndex = databaseName.IndexOf('/', startIndex);
+                            //                     if (nextIndex != -1)
+                            //                     {
+                            //                         databaseName = databaseName.Substring(startIndex, nextIndex - startIndex);
+                            //                     }
+                            //                 }
+                            //                 else
+                            //                 {
+                            //                     databaseName = null;
+                            //                 }
+                            //                 var parentList = new List<string>();
+                            //                 parentList.Add("dbo.t1");
+                            //                 var foundNodes = FindNodesFromMetadata(session.Uri, testNode.Metadata.MetadataTypeName, testNode.Metadata.Schema, testNode.Metadata.Name, databaseName, parentList);
+                            //                 foreach (var foundNode in foundNodes)
+                            //                 {
+                            //                     Logger.Write(LogLevel.Normal, "Got path for object " + (testNode.Metadata.Schema ?? "[None]") + "." + (testNode.Metadata.Name ?? "[None]") + ": " + foundNode.GetNodePath());
+                            //                 }
+                            //                 if (foundNodes.Count == 0)
+                            //                 {
+                            //                     Logger.Write(LogLevel.Normal, "No path for object " + (testNode.Metadata.Schema ?? "[None]") + "." + (testNode.Metadata.Name ?? "[None]"));
+                            //                 }
+                            //                 Logger.Write(LogLevel.Normal, "Actual path for object: " + testNode.NodePath);
+                            //             }
+                            //             catch (Exception ex)
+                            //             {
+                            //                 Logger.Write(LogLevel.Warning, $"Failed to get node path: {ex.Message}");
+                            //                 Logger.Write(LogLevel.Warning, ex.StackTrace);
+                            //             }
+                            //         }
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //        Logger.Write(LogLevel.Warning, "Encountered unexpected error in test code: " + ex.Message);
+                            //    }
                                return response;
                            });
 
@@ -692,11 +762,198 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             applicableFactories.Add(factory);
         }
 
-		public string GetNodePathFromMetadata(ObjectMetadata metadata)
+		public List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
 		{
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(Resources.TreeNodeDefinition);
+            if (this.typeMap == null)
+            {
+                this.LoadTreeStructure();
+            }
+            
+            var oeSession = sessionMap.GetValueOrDefault(sessionId);
+            var matchingTreeFolders = this.typeMap.GetValueOrDefault(typeName);
+            if (oeSession == null || matchingTreeFolders == null)
+            {
+                return null;
+            }
+
+            var outputPaths = new List<string>();
+            foreach (var treeFolder in matchingTreeFolders)
+            {
+                List<string> clonedParentNames = null;
+                if (parentNames != null)
+                {
+                    clonedParentNames = parentNames.ToList();
+                }
+                TreeFolder lastFolder = null;
+                var currentTreeFolder = treeFolder;
+                var path = new StringBuilder(name);
+                if (schema != null)
+                {
+                    path.Insert(0, schema + ".");
+                }
+
+                while (currentTreeFolder != null)
+                {
+                    if (currentTreeFolder.Name == "Server" || (currentTreeFolder.Name == "Databases" && oeSession.Root.NodeType == "Database"))
+                    {
+                        var serverRoot = oeSession.Root;
+                        if (oeSession.Root.NodeType == "Database")
+                        {
+                            serverRoot = oeSession.Root.Parent;
+                            path.Insert(0, oeSession.Root.NodeValue + (path.Length > 0 ? "/" : ""));
+                        }
+
+                        path.Insert(0, serverRoot.NodeValue + (path.Length > 0 ? "/" : ""));
+                        break;
+                    }
+
+                    if (lastFolder == null || currentTreeFolder.ChildFolders.Contains(lastFolder))
+                    {
+                        path.Insert(0, currentTreeFolder.LocLabel + "/");
+                        lastFolder = currentTreeFolder;
+                        currentTreeFolder = currentTreeFolder.ParentFolder;
+                    }
+                    else
+                    {
+                        if (currentTreeFolder.ContainedType == "Database")
+                        {
+                            path.Insert(0, databaseName + "/");
+                        }
+                        else if (clonedParentNames.Count > 0)
+                        {
+                            var parentName = clonedParentNames.Last();
+                            clonedParentNames.RemoveAt(clonedParentNames.Count - 1);
+                            path.Insert(0, parentName + "/");
+                        }
+                        else
+                        {
+                            path = null;
+                            break;
+                        }
+
+                        lastFolder = null;
+                    }
+                }
+
+                if (path != null)
+                {
+                    outputPaths.Add(path.ToString());
+                }
+            }
+
+            var nodes = new List<TreeNode>();
+            foreach (var outputPath in outputPaths)
+            {
+                var treeNode = oeSession.Root.FindNodeByPath(outputPath, true);
+                if (treeNode != null)
+                {
+                    nodes.Add(treeNode);
+                }
+            }
+            return nodes;
 		}
+
+        private void LoadTreeStructure()
+        {
+                XmlDocument doc = new XmlDocument();
+                doc.Load("/Users/mairvine/code/sqltoolsservice/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/SmoModel/TreeNodeDefinition.xml");
+                this.typeMap = new Dictionary<string, List<TreeFolder>>();
+                XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = 'Server']");
+                XmlElement itemAsElement = nodeList[0] as XmlElement;
+                GenerateTreeFolders(this.typeMap, null, itemAsElement, doc, false);
+        }
+
+        private void GenerateTreeFolders(Dictionary<string, List<TreeFolder>> typeMap, TreeFolder parent, XmlElement parentElement, XmlDocument doc, bool isObjectChild)
+        {
+            List<TreeFolder> objectFolders = null;
+            var containedType = parentElement.GetAttribute("TreeNode");
+            if (containedType != String.Empty)
+            {
+                containedType = containedType.Replace("TreeNode", "");
+                objectFolders = new List<TreeFolder>();
+            }
+            else
+            {
+                containedType = parentElement.GetAttribute("NodeType");
+                if (containedType == String.Empty && parentElement.GetAttribute("Name") == "Server")
+                {
+                    containedType = "Server";
+                }
+            }
+
+            var folder = new TreeFolder
+            {
+                Name = parentElement.GetAttribute("Name"),
+                ContainedType = containedType,
+                ChildFolders = new List<TreeFolder>(),
+                ParentFolder = parent,
+                ObjectFolders = objectFolders,
+                LocLabel = SR.Keys.GetString(parentElement.GetAttribute("LocLabel").Remove(0, 3))
+            };
+            if (parent != null)
+            {
+                if (isObjectChild)
+                {
+                    parent.ObjectFolders.Add(folder);
+                }
+                else
+                {
+                    parent.ChildFolders.Add(folder);
+                }
+            }
+
+            if (containedType != String.Empty)
+            {
+                var currentFolders = typeMap.GetValueOrDefault(containedType);
+                if (currentFolders == null)
+                {
+                    currentFolders = new List<TreeFolder>();
+                    typeMap.Add(containedType, currentFolders);
+                }
+                currentFolders.Add(folder);
+            }
+
+            XmlNodeList childNodes = parentElement.GetElementsByTagName("Child");
+            foreach (var item in childNodes)
+            {
+                XmlElement itemAsElement = item as XmlElement;
+                var typeName = itemAsElement.GetAttribute("Name");
+                XmlNodeList childEntryList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + typeName + "']");
+                if (childEntryList.Count > 0)
+                {
+                    GenerateTreeFolders(typeMap, folder, childEntryList[0] as XmlElement, doc, false);
+                }
+            }
+            
+            if (objectFolders != null)
+            {
+                XmlNodeList objectNodes = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + containedType + "']");
+                if (objectNodes.Count > 0)
+                {
+                    XmlNodeList objectChildNodes = (objectNodes[0] as XmlElement).GetElementsByTagName("Child");
+                    foreach (var item in objectChildNodes)
+                    {
+                        XmlElement itemAsElement = item as XmlElement;
+                        var typeName = itemAsElement.GetAttribute("Name");
+                        XmlNodeList childEntryList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + typeName + "']");
+                        if (childEntryList.Count > 0)
+                        {
+                            GenerateTreeFolders(typeMap, folder, childEntryList[0] as XmlElement, doc, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        internal class TreeFolder
+        {
+            public string Name;
+            public string ContainedType;
+            public List<TreeFolder> ChildFolders;
+            public TreeFolder ParentFolder;
+            public List<TreeFolder> ObjectFolders;
+            public string LocLabel;
+        }
 
         internal class ObjectExplorerTaskResult
         {

@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             nodePath = path;
         }
 
-        public TreeNode FindNodeByPath(string path)
+        public TreeNode FindNodeByPath(string path, bool refreshChildren = false)
         {
             TreeNode nodeForPath = ObjectExplorerUtils.FindNode(this, node =>
             {
@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }, nodeToFilter =>
             {
                 return path.StartsWith(nodeToFilter.GetNodePath());
-            });
+            }, refreshChildren);
 
             return nodeForPath;
         }
