@@ -2,12 +2,15 @@
 $svcName = "mssql" + $rnd
 $pwd = "Yukon" + $rnd
 $env:KUBECONFIG="kubeconfig.centralus.json"
-kubectl.exe run $svcName --image=sqltoolscontainers.azurecr.io/sql2017linux --port=1433 --env ACCEPT_EULA=Y --env SA_PASSWORD=$pwd
-kubectl.exe expose deployment $svcName --type=LoadBalancer
+
+$kube = $(System.DefaultWorkingDirectory) + "\kubectl.exe"
+
+iex "$kube run $svcName --image=sqltoolscontainers.azurecr.io/sql2017linux --port=1433 --env ACCEPT_EULA=Y --env SA_PASSWORD=$pwd"
+iex "$kube expose deployment $svcName --type=LoadBalancer"
 
 do
 {
-    $svc = kubectl.exe describe service $svcName
+    $svc = iex "$kube describe service $svcName"
     Write-Host "Service Configuration: $svc"
     $endpoint = $svc -match "Endpoints:(.+):1433"
     Write-Host "Endpoint: $endpoint"
