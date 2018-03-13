@@ -3,7 +3,7 @@ $svcName = "mssql" + $rnd
 $pwd = "Yukon" + $rnd
 $env:KUBECONFIG="kubeconfig.centralus.json"
 
-$kube = $(System.DefaultWorkingDirectory) + "\kubectl.exe"
+$kube = $env:SYSTEM_DEFAULTWORKINGDIRECTORY + "\kubectl.exe"
 
 iex "$kube run $svcName --image=sqltoolscontainers.azurecr.io/sql2017linux --port=1433 --env ACCEPT_EULA=Y --env SA_PASSWORD=$pwd"
 iex "$kube expose deployment $svcName --type=LoadBalancer"

@@ -3,7 +3,7 @@
 )
 $env:KUBECONFIG="kubeconfig.centralus.json"
 
-$kube = $(System.DefaultWorkingDirectory) + "\kubectl.exe"
+$kube = $env:SYSTEM_DEFAULTWORKINGDIRECTORY + "\kubectl.exe"
 
 iex "$kube delete service $svcName"
 iex "$kube delete deployment $svcName"
