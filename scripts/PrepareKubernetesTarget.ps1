@@ -1,7 +1,7 @@
 ﻿$rnd = Get-Random -Minimum 1000000 -Maximum 9999999
 $svcName = "mssql" + $rnd
 $pwd = "Yukon" + $rnd
-$env:KUBECONFIG="kubeconfig.centralus.json"
+$env:KUBECONFIG = $env:AGENT_WORKFOLDER + "\kubeconfig.centralus.json"
 
 $kube = $env:AGENT_WORKFOLDER + "\kubectl.exe"
 

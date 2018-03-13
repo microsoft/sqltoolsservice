@@ -1,7 +1,7 @@
 ﻿Param (
     $svcName = $env:k8ServiceName
 )
-$env:KUBECONFIG="kubeconfig.centralus.json"
+$env:KUBECONFIG = $env:AGENT_WORKFOLDER + "\kubeconfig.centralus.json"
 
 $kube = $env:AGENT_WORKFOLDER + "\kubectl.exe"
 
