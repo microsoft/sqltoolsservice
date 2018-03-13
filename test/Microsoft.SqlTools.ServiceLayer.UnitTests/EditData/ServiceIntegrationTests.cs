@@ -347,7 +347,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(session, eds.ActiveSessions[Constants.OwnerUri]);
         }
 
-        [Fact]
+        // Disable flaky test for investigation (karlb - 3/13/2018)
+        //[Fact]
         public async Task InitializeSessionSuccess()
         {
             // Setup: 
