@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -28,7 +30,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -49,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
-        private Dictionary<string, List<TreeFolder>> typeMap;
+        private Dictionary<string, HashSet<TreeFolder>> typeMap = new Dictionary<string, HashSet<TreeFolder>>();
 
 
         /// <summary>
@@ -442,64 +443,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    Logger.Write(LogLevel.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
                                    // We should just try to change the connection. If it fails, there's not much we can do
                                }
-                            //    try
-                            //    {
-                            //         foreach (var testNode in nodes)
-                            //         {
-                            //             try
-                            //             {
-                            //                 if (testNode.Metadata == null)
-                            //                 {
-                            //                     Logger.Write(LogLevel.Normal, "Metadata is null for node " + testNode.Label);
-                            //                     continue;
-                            //                 }
-                            //                 var databaseName = testNode.NodePath;
-                            //                 if (databaseName.IndexOf("/System Databases/") != -1)
-                            //                 {
-                            //                     var startIndex = databaseName.IndexOf("/System Databases/") + 18;
-                            //                     var nextIndex = databaseName.IndexOf('/', startIndex);
-                            //                     if (nextIndex != -1)
-                            //                     {
-                            //                         databaseName = databaseName.Substring(startIndex, nextIndex - startIndex);
-                            //                     }
-                            //                 }
-                            //                 else if (databaseName.IndexOf("/Databases/") != -1)
-                            //                 {
-                            //                     var startIndex = databaseName.IndexOf("/Databases/") + 11;
-                            //                     var nextIndex = databaseName.IndexOf('/', startIndex);
-                            //                     if (nextIndex != -1)
-                            //                     {
-                            //                         databaseName = databaseName.Substring(startIndex, nextIndex - startIndex);
-                            //                     }
-                            //                 }
-                            //                 else
-                            //                 {
-                            //                     databaseName = null;
-                            //                 }
-                            //                 var parentList = new List<string>();
-                            //                 parentList.Add("dbo.t1");
-                            //                 var foundNodes = FindNodesFromMetadata(session.Uri, testNode.Metadata.MetadataTypeName, testNode.Metadata.Schema, testNode.Metadata.Name, databaseName, parentList);
-                            //                 foreach (var foundNode in foundNodes)
-                            //                 {
-                            //                     Logger.Write(LogLevel.Normal, "Got path for object " + (testNode.Metadata.Schema ?? "[None]") + "." + (testNode.Metadata.Name ?? "[None]") + ": " + foundNode.GetNodePath());
-                            //                 }
-                            //                 if (foundNodes.Count == 0)
-                            //                 {
-                            //                     Logger.Write(LogLevel.Normal, "No path for object " + (testNode.Metadata.Schema ?? "[None]") + "." + (testNode.Metadata.Name ?? "[None]"));
-                            //                 }
-                            //                 Logger.Write(LogLevel.Normal, "Actual path for object: " + testNode.NodePath);
-                            //             }
-                            //             catch (Exception ex)
-                            //             {
-                            //                 Logger.Write(LogLevel.Warning, $"Failed to get node path: {ex.Message}");
-                            //                 Logger.Write(LogLevel.Warning, ex.StackTrace);
-                            //             }
-                            //         }
-                            //    }
-                            //    catch (Exception ex)
-                            //    {
-                            //        Logger.Write(LogLevel.Warning, "Encountered unexpected error in test code: " + ex.Message);
-                            //    }
                                return response;
                            });
 
@@ -762,9 +705,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             applicableFactories.Add(factory);
         }
 
-		public List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
-		{
-            if (this.typeMap == null)
+        public List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
+        {
+            if (this.typeMap.Count == 0)
             {
                 this.LoadTreeStructure();
             }
@@ -851,21 +794,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
             }
             return nodes;
-		}
+        }
 
         private void LoadTreeStructure()
         {
-                XmlDocument doc = new XmlDocument();
-                doc.Load("/Users/mairvine/code/sqltoolsservice/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/SmoModel/TreeNodeDefinition.xml");
-                this.typeMap = new Dictionary<string, List<TreeFolder>>();
-                XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = 'Server']");
-                XmlElement itemAsElement = nodeList[0] as XmlElement;
-                GenerateTreeFolders(this.typeMap, null, itemAsElement, doc, false);
+            var assembly = typeof(ObjectExplorerService).Assembly;
+            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.TreeNodeDefinition.xml");
+            XmlDocument doc = new XmlDocument();
+            using (StreamReader reader = new StreamReader(resource))
+            {
+                doc.LoadXml(reader.ReadToEnd());
+            }
+            XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = 'Server']");
+            XmlElement itemAsElement = nodeList[0] as XmlElement;
+            GenerateTreeFolders(null, itemAsElement, doc, false);
         }
 
-        private void GenerateTreeFolders(Dictionary<string, List<TreeFolder>> typeMap, TreeFolder parent, XmlElement parentElement, XmlDocument doc, bool isObjectChild)
+        private void GenerateTreeFolders(TreeFolder parent, XmlElement parentElement, XmlDocument doc, bool isObjectChild)
         {
             List<TreeFolder> objectFolders = null;
+            var name = parentElement.GetAttribute("Name");
             var containedType = parentElement.GetAttribute("TreeNode");
             if (containedType != String.Empty)
             {
@@ -875,7 +823,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             else
             {
                 containedType = parentElement.GetAttribute("NodeType");
-                if (containedType == String.Empty && parentElement.GetAttribute("Name") == "Server")
+                if (containedType == String.Empty && name == "Server")
                 {
                     containedType = "Server";
                 }
@@ -883,7 +831,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             var folder = new TreeFolder
             {
-                Name = parentElement.GetAttribute("Name"),
+                Name = name,
                 ContainedType = containedType,
                 ChildFolders = new List<TreeFolder>(),
                 ParentFolder = parent,
@@ -907,7 +855,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 var currentFolders = typeMap.GetValueOrDefault(containedType);
                 if (currentFolders == null)
                 {
-                    currentFolders = new List<TreeFolder>();
+                    currentFolders = new HashSet<TreeFolder>();
                     typeMap.Add(containedType, currentFolders);
                 }
                 currentFolders.Add(folder);
@@ -921,7 +869,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 XmlNodeList childEntryList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + typeName + "']");
                 if (childEntryList.Count > 0)
                 {
-                    GenerateTreeFolders(typeMap, folder, childEntryList[0] as XmlElement, doc, false);
+                    GenerateTreeFolders(folder, childEntryList[0] as XmlElement, doc, false);
                 }
             }
             
@@ -938,7 +886,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         XmlNodeList childEntryList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + typeName + "']");
                         if (childEntryList.Count > 0)
                         {
-                            GenerateTreeFolders(typeMap, folder, childEntryList[0] as XmlElement, doc, true);
+                            GenerateTreeFolders(folder, childEntryList[0] as XmlElement, doc, true);
                         }
                     }
                 }

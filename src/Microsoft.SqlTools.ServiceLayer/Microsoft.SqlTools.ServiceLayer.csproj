@@ -29,6 +29,7 @@
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
