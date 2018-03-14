@@ -22,7 +22,7 @@ Write-Host "##vso[task.setvariable variable=k8EndPoint;]"$endpoint
 Write-Host "##vso[task.setvariable variable=k8ServiceName;]"$svcName
 
 $settingsOutput = "{ `"mssql.connections`":[ "
-$settingsOutput = $settingsOutput + "{ `"server`":`"$svcName`", "
+$settingsOutput = $settingsOutput + "{ `"server`":`"$endpoint`", "
 $settingsOutput = $settingsOutput +  "`"ServerType`":0, "
 $settingsOutput = $settingsOutput +  "`"AuthenticationType`":1, "
 $settingsOutput = $settingsOutput +  "`"User`":`"sa`", "
