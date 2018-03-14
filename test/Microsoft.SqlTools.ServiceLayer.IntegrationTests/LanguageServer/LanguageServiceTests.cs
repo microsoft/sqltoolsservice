@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        [Fact]
+        //[Fact]
         public void PrepopulateCommonMetadata()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
