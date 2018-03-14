@@ -30,6 +30,10 @@ $settingsOutput = $settingsOutput +  "`"Password`":`"$pwd`", "
 $settingsOutput = $settingsOutput +  "`"ConnectTimeout`":30, "
 $settingsOutput = $settingsOutput +  "`"VersionKey`":`"defaultSql2016`" }]}"
 
-$settingsPath = $env:AGENT_WORKFOLDER + "connectionsettings.json";
+$settingsPath = $env:AGENT_WORKFOLDER + "_workconnectionsettings.json";
 Set-Content -Path $settingsPath -Value $settingsOutput -Force
+
+Write-Host "Saving settings to $settingsPath"
+Write-Host $settingsOutput 
+
 Write-Host "##vso[task.setvariable variable=SettingsFileName;]"$settingsPath 
