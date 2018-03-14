@@ -19,5 +19,17 @@ do
 
 $endpoint = $endpoint.Split(":")[1].Trim()
 Write-Host "##vso[task.setvariable variable=k8EndPoint;]"$endpoint
-Write-Host "##vso[task.setvariable variable=k8ServicePwd;]"$pwd
 Write-Host "##vso[task.setvariable variable=k8ServiceName;]"$svcName
+
+$settingsOutput = "{ `"mssql.connections`":[ "
+$settingsOutput = $settingsOutput + "{ `"server`":`"$svcName`", "
+$settingsOutput = $settingsOutput +  "`"ServerType`":0, "
+$settingsOutput = $settingsOutput +  "`"AuthenticationType`":1, "
+$settingsOutput = $settingsOutput +  "`"User`":`"sa`", "
+$settingsOutput = $settingsOutput +  "`"Password`":`"$pwd`", " 
+$settingsOutput = $settingsOutput +  "`"ConnectTimeout`":30, "
+$settingsOutput = $settingsOutput +  "`"VersionKey`":`"defaultSql2016`" }]}"
+
+$settingsPath = $env:AGENT_WORKFOLDER + "connectionsettings.json";
+Set-Content -Path $settingsPath -Value $settingsOutput -Force
+Write-Host "##vso[task.setvariable variable=SettingsFileName;]"$settingsPath 
