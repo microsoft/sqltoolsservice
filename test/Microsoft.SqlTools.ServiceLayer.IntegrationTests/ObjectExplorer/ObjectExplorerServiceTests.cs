@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
+        //[Fact]
         public async void RefreshNodeShouldGetTheDataFromDatabase()
         {
             var query = "Create table t1 (c1 int)";
