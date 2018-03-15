@@ -108,9 +108,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             int count = dt.Rows.Count;
             for (int i = 0; i < count; ++i)
             {
-                string jobName = Convert.ToString(dt.Rows[i]["JobName"], System.Globalization.CultureInfo.InvariantCulture);
-                int jobCategoryId = Convert.ToInt32(dt.Rows[i]["RunStatus"], System.Globalization.CultureInfo.InvariantCulture);
-                Guid jobId = (Guid) (dt.Rows[i]["JobId"]);
+                string jobName = Convert.ToString(dt.Rows[i][JobUtilities.urnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                int jobCategoryId = Convert.ToInt32(dt.Rows[i][JobUtilities.urnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                Guid jobId = (Guid) (dt.Rows[i][JobUtilities.urnJobId]);
 
                 sb.AppendFormat("{0}, {1}, {2}\n", jobId, jobName, jobCategoryId);
 

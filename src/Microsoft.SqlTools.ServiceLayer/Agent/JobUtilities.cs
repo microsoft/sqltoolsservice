@@ -17,9 +17,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     public class JobUtilities
     {
-        private const string urnJobName = "JobName";
-        private const string urnJobId = "JobId";
-        private const string urnRunStatus = "RunStatus";
+        public const string urnJobName = "JobName";
+        public const string urnJobId = "JobId";
+        public const string urnRunStatus = "RunStatus";
         private const string urnInstanceID = "InstanceId";
         private const string urnSqlMessageID = "SqlMessageId";
         private const string urnMessage = "Message";
