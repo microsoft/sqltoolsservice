@@ -70,7 +70,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Create simple backup test
         /// </summary>
-        [Fact]
+        //[Fact]
         public void CreateBackupTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -95,7 +95,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             testDb.Cleanup();
         }
 
-        [Fact]
+        //[Fact]
         public void ScriptBackupTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -128,7 +128,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
-        [Fact]
+        //[Fact]
         public void CreateBackupWithAdvancedOptionsTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -180,7 +180,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
-        [Fact]
+        //[Fact]
         public void ScriptBackupWithAdvancedOptionsTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -231,7 +231,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             testDb.Cleanup();
         }
 
-        [Fact]
+        //[Fact]
         public async void BackupFileBrowserTest()
         {
             string databaseName = "testfilebrowser_" + new Random().Next(10000000, 99999999);
