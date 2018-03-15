@@ -9,12 +9,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -29,7 +26,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -50,8 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
-        private Dictionary<string, HashSet<TreeFolder>> typeMap = new Dictionary<string, HashSet<TreeFolder>>();
-
 
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
@@ -65,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
+            NodePathGenerator.Initialize();
         }
 
         internal ConnectedBindingQueue ConnectedBindingQueue
@@ -705,86 +700,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             applicableFactories.Add(factory);
         }
 
+        /// <summary>
+        /// Find all tree nodes matching the given node information
+        /// </summary>
+        /// <param name="sessionId">The ID of the object explorer session to find nodes for</param>
+        /// <param name="typeName">The requested node type</param>
+        /// <param name="schema">The schema for the requested object, or null if not applicable</param>
+        /// <param name="name">The name of the requested object</param>
+        /// <param name="databaseName">The name of the database containing the requested object, or null if not applicable</param>
+        /// <param name="parentNames">The name of any other parent objects in the object explorer tree, from highest in the tree to lowest</param>
+        /// <returns>A list of nodes matching the given information, or an empty list if no nodes match</returns>
         public List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
         {
-            if (this.typeMap.Count == 0)
-            {
-                this.LoadTreeStructure();
-            }
-            
-            var oeSession = sessionMap.GetValueOrDefault(sessionId);
-            var matchingTreeFolders = this.typeMap.GetValueOrDefault(typeName);
-            if (oeSession == null || matchingTreeFolders == null)
-            {
-                return null;
-            }
-
-            var outputPaths = new List<string>();
-            foreach (var treeFolder in matchingTreeFolders)
-            {
-                List<string> clonedParentNames = null;
-                if (parentNames != null)
-                {
-                    clonedParentNames = parentNames.ToList();
-                }
-                TreeFolder lastFolder = null;
-                var currentTreeFolder = treeFolder;
-                var path = new StringBuilder(name);
-                if (schema != null)
-                {
-                    path.Insert(0, schema + ".");
-                }
-
-                while (currentTreeFolder != null)
-                {
-                    if (currentTreeFolder.Name == "Server" || (currentTreeFolder.Name == "Databases" && oeSession.Root.NodeType == "Database"))
-                    {
-                        var serverRoot = oeSession.Root;
-                        if (oeSession.Root.NodeType == "Database")
-                        {
-                            serverRoot = oeSession.Root.Parent;
-                            path.Insert(0, oeSession.Root.NodeValue + (path.Length > 0 ? "/" : ""));
-                        }
-
-                        path.Insert(0, serverRoot.NodeValue + (path.Length > 0 ? "/" : ""));
-                        break;
-                    }
-
-                    if (lastFolder == null || currentTreeFolder.ChildFolders.Contains(lastFolder))
-                    {
-                        path.Insert(0, currentTreeFolder.LocLabel + "/");
-                        lastFolder = currentTreeFolder;
-                        currentTreeFolder = currentTreeFolder.ParentFolder;
-                    }
-                    else
-                    {
-                        if (currentTreeFolder.ContainedType == "Database")
-                        {
-                            path.Insert(0, databaseName + "/");
-                        }
-                        else if (clonedParentNames.Count > 0)
-                        {
-                            var parentName = clonedParentNames.Last();
-                            clonedParentNames.RemoveAt(clonedParentNames.Count - 1);
-                            path.Insert(0, parentName + "/");
-                        }
-                        else
-                        {
-                            path = null;
-                            break;
-                        }
-
-                        lastFolder = null;
-                    }
-                }
-
-                if (path != null)
-                {
-                    outputPaths.Add(path.ToString());
-                }
-            }
-
             var nodes = new List<TreeNode>();
+            var oeSession = sessionMap.GetValueOrDefault(sessionId);
+            if (oeSession == null)
+            {
+                return nodes;
+            }
+
+            var outputPaths = NodePathGenerator.FindNodePaths(oeSession, typeName, schema, name, databaseName, parentNames);
             foreach (var outputPath in outputPaths)
             {
                 var treeNode = oeSession.Root.FindNodeByPath(outputPath, true);
@@ -794,113 +729,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
             }
             return nodes;
-        }
-
-        private void LoadTreeStructure()
-        {
-            var assembly = typeof(ObjectExplorerService).Assembly;
-            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.TreeNodeDefinition.xml");
-            XmlDocument doc = new XmlDocument();
-            using (StreamReader reader = new StreamReader(resource))
-            {
-                doc.LoadXml(reader.ReadToEnd());
-            }
-            XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = 'Server']");
-            XmlElement itemAsElement = nodeList[0] as XmlElement;
-            GenerateTreeFolders(null, itemAsElement, doc, false);
-        }
-
-        private void GenerateTreeFolders(TreeFolder parent, XmlElement parentElement, XmlDocument doc, bool isObjectChild)
-        {
-            List<TreeFolder> objectFolders = null;
-            var name = parentElement.GetAttribute("Name");
-            var containedType = parentElement.GetAttribute("TreeNode");
-            if (containedType != String.Empty)
-            {
-                containedType = containedType.Replace("TreeNode", "");
-                objectFolders = new List<TreeFolder>();
-            }
-            else
-            {
-                containedType = parentElement.GetAttribute("NodeType");
-                if (containedType == String.Empty && name == "Server")
-                {
-                    containedType = "Server";
-                }
-            }
-
-            var folder = new TreeFolder
-            {
-                Name = name,
-                ContainedType = containedType,
-                ChildFolders = new List<TreeFolder>(),
-                ParentFolder = parent,
-                ObjectFolders = objectFolders,
-                LocLabel = SR.Keys.GetString(parentElement.GetAttribute("LocLabel").Remove(0, 3))
-            };
-            if (parent != null)
-            {
-                if (isObjectChild)
-                {
-                    parent.ObjectFolders.Add(folder);
-                }
-                else
-                {
-                    parent.ChildFolders.Add(folder);
-                }
-            }
-
-            if (containedType != String.Empty)
-            {
-                var currentFolders = typeMap.GetValueOrDefault(containedType);
-                if (currentFolders == null)
-                {
-                    currentFolders = new HashSet<TreeFolder>();
-                    typeMap.Add(containedType, currentFolders);
-                }
-                currentFolders.Add(folder);
-            }
-
-            XmlNodeList childNodes = parentElement.GetElementsByTagName("Child");
-            foreach (var item in childNodes)
-            {
-                XmlElement itemAsElement = item as XmlElement;
-                var typeName = itemAsElement.GetAttribute("Name");
-                XmlNodeList childEntryList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + typeName + "']");
-                if (childEntryList.Count > 0)
-                {
-                    GenerateTreeFolders(folder, childEntryList[0] as XmlElement, doc, false);
-                }
-            }
-            
-            if (objectFolders != null)
-            {
-                XmlNodeList objectNodes = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + containedType + "']");
-                if (objectNodes.Count > 0)
-                {
-                    XmlNodeList objectChildNodes = (objectNodes[0] as XmlElement).GetElementsByTagName("Child");
-                    foreach (var item in objectChildNodes)
-                    {
-                        XmlElement itemAsElement = item as XmlElement;
-                        var typeName = itemAsElement.GetAttribute("Name");
-                        XmlNodeList childEntryList = doc.SelectNodes("/ServerExplorerTree/Node[@Name = '" + typeName + "']");
-                        if (childEntryList.Count > 0)
-                        {
-                            GenerateTreeFolders(folder, childEntryList[0] as XmlElement, doc, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        internal class TreeFolder
-        {
-            public string Name;
-            public string ContainedType;
-            public List<TreeFolder> ChildFolders;
-            public TreeFolder ParentFolder;
-            public List<TreeFolder> ObjectFolders;
-            public string LocLabel;
         }
 
         internal class ObjectExplorerTaskResult
