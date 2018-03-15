@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// <summary>
         /// Queue a 100 short tasks
         /// </summary>
-        [Fact]
+        //[Fact]
         public void Queue100BindingOperationTest()
         {
             InitializeTestSettings();
