@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// a class for storing various properties of agent jobs, 
     /// used by the Job Activity Monitor
     /// </summary>
-    internal class JobProperties
+    public class JobProperties
     {
         private string name;
         private int currentExecutionStatus;
@@ -472,28 +472,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 this.nextRun = Convert.ToDateTime(row["NextRunDate"], CultureInfo.InvariantCulture);
             }
-        }
-
-        public AgentJobInfo ConvertToAgentJobInfo()
-        {
-            return new AgentJobInfo
-            {
-                Name = this.name,
-                CurrentExecutionStatus = this.currentExecutionStatus,
-                LastRunOutcome = this.lastRunOutcome,
-                CurrentExecutionStep = this.currentExecutionStep,
-                Enabled = this.enabled,
-                HasTarget = this.hasTarget,
-                HasSchedule = this.hasSchedule,
-                HasStep = this.hasStep, 
-                Runnable = this.runnable,
-                Category = this.category,
-                CategoryId = this.categoryID,
-                CategoryType = this.categoryType,
-                LastRun = this.lastRun != null ? this.lastRun.ToString() : string.Empty,
-                NextRun = this.nextRun != null ? this.nextRun.ToString() : string.Empty,
-                JobId = this.JobID != null ? this.JobID.ToString() : null
-            };
         }
 
         public bool Runnable
@@ -572,67 +550,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 return this.jobId;
             }
-        }
-
-#if false
-        private Bitmap bmpRunning = null;
-        private Bitmap bmpEnabled = null;
-        private Bitmap bmpFailed = null;
-        private Bitmap bmpDisabled = null;
-
-        public Bitmap StatusBitmap
-        {
-            get
-            {
-                // if it's running, use a running icon
-                if (this.CurrentExecutionStatus == Convert.ToInt32(JobExecutionStatus.Executing, CultureInfo.InvariantCulture))
-                {
-                    if (bmpRunning == null)
-                    {
-                        CUtils util = new CUtils();
-                        Icon icon = util.LoadIcon("start_jobs.ico");
-                        bmpRunning = icon.ToBitmap();
-                    }
-                    return bmpRunning;
-                }
-
-                // if it the job failed, use an error bitmap
-                else if (lastRunOutcome == Convert.ToInt32(CompletionResult.Failed, CultureInfo.InvariantCulture))
-                {
-                    if (bmpFailed == null)
-                    {
-                        CUtils util = new CUtils();
-                        Icon icon = util.LoadIcon("ProgressError.ico");
-                        bmpFailed = icon.ToBitmap();
-                    }
-                    return bmpFailed;
-                }
-
-                // if it's not enabled, or is not runnable, use a disabled icon
-                else if (this.Enabled == false || this.Runnable == false)
-                {
-                    if (bmpDisabled == null)
-                    {
-                        CUtils util = new CUtils();
-                        Icon icon = util.LoadIcon("Job_Disabled.ico");
-                        bmpDisabled = icon.ToBitmap();
-                    }
-                    return bmpDisabled;
-                }
-
-                // otherwise just use a standard job icon.
-                else
-                {
-                    if (bmpEnabled == null)
-                    {
-                        CUtils util = new CUtils();
-                        Icon icon = util.LoadIcon("jobs.ico");
-                        bmpEnabled = icon.ToBitmap();
-                    }
-                    return bmpEnabled;
-                }
-            }
-        }
-#endif        
+        }  
     }
 }
