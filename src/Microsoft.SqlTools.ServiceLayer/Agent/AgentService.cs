@@ -87,10 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
+            this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
         }
-
-
-        //private const string cUrnEnumerateAgentJobs = "Server/JobServer/Job";
 
         private void TestApi(ServerConnection serverConnection)
         {

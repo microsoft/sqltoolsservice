@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<AgentJobsParams, AgentJobHistoryResult> Type =
-            RequestType<AgentJobsParams, AgentJobHistoryResult>.Create("agent/jobhistory");
+            RequestType<AgentJobHistoryParams, AgentJobHistoryResult> Type =
+            RequestType<AgentJobHistoryParams, AgentJobHistoryResult>.Create("agent/jobhistory");
     }
 }
