@@ -72,5 +72,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 requestContext.VerifyAll();
             }       
         }
+
+        [Fact]
+        public async Task TestHandleAgentJobActionRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                var requestParams = new AgentJobActionParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    JobName = "Agent history clean up: distribution"
+                };
+
+                var requestContext = new Mock<RequestContext<AgentJobActionResult>>();
+
+                AgentService service = new AgentService();
+                await service.HandleJobActionRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
+            }     
+        }
     }
 }
