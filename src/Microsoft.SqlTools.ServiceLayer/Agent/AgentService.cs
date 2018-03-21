@@ -90,59 +90,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
         }
 
-        private void TestApi(ServerConnection serverConnection)
-        {
-            var server = new Server(serverConnection);
-            var job = this.jobs.Last().Value;            
-
-            var filter = new JobHistoryFilter();
-            filter.JobID = job.JobID;
-            var dt = server.JobServer.EnumJobHistory(filter);
-
-            StringBuilder sb = new StringBuilder();
-
-            var connInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
-
-            int count = dt.Rows.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                string jobName = Convert.ToString(dt.Rows[i][JobUtilities.urnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                int jobCategoryId = Convert.ToInt32(dt.Rows[i][JobUtilities.urnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-                Guid jobId = (Guid) (dt.Rows[i][JobUtilities.urnJobId]);
-
-                sb.AppendFormat("{0}, {1}, {2}\n", jobId, jobName, jobCategoryId);
-
-                var t = new LogSourceJobHistory(jobName, connInfo, null, jobCategoryId, jobId, null);
-                var tlog = t as ILogSource;
-                tlog.Initialize();
-            }
-
-            string outp = sb.ToString();
-        }
-
-
-        /* alternate approach to get DataTable
-            Request req = new Request();
-            Enumerator en = new Enumerator();
-
-            req.Urn = cUrnEnumerateAgentJobs;
-            req.Fields = new string[] { cUrnJobName, cUrnJobCategoryId, cUrnJobId };
-            req.OrderByList = new OrderBy[] { new OrderBy(cUrnJobName, OrderBy.Direction.Asc) };
-
-            DataTable dt = en.Process(sqlCi, req);
-            int count = dt.Rows.Count;
-
-            logSources = new ILogSource[count];
-            for (int i = 0; i < count; ++i)
-            {
-                string jobName = Convert.ToString(dt.Rows[i][cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                int jobCategoryId = Convert.ToInt32(dt.Rows[i][cUrnJobCategoryId], System.Globalization.CultureInfo.InvariantCulture);
-                Guid jobId = (Guid) (dt.Rows[i][cUrnJobId]);
-
-                logSources[i] = new LogSourceJobHistory(jobName, sqlCi, customCommandHandler, jobCategoryId, jobId, this.serviceProvider);
-            }
-         */
-
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
