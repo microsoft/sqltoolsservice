@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
 
-
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
         /// </summary>
@@ -60,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
+            NodePathGenerator.Initialize();
         }
 
         internal ConnectedBindingQueue ConnectedBindingQueue
@@ -136,6 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
+            serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest);
             WorkspaceService<SqlToolsSettings> workspaceService = WorkspaceService;
             if (workspaceService != null)
             {
@@ -291,6 +292,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             };
 
             await HandleRequestAsync(closeSession, context, "HandleCloseSessionRequest");
+        }
+
+        internal async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
+        {
+            var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
+            if (foundNodes == null)
+            {
+                foundNodes = new List<TreeNode>();
+            }
+            await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
         }
 
         internal void CloseSession(string uri)
@@ -687,6 +698,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 childFactories[parent] = applicableFactories;
             }
             applicableFactories.Add(factory);
+        }
+
+        /// <summary>
+        /// Find all tree nodes matching the given node information
+        /// </summary>
+        /// <param name="sessionId">The ID of the object explorer session to find nodes for</param>
+        /// <param name="typeName">The requested node type</param>
+        /// <param name="schema">The schema for the requested object, or null if not applicable</param>
+        /// <param name="name">The name of the requested object</param>
+        /// <param name="databaseName">The name of the database containing the requested object, or null if not applicable</param>
+        /// <param name="parentNames">The name of any other parent objects in the object explorer tree, from highest in the tree to lowest</param>
+        /// <returns>A list of nodes matching the given information, or an empty list if no nodes match</returns>
+        public List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
+        {
+            var nodes = new List<TreeNode>();
+            var oeSession = sessionMap.GetValueOrDefault(sessionId);
+            if (oeSession == null)
+            {
+                return nodes;
+            }
+
+            var outputPaths = NodePathGenerator.FindNodePaths(oeSession, typeName, schema, name, databaseName, parentNames);
+            foreach (var outputPath in outputPaths)
+            {
+                var treeNode = oeSession.Root.FindNodeByPath(outputPath, true);
+                if (treeNode != null)
+                {
+                    nodes.Add(treeNode);
+                }
+            }
+            return nodes;
         }
 
         internal class ObjectExplorerTaskResult
