@@ -2723,7 +2723,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Type = typeof(Enum),
                    Values = new List<object>
                    {
-                      { UserDefinedFunctionType.Table }
+                      { UserDefinedFunctionType.Table },
+                      { UserDefinedFunctionType.Inline }
                    }
                 });
                 filters.Add(new NodeFilter
@@ -2769,7 +2770,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Type = typeof(Enum),
                    Values = new List<object>
                    {
-                      { UserDefinedFunctionType.Table }
+                      { UserDefinedFunctionType.Table },
+                      { UserDefinedFunctionType.Inline }
                    }
                 });
                 filters.Add(new NodeFilter

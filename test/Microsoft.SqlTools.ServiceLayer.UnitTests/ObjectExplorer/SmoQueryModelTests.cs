@@ -71,6 +71,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.False(querier.ValidFor.HasFlag(ValidForFlag.SqlDw));
         }
 
+        [Fact]
+        public void TableValuedFunctionsIncludeInlineFunctions()
+        {
+            var tableFactory = new TableValuedFunctionsChildFactory();
+            var filters = tableFactory.Filters;
+            Assert.True(filters.ToList().Any(filter => {
+                return filter.Values.Contains(UserDefinedFunctionType.Table) && filter.Values.Contains(UserDefinedFunctionType.Inline);
+            }));
+        }
+
         private SmoQuerier GetSmoQuerier(Type querierType)
         {
             // Given the extension type loader is set to find SmoCollectionQuerier objects
