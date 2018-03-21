@@ -217,6 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     false,
                     connectionDetails.UserName,
                     passwordSecureString,
+                    connectionDetails.DatabaseName,
                     xmlDoc.InnerXml);
             }
             else
@@ -227,6 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     true,
                     null,
                     null,
+                    connectionDetails.DatabaseName,
                     xmlDoc.InnerXml);
             }
 

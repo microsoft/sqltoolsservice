@@ -684,7 +684,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="userName">User name for not trusted connections</param>
         /// <param name="password">Password for not trusted connections</param>
         /// <param name="xmlParameters">XML string with parameters</param>
-        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string xmlParameters)
+        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters)
         {
             this.serverType = serverType;
             this.serverName = serverName;
@@ -692,7 +692,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             if (serverType == ServerType.SQL)
             {
                     //does some extra initialization
-                    ApplyConnectionInfo(GetTempSqlConnectionInfoWithConnection(serverName, trusted, userName, password), true);
+                    ApplyConnectionInfo(GetTempSqlConnectionInfoWithConnection(serverName, trusted, userName, password, databaseName), true);
 
                     //NOTE: ServerConnection property will constuct the object if needed
                     m_server = new Server(ServerConnection);
@@ -1031,7 +1031,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             string serverName,
             bool trusted,
             string userName,
-            SecureString password)
+            SecureString password,
+            string databaseName)
         {         
             SqlConnectionInfoWithConnection tempCI = new SqlConnectionInfoWithConnection(serverName);
             tempCI.SingleConnection = false;
@@ -1047,6 +1048,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 tempCI.UserName = userName;
                 tempCI.SecurePassword = password;
             }
+            tempCI.DatabaseName = databaseName;
 
             return tempCI;
         }

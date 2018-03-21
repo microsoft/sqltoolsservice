@@ -243,6 +243,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectionServiceMock.Verify(c => c.Disconnect(It.IsAny<DisconnectParams>()));
         }
 
+        [Fact]
+        public async Task FindNodesReturnsMatchingNode()
+        {
+            var session = await CreateSession();
+            
+            var foundNodes = service.FindNodes(session.SessionId, "Server", null, null, null);
+            Assert.Equal(1, foundNodes.Count);
+            Assert.Equal("Server", foundNodes[0].NodeType);
+            Assert.Equal(session.RootNode.NodePath, foundNodes[0].ToNodeInfo().NodePath);
+        }
+
+        [Fact]
+        public async Task FindNodesReturnsEmptyListForNoMatch()
+        {
+            var session = await CreateSession();
+            
+            var foundNodes = service.FindNodes(session.SessionId, "Table", "testSchema", "testTable", "testDatabase");
+            Assert.Equal(0, foundNodes.Count);
+        }
+
         private async Task<SessionCreatedParameters> CreateSession()
         {
             SessionCreatedParameters sessionResult = null;

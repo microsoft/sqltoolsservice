@@ -307,13 +307,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // Some tasks may be cancelled due to legitimate
                     // timeouts so don't let those exceptions go higher.
                 }
-                catch (AggregateException e)
+                catch (Exception e)
                 {
-                    if (!(e.InnerExceptions[0] is TaskCanceledException))
+                    if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
                     {
-                        // Cancelled tasks aren't a problem, so rethrow
-                        // anything that isn't a TaskCanceledException
-                        throw e;
+                        // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
+                        Logger.Write(LogLevel.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
                     }
                 }
             }

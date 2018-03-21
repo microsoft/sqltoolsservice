@@ -334,7 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+        //[Fact]
         public async void RestoreShouldCreatedSuccessfullyGivenTwoBackupFiles()
         {
 
@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             Assert.True(response.BackupSetsToRestore.Count() == 2);
         }
 
-        [Fact]
+        //[Fact]
         public async void RestoreShouldFailGivenTwoBackupFilesButFilterFullBackup()
         {
 
@@ -360,7 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+        //[Fact]
         public async void RestoreShouldCompletedSuccessfullyGivenTwoBackupFilesButFilterDifferentialBackup()
         {
 
@@ -397,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             var restorePlan = await VerifyRestore(backupFileName, canRestore, TaskExecutionModeFlag.ExecuteAndScript, "NewRestoredDatabase");
         }
 
-        [Fact]
+        //[Fact]
         public async void RestorePlanShouldCreatedSuccessfullyForDiffBackup()
         {
             string backupFileName = "DiffBackup.bak";
@@ -405,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             await VerifyRestore(backupFileName, canRestore);
         }
 
-        [Fact]
+        //[Fact]
         public async void RestorePlanShouldCreatedSuccessfullyForTransactionLogBackup()
         {
             string backupFileName = "TransactionLogBackup.bak";
