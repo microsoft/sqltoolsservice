@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -49,13 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var serverSet = new HashSet<Node>();
             serverSet.Add(serverNode);
             NodeTypeDictionary.Add("Server", serverSet);
-
-            string types = "";
-            foreach (var containedType in NodeTypeDictionary.Keys)
-            {
-                types += containedType + "\n";
-            }
-            Logger.Write(LogLevel.Normal, "List of types:\n\n" + types);
         }
 
         internal static HashSet<string> FindNodePaths(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
