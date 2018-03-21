@@ -327,6 +327,59 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Make sure we haven't cancelled yet
             cancellationToken.ThrowIfCancellationRequested();
 
+            // Create a command that we'll use for executing the query
+            using (DbCommand dbCommand = CreateCommand(conn))
+            {
+                // Make sure that we cancel the command if the cancellation token is cancelled
+                cancellationToken.Register(() => dbCommand?.Cancel());
+
+                // Setup the command for executing the batch
+                dbCommand.CommandText = BatchText;
+                dbCommand.CommandType = CommandType.Text;
+                dbCommand.CommandTimeout = 0;
+                executionStartTime = DateTime.Now;
+
+                // Execute the command to get back a reader
+                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
+                {
+                    do
+                    {
+                        // Verify that the cancellation token hasn't benn cancelled
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
+                        if (!reader.HasRows && reader.FieldCount == 0)
+                        {
+                            continue;
+                        }
+
+                        // This resultset has results (ie, SELECT/etc queries)
+                        ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
+                        resultSet.ResultCompletion += ResultSetCompletion;
+
+                        // Add the result set to the results of the query
+                        lock (resultSets)
+                        {
+                            resultSets.Add(resultSet);
+                        }
+
+                        // Read until we hit the end of the result set
+                        await resultSet.ReadResultToEnd(reader, cancellationToken);
+
+                    } while (await reader.NextResultAsync(cancellationToken));
+
+                    // If there were no messages, for whatever reason (NO COUNT set, messages 
+                    // were emitted, records returned), output a "successful" message
+                    if (!messagesSent)
+                    {
+                        await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
+                    }
+                }
+            }
+        }
+
+        private DbCommand CreateCommand(DbConnection conn)
+        {
             // Register the message listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
             ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
@@ -351,57 +404,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Debug.Assert(!(dbCommand is ReliableSqlConnection.ReliableSqlCommand),
                 "ReliableSqlCommand command should not be used to execute queries");
 
-            // Create a command that we'll use for executing the query
-            using (dbCommand)
-            {
-                // Make sure that we cancel the command if the cancellation token is cancelled
-                cancellationToken.Register(() => dbCommand?.Cancel());
-
-                // Setup the command for executing the batch
-                dbCommand.CommandText = BatchText;
-                dbCommand.CommandType = CommandType.Text;
-                dbCommand.CommandTimeout = 0;
-                executionStartTime = DateTime.Now;
-
-                // Execute the command to get back a reader
-                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
-                {
-                    int resultSetOrdinal = 0;
-                    do
-                    {
-                        // Verify that the cancellation token hasn't benn cancelled
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
-                        if (!reader.HasRows && reader.FieldCount == 0)
-                        {
-                            continue;
-                        }
-
-                        // This resultset has results (ie, SELECT/etc queries)
-                        ResultSet resultSet = new ResultSet(resultSetOrdinal, Id, outputFileFactory);
-                        resultSet.ResultCompletion += ResultSetCompletion;
-
-                        // Add the result set to the results of the query
-                        lock (resultSets)
-                        {
-                            resultSets.Add(resultSet);
-                            resultSetOrdinal++;
-                        }
-
-                        // Read until we hit the end of the result set
-                        await resultSet.ReadResultToEnd(reader, cancellationToken);
-
-                    } while (await reader.NextResultAsync(cancellationToken));
-
-                    // If there were no messages, for whatever reason (NO COUNT set, messages 
-                    // were emitted, records returned), output a "successful" message
-                    if (!messagesSent)
-                    {
-                        await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
-                    }
-                }
-            }
+            return dbCommand;
         }
 
         /// <summary>
