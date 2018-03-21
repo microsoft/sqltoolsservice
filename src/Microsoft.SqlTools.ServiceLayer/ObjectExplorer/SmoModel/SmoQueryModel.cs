@@ -8,6 +8,7 @@ using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -789,6 +790,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 var retValue = parentDatabase.UserDefinedFunctions;
                 if (retValue != null)
                 {
+                    // foreach (UserDefinedFunction function in retValue)
+                    // {
+                    //     Logger.Write(LogLevel.Normal, $"Name: {function.Name}, FunctionType: {function.FunctionType}, IsSystemObject: {function.IsSystemObject}");
+                    // }
                     retValue.ClearAndInitialize(filter, extraProperties);
                     return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
                 }
