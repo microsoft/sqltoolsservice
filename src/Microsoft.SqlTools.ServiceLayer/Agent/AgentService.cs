@@ -16,7 +16,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -25,13 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     public sealed class AgentService
     {
-        private JobActivityFilter filter = null;
         private Dictionary<Guid, JobProperties> jobs = null;
-
-        private JobFetcher fetcher = null;
-
         private ConnectionService connectionService = null;
-
         private static readonly Lazy<AgentService> instance = new Lazy<AgentService>(() => new AgentService());
 
         /// <summary>
@@ -88,8 +83,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
             this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
+            this.ServiceHost.SetRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest);
         }
-
+    
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
@@ -106,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (connInfo != null)
                 {
                     var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                    var serverConnection = new ServerConnection(sqlConnection);                    
+                    var serverConnection = new ServerConnection(sqlConnection);
                     var fetcher = new JobFetcher(serverConnection);
                     var filter = new JobActivityFilter();
                     this.jobs = fetcher.FetchJobs(filter);
@@ -146,15 +142,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     out connInfo);
                 if (connInfo != null)
                 {
-                    var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                    var serverConnection = new ServerConnection(sqlConnection);     
-                    var server = new Server(serverConnection);       
-                    var filter = new JobHistoryFilter(); 
-                    filter.JobID = new Guid(parameters.JobId);
-                    var dt = server.JobServer.EnumJobHistory(filter);
-
-                    var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
-
+                    Tuple<SqlConnectionInfo, DataTable> tuple = CreateSqlConnection(connInfo, parameters.JobId);
+                    SqlConnectionInfo sqlConnInfo = tuple.Item1;
+                    DataTable dt = tuple.Item2;
                     int count = dt.Rows.Count;
                     var agentJobs = new List<AgentJobHistoryInfo>();
                     for (int i = 0; i < count; ++i)
@@ -171,7 +161,67 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 await requestContext.SendError(e);
             }
-
         }
+
+        /// <summary>
+        /// Handle request to Run a Job
+        /// </summary>
+        internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<AgentJobActionResult> requestContext)
+        {
+            try 
+            {
+                var result = new AgentJobActionResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+                if (connInfo != null)
+                {
+                    var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+                    var serverConnection = new ServerConnection(sqlConnection);     
+                    var jobHelper = new JobHelper(serverConnection);
+                    jobHelper.JobName = parameters.JobName;
+                    switch(parameters.Action)
+                    {
+                        case "run":
+                            jobHelper.Start();
+                            break;
+                        case "stop":
+                            jobHelper.Stop();
+                            break;
+                        case "delete":
+                            jobHelper.Delete();
+                            break;
+                        case "enable":
+                            jobHelper.Enable(true);
+                            break;
+                        case "disable":
+                            jobHelper.Enable(false);
+                            break;
+                        default:
+                            break;
+                    }
+                    result.Succeeded = true;
+                    await requestContext.SendResult(result);
+                }
+            }
+            catch (Exception e) 
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        private Tuple<SqlConnectionInfo, DataTable> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            var serverConnection = new ServerConnection(sqlConnection);     
+            var server = new Server(serverConnection);       
+            var filter = new JobHistoryFilter(); 
+            filter.JobID = new Guid(jobId);
+            var dt = server.JobServer.EnumJobHistory(filter);
+            var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
+            return new Tuple<SqlConnectionInfo, DataTable>(sqlConnInfo, dt);
+        }
+
     }
 }
