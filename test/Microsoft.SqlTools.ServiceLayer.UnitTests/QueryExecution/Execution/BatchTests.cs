@@ -373,6 +373,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Make sure the number of result sets matches
             Assert.Equal(expectedResultSets, batch.ResultSets.Count);
+            for (int i = 0; i < expectedResultSets; i++)
+            {
+                Assert.Equal(i, batch.ResultSets[i].Id);
+            }
             Assert.Equal(expectedResultSets, batch.ResultSummaries.Length);
 
             // Make sure that the error state is set properly

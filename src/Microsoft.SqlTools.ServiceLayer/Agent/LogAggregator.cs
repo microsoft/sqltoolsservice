@@ -607,7 +607,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 #endregion
 
 #region Variables
-        //private DelegateAggregationWork m_aggregationworkDelegate;
         private LogSourceAggregation m_currentSource = null;
 #endregion
 
@@ -617,7 +616,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         public LogAggregator()
         {
-           // m_aggregationworkDelegate = new DelegateAggregationWork(this.DelegateAggregationWorkImplementation);
         }
 
 #endregion
@@ -632,44 +630,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return outputSource;
         }
 
-
-        // DelegateAggregationWork ILogAggregator.AggregateDelegate
-        // {
-        //     get
-        //     {
-        //         STrace.Assert(m_aggregationworkDelegate != null);
-        //         return m_aggregationworkDelegate;
-        //     }
-        // }
-
         void ILogAggregator.CancelAsyncWork()
         {
             CancelInternal = true;
         }
 
-
         void ILogAggregator.StopAsyncWork()
         {
              StopInternal = true;
         }
-
-        // private DelegateAggregationProgress m_aggregationprogressDelegate = null;
-        // event DelegateAggregationProgress ILogAggregator.OnAggregationProgress
-        // {
-        //     [MethodImpl(MethodImplOptions.Synchronized)]
-        //     add
-        //     {
-        //         STrace.Assert(value!=null);
-
-        //         m_aggregationprogressDelegate = (DelegateAggregationProgress) Delegate.Combine(m_aggregationprogressDelegate, value);
-        //     }
-
-        //     [MethodImpl(MethodImplOptions.Synchronized)]
-        //     remove
-        //     {
-        //         m_aggregationprogressDelegate = (DelegateAggregationProgress) Delegate.Remove(m_aggregationprogressDelegate, value);
-        //     }
-        // }
 #endregion
 
 #region CreateUninitializedAggregation algorithm
@@ -687,11 +656,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <returns></returns>
         private ILogSource CreateUninitializedAggregation(string outputLogSourceName, ILogSource[] sources, ILogConstraints filterTemplate)
         {
-            // STrace.Assert(outputLogSourceName!=null);
-            // STrace.Assert(outputLogSourceName.Trim().Length != 0);
-            // STrace.Assert(sources!=null);
-            // STrace.Assert(sources.Length != 0);
-
             // zero sources - nothing we can do
             if ((sources == null) || (sources.Length==0))
             {
@@ -701,14 +665,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ILogSource newAggregation = null;
             try
             {
-                // foreach (ILogSource source in sources)
-                // {
-                //     if (source is LogSourceSqlServer)
-                //     {
-                //         (source as LogSourceSqlServer).Filter = filterTemplate;
-                //     }
-                // }
-
                 // not in cache, so build it, add it to cache (if caching ok) and return it
                 newAggregation = new LogSourceAggregation(this, outputLogSourceName, sources, filterTemplate);
 
@@ -726,89 +682,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 #region DelegateAggregationWorkImplementation - entry for - asynchronous invocation with callback ***** via delegate
         private List<Exception> m_exceptionsList = new List<Exception>();
-        // private void DelegateAggregationWorkImplementation(ILogDataStorage storage)
-        // {
-        //     DateTime dtTimeStart = DateTime.Now;
-        //     try
-        //     {
-        //         CancelInternal = false;
-        //         StopInternal = false;
-
-        //         storage.Initialize();
-
-        //         //STrace.Assert(storage.AggregationSource is LogSourceAggregation, "Aggregation source must be of type LogSourceAggregation");
-
-        //         if (storage.AggregationSource != null &&
-        //             (storage.AggregationSource as LogSourceAggregation).ExceptionList != null) //if the exception list is not null we should notify for the errors
-        //         {
-        //             m_exceptionsList.AddRange((storage.AggregationSource as LogSourceAggregation).ExceptionList);
-        //             (storage.AggregationSource as LogSourceAggregation).ClearExceptionList();
-        //         }
-
-        //         if (!StopInternal)
-        //         {
-        //             //we close the readers only when a stop hasn't issued
-        //             if (storage.AggregationSource != null)
-        //             {
-        //                 storage.AggregationSource.CloseReader();
-        //             }
-
-        //             if (m_exceptionsList.Count > 0) //if the exception list is not empty we should notify for the errors
-        //             {
-        //                 Raise_AggregationProgress(null, cProgressDone, m_exceptionsList);
-        //                 m_exceptionsList.Clear();
-                        
-        //             }
-        //             else
-        //             {
-        //                 // report success
-        //                 Raise_AggregationProgress(LogViewerSR.AggregationProgress_Done(Convert.ToInt32(storage.GetFilteredView().NumRows())),
-        //                                           cProgressDone,
-        //                                           null);
-        //             }
-        //         }
-
-
-        //     }
-        //     catch (LogOperationCanceledException e)
-        //     {
-        //         STrace.Trace("LogViewer", "EXCEPTION LogAggregator.WorkerEntryPoint got: " + e.Message);
-
-        //         if (storage.AggregationSource != null)
-        //         {
-        //             storage.AggregationSource.CloseReader();
-        //         }
-
-        //         Raise_AggregationProgress(LogViewerSR.AggregationProgress_Stopped(e.EntriesProcessed),
-        //                                     cProgressDone,
-        //                                     null);
-
-        //     }
-        //     //this code catches exceptions related to the general aggregation work, exceptions generated from readers during
-        //     //the collection are caught internally and are kept in the logsourceaggregator exceptionList so as not to interrupt the collection
-        //     catch (Exception e) 
-        //     {
-        //         STrace.Trace("LogViewer", "EXCEPTION LogAggregator.WorkerEntryPoint got: " + e.Message);
-        //         if (storage.AggregationSource != null)
-        //         {
-        //             storage.AggregationSource.CloseReader();
-        //         }
-
-        //         List<Exception> exceptionList = new List<Exception>(); //we create a list here because the RaiseAggregationDelegate accepts a IList<exception>
-        //         exceptionList.Add(e);
-
-        //         // report failure
-        //         Raise_AggregationProgress(null,
-        //                                   cProgressDone,
-        //                                   exceptionList);
-
-        //     }
-        //     finally
-        //     {
-        //         m_currentSource = null;
-        //         STrace.Trace("LogViewer", "*** track: source life: 005 ... (background=" + System.Threading.Thread.CurrentThread.IsBackground + ":" + System.Threading.Thread.CurrentThread.GetHashCode() + ") LogAggregator.DelegateAggregationWorkImplementation() delegate finally ending --- timespan:" + DateTime.Now.Subtract(dtTimeStart).ToString());
-        //     }
-        // }
 #endregion
 
 #region Report Progress
@@ -822,15 +695,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                                 int percent,
                                                 IList<Exception> exceptionList)
         {
-            // STrace.Assert(m_aggregationprogressDelegate != null, "nobody interested in aggregation's progress");
-            // STrace.Assert(message != null || exceptionList != null, "message and exception cannot both be null");
-            // STrace.Assert(percent >= 0, "percent should be >= 0");
-            // STrace.Assert(percent <= 100, "percent should be <= 100");
-
-            // if (m_aggregationprogressDelegate != null)
-            // {
-            //     m_aggregationprogressDelegate(this, message, percent, exceptionList);
-            // }
         }
 
 #endregion

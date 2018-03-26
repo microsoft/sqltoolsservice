@@ -324,6 +324,7 @@
     <Filters >
       <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Table</Value>
+        <Value>UserDefinedFunctionType.Inline</Value>
       </Filter>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
@@ -332,6 +333,7 @@
     <Filters >
       <Filter Property="FunctionType" Type="Enum">
         <Value>UserDefinedFunctionType.Table</Value>
+        <Value>UserDefinedFunctionType.Inline</Value>
       </Filter>
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
     </Filters>
