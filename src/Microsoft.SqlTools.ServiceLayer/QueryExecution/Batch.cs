@@ -344,16 +344,46 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     do
                     {
-                        // Verify that the cancellation token hasn't benn cancelled
+                        // try
+                        // {
+                        //     // Verify that the cancellation token hasn't benn cancelled
+                        //     cancellationToken.ThrowIfCancellationRequested();
+
+                        //     // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
+                        //     if (!reader.HasRows && reader.FieldCount == 0)
+                        //     {
+                        //         continue;
+                        //     }
+
+                        //     // This resultset has results (ie, SELECT/etc queries)
+                        //     ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
+                        //     resultSet.ResultCompletion += ResultSetCompletion;
+
+                        //     // Add the result set to the results of the query
+                        //     lock (resultSets)
+                        //     {
+                        //         resultSets.Add(resultSet);
+                        //     }
+
+                        //     // Read until we hit the end of the result set
+                        //     await resultSet.ReadResultToEnd(reader, cancellationToken);
+                        // }
+                        // catch (DbException e)
+                        // {
+                        //     HasError = true;
+                        //     await UnwrapDbException(e);
+                        // }
+
+                        // Verify that the cancellation token hasn't been canceled
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
+                        // Skip this result set if there aren't any rows (i.e., UPDATE/DELETE/etc queries)
                         if (!reader.HasRows && reader.FieldCount == 0)
                         {
                             continue;
                         }
 
-                        // This resultset has results (ie, SELECT/etc queries)
+                        // This resultset has results (i.e. SELECT/etc queries)
                         ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
                         resultSet.ResultCompletion += ResultSetCompletion;
 
@@ -365,7 +395,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Read until we hit the end of the result set
                         await resultSet.ReadResultToEnd(reader, cancellationToken);
-
                     } while (await reader.NextResultAsync(cancellationToken));
 
                     // If there were no messages, for whatever reason (NO COUNT set, messages 
@@ -520,14 +549,62 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         /// <summary>
         /// Delegate handler for storing messages that are returned from the server
-        /// NOTE: Only messages that are below a certain severity will be returned via this
-        /// mechanism. Anything above that level will trigger an exception.
         /// </summary>
         /// <param name="sender">Object that fired the event</param>
         /// <param name="args">Arguments from the event</param>
-        private void ServerMessageHandler(object sender, SqlInfoMessageEventArgs args)
+        private async void ServerMessageHandler(object sender, SqlInfoMessageEventArgs args)
         {
-            SendMessage(args.Message, false).Wait();
+            foreach (SqlError error in args.Errors)
+            {
+                // Did the database context change (error code 5701)?
+                if (error.Number == 5701)
+                {
+                    continue;
+                }
+
+                string detailedMessage;
+                if (string.IsNullOrEmpty(error.Procedure))
+                {
+                    detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
+                        error.Number, error.Class, error.State, error.LineNumber + Selection.StartLine,
+                        Environment.NewLine, error.Message);
+                }
+                else
+                {
+                    detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}",
+                        error.Number, error.Class, error.State, error.Procedure, error.LineNumber,
+                        Environment.NewLine, error.Message);
+                }
+
+                bool isError;
+                if (error.Class > 10)
+                {
+                    isError = true;
+                }
+                else if (error.Class > 0 && error.Number > 0)
+                {
+                    isError = false;
+                }
+                else
+                {
+                    isError = false;
+                    detailedMessage = null;
+                }
+
+                if (detailedMessage != null)
+                {
+                    await SendMessage(detailedMessage, isError);
+                }
+                else
+                {
+                    await SendMessage(error.Message, isError);
+                }
+
+                if (isError)
+                {
+                    this.HasError = true;
+                }
+            }
         }
 
         /// <summary>

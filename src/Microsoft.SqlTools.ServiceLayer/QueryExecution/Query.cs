@@ -379,6 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
+                    sqlConn.GetUnderlyingConnection().FireInfoMessageEventOnUserErrors = true;
                     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
                 }
 
