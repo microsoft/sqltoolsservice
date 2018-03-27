@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -354,7 +355,75 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.True(messageCalls == 1);
             batch.StatementCompletedHandler(null, new StatementCompletedEventArgs(2));
             Assert.True(messageCalls == 2);
-        }     
+        }
+
+        [Fact]
+        public async Task ServerMessageHandlerShowsErrorMessages()
+        {
+            // Set up the batch to track message calls
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            int errorMessageCalls = 0;
+            int infoMessageCalls = 0;
+            string actualMessage = null;
+            batch.BatchMessageSent += args =>
+            {
+                if (args.IsError)
+                {
+                    errorMessageCalls++;
+                }
+                else
+                {
+                    infoMessageCalls++;
+                }
+                actualMessage = args.Message;
+                return Task.CompletedTask;
+            };
+
+            // If I call the server message handler with an error message
+            var errorMessage = "error message";
+            await batch.HandleSqlErrorMessage(1, 15, 0, 1, string.Empty, errorMessage);
+
+            // Then one error message call should be recorded
+            Assert.Equal(1, errorMessageCalls);
+            Assert.Equal(0, infoMessageCalls);
+
+            // And the actual message should be a formatted version of the error message
+            Assert.True(actualMessage.Length > errorMessage.Length);
+        }
+
+        [Fact]
+        public async Task ServerMessageHandlerShowsInfoMessages()
+        {
+            // Set up the batch to track message calls
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            int errorMessageCalls = 0;
+            int infoMessageCalls = 0;
+            string actualMessage = null;
+            batch.BatchMessageSent += args =>
+            {
+                if (args.IsError)
+                {
+                    errorMessageCalls++;
+                }
+                else
+                {
+                    infoMessageCalls++;
+                }
+                actualMessage = args.Message;
+                return Task.CompletedTask;
+            };
+
+            // If I call the server message handler with an info message
+            var infoMessage = "info message";
+            await batch.HandleSqlErrorMessage(0, 0, 0, 1, string.Empty, infoMessage);
+
+            // Then one info message call should be recorded
+            Assert.Equal(0, errorMessageCalls);
+            Assert.Equal(1, infoMessageCalls);
+
+            // And the actual message should be the exact info message
+            Assert.Equal(infoMessage, actualMessage);
+        }
       
         private static DbConnection GetConnection(ConnectionInfo info)
         {

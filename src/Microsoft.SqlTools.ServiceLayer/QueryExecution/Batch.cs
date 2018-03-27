@@ -344,40 +344,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     do
                     {
-                        // try
-                        // {
-                        //     // Verify that the cancellation token hasn't benn cancelled
-                        //     cancellationToken.ThrowIfCancellationRequested();
-
-                        //     // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
-                        //     if (!reader.HasRows && reader.FieldCount == 0)
-                        //     {
-                        //         continue;
-                        //     }
-
-                        //     // This resultset has results (ie, SELECT/etc queries)
-                        //     ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
-                        //     resultSet.ResultCompletion += ResultSetCompletion;
-
-                        //     // Add the result set to the results of the query
-                        //     lock (resultSets)
-                        //     {
-                        //         resultSets.Add(resultSet);
-                        //     }
-
-                        //     // Read until we hit the end of the result set
-                        //     await resultSet.ReadResultToEnd(reader, cancellationToken);
-                        // }
-                        // catch (DbException e)
-                        // {
-                        //     HasError = true;
-                        //     await UnwrapDbException(e);
-                        // }
-
                         // Verify that the cancellation token hasn't been canceled
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        // Skip this result set if there aren't any rows (i.e., UPDATE/DELETE/etc queries)
+                        // Skip this result set if there aren't any rows (i.e. UPDATE/DELETE/etc queries)
                         if (!reader.HasRows && reader.FieldCount == 0)
                         {
                             continue;
@@ -395,6 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Read until we hit the end of the result set
                         await resultSet.ReadResultToEnd(reader, cancellationToken);
+
                     } while (await reader.NextResultAsync(cancellationToken));
 
                     // If there were no messages, for whatever reason (NO COUNT set, messages 
@@ -556,54 +527,62 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             foreach (SqlError error in args.Errors)
             {
-                // Did the database context change (error code 5701)?
-                if (error.Number == 5701)
-                {
-                    continue;
-                }
+                await HandleSqlErrorMessage(error.Number, error.Class, error.State, error.LineNumber, error.Procedure, error.Message);
+            }
+        }
 
-                string detailedMessage;
-                if (string.IsNullOrEmpty(error.Procedure))
-                {
-                    detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                        error.Number, error.Class, error.State, error.LineNumber + Selection.StartLine,
-                        Environment.NewLine, error.Message);
-                }
-                else
-                {
-                    detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}",
-                        error.Number, error.Class, error.State, error.Procedure, error.LineNumber,
-                        Environment.NewLine, error.Message);
-                }
+        /// <summary>
+        /// Handle a single SqlError's error message by processing and displaying it. The arguments come from the error being handled
+        /// </summary>
+        internal async Task HandleSqlErrorMessage(int errorNumber, byte errorClass, byte state, int lineNumber, string procedure, string message)
+        {
+            // Did the database context change (error code 5701)?
+            if (errorNumber == 5701)
+            {
+                return;
+            }
 
-                bool isError;
-                if (error.Class > 10)
-                {
-                    isError = true;
-                }
-                else if (error.Class > 0 && error.Number > 0)
-                {
-                    isError = false;
-                }
-                else
-                {
-                    isError = false;
-                    detailedMessage = null;
-                }
+            string detailedMessage;
+            if (string.IsNullOrEmpty(procedure))
+            {
+                detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
+                    errorNumber, errorClass, state, lineNumber + Selection.StartLine,
+                    Environment.NewLine, message);
+            }
+            else
+            {
+                detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}",
+                    errorNumber, errorClass, state, procedure, lineNumber,
+                    Environment.NewLine, message);
+            }
 
-                if (detailedMessage != null)
-                {
-                    await SendMessage(detailedMessage, isError);
-                }
-                else
-                {
-                    await SendMessage(error.Message, isError);
-                }
+            bool isError;
+            if (errorClass > 10)
+            {
+                isError = true;
+            }
+            else if (errorClass > 0 && errorNumber > 0)
+            {
+                isError = false;
+            }
+            else
+            {
+                isError = false;
+                detailedMessage = null;
+            }
 
-                if (isError)
-                {
-                    this.HasError = true;
-                }
+            if (detailedMessage != null)
+            {
+                await SendMessage(detailedMessage, isError);
+            }
+            else
+            {
+                await SendMessage(message, isError);
+            }
+
+            if (isError)
+            {
+                this.HasError = true;
             }
         }
 
