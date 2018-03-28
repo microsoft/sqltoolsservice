@@ -147,12 +147,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     DataTable dt = tuple.Item2;
                     int count = dt.Rows.Count;
                     var agentJobs = new List<AgentJobHistoryInfo>();
+
+                    var agentStepMap = new Dictionary<DateTime, List<AgentJobStep>>();
                     for (int i = 0; i < count; ++i)
                     {
                         var job = dt.Rows[i];
-                        agentJobs.Add(JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo));
+                        if (JobUtilities.IsStep(job, sqlConnInfo))
+                        {
+                            var agentJobStep = JobUtilities.ConvertToAgentJobStep(job, sqlConnInfo);
+                            if (agentStepMap.ContainsKey(agentJobStep.RunDate))
+                            {
+                                agentStepMap[agentJobStep.RunDate].Append(agentJobStep);
+                            }
+                            else
+                            {
+                                var agentJobSteps = new List<AgentJobStep>();
+                                agentJobSteps.Add(agentJobStep);
+                                agentStepMap[agentJobStep.RunDate] = agentJobSteps;
+                            }
+                        }
+                        else
+                        {
+                            var agentJobHistoryInfo = JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo);
+                            agentJobs.Add(agentJobHistoryInfo);
+                        }
                     }
                     result.Succeeded = true;
+                    foreach (AgentJobHistoryInfo agentJobHistoryInfo in agentJobs)
+                    {
+                        if (agentStepMap.ContainsKey(agentJobHistoryInfo.RunDate))
+                        { 
+                            agentJobHistoryInfo.Steps = agentStepMap[agentJobHistoryInfo.RunDate].ToArray();
+                        }
+                    }
                     result.Jobs = agentJobs.ToArray();
                     await requestContext.SendResult(result);
                 }

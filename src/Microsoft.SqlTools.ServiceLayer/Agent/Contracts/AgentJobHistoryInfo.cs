@@ -33,6 +33,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string OperatorPaged { get; set; }
         public int RetriesAttempted { get; set; }
         public string Server { get; set; }
+        public AgentJobStep[] Steps { get; set; }
+    }
+
+    public class AgentJobStep
+    {
+        public int StepId { get; set; }
+        public string StepName { get; set; }
+        public string Message { get; set; }
+        public DateTime RunDate { get; set; }
+
     }
     
 }
