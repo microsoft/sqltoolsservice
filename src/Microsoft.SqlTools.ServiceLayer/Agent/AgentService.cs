@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             var agentJobStep = JobUtilities.ConvertToAgentJobStep(job, sqlConnInfo);
                             if (agentStepMap.ContainsKey(agentJobStep.RunDate))
                             {
-                                agentStepMap[agentJobStep.RunDate].Append(agentJobStep);
+                                agentStepMap[agentJobStep.RunDate].Add(agentJobStep);
                             }
                             else
                             {
@@ -177,7 +177,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         if (agentStepMap.ContainsKey(agentJobHistoryInfo.RunDate))
                         { 
-                            agentJobHistoryInfo.Steps = agentStepMap[agentJobHistoryInfo.RunDate].ToArray();
+                            var agentStepList = agentStepMap[agentJobHistoryInfo.RunDate].ToList();
+                            agentStepList.Sort(delegate (AgentJobStep s1, AgentJobStep s2) { return s1.StepId.CompareTo(s2.StepId); });
+                            agentJobHistoryInfo.Steps = agentStepList.ToArray();
                         }
                     }
                     result.Jobs = agentJobs.ToArray();

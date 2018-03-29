@@ -56,14 +56,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
-        public static Boolean IsStep(DataRow row, SqlConnectionInfo sqlConnectionInfo)
+        public static bool IsStep(DataRow row, SqlConnectionInfo sqlConnectionInfo)
         {
             int stepId = Convert.ToInt32(row[UrnStepID], System.Globalization.CultureInfo.InvariantCulture);
-            if (stepId != 0)
-            {
-                return true;
-            }
-            return false;
+            return stepId != 0;
         }
 
         public static AgentJobHistoryInfo ConvertToAgentJobHistoryInfo(DataRow jobRow, SqlConnectionInfo sqlConnInfo) 
