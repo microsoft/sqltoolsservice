@@ -197,9 +197,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<AgentJobActionResult> requestContext)
         {
+            var result = new AgentJobActionResult();
             try 
             {
-                var result = new AgentJobActionResult();
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
@@ -236,7 +236,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             catch (Exception e) 
             {
-                await requestContext.SendError(e);
+                result.Succeeded = false;
+                result.ErrorMessage = e.Message;
+                await requestContext.SendResult(result);
             }
         }
 
