@@ -344,16 +344,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     do
                     {
-                        // Verify that the cancellation token hasn't benn cancelled
+                        // Verify that the cancellation token hasn't been canceled
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
+                        // Skip this result set if there aren't any rows (i.e. UPDATE/DELETE/etc queries)
                         if (!reader.HasRows && reader.FieldCount == 0)
                         {
                             continue;
                         }
 
-                        // This resultset has results (ie, SELECT/etc queries)
+                        // This resultset has results (i.e. SELECT/etc queries)
                         ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
                         resultSet.ResultCompletion += ResultSetCompletion;
 
@@ -520,14 +520,70 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         /// <summary>
         /// Delegate handler for storing messages that are returned from the server
-        /// NOTE: Only messages that are below a certain severity will be returned via this
-        /// mechanism. Anything above that level will trigger an exception.
         /// </summary>
         /// <param name="sender">Object that fired the event</param>
         /// <param name="args">Arguments from the event</param>
-        private void ServerMessageHandler(object sender, SqlInfoMessageEventArgs args)
+        private async void ServerMessageHandler(object sender, SqlInfoMessageEventArgs args)
         {
-            SendMessage(args.Message, false).Wait();
+            foreach (SqlError error in args.Errors)
+            {
+                await HandleSqlErrorMessage(error.Number, error.Class, error.State, error.LineNumber, error.Procedure, error.Message);
+            }
+        }
+
+        /// <summary>
+        /// Handle a single SqlError's error message by processing and displaying it. The arguments come from the error being handled
+        /// </summary>
+        internal async Task HandleSqlErrorMessage(int errorNumber, byte errorClass, byte state, int lineNumber, string procedure, string message)
+        {
+            // Did the database context change (error code 5701)?
+            if (errorNumber == 5701)
+            {
+                return;
+            }
+
+            string detailedMessage;
+            if (string.IsNullOrEmpty(procedure))
+            {
+                detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
+                    errorNumber, errorClass, state, lineNumber + Selection.StartLine,
+                    Environment.NewLine, message);
+            }
+            else
+            {
+                detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}{5}{6}",
+                    errorNumber, errorClass, state, procedure, lineNumber,
+                    Environment.NewLine, message);
+            }
+
+            bool isError;
+            if (errorClass > 10)
+            {
+                isError = true;
+            }
+            else if (errorClass > 0 && errorNumber > 0)
+            {
+                isError = false;
+            }
+            else
+            {
+                isError = false;
+                detailedMessage = null;
+            }
+
+            if (detailedMessage != null)
+            {
+                await SendMessage(detailedMessage, isError);
+            }
+            else
+            {
+                await SendMessage(message, isError);
+            }
+
+            if (isError)
+            {
+                this.HasError = true;
+            }
         }
 
         /// <summary>
