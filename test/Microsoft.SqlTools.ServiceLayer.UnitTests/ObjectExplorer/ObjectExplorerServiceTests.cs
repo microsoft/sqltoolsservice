@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
+using Moq.Protected;
 using Xunit;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlServer.Management.Common;
@@ -261,6 +262,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             
             var foundNodes = service.FindNodes(session.SessionId, "Table", "testSchema", "testTable", "testDatabase");
             Assert.Equal(0, foundNodes.Count);
+        }
+
+        [Fact]
+        public void FindNodeCanExpandParentNodes()
+        {
+            var mockTreeNode = new Mock<TreeNode>();
+            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>() };
+            mockTreeNode.Protected().Setup("PopulateChildren", populateChildrenArguments);
+            mockTreeNode.Object.IsAlwaysLeaf = false;
+
+            // If I try to find a child node of the mock tree node with the expand parameter set to true
+            ObjectExplorerUtils.FindNode(mockTreeNode.Object, node => false, node => false, true);
+
+            // Then PopulateChildren gets called to expand the tree node
+            mockTreeNode.Protected().Verify("PopulateChildren", Times.Once(), populateChildrenArguments);
         }
 
         private async Task<SessionCreatedParameters> CreateSession()
