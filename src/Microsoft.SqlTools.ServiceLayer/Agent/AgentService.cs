@@ -147,12 +147,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     DataTable dt = tuple.Item2;
                     int count = dt.Rows.Count;
                     var agentJobs = new List<AgentJobHistoryInfo>();
+
+                    var agentStepMap = new Dictionary<DateTime, List<AgentJobStep>>();
                     for (int i = 0; i < count; ++i)
                     {
                         var job = dt.Rows[i];
-                        agentJobs.Add(JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo));
+                        if (JobUtilities.IsStep(job, sqlConnInfo))
+                        {
+                            var agentJobStep = JobUtilities.ConvertToAgentJobStep(job, sqlConnInfo);
+                            if (agentStepMap.ContainsKey(agentJobStep.RunDate))
+                            {
+                                agentStepMap[agentJobStep.RunDate].Add(agentJobStep);
+                            }
+                            else
+                            {
+                                var agentJobSteps = new List<AgentJobStep>();
+                                agentJobSteps.Add(agentJobStep);
+                                agentStepMap[agentJobStep.RunDate] = agentJobSteps;
+                            }
+                        }
+                        else
+                        {
+                            var agentJobHistoryInfo = JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo);
+                            agentJobs.Add(agentJobHistoryInfo);
+                        }
                     }
                     result.Succeeded = true;
+                    foreach (AgentJobHistoryInfo agentJobHistoryInfo in agentJobs)
+                    {
+                        if (agentStepMap.ContainsKey(agentJobHistoryInfo.RunDate))
+                        { 
+                            var agentStepList = agentStepMap[agentJobHistoryInfo.RunDate].ToList();
+                            agentStepList.Sort(delegate (AgentJobStep s1, AgentJobStep s2) { return s1.StepId.CompareTo(s2.StepId); });
+                            agentJobHistoryInfo.Steps = agentStepList.ToArray();
+                        }
+                    }
                     result.Jobs = agentJobs.ToArray();
                     await requestContext.SendResult(result);
                 }
@@ -168,9 +197,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<AgentJobActionResult> requestContext)
         {
+            var result = new AgentJobActionResult();
             try 
             {
-                var result = new AgentJobActionResult();
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
@@ -207,7 +236,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             catch (Exception e) 
             {
-                await requestContext.SendError(e);
+                result.Succeeded = false;
+                result.ErrorMessage = e.Message;
+                await requestContext.SendResult(result);
             }
         }
 

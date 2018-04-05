@@ -56,6 +56,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
+        public static bool IsStep(DataRow row, SqlConnectionInfo sqlConnectionInfo)
+        {
+            int stepId = Convert.ToInt32(row[UrnStepID], System.Globalization.CultureInfo.InvariantCulture);
+            return stepId != 0;
+        }
+
         public static AgentJobHistoryInfo ConvertToAgentJobHistoryInfo(DataRow jobRow, SqlConnectionInfo sqlConnInfo) 
         {
             // get all the values for a job history
@@ -99,8 +105,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             jobHistoryInfo.OperatorPaged = operatorPaged;
             jobHistoryInfo.RetriesAttempted = retriesAttempted;
             jobHistoryInfo.Server = server;
-
             return jobHistoryInfo;
+        }
+
+        public static AgentJobStep ConvertToAgentJobStep(DataRow jobRow, SqlConnectionInfo sqlConnInfo)
+        {
+            int stepId = Convert.ToInt32(jobRow[UrnStepID], System.Globalization.CultureInfo.InvariantCulture);
+            string stepName = Convert.ToString(jobRow[UrnStepName], System.Globalization.CultureInfo.InvariantCulture);
+            string message = Convert.ToString(jobRow[UrnMessage], System.Globalization.CultureInfo.InvariantCulture);
+            DateTime runDate = Convert.ToDateTime(jobRow[UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+            AgentJobStep step = new AgentJobStep();
+            step.StepId = stepId;
+            step.StepName = stepName;
+            step.Message = message;
+            step.RunDate = runDate;
+            return step;
         }
     }
 }
