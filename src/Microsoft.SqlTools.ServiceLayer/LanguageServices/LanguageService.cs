@@ -500,7 +500,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
 
-                await requestContext.SendResult(new Hover());
+                await requestContext.SendResult(null);
             }
             catch (Exception ex)
             {
