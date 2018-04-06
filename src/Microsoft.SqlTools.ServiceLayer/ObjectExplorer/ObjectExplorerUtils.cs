@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// determines whether to stop going further up the tree</param>
         /// <param name="filter">Predicate function to filter the children when traversing</param>
         /// <returns>A Tree Node that matches the condition</returns>
-        public static TreeNode FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter, bool refreshChildren = false)
+        public static TreeNode FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter, bool expandIfNeeded = false)
         {
             if(node == null)
             {
@@ -60,12 +60,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 return node;
             }
-            var children = refreshChildren && !node.IsAlwaysLeaf ? node.Refresh() : node.GetChildren();
+            var children = expandIfNeeded && !node.IsAlwaysLeaf ? node.Expand() : node.GetChildren();
             foreach (var child in children)
             {
                 if (filter != null && filter(child))
                 {
-                    TreeNode childNode = FindNode(child, condition, filter, refreshChildren);
+                    TreeNode childNode = FindNode(child, condition, filter, expandIfNeeded);
                     if (childNode != null)
                     {
                         return childNode;
