@@ -26,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         private TreeNode parent;
         private string nodePath;
         private string label;
+        private string nodePathName;
         public const char PathPartSeperator = '/';
 
         /// <summary>
@@ -62,6 +63,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public string NodeValue { get; set; }
 
+        /// <summary>
+        /// The name of this object as included in its node path
+        /// </summary>
+        public string NodePathName {
+            get
+            {
+                if (string.IsNullOrEmpty(nodePathName))
+                {
+                    return NodeValue;
+                }
+                return nodePathName;
+            }
+            set
+            {
+                nodePathName = value;
+            }
+        }
 
         /// <summary>
         /// Object metadata for smo objects
@@ -175,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 }
                 // Otherwise add this value to the beginning of the path and keep iterating up
                 path = string.Format(CultureInfo.InvariantCulture, 
-                    "{0}{1}{2}", node.NodeValue, string.IsNullOrEmpty(path) ? "" : PathPartSeperator.ToString(), path);
+                    "{0}{1}{2}", node.NodePathName, string.IsNullOrEmpty(path) ? "" : PathPartSeperator.ToString(), path);
                 return true;
             });
             nodePath = path;

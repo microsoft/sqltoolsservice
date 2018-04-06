@@ -56,6 +56,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Returns the custom name of the object assigned to the node. If the object doesn't have custom name, returns empty string
         /// </summary>
         public abstract string GetNodeCustomName(object smoObject, SmoQueryContext smoContext);
+        
+        /// <summary>
+        /// Returns the name of the object as shown in its Object Explorer node path
+        /// </summary>
+        public abstract string GetNodePathName(object smoObject);
 
         public abstract bool CanCreateChild(TreeNode parent, object context);
         public abstract TreeNode CreateChild(TreeNode parent, object context);
