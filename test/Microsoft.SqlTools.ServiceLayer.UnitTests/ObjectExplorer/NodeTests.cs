@@ -184,21 +184,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             }
         }
 
+        [Fact]
         public void MultiLevelTreeShouldFormatPath()
         {
             TreeNode root = new TreeNode("root");
-            Assert.Equal("/root" , root.GetNodePath());
+            Assert.Equal("root" , root.GetNodePath());
 
-            TreeNode level1Child1 = new TreeNode("L1C1");
+            TreeNode level1Child1 = new TreeNode("L1C1 (with extra info)");
+            level1Child1.NodePathName = "L1C1";
             TreeNode level1Child2 = new TreeNode("L1C2");
             root.AddChild(level1Child1);
             root.AddChild(level1Child2);
-            Assert.Equal("/root/L1C1" , level1Child1.GetNodePath());
-            Assert.Equal("/root/L1C2", level1Child2.GetNodePath());
+            Assert.Equal("root/L1C1" , level1Child1.GetNodePath());
+            Assert.Equal("root/L1C2", level1Child2.GetNodePath());
 
             TreeNode level2Child1 = new TreeNode("L2C2");
             level1Child1.AddChild(level2Child1);
-            Assert.Equal("/root/L1C1/L2C2", level2Child1.GetNodePath());
+            Assert.Equal("root/L1C1/L2C2", level2Child1.GetNodePath());
         }
         
         [Fact]

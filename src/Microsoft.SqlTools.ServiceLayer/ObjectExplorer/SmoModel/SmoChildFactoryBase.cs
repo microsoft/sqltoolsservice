@@ -241,6 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (!string.IsNullOrEmpty(customizedName))
                 {
                     childAsMeItem.NodeValue = customizedName;
+                    childAsMeItem.NodePathName = GetNodePathName(context);
                 }
 
                 childAsMeItem.NodeSubType = GetNodeSubType(context, smoContext);
@@ -320,6 +321,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
             return string.Empty;
+        }
+
+        public override string GetNodePathName(object smoObject)
+        {
+            return (smoObject as NamedSmoObject).Name;
         }
     }
 }
