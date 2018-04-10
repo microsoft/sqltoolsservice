@@ -62,6 +62,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             return string.Empty;
         }
+
+        public override string GetNodePathName(object smoObject)
+        {
+            return TableCustomNodeHelper.GetPathName(smoObject);
+        }
     }
 
     /// <summary>
@@ -75,6 +80,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
+            }
+
+            return string.Empty;
+        }
+
+        public override string GetNodePathName(object smoObject)
+        {
+            return TableCustomNodeHelper.GetPathName(smoObject);
+        }
+    }
+
+    internal static class TableCustomNodeHelper
+    {
+        internal static string GetPathName(object smoObject)
+        {
+            Table table = smoObject as Table;
+            if (table != null)
+            {
+                return $"{table.Schema}.{table.Name}";
             }
 
             return string.Empty;
