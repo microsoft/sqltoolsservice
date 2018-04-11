@@ -415,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     initParams.ObjectType);
 
                 // Step 2) Get and execute a query for the rows in the object we're looking up
-                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(objectMetadata, initParams.Filters));
+                EditSessionQueryExecutionState state = await queryRunner(initParams.QueryString ?? ConstructInitializeQuery(objectMetadata, initParams.Filters));
                 if (state.Query == null)
                 {
                     string message = state.Message ?? SR.EditDataQueryFailed;

@@ -3,8 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -55,6 +59,39 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
+        // Filters out metadata that is not present in the result set, and matches metadata ordering to resultset
+        public static EditColumnMetadata[] FilterColumnMetadata(EditColumnMetadata[] metaColumns, DbColumnWrapper[] resultColumns)
+        {
+            if(metaColumns.Length == 0)
+            {
+                return metaColumns;
+            }
+
+            bool escapeColName = metaColumns[0].EscapedName.Contains("[");
+            Dictionary<string, int> columnNameOrdinalMap = new Dictionary<string, int>(capacity: resultColumns.Length);
+            for (int i = 0; i < resultColumns.Length; i++)
+            {
+                DbColumnWrapper column = resultColumns[i];
+                string columnName =  column.ColumnName;
+                if (escapeColName)
+                {
+                    columnName = columnName.Contains("[") ? columnName : ToSqlScript.FormatIdentifier(columnName);
+                }
+
+                columnNameOrdinalMap.Add(columnName, column.ColumnOrdinal.HasValue ? column.ColumnOrdinal.Value : i);
+            }
+
+            HashSet<string> resultColumnNames = new HashSet<string>(columnNameOrdinalMap.Keys);
+            metaColumns = Array.FindAll<EditColumnMetadata>(metaColumns, column => resultColumnNames.Contains(column.EscapedName));
+            foreach (EditColumnMetadata metaCol in metaColumns)
+            {
+                metaCol.Ordinal = columnNameOrdinalMap[metaCol.EscapedName];
+            }
+            Array.Sort(metaColumns, (x, y) => (Comparer<int>.Default).Compare(x.Ordinal, y.Ordinal));
+
+            return metaColumns;
+        }
+
         /// <summary>
         /// Extracts extended column properties from the database columns from SQL Client
         /// </summary>
@@ -62,6 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void Extend(DbColumnWrapper[] dbColumnWrappers)
         {
             Validate.IsNotNull(nameof(dbColumnWrappers), dbColumnWrappers);
+
+            Columns = EditTableMetadata.FilterColumnMetadata(Columns, dbColumnWrappers);
 
             // Iterate over the column wrappers and improve the columns we have
             for (int i = 0; i < Columns.Length; i++)
