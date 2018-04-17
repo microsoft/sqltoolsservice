@@ -243,7 +243,7 @@ Task("TestCore")
     .IsDependentOn("Restore")
     .Does(() =>
 {
-     var testProjects = buildPlan.TestProjects
+    var testProjects = buildPlan.TestProjects
                                 .Where(pair => pair.Value.Any(framework => framework.Contains("netcoreapp")))
                                 .Select(pair => pair.Key)
                                 .ToList();
