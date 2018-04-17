@@ -878,6 +878,18 @@ InvalidPathError = Cannot access the specified path on the server: {0}
 # Profiler
 ProfilerConnectionNotFound = Connection not found
 
+
+
+
+
+
+
+
+
+
+
+
+
 #############################################################################
 # SQL Agent
 EnableAlertsTitle(String serverName) = Enable Alerts - {0}
@@ -953,3 +965,70 @@ Severity022 = 022 - Fatal Error: Table Integrity Suspect
 Severity023 = 023 - Fatal Error: Database Integrity Suspect
 Severity024 = 024 - Fatal Error: Hardware Error
 Severity025 = 025 - Fatal Error
+
+; Message box that displayed if start time is more than end time on Mon-Fri
+PagerScheduleMonFri = Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?
+; Message box that displayed if start time is more than end time on Sat-Sun
+PagerScheduleSatSun = Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?
+; Message box caption
+PagerScheduleWarning = Pager schedule warning
+
+; Tree node name
+General = General
+; Tree node name
+Notifications = Notifications
+; Tree node name
+History = History
+; Pager schedule grid column name
+Day = Day
+; Pager schedule grid column name
+StartTime = Start Time
+; Pager schedule grid column name
+EndTime = End Time
+; Exception thrown when column index is invalid
+ColumnIndexIsInvalid = Column index is invalid.
+; Exception thrown when row index is invalid
+RowIndexIsInvalid = Row index is invalid.
+; Name of the operator dialog in create new operator mode
+NewOperatorProperties = New Operator
+; Name of the operator dialog in modify operator mode
+OperatorProperties(string operatorName) = {0} Properties
+; Exception thrown when dialog cannot be created/intialized.
+FailedToCreateInitializeAgentOperatorDialog = Unable to create/initialize Agent Operator dialog.
+; Exception thrown when job server is not available
+JobServerIsNotAvailable = Job server is not available.
+; Exception thrown when we cannot create/initialize agent operators general page
+CannotCreateInitializeGeneralPage = Cannot create/initialize General page.
+; Exception thrown when we cannot create/initialize agent operators notifications page
+CannotCreateInitializeNotificationsPage = Cannot create/initialize Notifications page.
+; Exception thrown when we cannot create/initialize agent operators history page
+CannotCreateInitializeHistoryPage = Cannot create/initialize History page.
+; Exception throw when dialog cannot refresh operator
+CannotResetOperator = Cannot reset operator.
+
+
+#
+; Name of label on notifications page
+AlertList = Alert &list:
+; Name of label on notifications page
+JobList = Job &list:
+; Name of column on notifications page
+Email = E-mail
+; Name of column on notifications page
+Pager = Pager
+; Name of column on notifications page
+AlertName = Alert name
+; Name of column on notifications page
+JobName = Job name
+; Completion Action
+Always = Always
+; Completion Action
+Never = Never
+; Completion Action
+OnFailure = On failure
+; Completion Action
+OnSuccess = On success
+; Exception thrown when we cannot modify alerts
+CannotModifyAlerts = Cannot modify alerts.
+; Exception thrown when we cannot create script that modify alerts
+CannotCreateScriptForModifyAlerts = Cannot create script for modify alerts.
