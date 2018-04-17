@@ -243,7 +243,7 @@ Task("TestCore")
     .IsDependentOn("Restore")
     .Does(() =>
 {
-    var testProjects = buildPlan.TestProjects
+     var testProjects = buildPlan.TestProjects
                                 .Where(pair => pair.Value.Any(framework => framework.Contains("netcoreapp")))
                                 .Select(pair => pair.Key)
                                 .ToList();
@@ -252,7 +252,7 @@ Task("TestCore")
     {
         var logFile = System.IO.Path.Combine(logFolder, $"{testProject}-core-result.trx");
         var testWorkingDir = System.IO.Path.Combine(testFolder, testProject);
-        Run(dotnetcli, $"test -f netcoreapp2.0 --logger \"trx;LogFileName={logFile}\"", testWorkingDir)
+        Run(dotnetcli, $"test -f netcoreapp2.1 --logger \"trx;LogFileName={logFile}\"", testWorkingDir)
             .ExceptionOnError($"Test {testProject} failed for .NET Core.");
     }
 });
