@@ -307,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "union",
             "unique",
             "uniqueidentifier",
+            "update",
             "updatetext",
             "use",
             "user",
