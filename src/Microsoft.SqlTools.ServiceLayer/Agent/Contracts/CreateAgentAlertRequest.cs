@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Alert result
     /// </summary>
-    public class CreateAlertResult
+    public class CreateAgentAlertResult
     {
         public bool Succeeded { get; set; }
 
@@ -32,13 +32,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Alert request type
     /// </summary>
-    public class CreateAlertRequest
+    public class CreateAgentAlertRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateAgentAlertParams, CreateAlertResult> Type =
-            RequestType<CreateAgentAlertParams, CreateAlertResult>.Create("agent/createalert");
+            RequestType<CreateAgentAlertParams, CreateAgentAlertResult> Type =
+            RequestType<CreateAgentAlertParams, CreateAgentAlertResult>.Create("agent/createalert");
     }
 }

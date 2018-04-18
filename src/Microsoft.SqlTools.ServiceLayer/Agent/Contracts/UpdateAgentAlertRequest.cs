@@ -10,7 +10,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
     /// <summary>
-    /// SQL Agent create Alert params
+    /// SQL Agent update Alert params
     /// </summary>
     public class UpdateAgentAlertParams : GeneralRequestDetails
     {
@@ -20,9 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent create Alert result
+    /// SQL Agent update Alert result
     /// </summary>
-    public class UpdateAlertResult
+    public class UpdateAgentAlertResult
     {
         public bool Succeeded { get; set; }
 
@@ -30,15 +30,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent create Alert request type
+    /// SQL Agent update Alert request type
     /// </summary>
-    public class UpdateAlertRequest
+    public class UpdateAgentAlertRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DeleteAgentAlertParams, DeleteAlertResult> Type =
-            RequestType<DeleteAgentAlertParams, DeleteAlertResult>.Create("agent/updatealert");
+            RequestType<UpdateAgentAlertParams, UpdateAgentAlertResult> Type =
+            RequestType<UpdateAgentAlertParams, UpdateAgentAlertResult>.Create("agent/updatealert");
     }
 }

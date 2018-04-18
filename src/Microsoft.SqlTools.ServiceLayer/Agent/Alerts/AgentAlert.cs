@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 	/// </summary>
 	internal class AgentAlert : AgentControlBase
 	{
-		#region Members
+#region Members
 
         /// <summary> 
         /// Required designer variable.
@@ -51,8 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             try
             {
                 CUtils              util        = new CUtils();
-        
-
                 this.DataContainer = dataContainer;
                 STParameters    parameters  = new STParameters();
 
@@ -99,25 +97,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 #endregion
 
-#region implementation of the execution logic
+#region Implementation of the execution logic
 
-        /// <summary>
-        /// called by IExecutionAwareSqlControlCollection.PreProcessExecution to enable derived
-        /// classes to take over execution of the dialog and do entire execution in this method
-        /// rather than having the framework to execute dialog views one by one.
-        /// 
-        /// NOTE: it might be called from non-UI thread
-        /// </summary>
-        /// <param name="runType"></param>
-        /// <param name="executionResult"></param>
-        /// <returns>
-        /// true if regular execution should take place, false if everything,
-        /// has been done by this function
-        /// </returns>
-        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
+        public bool Execute(RunType runType, out ExecutionMode executionResult)
         {
-            base.DoPreProcessExecution(runType, out executionResult);
-
+            executionResult = ExecutionMode.Success;
             Alert   alert = null;
             string alertName = "this.alertGeneral.AgentName.Trim()";
             if (alertName == null || alertName.Length == 0)
@@ -192,6 +176,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// <summary>
+        /// called by IExecutionAwareSqlControlCollection.PreProcessExecution to enable derived
+        /// classes to take over execution of the dialog and do entire execution in this method
+        /// rather than having the framework to execute dialog views one by one.
+        /// 
+        /// NOTE: it might be called from non-UI thread
+        /// </summary>
+        /// <param name="runType"></param>
+        /// <param name="executionResult"></param>
+        /// <returns>
+        /// true if regular execution should take place, false if everything,
+        /// has been done by this function
+        /// </returns>
+        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
+        {
+            base.DoPreProcessExecution(runType, out executionResult);
+            return false;
+        }
+
+        /// <summary>
         /// called before dialog's host executes OnReset method on all panels in the dialog one by one
         /// NOTE: it might be called from worker thread
         /// </summary>
@@ -217,11 +220,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 #endregion
 
-#region Private helpers
-
-    
-
-#endregion
     }
 }
 

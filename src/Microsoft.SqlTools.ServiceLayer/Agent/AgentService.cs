@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -108,8 +109,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             // Alerts request handlers
             this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentAlertRequest.Type, HandleCreateAgentAlertRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentAlertRequest.Type, HandleUpdateAgentAlertRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentAlertRequest.Type, HandleDeleteAgentAlertRequest);
 
         }
+
+        #region "Jobs Handlers"
     
         /// <summary>
         /// Handle request to get Agent job activities
@@ -150,34 +156,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
-                try 
-                {
-                    var result = new AgentJobHistoryResult();
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo != null)
-                    {
-                        List<AgentJobHistoryInfo> jobHistories;
-                        var returnValue = this.AgentJobsServiceInstance.GetJobHistory(connInfo, parameters.JobId, out jobHistories);
-                        if (returnValue.Succeeded)
-                        {
-                            result.Succeeded = true;
-                            result.Jobs = jobHistories.ToArray();
-                        }
-                        else
-                        {
-                            result.ErrorMessage = returnValue.ErrorMessage;
-                        }
+                var result = new AgentJobHistoryResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
 
-                        await requestContext.SendResult(result);
+                if (connInfo != null)
+                {
+                    List<AgentJobHistoryInfo> jobHistories;
+                    var returnValue = this.AgentJobsServiceInstance.GetJobHistory(connInfo, parameters.JobId, out jobHistories);
+                    if (returnValue.Succeeded)
+                    {
+                        result.Succeeded = true;
+                        result.Jobs = jobHistories.ToArray();
+                    }
+                    else
+                    {
+                        result.ErrorMessage = returnValue.ErrorMessage;
                     }
                 }
-                catch (Exception e) 
-                {
-                    await requestContext.SendError(e);
-                }
+
+                await requestContext.SendResult(result);
             });
         }
 
@@ -193,6 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
                     out connInfo);
+
                 if (connInfo != null)
                 {
                     var returnValue = this.AgentJobsServiceInstance.InvokeJobAction(connInfo, parameters.Action, parameters.JobName);
@@ -203,35 +204,81 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     else
                     {
                         result.ErrorMessage = returnValue.ErrorMessage;
-                    }
+                    }               
+                }
 
-                    await requestContext.SendResult(result);              
-                }              
+                await requestContext.SendResult(result);              
+            });
+        }
+
+        #endregion // "Jobs Handlers"
+
+        #region "Alter Handlers"
+
+        /// <summary>
+        /// Handle request to get the alerts list
+        /// </summary>        
+        internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentAlertsResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+                if (connInfo != null)
+                {
+                    /// look up alerts       
+                }
+
+                await requestContext.SendResult(result);
             });
         }
 
         /// <summary>
-        /// Handle request to get Agent alerts list
+        /// Handle request to create an alert
         /// </summary>        
-        internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
+        internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
         {
+            await Task.Run(async () =>
+            {
+                var result = new CreateAgentAlertResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
 
+                if (connInfo != null)
+                {
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer))
+                    {
+                        ExecutionMode executionResult;
+                        agentAlert.Execute(RunType.RunNow, out executionResult);
+                    }       
+                }
 
+                await requestContext.SendResult(result);
+            });
+        }
+
+        /// <summary>
+        /// Handle request to update an alert
+        /// </summary>        
+        internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
+        {
             await requestContext.SendResult(null);
         }
 
+        /// <summary>
+        /// Handle request to delete an alert
+        /// </summary>        
+        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<DeleteAgentAlertResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
 
-        // private Tuple<SqlConnectionInfo, DataTable> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
-        // {
-        //     var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-        //     var serverConnection = new ServerConnection(sqlConnection);     
-        //     var server = new Server(serverConnection);       
-        //     var filter = new JobHistoryFilter(); 
-        //     filter.JobID = new Guid(jobId);
-        //     var dt = server.JobServer.EnumJobHistory(filter);
-        //     var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
-        //     return new Tuple<SqlConnectionInfo, DataTable>(sqlConnInfo, dt);
-        // }
-
+        #endregion // "Alter Handlers"
     }
 }

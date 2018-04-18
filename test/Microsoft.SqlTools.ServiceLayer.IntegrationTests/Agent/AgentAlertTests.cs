@@ -30,23 +30,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// Verify that a start profiling request starts a profiling session
         /// </summary>
         [Fact]
-        public async Task TestHandleAgentJobsRequest()
+        public async Task TestHandleAgentAlertsRequest()
         {
-            // using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            // {
-            //     var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-            //     var requestParams = new AgentJobsParams()
-            //     {
-            //         OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-            //     };
+                var requestParams = new AgentAlertsParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                };
 
-            //     var requestContext = new Mock<RequestContext<AgentJobsResult>>();
+                var requestContext = new Mock<RequestContext<AgentAlertsResult>>();
 
-            //     AgentService service = new AgentService();
-            //     await service.HandleAgentJobsRequest(requestParams, requestContext.Object);
-            //     requestContext.VerifyAll();
-            // }
+                AgentService service = new AgentService();
+                await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
+            }
+
         }
     }
 }
