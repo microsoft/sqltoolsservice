@@ -114,11 +114,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string stepName = Convert.ToString(jobRow[UrnStepName], System.Globalization.CultureInfo.InvariantCulture);
             string message = Convert.ToString(jobRow[UrnMessage], System.Globalization.CultureInfo.InvariantCulture);
             DateTime runDate = Convert.ToDateTime(jobRow[UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+            int runStatus = Convert.ToInt32(jobRow[UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
             AgentJobStep step = new AgentJobStep();
             step.StepId = stepId;
             step.StepName = stepName;
             step.Message = message;
             step.RunDate = runDate;
+            step.RunStatus = runStatus;
             return step;
         }
     }
