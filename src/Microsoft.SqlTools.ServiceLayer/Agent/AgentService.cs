@@ -236,6 +236,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
+        private bool ValidateAgentAlertInfo(AgentAlertInfo alert)
+        {
+            return alert != null
+                && !string.IsNullOrWhiteSpace(alert.JobName);
+        }
+
         /// <summary>
         /// Handle request to create an alert
         /// </summary>        
@@ -249,11 +255,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     parameters.OwnerUri,
                     out connInfo);
 
-                if (connInfo != null)
+                AgentAlertInfo alert = parameters.Alert;
+                if (connInfo != null && ValidateAgentAlertInfo(alert))
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer))
                     {
+                        // update the name in the xml document.
+                        STParameters param = new STParameters(helper.DataContainer.Document);
+                        param.SetParam("alert", alert.JobName);
+
                         ExecutionMode executionResult;
                         agentAlert.Execute(RunType.RunNow, out executionResult);
                     }       

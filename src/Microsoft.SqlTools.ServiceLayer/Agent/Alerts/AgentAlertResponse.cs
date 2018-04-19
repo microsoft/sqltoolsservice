@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         Dictionary<string,Guid> jobNameToGuidDict;
 
-        private AgentAlertResponse()
+        public AgentAlertResponse()
         {
             // This call is required by the Windows.Forms Form Designer.
             // InitializeComponent();

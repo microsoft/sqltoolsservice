@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System;
 using System.Collections;
-using System.ComponentModel;
-using System.Drawing;
 using System.Data;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
@@ -19,22 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
 	/// <summary>
 	/// AgentAlert class
-	/// BUGBUG - plush - get rid of the corresponding resx file as it is not needed
 	/// </summary>
 	internal class AgentAlert : AgentControlBase
 	{
+    
 #region Members
 
-        /// <summary> 
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.Container components = null;
         /// <summary>
         /// Agent alert name that is being edited
         /// </summary>
         private string  agentAlertName  = null;
        
-
 #endregion
 
 #region Constructors
@@ -42,6 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public AgentAlert()
         {
         }
+
         /// <summary>
         /// Default constructor that will be used to create dialog
         /// </summary>
@@ -50,24 +44,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             try
             {
-                CUtils              util        = new CUtils();
+                CUtils util = new CUtils();
                 this.DataContainer = dataContainer;
-                STParameters    parameters  = new STParameters();
 
+                STParameters parameters  = new STParameters();
                 parameters.SetDocument(dataContainer.Document);
-
                 if (parameters.GetParam("alert", ref this.agentAlertName) == false)
+                {
                     this.agentAlertName = null;
+                }
 
                 if (this.agentAlertName != null && this.agentAlertName.Length == 0)
+                {
                     this.agentAlertName = null;
+                }
 
                 if (this.agentAlertName != null)
                 {
                     Alert agentAlert = DataContainer.Server.JobServer.Alerts[this.agentAlertName];
                     if (agentAlert == null)
+                    {
                         throw new ApplicationException("AgentAlertSR.AlertNotFound(this.agentAlertName)");
-                }          
+                    }
+                }                    
             }
             catch (Exception e)
             {
@@ -83,16 +82,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
-        protected override void Dispose( bool disposing )
+        protected override void Dispose(bool disposing)
         {
-            if ( disposing )
+            if (disposing)
             {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
             }
-            base.Dispose( disposing );
+            base.Dispose(disposing);
         }
 
 #endregion
@@ -102,21 +97,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public bool Execute(RunType runType, out ExecutionMode executionResult)
         {
             executionResult = ExecutionMode.Success;
-            Alert   alert = null;
-            string alertName = "this.alertGeneral.AgentName.Trim()";
+            
+            Alert   alert = null;            
+            string alertName = this.agentAlertName != null ? this.agentAlertName.Trim() : null;
             if (alertName == null || alertName.Length == 0)
             {
-                throw new Exception("SRError.AlertNameCannotBeBlank");
+                STParameters parameters  = new STParameters();
+                parameters.SetDocument(this.DataContainer.Document);
+                if (parameters.GetParam("alert", ref alertName) == false)
+                {
+                    throw new Exception("SRError.AlertNameCannotBeBlank");
+                }
+
+                alertName = alertName.Trim();
             }
             try
-            {
+            {                
                 if (this.agentAlertName == null)
                 {
                     if (this.DataContainer.Server.JobServer.Alerts.Contains(alertName))
                     {
                         this.DataContainer.Server.JobServer.Alerts.Refresh(); // Try to recover
                         if (this.DataContainer.Server.JobServer.Alerts.Contains(alertName)) // If still no luck
+                        {
                             throw new ApplicationException("AgentAlertSR.AlertAlreadyExists(alertName)");
+                        }
                     }
 
                     alert = new Alert(this.DataContainer.Server.JobServer, alertName);
@@ -126,8 +131,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     alert = this.DataContainer.Server.JobServer.Alerts[this.agentAlertName];
                 }
 
+                AgentAlertResponse alertResponse = new AgentAlertResponse(this.DataContainer, alertName); 
+                AgentAlertGeneral agentGeneral = new AgentAlertGeneral(this.DataContainer, alertName);
+
                 // Let pages modify alert's fields
-                // this.alertGeneral.UpdateAlert(alert);
+                agentGeneral.UpdateAlert(alert);
                 // if (this.agentAlertName != null)
                 //     this.agentAlertName = alert.Name;
                 // this.alertResponse.UpdateAlert(alert);
@@ -136,7 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 //     this.alertHistory.UpdateAlert(alert);
 
                 if (this.agentAlertName == null)
+                {
                     alert.Create();
+                }
                 else
                 {
                     // don't bother trying to update the alert unless they are sysadmin.   
@@ -151,8 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
 
 
-                // after alret is created or altered we can update operators
-                //this.alertResponse.UpdateOperators(alert);
+                // after alert is created or altered we can update operators
+                alertResponse.UpdateOperators(alert);
 
                 // update the name in the xml document.
                 STParameters param = new STParameters(this.DataContainer.Document);

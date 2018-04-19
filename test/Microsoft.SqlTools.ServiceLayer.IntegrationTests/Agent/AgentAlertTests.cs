@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     public class AgentAlertTests
     {
         /// <summary>
-        /// Verify that a start profiling request starts a profiling session
+        /// Verify default agent/alerts handlers
         /// </summary>
         [Fact]
         public async Task TestHandleAgentAlertsRequest()
@@ -45,6 +45,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 
                 AgentService service = new AgentService();
                 await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
+            }
+
+        }
+
+    /// <summary>
+        /// Verify default create agent handler
+        /// </summary>
+        [Fact]
+        public async Task TestHandleCreateAgentAlertsRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                var requestParams = new CreateAgentAlertParams
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Alert = new AgentAlertInfo()
+                    {
+                        JobName = "Test Job Name"
+                    }
+                };
+
+                var requestContext = new Mock<RequestContext<CreateAgentAlertResult>>();
+
+                AgentService service = new AgentService();
+                await service.HandleCreateAgentAlertRequest(requestParams, requestContext.Object);
             }
 
         }

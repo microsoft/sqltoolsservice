@@ -1,16 +1,18 @@
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-#region using
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
 using System.Globalization;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
-
-#endregion
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -111,28 +113,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="alert"></param>
         public void UpdateAlert(Alert alert)
         {
-            // if (alert == null)
-            //     throw new ArgumentNullException("alert");
+            if (alert == null)
+            {
+                throw new ArgumentNullException("alert");
+            }
 
-            // if (this.agentAlertName != null)
-            //     this.agentAlertName = alert.Name;
+            if (this.agentAlertName != null)
+            {
+                this.agentAlertName = alert.Name;
+            }
 
-            // if (this.databaseName.Text == AgentAlertEventSR.AllDatabases)
-            //     alert.DatabaseName = "";
-            // else
-            //     alert.DatabaseName = this.databaseName.Text;
+            alert.DatabaseName = ""; // this.databaseName.Text;
 
-            // if (this.errorNumberRadio.Checked)
-            // {
-            //     alert.Severity = 0;
-            //     alert.MessageID = Convert.ToInt32(this.errorNumber.Text, CultureInfo.CurrentCulture);
-            // }
-            // else
-            // {
-            //     alert.Severity = this.severity.SelectedIndex + 1;
-            //     alert.MessageID = 0;
-            // }
+            alert.Severity = 10;
+            alert.MessageID = 0; // Convert.ToInt32(100, CultureInfo.CurrentCulture);
 
+            alert.EventDescriptionKeyword = "";
             // if (this.raiseAlertWhen.Checked)
             //     alert.EventDescriptionKeyword = this.messageText.Text;
             // else

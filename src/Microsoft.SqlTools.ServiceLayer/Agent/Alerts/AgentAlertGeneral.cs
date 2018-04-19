@@ -1,17 +1,19 @@
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-#region using
-using System;
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+susing System;
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
-
-#endregion
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -80,11 +82,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             : this()
         {
             if (dataContainer == null)
+            {
                 throw new ArgumentNullException("dataContainer");
+            }
 
             DataContainer = dataContainer;
             // //this.AllUIEnabled = false;
-            // this.agentAlertName = agentAlertName; // agentAlert can be null if dialog runs in create new alert mode
+            this.agentAlertName = agentAlertName; // agentAlert can be null if dialog runs in create new alert mode
 
 
             // Version version = dataContainer.Server.Information.Version;
@@ -135,34 +139,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="alert"></param>
         public void UpdateAlert(Alert alert)
         {
-            // if (alert == null)
-            //     throw new ArgumentNullException("alert");
+            if (alert == null)
+            {
+                throw new ArgumentNullException("alert");
+            }
 
-            // Version version = DataContainer.Server.Information.Version;
+            Version version = DataContainer.Server.Information.Version;
 
-            // string alertName = this.AgentName.Trim();
+            string alertName = this.agentAlertName.Trim();
 
-            // if (this.agentAlertName != null)
-            // {
-            //     this.agentAlertName = alertName;
-            // }
+            if (this.agentAlertName != null)
+            {
+                this.agentAlertName = alertName;
+            }
 
-            // alert.IsEnabled = this.nameEnabled.Checked;
-            // // alert.Description	= this.description.Text bug filed
+            alert.IsEnabled = true; // this.nameEnabled.Checked;
+            // alert.Description	= this.description.Text bug filed
             // switch (this.types.SelectedIndex)
             // {
             //     case 0: // server event
-            //         if (alert.State != SqlSmoState.Creating)
-            //         {
-            //             AgentAlertPerformance.ClearAlert(alert);
-            //             if (version.Major >= 9)
-            //             {
-            //                 AgentAlertWMI.ClearAlert(alert);
-            //             }
-            //         }
-
-            //         this.eventAlertDefinitionControl.UpdateAlert(alert);
-            //         break;
+                    // if (alert.State != SqlSmoState.Creating)
+                    // {
+                    //     AgentAlertPerformance.ClearAlert(alert);
+                    //     if (version.Major >= 9)
+                    //     {
+                    //         AgentAlertWMI.ClearAlert(alert);
+                    //     }
+                    // }
+                    AgentAlertEvent eventAlertDefinitionControl = new AgentAlertEvent(this.DataContainer, agentAlertName, false); 
+                    eventAlertDefinitionControl.UpdateAlert(alert);
+            //        break;
             //     case 1: // perf counter
             //         if (alert.State != SqlSmoState.Creating)
             //         {
@@ -186,10 +192,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             //     default:
             //         throw new ApplicationException(AgentAlertGeneralSR.UnknownAlertType);
             // }
-            // if (alert.Name != alertName)
-            // {
-            //     alert.Rename(alertName);
-            // }
+
+            if (alert.Name != alertName)
+            {
+                alert.Rename(alertName);
+            }
         }
 
         #endregion

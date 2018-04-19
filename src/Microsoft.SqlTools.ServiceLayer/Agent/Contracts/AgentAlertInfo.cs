@@ -32,15 +32,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentAlertInfo
     {
-        public int Id { get; }
+        public int Id { get; set; }
         public int DelayBetweenResponses { get; set; }
         public string EventDescriptionKeyword { get; set; }
-        public string EventSource { get; }
-        public int HasNotification { get; }
+        public string EventSource { get; set; }
+        public int HasNotification { get; set; }
         public NotifyMethods IncludeEventDescription { get; set; }
         public bool IsEnabled { get; set; }
         public Guid JobId { get; set; }
-        public string JobName { get; }
+        public string JobName { get; set; }
         public DateTime LastOccurrenceDate { get; set; }
         public DateTime LastResponseDate { get; set; }
         public int MessageId { get; set; }
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string DatabaseName { get; set; }
         public DateTime CountResetDate { get; }
         public string CategoryName { get; set; }
-        public AlertType AlertType { get; }
+        public AlertType AlertType { get; set; }
         public string WmiEventNamespace { get; set; }
         public string WmiEventQuery { get; set; }
     }
