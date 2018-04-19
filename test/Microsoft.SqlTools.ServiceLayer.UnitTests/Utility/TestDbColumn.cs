@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// Constructs a basic DbColumn that is an NVARCHAR(128) NULL
         /// </summary>
         /// <param name="columnName">Name of the column</param>
-        public TestDbColumn(string columnName)
+        public TestDbColumn(string columnName, int? columnOrdinal = null)
         {
             base.IsLong = false;
             base.ColumnName = columnName;
@@ -91,6 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             base.AllowDBNull = true;
             base.DataType = typeof(string);
             base.DataTypeName = "nvarchar";
+            base.ColumnOrdinal = columnOrdinal;
         }
     }
 }
