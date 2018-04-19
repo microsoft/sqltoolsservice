@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
@@ -59,10 +58,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
-        // Filters out metadata that is not present in the result set, and matches metadata ordering to resultset
+        /// <summary>
+        /// Filters out metadata that is not present in the result set, and matches metadata ordering to resultset.
+        /// </summary>
         public static EditColumnMetadata[] FilterColumnMetadata(EditColumnMetadata[] metaColumns, DbColumnWrapper[] resultColumns)
         {
-            if(metaColumns.Length == 0)
+            if (metaColumns.Length == 0)
             {
                 return metaColumns;
             }
@@ -73,16 +74,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 DbColumnWrapper column = resultColumns[i];
                 string columnName =  column.ColumnName;
-                if (escapeColName)
+                if (escapeColName && !columnName.Contains("["))
                 {
-                    columnName = columnName.Contains("[") ? columnName : ToSqlScript.FormatIdentifier(columnName);
+                    columnName = ToSqlScript.FormatIdentifier(columnName);
                 }
-
-                columnNameOrdinalMap.Add(columnName, column.ColumnOrdinal.HasValue ? column.ColumnOrdinal.Value : i);
+                columnNameOrdinalMap.Add(columnName, column.ColumnOrdinal ?? i);
             }
 
             HashSet<string> resultColumnNames = new HashSet<string>(columnNameOrdinalMap.Keys);
-            metaColumns = Array.FindAll<EditColumnMetadata>(metaColumns, column => resultColumnNames.Contains(column.EscapedName));
+            metaColumns = Array.FindAll(metaColumns, column => resultColumnNames.Contains(column.EscapedName));
             foreach (EditColumnMetadata metaCol in metaColumns)
             {
                 metaCol.Ordinal = columnNameOrdinalMap[metaCol.EscapedName];
