@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string StepName { get; set; }
         public string Message { get; set; }
         public DateTime RunDate { get; set; }
+        public int RunStatus { get; set; }
 
     }
     
