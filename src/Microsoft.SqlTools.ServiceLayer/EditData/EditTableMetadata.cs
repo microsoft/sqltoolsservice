@@ -68,13 +68,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 return metaColumns;
             }
 
-            bool escapeColName = metaColumns[0].EscapedName.Contains("[");
+            bool escapeColName = FromSqlScript.IsIdentifierBracketed(metaColumns[0].EscapedName);
             Dictionary<string, int> columnNameOrdinalMap = new Dictionary<string, int>(capacity: resultColumns.Length);
             for (int i = 0; i < resultColumns.Length; i++)
             {
                 DbColumnWrapper column = resultColumns[i];
                 string columnName =  column.ColumnName;
-                if (escapeColName && !columnName.Contains("["))
+                if (escapeColName && !FromSqlScript.IsIdentifierBracketed(columnName))
                 {
                     columnName = ToSqlScript.FormatIdentifier(columnName);
                 }
