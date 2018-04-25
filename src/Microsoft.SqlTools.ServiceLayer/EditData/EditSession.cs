@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     throw new InvalidOperationException("Aliased columns not supported.");
                 }
 
-                if (col.IsExpression.HasTrue() || string.IsNullOrEmpty(col.ColumnName))
+                if (col.IsExpression.HasTrue() || string.Equals(col.ColumnName, SR.QueryServiceColumnNull))
                 {
                     throw new InvalidOperationException("Aggregate and expression columns not supported.");
                 }

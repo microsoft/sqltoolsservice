@@ -354,7 +354,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             Dictionary<string, DbColumn> colMap = new Dictionary<string, DbColumn>();
                             foreach(DbColumn col in reader.GetColumnSchema())
                             {
-                                colMap[col.ColumnName] = col;
+                                if (!string.IsNullOrEmpty(col.ColumnName))
+                                {
+                                    colMap[col.ColumnName] = col;
+                                }
                             }
                             columnSchemas.Add(colMap);
                         } while (await reader.NextResultAsync(cancellationToken));
