@@ -80,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         [InlineData("[name]", true)]
         [InlineData("[   name   ]", true)]
         [InlineData("[na[[]me]", true)]
+        [InlineData("[]", true)]
         [InlineData("name", false)]
         [InlineData("[name", false)]
         [InlineData("name]", false)]
