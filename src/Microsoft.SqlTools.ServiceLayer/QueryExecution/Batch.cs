@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -339,6 +340,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandTimeout = 0;
                 executionStartTime = DateTime.Now;
 
+                // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
+                // key columns in the result set, even if they weren't part of the select statement.
+                //
+                // Map each schema DbColumn to its column name for easy lookup later.
+                List<Dictionary<string, DbColumn>> columnSchemas = new List<Dictionary<string, DbColumn>>();
+                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo, cancellationToken))
+                {
+                    if (reader != null)
+                    {
+                        do
+                        {
+                            columnSchemas.Add(
+                                reader.CanGetColumnSchema()
+                                ? reader.GetColumnSchema().ToDictionary(col => col.ColumnName)
+                                : null);
+                        } while (await reader.NextResultAsync(cancellationToken));
+                    }
+                }
+
                 // Execute the command to get back a reader
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
                 {
@@ -374,6 +394,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
                     }
+                }
+
+                if (columnSchemas != null)
+                {
+                    ExtendResultMetadata(columnSchemas, resultSets);
+                }
+            }
+        }
+
+        private void ExtendResultMetadata(List<Dictionary<string, DbColumn>> columnSchemas, List<ResultSet> results)
+        {
+            if (columnSchemas.Count != results.Count) return;
+
+            for(int i = 0; i < results.Count; i++)
+            {
+                Dictionary<string, DbColumn> columnSchema = columnSchemas[i];
+                ResultSet result = results[i];
+
+                for(int j = 0; j < result.Columns.Length; j++)
+                {
+                    DbColumnWrapper resultCol = result.Columns[j];
+                    DbColumn schemaCol = columnSchema[resultCol.ColumnName];
+                    Debug.Assert(schemaCol != null);
+                    Debug.Assert(schemaCol.DataType == resultCol.DataType);
+
+                    result.Columns[j] = new DbColumnWrapper(schemaCol);
                 }
             }
         }
