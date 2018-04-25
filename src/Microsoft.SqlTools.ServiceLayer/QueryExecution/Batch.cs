@@ -347,14 +347,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 List<Dictionary<string, DbColumn>> columnSchemas = new List<Dictionary<string, DbColumn>>();
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo, cancellationToken))
                 {
-                    if (reader != null)
+                    if (reader != null && reader.CanGetColumnSchema())
                     {
                         do
                         {
-                            columnSchemas.Add(
-                                reader.CanGetColumnSchema()
-                                ? reader.GetColumnSchema().ToDictionary(col => col.ColumnName)
-                                : null);
+                            Dictionary<string, DbColumn> colMap = new Dictionary<string, DbColumn>();
+                            foreach(DbColumn col in reader.GetColumnSchema())
+                            {
+                                colMap[col.ColumnName] = col;
+                            }
+                            columnSchemas.Add(colMap);
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -409,17 +411,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             for(int i = 0; i < results.Count; i++)
             {
-                Dictionary<string, DbColumn> columnSchema = columnSchemas[i];
                 ResultSet result = results[i];
+                Dictionary<string, DbColumn> columnSchema = columnSchemas[i];
 
                 for(int j = 0; j < result.Columns.Length; j++)
                 {
                     DbColumnWrapper resultCol = result.Columns[j];
-                    DbColumn schemaCol = columnSchema[resultCol.ColumnName];
-                    Debug.Assert(schemaCol != null);
-                    Debug.Assert(schemaCol.DataType == resultCol.DataType);
+                    if (columnSchema.TryGetValue(resultCol.ColumnName, out DbColumn schemaCol))
+                    {
+                        Debug.Assert(schemaCol.DataType == resultCol.DataType);
 
-                    result.Columns[j] = new DbColumnWrapper(schemaCol);
+                        result.Columns[j] = new DbColumnWrapper(schemaCol);
+                    }
                 }
             }
         }

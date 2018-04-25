@@ -147,6 +147,66 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
+        /// If the results contain any results that conflict with the table metadata, then
+        /// make all columns readonly so that the user cannot make an invalid update.
+        /// </summary>
+        /// <param name="results"></param>
+        /// <param name="metadata"></param>
+        public static void CheckMetadataForInvalidColumns(ResultSet results, EditTableMetadata metadata)
+        {
+            // Check for columns from multiple databases
+            if (results.Columns
+                .Select(col => col.BaseCatalogName)
+                .Where(name => name != null)
+                .ToHashSet().Count > 1)
+            {
+                throw new InvalidOperationException("Multiple databases not supported.");
+            }
+
+            // Check for columns from multiple schemas
+            if (results.Columns
+                .Select(col => col.BaseSchemaName)
+                .Where(name => name != null)
+                .ToHashSet().Count > 1)
+            {
+                throw new InvalidOperationException("Multiple schemas not supported.");
+            }
+
+            // Check for columns from multiple tables
+            if (results.Columns
+                .Select(col => col.BaseTableName)
+                .Where(name => name != null)
+                .ToHashSet().Count > 1)
+            {
+                throw new InvalidOperationException("Multiple tables not supported.");
+            }
+
+            // Check if any of the columns are invalid
+            HashSet<string> colNameTracker = new HashSet<string>();
+            foreach (DbColumnWrapper col in results.Columns)
+            {
+                if (col.IsAliased.HasTrue())
+                {
+                    throw new InvalidOperationException("Aliased columns not supported.");
+                }
+
+                if (col.IsExpression.HasTrue() || string.IsNullOrEmpty(col.ColumnName))
+                {
+                    throw new InvalidOperationException("Aggregate and expression columns not supported.");
+                }
+
+                if (colNameTracker.Contains(col.ColumnName))
+                {
+                    throw new InvalidOperationException("Duplicate columns not supported.");
+                }
+                else
+                {
+                    colNameTracker.Add(col.ColumnName);
+                }
+            }
+        }
+
+        /// <summary>
         /// Creates a new row update and adds it to the update cache
         /// </summary>
         /// <exception cref="InvalidOperationException">If inserting into cache fails</exception>
@@ -424,6 +484,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Step 3) Setup the internal state
                 associatedResultSet = ValidateQueryForSession(state.Query);
+                CheckMetadataForInvalidColumns(associatedResultSet, objectMetadata);
+
                 NextRowId = associatedResultSet.RowCount;
                 EditCache = new ConcurrentDictionary<long, RowEditBase>();
                 IsInitialized = true;
