@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // key columns in the result set, even if they weren't part of the select statement.
                 // Extra key columns get added to the end, so just correlate via Column Ordinal.
                 List<DbColumn[]> columnSchemas = new List<DbColumn[]>();
-                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo, cancellationToken))
+                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
                 {
                     if (reader != null && reader.CanGetColumnSchema())
                     {

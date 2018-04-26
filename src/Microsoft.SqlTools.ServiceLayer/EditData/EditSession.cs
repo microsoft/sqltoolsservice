@@ -154,31 +154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="metadata"></param>
         public static void CheckMetadataForInvalidColumns(ResultSet results, EditTableMetadata metadata, string tableName)
         {
-            // Check for columns from multiple databases
-            if (results.Columns
-                .Select(col => col.BaseCatalogName)
-                .Where(name => name != null)
-                .ToHashSet().Count > 1)
-            {
-                throw new InvalidOperationException("EditData: Queries with multiple databases not supported.");
-            }
 
-            // Check for columns from multiple schemas
-            if (results.Columns
-                .Select(col => col.BaseSchemaName)
-                .Where(name => name != null)
-                .ToHashSet().Count > 1)
+            if(SchemaContainsMultipleItems(results.Columns, col => col.BaseCatalogName)
+                || SchemaContainsMultipleItems(results.Columns, col => col.BaseSchemaName)
+                || SchemaContainsMultipleItems(results.Columns, col => col.BaseTableName))
             {
-                throw new InvalidOperationException("EditData: Queries with multiple schemas not supported.");
-            }
-
-            // Check for columns from multiple tables
-            if (results.Columns
-                .Select(col => col.BaseTableName)
-                .Where(name => name != null)
-                .ToHashSet().Count > 1)
-            {
-                throw new InvalidOperationException("EditData: Queries with multiple tables not supported.");
+                throw new InvalidOperationException("EditData queries targeting multiple tables are not supported.");
             }
 
             // Check if any of the columns are invalid
@@ -187,17 +168,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 if (col.IsAliased.HasTrue())
                 {
-                    throw new InvalidOperationException("EditData: Queries with aliased columns not supported.");
+                    throw new InvalidOperationException("EditData queries with aliased columns are not supported.");
                 }
 
                 if (col.IsExpression.HasTrue() || string.Equals(col.ColumnName, SR.QueryServiceColumnNull))
                 {
-                    throw new InvalidOperationException("EditData: Queries with aggregate and expression columns not supported.");
+                    throw new InvalidOperationException("EditData queries with aggregate or expression columns are not supported.");
                 }
 
                 if (colNameTracker.Contains(col.ColumnName))
                 {
-                    throw new InvalidOperationException("EditData: Queries with duplicate columns not supported.");
+                    throw new InvalidOperationException("EditData queries with duplicate columns are not supported.");
                 }
                 else
                 {
@@ -205,17 +186,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 }
             }
 
-            // Only one source table in the metadata, and no aliases or expressions,
-            // but check if results are from the original table
+            // Only one source table in the metadata, but check if results are from the original table.
             if (results.Columns.Length > 0)
             {
                 string resultTableName = results.Columns[0].BaseTableName;
                 if (!string.IsNullOrEmpty(resultTableName)
                     && !string.Equals(resultTableName, tableName, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    throw new InvalidOperationException($"Did not query original table: {tableName}.");
+                    throw new InvalidOperationException($"EditData queries must query the originally targeted table: {tableName}.");
                 }
             }
+        }
+
+        private static bool SchemaContainsMultipleItems(DbColumn[] columns, Func<DbColumn, string> filter)
+        {
+            return columns
+                .Select(column => filter(column))
+                .Where(name => name != null)
+                .ToHashSet().Count > 1;
         }
 
         /// <summary>
