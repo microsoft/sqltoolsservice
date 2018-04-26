@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 .Where(name => name != null)
                 .ToHashSet().Count > 1)
             {
-                throw new InvalidOperationException("Multiple databases not supported.");
+                throw new InvalidOperationException("EditData: Queries with multiple databases not supported.");
             }
 
             // Check for columns from multiple schemas
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 .Where(name => name != null)
                 .ToHashSet().Count > 1)
             {
-                throw new InvalidOperationException("Multiple schemas not supported.");
+                throw new InvalidOperationException("EditData: Queries with multiple schemas not supported.");
             }
 
             // Check for columns from multiple tables
@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 .Where(name => name != null)
                 .ToHashSet().Count > 1)
             {
-                throw new InvalidOperationException("Multiple tables not supported.");
+                throw new InvalidOperationException("EditData: Queries with multiple tables not supported.");
             }
 
             // Check if any of the columns are invalid
@@ -187,17 +187,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 if (col.IsAliased.HasTrue())
                 {
-                    throw new InvalidOperationException("Aliased columns not supported.");
+                    throw new InvalidOperationException("EditData: Queries with aliased columns not supported.");
                 }
 
                 if (col.IsExpression.HasTrue() || string.Equals(col.ColumnName, SR.QueryServiceColumnNull))
                 {
-                    throw new InvalidOperationException("Aggregate and expression columns not supported.");
+                    throw new InvalidOperationException("EditData: Queries with aggregate and expression columns not supported.");
                 }
 
                 if (colNameTracker.Contains(col.ColumnName))
                 {
-                    throw new InvalidOperationException("Duplicate columns not supported.");
+                    throw new InvalidOperationException("EditData: Queries with duplicate columns not supported.");
                 }
                 else
                 {

@@ -342,24 +342,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
                 // key columns in the result set, even if they weren't part of the select statement.
-                //
-                // Map each schema DbColumn to its column name for easy lookup later.
-                List<Dictionary<string, DbColumn>> columnSchemas = new List<Dictionary<string, DbColumn>>();
+                // Extra key columns get added to the end, so just correlate via Column Ordinal.
+                List<DbColumn[]> columnSchemas = new List<DbColumn[]>();
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo, cancellationToken))
                 {
                     if (reader != null && reader.CanGetColumnSchema())
                     {
                         do
                         {
-                            Dictionary<string, DbColumn> colMap = new Dictionary<string, DbColumn>();
-                            foreach(DbColumn col in reader.GetColumnSchema())
-                            {
-                                if (!string.IsNullOrEmpty(col.ColumnName))
-                                {
-                                    colMap[col.ColumnName] = col;
-                                }
-                            }
-                            columnSchemas.Add(colMap);
+                            columnSchemas.Add(reader.GetColumnSchema().ToArray());
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -408,24 +399,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private void ExtendResultMetadata(List<Dictionary<string, DbColumn>> columnSchemas, List<ResultSet> results)
+        private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
         {
             if (columnSchemas.Count != results.Count) return;
 
             for(int i = 0; i < results.Count; i++)
             {
                 ResultSet result = results[i];
-                Dictionary<string, DbColumn> columnSchema = columnSchemas[i];
+                DbColumn[] columnSchema = columnSchemas[i];
+                if(result.Columns.Length > columnSchema.Length)
+                {
+                    throw new InvalidOperationException("Did not receive enough metadata columns.");
+                }
 
                 for(int j = 0; j < result.Columns.Length; j++)
                 {
                     DbColumnWrapper resultCol = result.Columns[j];
-                    if (columnSchema.TryGetValue(resultCol.ColumnName, out DbColumn schemaCol))
-                    {
-                        Debug.Assert(schemaCol.DataType == resultCol.DataType);
+                    DbColumn schemaCol = columnSchema[j];
 
-                        result.Columns[j] = new DbColumnWrapper(schemaCol);
+                    if(!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
+                        || !string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName))
+                    {
+                        throw new InvalidOperationException("Inconsistent column metadata.");
                     }
+
+                    result.Columns[j] = new DbColumnWrapper(schemaCol);
                 }
             }
         }
