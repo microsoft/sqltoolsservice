@@ -38,33 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         Error
     }
 
-    /// <summary>
-    /// command that can be executed by a log viewer (ILogViewer)
-    /// </summary>
-    internal enum LogViewerCommand
-    {
-        Load = 0,
-        Refresh,
-        Export,
-        Columns,
-        Filter,
-        Search,
-        Delete,
-        Help,
-        Close,
-        Cancel
-    }
-
-    /// <summary>
-    /// command options
-    /// </summary>
-    internal enum LogViewerCommandOption
-    {
-        None = 0,
-        Hide,
-        Show
-    }
-
     public interface ILogEntry
     {
         string          OriginalSourceTypeName  {get;}
@@ -79,15 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
     internal class LogSourceJobHistory : ILogSource, IDisposable //, ITypedColumns, ILogCommandTarget
     {
-        internal const string JobDialogParameterTemplate = "<params><jobid></jobid></params>";
-        internal const string JobStepDialogParameterTemplate = "<params><jobid></jobid><acceptedits>true</acceptedits></params>";
-
-        internal enum DialogType
-        {
-            JobDialog = 0,
-            JobStepDialog = 1
-        }
-
         #region Variables
         private string m_jobName = null;
         //assigning invalid jobCategoryId
@@ -104,8 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private bool m_isClosed = false;
         private TypedColumnCollection columnTypes;
         private IServiceProvider serviceProvider = null;
-
-       // ILogCommandHandler m_customCommandHandler = null;
 
         private static string historyTableDeclaration   = "declare @tmp_sp_help_jobhistory table";
         private static string historyTableDeclaration80 = "create table #tmp_sp_help_jobhistory";
@@ -173,6 +135,13 @@ ORDER BY [InstanceID] ASC";
                 return m_jobName;
             }
         }
+
+        public List<ILogEntry> LogEntries {
+            get
+            {
+                return m_logEntries;
+            }
+        }
         #endregion
 
         public void Dispose()
@@ -206,11 +175,8 @@ ORDER BY [InstanceID] ASC";
             }
         }
 
-
-
         #region Constructor
         
-
         public LogSourceJobHistory(string jobName, SqlConnectionInfo sqlCi, object customCommandHandler, int jobCategoryId, Guid JobId, IServiceProvider serviceProvider)
         {
             m_logName = jobName;
@@ -429,26 +395,7 @@ ORDER BY [InstanceID] ASC";
         /// </summary>
         internal class LogEntryJobHistory : ILogEntry
         {
-            #region Constants
-            internal const string cUrnRunDate = "RunDate";
-            internal const string cUrnRunStatus = "RunStatus";
-            internal const string cUrnRunDuration = "RunDuration";
-            internal const string cUrnJobName = "JobName";
-            internal const string cUrnStepID = "StepID";
-            internal const string cUrnStepName = "StepName";
-            internal const string cUrnMessage = "Message";
-            internal const string cUrnSqlSeverity = "SqlSeverity";
-            internal const string cUrnSqlMessageID = "SqlMessageID";
-            internal const string cUrnOperatorEmailed = "OperatorEmailed";
-            internal const string cUrnOperatorNetsent = "OperatorNetsent";
-            internal const string cUrnOperatorPaged = "OperatorPaged";
-            internal const string cUrnRetriesAttempted = "RetriesAttempted";
-            internal const string cUrnServerName = "Server";
-            internal const string cUrnServerTime = "CurrentDate";
-
             internal const string cUrnInstanceID = "InstanceID"; // internally used by Agent to mark order in which steps were executed
-
-            #endregion
 
             #region Variables
             string m_originalSourceName = null;
@@ -526,10 +473,10 @@ ORDER BY [InstanceID] ASC";
                 {
                     m_originalSourceName = sourceName;
 
-                    m_pointInTime = Convert.ToDateTime(dr[cUrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
-                    m_serverName = Convert.ToString(dr[cUrnServerName], System.Globalization.CultureInfo.InvariantCulture);
-                    m_fieldJobName = Convert.ToString(dr[cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                    switch ((Microsoft.SqlServer.Management.Smo.Agent.CompletionResult)Convert.ToInt32(dr[cUrnRunStatus], System.Globalization.CultureInfo.InvariantCulture))
+                    m_pointInTime = Convert.ToDateTime(dr[JobUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+                    m_serverName = Convert.ToString(dr[JobUtilities.UrnServer], System.Globalization.CultureInfo.InvariantCulture);
+                    m_fieldJobName = Convert.ToString(dr[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                    switch ((Microsoft.SqlServer.Management.Smo.Agent.CompletionResult)Convert.ToInt32(dr[JobUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture))
                     {
                         case CompletionResult.Cancelled:
                             m_severity = SeverityClass.Cancelled;
@@ -576,7 +523,7 @@ ORDER BY [InstanceID] ASC";
 
                     // if stepId is zero then dont show stepID and step name in log viewer
                     // Valid step Ids starts from index 1
-                    int currentStepId = (int)dr[cUrnStepID];
+                    int currentStepId = (int)dr[JobUtilities.UrnStepID];
                     if (currentStepId == 0)
                     {
                         m_fieldStepID = String.Empty;
@@ -586,18 +533,18 @@ ORDER BY [InstanceID] ASC";
                     else
                     {
                         m_fieldStepID = Convert.ToString(currentStepId, System.Globalization.CultureInfo.CurrentCulture);
-                        m_fieldStepName = Convert.ToString(dr[cUrnStepName], System.Globalization.CultureInfo.CurrentCulture);
+                        m_fieldStepName = Convert.ToString(dr[JobUtilities.UrnStepName], System.Globalization.CultureInfo.CurrentCulture);
                     }
                     
-                    m_fieldMessage = Convert.ToString(dr[cUrnMessage], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldSqlSeverity = Convert.ToString(dr[cUrnSqlSeverity], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldSqlMessageID = Convert.ToString(dr[cUrnSqlMessageID], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldOperatorEmailed = Convert.ToString(dr[cUrnOperatorEmailed], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldOperatorNetsent = Convert.ToString(dr[cUrnOperatorNetsent], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldOperatorPaged = Convert.ToString(dr[cUrnOperatorPaged], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldRetriesAttempted = Convert.ToString(dr[cUrnRetriesAttempted], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldMessage = Convert.ToString(dr[JobUtilities.UrnMessage], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldSqlSeverity = Convert.ToString(dr[JobUtilities.UrnSqlSeverity], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldSqlMessageID = Convert.ToString(dr[JobUtilities.UrnSqlMessageID], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldOperatorEmailed = Convert.ToString(dr[JobUtilities.UrnOperatorEmailed], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldOperatorNetsent = Convert.ToString(dr[JobUtilities.UrnOperatorNetsent], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldOperatorPaged = Convert.ToString(dr[JobUtilities.UrnOperatorPaged], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldRetriesAttempted = Convert.ToString(dr[JobUtilities.UrnRetriesAttempted], System.Globalization.CultureInfo.CurrentCulture);
 
-                    Int64 hhmmss = Convert.ToInt64(dr[cUrnRunDuration], System.Globalization.CultureInfo.InvariantCulture); // HHMMSS
+                    Int64 hhmmss = Convert.ToInt64(dr[JobUtilities.UrnRunDuration], System.Globalization.CultureInfo.InvariantCulture); // HHMMSS
                     int hh = Convert.ToInt32(hhmmss / 10000, System.Globalization.CultureInfo.InvariantCulture);
                     int mm = Convert.ToInt32((hhmmss / 100) % 100, System.Globalization.CultureInfo.InvariantCulture);
                     int ss = Convert.ToInt32(hhmmss % 100, System.Globalization.CultureInfo.InvariantCulture);
@@ -630,7 +577,7 @@ ORDER BY [InstanceID] ASC";
                 {
                     DataRow dr = dt.Rows[i];
 
-                    object o = dr[cUrnStepID];
+                    object o = dr[JobUtilities.UrnStepID];
 
                     try
                     {
@@ -668,8 +615,8 @@ ORDER BY [InstanceID] ASC";
                 {
                     m_originalSourceName = sourceName;
 
-                    m_pointInTime = Convert.ToDateTime(dr[cUrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
-                    m_fieldJobName = Convert.ToString(dr[cUrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                    m_pointInTime = Convert.ToDateTime(dr[JobUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+                    m_fieldJobName = Convert.ToString(dr[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
 
                     m_severity = SeverityClass.InProgress;
 
@@ -684,7 +631,7 @@ ORDER BY [InstanceID] ASC";
                     m_fieldRetriesAttempted = null;
                     m_serverName = null;
 
-                    m_fieldDuration = Convert.ToString(Convert.ToDateTime(dr[cUrnServerTime]) - Convert.ToDateTime(dr[cUrnRunDate], System.Globalization.CultureInfo.InvariantCulture), System.Globalization.CultureInfo.InvariantCulture);
+                    m_fieldDuration = Convert.ToString(Convert.ToDateTime(dr[JobUtilities.UrnServerTime]) - Convert.ToDateTime(dr[JobUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture), System.Globalization.CultureInfo.InvariantCulture);
                 }
                 catch (InvalidCastException)
                 {
@@ -745,6 +692,69 @@ ORDER BY [InstanceID] ASC";
             {
                 get { return m_subEntries; }
             }
+
+            /* Public Properties */
+
+            internal string Duration 
+            {   
+                get { return m_fieldDuration; }
+            }
+
+            internal string JobName
+            {
+                get { return m_fieldJobName; }
+            }
+
+            internal string Message
+            {
+                get { return m_fieldMessage; }
+            }
+
+            internal string StepID
+            {
+                get { return m_fieldStepID; }
+            }   
+
+            internal string OperatorEmailed
+            {
+                get { return m_fieldOperatorEmailed; }
+            }
+
+            internal string OperatorNetsent
+            {
+                get { return m_fieldOperatorNetsent; }
+            }
+
+            internal string OperatorPaged
+            {
+                get { return m_fieldOperatorPaged; }
+            }
+
+            internal string StepName 
+            {
+                get { return m_fieldStepName; }    
+            }
+
+            internal string RetriesAttempted
+            {
+                get { return m_fieldRetriesAttempted; }
+            }
+
+            internal string SqlMessageID
+            {
+                get { return m_fieldSqlMessageID; }
+            }
+
+            internal string SqlSeverity
+            {
+                get { return m_fieldSqlSeverity; }
+            }
+
+            internal string Server
+            {
+                get { return m_serverName; }
+            }
+
             #endregion
         }
         #endregion
