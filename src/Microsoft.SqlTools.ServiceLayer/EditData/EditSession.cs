@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         /// <param name="results"></param>
         /// <param name="metadata"></param>
-        public static void CheckMetadataForInvalidColumns(ResultSet results, EditTableMetadata metadata)
+        public static void CheckMetadataForInvalidColumns(ResultSet results, EditTableMetadata metadata, string tableName)
         {
             // Check for columns from multiple databases
             if (results.Columns
@@ -202,6 +202,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 else
                 {
                     colNameTracker.Add(col.ColumnName);
+                }
+            }
+
+            // Only one source table in the metadata, and no aliases or expressions,
+            // but check if results are from the original table
+            if (results.Columns.Length > 0)
+            {
+                string resultTableName = results.Columns[0].BaseTableName;
+                if (!string.IsNullOrEmpty(resultTableName)
+                    && !string.Equals(resultTableName, tableName, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    throw new InvalidOperationException($"Did not query original table: {tableName}.");
                 }
             }
         }
@@ -484,7 +496,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Step 3) Setup the internal state
                 associatedResultSet = ValidateQueryForSession(state.Query);
-                CheckMetadataForInvalidColumns(associatedResultSet, objectMetadata);
+                CheckMetadataForInvalidColumns(associatedResultSet, objectMetadata, initParams.ObjectName);
 
                 NextRowId = associatedResultSet.RowCount;
                 EditCache = new ConcurrentDictionary<long, RowEditBase>();
