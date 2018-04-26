@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 columnNameOrdinalMap.Add(columnName, column.ColumnOrdinal ?? i);
             }
 
-            HashSet<string> resultColumnNames = new HashSet<string>(columnNameOrdinalMap.Keys);
+            HashSet<string> resultColumnNames = columnNameOrdinalMap.Keys.ToHashSet();
             metaColumns = Array.FindAll(metaColumns, column => resultColumnNames.Contains(column.EscapedName));
             foreach (EditColumnMetadata metaCol in metaColumns)
             {
