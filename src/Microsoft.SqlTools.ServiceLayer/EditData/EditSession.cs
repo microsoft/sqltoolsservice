@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 || SchemaContainsMultipleItems(results.Columns, col => col.BaseSchemaName)
                 || SchemaContainsMultipleItems(results.Columns, col => col.BaseTableName))
             {
-                throw new InvalidOperationException("EditData queries targeting multiple tables are not supported.");
+                throw new InvalidOperationException(SR.EditDataMultiTableNotSupported);
             }
 
             // Check if any of the columns are invalid
@@ -165,17 +165,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 if (col.IsAliased.HasTrue())
                 {
-                    throw new InvalidOperationException("EditData queries with aliased columns are not supported.");
+                    throw new InvalidOperationException(SR.EditDataAliasesNotSupported);
                 }
 
                 if (col.IsExpression.HasTrue())
                 {
-                    throw new InvalidOperationException("EditData queries with aggregate or expression columns are not supported.");
+                    throw new InvalidOperationException(SR.EditDataExpressionsNotSupported);
                 }
 
                 if (colNameTracker.Contains(col.ColumnName))
                 {
-                    throw new InvalidOperationException("EditData queries with duplicate columns are not supported.");
+                    throw new InvalidOperationException(SR.EditDataDuplicateColumnsNotSupported);
                 }
                 else
                 {
@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 string resultTableName = results.Columns[0].BaseTableName;
                 if (!string.IsNullOrEmpty(resultTableName) && !string.Equals(resultTableName, tableName))
                 {
-                    throw new InvalidOperationException($"EditData queries must query the originally targeted table: {tableName}.");
+                    throw new InvalidOperationException(SR.EditDataIncorrectTable(tableName));
                 }
             }
         }
