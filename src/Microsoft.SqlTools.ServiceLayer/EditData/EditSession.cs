@@ -150,11 +150,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// If the results contain any results that conflict with the table metadata, then
         /// make all columns readonly so that the user cannot make an invalid update.
         /// </summary>
-        /// <param name="results"></param>
-        /// <param name="metadata"></param>
-        public static void CheckMetadataForInvalidColumns(ResultSet results, EditTableMetadata metadata, string tableName)
+        public static void CheckResultsForInvalidColumns(ResultSet results, string tableName)
         {
-
             if(SchemaContainsMultipleItems(results.Columns, col => col.BaseCatalogName)
                 || SchemaContainsMultipleItems(results.Columns, col => col.BaseSchemaName)
                 || SchemaContainsMultipleItems(results.Columns, col => col.BaseTableName))
@@ -190,8 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             if (results.Columns.Length > 0)
             {
                 string resultTableName = results.Columns[0].BaseTableName;
-                if (!string.IsNullOrEmpty(resultTableName)
-                    && !string.Equals(resultTableName, tableName, StringComparison.CurrentCultureIgnoreCase))
+                if (!string.IsNullOrEmpty(resultTableName) && !string.Equals(resultTableName, tableName))
                 {
                     throw new InvalidOperationException($"EditData queries must query the originally targeted table: {tableName}.");
                 }
@@ -484,7 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Step 3) Setup the internal state
                 associatedResultSet = ValidateQueryForSession(state.Query);
-                CheckMetadataForInvalidColumns(associatedResultSet, objectMetadata, initParams.ObjectName);
+                CheckResultsForInvalidColumns(associatedResultSet, initParams.ObjectName);
 
                 NextRowId = associatedResultSet.RowCount;
                 EditCache = new ConcurrentDictionary<long, RowEditBase>();
