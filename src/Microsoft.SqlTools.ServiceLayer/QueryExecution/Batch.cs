@@ -417,8 +417,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     DbColumnWrapper resultCol = result.Columns[j];
                     DbColumn schemaCol = columnSchema[j];
 
-                    if(!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
-                        || !string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName))
+                    if(!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName)
+                        || (!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
+                            && !string.IsNullOrEmpty(schemaCol.ColumnName)
+                            && !string.Equals(resultCol, SR.QueryServiceColumnNull)))
                     {
                         throw new InvalidOperationException("Inconsistent column metadata.");
                     }

@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     throw new InvalidOperationException("EditData queries with aliased columns are not supported.");
                 }
 
-                if (col.IsExpression.HasTrue() || string.Equals(col.ColumnName, SR.QueryServiceColumnNull))
+                if (col.IsExpression.HasTrue())
                 {
                     throw new InvalidOperationException("EditData queries with aggregate or expression columns are not supported.");
                 }
