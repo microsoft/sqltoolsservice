@@ -32,6 +32,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int? waitForLockTimeout = null);
     }
 
+    public class SqlConnectionOpener
+    {
+        /// <summary>
+        /// Virtual method used to support mocking and testing
+        /// </summary>
+        public virtual SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName)
+        {
+            return ConnectionService.OpenSqlConnection(connInfo, featureName);
+        }
+    }
+
     /// <summary>
     /// ConnectedBindingQueue class for processing online binding requests
     /// </summary>
@@ -46,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// it's much cheaper to not construct these objects if not needed
         /// </summary>
         private bool needsMetadata;
+        private SqlConnectionOpener connectionOpener;
 
         /// <summary>
         /// Gets the current settings
@@ -63,6 +75,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public ConnectedBindingQueue(bool needsMetadata)
         {
             this.needsMetadata = needsMetadata;
+            this.connectionOpener = new SqlConnectionOpener();
+        }
+
+        // For testing purposes only
+        internal void SetConnectionOpener(SqlConnectionOpener opener)
+        {
+            this.connectionOpener = opener;
         }
 
         /// <summary>
@@ -179,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, featureName);
+                    SqlConnection sqlConn = connectionOpener.OpenSqlConnection(connInfo, featureName);
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = new ServerConnection(sqlConn);
