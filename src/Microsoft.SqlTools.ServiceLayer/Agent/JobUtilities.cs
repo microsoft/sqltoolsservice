@@ -74,7 +74,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return step;
         }
 
-        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow) {
+        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow) 
+        {
             List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
             // get all the values for a job history
             foreach (ILogEntry entry in logEntries) 
@@ -113,6 +114,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             return jobs;
         }
-
     }
 }

@@ -144,9 +144,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                     SqlConnectionInfo sqlConnInfo = tuple.Item1;
                     DataTable dt = tuple.Item2;
+                    ServerConnection connection = tuple.Item3;
                     int count = dt.Rows.Count;
                     List<AgentJobHistoryInfo> jobHistories = new List<AgentJobHistoryInfo>();
-                    if (count > 0) {
+                    if (count > 0) 
+                    {
                         var job = dt.Rows[0];
                         string jobName = Convert.ToString(job[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
                         Guid jobId = (Guid) job[JobUtilities.UrnJobId];
@@ -160,7 +162,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     }
                     result.Jobs = jobHistories.ToArray();
                     result.Succeeded = true;
-                    ServerConnection connection = tuple.Item3;
                     connection.Disconnect();
                     await requestContext.SendResult(result);
                 }

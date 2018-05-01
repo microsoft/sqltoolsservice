@@ -136,7 +136,8 @@ ORDER BY [InstanceID] ASC";
             }
         }
 
-        public List<ILogEntry> LogEntries {
+        public List<ILogEntry> LogEntries 
+        {
             get
             {
                 return m_logEntries;
