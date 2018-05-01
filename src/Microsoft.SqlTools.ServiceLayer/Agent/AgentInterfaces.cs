@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+// Change something to trigger a CI build
+
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     interface IFilterDefinition
