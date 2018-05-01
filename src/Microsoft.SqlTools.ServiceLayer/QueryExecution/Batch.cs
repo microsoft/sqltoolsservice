@@ -241,6 +241,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await BatchStart(this);
             }
+
+            // Register the message listener to *this instance* of the batch
+            // Note: This is being done to associate messages with batches
+            ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+            if (sqlConn != null)
+            {
+                sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
+            }
             
             try
             {
@@ -261,7 +269,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             finally
             {
                 // Remove the message event handler from the connection
-                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     sqlConn.GetUnderlyingConnection().InfoMessage -= ServerMessageHandler;
@@ -386,9 +393,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             DbCommand dbCommand;
             if (sqlConn != null)
             {
-                // Register the message listener to *this instance* of the batch
-                // Note: This is being done to associate messages with batches
-                sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
                 dbCommand = sqlConn.GetUnderlyingConnection().CreateCommand();
 
                 // Add a handler for when the command completes
