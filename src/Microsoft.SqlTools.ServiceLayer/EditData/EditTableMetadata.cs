@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             for (int i = 0; i < resultColumns.Length; i++)
             {
                 DbColumnWrapper column = resultColumns[i];
-                string columnName =  column.ColumnName;
+                string columnName = column.ColumnName;
                 if (escapeColName && !FromSqlScript.IsIdentifierBracketed(columnName))
                 {
                     columnName = ToSqlScript.FormatIdentifier(columnName);
