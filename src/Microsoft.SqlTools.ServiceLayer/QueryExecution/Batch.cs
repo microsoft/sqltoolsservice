@@ -602,7 +602,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (string.IsNullOrEmpty(procedure))
             {
                 detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                    errorNumber, errorClass, state, lineNumber + Selection.StartLine,
+                    errorNumber, errorClass, state, lineNumber + (Selection != null ? Selection.StartLine : 0),
                     Environment.NewLine, message);
             }
             else
