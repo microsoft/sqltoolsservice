@@ -637,6 +637,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataMultiTableNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMultiTableNotSupported);
+            }
+        }
+
+        public static string EditDataAliasesNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataAliasesNotSupported);
+            }
+        }
+
+        public static string EditDataExpressionsNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataExpressionsNotSupported);
+            }
+        }
+
+        public static string EditDataDuplicateColumnsNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataDuplicateColumnsNotSupported);
+            }
+        }
+
         public static string EE_BatchSqlMessageNoProcedureInfo
         {
             get
@@ -3714,6 +3746,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataValueTooLarge, value, columnType);
         }
 
+        public static string EditDataIncorrectTable(string tableName)
+        {
+            return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -3999,6 +4036,21 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataValueTooLarge = "EditDataValueTooLarge";
+
+
+            public const string EditDataMultiTableNotSupported = "EditDataMultiTableNotSupported";
+
+
+            public const string EditDataAliasesNotSupported = "EditDataAliasesNotSupported";
+
+
+            public const string EditDataExpressionsNotSupported = "EditDataExpressionsNotSupported";
+
+
+            public const string EditDataDuplicateColumnsNotSupported = "EditDataDuplicateColumnsNotSupported";
+
+
+            public const string EditDataIncorrectTable = "EditDataIncorrectTable";
 
 
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";
