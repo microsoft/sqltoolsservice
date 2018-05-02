@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string UpdateScript = "UPDATE {0} SET {1} {2}";
         private const string UpdateScriptMemOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
         private const string SelectStatement = "SELECT {0} FROM {1}";
-        private string ValidateUpdateOnlyOneRow = "DECLARE @numberOfRows int = 0;" + Environment.NewLine +
+        private string validateUpdateOnlyOneRow = "DECLARE @numberOfRows int = 0;" + Environment.NewLine +
                                                           "Select @numberOfRows = count(*) FROM {0} {1} " + Environment.NewLine +
                                                           "IF (@numberOfRows > 1) " + Environment.NewLine +
                                                           "Begin" + Environment.NewLine +
@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 whereClause.CommandText);
 
 
-            string validateScript = string.Format(CultureInfo.InvariantCulture, ValidateUpdateOnlyOneRow,
+            string validateScript = string.Format(CultureInfo.InvariantCulture, validateUpdateOnlyOneRow,
                 AssociatedObjectMetadata.EscapedMultipartName,
                 whereClause.CommandText);
             
