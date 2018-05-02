@@ -45,8 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             RowId = rowId;
-            AssociatedResultSet = associatedResultSet;
             AssociatedObjectMetadata = associatedMetadata;
+            AssociatedResultSet = associatedResultSet;
+
+            AssociatedObjectMetadata.Columns = EditTableMetadata.FilterColumnMetadata(AssociatedObjectMetadata.Columns, AssociatedResultSet.Columns);
         }
 
         #region Properties

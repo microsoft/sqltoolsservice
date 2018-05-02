@@ -236,6 +236,16 @@ EditDataNullNotAllowed = NULL is not allowed for this column
 
 EditDataValueTooLarge(string value, string columnType) = Value {0} is too large to fit in column of type {1}
 
+EditDataMultiTableNotSupported = EditData queries targeting multiple tables are not supported
+
+EditDataAliasesNotSupported = EditData queries with aliased columns are not supported
+
+EditDataExpressionsNotSupported = EditData queries with aggregate or expression columns are not supported
+
+EditDataDuplicateColumnsNotSupported = EditData queries with duplicate columns are not supported
+
+EditDataIncorrectTable(string tableName) = EditData queries must query the originally targeted table '{0}'
+
 ############################################################################
 # DacFx Resources
 

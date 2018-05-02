@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             cellUpdates = new ConcurrentDictionary<int, CellUpdate>();
-            associatedRow = associatedResultSet.GetRow(rowId);
+            associatedRow = AssociatedResultSet.GetRow(rowId);
         }
 
         /// <summary>

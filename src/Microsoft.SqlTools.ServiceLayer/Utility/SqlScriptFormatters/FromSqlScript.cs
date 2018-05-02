@@ -18,7 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
     {
         // Regex: optionally starts with N, captures string wrapped in single quotes
         private static readonly Regex StringRegex = new Regex("^N?'(.*)'$", RegexOptions.Compiled);
-        
+        private static readonly Regex BracketRegex = new Regex(@"^\[(.*)\]$", RegexOptions.Compiled);
+
         /// <summary>
         /// Decodes a multipart identifier as used in a SQL script into an array of the multiple
         /// parts of the identifier. Implemented as a state machine that iterates over the
@@ -128,6 +129,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
             return literal;
         }
         
+        /// <summary>
+        /// Tests whether an identifier is escaped with brackets e.g. [Northwind].[dbo].[Orders]
+        /// </summary>
+        /// <param name="identifer">Identifier to check.</param>
+        /// <returns>Boolean indicating if identifier is escaped with brackets.</returns>
+        public static bool IsIdentifierBracketed(string identifer) => BracketRegex.IsMatch(identifer);
+
         #region Private Helpers
         
         private static bool HasNextCharacter(string haystack, char needle, int position)
@@ -143,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
             // Replace 2x of the escape character with 1x of the escape character
             return value.Replace(new string(escapeCharacter, 2), escapeCharacter.ToString());
         }
-        
+
         #endregion
     }
 }
