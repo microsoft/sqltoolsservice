@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string UpdateScript = "UPDATE {0} SET {1} {2}";
         private const string UpdateScriptMemOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
         private const string SelectStatement = "SELECT {0} FROM {1}";
+        private const string ValidateUpdateOnlyOneRow = @"DECLARE @numberOfRows int = 0;
+                                                          Select @numberOfRows = count(*) FROM {0} {1} 
+                                                          IF (@numberOfRows > 1) 
+                                                          Begin
+                                                            DECLARE @error NVARCHAR(100) = N'The row value(s) updated do not make the row unique or they alter multiple rows(' + CAST(@numberOfRows as varchar(10)) + ' rows)';
+                                                            RAISERROR (@error, 16, 1)
+                                                          End 
+                                                          ELSE BEGIN";
 
         internal readonly ConcurrentDictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
@@ -77,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override DbCommand GetCommand(DbConnection connection)
         {
             Validate.IsNotNull(nameof(connection), connection);
-            
+
             // Process the cells and columns
             List<string> declareColumns = new List<string>();
             List<SqlParameter> inParameters = new List<SqlParameter>();
@@ -120,6 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 string.Join(", ", outClauseColumns),
                 tempTableName,
                 whereClause.CommandText);
+
+
+            string validateScript = string.Format(CultureInfo.InvariantCulture, ValidateUpdateOnlyOneRow,
+                AssociatedObjectMetadata.EscapedMultipartName,
+                whereClause.CommandText);
             
             // Step 3) Build the select statement
             string selectStatement = string.Format(SelectStatement, string.Join(", ", selectColumns), tempTableName);
@@ -127,8 +141,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Step 4) Put it all together into a results object
             StringBuilder query = new StringBuilder();
             query.AppendLine(declareStatement);
+            query.AppendLine(validateScript);
             query.AppendLine(updateStatement);
-            query.Append(selectStatement);
+            query.AppendLine(selectStatement);
+            query.Append("END");
             
             // Build the command
             DbCommand command = connection.CreateCommand();
