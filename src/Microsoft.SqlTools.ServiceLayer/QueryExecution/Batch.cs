@@ -602,7 +602,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (string.IsNullOrEmpty(procedure))
             {
                 detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                    errorNumber, errorClass, state, lineNumber + Selection.StartLine,
+                    errorNumber, errorClass, state, lineNumber + (Selection != null ? Selection.StartLine : 0),
                     Environment.NewLine, message);
             }
             else
@@ -670,7 +670,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Not a user cancellation error, add all 
                     foreach (var error in errors)
                     {
-                        int lineNumber = error.LineNumber + Selection.StartLine;
+                        int lineNumber = error.LineNumber + (Selection != null ? Selection.StartLine : 0);
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             error.Number, error.Class, error.State, lineNumber,
                             Environment.NewLine, error.Message);
