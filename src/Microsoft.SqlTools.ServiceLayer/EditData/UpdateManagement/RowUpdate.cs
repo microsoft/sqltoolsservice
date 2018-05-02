@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -31,14 +32,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string UpdateScript = "UPDATE {0} SET {1} {2}";
         private const string UpdateScriptMemOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
         private const string SelectStatement = "SELECT {0} FROM {1}";
-        private const string ValidateUpdateOnlyOneRow = @"DECLARE @numberOfRows int = 0;
-                                                          Select @numberOfRows = count(*) FROM {0} {1} 
-                                                          IF (@numberOfRows > 1) 
-                                                          Begin
-                                                            DECLARE @error NVARCHAR(100) = N'The row value(s) updated do not make the row unique or they alter multiple rows(' + CAST(@numberOfRows as varchar(10)) + ' rows)';
-                                                            RAISERROR (@error, 16, 1)
-                                                          End 
-                                                          ELSE BEGIN";
+        private string ValidateUpdateOnlyOneRow = "DECLARE @numberOfRows int = 0;" + Environment.NewLine +
+                                                          "Select @numberOfRows = count(*) FROM {0} {1} " + Environment.NewLine +
+                                                          "IF (@numberOfRows > 1) " + Environment.NewLine +
+                                                          "Begin" + Environment.NewLine +
+                                                           " DECLARE @error NVARCHAR(100) = N'The row value(s) updated do not make the row unique or they alter multiple rows(' + CAST(@numberOfRows as varchar(10)) + ' rows)';" + Environment.NewLine +
+                                                           " RAISERROR (@error, 16, 1) " + Environment.NewLine +
+                                                          "End" + Environment.NewLine +
+                                                          "ELSE BEGIN" + Environment.NewLine;
 
         internal readonly ConcurrentDictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;

@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Validate the command's makeup
             // Break the query into parts
             string[] splitSql = cmd.CommandText.Split(Environment.NewLine);
-            Assert.Equal(3, splitSql.Length);
+            Assert.True(splitSql.Length >= 3);
             
             // Check the declare statement first
             Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 ? @"^UPDATE (.+) WITH \(SNAPSHOT\) SET (.+) OUTPUT (.+) INTO @(.+) WHERE .+$"
                 : @"^UPDATE (.+) SET (.+) OUTPUT (.+) INTO @(.+) WHERE .+$";
             Regex updateRegex = new Regex(regex);
-            Match updateMatch = updateRegex.Match(splitSql[1]);
+            Match updateMatch = updateRegex.Match(splitSql[10]);
             Assert.True(updateMatch.Success);
             
             // Table name matches
@@ -313,7 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             
             // Check the select statement last
             Regex selectRegex = new Regex(@"^SELECT (.+) FROM @(.+)$");
-            Match selectMatch = selectRegex.Match(splitSql[2]);
+            Match selectMatch = selectRegex.Match(splitSql[11]);
             Assert.True(selectMatch.Success);
             
             // Correct number of columns in select statement
