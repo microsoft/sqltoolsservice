@@ -18,27 +18,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class AgentJobHistoryInfo
     {
         public int InstanceId { get; set; }
-        public int SqlMessageId { get; set; }
+        public string SqlMessageId { get; set; }
         public string Message { get; set; }
-        public int StepId { get; set; }
+        public string StepId { get; set; }
         public string StepName { get; set; }
-        public int SqlSeverity { get; set; }
+        public string SqlSeverity { get; set; }
         public Guid JobId { get; set; }
         public string JobName { get; set; }
         public int RunStatus { get; set; }
         public DateTime RunDate { get; set; }
-        public int RunDuration { get; set; }
+        public string RunDuration { get; set; }
         public string OperatorEmailed { get; set; }
         public string OperatorNetsent { get; set; }
         public string OperatorPaged { get; set; }
-        public int RetriesAttempted { get; set; }
+        public string RetriesAttempted { get; set; }
         public string Server { get; set; }
         public AgentJobStep[] Steps { get; set; }
     }
 
     public class AgentJobStep
     {
-        public int StepId { get; set; }
+        public string StepId { get; set; }
         public string StepName { get; set; }
         public string Message { get; set; }
         public DateTime RunDate { get; set; }

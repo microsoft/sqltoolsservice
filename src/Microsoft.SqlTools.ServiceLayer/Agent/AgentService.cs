@@ -106,7 +106,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     var fetcher = new JobFetcher(serverConnection);
                     var filter = new JobActivityFilter();
                     this.jobs = fetcher.FetchJobs(filter);
-
                     var agentJobs = new List<AgentJobInfo>();
                     if (this.jobs != null)
                     {
@@ -118,8 +117,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     }
                     result.Succeeded = true;
                     result.Jobs = agentJobs.ToArray();
+                    sqlConnection.Close();
                 }
-                
                 await requestContext.SendResult(result);
             }
             catch (Exception e)
@@ -142,47 +141,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     out connInfo);
                 if (connInfo != null)
                 {
-                    Tuple<SqlConnectionInfo, DataTable> tuple = CreateSqlConnection(connInfo, parameters.JobId);
+                    Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                     SqlConnectionInfo sqlConnInfo = tuple.Item1;
                     DataTable dt = tuple.Item2;
+                    ServerConnection connection = tuple.Item3;
                     int count = dt.Rows.Count;
-                    var agentJobs = new List<AgentJobHistoryInfo>();
-
-                    var agentStepMap = new Dictionary<DateTime, List<AgentJobStep>>();
-                    for (int i = 0; i < count; ++i)
+                    List<AgentJobHistoryInfo> jobHistories = new List<AgentJobHistoryInfo>();
+                    if (count > 0) 
                     {
-                        var job = dt.Rows[i];
-                        if (JobUtilities.IsStep(job, sqlConnInfo))
-                        {
-                            var agentJobStep = JobUtilities.ConvertToAgentJobStep(job, sqlConnInfo);
-                            if (agentStepMap.ContainsKey(agentJobStep.RunDate))
-                            {
-                                agentStepMap[agentJobStep.RunDate].Add(agentJobStep);
-                            }
-                            else
-                            {
-                                var agentJobSteps = new List<AgentJobStep>();
-                                agentJobSteps.Add(agentJobStep);
-                                agentStepMap[agentJobStep.RunDate] = agentJobSteps;
-                            }
-                        }
-                        else
-                        {
-                            var agentJobHistoryInfo = JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo);
-                            agentJobs.Add(agentJobHistoryInfo);
-                        }
+                        var job = dt.Rows[0];
+                        string jobName = Convert.ToString(job[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                        Guid jobId = (Guid) job[JobUtilities.UrnJobId];
+                        int runStatus = Convert.ToInt32(job[JobUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                        var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
+                        var tlog = t as ILogSource;
+                        tlog.Initialize();
+                        var logEntries = t.LogEntries;
+                        jobHistories = JobUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
+                        tlog.CloseReader();
                     }
+                    result.Jobs = jobHistories.ToArray();
                     result.Succeeded = true;
-                    foreach (AgentJobHistoryInfo agentJobHistoryInfo in agentJobs)
-                    {
-                        if (agentStepMap.ContainsKey(agentJobHistoryInfo.RunDate))
-                        { 
-                            var agentStepList = agentStepMap[agentJobHistoryInfo.RunDate].ToList();
-                            agentStepList.Sort(delegate (AgentJobStep s1, AgentJobStep s2) { return s1.StepId.CompareTo(s2.StepId); });
-                            agentJobHistoryInfo.Steps = agentStepList.ToArray();
-                        }
-                    }
-                    result.Jobs = agentJobs.ToArray();
+                    connection.Disconnect();
                     await requestContext.SendResult(result);
                 }
             }
@@ -242,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
         }
 
-        private Tuple<SqlConnectionInfo, DataTable> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
+        private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
         {
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             var serverConnection = new ServerConnection(sqlConnection);     
@@ -251,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             filter.JobID = new Guid(jobId);
             var dt = server.JobServer.EnumJobHistory(filter);
             var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
-            return new Tuple<SqlConnectionInfo, DataTable>(sqlConnInfo, dt);
+            return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
         }
 
     }
