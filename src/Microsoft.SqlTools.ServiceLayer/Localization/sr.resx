@@ -506,27 +506,6 @@
     <comment>.
  Parameters: 0 - value (string), 1 - columnType (string) </comment>
   </data>
-  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
-    <value>EditData queries targeting multiple tables are not supported</value>
-    <comment></comment>
-  </data>
-  <data name="EditDataAliasesNotSupported" xml:space="preserve">
-    <value>EditData queries with aliased columns are not supported</value>
-    <comment></comment>
-  </data>
-  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
-    <value>EditData queries with aggregate or expression columns are not supported</value>
-    <comment></comment>
-  </data>
-  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
-    <value>EditData queries with duplicate columns are not supported</value>
-    <comment></comment>
-  </data>
-  <data name="EditDataIncorrectTable" xml:space="preserve">
-    <value>EditData queries must query the originally targeted table '{0}'</value>
-    <comment>.
- Parameters: 0 - tableName (string) </comment>
-  </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
     <comment></comment>

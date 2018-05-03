@@ -2353,32 +2353,6 @@
         <target state="new">File Table</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EditDataMultiTableNotSupported">
-        <source>EditData queries targeting multiple tables are not supported</source>
-        <target state="new">EditData queries targeting multiple tables are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataAliasesNotSupported">
-        <source>EditData queries with aliased columns are not supported</source>
-        <target state="new">EditData queries with aliased columns are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataExpressionsNotSupported">
-        <source>EditData queries with aggregate or expression columns are not supported</source>
-        <target state="new">EditData queries with aggregate or expression columns are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataDuplicateColumnsNotSupported">
-        <source>EditData queries with duplicate columns are not supported</source>
-        <target state="new">EditData queries with duplicate columns are not supported</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EditDataIncorrectTable">
-        <source>EditData queries must query the originally targeted table '{0}'</source>
-        <target state="new">EditData queries must query the originally targeted table '{0}'</target>
-        <note>.
- Parameters: 0 - tableName (string) </note>
-      </trans-unit>
     </body>
   </file>
 </xliff>
