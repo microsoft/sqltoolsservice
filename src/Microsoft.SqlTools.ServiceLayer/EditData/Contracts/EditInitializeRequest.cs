@@ -31,11 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// The type of the object to use for generating an edit script
         /// </summary>
         public string ObjectType { get; set; }
-
-        /// <summary>
-        /// The query used to retrieve result set
-        /// </summary>
-        public string QueryString { get; set; }
     }
 
     /// <summary>

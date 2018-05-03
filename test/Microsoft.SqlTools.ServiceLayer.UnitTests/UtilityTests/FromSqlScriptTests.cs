@@ -75,21 +75,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             Assert.Equal(output, FromSqlScript.UnwrapLiteral(input));
         }
-
-        [Theory]
-        [InlineData("[name]", true)]
-        [InlineData("[   name   ]", true)]
-        [InlineData("[na[[]me]", true)]
-        [InlineData("[]", true)]
-        [InlineData("name", false)]
-        [InlineData("[name", false)]
-        [InlineData("name]", false)]
-        [InlineData("[]name", false)]
-        [InlineData("name[]", false)]
-        [InlineData("[na]me", false)]
-        public void BracketedIdentifierTest(string input, bool output)
-        {
-            Assert.Equal(output, FromSqlScript.IsIdentifierBracketed(input));
-        }
     }
 }

@@ -194,17 +194,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 new EditColumnMetadata                   // No default
                 {
                     DefaultValue = null,
-                    EscapedName = cols[0].ColumnName
+                    EscapedName = cols[0].ColumnName,
                 },
                 new EditColumnMetadata                   // Has default
                 {
                     DefaultValue = "default",
-                    EscapedName = cols[1].ColumnName
+                    EscapedName = cols[0].ColumnName,
                 },
-                new EditColumnMetadata
-                {
-                    EscapedName = cols[2].ColumnName
-                }
+                new EditColumnMetadata()
             };
             var etm = new EditTableMetadata
             {

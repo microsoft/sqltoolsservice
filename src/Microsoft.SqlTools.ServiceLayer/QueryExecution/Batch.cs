@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
-using System.Collections.ObjectModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -347,21 +346,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandTimeout = 0;
                 executionStartTime = DateTime.Now;
 
-                // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
-                // key columns in the result set, even if they weren't part of the select statement.
-                // Extra key columns get added to the end, so just correlate via Column Ordinal.
-                List<DbColumn[]> columnSchemas = new List<DbColumn[]>();
-                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
-                {
-                    if (reader != null && reader.CanGetColumnSchema())
-                    {
-                        do
-                        {
-                            columnSchemas.Add(reader.GetColumnSchema().ToArray());
-                        } while (await reader.NextResultAsync(cancellationToken));
-                    }
-                }
-
                 // Execute the command to get back a reader
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
                 {
@@ -397,42 +381,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
                     }
-                }
-
-                if (columnSchemas != null)
-                {
-                    ExtendResultMetadata(columnSchemas, resultSets);
-                }
-            }
-        }
-
-        private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
-        {
-            if (columnSchemas.Count != results.Count) return;
-
-            for(int i = 0; i < results.Count; i++)
-            {
-                ResultSet result = results[i];
-                DbColumn[] columnSchema = columnSchemas[i];
-                if(result.Columns.Length > columnSchema.Length)
-                {
-                    throw new InvalidOperationException("Did not receive enough metadata columns.");
-                }
-
-                for(int j = 0; j < result.Columns.Length; j++)
-                {
-                    DbColumnWrapper resultCol = result.Columns[j];
-                    DbColumn schemaCol = columnSchema[j];
-
-                    if(!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName)
-                        || (!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
-                            && !string.IsNullOrEmpty(schemaCol.ColumnName)
-                            && !string.Equals(resultCol, SR.QueryServiceColumnNull)))
-                    {
-                        throw new InvalidOperationException("Inconsistent column metadata.");
-                    }
-
-                    result.Columns[j] = new DbColumnWrapper(schemaCol);
                 }
             }
         }

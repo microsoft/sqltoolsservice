@@ -147,62 +147,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
-        /// If the results contain any results that conflict with the table metadata, then
-        /// make all columns readonly so that the user cannot make an invalid update.
-        /// </summary>
-        public static void CheckResultsForInvalidColumns(ResultSet results, string tableName)
-        {
-            if(SchemaContainsMultipleItems(results.Columns, col => col.BaseCatalogName)
-                || SchemaContainsMultipleItems(results.Columns, col => col.BaseSchemaName)
-                || SchemaContainsMultipleItems(results.Columns, col => col.BaseTableName))
-            {
-                throw new InvalidOperationException(SR.EditDataMultiTableNotSupported);
-            }
-
-            // Check if any of the columns are invalid
-            HashSet<string> colNameTracker = new HashSet<string>();
-            foreach (DbColumnWrapper col in results.Columns)
-            {
-                if (col.IsAliased.HasTrue())
-                {
-                    throw new InvalidOperationException(SR.EditDataAliasesNotSupported);
-                }
-
-                if (col.IsExpression.HasTrue())
-                {
-                    throw new InvalidOperationException(SR.EditDataExpressionsNotSupported);
-                }
-
-                if (colNameTracker.Contains(col.ColumnName))
-                {
-                    throw new InvalidOperationException(SR.EditDataDuplicateColumnsNotSupported);
-                }
-                else
-                {
-                    colNameTracker.Add(col.ColumnName);
-                }
-            }
-
-            // Only one source table in the metadata, but check if results are from the original table.
-            if (results.Columns.Length > 0)
-            {
-                string resultTableName = results.Columns[0].BaseTableName;
-                if (!string.IsNullOrEmpty(resultTableName) && !string.Equals(resultTableName, tableName))
-                {
-                    throw new InvalidOperationException(SR.EditDataIncorrectTable(tableName));
-                }
-            }
-        }
-
-        private static bool SchemaContainsMultipleItems(DbColumn[] columns, Func<DbColumn, string> filter)
-        {
-            return columns
-                .Select(column => filter(column))
-                .Where(name => name != null)
-                .ToHashSet().Count > 1;
-        }
-
-        /// <summary>
         /// Creates a new row update and adds it to the update cache
         /// </summary>
         /// <exception cref="InvalidOperationException">If inserting into cache fails</exception>
@@ -471,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     initParams.ObjectType);
 
                 // Step 2) Get and execute a query for the rows in the object we're looking up
-                EditSessionQueryExecutionState state = await queryRunner(initParams.QueryString ?? ConstructInitializeQuery(objectMetadata, initParams.Filters));
+                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(objectMetadata, initParams.Filters));
                 if (state.Query == null)
                 {
                     string message = state.Message ?? SR.EditDataQueryFailed;
@@ -480,8 +424,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Step 3) Setup the internal state
                 associatedResultSet = ValidateQueryForSession(state.Query);
-                CheckResultsForInvalidColumns(associatedResultSet, initParams.ObjectName);
-
                 NextRowId = associatedResultSet.RowCount;
                 EditCache = new ConcurrentDictionary<long, RowEditBase>();
                 IsInitialized = true;
