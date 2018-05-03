@@ -313,6 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             ExecuteStringParams executeParams = new ExecuteStringParams
             {
                 Query = query,
+                GetFullColumnSchema = true,
                 OwnerUri = ownerUri
             };
             await queryExecutionService.InterServiceExecuteQuery(executeParams, null, eventSender,

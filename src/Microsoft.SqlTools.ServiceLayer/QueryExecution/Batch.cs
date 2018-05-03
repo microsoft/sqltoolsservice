@@ -61,10 +61,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly SpecialAction specialAction;
 
+        /// <summary>
+        /// Flag indicating whether a separate KeyInfo query should be run
+        /// to get the full ColumnSchema metadata.
+        /// </summary>
+        private readonly bool getFullColumnSchema;
+
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId,
-            IFileStreamFactory outputFileFactory, int executionCount = 1)
+            IFileStreamFactory outputFileFactory, int executionCount = 1, bool getFullColumnSchema = false)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -81,6 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             this.outputFileFactory = outputFileFactory;
             specialAction = new SpecialAction();
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
+
+            this.getFullColumnSchema = getFullColumnSchema;
         }
 
         #region Events
@@ -347,18 +355,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandTimeout = 0;
                 executionStartTime = DateTime.Now;
 
-                // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
-                // key columns in the result set, even if they weren't part of the select statement.
-                // Extra key columns get added to the end, so just correlate via Column Ordinal.
-                List<DbColumn[]> columnSchemas = new List<DbColumn[]>();
-                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
+                List<DbColumn[]> columnSchemas = null;
+                if (getFullColumnSchema)
                 {
-                    if (reader != null && reader.CanGetColumnSchema())
+                    // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
+                    // key columns in the result set, even if they weren't part of the select statement.
+                    // Extra key columns get added to the end, so just correlate via Column Ordinal.
+                    columnSchemas = new List<DbColumn[]>();
+                    using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
                     {
-                        do
+                        if (reader != null && reader.CanGetColumnSchema())
                         {
-                            columnSchemas.Add(reader.GetColumnSchema().ToArray());
-                        } while (await reader.NextResultAsync(cancellationToken));
+                            do
+                            {
+                                columnSchemas.Add(reader.GetColumnSchema().ToArray());
+                            } while (await reader.NextResultAsync(cancellationToken));
+                        }
                     }
                 }
 

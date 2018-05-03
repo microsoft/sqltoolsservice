@@ -19,5 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// Execution plan options
         /// </summary>
         public ExecutionPlanOptions ExecutionPlanOptions { get; set; }
+
+        /// <summary>
+        /// Flag to get full column schema via additional queries.
+        /// </summary>
+        public bool GetFullColumnSchema { get; set; }
     }
 }
