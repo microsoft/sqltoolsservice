@@ -19,7 +19,7 @@
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.9" />
+	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.10" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
