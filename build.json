@@ -3,17 +3,17 @@
   "DotNetFolder": ".dotnet",
   "DotNetInstallScriptURL": "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain",
   "DotNetChannel": "preview",
-  "DotNetVersion": "1.0.0-preview2-003121",
+  "DotNetVersion": "2.1.300-preview3-008627",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "netcoreapp2.0"
+      "netcoreapp2.1"
    ]
   },
   "Frameworks": [  
-    "netcoreapp2.0"
+    "netcoreapp2.1"
   ],
   "MainProjects": [     
     "Microsoft.SqlTools.ServiceLayer",

@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -60,10 +61,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly SpecialAction specialAction;
 
+        /// <summary>
+        /// Flag indicating whether a separate KeyInfo query should be run
+        /// to get the full ColumnSchema metadata.
+        /// </summary>
+        private readonly bool getFullColumnSchema;
+
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId,
-            IFileStreamFactory outputFileFactory, int executionCount = 1)
+            IFileStreamFactory outputFileFactory, int executionCount = 1, bool getFullColumnSchema = false)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -80,6 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             this.outputFileFactory = outputFileFactory;
             specialAction = new SpecialAction();
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
+
+            this.getFullColumnSchema = getFullColumnSchema;
         }
 
         #region Events
@@ -241,6 +250,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await BatchStart(this);
             }
+
+            // Register the message listener to *this instance* of the batch
+            // Note: This is being done to associate messages with batches
+            ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+            if (sqlConn != null)
+            {
+                sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
+            }
             
             try
             {
@@ -261,7 +278,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             finally
             {
                 // Remove the message event handler from the connection
-                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     sqlConn.GetUnderlyingConnection().InfoMessage -= ServerMessageHandler;
@@ -339,6 +355,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandTimeout = 0;
                 executionStartTime = DateTime.Now;
 
+                List<DbColumn[]> columnSchemas = null;
+                if (getFullColumnSchema)
+                {
+                    // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
+                    // key columns in the result set, even if they weren't part of the select statement.
+                    // Extra key columns get added to the end, so just correlate via Column Ordinal.
+                    columnSchemas = new List<DbColumn[]>();
+                    using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
+                    {
+                        if (reader != null && reader.CanGetColumnSchema())
+                        {
+                            do
+                            {
+                                columnSchemas.Add(reader.GetColumnSchema().ToArray());
+                            } while (await reader.NextResultAsync(cancellationToken));
+                        }
+                    }
+                }
+
                 // Execute the command to get back a reader
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
                 {
@@ -375,6 +410,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
                     }
                 }
+
+                if (columnSchemas != null)
+                {
+                    ExtendResultMetadata(columnSchemas, resultSets);
+                }
+            }
+        }
+
+        private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
+        {
+            if (columnSchemas.Count != results.Count) return;
+
+            for(int i = 0; i < results.Count; i++)
+            {
+                ResultSet result = results[i];
+                DbColumn[] columnSchema = columnSchemas[i];
+                if(result.Columns.Length > columnSchema.Length)
+                {
+                    throw new InvalidOperationException("Did not receive enough metadata columns.");
+                }
+
+                for(int j = 0; j < result.Columns.Length; j++)
+                {
+                    DbColumnWrapper resultCol = result.Columns[j];
+                    DbColumn schemaCol = columnSchema[j];
+
+                    if(!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName)
+                        || (!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
+                            && !string.IsNullOrEmpty(schemaCol.ColumnName)
+                            && !string.Equals(resultCol, SR.QueryServiceColumnNull)))
+                    {
+                        throw new InvalidOperationException("Inconsistent column metadata.");
+                    }
+
+                    result.Columns[j] = new DbColumnWrapper(schemaCol);
+                }
             }
         }
 
@@ -386,9 +457,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             DbCommand dbCommand;
             if (sqlConn != null)
             {
-                // Register the message listener to *this instance* of the batch
-                // Note: This is being done to associate messages with batches
-                sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
                 dbCommand = sqlConn.GetUnderlyingConnection().CreateCommand();
 
                 // Add a handler for when the command completes
@@ -546,7 +614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (string.IsNullOrEmpty(procedure))
             {
                 detailedMessage = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                    errorNumber, errorClass, state, lineNumber + Selection.StartLine,
+                    errorNumber, errorClass, state, lineNumber + (Selection != null ? Selection.StartLine : 0),
                     Environment.NewLine, message);
             }
             else
@@ -614,7 +682,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Not a user cancellation error, add all 
                     foreach (var error in errors)
                     {
-                        int lineNumber = error.LineNumber + Selection.StartLine;
+                        int lineNumber = error.LineNumber + (Selection != null ? Selection.StartLine : 0);
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             error.Number, error.Class, error.State, lineNumber,
                             Environment.NewLine, error.Message);

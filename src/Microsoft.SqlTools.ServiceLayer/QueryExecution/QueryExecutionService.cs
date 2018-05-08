@@ -599,7 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
 
             // If we can't add the query now, it's assumed the query is in progress
-            Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory);
+            Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory, executeParams.GetFullColumnSchema);
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {
                 newQuery.Dispose();

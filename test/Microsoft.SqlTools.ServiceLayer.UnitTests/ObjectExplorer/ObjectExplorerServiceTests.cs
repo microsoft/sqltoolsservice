@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);
 
         ConnectedBindingQueue connectedBindingQueue;
+        Mock<SqlConnectionOpener> mockConnectionOpener;
         public ObjectExplorerServiceTests()
         {
             connectionServiceMock = new Mock<ConnectionService>();
@@ -51,6 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
             connectedBindingQueue = new ConnectedBindingQueue(false);
             connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL", connectedBindingContext);
+            mockConnectionOpener = new Mock<SqlConnectionOpener>();
+            connectedBindingQueue.SetConnectionOpener(mockConnectionOpener.Object);
             service.ConnectedBindingQueue = connectedBindingQueue;
         }
 
@@ -400,9 +403,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private async Task CreateSessionRequestAndVerifyServerNodeHelper(ConnectionDetails details)
         {
             serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
-            //SessionCreatedParameters sessionResult
-            
 
+            // Stub out the connection to avoid a 30second timeout while attempting to connect.
+            // The tests don't need any connection context anyhow so this doesn't impact the scenario
+            mockConnectionOpener.Setup(b => b.OpenSqlConnection(It.IsAny<ConnectionInfo>(), It.IsAny<string>()))
+                .Throws<Exception>();
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));
             ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);

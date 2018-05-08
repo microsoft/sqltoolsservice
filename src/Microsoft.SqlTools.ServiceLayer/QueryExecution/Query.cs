@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
-        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory)
+        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory, bool getFullColumnSchema = false)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -119,7 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batchDefinition.EndLine-1,
                             batchDefinition.EndColumn-1),                       
                         index, outputFactory,
-                        batchDefinition.BatchExecutionCount));
+                        batchDefinition.BatchExecutionCount,
+                        getFullColumnSchema));
 
             Batches = batchSelection.ToArray();
 

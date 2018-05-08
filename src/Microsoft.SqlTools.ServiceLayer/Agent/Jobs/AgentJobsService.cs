@@ -102,60 +102,62 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         public ReturnResult GetJobHistory(ConnectionInfo connInfo, string jobId, out List<AgentJobHistoryInfo> jobHistories)
         {
-            jobHistories = new List<AgentJobHistoryInfo>();
-            try
-            {     
-                ReturnResult returnValue = new ReturnResult();
-                Tuple<SqlConnectionInfo, DataTable> tuple = CreateSqlConnection(connInfo, jobId);
-                SqlConnectionInfo sqlConnInfo = tuple.Item1;
-                DataTable dt = tuple.Item2;
-                int count = dt.Rows.Count;
+            jobHistories = null;
+            return null;
+        //     jobHistories = new List<AgentJobHistoryInfo>();
+        //     try
+        //     {     
+        //         ReturnResult returnValue = new ReturnResult();
+        //         Tuple<SqlConnectionInfo, DataTable> tuple = CreateSqlConnection(connInfo, jobId);
+        //         SqlConnectionInfo sqlConnInfo = tuple.Item1;
+        //         DataTable dt = tuple.Item2;
+        //         int count = dt.Rows.Count;
 
-                var agentStepMap = new Dictionary<DateTime, List<AgentJobStep>>();
-                for (int i = 0; i < count; ++i)
-                {
-                    var job = dt.Rows[i];
-                    if (JobUtilities.IsStep(job, sqlConnInfo))
-                    {
-                        var agentJobStep = JobUtilities.ConvertToAgentJobStep(job, sqlConnInfo);
-                        if (agentStepMap.ContainsKey(agentJobStep.RunDate))
-                        {
-                            agentStepMap[agentJobStep.RunDate].Add(agentJobStep);
-                        }
-                        else
-                        {
-                            var agentJobSteps = new List<AgentJobStep>();
-                            agentJobSteps.Add(agentJobStep);
-                            agentStepMap[agentJobStep.RunDate] = agentJobSteps;
-                        }
-                    }
-                    else
-                    {
-                        var agentJobHistoryInfo = JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo);
-                        jobHistories.Add(agentJobHistoryInfo);
-                    }
-                }
+        //         var agentStepMap = new Dictionary<DateTime, List<AgentJobStep>>();
+        //         for (int i = 0; i < count; ++i)
+        //         {
+        //             var job = dt.Rows[i];
+        //             if (JobUtilities.IsStep(job, sqlConnInfo))
+        //             {
+        //                 var agentJobStep = JobUtilities.ConvertToAgentJobStep(job, sqlConnInfo);
+        //                 if (agentStepMap.ContainsKey(agentJobStep.RunDate))
+        //                 {
+        //                     agentStepMap[agentJobStep.RunDate].Add(agentJobStep);
+        //                 }
+        //                 else
+        //                 {
+        //                     var agentJobSteps = new List<AgentJobStep>();
+        //                     agentJobSteps.Add(agentJobStep);
+        //                     agentStepMap[agentJobStep.RunDate] = agentJobSteps;
+        //                 }
+        //             }
+        //             else
+        //             {
+        //                 var agentJobHistoryInfo = JobUtilities.ConvertToAgentJobHistoryInfo(job, sqlConnInfo);
+        //                 jobHistories.Add(agentJobHistoryInfo);
+        //             }
+        //         }
 
-                foreach (AgentJobHistoryInfo agentJobHistoryInfo in jobHistories)
-                {
-                    if (agentStepMap.ContainsKey(agentJobHistoryInfo.RunDate))
-                    { 
-                        var agentStepList = agentStepMap[agentJobHistoryInfo.RunDate].ToList();
-                        agentStepList.Sort(delegate (AgentJobStep s1, AgentJobStep s2) { return s1.StepId.CompareTo(s2.StepId); });
-                        agentJobHistoryInfo.Steps = agentStepList.ToArray();
-                    }
-                }
+        //         foreach (AgentJobHistoryInfo agentJobHistoryInfo in jobHistories)
+        //         {
+        //             if (agentStepMap.ContainsKey(agentJobHistoryInfo.RunDate))
+        //             { 
+        //                 var agentStepList = agentStepMap[agentJobHistoryInfo.RunDate].ToList();
+        //                 agentStepList.Sort(delegate (AgentJobStep s1, AgentJobStep s2) { return s1.StepId.CompareTo(s2.StepId); });
+        //                 agentJobHistoryInfo.Steps = agentStepList.ToArray();
+        //             }
+        //         }
 
-                return new ReturnResult { Succeeded = true };
-            }
-            catch (Exception ex)
-            {
-                return new ReturnResult 
-                { 
-                    Succeeded = false,
-                    ErrorMessage = ex.ToString()
-                };  
-            }
+        //         return new ReturnResult { Succeeded = true };
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return new ReturnResult 
+        //         { 
+        //             Succeeded = false,
+        //             ErrorMessage = ex.ToString()
+        //         };  
+        //     }
         }
 
         private Tuple<SqlConnectionInfo, DataTable> CreateSqlConnection(ConnectionInfo connInfo, String jobId)

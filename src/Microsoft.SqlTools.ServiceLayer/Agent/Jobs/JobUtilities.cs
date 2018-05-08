@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public const string UrnOperatorPaged = "OperatorPaged";
         public const string UrnRetriesAttempted = "RetriesAttempted";
         public const string UrnServer = "Server";
+        internal const string UrnServerTime = "CurrentDate";
     
         public static AgentJobInfo ConvertToAgentJobInfo(JobProperties job)
         {
@@ -56,64 +57,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
-        public static bool IsStep(DataRow row, SqlConnectionInfo sqlConnectionInfo)
+        public static AgentJobStep ConvertToAgentJobStep(ILogEntry logEntry, DataRow jobRow)
         {
-            int stepId = Convert.ToInt32(row[UrnStepID], System.Globalization.CultureInfo.InvariantCulture);
-            return stepId != 0;
-        }
-
-        public static AgentJobHistoryInfo ConvertToAgentJobHistoryInfo(DataRow jobRow, SqlConnectionInfo sqlConnInfo) 
-        {
-            // get all the values for a job history
-            int instanceId = Convert.ToInt32(jobRow[UrnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
-            int sqlMessageId = Convert.ToInt32(jobRow[UrnSqlMessageID], System.Globalization.CultureInfo.InvariantCulture);
-            string message = Convert.ToString(jobRow[UrnMessage], System.Globalization.CultureInfo.InvariantCulture);
-            int stepId = Convert.ToInt32(jobRow[UrnStepID], System.Globalization.CultureInfo.InvariantCulture);
-            string stepName = Convert.ToString(jobRow[UrnStepName], System.Globalization.CultureInfo.InvariantCulture);
-            int sqlSeverity = Convert.ToInt32(jobRow[UrnSqlSeverity], System.Globalization.CultureInfo.InvariantCulture);
-            Guid jobId = (Guid) jobRow[UrnJobId];
-            string jobName = Convert.ToString(jobRow[UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-            int runStatus = Convert.ToInt32(jobRow[UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-            DateTime runDate = Convert.ToDateTime(jobRow[UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
-            int runDuration = Convert.ToInt32(jobRow[UrnRunDuration], System.Globalization.CultureInfo.InvariantCulture);
-            string operatorEmailed = Convert.ToString(jobRow[UrnOperatorEmailed], System.Globalization.CultureInfo.InvariantCulture);
-            string operatorNetsent = Convert.ToString(jobRow[UrnOperatorNetsent], System.Globalization.CultureInfo.InvariantCulture);
-            string operatorPaged = Convert.ToString(jobRow[UrnOperatorPaged], System.Globalization.CultureInfo.InvariantCulture);
-            int retriesAttempted = Convert.ToInt32(jobRow[UrnRetriesAttempted], System.Globalization.CultureInfo.InvariantCulture);
-            string server = Convert.ToString(jobRow[UrnServer], System.Globalization.CultureInfo.InvariantCulture);
-
-            // initialize logger
-            var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
-            var tlog = t as ILogSource;
-            tlog.Initialize();
-
-            // return new job history object as a result
-            var jobHistoryInfo = new AgentJobHistoryInfo();    
-            jobHistoryInfo.InstanceId = instanceId;
-            jobHistoryInfo.SqlMessageId = sqlMessageId;
-            jobHistoryInfo.Message = message;
-            jobHistoryInfo.StepId = stepId;
-            jobHistoryInfo.StepName = stepName;
-            jobHistoryInfo.SqlSeverity = sqlSeverity;
-            jobHistoryInfo.JobId = jobId;
-            jobHistoryInfo.JobName = jobName;
-            jobHistoryInfo.RunStatus = runStatus;
-            jobHistoryInfo.RunDate = runDate;
-            jobHistoryInfo.RunDuration = runDuration;
-            jobHistoryInfo.OperatorEmailed = operatorEmailed;
-            jobHistoryInfo.OperatorNetsent = operatorNetsent;
-            jobHistoryInfo.OperatorPaged = operatorPaged;
-            jobHistoryInfo.RetriesAttempted = retriesAttempted;
-            jobHistoryInfo.Server = server;
-            return jobHistoryInfo;
-        }
-
-        public static AgentJobStep ConvertToAgentJobStep(DataRow jobRow, SqlConnectionInfo sqlConnInfo)
-        {
-            int stepId = Convert.ToInt32(jobRow[UrnStepID], System.Globalization.CultureInfo.InvariantCulture);
-            string stepName = Convert.ToString(jobRow[UrnStepName], System.Globalization.CultureInfo.InvariantCulture);
-            string message = Convert.ToString(jobRow[UrnMessage], System.Globalization.CultureInfo.InvariantCulture);
-            DateTime runDate = Convert.ToDateTime(jobRow[UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+            var entry = logEntry as LogSourceJobHistory.LogEntryJobHistory;
+            string stepId = entry.StepID;
+            string stepName = entry.StepName;
+            string message = entry.Message;
+            DateTime runDate = logEntry.PointInTime;
             int runStatus = Convert.ToInt32(jobRow[UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
             AgentJobStep step = new AgentJobStep();
             step.StepId = stepId;
@@ -122,6 +72,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             step.RunDate = runDate;
             step.RunStatus = runStatus;
             return step;
+        }
+
+        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow) 
+        {
+            List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
+            // get all the values for a job history
+            foreach (ILogEntry entry in logEntries) 
+            {
+                // Make a new AgentJobHistoryInfo object
+                var jobHistoryInfo = new AgentJobHistoryInfo();
+                jobHistoryInfo.InstanceId = Convert.ToInt32(jobRow[UrnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
+                jobHistoryInfo.RunStatus = Convert.ToInt32(jobRow[UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                jobHistoryInfo.JobId = (Guid) jobRow[UrnJobId];
+                var logEntry = entry as LogSourceJobHistory.LogEntryJobHistory;
+                jobHistoryInfo.SqlMessageId = logEntry.SqlMessageID;
+                jobHistoryInfo.Message = logEntry.Message;
+                jobHistoryInfo.StepId = logEntry.StepID;
+                jobHistoryInfo.StepName = logEntry.StepName;
+                jobHistoryInfo.SqlSeverity = logEntry.SqlSeverity;
+                jobHistoryInfo.JobName = logEntry.JobName;
+                jobHistoryInfo.RunDate = entry.PointInTime;
+                jobHistoryInfo.RunDuration = logEntry.Duration;
+                jobHistoryInfo.OperatorEmailed = logEntry.OperatorEmailed;
+                jobHistoryInfo.OperatorNetsent = logEntry.OperatorNetsent;
+                jobHistoryInfo.OperatorPaged = logEntry.OperatorPaged;
+                jobHistoryInfo.RetriesAttempted = logEntry.RetriesAttempted;
+                jobHistoryInfo.Server = logEntry.Server;
+
+                // Add steps to the job if any
+                var jobSteps = new List<AgentJobStep>();
+                if (entry.CanLoadSubEntries)
+                {
+                    foreach (ILogEntry step in entry.SubEntries)
+                    {
+                        jobSteps.Add(JobUtilities.ConvertToAgentJobStep(step, jobRow));
+                    }
+                }
+                jobHistoryInfo.Steps = jobSteps.ToArray();
+                jobs.Add(jobHistoryInfo);
+            }
+            return jobs;
         }
     }
 }

@@ -42,10 +42,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public RowCreate(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
-            newCells = new CellUpdate[associatedResultSet.Columns.Length];
+            newCells = new CellUpdate[AssociatedResultSet.Columns.Length];
             
             // Process the default cell values. If the column is calculated, then the value is a placeholder
-            DefaultValues = associatedMetadata.Columns.Select((col, index) => col.IsCalculated.HasTrue()
+            DefaultValues = AssociatedObjectMetadata.Columns.Select((col, index) => col.IsCalculated.HasTrue()
                 ? SR.EditDataComputedColumnPlaceholder
                 : col.DefaultValue).ToArray();
         }
