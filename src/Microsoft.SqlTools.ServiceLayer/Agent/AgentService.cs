@@ -267,6 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
                     out connInfo);
+
                 if (connInfo != null)
                 {
                     /// look up alerts       
@@ -299,14 +300,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (connInfo != null && ValidateAgentAlertInfo(alert))
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer))
-                    {
-                        // update the name in the xml document.
-                        STParameters param = new STParameters(helper.DataContainer.Document);
-                        param.SetParam("alert", alert.JobName);
+                    STParameters param = new STParameters(helper.DataContainer.Document);
+                    param.SetParam("alert", alert.JobName);
 
-                        ExecutionMode executionResult;
-                        agentAlert.Execute(RunType.RunNow, out executionResult);
+                    using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
+                    {
+                        agentAlert.Execute();
                     }       
                 }
 

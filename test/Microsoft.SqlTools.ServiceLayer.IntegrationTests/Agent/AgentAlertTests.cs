@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 
         }
 
-    /// <summary>
+        /// <summary>
         /// Verify default create agent handler
         /// </summary>
         [Fact]
@@ -73,7 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 AgentService service = new AgentService();
                 await service.HandleCreateAgentAlertRequest(requestParams, requestContext.Object);
             }
-
         }
     }
 }

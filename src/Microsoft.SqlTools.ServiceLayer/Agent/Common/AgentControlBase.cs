@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// base class that can be used to derived from for the main classes [containers] of the dialogs
     /// </summary>
-    public class AgentControlBase : IDisposable, ISqlControlCollection
+    public class AgentConfigurationBase : IDisposable, ISqlControlCollection
     {
 #region Members
 
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// SqlMgmtTreeViewControl constructor loads the tree image lists sets the last view to zero
         /// and creates the panel view array
         /// </summary>
-        public AgentControlBase()
+        public AgentConfigurationBase()
         {
             this.viewsArray     = new ArrayList();
             this.nodesArray     = new ArrayList();

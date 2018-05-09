@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// General page on Agent Operators Dialog
     /// </summary>
-    internal class AgentOperatorsGeneral : AgentControlBase
+    internal class AgentOperatorsGeneral : AgentConfigurationBase
     {
         #region Members
         /// <summary> 

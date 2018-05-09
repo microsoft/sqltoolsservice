@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// Agent operators management dialog
     /// BUGBUG - plush - get rid of the corresponding resx file as it is not needed
     /// </summary>
-    internal class AgentOperators : AgentControlBase
+    internal class AgentOperators : AgentConfigurationBase
     {
         #region Member variables
 

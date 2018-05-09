@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// Agent alert response
     /// </summary>
-    internal class AgentAlertResponse : AgentControlBase
+    internal class AgentAlertResponse : AgentConfigurationBase
     {
         #region Private types
 

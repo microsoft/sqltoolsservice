@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// Notifications page on Agent Operators Dialog
     /// </summary>
-    internal class AgentOperatorsNotifications : AgentControlBase
+    internal class AgentOperatorsNotifications : AgentConfigurationBase
     {
         #region Internal types
 

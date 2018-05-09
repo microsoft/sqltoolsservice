@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// Agent alert options page
     /// </summary>
-    internal class AgentAlertOptions : AgentControlBase
+    internal class AgentAlertOptions : AgentConfigurationBase
     {
         #region Members
 
