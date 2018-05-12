@@ -765,13 +765,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // parse on separate thread so stack size can be increased
                             var parseThread = new Thread(() =>
                             {
-                                 // parse current SQL file contents to retrieve a list of errors
-                                ParseResult parseResult = Parser.IncrementalParse(
-                                    scriptFile.Contents,
-                                    parseInfo.ParseResult,
-                                    this.DefaultParseOptions);
+                                try
+                                {
+                                    // parse current SQL file contents to retrieve a list of errors
+                                    ParseResult parseResult = Parser.IncrementalParse(
+                                        scriptFile.Contents,
+                                        parseInfo.ParseResult,
+                                        this.DefaultParseOptions);
 
-                                parseInfo.ParseResult = parseResult;
+                                    parseInfo.ParseResult = parseResult;
+                                }
+                                catch (Exception e)
+                                {
+                                    // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
+                                    Logger.Write(LogLevel.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
+                                }
                             }, ConnectedBindingQueue.QueueThreadStackSize);
                             parseThread.Start();
                             parseThread.Join();                        
