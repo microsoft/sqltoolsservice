@@ -39,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "at",
             "backup",
             "begin",
+            "between",
             "binary",
             "bit",
             "break",
