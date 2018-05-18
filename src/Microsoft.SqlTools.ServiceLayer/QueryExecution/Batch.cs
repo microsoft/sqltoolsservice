@@ -439,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     DbColumnWrapper resultCol = result.Columns[j];
                     DbColumn schemaCol = columnSchema[j];
 
-                    if(!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName, StringComparison.OrdinalIgnoreCase)
+                    if (!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName, StringComparison.OrdinalIgnoreCase)
                         || (!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
                             && !string.IsNullOrEmpty(schemaCol.ColumnName)
                             && !string.Equals(resultCol, SR.QueryServiceColumnNull)))
