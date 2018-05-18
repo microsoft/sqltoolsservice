@@ -420,23 +420,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
         {
-            if (columnSchemas.Count != results.Count) return;
+            if (columnSchemas.Count != results.Count)
+            {   
+                return;
+            }
 
-            for(int i = 0; i < results.Count; i++)
+            for (int i = 0; i < results.Count; i++)
             {
                 ResultSet result = results[i];
                 DbColumn[] columnSchema = columnSchemas[i];
-                if(result.Columns.Length > columnSchema.Length)
+                if (result.Columns.Length > columnSchema.Length)
                 {
                     throw new InvalidOperationException("Did not receive enough metadata columns.");
                 }
 
-                for(int j = 0; j < result.Columns.Length; j++)
+                for (int j = 0; j < result.Columns.Length; j++)
                 {
                     DbColumnWrapper resultCol = result.Columns[j];
                     DbColumn schemaCol = columnSchema[j];
 
-                    if(!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName)
+                    if (!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName, StringComparison.OrdinalIgnoreCase)
                         || (!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
                             && !string.IsNullOrEmpty(schemaCol.ColumnName)
                             && !string.Equals(resultCol, SR.QueryServiceColumnNull)))
