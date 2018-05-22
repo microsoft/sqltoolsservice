@@ -36,26 +36,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.DataContainer = dataContainer;
         }
 
-        public bool Execute()
-        {          
-            Alert alert = null;            
+        private static string GetAlertName(CDataContainer container)
+        {
             string alertName = null;
-            bool createNewAlert = true;   
-    
-            if (string.IsNullOrEmpty(alertName))
+            STParameters parameters = new STParameters();
+            parameters.SetDocument(container.Document);
+            if (parameters.GetParam("alert", ref alertName) == false || string.IsNullOrWhiteSpace(alertName))
             {
-                STParameters parameters = new STParameters();
-                parameters.SetDocument(this.DataContainer.Document);
-                if (parameters.GetParam("alert", ref alertName) == false)
-                {
-                    throw new Exception("SRError.AlertNameCannotBeBlank");
-                }
+                throw new Exception("SRError.AlertNameCannotBeBlank");
+            }
+            return alertName.Trim();
+        }
 
-                alertName = alertName.Trim();
+        public bool Drop()
+        {     
+            // fail if the user is not in the sysadmin role
+            if (!this.DataContainer.Server.ConnectionContext.IsInFixedServerRole(FixedServerRoles.SysAdmin))
+            {
+                return false;
             }
 
+            string alertName = GetAlertName(this.DataContainer);
+            if (this.DataContainer.Server.JobServer.Alerts.Contains(alertName))
+            {
+                this.DataContainer.Server.JobServer.Alerts.Refresh();
+                if (this.DataContainer.Server.JobServer.Alerts.Contains(alertName))
+                {
+                    Alert alert = this.DataContainer.Server.JobServer.Alerts[alertName];
+                    if (alert != null)
+                    {
+                        alert.DropIfExists();
+                    }
+                }
+            }
+            return true;
+        }
+
+        public bool CreateOrUpdate()
+        {          
+            Alert alert = null;            
+            string alertName = GetAlertName(this.DataContainer);
+            bool createNewAlert = true;
+
             try
-            {                            
+            {
+                // check if alert already exists
                 if (this.DataContainer.Server.JobServer.Alerts.Contains(alertName))
                 {
                     this.DataContainer.Server.JobServer.Alerts.Refresh(); // Try to recover
@@ -73,7 +98,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     alert = new Alert(this.DataContainer.Server.JobServer, alertName);
                 }
 
-                UpdateAlert(alert);
+                // apply changes from input parameter to SMO alert object
+                UpdateAlertProperties(alert);
 
                 if (createNewAlert)
                 {
@@ -89,16 +115,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     alert.Alter();
                 }
 
-                // update the name in the xml document.
-                STParameters param = new STParameters(this.DataContainer.Document);
-                param.SetParam("alert", alertName);
-
                 return true;
             }
             catch (Exception e)
             {
                 ApplicationException applicationException;
-
                 if (createNewAlert)
                 {
                     applicationException = new ApplicationException("AgentAlertSR.CannotCreateNewAlert", e);
@@ -107,12 +128,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     applicationException = new ApplicationException("AgentAlertSR.CannotAlterAlert", e);
                 }
-
                 throw applicationException;
             }
         }
 
-        private void UpdateAlert(Alert alert)
+        private void UpdateAlertProperties(Alert alert)
         {
             if (alert == null)
             {

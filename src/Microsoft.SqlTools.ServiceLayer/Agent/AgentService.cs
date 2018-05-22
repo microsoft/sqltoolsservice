@@ -263,6 +263,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await Task.Run(async () =>
             {
                 var result = new AgentAlertsResult();
+                result.Alerts = new List<AgentAlertInfo>().ToArray();
+
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
@@ -270,7 +272,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 if (connInfo != null)
                 {
-                    /// look up alerts       
+                    
+
+
                 }
 
                 await requestContext.SendResult(result);
@@ -296,18 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     parameters.OwnerUri,
                     out connInfo);
 
-                AgentAlertInfo alert = parameters.Alert;
-                if (connInfo != null && ValidateAgentAlertInfo(alert))
-                {
-                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(helper.DataContainer.Document);
-                    param.SetParam("alert", alert.JobName);
-
-                    using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
-                    {
-                        agentAlert.Execute();
-                    }       
-                }
+                CreateOrUpdateAgentAlert(connInfo, parameters.Alert);
 
                 await requestContext.SendResult(result);
             });
@@ -318,7 +311,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>        
         internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            await Task.Run(async () =>
+            {
+                var result = new UpdateAgentAlertResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+
+                CreateOrUpdateAgentAlert(connInfo, parameters.Alert);
+
+                await requestContext.SendResult(result);
+            });
+        }
+
+        private void CreateOrUpdateAgentAlert(ConnectionInfo connInfo, AgentAlertInfo alert)
+        {
+            if (connInfo != null && ValidateAgentAlertInfo(alert))
+            {
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                STParameters param = new STParameters(helper.DataContainer.Document);
+                param.SetParam("alert", alert.JobName);
+
+                using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
+                {
+                    agentAlert.CreateOrUpdate();
+                }       
+            }
         }
 
         /// <summary>
@@ -326,7 +345,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>        
         internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<DeleteAgentAlertResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            await Task.Run(async () =>
+            {
+                var result = new DeleteAgentAlertResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+
+                AgentAlertInfo alert = parameters.Alert;
+                if (connInfo != null && ValidateAgentAlertInfo(alert))
+                {
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(helper.DataContainer.Document);
+                    param.SetParam("alert", alert.JobName);
+
+                    using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
+                    {
+                        agentAlert.Drop();
+                    }       
+                }
+
+                await requestContext.SendResult(result);
+            });
         }
 
         #endregion // "Alert Handlers"
