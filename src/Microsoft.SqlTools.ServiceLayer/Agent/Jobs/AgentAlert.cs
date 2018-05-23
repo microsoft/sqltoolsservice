@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// Default constructor that will be used to create dialog
         /// </summary>
         /// <param name="dataContainer"></param>
-        public AgentAlert(CDataContainer dataContainer, AgentAlertInfo alertInfo) //: this()
+        public AgentAlert(CDataContainer dataContainer, AgentAlertInfo alertInfo)
         {
             this.alertInfo = alertInfo;
             this.DataContainer = dataContainer;

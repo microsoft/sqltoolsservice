@@ -90,6 +90,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(CreateAgentAlertRequest.Type, HandleCreateAgentAlertRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentAlertRequest.Type, HandleUpdateAgentAlertRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentAlertRequest.Type, HandleDeleteAgentAlertRequest);
+
+            // Operators request handlers
+            this.ServiceHost.SetRequestHandler(AgentOperatorsRequest.Type, HandleAgentOperatorsRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentOperatorRequest.Type, HandleCreateAgentOperatorRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentOperatorRequest.Type, HandleUpdateAgentOperatorRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentOperatorRequest.Type, HandleDeleteAgentOperatorRequest);
         }
 
         #region "Jobs Handlers"
@@ -272,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 if (connInfo != null)
                 {
-                    
+
 
 
                 }
@@ -336,7 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
                 {
                     agentAlert.CreateOrUpdate();
-                }       
+                }
             }
         }
 
@@ -371,5 +377,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         #endregion // "Alert Handlers"
+
+
+        #region "Operator Handlers"
+
+        internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        internal async Task HandleCreateAgentOperatorRequest(CreateAgentOperatorParams parameters, RequestContext<CreateAgentOperatorResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new CreateAgentOperatorResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+
+                AgentOperatorInfo operatorInfo = parameters.Operator;
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                STParameters param = new STParameters(helper.DataContainer.Document);
+                param.SetParam("operator", operatorInfo.Name);
+
+                using (AgentOperator agentOperator = new AgentOperator(helper.DataContainer, operatorInfo))
+                {
+                    agentOperator.CreateOrUpdate();
+                }
+
+                // using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, operatorInfo))
+                // {
+                //     agentAlert.CreateOrUpdate();
+                // }
+
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleUpdateAgentOperatorRequest(UpdateAgentOperatorParams parameters, RequestContext<UpdateAgentOperatorResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        internal async Task HandleDeleteAgentOperatorRequest(DeleteAgentOperatorParams parameters, RequestContext<DeleteAgentOperatorResult> requestContext)
+        {
+        }
+
+        #endregion // "Operator Handlers"
     }
 }

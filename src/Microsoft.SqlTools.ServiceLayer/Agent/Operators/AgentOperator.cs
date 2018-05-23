@@ -1,5 +1,3 @@
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-#region using
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -8,110 +6,57 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
-
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
-
-
-#endregion
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-    #region AgentOperators class
-
     /// <summary>
-    /// Agent operators management dialog
-    /// BUGBUG - plush - get rid of the corresponding resx file as it is not needed
+    /// Agent operators management
     /// </summary>
-    internal class AgentOperators : AgentConfigurationBase
+    internal class AgentOperator : AgentConfigurationBase
     {
-        #region Member variables
+        private AgentOperatorInfo operatorInfo;
 
-        /// <summary> 
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.Container components = null;
-        /// <summary>
-        /// Agent operator general properties
-        /// </summary>
-        // private AgentOperatorsGeneral agentOperatorsGeneral = null;
-        // /// <summary>
-        // /// Agent operator notifications properties
-        // /// </summary>
-        // private AgentOperatorsNotifications agentOperatorsNotifications = null;
-        // /// <summary>
-        // /// Agent operator history properties
-        // /// </summary>
-        // private AgentOperatorsHistory agentOperatorsHistory = null;
-        // /// <summary>
-        // /// Tree root node
-        // /// </summary>
-        // private PanelTreeNode rootNode = null;
-        /// <summary>
-        /// Proxy that performs data manipulation for all tabs.
-        /// </summary>
         AgentOperatorsData operatorsData = null;
-        #endregion
 
-        #region Constructors
         /// <summary>
-        /// Default public constructor
+        /// Constructor
         /// </summary>
-        public AgentOperators()
-        {
-        }
-        /// <summary>
-        /// Default constructor that will be used to create dialog
-        /// </summary>
-        /// <param name="dataContainer"></param>
-        public AgentOperators(CDataContainer dataContainer)
-            : this()
+        public AgentOperator(CDataContainer dataContainer, AgentOperatorInfo operatorInfo)
         {
             try
             {
-                if(dataContainer == null)
+                if (dataContainer == null)
+                {
                     throw new ArgumentNullException("dataContainer");
+                }
 
-                DataContainer = dataContainer;
+                if (operatorInfo == null)
+                {
+                    throw new ArgumentNullException("operatorInfo");
+                }
+
+                this.operatorInfo = operatorInfo;
+                this.DataContainer = dataContainer;
 
                 STParameters parameters = new STParameters();
-
                 parameters.SetDocument(dataContainer.Document);
 
-                // this.rootNode = new PanelTreeNode();
-                // this.rootNode.Type = eNodeType.Folder;
-                // this.rootNode.Tag = 1;
-
                 string agentOperatorName = null;
-
-                if(parameters.GetParam("operator", ref agentOperatorName) == false)
-                {
-                    this.operatorsData = new AgentOperatorsData(dataContainer);
-                }
-                else
+                if (parameters.GetParam("operator", ref agentOperatorName))
                 {
                     this.operatorsData = new AgentOperatorsData(dataContainer, agentOperatorName);
                 }
-
-                // AddGeneralPage();
-                // AddNotificationsPage();
-                // AddHistoryPage();
-
-                // if(this.operatorsData.Creating)
-                // {
-                //     this.Text = AgentOperatorsSR.NewOperatorProperties;
-                // }
-                // else
-                // {
-                //     this.Text = AgentOperatorsSR.OperatorProperties(agentOperatorName);
-                // }
-
-                // this.rootNode.Text = this.Text;
-
-                // AddNode(this.rootNode);
+                else
+                {
+                    throw new ArgumentNullException("agentOperatorName");
+                }
             }
             catch(Exception e)
             {
@@ -119,50 +64,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
         }
 
-        #endregion
-
-        #region Overrides
         /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
         protected override void Dispose(bool disposing)
         {
             if(disposing)
-            {
-                if(components != null)
-                {
-                    components.Dispose();
-                }
+            {    
             }
             base.Dispose(disposing);
         }
 
-        #endregion
-
-        #region implementation of the execution logic
-
-        /// <summary>
-        /// called by IExecutionAwareSqlControlCollection.PreProcessExecution to enable derived
-        /// classes to take over execution of the dialog and do entire execution in this method
-        /// rather than having the framework to execute dialog views one by one.
-        /// 
-        /// NOTE: it might be called from non-UI thread
-        /// </summary>
-        /// <param name="runType"></param>
-        /// <param name="executionResult"></param>
-        /// <returns>
-        /// true if regular execution should take place, false if everything,
-        /// has been done by this function
-        /// </returns>
-        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
+        public bool CreateOrUpdate()
         {
-            base.DoPreProcessExecution(runType, out executionResult);
-
-            this.operatorsData.ApplyChanges();
-
-            return false;// do not call RunNow on every panel
+            this.operatorsData.ApplyChanges(this.operatorInfo);
+            return true;
         }
-
 
         /// <summary>
         /// called before dialog's host executes OnReset method on all panels in the dialog one by one
@@ -193,8 +110,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new ApplicationException("AgentOperatorsSR.CannotResetOperator", e);
             }
         }
-
-        #endregion
 
         #region Private helpers
 
@@ -284,8 +199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion
     }
-
-    #endregion
 }
 
 

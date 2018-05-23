@@ -42,4 +42,103 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
             RequestType<AgentAlertsParams, AgentAlertsResult> Type =
             RequestType<AgentAlertsParams, AgentAlertsResult>.Create("agent/alerts");
     }
+
+    /// <summary>
+    /// SQL Agent create Alert params
+    /// </summary>
+    public class CreateAgentAlertParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public AgentAlertInfo Alert { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent create Alert result
+    /// </summary>
+    public class CreateAgentAlertResult
+    {
+        public bool Succeeded { get; set; }
+
+        public string ErrorMessage { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent create Alert request type
+    /// </summary>
+    public class CreateAgentAlertRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<CreateAgentAlertParams, CreateAgentAlertResult> Type =
+            RequestType<CreateAgentAlertParams, CreateAgentAlertResult>.Create("agent/createalert");
+    }
+
+    /// <summary>
+    /// SQL Agent delete Alert params
+    /// </summary>
+    public class DeleteAgentAlertParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public AgentAlertInfo Alert { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent delete Alert result
+    /// </summary>
+    public class DeleteAgentAlertResult
+    {
+        public bool Succeeded { get; set; }
+
+        public string ErrorMessage { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent delete Alert request type
+    /// </summary>
+    public class DeleteAgentAlertRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DeleteAgentAlertParams, DeleteAgentAlertResult> Type =
+            RequestType<DeleteAgentAlertParams, DeleteAgentAlertResult>.Create("agent/deletealert");
+    }
+
+    /// <summary>
+    /// SQL Agent update Alert params
+    /// </summary>
+    public class UpdateAgentAlertParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public AgentAlertInfo Alert { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent update Alert result
+    /// </summary>
+    public class UpdateAgentAlertResult
+    {
+        public bool Succeeded { get; set; }
+
+        public string ErrorMessage { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent update Alert request type
+    /// </summary>
+    public class UpdateAgentAlertRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<UpdateAgentAlertParams, UpdateAgentAlertResult> Type =
+            RequestType<UpdateAgentAlertParams, UpdateAgentAlertResult>.Create("agent/updatealert");
+    }
 }

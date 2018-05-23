@@ -1,5 +1,3 @@
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-#region using
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,10 +5,11 @@ using System.Data;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Admin;
-#endregion
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -121,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         bool enabled;
         string emailAddress;
         string pagerAddress;
-        WeekDays pagerDays;
+        SqlServer.Management.Smo.Agent.WeekDays pagerDays;
         DateTime weekdayStartTime;
         DateTime weekdayEndTime;
         DateTime saturdayStartTime;
@@ -237,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// the days of the week the operator is active
         /// </summary>
-        public WeekDays PagerDays
+        public SqlServer.Management.Smo.Agent.WeekDays PagerDays
         {
             get
             {
@@ -409,24 +408,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Default public constructor
         /// </summary>
-        public AgentOperatorsData(CDataContainer dataContainer)
-        {
-            if(dataContainer == null)
-            {
-                throw new ArgumentNullException("dataContainer");
-            }
-            this.dataContainer = dataContainer;
+        // public AgentOperatorsData(CDataContainer dataContainer)
+        // {
+        //     if(dataContainer == null)
+        //     {
+        //         throw new ArgumentNullException("dataContainer");
+        //     }
+        //     this.dataContainer = dataContainer;
 
-            this.createMode = true;
-        }
+        //     this.createMode = true;
+        // }
 
         public AgentOperatorsData(CDataContainer dataContainer, string operatorName)
         {
-            if(dataContainer == null)
+            if (dataContainer == null)
             {
                 throw new ArgumentNullException("dataContainer");
             }
-            if(operatorName == null)
+            if (operatorName == null)
             {
                 throw new ArgumentNullException("operatorName");
             }
@@ -435,6 +434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.readOnly = !this.dataContainer.Server.ConnectionContext.IsInFixedServerRole(FixedServerRoles.SysAdmin);
             this.originalOperatorName = operatorName;
+            this.name = operatorName;
 
             this.createMode = operatorName.Length == 0;
         }
@@ -521,11 +521,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         private void LoadAlertNotificationData()
         {
-            if(this.alertNotifications != null)
+            if (this.alertNotifications != null)
+            {
                 return;
+            }
 
             // defaults in create ode
-            if(createMode)
+            if (createMode)
             {
                 LoadAlertNotificationDefaults();
                 return;
@@ -544,12 +546,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             AgentAlertNotificationHelper alertNotification;
 
             // Add every alert to the structure
-            foreach(Alert alert in jobServer.Alerts)
+            foreach (Alert alert in jobServer.Alerts)
             {
                 alertRow = null;
 
                 // see if the alert notifies us already
-                foreach(DataRow row in notifications.Rows)
+                foreach (DataRow row in notifications.Rows)
                 {
                     if((string)row["AlertName"] == alert.Name)
                     {
@@ -560,7 +562,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // set if the current alert notifies this operator
                 // if so so how
-                if(alertRow != null)
+                if (alertRow != null)
                 {
                     notifyEmail = (bool)alertRow["UseEmail"];
                     notifyPager = (bool)alertRow["UsePager"];
@@ -578,15 +580,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.alertNotifications.Add(alertNotification);
             }
         }
+
         /// <summary>
         /// load the notifiaction history for the operator
         /// </summary>
         private void LoadHistoryData()
         {
-            if(this.historyInitialized)
+            if (this.historyInitialized)
+            {
                 return;
+            }
 
-            if(this.createMode)
+            if (this.createMode)
             {
                 LoadHistoryDefaults();
                 return;
@@ -604,7 +609,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// apply any changes to the operator. If the operator does not exist create it.
         /// </summary>
-        public void ApplyChanges()
+        public void ApplyChanges(AgentOperatorInfo operatorInfo)
         {
             // do nothing if we are read only
             if (this.readOnly)
@@ -618,29 +623,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             Microsoft.SqlServer.Management.Smo.Agent.Operator currentOperator = GetCurrentOperator();
 
             // general tab
-            currentOperator.Enabled = this.enabled;
-            currentOperator.EmailAddress = this.emailAddress;
-            currentOperator.PagerAddress = this.pagerAddress;
+            currentOperator.Enabled = operatorInfo.Enabled;
 
+            if (!string.IsNullOrWhiteSpace(operatorInfo.EmailAddress))
+            {
+                currentOperator.EmailAddress = operatorInfo.EmailAddress;
+            }
+
+            if (!string.IsNullOrWhiteSpace(operatorInfo.PagerAddress))
+            {
+                currentOperator.PagerAddress = operatorInfo.PagerAddress;
+            }
+    
             currentOperator.PagerDays = this.pagerDays;
 
-            if((this.pagerDays & WeekDays.WeekDays) > 0)
+            if ((operatorInfo.PagerDays & Contracts.WeekDays.WeekDays) > 0)
             {
-                currentOperator.WeekdayPagerStartTime = ConvertAgentTime(this.weekdayStartTime);
-                currentOperator.WeekdayPagerEndTime = ConvertAgentTime(this.weekdayEndTime);
-            }
-            if((this.pagerDays & WeekDays.Saturday) > 0)
-            {
-                currentOperator.SaturdayPagerStartTime = ConvertAgentTime(this.saturdayStartTime);
-                currentOperator.SaturdayPagerEndTime = ConvertAgentTime(this.saturdayEndTime);
-            }
-            if((this.pagerDays & WeekDays.Sunday) > 0)
-            {
-                currentOperator.SundayPagerStartTime = ConvertAgentTime(this.sundayStartTime);
-                currentOperator.SundayPagerEndTime = ConvertAgentTime(this.sundayEndTime);
+                currentOperator.WeekdayPagerStartTime = operatorInfo.WeekdayPagerStartTime;
+                currentOperator.WeekdayPagerEndTime = operatorInfo.WeekdayPagerEndTime;
             }
 
-            if(this.createMode)
+            if ((operatorInfo.PagerDays & Contracts.WeekDays.Saturday) > 0)
+            {
+                currentOperator.SaturdayPagerStartTime = operatorInfo.SaturdayPagerStartTime;
+                currentOperator.SaturdayPagerEndTime = operatorInfo.SaturdayPagerEndTime;
+            }
+
+            if ((operatorInfo.PagerDays & Contracts.WeekDays.Sunday) > 0)
+            {
+                currentOperator.SundayPagerStartTime = operatorInfo.SundayPagerStartTime;
+                currentOperator.SundayPagerEndTime = operatorInfo.SundayPagerEndTime;
+            }
+
+            if (this.createMode)
             {
                 // create the object
                 currentOperator.Create();
@@ -653,38 +668,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             // only set this up if the notifications has been set
-            if(this.alertNotifications != null)
+            if (this.alertNotifications != null)
             {
-                NotifyMethods notifyMethods;
-                for(int i = 0; i < alertNotifications.Count; ++i)
+                SqlServer.Management.Smo.Agent.NotifyMethods notifyMethods;
+                for (int i = 0; i < alertNotifications.Count; ++i)
                 {
                     notifyMethods = 0;
 
-                    if(alertNotifications[i].NotifyEmail)
+                    if (alertNotifications[i].NotifyEmail)
                     {
-                        notifyMethods |= NotifyMethods.NotifyEmail;
+                        notifyMethods |= SqlServer.Management.Smo.Agent.NotifyMethods.NotifyEmail;
                     }
-                    if(alertNotifications[i].NotifyPager)
+                    if (alertNotifications[i].NotifyPager)
                     {
-                        notifyMethods |= NotifyMethods.Pager;
+                        notifyMethods |= SqlServer.Management.Smo.Agent.NotifyMethods.Pager;
                     }
                     
                     bool alertAlreadyNotifiesOperator = false;
 
                     // if we're not creating see if the current alert already notifies this operator
-                    if(!createMode)
+                    if (!createMode)
                     {
                         DataTable notifications = alertNotifications[i].Alert.EnumNotifications(this.originalOperatorName);
-                        if(notifications.Rows.Count > 0)
+                        if (notifications.Rows.Count > 0)
                         {
                             alertAlreadyNotifiesOperator = true;
                         }
                     }
 
                     // either update or clear existing notifications
-                    if(alertAlreadyNotifiesOperator)
+                    if (alertAlreadyNotifiesOperator)
                     {
-                          if(notifyMethods != NotifyMethods.None)
+                        if(notifyMethods != SqlServer.Management.Smo.Agent.NotifyMethods.None)
                         {
                             alertNotifications[i].Alert.UpdateNotification(this.originalOperatorName, notifyMethods);
                         }
@@ -693,7 +708,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             alertNotifications[i].Alert.RemoveNotification(this.originalOperatorName);
                         }
                     }
-                    else if(notifyMethods != NotifyMethods.None)
+                    else if(notifyMethods != SqlServer.Management.Smo.Agent.NotifyMethods.None)
                     {
                         // add a new notification
                         alertNotifications[i].Alert.AddNotification(this.originalOperatorName, notifyMethods);
@@ -702,7 +717,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             // see if we need to rename. This has to be done last otherwise any scripts generated will be incorrect.
-            if(!this.createMode && currentOperator.Name != this.originalOperatorName)
+            if (!this.createMode && currentOperator.Name != this.originalOperatorName)
             {
                 currentOperator.Rename(this.name);
                 if(this.dataContainer.Server.ConnectionContext.SqlExecutionModes != SqlExecutionModes.CaptureSql)
@@ -711,7 +726,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
             }
             // update state if we aren't scripting
-            if(this.createMode && this.dataContainer.Server.ConnectionContext.SqlExecutionModes != SqlExecutionModes.CaptureSql)
+            if (this.createMode && this.dataContainer.Server.ConnectionContext.SqlExecutionModes != SqlExecutionModes.CaptureSql)
             {
                 this.createMode = false;
             }
@@ -726,13 +741,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             JobServer jobServer = GetJobServer();
             this.generalInitialized = false;
-            if(this.jobNotifications != null)
+            if (this.jobNotifications != null)
             {
                 // ensure the individual jobs are reset also
                 jobServer.Jobs.Refresh(true);
                 this.jobNotifications = null;
             }
-            if(this.alertNotifications != null)
+            if (this.alertNotifications != null)
             {
                 // ensure the individual jobs are reset also
                 jobServer.Alerts.Refresh(true);
@@ -808,34 +823,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             return jobServer;
         }
+
         /// <summary> 
         /// Get the current operator. If we are creating this will be a new operator. If we are modifying
         /// an existing operator it will be the existing operator, and will throw if the operator has been 
         /// deleted.
         /// </summary>
         /// <returns>Operator object</returns>
-        private Microsoft.SqlServer.Management.Smo.Agent.Operator GetCurrentOperator()
+        private Operator GetCurrentOperator()
         {
             JobServer jobServer = GetJobServer();
 
-            Microsoft.SqlServer.Management.Smo.Agent.Operator currentOperator;
-
-            // new object in create mode
-            if(this.createMode)
+            Operator currentOperator = jobServer.Operators[this.originalOperatorName];
+            this.createMode = (currentOperator == null);
+            if (this.createMode)
             {
                 currentOperator = new Microsoft.SqlServer.Management.Smo.Agent.Operator(jobServer, this.name);
             }
-            else
-            {
-                currentOperator = jobServer.Operators[this.originalOperatorName];
-                // throw if the operator has been deleted already
-                if(currentOperator == null)
-                {
-                    throw new ApplicationException("SRError.OperatorDoesNotExist(this.originalOperatorName)");
-                }
-            }
             return currentOperator;
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -854,6 +861,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             return new DateTime(2000, 1, 1, dateTime.Hours, dateTime.Minutes, dateTime.Seconds);
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -863,6 +871,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             return dateTime.Hour * 10000 + dateTime.Minute * 100 + dateTime.Second;
         }
+
         /// <summary>
         /// 
         /// </summary>
