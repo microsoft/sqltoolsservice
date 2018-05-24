@@ -96,6 +96,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(CreateAgentOperatorRequest.Type, HandleCreateAgentOperatorRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentOperatorRequest.Type, HandleUpdateAgentOperatorRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentOperatorRequest.Type, HandleDeleteAgentOperatorRequest);
+
+            // Proxy Accounts request handlers
+            this.ServiceHost.SetRequestHandler(AgentProxiesRequest.Type, HandleAgentProxiesRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentProxyRequest.Type, HandleCreateAgentProxyRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentProxyRequest.Type, HandleUpdateAgentProxyRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentProxyRequest.Type, HandleDeleteAgentProxyRequest);
         }
 
         #region "Jobs Handlers"
@@ -378,7 +384,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion // "Alert Handlers"
 
-
         #region "Operator Handlers"
 
         internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
@@ -406,11 +411,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     agentOperator.CreateOrUpdate();
                 }
 
-                // using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, operatorInfo))
-                // {
-                //     agentAlert.CreateOrUpdate();
-                // }
-
                 await requestContext.SendResult(result);
             });
         }
@@ -422,8 +422,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleDeleteAgentOperatorRequest(DeleteAgentOperatorParams parameters, RequestContext<DeleteAgentOperatorResult> requestContext)
         {
+            await requestContext.SendResult(null);
         }
 
         #endregion // "Operator Handlers"
+
+
+        #region "Proxy Handlers"
+
+        internal async Task HandleAgentProxiesRequest(AgentProxiesParams parameters, RequestContext<AgentProxiesResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<CreateAgentProxyResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new CreateAgentProxyResult();
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+
+                AgentProxyInfo proxy = parameters.Proxy;
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                STParameters param = new STParameters(helper.DataContainer.Document);
+                param.SetParam("proxyaccount", proxy.AccountName);
+
+                using (AgentProxyAccount agentProxy = new AgentProxyAccount(helper.DataContainer))
+                {
+                    result.Succeeded = agentProxy.CreateOrUpdate(proxy);
+                }
+
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<UpdateAgentProxyResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<DeleteAgentProxyResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        #endregion // "Proxy Handlers"
     }
 }
