@@ -523,8 +523,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         }
                     }
                 }
-                catch
+                catch (Exception)
                 {
+                    // log exception here
                     return false;
                 }
             });

@@ -45,11 +45,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     Proxy = proxy
                 }, deleteContext.Object);
 
+                deleteContext.VerifyAll();
+
                 await service.HandleCreateAgentProxyRequest(new CreateAgentProxyParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Proxy = proxy
                 }, createContext.Object);
+
+                createContext.VerifyAll();
 
                 string originalProxyName = proxy.AccountName;
                 proxy.AccountName = proxy.AccountName + " Updated";
@@ -60,14 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     Proxy = proxy
                 }, updateContext.Object);
 
+                updateContext.VerifyAll();
+
                 await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Proxy = proxy
                 }, deleteContext.Object);
-    
-                createContext.VerifyAll();
-                updateContext.VerifyAll();
+
                 deleteContext.VerifyAll();
             }
         }   

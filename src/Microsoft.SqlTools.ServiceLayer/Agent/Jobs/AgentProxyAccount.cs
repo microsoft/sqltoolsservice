@@ -20,6 +20,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     internal class AgentProxyAccount : AgentConfigurationBase
     {
+        #region Constants
+        internal const string ProxyAccountPropertyName = "proxyaccount";
+        internal const string ProxyAccountSubsystem = "SubSystem";
+        internal const string ProxyAccountMode = "Mode";
+        internal const string ProxyAccountDuplicateMode = "Duplicate";
+        internal const int SysnameLength = 256;
+        internal const int DescriptionLength = 512;
+        #endregion
+
         internal enum ProxyPrincipalType
         {
             SqlLogin,
@@ -74,6 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                                 proxyInfo.IsEnabled,
                                                 proxyInfo.Description);
 
+                UpdateProxyAccount(proxyAccount);
                 proxyAccount.Create();
             }
             else if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
@@ -93,6 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     proxyAccount.CredentialName = proxyInfo.CredentialName;
                     proxyAccount.Description = proxyInfo.Description;
 
+                    UpdateProxyAccount(proxyAccount);
                     proxyAccount.Alter();
 
                     // Rename the proxy if needed
@@ -111,7 +122,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             return true;
 
-#if false
+#if false  // @TODO - reenable subsystem code below
+
             // Update the subsystems
             foreach (AgentSubSystem subsystem in this.addSubSystems)
             {
@@ -199,54 +211,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public void UpdateProxyAccount(ProxyAccount proxyAccount)
         {
             if (proxyAccount == null)
-                throw new ArgumentNullException("proxyAccount");
-
-            // Check if page has been initialized
-            //if (this.IsHandleCreated)
             {
-                ArrayList principalsToAdd    = new ArrayList();
-                ArrayList principalsToRemove = new ArrayList();
+                throw new ArgumentNullException("proxyAccount");
+            }
 
-                // Process Sql Logins 
-                if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumLogins() : null, this.principals[(int) ProxyPrincipalType.SqlLogin], principalsToAdd, principalsToRemove))
+            ArrayList principalsToAdd    = new ArrayList();
+            ArrayList principalsToRemove = new ArrayList();
+
+            // Process Sql Logins 
+            if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumLogins() : null, this.principals[(int) ProxyPrincipalType.SqlLogin], principalsToAdd, principalsToRemove))
+            {
+                foreach (string principal in principalsToRemove)
                 {
-                    foreach (string principal in principalsToRemove)
-                    {
-                        proxyAccount.RemoveLogin(principal);
-                    }
-
-                    foreach (string principal in principalsToAdd)
-                    {
-                        proxyAccount.AddLogin(principal);
-                    }
+                    proxyAccount.RemoveLogin(principal);
                 }
 
-                // Process Server Roles
-                if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumServerRoles() : null, this.principals[(int) ProxyPrincipalType.ServerRole], principalsToAdd, principalsToRemove))
+                foreach (string principal in principalsToAdd)
                 {
-                    foreach (string principal in principalsToRemove)
-                    {
-                        proxyAccount.RemoveServerRole(principal);
-                    }
+                    proxyAccount.AddLogin(principal);
+                }
+            }
 
-                    foreach (string principal in principalsToAdd)
-                    {
-                        proxyAccount.AddServerRole(principal);
-                    }
+            // Process Server Roles
+            if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumServerRoles() : null, this.principals[(int) ProxyPrincipalType.ServerRole], principalsToAdd, principalsToRemove))
+            {
+                foreach (string principal in principalsToRemove)
+                {
+                    proxyAccount.RemoveServerRole(principal);
                 }
 
-                // Process Msdb Roles
-                if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumMsdbRoles() : null, this.principals[(int) ProxyPrincipalType.MsdbRole], principalsToAdd, principalsToRemove))
+                foreach (string principal in principalsToAdd)
                 {
-                    foreach (string principal in principalsToRemove)
-                    {
-                        proxyAccount.RemoveMsdbRole(principal);
-                    }
+                    proxyAccount.AddServerRole(principal);
+                }
+            }
 
-                    foreach (string principal in principalsToAdd)
-                    {
-                        proxyAccount.AddMsdbRole(principal);
-                    }
+            // Process Msdb Roles
+            if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumMsdbRoles() : null, this.principals[(int) ProxyPrincipalType.MsdbRole], principalsToAdd, principalsToRemove))
+            {
+                foreach (string principal in principalsToRemove)
+                {
+                    proxyAccount.RemoveMsdbRole(principal);
+                }
+
+                foreach (string principal in principalsToAdd)
+                {
+                    proxyAccount.AddMsdbRole(principal);
                 }
             }
         }
@@ -334,49 +344,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 while (reader.Read())
                 {
-                    // this.referencesGrid.AddRow(new GridCellCollection(
-                    //     new GridCell[] {
+                    //JobStepSubSystems.
+                    // @TODO - write to output collection
                     //                       new GridCell(reader.GetString(0)),   // Job Name (parent property is first)   
                     //                       new GridCell(reader.GetString(1)),   // JobStep Name
                     //                       new GridCell(JobStepSubSystems.LookupFriendlyName((AgentSubSystem) reader.GetInt32(2)))    // JobStep SubSystem
-                    //                    }
-                    //     ));
                 }
             }
-
-            // Set the total references number
-           // this.totalReferences.Text = AgentProxyAccountSR.TotalReferences(this.referencesGrid.RowsNumber);
         }
-
-
-
-
-        #region Implementation
-        /// <summary>
-        /// Adds panel to the tree control.
-        /// </summary>
-        /// <param name="panel">Panel control</param>
-        /// <param name="panelName">Name of the panel in the tree</param>
-        /// <param name="panelID">ID of the panel</param>
-        // private void AddPanel(UserControl panel, string panelName, int panelID)
-        // {
-        //     PanelTreeNode itemNode = new PanelTreeNode();
-        //     itemNode.Text = panelName;
-        //     itemNode.Tag  = panelID;
-        //     itemNode.Type = eNodeType.Item;
-
-        //     AddNode(itemNode);
-        //     AddView(panel);
-        // }
-
-        #region Constants
-        internal const string ProxyAccountPropertyName = "proxyaccount";
-        internal const string ProxyAccountSubsystem = "SubSystem";
-        internal const string ProxyAccountMode = "Mode";
-        internal const string ProxyAccountDuplicateMode = "Duplicate";
-        internal const int SysnameLength = 256;
-        internal const int DescriptionLength = 512;
-        #endregion
 
         #region Static methods
         /// <summary>
@@ -447,7 +422,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="includeSysadmin">If set to true, 'sysadmin' account is added as a first entry in
         /// the list of proxy accounts.</param>
         /// <returns>An array containing names of proxy accounts</returns>
-        internal static string[] ListProxyAccountsForSubsystem(ServerConnection serverConnection, string subsystemName, bool includeSysadmin)
+        internal static string[] ListProxyAccountsForSubsystem(
+            ServerConnection serverConnection, 
+            string subsystemName, 
+            bool includeSysadmin)
         {
             ArrayList proxyAccounts = new ArrayList();
 
@@ -455,7 +433,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (serverConnection.ServerVersion.Major >= 9)
             {
                 if (includeSysadmin)
+                {
                     proxyAccounts.Add(AgentProxyAccount.SysadminAccount);
+                }
 
                 // Get the list of proxy accounts
                 Request req = new Request();
@@ -481,8 +461,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             return (string[]) proxyAccounts.ToArray(typeof(string));
         }
-        #endregion
-
         #endregion
     }
 }
