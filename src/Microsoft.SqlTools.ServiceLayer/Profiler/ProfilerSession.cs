@@ -126,7 +126,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Filter the event list to not include previously seen events
+        /// Filter the event list to not include previously seen events, 
+        /// and to exclude events that happened before the profiling session began.
         /// </summary>
         public List<ProfilerEvent> FilterOldEvents(List<ProfilerEvent> events)
         {
@@ -149,12 +150,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     events.RemoveRange(0, idx + 1);
                 }
-            }
 
-            // save the last event so we know where to clean-up the list from next time
-            if (events.Count > 0)
+                // save the last event so we know where to clean-up the list from next time 
+                if (events.Count > 0)
+                {
+                    lastSeenEvent = events.LastOrDefault();
+                }
+            }
+            else    // first poll at start of session, all data is old
             {
-                lastSeenEvent = events.LastOrDefault();
+                // save the last event as the beginning of the profiling session
+                if (events.Count > 0)
+                {
+                    lastSeenEvent = events.LastOrDefault();
+                }
+
+                // ignore all events before the session began
+                events.Clear();
             }
 
             return events;
