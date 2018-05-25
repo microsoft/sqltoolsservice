@@ -592,7 +592,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     if (dtSteps.Rows.Count > 1) //check if job is multi step job
                     {
-                        selectedStep = ShowStepDialog(job, dtSteps);
+                        // selectedStep = ShowStepDialog(job, dtSteps);
                         if (selectedStep == null) //check if the job was canceled
                             continue;
                     }

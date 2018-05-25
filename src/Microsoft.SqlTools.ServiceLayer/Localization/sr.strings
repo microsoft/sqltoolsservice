@@ -1019,9 +1019,9 @@ CannotResetOperator = Cannot reset operator.
 
 #
 ; Name of label on notifications page
-AlertList = Alert &list:
+AlertList = Alert list:
 ; Name of label on notifications page
-JobList = Job &list:
+JobList = Job list:
 ; Name of column on notifications page
 Email = E-mail
 ; Name of column on notifications page
