@@ -20,18 +20,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 	/// </summary>
 	public interface ISqlControlCollection : IObjectWithSite
 	{
-
-        /// <summary>
-        /// How many controls are in the collection
-        /// </summary>
-        int ViewsCount
-        { get; }
-
-        /// <summary>
-        /// How many TreeNodes are in the collection
-        /// </summary>
-        int NodesCount
-        { get; }
-
     }
 }

@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System;
 using System.Data;
 using System.Drawing;
@@ -12,6 +11,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Xml;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
@@ -570,12 +570,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
          
         }
 
-        // protected override void OnFormClosing(FormClosingEventArgs args)
-        // {
-        //     TriggerAbortEvent();
-        //     base.OnFormClosing(args);
-        // }
-
         /// <summary>
         /// The method is generates list of actions and it is gets called from the OnLaod of base Form method
         /// </summary>
@@ -621,24 +615,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
         }
 
-
-        /// <summary>
-        /// Trigers Abort event for Wait Job Action
-        /// </summary>
-        private void TriggerAbortEvent()
-        {
-            if (this.actions == null || this.actions.Count <= 0)
-                return;
-
-            //We are triggering abort here for all waiting actions, in reallity we always have only one
-            foreach (ProgressItemCollection.ActionIndexMap actionIndex in this.actions)
-            {
-                WaitForJobToFinishAction action = actionIndex.Action as WaitForJobToFinishAction;
-                if (action != null)
-                    action.Abort();
-            }
-        }
-
         /// <summary>
         /// Returns list of steps of the given job
         /// </summary>
@@ -660,33 +636,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             Enumerator en = new Enumerator();
             return en.Process(job.Parent.Parent.ConnectionContext, request);
-        }
-
-
-        /// <summary>
-        /// Shows Step Dialog for selected job, must be called from UI thread
-        /// </summary>
-        /// <returns>selected step or null if nothing was selected</returns>
-        private string ShowStepDialog(Job job, DataTable dtSteps)
-        {
-            if (job == null || dtSteps == null)
-                return null;
-
-            // return value
-            string rv = null;
-
-            // using (PickStartStep dlg = new PickStartStep(job, dtSteps))
-            // {
-            //     //set dialog in the center of the parent
-            //     dlg.StartPosition = FormStartPosition.CenterScreen;
-
-            //     if (dlg.ShowDialog() == DialogResult.OK)
-            //     {
-            //         rv = dlg.StartStep;
-            //     }
-            // }
-
-            return rv;
         }
 
         /// <summary>

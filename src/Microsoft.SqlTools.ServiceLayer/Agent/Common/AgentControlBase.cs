@@ -25,19 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// base class that can be used to derived from for the main classes [containers] of the dialogs
     /// </summary>
-    public class AgentConfigurationBase : IDisposable, ISqlControlCollection
+    public class AgentConfigurationBase : IDisposable
     {
 #region Members
-
-        /// <summary>
-        /// arrays of panels added to the tree panel form
-        /// </summary>
-        private ArrayList   viewsArray;
-
-        /// <summary>
-        /// array of tree nodes. Their Tag property is supposed to specify index of thr tree panel in viewsArray
-        /// </summary>
-        private ArrayList   nodesArray;
 
         /// <summary>
         /// selected node as specified to SelectNode method
@@ -58,39 +48,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //We set this member once the dataContainer is set to be non-null
         private bool ownDataContainer = true;
 
-
-        //we cache these interfaces for performance reasons
-        // private ILaunchForm cachedLaunchForm = null;
-        // private IMessageBoxProvider messageBoxProvider = null;
-
         //if derived class tries to call a protected method that relies on service provider,
         //and the service provider hasn't been set yet, we will cache the values and will
         //propagate them when we get the provider set
         //private System.Drawing.Icon cachedIcon = null;
         private string cachedCaption = null;
 
-        private PanelExecutionHandler cachedPanelExecutionHandler;
-
-
         //SMO Server connection that MUST be used for all enumerator calls
         //We'll get this object out of CDataContainer, that must be initialized
         //property by the initialization code
         private ServerConnection  serverConnection;
-
 
 #endregion
 
 #region Constructors
 
         /// <summary>
-        /// SqlMgmtTreeViewControl constructor loads the tree image lists sets the last view to zero
-        /// and creates the panel view array
+        /// Constructor
         /// </summary>
         public AgentConfigurationBase()
         {
-            this.viewsArray     = new ArrayList();
-            this.nodesArray     = new ArrayList();
-            //this.selectedNode   = null;
         }
 
 #endregion
@@ -144,66 +121,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
 #endregion
 
-#region ISqlControlCollection implementation
-
-        // /// <summary>
-        // /// accessor to the view info with the given index
-        // /// </summary>
-        // ViewInfo ISqlControlCollection.GetViewInfo(int index)
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.ISqlControlCollection.GetViewInfo", "index = {0}", index);
-        //     return(ViewInfo)this.viewsArray[index];
-        // }
-
-
-        // /// <summary>
-        // /// accessor to the tree node with the given index
-        // /// </summary>
-        // TreeNode ISqlControlCollection.GetTreeNode(int index)
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.ISqlControlCollection.GetTreeNode", "index = {0}", index);
-        //     return(TreeNode)this.nodesArray[index];
-        // }
-
-        // TreeNode ISqlControlCollection.SelectedNode
-        // {
-        //     get
-        //     {
-        //         STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.ISqlControlCollection.GetSelectedNode", "", null);
-        //         return this.selectedNode;
-        //     }
-        // }
-
-
-        /// <summary>
-        /// How many controls in the collection
-        /// </summary>
-        // int ISqlControlCollection.ViewsCount
-        // {
-        //     get
-        //     {
-        //         STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.ISqlControlCollection.ViewsCount", 
-        //                       "current count = {0}", this.viewsArray.Count);
-        //         return this.viewsArray.Count;
-        //     }
-        // }
-
-        // /// <summary>
-        // /// How many TreeNodes are in the collection
-        // /// </summary>
-        // int ISqlControlCollection.NodesCount
-        // {
-        //     get
-        //     {
-        //         STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.ISqlControlCollection.NodesCount", 
-        //                       "current count = {0}", this.nodesArray.Count);
-        //         return this.nodesArray.Count;
-        //     }
-        // }          
-
-
-#endregion
-
 #region IExecutionAwareSqlControlCollection implementation
 
         /// <summary>
@@ -246,265 +163,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ExecuteForSql(executionInfo, out executionResult);
                     return false;//execution of the entire control was done here
                 }
-                // else if (Utils.AreExtendedFeaturesAvailable() &&
-                //         (DataContainer.ContainerServerType == CDataContainer.ServerType.OLAP))
-                // {
-                //     ExecuteForOlap(executionInfo, out executionResult);
-                //     return false;//execution of the entire control was done here
-                // }
             }
 
 
             // call virtual function to do regular execution
             return DoPreProcessExecution(executionInfo.RunType, out executionResult);
         }
-
-
-        /// <summary>
-        /// called when the host received Cancel request. NOTE: this method can return while
-        /// operation is still being canceled
-        /// </summary>
-        /// <returns>
-        /// true if the host should do standard cancel for the currently running view or
-        /// false if the Cancel operation was done entirely inside this method and there is nothing
-        /// extra that should be done
-        /// </returns>
-        // bool IExecutionAwareSqlControlCollection.Cancel()
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.IExecutionAwareSqlControlCollection.Cancel", "", null);
-
-        //     //first, allow derived classes to take over
-        //     bool shouldDoStdCancel = DoCancel();
-
-        //     if (shouldDoStdCancel)
-        //     {
-        //         //we handle cancelling for SQL and OLAP dialogs here
-        //         if (DataContainer != null)
-        //         {
-        //             if ((!Utils.AreExtendedFeaturesAvailable() &&
-        //                  DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
-        //                 ||
-        //                 (Utils.AreExtendedFeaturesAvailable() &&
-        //                 (DataContainer.ContainerServerType == CDataContainer.ServerType.SQL ||
-        //                  DataContainer.ContainerServerType == CDataContainer.ServerType.OLAP))
-        //                )
-        //             {
-        //                 STrace.Trace(SqlMgmtDiag.TName, SqlMgmtDiag.LowTrace, 
-        //                              "SqlMgmtTreeViewControl.Cancel: detected {0} server type", DataContainer.ContainerServerType);
-
-        //                 //if everything goes OK, Run() method will return with Cancel result
-        //                 PanelExecutionHandler.Cancel(this);
-        //                 return false;//execution of the entire control was done here
-        //             }
-        //         }
-        //         return true;
-        //     }
-        //     else
-        //     {
-        //         return false;
-        //     }
-        // }
-
-
-        /// <summary>
-        /// called after dialog's host executes actions on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
-        /// </summary>
-        /// <param name="executionMode">result of the execution</param>
-        /// <param name="runType">type of execution</param>
-        // void IExecutionAwareSqlControlCollection.PostProcessExecution(RunType runType, ExecutionMode executionResult)
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.IExecutionAwareSqlControlCollection.PostProcessExecution", 
-        //                   "runType = {0}, executionResult = {1}", runType, executionResult);
-
-        //     //delegate to the protected virtual method
-        //     DoPostProcessExecution(runType, executionResult);
-        // }
-
-        /// <summary>
-        /// called before dialog's host executes OnReset method on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
-        /// </summary>
-        /// <returns>
-        /// true if regular execution should take place, false if everything
-        /// has been done by this function
-        /// </returns>
-        // bool IExecutionAwareSqlControlCollection.PreProcessReset()
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.IExecutionAwareSqlControlCollection.PreProcessReset", "", null);
-        //     return DoPreProcessReset();//delegate to the protected virtual method
-        // }
-
-        // /// <summary>
-        // /// called after dialog's host executes OnReset method on all panels in the dialog one by one
-        // /// NOTE: it might be called from worker thread
-        // /// </summary>
-        // void IExecutionAwareSqlControlCollection.PostProcessReset()
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.IExecutionAwareSqlControlCollection.PostProcessReset", "", null);
-        //     DoPostProcessReset();//delegate to the protected virtual method
-        // }
-
 #endregion
 
-#region IConnectionInfoProvider implementation
-
-        /// <summary>
-        /// should return 2 strings that correspond for server name and extra connection
-        /// information for the dialog. 
-        /// </summary>
-        /// <param name="serverName">server name</param>
-        /// <param name="connectionInfo"></param>
-        /// <returns></returns>
-        // public virtual void GetTextForConnectionInfo(out string serverName, out string connectionInfo)
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.GetTextForConnectionInfo", "", null);
-
-        //     serverName = "";
-        //     connectionInfo = "";
-        //     if (DataContainer == null)
-        //     {
-        //         STrace.Assert(false, "SqlMgmtTreeViewControl.GetTextForConnectionInfo: cannot work without DataContainer");
-        //         return;
-        //     }
-
-        //     if (CDataContainer.ServerType.SQLCE == DataContainer.ContainerServerType)
-        //     {
-        //         serverName = SR.ConnectionInfoSqlCEServer(DataContainer.SqlCeFileName);
-        //         connectionInfo = SR.ConnectionInfoConnectionString1(string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}\\{1}", 
-        //                                                                           System.Environment.UserDomainName, System.Environment.UserName));
-        //     }
-        //     else
-        //     {
-        //         if (DataContainer.Server != null)
-        //         {
-        //             // sql
-        //             serverName = SR.ConnectionInfoServer(DataContainer.ServerName);
-        //         }
-        //         else if (Utils.AreExtendedFeaturesAvailable() &&
-        //             (DataContainer.OlapServerName != null))
-        //         {
-        //             // olap
-        //             serverName = SR.ConnectionInfoServer(DataContainer.OlapServerName);
-        //         }
-
-        //         if (DataContainer.ConnectionInfo.UseIntegratedSecurity)
-        //         {
-        //             connectionInfo = SR.ConnectionInfoConnectionString1(string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}\\{1}", 
-        //                                                                               System.Environment.UserDomainName, System.Environment.UserName));
-        //         }
-        //         else
-        //         {
-        //             connectionInfo = SR.ConnectionInfoConnectionString1(DataContainer.ConnectionInfo.UserName);
-        //         }
-        //     }
-        // }
-
-        // /// <summary>
-        // /// called when dialog should show connection information dialog
-        // /// </summary>
-        // public virtual void DisplayConnectionProperties(System.Windows.Forms.IWin32Window parentWindow)
-        // {
-        //     STrace.Params(SqlMgmtDiag.TName, "SqlMgmtTreeViewControl.DisplayConnectionProperties", "", null);
-
-        //     if (DataContainer == null)
-        //     {
-        //         STrace.Assert(false, "SqlMgmtTreeViewControl.DisplayConnectionProperties is called, but DataContainer is null");
-        //         return;
-        //     }
-
-        //     using (ConnectionProperties cp = new ConnectionProperties(DataContainer))
-        //     {
-        //         //propagate the background color
-        //         if (this.cachedLaunchForm != null)
-        //         {
-        //             cp.BackColor = this.cachedLaunchForm.BackColor;
-        //             cp.Font = this.cachedLaunchForm.Font;
-        //         }
-        //         cp.SetSite(ServiceProvider);
-        //         cp.ShowDialog(parentWindow);
-        //     }
-        // }
-#endregion
-
-
-
-    //    #region IDatabaseEngineTypeProvider implementation
-
-        /// <summary>
-        /// If connected to Single Server instance , it will return the DatabaseEngineType. Unknown if not connected
-        /// </summary>
-        /// <returns>DatabaseEngineType</returns>
-//         public virtual DatabaseEngineType ConnectedDatabaseEngineType()
-//         {
-//             if (this.DataContainer == null)
-//             {
-//                 STrace.Assert(false, "SqlMgmtTreeViewControl.ConnectedDatabaseEngineType is called, but DataContainer is null");
-//                 return DatabaseEngineType.Unknown;
-//             }
-//             if (this.DataContainer.Server != null)
-//             {
-//                 //Sql
-//                 return (this.DataContainer.Server.ConnectionContext.DatabaseEngineType);
-//             }
-//             return DatabaseEngineType.Unknown;
-//         }
-
-//         /// <summary>
-//         /// If connected to Single Server instance , it will return the DatabaseEngineEdition. Unknown if not connected
-//         /// </summary>
-//         /// <returns></returns>
-//         public virtual DatabaseEngineEdition ConnectedDatabaseEngineEdition()
-//         {
-//             if (this.DataContainer == null)
-//             {
-//                 STrace.Assert(false, "SqlMgmtTreeViewControl.ConnectedDatabaseEngineEdition is called, but DataContainer is null");
-//                 return DatabaseEngineEdition.Unknown;
-//             }
-//             if (this.DataContainer.Server != null)
-//             {
-//                 //Sql
-//                 return (this.DataContainer.Server.ConnectionContext.DatabaseEngineEdition);
-//             }
-//             return DatabaseEngineEdition.Unknown;
-//         }
-// #endregion
-
-// #region ICustomAttributeProvider
-
-//         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(bool inherit)
-//         {
-//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
-//             //to the derived classes
-//             return GetMergedArray(DoGetCustomAttributes(inherit), GetType().GetCustomAttributes(inherit));
-//         }
-
-//         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(Type attributeType, bool inherit)
-//         {
-//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
-//             //to the derived classes
-//             return GetMergedArray(DoGetCustomAttributes(attributeType, inherit), 
-//                                   GetType().GetCustomAttributes(attributeType, inherit));
-//         }
-
-//         bool System.Reflection.ICustomAttributeProvider.IsDefined(Type attributeType, bool inherit)
-//         {
-//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
-//             //to the derived classes
-//             if (!DoIsDefined(attributeType, inherit))
-//             {
-//                 return GetType().IsDefined(attributeType, inherit);
-//             }
-//             else
-//             {
-//                 return true;
-//             }
-//         }
-
-
-// #endregion
-
-// #region protected virtual methods and properties
 
         /// <summary>
         /// whether we own our DataContainer or not. Depending on this value it will or won't be
@@ -541,35 +207,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return true; 
         }
 
-//         /// <summary>
-//         /// called when the host received Cancel request. NOTE: this method can return while
-//         /// operation is still being canceled
-//         /// </summary>
-//         /// <returns>
-//         /// true if the host should do standard cancel for the currently running view or
-//         /// false if the Cancel operation was done entirely inside this method and there is nothing
-//         /// extra that should be done
-//         /// </returns>
-//         protected virtual bool DoCancel()
-//         {
-//             //this class knows nothing about it - derived classes should override it if they
-//             //can cancel execution that they do from inside PreProcessExecution
-//             return true;
-//         }
-
-
-//         /// <summary>
-//         /// called after dialog's host executes actions on all panels in the dialog one by one
-//         /// NOTE: it might be called from worker thread
-//         /// </summary>
-//         /// <param name="executionMode">result of the execution</param>
-//         /// <param name="runType">type of execution</param>
-//         protected virtual void DoPostProcessExecution(RunType runType, ExecutionMode executionResult)
-//         {
-//             //nothing to do in the base class
-//         }
-
-
         /// <summary>
         /// called before dialog's host executes OnReset method on all panels in the dialog one by one
         /// NOTE: it might be called from worker thread
@@ -598,16 +235,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             //nothing in the base class
         }
 
-//         /// <summary>
-//         /// called from IObjectWithSite.SetSite method after we have been initialized with the
-//         /// service provider. It is safe to assume for derived classes that all services
-//         /// are available while overriding this method
-//         /// </summary>
-//         protected virtual void OnHosted()
-//         {
-//             //nothing
-//         }
-
         /// <summary>
         /// Called to intercept scripting operation
         /// </summary>
@@ -623,89 +250,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             executionResult = ExecutionMode.Success;
             return true;
         }
-
-
-// #region ICustomAttributeProvider helpers
-
-//         protected virtual object[] DoGetCustomAttributes(bool inherit)
-//         {
-//             return GetMergedArray(DoGetCustomAttributes(typeof(ScriptTypeAttribute), inherit), 
-//                                   DoGetCustomAttributes(typeof(DialogScriptableAttribute), inherit));
-//         }
-
-//         protected virtual object[] DoGetCustomAttributes(Type attributeType, bool inherit)
-//         {
-//             //if the type specifies this attribute, we don't bother - it overrides
-//             //our behavior
-//             object[] typeAttribs = GetType().GetCustomAttributes(attributeType, inherit);
-//             if (typeAttribs != null && typeAttribs.Length > 0)
-//             {
-//                 return null;
-//             }
-
-//             //we expose default custom attribute for script type
-//             if (attributeType.Equals(typeof(ScriptTypeAttribute)))
-//             {
-//                 string scriptType = ScriptType;
-//                 if (scriptType != null)
-//                 {
-//                     return new object[] {new ScriptTypeAttribute(scriptType)};
-//                 }
-//                 else
-//                 {
-//                     return null;
-//                 }
-//             }
-//             else if (attributeType.Equals(typeof(DialogScriptableAttribute)))
-//             {
-//                 bool canScriptToWindow = true;
-//                 bool canScriptToFile = true;
-//                 bool canScriptToClipboard = true;
-//                 bool canScriptToJob = true;
-
-//                 GetScriptableOptions(out canScriptToWindow, 
-//                                      out canScriptToFile, 
-//                                      out canScriptToClipboard,
-//                                      out canScriptToJob);
-
-//                 return new object[] {new DialogScriptableAttribute(canScriptToWindow, 
-//                                                                    canScriptToFile, 
-//                                                                    canScriptToClipboard,
-//                                                                    canScriptToJob)};
-//             }
-
-//             return null;
-//         }
-
-//         protected virtual bool DoIsDefined(Type attributeType, bool inherit)
-//         {
-//             return false;
-//         }
-
-
-//         /// <summary>
-//         /// detects whether script types are applicable for this dlg or not. By default 
-//         /// the framework relies on DialogScriptableAttribute set on the dlg class and won't  
-//         /// call this method if the attribute is specified
-//         /// By default we assume that all script types are enabled
-//         /// </summary>
-//         /// <param name="?"></param>
-//         /// <param name="?"></param>
-//         /// <param name="?"></param>
-//         protected virtual void GetScriptableOptions(out bool canScriptToWindow, 
-//                                                     out bool canScriptToFile, 
-//                                                     out bool canScriptToClipboard,
-//                                                     out bool canScriptToJob)
-//         {
-//             canScriptToWindow = canScriptToFile = canScriptToClipboard = canScriptToJob = true;
-//         }
-
-
-// #endregion
-
-// #endregion
-
-// #region protected methods
 
         /// <summary>
         /// CDataContainer accessor
@@ -729,255 +273,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 //         /// We'll get this object out of CDataContainer, that must be initialized
 //         /// property by the initialization code
 //         /// </summary>
-//         protected ServerConnection ServerConnection
-//         {
-//             get
-//             {
-//                 if (this.serverConnection == null && this.dataContainer != null && 
-//                     this.dataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
-//                 {
-//                     this.serverConnection = this.dataContainer.ServerConnection;
-//                     STrace.Assert(this.serverConnection != null);
-//                 }
+        protected ServerConnection ServerConnection
+        {
+            get
+            {
+                if (this.serverConnection == null && this.dataContainer != null && 
+                    this.dataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
+                {
+                    this.serverConnection = this.dataContainer.ServerConnection;
+                }
 
-//                 //it CAN be null here if dataContainer hasn't been set or the container type is non SQL
-//                 return this.serverConnection;
-//             }
-//         }
-
-
-
-
-//         protected IServiceProvider ServiceProvider
-//         {
-//             get
-//             {
-//                 if (this.serviceProvider == null)
-//                 {
-//                     STrace.Assert(false, "Cannot work without service provider!");
-//                     STrace.LogExThrow();
-//                     //BUGBUG - should we have our own exception here?
-//                     throw new InvalidOperationException();
-//                 }
-
-//                 return this.serviceProvider;
-//             }
-//         }
-
-//         /// <summary>
-//         /// should be used when a dialog needs to show another dialog that has
-//         /// to show the message box. In this case this interface should be
-//         /// passed in for showing it
-//         /// </summary>
-//         protected IMessageBoxProvider MessageBoxProvider 
-//         {
-//             get 
-//             {
-//                 if (this.messageBoxProvider == null)
-//                 {
-//                     this.messageBoxProvider = (IMessageBoxProvider)this.serviceProvider.GetService(typeof(IMessageBoxProvider));
-//                 }
-//                 STrace.Assert(this.messageBoxProvider != null);
-//                 return this.messageBoxProvider;
-//             }
-//         }
-
-
-//         /// <summary>
-//         /// synonim to Text property
-//         /// </summary>
-//         protected string Title
-//         {
-//             get
-//             {
-//                 return Text;
-//             }
-
-//             set
-//             {
-//                 Text = value;
-//             }
-//         }
-
-
-//         /// <summary>
-//         /// gets/sets text for the dialog that we aggregate information about
-//         /// </summary>
-//         protected string Text
-//         {
-//             get
-//             {
-//                 if (this.cachedLaunchForm != null)
-//                 {
-//                     return this.cachedLaunchForm.Caption;
-//                 }
-//                 else
-//                 {
-//                     if (this.cachedCaption != null)
-//                     {
-//                         return this.cachedCaption;
-//                     }
-//                     else
-//                     {
-//                         STrace.Assert(false, "SqlMgmtTreeViewControl.Text getter must be called only after its setter has been called");
-//                         return "";
-//                     }
-//                 }
-//             }
-
-//             set
-//             {
-//                 if (this.cachedLaunchForm != null)
-//                 {
-//                     this.cachedLaunchForm.Caption = value;
-//                 }
-//                 else
-//                 {
-//                     //cache it and propagate when the service provider becomes available
-//                     this.cachedCaption = value;
-//                 }
-//             }
-//         }
-
-//         /// <summary>
-//         /// top most container icon to be used.
-//         /// </summary>
-//         protected Icon Icon
-//         {
-//             get
-//             {
-//                 if (this.cachedLaunchForm != null)
-//                 {
-//                     return this.cachedLaunchForm.Icon;
-//                 }
-//                 else
-//                 {
-//                     STrace.Assert(false, "SqlMgmtTreeViewControl.Icon getter must be called after service provider becomes available");
-//                     return null;
-//                 }
-//             }
-//             set
-//             {
-//                 if (this.cachedLaunchForm != null)
-//                 {
-//                     this.cachedLaunchForm.Icon = value;
-//                 }
-//                 else
-//                 {
-//                     //cache it and propagate when the service provider becomes available
-//                     this.cachedIcon = value;
-//                 }
-//             }
-//         }
-
-
-//         /// <summary>
-//         /// retrieves the panels view count
-//         /// </summary>
-//         /// <returns></returns>
-//         protected int GetViewCount()
-//         {
-//             return this.viewsArray.Count;
-//         }
-
-
-//         /// <summary>
-//         /// Sets the initialized flag for a given view. Usually only tree panel form should do this, 
-//         /// however for performance reasons a panel could call it also if needed
-//         /// </summary>
-//         /// <param name="Index"></param>
-//         protected void SetViewInitialized(int Index)
-//         {
-//             ViewInfo            vi; 
-
-//             vi = (ViewInfo) this.viewsArray[Index];
-//             vi.Initialized = true;
-//         }
-
-
-//         /// <summary>
-//         /// returns the panel form interface corresponding to a given view index
-//         /// </summary>
-//         /// <param name="Index"></param>
-//         /// <returns></returns>
-//         protected IPanelForm GetViewPanelForm(int Index)
-//         {
-//             return((ViewInfo)this.viewsArray[Index]).PanelForm;
-//         }
-
-
-
-//         /// <summary>
-//         /// Selects a node in the tree, usually the initial node
-//         /// </summary>
-//         /// <param name="node"></param>
-//         protected void SelectNode(TreeNode node)
-//         {
-//             this.selectedNode = node;
-//         }
-
-
-//         /// <summary>
-//         /// adds a node to the tree usually is done at initialization time when
-//         /// the treepanel form is build
-//         /// </summary>
-//         /// <param name="node"></param>
-//         protected void AddNode(TreeNode node)
-//         {
-//             this.nodesArray.Add(node);  
-//         }
-
-
-//         /// <summary>
-//         /// adds a panel form user control to views collection. 
-//         /// </summary>
-//         /// <param name="uc"></param>
-//         protected void AddView(UserControl uc)
-//         {
-//             this.viewsArray.Add(new ViewInfo(uc));
-//         }
-
-//         /// <summary>
-//         /// display an exception message box as result of a generated exception
-//         /// </summary>
-//         /// <param name="e"></param>
-//         /// <returns></returns>
-//         protected DialogResult DisplayExceptionMessage(Exception e)
-//         {
-//             return MessageBoxProvider.ShowMessage(e, null, ExceptionMessageBoxButtons.OK, ExceptionMessageBoxSymbol.Error, null);
-//         }
-
-
-//         //BUGBUG - remove it. It was doing nothing...
-//         protected void InitFormLayout() {}
-
-
-//         /// <summary>
-//         /// returns combination of the given 2 arrays
-//         /// </summary>
-//         /// <param name="array1"></param>
-//         /// <param name="array2"></param>
-//         /// <returns></returns>
-//         protected object[] GetMergedArray(object[] array1, object[] array2)
-//         {
-//             if (array1 == null)
-//             {
-//                 return array2;
-//             }
-//             else if (array2 == null)
-//             {
-//                 return array1;
-//             }
-//             else
-//             {
-//                 object[] finalReturnValue = new object[array1.Length + array2.Length];
-//                 array1.CopyTo(finalReturnValue, 0);
-//                 array2.CopyTo(finalReturnValue, array1.Length);
-
-//                 return finalReturnValue;
-//             }
-//         }
-
+                //it CAN be null here if dataContainer hasn't been set or the container type is non SQL
+                return this.serverConnection;
+            }
+        }
 
         /// <summary>
         /// checks whether given run time represents one of scripting options
@@ -988,7 +297,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             return(runType != RunType.RunNow && runType != RunType.RunNowAndExit);
         }
-
 
         /// <summary>
         /// calls DoPreProcessExecution and if it returns false, then it will execute all initialized views
@@ -1008,74 +316,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (DoPreProcessExecution(runType, out executionResult))
             {
                 //true return value means that we need to do execution ourselves
-                executionResult = PanelExecutionHandler.Run(runType, this);
+                //executionResult = PanelExecutionHandler.Run(runType, this);
             }
 
             return executionResult;
         }
-
-
-// #endregion
-
-// #region private methods
-
-        /// <summary>
-        /// returns internal helper class that we delegate execution of the panels one by one when 
-        /// we do it ourselves during scripting
-        /// </summary>
-        private PanelExecutionHandler PanelExecutionHandler
-        {
-            get
-            {
-                if (this.cachedPanelExecutionHandler == null)
-                {
-                    if (this.serviceProvider == null)
-                    {                   
-                        throw new InvalidOperationException("SRError.UnableToExecute");
-                    }                  
-                    this.cachedPanelExecutionHandler = new PanelExecutionHandler(this, this.serviceProvider);
-                }
-                return this.cachedPanelExecutionHandler;
-            }
-        }
-
-
-//         /// <summary>
-//         /// returns string that we can specify into ILaunchFormHost.ScriptTo* methods
-//         /// We use DataContainer to decide whether it is SQL or XMLA. In all other cases
-//         /// we return null and derived classes should do it on their own
-//         /// </summary>
-//         private string ScriptType
-//         {
-//             get
-//             {
-//                 if (DataContainer == null)
-//                 {
-//                     return null;
-//                 }
-
-
-//                 if (DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
-//                 {
-//                     STrace.Trace(SqlMgmtDiag.TName, SqlMgmtDiag.LowTrace, "SqlMgmtTreeViewControl.ScriptType: returning sql");
-//                     return "sql";
-//                 }
-//                 else if (Utils.AreExtendedFeaturesAvailable() &&
-//                     (DataContainer.ContainerServerType == CDataContainer.ServerType.OLAP))
-//                 {
-//                     STrace.Trace(SqlMgmtDiag.TName, SqlMgmtDiag.LowTrace, "SqlMgmtTreeViewControl.ScriptType: returning xmla");
-//                     return "xmla";
-//                 }
-//                 else
-//                 {
-//                     STrace.Trace(SqlMgmtDiag.TName, SqlMgmtDiag.LowTrace, "SqlMgmtTreeViewControl.ScriptType: returning null");
-//                     return null;
-//                 }
-//             }
-
-//         }
-
-
 
         /// <summary>
         /// determines whether we need to substitute SMO/AMO server objects with the
@@ -1118,10 +363,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
             }
         }
-
-        public int ViewsCount => throw new NotImplementedException();
-
-        public int NodesCount => throw new NotImplementedException();
 
         protected virtual ServerConnection GetServerConnectionForScript()
         {
@@ -1266,5 +507,138 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 executionInfo.Script = szScript;
             }
         }
+
+// #region ICustomAttributeProvider
+//         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(bool inherit)
+//         {
+//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
+//             //to the derived classes
+//             return GetMergedArray(DoGetCustomAttributes(inherit), GetType().GetCustomAttributes(inherit));
+//         }
+//         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(Type attributeType, bool inherit)
+//         {
+//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
+//             //to the derived classes
+//             return GetMergedArray(DoGetCustomAttributes(attributeType, inherit), 
+//                                   GetType().GetCustomAttributes(attributeType, inherit));
+//         }
+//         bool System.Reflection.ICustomAttributeProvider.IsDefined(Type attributeType, bool inherit)
+//         {
+//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
+//             //to the derived classes
+//             if (!DoIsDefined(attributeType, inherit))
+//             {
+//                 return GetType().IsDefined(attributeType, inherit);
+//             }
+//             else
+//             {
+//                 return true;
+//             }
+//         }
+// #endregion
+// #region ICustomAttributeProvider helpers
+//         protected virtual object[] DoGetCustomAttributes(bool inherit)
+//         {
+//             return GetMergedArray(DoGetCustomAttributes(typeof(ScriptTypeAttribute), inherit), 
+//                                   DoGetCustomAttributes(typeof(DialogScriptableAttribute), inherit));
+//         }
+//         protected virtual object[] DoGetCustomAttributes(Type attributeType, bool inherit)
+//         {
+//             //if the type specifies this attribute, we don't bother - it overrides
+//             //our behavior
+//             object[] typeAttribs = GetType().GetCustomAttributes(attributeType, inherit);
+//             if (typeAttribs != null && typeAttribs.Length > 0)
+//             {
+//                 return null;
+//             }
+//             //we expose default custom attribute for script type
+//             if (attributeType.Equals(typeof(ScriptTypeAttribute)))
+//             {
+//                 string scriptType = ScriptType;
+//                 if (scriptType != null)
+//                 {
+//                     return new object[] {new ScriptTypeAttribute(scriptType)};
+//                 }
+//                 else
+//                 {
+//                     return null;
+//                 }
+//             }
+//             else if (attributeType.Equals(typeof(DialogScriptableAttribute)))
+//             {
+//                 bool canScriptToWindow = true;
+//                 bool canScriptToFile = true;
+//                 bool canScriptToClipboard = true;
+//                 bool canScriptToJob = true;
+//                 GetScriptableOptions(out canScriptToWindow, 
+//                                      out canScriptToFile, 
+//                                      out canScriptToClipboard,
+//                                      out canScriptToJob);
+//                 return new object[] {new DialogScriptableAttribute(canScriptToWindow, 
+//                                                                    canScriptToFile, 
+//                                                                    canScriptToClipboard,
+//                                                                    canScriptToJob)};
+//             }
+//             return null;
+//         }
+//         protected virtual bool DoIsDefined(Type attributeType, bool inherit)
+//         {
+//             return false;
+//         }
+//         /// <summary>
+//         /// detects whether script types are applicable for this dlg or not. By default 
+//         /// the framework relies on DialogScriptableAttribute set on the dlg class and won't  
+//         /// call this method if the attribute is specified
+//         /// By default we assume that all script types are enabled
+//         /// </summary>
+//         /// <param name="?"></param>
+//         /// <param name="?"></param>
+//         /// <param name="?"></param>
+//         protected virtual void GetScriptableOptions(out bool canScriptToWindow, 
+//                                                     out bool canScriptToFile, 
+//                                                     out bool canScriptToClipboard,
+//                                                     out bool canScriptToJob)
+//         {
+//             canScriptToWindow = canScriptToFile = canScriptToClipboard = canScriptToJob = true;
+//         }
+// #endregion
+//         protected IServiceProvider ServiceProvider
+//         {
+//             get
+//             {
+//                 if (this.serviceProvider == null)
+//                 {
+//                     STrace.Assert(false, "Cannot work without service provider!");
+//                     STrace.LogExThrow();
+//                     //BUGBUG - should we have our own exception here?
+//                     throw new InvalidOperationException();
+//                 }
+//                 return this.serviceProvider;
+//             }
+//         }
+//         /// <summary>
+//         /// returns combination of the given 2 arrays
+//         /// </summary>
+//         /// <param name="array1"></param>
+//         /// <param name="array2"></param>
+//         /// <returns></returns>
+//         protected object[] GetMergedArray(object[] array1, object[] array2)
+//         {
+//             if (array1 == null)
+//             {
+//                 return array2;
+//             }
+//             else if (array2 == null)
+//             {
+//                 return array1;
+//             }
+//             else
+//             {
+//                 object[] finalReturnValue = new object[array1.Length + array2.Length];
+//                 array1.CopyTo(finalReturnValue, 0);
+//                 array2.CopyTo(finalReturnValue, array1.Length);
+//                 return finalReturnValue;
+//             }
+//         }
     }
 }
