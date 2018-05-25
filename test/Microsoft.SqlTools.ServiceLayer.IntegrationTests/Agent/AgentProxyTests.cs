@@ -3,21 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Profiler;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Xunit;
@@ -35,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 var createContext = new Mock<RequestContext<CreateAgentProxyResult>>();
+                var updateContext = new Mock<RequestContext<UpdateAgentProxyResult>>();
+                var deleteContext = new Mock<RequestContext<DeleteAgentProxyResult>>();
 
                 var service = new AgentService();
                 var proxy = new AgentProxyInfo()
@@ -47,15 +39,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 };
 
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Proxy = proxy
+                }, deleteContext.Object);
 
                 await service.HandleCreateAgentProxyRequest(new CreateAgentProxyParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Proxy = proxy
                 }, createContext.Object);
+
+                string originalProxyName = proxy.AccountName;
+                proxy.AccountName = proxy.AccountName + " Updated";
+                await service.HandleUpdateAgentProxyRequest(new UpdateAgentProxyParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    OriginalProxyName = originalProxyName,
+                    Proxy = proxy
+                }, updateContext.Object);
+
+                await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Proxy = proxy
+                }, deleteContext.Object);
     
                 createContext.VerifyAll();
+                updateContext.VerifyAll();
+                deleteContext.VerifyAll();
             }
-        }
+        }   
     }
 }

@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 
                 createContext.VerifyAll();
                 updateContext.VerifyAll();
-                deleteContext.VerifyAll(); 
+                deleteContext.VerifyAll();
             }
         }
     }

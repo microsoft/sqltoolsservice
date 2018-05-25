@@ -24,8 +24,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// Main class for Agent Service functionality
     /// </summary>
-    public sealed class AgentService
+    public class AgentService
     {
+        internal enum AgentConfigAction
+        {
+            Create,
+            Update,
+            Drop
+        }
+
         private Dictionary<Guid, JobProperties> jobs = null;
         private ConnectionService connectionService = null;
         private static readonly Lazy<AgentService> instance = new Lazy<AgentService>(() => new AgentService());
@@ -437,36 +444,90 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<CreateAgentProxyResult> requestContext)
         {
-            await Task.Run(async () =>
+             bool succeeded = await ConfigureAgentProxy(
+                parameters.OwnerUri,
+                parameters.Proxy.AccountName, 
+                parameters.Proxy, 
+                AgentConfigAction.Create);
+            
+            await requestContext.SendResult(new CreateAgentProxyResult()
             {
-                var result = new CreateAgentProxyResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                AgentProxyInfo proxy = parameters.Proxy;
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                STParameters param = new STParameters(helper.DataContainer.Document);
-                param.SetParam("proxyaccount", proxy.AccountName);
-
-                using (AgentProxyAccount agentProxy = new AgentProxyAccount(helper.DataContainer))
-                {
-                    result.Succeeded = agentProxy.CreateOrUpdate(proxy);
-                }
-
-                await requestContext.SendResult(result);
+                Succeeded = succeeded
             });
         }
 
         internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<UpdateAgentProxyResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            bool succeeded = await ConfigureAgentProxy(
+                parameters.OwnerUri,
+                parameters.OriginalProxyName, 
+                parameters.Proxy,
+                AgentConfigAction.Update);
+
+            await requestContext.SendResult(new UpdateAgentProxyResult()
+            {
+                Succeeded = succeeded
+            });
         }
 
         internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<DeleteAgentProxyResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            bool succeeded = await ConfigureAgentProxy(
+                parameters.OwnerUri,
+                parameters.Proxy.AccountName, 
+                parameters.Proxy,
+                AgentConfigAction.Drop);
+
+            await requestContext.SendResult(new DeleteAgentProxyResult()
+            {
+                Succeeded = succeeded
+            });
+        }
+
+        internal async Task<bool> ConfigureAgentProxy(
+            string ownerUri,
+            string accountName,
+            AgentProxyInfo proxy,
+            AgentConfigAction configAction)
+        {
+            return await Task<bool>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(helper.DataContainer.Document);
+                    param.SetParam("proxyaccount", accountName);
+
+                    using (AgentProxyAccount agentProxy = new AgentProxyAccount(helper.DataContainer, proxy))
+                    {
+                        if (configAction == AgentConfigAction.Create)
+                        {
+                            return agentProxy.Create();
+                        }
+                        else if (configAction == AgentConfigAction.Update)
+                        {
+                            return agentProxy.Update();
+                        }
+                        else if (configAction == AgentConfigAction.Drop)
+                        {
+                            return agentProxy.Drop();
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            });
         }
 
         #endregion // "Proxy Handlers"

@@ -33,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         // Name of the proxy account we work with
         private string proxyAccountName;
 
+        private AgentProxyInfo proxyInfo;
+
         // Flag indicating that proxy account should be duplicated
         private bool duplicate;
 
@@ -45,9 +47,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// Main constructor. Creates all pages and adds them 
         /// to the tree control.
         /// </summary>
-        public AgentProxyAccount(CDataContainer dataContainer)
+        public AgentProxyAccount(CDataContainer dataContainer, AgentProxyInfo proxyInfo)
         {
             this.DataContainer = dataContainer;
+            this.proxyInfo = proxyInfo;
 
             // Find out if we are creating a new proxy account or
             // modifying an existing one.
@@ -58,37 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// It creates a new ProxyAccount or gets an existing
         /// one from JobServer and updates all properties.
         /// </summary>
-        /// <param name="proxyAccount">A ProxyAccount to return</param>
-        private void CreateProxyAccount(AgentProxyInfo proxyInfo, out ProxyAccount proxyAccount)
+        private bool CreateOrUpdateProxyAccount(
+            AgentProxyInfo proxyInfo,
+            bool isUpdate)
         {
-            // check if there is already a proxy account with this name
-            bool isUpdate = false;
-            proxyAccount = null;
-
-            if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
-            {
-                // Try refresh and check again
-                this.DataContainer.Server.JobServer.ProxyAccounts.Refresh();
-                if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
-                {
-                    isUpdate = true;
-                    proxyAccount = AgentProxyAccount.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
-                    // Set the other properties
-                    proxyAccount.CredentialName = proxyInfo.CredentialName;
-                    proxyAccount.Description = proxyInfo.Description;
-
-                    proxyAccount.Alter();
-
-                    // Rename the proxy if needed
-                    // This has to be done after Alter, in order to 
-                    // work correcly when scripting this action.
-                    if (this.proxyAccountName != proxyAccount.Name)
-                    {
-                        proxyAccount.Rename(proxyAccountName);
-                    }
-                }
-            }
-
+            ProxyAccount proxyAccount = null;
             if (!isUpdate)        
             {
                 proxyAccount = new ProxyAccount(this.DataContainer.Server.JobServer, 
@@ -99,6 +76,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 proxyAccount.Create();
             }
+            else if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
+            {
+                // Try refresh and check again
+                this.DataContainer.Server.JobServer.ProxyAccounts.Refresh();
+                if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
+                {
+                    // fail since account exists and asked to create a new one
+                    if (!isUpdate)
+                    {
+                        return false;
+                    }
+        
+                    proxyAccount = AgentProxyAccount.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
+                    // Set the other properties
+                    proxyAccount.CredentialName = proxyInfo.CredentialName;
+                    proxyAccount.Description = proxyInfo.Description;
+
+                    proxyAccount.Alter();
+
+                    // Rename the proxy if needed
+                    // This has to be done after Alter, in order to 
+                    // work correcly when scripting this action.
+                    if (this.proxyAccountName != proxyInfo.AccountName)
+                    {
+                        proxyAccount.Rename(proxyInfo.AccountName);
+                    }
+                }                
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
 
 #if false
             // Update the subsystems
@@ -153,26 +164,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 #endif 
         }
 
-        public bool CreateOrUpdate(AgentProxyInfo proxyInfo)
+        public bool Create()
         {
-            bool isUpdate = !string.Equals(proxyInfo.AccountName, this.proxyAccountName);
-
-            // Proceed with execution
-            try
-            {
-                ProxyAccount proxyAccount;
-                CreateProxyAccount(proxyInfo, out proxyAccount);
-                UpdateProxyAccount(proxyAccount);
-
-                //executionResult = ExecutionMode.Success;
-            }
-            catch(Exception)
-            {
-                // this.DisplayExceptionMessage(exception);
-                // executionResult = ExecutionMode.Failure;
-            }
-
+            CreateOrUpdateProxyAccount(this.proxyInfo, false);
             return true;
+        }
+
+        public bool Update()
+        {
+            CreateOrUpdateProxyAccount(this.proxyInfo, true);
+            return true;
+        }
+
+        public bool Drop()
+        {
+            if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
+            {
+                // Try refresh and check again
+                this.DataContainer.Server.JobServer.ProxyAccounts.Refresh();
+                if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
+                {
+                    ProxyAccount proxyAccount = AgentProxyAccount.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
+                    proxyAccount.DropIfExists();
+                }
+            }
+        
+            return false;
         }
 
         /// <summary>
@@ -372,9 +389,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         internal static ProxyAccount GetProxyAccount(string proxyAccountName, JobServer jobServer)
         {
             if (proxyAccountName == null || proxyAccountName.Length == 0)
+            {
                 throw new ArgumentException("proxyAccountName");
-            if (jobServer == null)
+            }
+            
+            if (jobServer == null) 
+            {
                 throw new ArgumentNullException("jobServer");
+            }
 
             ProxyAccount proxyAccount = jobServer.ProxyAccounts[proxyAccountName];
             if (proxyAccount == null)
