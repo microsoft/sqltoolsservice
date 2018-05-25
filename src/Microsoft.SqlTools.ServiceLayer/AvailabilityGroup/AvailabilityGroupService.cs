@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -121,9 +122,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
             var ag = new AvailabilityGroupInfo
             {
                 Name = availabilityGroup.Name,
-                ClusterType = availabilityGroup.ClusterTypeWithDefault.ToString(),
+                ClusterType = GetEnumDisplayName(availabilityGroup.ClusterTypeWithDefault),
                 ClusterTypeValue = (int)availabilityGroup.ClusterTypeWithDefault,
-                LocalReplicaRole = availabilityGroup.LocalReplicaRole.ToString(),
+                LocalReplicaRole = GetEnumDisplayName(availabilityGroup.LocalReplicaRole),
                 LocalReplicaRoleValue = (int)availabilityGroup.LocalReplicaRole,
                 Replicas = availabilityGroup.AvailabilityReplicas.OfType<SMO.AvailabilityReplica>().Select(ar => CreateAvailabilityReplicaInfo(ar)).ToArray(),
                 Databases = availabilityGroup.AvailabilityDatabases.OfType<SMO.AvailabilityDatabase>().Select(database => CreateAvailabilityDatabaseInfo(database)).ToArray(),
@@ -149,26 +150,26 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
             var ar = new AvailabilityReplicaInfo
             {
                 Name = replica.Name,
-                Role = replica.Role.ToString(),
+                Role = GetEnumDisplayName(replica.Role),
                 RoleValue = (int)replica.Role,
-                AvailabilityMode = replica.AvailabilityMode.ToString(),
+                AvailabilityMode = GetEnumDisplayName(replica.AvailabilityMode),
                 AvailabilityModeValue = (int)replica.AvailabilityMode,
-                FailoverMode = replica.FailoverMode.ToString(),
+                FailoverMode = GetEnumDisplayName(replica.FailoverMode),
                 FailoverModeValue = (int)replica.FailoverMode,
-                ConnectionsInPrimaryRole = replica.ConnectionModeInPrimaryRole.ToString(),
+                ConnectionsInPrimaryRole = GetEnumDisplayName(replica.ConnectionModeInPrimaryRole),
                 ConnectionsInPrimaryRoleValue = (int)replica.ConnectionModeInPrimaryRole,
-                ReadableSecondary = replica.ConnectionModeInSecondaryRole.ToString(),
+                ReadableSecondary = GetEnumDisplayName(replica.ConnectionModeInSecondaryRole),
                 ReadableSecondaryValue = (int)replica.ConnectionModeInSecondaryRole,
                 SessionTimeoutInSeconds = replica.SessionTimeout,
                 EndpointUrl = replica.EndpointUrl,
-                State = replica.ConnectionState.ToString(),
+                State = GetEnumDisplayName(replica.ConnectionState),
                 StateValue = (int)replica.ConnectionState
             };
 
             ar.IsSupported_SeedingMode = replica.IsSeedingModeSupported;
-            if(ar.IsSupported_SeedingMode)
+            if (ar.IsSupported_SeedingMode)
             {
-                ar.SeedingMode = replica.SeedingMode.ToString();
+                ar.SeedingMode = GetEnumDisplayName(replica.SeedingMode);
                 ar.SeedingModeValue = (int)replica.SeedingMode;
             }
 
@@ -180,11 +181,17 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
             return new AvailabilityDatabaseInfo
             {
                 Name = database.Name,
-                State = database.SynchronizationState.ToString(),
+                State = GetEnumDisplayName(database.SynchronizationState),
                 StateValue = (int)database.SynchronizationState,
                 IsJoined = database.IsJoined,
                 IsSuspended = database.IsSuspended,
             };
+        }
+
+        private string GetEnumDisplayName<T>(T enumValue)
+        {
+            TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(T));
+            return typeConverter.ConvertToString(enumValue);
         }
     }
 }
