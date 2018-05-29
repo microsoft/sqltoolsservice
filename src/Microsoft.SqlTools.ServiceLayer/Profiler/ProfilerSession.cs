@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Filter the event list to not include previously seen events, 
         /// and to exclude events that happened before the profiling session began.
         /// </summary>
-        public List<ProfilerEvent> FilterOldEvents(List<ProfilerEvent> events)
+        public void FilterOldEvents(List<ProfilerEvent> events)
         {
             if (lastSeenEvent != null)
             {
@@ -168,8 +168,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // ignore all events before the session began
                 events.Clear();
             }
-
-            return events;
         }
     }
 }
