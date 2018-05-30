@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 AgentService service = new AgentService();
                 await service.HandleAgentJobsRequest(requestParams, requestContext.Object);
                 requestContext.VerifyAll();
-            }           
+            }
         }
 
         /// <summary>

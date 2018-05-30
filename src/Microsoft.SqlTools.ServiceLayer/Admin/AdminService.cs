@@ -190,12 +190,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
-        /// Create database task helper
+        /// Create a data container object
         /// </summary>
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
-        /// <returns></returns>
-        internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
+        internal static CDataContainer CreateDataContainer(ConnectionInfo connInfo, bool databaseExists = false)
         {
             XmlDocument xmlDoc = CreateDataContainerDocument(connInfo, databaseExists);
             CDataContainer dataContainer;
@@ -232,6 +231,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     xmlDoc.InnerXml);
             }
 
+            return dataContainer;
+        }
+
+        /// <summary>
+        /// Create database task helper
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
+        /// <returns></returns>
+        internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
+        {
+            var dataContainer = CreateDataContainer(connInfo, databaseExists);
             var taskHelper = new DatabaseTaskHelper(dataContainer);
             return taskHelper;
         }

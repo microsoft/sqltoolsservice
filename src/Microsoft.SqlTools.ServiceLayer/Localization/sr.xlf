@@ -2379,6 +2379,500 @@
         <note>.
  Parameters: 0 - tableName (string) </note>
       </trans-unit>
+      <trans-unit id="EnableAlertsTitle">
+        <source>Enable Alerts - {0}</source>
+        <target state="new">Enable Alerts - {0}</target>
+        <note>.
+ Parameters: 0 - serverName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnableAlertDescription">
+        <source>Enable Alert '{0}'</source>
+        <target state="new">Enable Alert '{0}'</target>
+        <note>.
+ Parameters: 0 - alertName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnablingAlert">
+        <source>Enabling Alert '{0}'</source>
+        <target state="new">Enabling Alert '{0}'</target>
+        <note>.
+ Parameters: 0 - alertName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnabledAlert">
+        <source>Enabled Alert '{0}'</source>
+        <target state="new">Enabled Alert '{0}'</target>
+        <note>.
+ Parameters: 0 - alertName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisableAlertsTitle">
+        <source>Disable Alerts - {0}</source>
+        <target state="new">Disable Alerts - {0}</target>
+        <note>.
+ Parameters: 0 - serverName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisableAlertDescription">
+        <source>Disable Alert '{0}'</source>
+        <target state="new">Disable Alert '{0}'</target>
+        <note>.
+ Parameters: 0 - alertName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisablingAlert">
+        <source>Disabling Alert '{0}'</source>
+        <target state="new">Disabling Alert '{0}'</target>
+        <note>.
+ Parameters: 0 - alertName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisabledAlert">
+        <source>Disabled Alert '{0}'</source>
+        <target state="new">Disabled Alert '{0}'</target>
+        <note>.
+ Parameters: 0 - alertName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnableJobsTitle">
+        <source>Enable Jobs - {0}</source>
+        <target state="new">Enable Jobs - {0}</target>
+        <note>.
+ Parameters: 0 - serverName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnableJobDescription">
+        <source>Enable Job '{0}'</source>
+        <target state="new">Enable Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnablingJob">
+        <source>Enabling Job '{0}'</source>
+        <target state="new">Enabling Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="EnabledJob">
+        <source>Enabled Job '{0}'</source>
+        <target state="new">Enabled Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisableJobsTitle">
+        <source>Disable Jobs - {0}</source>
+        <target state="new">Disable Jobs - {0}</target>
+        <note>.
+ Parameters: 0 - serverName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisableJobDescription">
+        <source>Disable Job '{0}'</source>
+        <target state="new">Disable Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisablingJob">
+        <source>Disabling Job '{0}'</source>
+        <target state="new">Disabling Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="DisabledJob">
+        <source>Disabled Job '{0}'</source>
+        <target state="new">Disabled Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="StartJobsTitle">
+        <source>Start Jobs - {0}</source>
+        <target state="new">Start Jobs - {0}</target>
+        <note>.
+ Parameters: 0 - serverName (String) </note>
+      </trans-unit>
+      <trans-unit id="StartJobDescription">
+        <source>Start Job '{0}'</source>
+        <target state="new">Start Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="GettingStartStep">
+        <source>Job '{0}' has more than one step. Getting step to start</source>
+        <target state="new">Job '{0}' has more than one step. Getting step to start</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="UserCancelledSelectStep">
+        <source>User canceled select step. Job will not be started</source>
+        <target state="new">User canceled select step. Job will not be started</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StartingJob">
+        <source>Starting Job '{0}'</source>
+        <target state="new">Starting Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="StartJobWithStep">
+        <source>Start Job '{0}' with step '{1}'</source>
+        <target state="new">Start Job '{0}' with step '{1}'</target>
+        <note>.
+ Parameters: 0 - jobName (String), 1 - stepName (String) </note>
+      </trans-unit>
+      <trans-unit id="RequestPostedToTargetServers">
+        <source>Posted remote job execution request</source>
+        <target state="new">Posted remote job execution request</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExecuteJob">
+        <source>Execute job '{0}'</source>
+        <target state="new">Execute job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
+      <trans-unit id="JobFailed">
+        <source>Execution of job '{0}' failed.  See the history log for details.</source>
+        <target state="new">Execution of job '{0}' failed.  See the history log for details.</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
+      <trans-unit id="Executing">
+        <source>Executing</source>
+        <target state="new">Executing</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BetweenRetries">
+        <source>Between retries</source>
+        <target state="new">Between retries</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Suspended">
+        <source>Suspended</source>
+        <target state="new">Suspended</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PerformingCompletionAction">
+        <source>Performing completion action</source>
+        <target state="new">Performing completion action</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WaitingForStepToFinish">
+        <source>Waiting for step to finish</source>
+        <target state="new">Waiting for step to finish</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WaitingForWorkerThread">
+        <source>Waiting for worker thread</source>
+        <target state="new">Waiting for worker thread</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StopJobsTitle">
+        <source>Stop Jobs - {0}</source>
+        <target state="new">Stop Jobs - {0}</target>
+        <note>.
+ Parameters: 0 - serverName (String) </note>
+      </trans-unit>
+      <trans-unit id="StopJobDescription">
+        <source>Stop Job '{0}'</source>
+        <target state="new">Stop Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="StoppingJob">
+        <source>Stopping Job '{0}'</source>
+        <target state="new">Stopping Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="StoppedJob">
+        <source>Stopped Job '{0}'</source>
+        <target state="new">Stopped Job '{0}'</target>
+        <note>.
+ Parameters: 0 - jobName (String) </note>
+      </trans-unit>
+      <trans-unit id="AllDatabases">
+        <source>&lt;all databases&gt;</source>
+        <target state="new">&lt;all databases&gt;</target>
+        <note> First item in database name drop down list</note>
+      </trans-unit>
+      <trans-unit id="UnknownSeverity">
+        <source>Unknown severity: {0}</source>
+        <target state="new">Unknown severity: {0}</target>
+        <note> Exception thrown when agent alert has unknown severity level.
+ Parameters: 0 - severity (int) </note>
+      </trans-unit>
+      <trans-unit id="Severity001">
+        <source>001 - Miscellaneous System Information</source>
+        <target state="new">001 - Miscellaneous System Information</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity002">
+        <source>002 - Reserved</source>
+        <target state="new">002 - Reserved</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity003">
+        <source>003 - Reserved</source>
+        <target state="new">003 - Reserved</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity004">
+        <source>004 - Reserved</source>
+        <target state="new">004 - Reserved</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity005">
+        <source>005 - Reserved</source>
+        <target state="new">005 - Reserved</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity006">
+        <source>006 - Reserved</source>
+        <target state="new">006 - Reserved</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity007">
+        <source>007 - Notification: Status Information</source>
+        <target state="new">007 - Notification: Status Information</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity008">
+        <source>008 - Notification: User Intervention Required</source>
+        <target state="new">008 - Notification: User Intervention Required</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity009">
+        <source>009 - User Defined</source>
+        <target state="new">009 - User Defined</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity010">
+        <source>010 - Information</source>
+        <target state="new">010 - Information</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity011">
+        <source>011 - Specified Database Object Not Found</source>
+        <target state="new">011 - Specified Database Object Not Found</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity012">
+        <source>012 - Unused</source>
+        <target state="new">012 - Unused</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity013">
+        <source>013 - User Transaction Syntax Error</source>
+        <target state="new">013 - User Transaction Syntax Error</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity014">
+        <source>014 - Insufficient Permission</source>
+        <target state="new">014 - Insufficient Permission</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity015">
+        <source>015 - Syntax Error in SQL Statements</source>
+        <target state="new">015 - Syntax Error in SQL Statements</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity016">
+        <source>016 - Miscellaneous User Error</source>
+        <target state="new">016 - Miscellaneous User Error</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity017">
+        <source>017 - Insufficient Resources</source>
+        <target state="new">017 - Insufficient Resources</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity018">
+        <source>018 - Nonfatal Internal Error</source>
+        <target state="new">018 - Nonfatal Internal Error</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity019">
+        <source>019 - Fatal Error in Resource</source>
+        <target state="new">019 - Fatal Error in Resource</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity020">
+        <source>020 - Fatal Error in Current Process</source>
+        <target state="new">020 - Fatal Error in Current Process</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity021">
+        <source>021 - Fatal Error in Database Processes</source>
+        <target state="new">021 - Fatal Error in Database Processes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity022">
+        <source>022 - Fatal Error: Table Integrity Suspect</source>
+        <target state="new">022 - Fatal Error: Table Integrity Suspect</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity023">
+        <source>023 - Fatal Error: Database Integrity Suspect</source>
+        <target state="new">023 - Fatal Error: Database Integrity Suspect</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity024">
+        <source>024 - Fatal Error: Hardware Error</source>
+        <target state="new">024 - Fatal Error: Hardware Error</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Severity025">
+        <source>025 - Fatal Error</source>
+        <target state="new">025 - Fatal Error</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PagerScheduleMonFri">
+        <source>Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?</source>
+        <target state="new">Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?</target>
+        <note> Message box that displayed if start time is more than end time on Mon-Fri</note>
+      </trans-unit>
+      <trans-unit id="PagerScheduleSatSun">
+        <source>Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?</source>
+        <target state="new">Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?</target>
+        <note> Message box that displayed if start time is more than end time on Sat-Sun</note>
+      </trans-unit>
+      <trans-unit id="PagerScheduleWarning">
+        <source>Pager schedule warning</source>
+        <target state="new">Pager schedule warning</target>
+        <note> Message box caption</note>
+      </trans-unit>
+      <trans-unit id="General">
+        <source>General</source>
+        <target state="new">General</target>
+        <note> Tree node name</note>
+      </trans-unit>
+      <trans-unit id="Notifications">
+        <source>Notifications</source>
+        <target state="new">Notifications</target>
+        <note> Tree node name</note>
+      </trans-unit>
+      <trans-unit id="History">
+        <source>History</source>
+        <target state="new">History</target>
+        <note> Tree node name</note>
+      </trans-unit>
+      <trans-unit id="Day">
+        <source>Day</source>
+        <target state="new">Day</target>
+        <note> Pager schedule grid column name</note>
+      </trans-unit>
+      <trans-unit id="StartTime">
+        <source>Start Time</source>
+        <target state="new">Start Time</target>
+        <note> Pager schedule grid column name</note>
+      </trans-unit>
+      <trans-unit id="EndTime">
+        <source>End Time</source>
+        <target state="new">End Time</target>
+        <note> Pager schedule grid column name</note>
+      </trans-unit>
+      <trans-unit id="ColumnIndexIsInvalid">
+        <source>Column index is invalid.</source>
+        <target state="new">Column index is invalid.</target>
+        <note> Exception thrown when column index is invalid</note>
+      </trans-unit>
+      <trans-unit id="RowIndexIsInvalid">
+        <source>Row index is invalid.</source>
+        <target state="new">Row index is invalid.</target>
+        <note> Exception thrown when row index is invalid</note>
+      </trans-unit>
+      <trans-unit id="NewOperatorProperties">
+        <source>New Operator</source>
+        <target state="new">New Operator</target>
+        <note> Name of the operator dialog in create new operator mode</note>
+      </trans-unit>
+      <trans-unit id="OperatorProperties">
+        <source>{0} Properties</source>
+        <target state="new">{0} Properties</target>
+        <note> Name of the operator dialog in modify operator mode.
+ Parameters: 0 - operatorName (string) </note>
+      </trans-unit>
+      <trans-unit id="FailedToCreateInitializeAgentOperatorDialog">
+        <source>Unable to create/initialize Agent Operator dialog.</source>
+        <target state="new">Unable to create/initialize Agent Operator dialog.</target>
+        <note> Exception thrown when dialog cannot be created/intialized.</note>
+      </trans-unit>
+      <trans-unit id="JobServerIsNotAvailable">
+        <source>Job server is not available.</source>
+        <target state="new">Job server is not available.</target>
+        <note> Exception thrown when job server is not available</note>
+      </trans-unit>
+      <trans-unit id="CannotCreateInitializeGeneralPage">
+        <source>Cannot create/initialize General page.</source>
+        <target state="new">Cannot create/initialize General page.</target>
+        <note> Exception thrown when we cannot create/initialize agent operators general page</note>
+      </trans-unit>
+      <trans-unit id="CannotCreateInitializeNotificationsPage">
+        <source>Cannot create/initialize Notifications page.</source>
+        <target state="new">Cannot create/initialize Notifications page.</target>
+        <note> Exception thrown when we cannot create/initialize agent operators notifications page</note>
+      </trans-unit>
+      <trans-unit id="CannotCreateInitializeHistoryPage">
+        <source>Cannot create/initialize History page.</source>
+        <target state="new">Cannot create/initialize History page.</target>
+        <note> Exception thrown when we cannot create/initialize agent operators history page</note>
+      </trans-unit>
+      <trans-unit id="CannotResetOperator">
+        <source>Cannot reset operator.</source>
+        <target state="new">Cannot reset operator.</target>
+        <note> Exception throw when dialog cannot refresh operator</note>
+      </trans-unit>
+      <trans-unit id="AlertList">
+        <source>Alert list:</source>
+        <target state="new">Alert list:</target>
+        <note> Name of label on notifications page</note>
+      </trans-unit>
+      <trans-unit id="JobList">
+        <source>Job list:</source>
+        <target state="new">Job list:</target>
+        <note> Name of label on notifications page</note>
+      </trans-unit>
+      <trans-unit id="Email">
+        <source>E-mail</source>
+        <target state="new">E-mail</target>
+        <note> Name of column on notifications page</note>
+      </trans-unit>
+      <trans-unit id="Pager">
+        <source>Pager</source>
+        <target state="new">Pager</target>
+        <note> Name of column on notifications page</note>
+      </trans-unit>
+      <trans-unit id="AlertName">
+        <source>Alert name</source>
+        <target state="new">Alert name</target>
+        <note> Name of column on notifications page</note>
+      </trans-unit>
+      <trans-unit id="JobName">
+        <source>Job name</source>
+        <target state="new">Job name</target>
+        <note> Name of column on notifications page</note>
+      </trans-unit>
+      <trans-unit id="Always">
+        <source>Always</source>
+        <target state="new">Always</target>
+        <note> Completion Action</note>
+      </trans-unit>
+      <trans-unit id="Never">
+        <source>Never</source>
+        <target state="new">Never</target>
+        <note> Completion Action</note>
+      </trans-unit>
+      <trans-unit id="OnFailure">
+        <source>On failure</source>
+        <target state="new">On failure</target>
+        <note> Completion Action</note>
+      </trans-unit>
+      <trans-unit id="OnSuccess">
+        <source>On success</source>
+        <target state="new">On success</target>
+        <note> Completion Action</note>
+      </trans-unit>
+      <trans-unit id="CannotModifyAlerts">
+        <source>Cannot modify alerts.</source>
+        <target state="new">Cannot modify alerts.</target>
+        <note> Exception thrown when we cannot modify alerts</note>
+      </trans-unit>
+      <trans-unit id="CannotCreateScriptForModifyAlerts">
+        <source>Cannot create script for modify alerts.</source>
+        <target state="new">Cannot create script for modify alerts.</target>
+        <note> Exception thrown when we cannot create script that modify alerts</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
