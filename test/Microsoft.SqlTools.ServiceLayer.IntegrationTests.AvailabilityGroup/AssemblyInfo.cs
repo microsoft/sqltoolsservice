@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Runtime.CompilerServices;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]

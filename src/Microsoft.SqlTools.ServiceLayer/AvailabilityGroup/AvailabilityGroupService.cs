@@ -91,24 +91,30 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
         {
             try
             {
-                var result = new AvailabilityGroupsResult();
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
                     out connInfo);
+
+                var result = new AvailabilityGroupsResult();
 
                 if (connInfo != null)
                 {
                     using (var sqlConnection = ConnectionService.OpenSqlConnection(connInfo))
                     {
                         var serverConnection = new ServerConnection(sqlConnection);
-
                         Server server = new Server(serverConnection);
                         result.Succeeded = true;
                         result.AvailabilityGroups = server.AvailabilityGroups.OfType<SMO.AvailabilityGroup>().Select(ag => CreateAvailabilityGroupInfo(ag)).ToArray();
                         sqlConnection.Close();
                     }
                 }
+                else
+                {
+                    result.ErrorMessage = SR.ProfilerConnectionNotFound;
+                    result.Succeeded = false;
+                }
+
                 await requestContext.SendResult(result);
             }
             catch (Exception e)
@@ -117,6 +123,11 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
             }
         }
 
+        /// <summary>
+        /// Create the AvailabilityGroupInfo class from a SMO availability group object
+        /// </summary>
+        /// <param name="availabilityGroup">The SMO availability group</param>
+        /// <returns>An instance of AvailabilityGroupInfo</returns>
         private AvailabilityGroupInfo CreateAvailabilityGroupInfo(SMO.AvailabilityGroup availabilityGroup)
         {
             var ag = new AvailabilityGroupInfo

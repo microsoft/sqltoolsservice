@@ -14,6 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup.Contracts
     /// </summary>
     public class AvailabilityGroupsRequestParams : GeneralRequestDetails
     {
+        /// <summary>
+        /// Gets or sets the owner Uri
+        /// </summary>        
         public string OwnerUri { get; set; }
     }
 
@@ -22,11 +25,19 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup.Contracts
     /// </summary>
     public class AvailabilityGroupsResult
     {
-
+        /// <summary>
+        /// Gets or sets a boolean value indicating whether the processing of request succeeded
+        /// </summary>
         public bool Succeeded { get; set; }
 
+        /// <summary>
+        /// Gets or sets the error message
+        /// </summary>
         public string ErrorMessage { get; set; }
 
+        /// <summary>
+        /// Gets or sets the availability groups
+        /// </summary>
         public AvailabilityGroupInfo[] AvailabilityGroups { get; set; }
     }
 
