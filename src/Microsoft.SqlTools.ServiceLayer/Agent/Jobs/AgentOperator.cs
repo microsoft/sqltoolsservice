@@ -18,13 +18,14 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     /// <summary>
     /// Agent Operators management class
     /// </summary>
-    internal class AgentOperator : AgentConfigurationBase
+    internal class AgentOperator : ManagementActionBase
     {
         private AgentOperatorInfo operatorInfo;
 

@@ -291,7 +291,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 if (connInfo != null)
                 {
-
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
 
 
                 }
@@ -348,11 +349,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             if (connInfo != null && ValidateAgentAlertInfo(alert))
             {
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                STParameters param = new STParameters(helper.DataContainer.Document);
+                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("alert", alert.JobName);
 
-                using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
+                using (AgentAlert agentAlert = new AgentAlert(dataContainer, alert))
                 {
                     agentAlert.CreateOrUpdate();
                 }
@@ -375,14 +376,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 AgentAlertInfo alert = parameters.Alert;
                 if (connInfo != null && ValidateAgentAlertInfo(alert))
                 {
-                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(helper.DataContainer.Document);
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("alert", alert.JobName);
 
-                    using (AgentAlert agentAlert = new AgentAlert(helper.DataContainer, alert))
+                    using (AgentAlert agentAlert = new AgentAlert(dataContainer, alert))
                     {
                         agentAlert.Drop();
-                    }       
+                    }
                 }
 
                 await requestContext.SendResult(result);
@@ -409,11 +410,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     out connInfo);
 
                 AgentOperatorInfo operatorInfo = parameters.Operator;
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                STParameters param = new STParameters(helper.DataContainer.Document);
+                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("operator", operatorInfo.Name);
 
-                using (AgentOperator agentOperator = new AgentOperator(helper.DataContainer, operatorInfo))
+                using (AgentOperator agentOperator = new AgentOperator(dataContainer, operatorInfo))
                 {
                     agentOperator.CreateOrUpdate();
                 }
@@ -499,11 +500,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(helper.DataContainer.Document);
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("proxyaccount", accountName);
 
-                    using (AgentProxyAccount agentProxy = new AgentProxyAccount(helper.DataContainer, proxy))
+                    using (AgentProxyAccount agentProxy = new AgentProxyAccount(dataContainer, proxy))
                     {
                         if (configAction == AgentConfigAction.Create)
                         {

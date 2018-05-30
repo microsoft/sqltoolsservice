@@ -15,10 +15,11 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-    internal class AgentProxyAccount : AgentConfigurationBase
+    internal class AgentProxyAccount : ManagementActionBase
     {
         #region Constants
         internal const string ProxyAccountPropertyName = "proxyaccount";

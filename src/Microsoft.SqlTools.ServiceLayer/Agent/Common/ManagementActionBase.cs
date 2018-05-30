@@ -14,18 +14,18 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections.Specialized;
-
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Agent;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// base class that can be used to derived from for the main classes [containers] of the dialogs
     /// </summary>
-    public class AgentConfigurationBase : IDisposable
+    public class ManagementActionBase : IDisposable
     {
 #region Members
 
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Constructor
         /// </summary>
-        public AgentConfigurationBase()
+        public ManagementActionBase()
         {
         }
 

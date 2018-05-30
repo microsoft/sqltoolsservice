@@ -13,13 +13,14 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
 	/// <summary>
 	/// AgentAlert class
 	/// </summary>
-	internal class AgentAlert : AgentConfigurationBase
+	internal class AgentAlert : ManagementActionBase
 	{
         /// <summary>
         /// Agent alert info instance
