@@ -3661,6 +3661,518 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string UserCancelledSelectStep
+        {
+            get
+            {
+                return Keys.GetString(Keys.UserCancelledSelectStep);
+            }
+        }
+
+        public static string RequestPostedToTargetServers
+        {
+            get
+            {
+                return Keys.GetString(Keys.RequestPostedToTargetServers);
+            }
+        }
+
+        public static string Executing
+        {
+            get
+            {
+                return Keys.GetString(Keys.Executing);
+            }
+        }
+
+        public static string BetweenRetries
+        {
+            get
+            {
+                return Keys.GetString(Keys.BetweenRetries);
+            }
+        }
+
+        public static string Suspended
+        {
+            get
+            {
+                return Keys.GetString(Keys.Suspended);
+            }
+        }
+
+        public static string PerformingCompletionAction
+        {
+            get
+            {
+                return Keys.GetString(Keys.PerformingCompletionAction);
+            }
+        }
+
+        public static string WaitingForStepToFinish
+        {
+            get
+            {
+                return Keys.GetString(Keys.WaitingForStepToFinish);
+            }
+        }
+
+        public static string WaitingForWorkerThread
+        {
+            get
+            {
+                return Keys.GetString(Keys.WaitingForWorkerThread);
+            }
+        }
+
+        public static string AllDatabases
+        {
+            get
+            {
+                return Keys.GetString(Keys.AllDatabases);
+            }
+        }
+
+        public static string Severity001
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity001);
+            }
+        }
+
+        public static string Severity002
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity002);
+            }
+        }
+
+        public static string Severity003
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity003);
+            }
+        }
+
+        public static string Severity004
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity004);
+            }
+        }
+
+        public static string Severity005
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity005);
+            }
+        }
+
+        public static string Severity006
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity006);
+            }
+        }
+
+        public static string Severity007
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity007);
+            }
+        }
+
+        public static string Severity008
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity008);
+            }
+        }
+
+        public static string Severity009
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity009);
+            }
+        }
+
+        public static string Severity010
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity010);
+            }
+        }
+
+        public static string Severity011
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity011);
+            }
+        }
+
+        public static string Severity012
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity012);
+            }
+        }
+
+        public static string Severity013
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity013);
+            }
+        }
+
+        public static string Severity014
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity014);
+            }
+        }
+
+        public static string Severity015
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity015);
+            }
+        }
+
+        public static string Severity016
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity016);
+            }
+        }
+
+        public static string Severity017
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity017);
+            }
+        }
+
+        public static string Severity018
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity018);
+            }
+        }
+
+        public static string Severity019
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity019);
+            }
+        }
+
+        public static string Severity020
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity020);
+            }
+        }
+
+        public static string Severity021
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity021);
+            }
+        }
+
+        public static string Severity022
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity022);
+            }
+        }
+
+        public static string Severity023
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity023);
+            }
+        }
+
+        public static string Severity024
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity024);
+            }
+        }
+
+        public static string Severity025
+        {
+            get
+            {
+                return Keys.GetString(Keys.Severity025);
+            }
+        }
+
+        public static string PagerScheduleMonFri
+        {
+            get
+            {
+                return Keys.GetString(Keys.PagerScheduleMonFri);
+            }
+        }
+
+        public static string PagerScheduleSatSun
+        {
+            get
+            {
+                return Keys.GetString(Keys.PagerScheduleSatSun);
+            }
+        }
+
+        public static string PagerScheduleWarning
+        {
+            get
+            {
+                return Keys.GetString(Keys.PagerScheduleWarning);
+            }
+        }
+
+        public static string General
+        {
+            get
+            {
+                return Keys.GetString(Keys.General);
+            }
+        }
+
+        public static string Notifications
+        {
+            get
+            {
+                return Keys.GetString(Keys.Notifications);
+            }
+        }
+
+        public static string History
+        {
+            get
+            {
+                return Keys.GetString(Keys.History);
+            }
+        }
+
+        public static string Day
+        {
+            get
+            {
+                return Keys.GetString(Keys.Day);
+            }
+        }
+
+        public static string StartTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartTime);
+            }
+        }
+
+        public static string EndTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.EndTime);
+            }
+        }
+
+        public static string ColumnIndexIsInvalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnIndexIsInvalid);
+            }
+        }
+
+        public static string RowIndexIsInvalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.RowIndexIsInvalid);
+            }
+        }
+
+        public static string NewOperatorProperties
+        {
+            get
+            {
+                return Keys.GetString(Keys.NewOperatorProperties);
+            }
+        }
+
+        public static string FailedToCreateInitializeAgentOperatorDialog
+        {
+            get
+            {
+                return Keys.GetString(Keys.FailedToCreateInitializeAgentOperatorDialog);
+            }
+        }
+
+        public static string JobServerIsNotAvailable
+        {
+            get
+            {
+                return Keys.GetString(Keys.JobServerIsNotAvailable);
+            }
+        }
+
+        public static string CannotCreateInitializeGeneralPage
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotCreateInitializeGeneralPage);
+            }
+        }
+
+        public static string CannotCreateInitializeNotificationsPage
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotCreateInitializeNotificationsPage);
+            }
+        }
+
+        public static string CannotCreateInitializeHistoryPage
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotCreateInitializeHistoryPage);
+            }
+        }
+
+        public static string CannotResetOperator
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotResetOperator);
+            }
+        }
+
+        public static string AlertList
+        {
+            get
+            {
+                return Keys.GetString(Keys.AlertList);
+            }
+        }
+
+        public static string JobList
+        {
+            get
+            {
+                return Keys.GetString(Keys.JobList);
+            }
+        }
+
+        public static string Email
+        {
+            get
+            {
+                return Keys.GetString(Keys.Email);
+            }
+        }
+
+        public static string Pager
+        {
+            get
+            {
+                return Keys.GetString(Keys.Pager);
+            }
+        }
+
+        public static string AlertName
+        {
+            get
+            {
+                return Keys.GetString(Keys.AlertName);
+            }
+        }
+
+        public static string JobName
+        {
+            get
+            {
+                return Keys.GetString(Keys.JobName);
+            }
+        }
+
+        public static string Always
+        {
+            get
+            {
+                return Keys.GetString(Keys.Always);
+            }
+        }
+
+        public static string Never
+        {
+            get
+            {
+                return Keys.GetString(Keys.Never);
+            }
+        }
+
+        public static string OnFailure
+        {
+            get
+            {
+                return Keys.GetString(Keys.OnFailure);
+            }
+        }
+
+        public static string OnSuccess
+        {
+            get
+            {
+                return Keys.GetString(Keys.OnSuccess);
+            }
+        }
+
+        public static string CannotModifyAlerts
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotModifyAlerts);
+            }
+        }
+
+        public static string CannotCreateScriptForModifyAlerts
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotCreateScriptForModifyAlerts);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3749,6 +4261,151 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string EditDataIncorrectTable(string tableName)
         {
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
+        }
+
+        public static string EnableAlertsTitle(String serverName)
+        {
+            return Keys.GetString(Keys.EnableAlertsTitle, serverName);
+        }
+
+        public static string EnableAlertDescription(String alertName)
+        {
+            return Keys.GetString(Keys.EnableAlertDescription, alertName);
+        }
+
+        public static string EnablingAlert(String alertName)
+        {
+            return Keys.GetString(Keys.EnablingAlert, alertName);
+        }
+
+        public static string EnabledAlert(String alertName)
+        {
+            return Keys.GetString(Keys.EnabledAlert, alertName);
+        }
+
+        public static string DisableAlertsTitle(String serverName)
+        {
+            return Keys.GetString(Keys.DisableAlertsTitle, serverName);
+        }
+
+        public static string DisableAlertDescription(String alertName)
+        {
+            return Keys.GetString(Keys.DisableAlertDescription, alertName);
+        }
+
+        public static string DisablingAlert(String alertName)
+        {
+            return Keys.GetString(Keys.DisablingAlert, alertName);
+        }
+
+        public static string DisabledAlert(String alertName)
+        {
+            return Keys.GetString(Keys.DisabledAlert, alertName);
+        }
+
+        public static string EnableJobsTitle(String serverName)
+        {
+            return Keys.GetString(Keys.EnableJobsTitle, serverName);
+        }
+
+        public static string EnableJobDescription(String jobName)
+        {
+            return Keys.GetString(Keys.EnableJobDescription, jobName);
+        }
+
+        public static string EnablingJob(String jobName)
+        {
+            return Keys.GetString(Keys.EnablingJob, jobName);
+        }
+
+        public static string EnabledJob(String jobName)
+        {
+            return Keys.GetString(Keys.EnabledJob, jobName);
+        }
+
+        public static string DisableJobsTitle(String serverName)
+        {
+            return Keys.GetString(Keys.DisableJobsTitle, serverName);
+        }
+
+        public static string DisableJobDescription(String jobName)
+        {
+            return Keys.GetString(Keys.DisableJobDescription, jobName);
+        }
+
+        public static string DisablingJob(String jobName)
+        {
+            return Keys.GetString(Keys.DisablingJob, jobName);
+        }
+
+        public static string DisabledJob(String jobName)
+        {
+            return Keys.GetString(Keys.DisabledJob, jobName);
+        }
+
+        public static string StartJobsTitle(String serverName)
+        {
+            return Keys.GetString(Keys.StartJobsTitle, serverName);
+        }
+
+        public static string StartJobDescription(String jobName)
+        {
+            return Keys.GetString(Keys.StartJobDescription, jobName);
+        }
+
+        public static string GettingStartStep(String jobName)
+        {
+            return Keys.GetString(Keys.GettingStartStep, jobName);
+        }
+
+        public static string StartingJob(String jobName)
+        {
+            return Keys.GetString(Keys.StartingJob, jobName);
+        }
+
+        public static string StartJobWithStep(String jobName, String stepName)
+        {
+            return Keys.GetString(Keys.StartJobWithStep, jobName, stepName);
+        }
+
+        public static string ExecuteJob(string jobName)
+        {
+            return Keys.GetString(Keys.ExecuteJob, jobName);
+        }
+
+        public static string JobFailed(string jobName)
+        {
+            return Keys.GetString(Keys.JobFailed, jobName);
+        }
+
+        public static string StopJobsTitle(String serverName)
+        {
+            return Keys.GetString(Keys.StopJobsTitle, serverName);
+        }
+
+        public static string StopJobDescription(String jobName)
+        {
+            return Keys.GetString(Keys.StopJobDescription, jobName);
+        }
+
+        public static string StoppingJob(String jobName)
+        {
+            return Keys.GetString(Keys.StoppingJob, jobName);
+        }
+
+        public static string StoppedJob(String jobName)
+        {
+            return Keys.GetString(Keys.StoppedJob, jobName);
+        }
+
+        public static string UnknownSeverity(int severity)
+        {
+            return Keys.GetString(Keys.UnknownSeverity, severity);
+        }
+
+        public static string OperatorProperties(string operatorName)
+        {
+            return Keys.GetString(Keys.OperatorProperties, operatorName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -5173,6 +5830,285 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ProfilerConnectionNotFound = "ProfilerConnectionNotFound";
+
+
+            public const string EnableAlertsTitle = "EnableAlertsTitle";
+
+
+            public const string EnableAlertDescription = "EnableAlertDescription";
+
+
+            public const string EnablingAlert = "EnablingAlert";
+
+
+            public const string EnabledAlert = "EnabledAlert";
+
+
+            public const string DisableAlertsTitle = "DisableAlertsTitle";
+
+
+            public const string DisableAlertDescription = "DisableAlertDescription";
+
+
+            public const string DisablingAlert = "DisablingAlert";
+
+
+            public const string DisabledAlert = "DisabledAlert";
+
+
+            public const string EnableJobsTitle = "EnableJobsTitle";
+
+
+            public const string EnableJobDescription = "EnableJobDescription";
+
+
+            public const string EnablingJob = "EnablingJob";
+
+
+            public const string EnabledJob = "EnabledJob";
+
+
+            public const string DisableJobsTitle = "DisableJobsTitle";
+
+
+            public const string DisableJobDescription = "DisableJobDescription";
+
+
+            public const string DisablingJob = "DisablingJob";
+
+
+            public const string DisabledJob = "DisabledJob";
+
+
+            public const string StartJobsTitle = "StartJobsTitle";
+
+
+            public const string StartJobDescription = "StartJobDescription";
+
+
+            public const string GettingStartStep = "GettingStartStep";
+
+
+            public const string UserCancelledSelectStep = "UserCancelledSelectStep";
+
+
+            public const string StartingJob = "StartingJob";
+
+
+            public const string StartJobWithStep = "StartJobWithStep";
+
+
+            public const string RequestPostedToTargetServers = "RequestPostedToTargetServers";
+
+
+            public const string ExecuteJob = "ExecuteJob";
+
+
+            public const string JobFailed = "JobFailed";
+
+
+            public const string Executing = "Executing";
+
+
+            public const string BetweenRetries = "BetweenRetries";
+
+
+            public const string Suspended = "Suspended";
+
+
+            public const string PerformingCompletionAction = "PerformingCompletionAction";
+
+
+            public const string WaitingForStepToFinish = "WaitingForStepToFinish";
+
+
+            public const string WaitingForWorkerThread = "WaitingForWorkerThread";
+
+
+            public const string StopJobsTitle = "StopJobsTitle";
+
+
+            public const string StopJobDescription = "StopJobDescription";
+
+
+            public const string StoppingJob = "StoppingJob";
+
+
+            public const string StoppedJob = "StoppedJob";
+
+
+            public const string AllDatabases = "AllDatabases";
+
+
+            public const string UnknownSeverity = "UnknownSeverity";
+
+
+            public const string Severity001 = "Severity001";
+
+
+            public const string Severity002 = "Severity002";
+
+
+            public const string Severity003 = "Severity003";
+
+
+            public const string Severity004 = "Severity004";
+
+
+            public const string Severity005 = "Severity005";
+
+
+            public const string Severity006 = "Severity006";
+
+
+            public const string Severity007 = "Severity007";
+
+
+            public const string Severity008 = "Severity008";
+
+
+            public const string Severity009 = "Severity009";
+
+
+            public const string Severity010 = "Severity010";
+
+
+            public const string Severity011 = "Severity011";
+
+
+            public const string Severity012 = "Severity012";
+
+
+            public const string Severity013 = "Severity013";
+
+
+            public const string Severity014 = "Severity014";
+
+
+            public const string Severity015 = "Severity015";
+
+
+            public const string Severity016 = "Severity016";
+
+
+            public const string Severity017 = "Severity017";
+
+
+            public const string Severity018 = "Severity018";
+
+
+            public const string Severity019 = "Severity019";
+
+
+            public const string Severity020 = "Severity020";
+
+
+            public const string Severity021 = "Severity021";
+
+
+            public const string Severity022 = "Severity022";
+
+
+            public const string Severity023 = "Severity023";
+
+
+            public const string Severity024 = "Severity024";
+
+
+            public const string Severity025 = "Severity025";
+
+
+            public const string PagerScheduleMonFri = "PagerScheduleMonFri";
+
+
+            public const string PagerScheduleSatSun = "PagerScheduleSatSun";
+
+
+            public const string PagerScheduleWarning = "PagerScheduleWarning";
+
+
+            public const string General = "General";
+
+
+            public const string Notifications = "Notifications";
+
+
+            public const string History = "History";
+
+
+            public const string Day = "Day";
+
+
+            public const string StartTime = "StartTime";
+
+
+            public const string EndTime = "EndTime";
+
+
+            public const string ColumnIndexIsInvalid = "ColumnIndexIsInvalid";
+
+
+            public const string RowIndexIsInvalid = "RowIndexIsInvalid";
+
+
+            public const string NewOperatorProperties = "NewOperatorProperties";
+
+
+            public const string OperatorProperties = "OperatorProperties";
+
+
+            public const string FailedToCreateInitializeAgentOperatorDialog = "FailedToCreateInitializeAgentOperatorDialog";
+
+
+            public const string JobServerIsNotAvailable = "JobServerIsNotAvailable";
+
+
+            public const string CannotCreateInitializeGeneralPage = "CannotCreateInitializeGeneralPage";
+
+
+            public const string CannotCreateInitializeNotificationsPage = "CannotCreateInitializeNotificationsPage";
+
+
+            public const string CannotCreateInitializeHistoryPage = "CannotCreateInitializeHistoryPage";
+
+
+            public const string CannotResetOperator = "CannotResetOperator";
+
+
+            public const string AlertList = "AlertList";
+
+
+            public const string JobList = "JobList";
+
+
+            public const string Email = "Email";
+
+
+            public const string Pager = "Pager";
+
+
+            public const string AlertName = "AlertName";
+
+
+            public const string JobName = "JobName";
+
+
+            public const string Always = "Always";
+
+
+            public const string Never = "Never";
+
+
+            public const string OnFailure = "OnFailure";
+
+
+            public const string OnSuccess = "OnSuccess";
+
+
+            public const string CannotModifyAlerts = "CannotModifyAlerts";
+
+
+            public const string CannotCreateScriptForModifyAlerts = "CannotCreateScriptForModifyAlerts";
 
 
             private Keys()

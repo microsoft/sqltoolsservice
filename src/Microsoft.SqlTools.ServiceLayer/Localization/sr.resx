@@ -2023,4 +2023,405 @@
     <value>Connection not found</value>
     <comment></comment>
   </data>
+  <data name="EnableAlertsTitle" xml:space="preserve">
+    <value>Enable Alerts - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="EnableAlertDescription" xml:space="preserve">
+    <value>Enable Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="EnablingAlert" xml:space="preserve">
+    <value>Enabling Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="EnabledAlert" xml:space="preserve">
+    <value>Enabled Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="DisableAlertsTitle" xml:space="preserve">
+    <value>Disable Alerts - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="DisableAlertDescription" xml:space="preserve">
+    <value>Disable Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="DisablingAlert" xml:space="preserve">
+    <value>Disabling Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="DisabledAlert" xml:space="preserve">
+    <value>Disabled Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="EnableJobsTitle" xml:space="preserve">
+    <value>Enable Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="EnableJobDescription" xml:space="preserve">
+    <value>Enable Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="EnablingJob" xml:space="preserve">
+    <value>Enabling Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="EnabledJob" xml:space="preserve">
+    <value>Enabled Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="DisableJobsTitle" xml:space="preserve">
+    <value>Disable Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="DisableJobDescription" xml:space="preserve">
+    <value>Disable Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="DisablingJob" xml:space="preserve">
+    <value>Disabling Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="DisabledJob" xml:space="preserve">
+    <value>Disabled Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StartJobsTitle" xml:space="preserve">
+    <value>Start Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="StartJobDescription" xml:space="preserve">
+    <value>Start Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="GettingStartStep" xml:space="preserve">
+    <value>Job '{0}' has more than one step. Getting step to start</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="UserCancelledSelectStep" xml:space="preserve">
+    <value>User canceled select step. Job will not be started</value>
+    <comment></comment>
+  </data>
+  <data name="StartingJob" xml:space="preserve">
+    <value>Starting Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StartJobWithStep" xml:space="preserve">
+    <value>Start Job '{0}' with step '{1}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String), 1 - stepName (String) </comment>
+  </data>
+  <data name="RequestPostedToTargetServers" xml:space="preserve">
+    <value>Posted remote job execution request</value>
+    <comment></comment>
+  </data>
+  <data name="ExecuteJob" xml:space="preserve">
+    <value>Execute job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="JobFailed" xml:space="preserve">
+    <value>Execution of job '{0}' failed.  See the history log for details.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Executing</value>
+    <comment></comment>
+  </data>
+  <data name="BetweenRetries" xml:space="preserve">
+    <value>Between retries</value>
+    <comment></comment>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Suspended</value>
+    <comment></comment>
+  </data>
+  <data name="PerformingCompletionAction" xml:space="preserve">
+    <value>Performing completion action</value>
+    <comment></comment>
+  </data>
+  <data name="WaitingForStepToFinish" xml:space="preserve">
+    <value>Waiting for step to finish</value>
+    <comment></comment>
+  </data>
+  <data name="WaitingForWorkerThread" xml:space="preserve">
+    <value>Waiting for worker thread</value>
+    <comment></comment>
+  </data>
+  <data name="StopJobsTitle" xml:space="preserve">
+    <value>Stop Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="StopJobDescription" xml:space="preserve">
+    <value>Stop Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StoppingJob" xml:space="preserve">
+    <value>Stopping Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StoppedJob" xml:space="preserve">
+    <value>Stopped Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="AllDatabases" xml:space="preserve">
+    <value>&lt;all databases&gt;</value>
+    <comment> First item in database name drop down list</comment>
+  </data>
+  <data name="UnknownSeverity" xml:space="preserve">
+    <value>Unknown severity: {0}</value>
+    <comment> Exception thrown when agent alert has unknown severity level.
+ Parameters: 0 - severity (int) </comment>
+  </data>
+  <data name="Severity001" xml:space="preserve">
+    <value>001 - Miscellaneous System Information</value>
+    <comment></comment>
+  </data>
+  <data name="Severity002" xml:space="preserve">
+    <value>002 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity003" xml:space="preserve">
+    <value>003 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity004" xml:space="preserve">
+    <value>004 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity005" xml:space="preserve">
+    <value>005 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity006" xml:space="preserve">
+    <value>006 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity007" xml:space="preserve">
+    <value>007 - Notification: Status Information</value>
+    <comment></comment>
+  </data>
+  <data name="Severity008" xml:space="preserve">
+    <value>008 - Notification: User Intervention Required</value>
+    <comment></comment>
+  </data>
+  <data name="Severity009" xml:space="preserve">
+    <value>009 - User Defined</value>
+    <comment></comment>
+  </data>
+  <data name="Severity010" xml:space="preserve">
+    <value>010 - Information</value>
+    <comment></comment>
+  </data>
+  <data name="Severity011" xml:space="preserve">
+    <value>011 - Specified Database Object Not Found</value>
+    <comment></comment>
+  </data>
+  <data name="Severity012" xml:space="preserve">
+    <value>012 - Unused</value>
+    <comment></comment>
+  </data>
+  <data name="Severity013" xml:space="preserve">
+    <value>013 - User Transaction Syntax Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity014" xml:space="preserve">
+    <value>014 - Insufficient Permission</value>
+    <comment></comment>
+  </data>
+  <data name="Severity015" xml:space="preserve">
+    <value>015 - Syntax Error in SQL Statements</value>
+    <comment></comment>
+  </data>
+  <data name="Severity016" xml:space="preserve">
+    <value>016 - Miscellaneous User Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity017" xml:space="preserve">
+    <value>017 - Insufficient Resources</value>
+    <comment></comment>
+  </data>
+  <data name="Severity018" xml:space="preserve">
+    <value>018 - Nonfatal Internal Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity019" xml:space="preserve">
+    <value>019 - Fatal Error in Resource</value>
+    <comment></comment>
+  </data>
+  <data name="Severity020" xml:space="preserve">
+    <value>020 - Fatal Error in Current Process</value>
+    <comment></comment>
+  </data>
+  <data name="Severity021" xml:space="preserve">
+    <value>021 - Fatal Error in Database Processes</value>
+    <comment></comment>
+  </data>
+  <data name="Severity022" xml:space="preserve">
+    <value>022 - Fatal Error: Table Integrity Suspect</value>
+    <comment></comment>
+  </data>
+  <data name="Severity023" xml:space="preserve">
+    <value>023 - Fatal Error: Database Integrity Suspect</value>
+    <comment></comment>
+  </data>
+  <data name="Severity024" xml:space="preserve">
+    <value>024 - Fatal Error: Hardware Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity025" xml:space="preserve">
+    <value>025 - Fatal Error</value>
+    <comment></comment>
+  </data>
+  <data name="PagerScheduleMonFri" xml:space="preserve">
+    <value>Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?</value>
+    <comment> Message box that displayed if start time is more than end time on Mon-Fri</comment>
+  </data>
+  <data name="PagerScheduleSatSun" xml:space="preserve">
+    <value>Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?</value>
+    <comment> Message box that displayed if start time is more than end time on Sat-Sun</comment>
+  </data>
+  <data name="PagerScheduleWarning" xml:space="preserve">
+    <value>Pager schedule warning</value>
+    <comment> Message box caption</comment>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>General</value>
+    <comment> Tree node name</comment>
+  </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Notifications</value>
+    <comment> Tree node name</comment>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+    <comment> Tree node name</comment>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Day</value>
+    <comment> Pager schedule grid column name</comment>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>Start Time</value>
+    <comment> Pager schedule grid column name</comment>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>End Time</value>
+    <comment> Pager schedule grid column name</comment>
+  </data>
+  <data name="ColumnIndexIsInvalid" xml:space="preserve">
+    <value>Column index is invalid.</value>
+    <comment> Exception thrown when column index is invalid</comment>
+  </data>
+  <data name="RowIndexIsInvalid" xml:space="preserve">
+    <value>Row index is invalid.</value>
+    <comment> Exception thrown when row index is invalid</comment>
+  </data>
+  <data name="NewOperatorProperties" xml:space="preserve">
+    <value>New Operator</value>
+    <comment> Name of the operator dialog in create new operator mode</comment>
+  </data>
+  <data name="OperatorProperties" xml:space="preserve">
+    <value>{0} Properties</value>
+    <comment> Name of the operator dialog in modify operator mode.
+ Parameters: 0 - operatorName (string) </comment>
+  </data>
+  <data name="FailedToCreateInitializeAgentOperatorDialog" xml:space="preserve">
+    <value>Unable to create/initialize Agent Operator dialog.</value>
+    <comment> Exception thrown when dialog cannot be created/intialized.</comment>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>Job server is not available.</value>
+    <comment> Exception thrown when job server is not available</comment>
+  </data>
+  <data name="CannotCreateInitializeGeneralPage" xml:space="preserve">
+    <value>Cannot create/initialize General page.</value>
+    <comment> Exception thrown when we cannot create/initialize agent operators general page</comment>
+  </data>
+  <data name="CannotCreateInitializeNotificationsPage" xml:space="preserve">
+    <value>Cannot create/initialize Notifications page.</value>
+    <comment> Exception thrown when we cannot create/initialize agent operators notifications page</comment>
+  </data>
+  <data name="CannotCreateInitializeHistoryPage" xml:space="preserve">
+    <value>Cannot create/initialize History page.</value>
+    <comment> Exception thrown when we cannot create/initialize agent operators history page</comment>
+  </data>
+  <data name="CannotResetOperator" xml:space="preserve">
+    <value>Cannot reset operator.</value>
+    <comment> Exception throw when dialog cannot refresh operator</comment>
+  </data>
+  <data name="AlertList" xml:space="preserve">
+    <value>Alert list:</value>
+    <comment> Name of label on notifications page</comment>
+  </data>
+  <data name="JobList" xml:space="preserve">
+    <value>Job list:</value>
+    <comment> Name of label on notifications page</comment>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="Pager" xml:space="preserve">
+    <value>Pager</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="AlertName" xml:space="preserve">
+    <value>Alert name</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="JobName" xml:space="preserve">
+    <value>Job name</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="Always" xml:space="preserve">
+    <value>Always</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Never</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="OnFailure" xml:space="preserve">
+    <value>On failure</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="OnSuccess" xml:space="preserve">
+    <value>On success</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="CannotModifyAlerts" xml:space="preserve">
+    <value>Cannot modify alerts.</value>
+    <comment> Exception thrown when we cannot modify alerts</comment>
+  </data>
+  <data name="CannotCreateScriptForModifyAlerts" xml:space="preserve">
+    <value>Cannot create script for modify alerts.</value>
+    <comment> Exception thrown when we cannot create script that modify alerts</comment>
+  </data>
 </root>

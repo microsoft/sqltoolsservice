@@ -887,3 +887,158 @@ InvalidPathError = Cannot access the specified path on the server: {0}
 ############################################################################
 # Profiler
 ProfilerConnectionNotFound = Connection not found
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################
+# SQL Agent
+EnableAlertsTitle(String serverName) = Enable Alerts - {0}
+EnableAlertDescription(String alertName) = Enable Alert '{0}'
+EnablingAlert(String alertName) = Enabling Alert '{0}'
+EnabledAlert(String alertName) = Enabled Alert '{0}'
+
+DisableAlertsTitle(String serverName) = Disable Alerts - {0}
+DisableAlertDescription(String alertName) = Disable Alert '{0}'
+DisablingAlert(String alertName) = Disabling Alert '{0}'
+DisabledAlert(String alertName) = Disabled Alert '{0}'
+
+EnableJobsTitle(String serverName) = Enable Jobs - {0}
+EnableJobDescription(String jobName) = Enable Job '{0}'
+EnablingJob(String jobName) = Enabling Job '{0}'
+EnabledJob(String jobName) = Enabled Job '{0}'
+
+DisableJobsTitle(String serverName) = Disable Jobs - {0}
+DisableJobDescription(String jobName) = Disable Job '{0}'
+DisablingJob(String jobName) = Disabling Job '{0}'
+DisabledJob(String jobName) = Disabled Job '{0}'
+
+StartJobsTitle(String serverName) = Start Jobs - {0}
+StartJobDescription(String jobName) = Start Job '{0}'
+GettingStartStep(String jobName) = Job '{0}' has more than one step. Getting step to start
+UserCancelledSelectStep = User canceled select step. Job will not be started
+StartingJob(String jobName) = Starting Job '{0}'
+StartJobWithStep(String jobName, String stepName) = Start Job '{0}' with step '{1}'
+RequestPostedToTargetServers = Posted remote job execution request
+
+ExecuteJob(string jobName) = Execute job '{0}'
+JobFailed(string jobName) = Execution of job '{0}' failed.  See the history log for details.
+Executing = Executing
+BetweenRetries = Between retries
+Suspended = Suspended
+PerformingCompletionAction = Performing completion action
+WaitingForStepToFinish = Waiting for step to finish
+WaitingForWorkerThread = Waiting for worker thread
+
+StopJobsTitle(String serverName) = Stop Jobs - {0}
+StopJobDescription(String jobName) = Stop Job '{0}'
+StoppingJob(String jobName) = Stopping Job '{0}'
+StoppedJob(String jobName) = Stopped Job '{0}'
+
+; First item in database name drop down list
+AllDatabases = <all databases>
+; Exception thrown when agent alert has unknown severity level
+UnknownSeverity(int severity) = Unknown severity: {0}
+
+#severity types
+Severity001 = 001 - Miscellaneous System Information
+Severity002 = 002 - Reserved
+Severity003 = 003 - Reserved
+Severity004 = 004 - Reserved
+Severity005 = 005 - Reserved
+Severity006 = 006 - Reserved
+Severity007 = 007 - Notification: Status Information
+Severity008 = 008 - Notification: User Intervention Required
+Severity009 = 009 - User Defined
+Severity010 = 010 - Information
+Severity011 = 011 - Specified Database Object Not Found
+Severity012 = 012 - Unused
+Severity013 = 013 - User Transaction Syntax Error
+Severity014 = 014 - Insufficient Permission
+Severity015 = 015 - Syntax Error in SQL Statements
+Severity016 = 016 - Miscellaneous User Error
+Severity017 = 017 - Insufficient Resources
+Severity018 = 018 - Nonfatal Internal Error
+Severity019 = 019 - Fatal Error in Resource
+Severity020 = 020 - Fatal Error in Current Process
+Severity021 = 021 - Fatal Error in Database Processes
+Severity022 = 022 - Fatal Error: Table Integrity Suspect
+Severity023 = 023 - Fatal Error: Database Integrity Suspect
+Severity024 = 024 - Fatal Error: Hardware Error
+Severity025 = 025 - Fatal Error
+
+; Message box that displayed if start time is more than end time on Mon-Fri
+PagerScheduleMonFri = Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?
+; Message box that displayed if start time is more than end time on Sat-Sun
+PagerScheduleSatSun = Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?
+; Message box caption
+PagerScheduleWarning = Pager schedule warning
+
+; Tree node name
+General = General
+; Tree node name
+Notifications = Notifications
+; Tree node name
+History = History
+; Pager schedule grid column name
+Day = Day
+; Pager schedule grid column name
+StartTime = Start Time
+; Pager schedule grid column name
+EndTime = End Time
+; Exception thrown when column index is invalid
+ColumnIndexIsInvalid = Column index is invalid.
+; Exception thrown when row index is invalid
+RowIndexIsInvalid = Row index is invalid.
+; Name of the operator dialog in create new operator mode
+NewOperatorProperties = New Operator
+; Name of the operator dialog in modify operator mode
+OperatorProperties(string operatorName) = {0} Properties
+; Exception thrown when dialog cannot be created/intialized.
+FailedToCreateInitializeAgentOperatorDialog = Unable to create/initialize Agent Operator dialog.
+; Exception thrown when job server is not available
+JobServerIsNotAvailable = Job server is not available.
+; Exception thrown when we cannot create/initialize agent operators general page
+CannotCreateInitializeGeneralPage = Cannot create/initialize General page.
+; Exception thrown when we cannot create/initialize agent operators notifications page
+CannotCreateInitializeNotificationsPage = Cannot create/initialize Notifications page.
+; Exception thrown when we cannot create/initialize agent operators history page
+CannotCreateInitializeHistoryPage = Cannot create/initialize History page.
+; Exception throw when dialog cannot refresh operator
+CannotResetOperator = Cannot reset operator.
+
+
+#
+; Name of label on notifications page
+AlertList = Alert list:
+; Name of label on notifications page
+JobList = Job list:
+; Name of column on notifications page
+Email = E-mail
+; Name of column on notifications page
+Pager = Pager
+; Name of column on notifications page
+AlertName = Alert name
+; Name of column on notifications page
+JobName = Job name
+; Completion Action
+Always = Always
+; Completion Action
+Never = Never
+; Completion Action
+OnFailure = On failure
+; Completion Action
+OnSuccess = On success
+; Exception thrown when we cannot modify alerts
+CannotModifyAlerts = Cannot modify alerts.
+; Exception thrown when we cannot create script that modify alerts
+CannotCreateScriptForModifyAlerts = Cannot create script for modify alerts.

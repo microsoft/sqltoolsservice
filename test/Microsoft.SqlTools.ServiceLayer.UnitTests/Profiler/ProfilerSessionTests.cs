@@ -24,28 +24,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             // create a profiler session and get some test events
             var profilerSession = new ProfilerSession();
+            var allEvents = ProfilerTestObjects.TestProfilerEvents;
             var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
-            
-            // filter old events shouldn't filter any new events
-            var newProfilerEvents = profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(profilerEvents.Count, newProfilerEvents.Count);
 
-            // filter should now filter all the events since they've been seen before
-            newProfilerEvents = profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(newProfilerEvents.Count, 0);
+            // filter all the results from the first poll
+            // these events happened before the profiler began
+            profilerSession.FilterOldEvents(profilerEvents);
+            Assert.Equal(profilerEvents.Count, 0);
 
             // add a new event
             var newEvent = new ProfilerEvent("new event", "1/1/2017");
-            profilerEvents.Add(newEvent);
+            allEvents.Add(newEvent);
 
-            // verify we only have the new event when reprocessing the event list
-            newProfilerEvents = profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(newProfilerEvents.Count, 1);
-            Assert.True(newProfilerEvents[0].Equals(newEvent));
+            // poll all events
+            profilerEvents.AddRange(allEvents);
 
-            // process whole list again and verify nothing new is available
-            newProfilerEvents = profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(newProfilerEvents.Count, 0);
+            // filtering should leave only the new event
+            profilerSession.FilterOldEvents(profilerEvents);
+            Assert.Equal(profilerEvents.Count, 1);
+            Assert.True(profilerEvents[0].Equals(newEvent));
+
+            //poll again with no new events
+            profilerEvents.AddRange(allEvents);
+
+            // filter should now filter all the events since they've been seen before
+            profilerSession.FilterOldEvents(profilerEvents);
+            Assert.Equal(profilerEvents.Count, 0);
         }
 
 

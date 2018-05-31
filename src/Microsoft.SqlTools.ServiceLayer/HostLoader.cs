@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
@@ -109,6 +110,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ProfilerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ProfilerService.Instance);
+
+            SecurityService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SecurityService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
