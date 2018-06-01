@@ -1042,3 +1042,29 @@ OnSuccess = On success
 CannotModifyAlerts = Cannot modify alerts.
 ; Exception thrown when we cannot create script that modify alerts
 CannotCreateScriptForModifyAlerts = Cannot create script for modify alerts.
+
+
+;job categories
+CategoryLocal = [Uncategorized (Local)]
+CategoryFromMsx = Jobs from MSX
+CategoryMultiServer = [Uncategorized (Multi-Server)]
+CategoryDBMaint = Database Maintenance
+CategoryWebAssistant = Web Assistant
+CategoryFullText = Full-Text
+CategoryReplDistribution = REPL-Distribution
+CategoryReplDistributionCleanup = REPL-Distribution Cleanup
+CategoryReplHistoryCleanup = REPL-History Cleanup
+CategoryReplLogReader = REPL-LogReader
+CategoryReplMerge = REPL-Merge
+CategoryReplSnapShot = REPL-Snapshot
+CategoryReplCheckup = REPL-Checkup
+CategoryReplCleanup = REPL-Subscription Cleanup
+CategoryReplAlert = REPL-Alert Response
+CategoryReplQReader = REPL-QueueReader
+CategoryReplication = Replication
+CategoryUncategorized = [Uncategorized]
+CategoryLogShipping = Log Shipping
+CategoryDBEngineTuningAdvisor = Database Engine Tuning Advisor
+CategoryDataCollector = Data Collector
+
+

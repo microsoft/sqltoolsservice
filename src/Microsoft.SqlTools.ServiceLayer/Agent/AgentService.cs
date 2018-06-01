@@ -88,9 +88,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
+
+            // Jobs request handlers
             this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
             this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
             this.ServiceHost.SetRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest);
+
+            this.ServiceHost.SetRequestHandler(CreateAgentJobRequest.Type, HandleCreateAgentJobRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
+
+            // Job Steps request handlers
+
+            
 
             // Alerts request handlers
             this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest);
@@ -268,6 +278,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             var dt = server.JobServer.EnumJobHistory(filter);
             var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
+        }        
+
+        internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
+        {
+            CreateAgentJobResult result = new CreateAgentJobResult();
+            await requestContext.SendResult(result);
+        }
+
+        internal async Task HandleUpdateAgentJobRequest(UpdateAgentJobParams parameters, RequestContext<UpdateAgentJobResult> requestContext)
+        {
+            UpdateAgentJobResult result = new UpdateAgentJobResult();
+            await requestContext.SendResult(result);
+        }
+
+        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<DeleteAgentJobResult> requestContext)
+        {
+            DeleteAgentJobResult result = new DeleteAgentJobResult();
+            await requestContext.SendResult(result);
+
         }
 
         #endregion // "Jobs Handlers"
