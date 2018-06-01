@@ -13,6 +13,8 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlManagerUI;
+using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -66,11 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
+            {              
             }
             base.Dispose(disposing);
         }

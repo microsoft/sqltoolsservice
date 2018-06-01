@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -26,15 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private bool userIsSysAdmin = false;
         private JobStepAdvancedLogging loggingControl = null;
         private JobStepData jobStepData;
-        private Microsoft.SqlServer.Management.Controls.Separator seperator;
         
         public TSqlSubSystemAdvancedProperties()
         {           
         }
 
-        public TSQLSubSystemAdvancedProperties(CDataContainer dataContainer, JobStepData jobStepData, IServiceProvider serviceProvider)
+        public TSqlSubSystemAdvancedProperties(CDataContainer dataContainer, JobStepData jobStepData, IServiceProvider serviceProvider)
         {
-            this.loggingControl = new JobStepAdvancedLogging(dataContainer, messageProvider, jobStepData);           
+            this.loggingControl = new JobStepAdvancedLogging(dataContainer, jobStepData);           
             this.dataContainer = dataContainer;
             this.jobStepData = jobStepData;
         }
@@ -42,17 +42,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
-            }
-            base.Dispose(disposing);
-        }
+        // protected override void Dispose(bool disposing)
+        // {
+        //     if (disposing)
+        //     {
+        //     }
+        //     //base.Dispose(disposing);
+        // }
 
         /// <summary> 
         /// Required method for Designer support - do not modify 

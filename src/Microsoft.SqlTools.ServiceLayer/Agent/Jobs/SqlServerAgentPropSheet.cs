@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -128,12 +127,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     
         internal static string LogonUserManaged(string userName, string password, ref IntPtr token)
         {            
-            String [] pair = userName.Split("\\".ToCharArray());    
+            string [] pair = userName.Split("\\".ToCharArray());    
             int LogonMethod = 3;        // logon using blah
 
             if (pair.Length > 2)
             {
-                return SRError.InvalidUsername(userName);
+                return "SRError.InvalidUsername(userName)";
             }
 
             bool retval = false;

@@ -9,14 +9,13 @@ using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
-using System.Windows.Forms;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     /// <summary>
     /// Summary description for JobStepDefinition.
     /// </summary>
-    internal class JobStepDefinition : System.Windows.Forms.UserControl
+    internal class JobStepDefinition
     {
         /// <summary> 
         /// Required designer variable.
@@ -24,28 +23,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private System.ComponentModel.Container components = null;
 
         public JobStepDefinition()
-        {
-            // This call is required by the Windows.Forms Form Designer.
-            InitializeComponent();
-
-            // TODO: Add any initialization after the InitForm call
+        {         
 
         }
 
         /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
-            }
-            base.Dispose(disposing);
-        }
+        // protected override void Dispose(bool disposing)
+        // {
+        //     if (disposing)
+        //     {
+        //         if (components != null)
+        //         {
+        //             components.Dispose();
+        //         }
+        //     }
+        //     base.Dispose(disposing);
+        // }
 
         #region Component Designer generated code
 
@@ -55,17 +50,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources =
-                new System.ComponentModel.ComponentResourceManager(typeof (JobStepDefinition));
-            this.SuspendLayout();
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            // 
-            // JobStepDefinition
-            // 
-            this.Name = "JobStepDefinition";
-            resources.ApplyResources(this, "$this");
-            this.ResumeLayout(false);
+            // System.ComponentModel.ComponentResourceManager resources =
+            //     new System.ComponentModel.ComponentResourceManager(typeof (JobStepDefinition));
+            // this.SuspendLayout();
+            // this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            // this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            // // 
+            // // JobStepDefinition
+            // // 
+            // this.Name = "JobStepDefinition";
+            // resources.ApplyResources(this, "$this");
+            // this.ResumeLayout(false);
 
         }
 

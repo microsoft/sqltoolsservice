@@ -10,16 +10,17 @@ using System.Collections;
 using System.ComponentModel;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SqlMgmt;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     /// <summary>
     /// Summary description for JobStepPropertySheet.
     /// </summary>
-    internal class JobStepPropertySheet : SqlMgmtTreeViewControl
+    internal class JobStepPropertySheet : ManagementActionBase
     {
         /// <summary> 
         /// Required designer variable.
@@ -36,21 +37,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public JobStepPropertySheet()
         {
             // This call is required by the Windows.Forms Form Designer.
-            InitializeComponent();
+            // InitializeComponent();
 
             // TODO: Add any initialization after the InitializeComponent call
         }
 
         public JobStepPropertySheet(CDataContainer dataContainer, JobStepData data, IServiceProvider serviceProvider)
         {
-            InitializeComponent();
+        //     InitializeComponent();
 
-            CUtils utils = new CUtils();
-            this.Icon = utils.LoadIcon("Job_steps.ico");
+        //     CUtils utils = new CUtils();
+        //     this.Icon = utils.LoadIcon("Job_steps.ico");
 
             this.DataContainer = dataContainer;
-            this.data = data;
-            Init(serviceProvider);
+            // this.data = data;
+            // Init(serviceProvider);
         }
 
         public void Init(IServiceProvider serviceProvider)
@@ -59,43 +60,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             parameters.GetParam("acceptedits", ref acceptedits);
             commitEditsToJobStep = (acceptedits == "true") ? true : false;
 
-            PanelTreeNode node;
-            PanelTreeNode auxNode;
-            JobPropertiesAdvanced advanced = new JobPropertiesAdvanced(this.DataContainer, this.data, serviceProvider);
-            JobStepProperties general = new JobStepProperties(this.DataContainer, this.data, advanced, serviceProvider);
+            // PanelTreeNode node;
+            // PanelTreeNode auxNode;
+            // JobPropertiesAdvanced advanced = new JobPropertiesAdvanced(this.DataContainer, this.data, serviceProvider);
+            // JobStepProperties general = new JobStepProperties(this.DataContainer, this.data, advanced, serviceProvider);
 
-            AddView(general);
-            AddView(advanced);
+            // AddView(general);
+            // AddView(advanced);
 
-            node = new PanelTreeNode();
-            node.Text = JobSR.Job;
-            node.Type = eNodeType.Folder;
-            node.Tag = 0;
+            // node = new PanelTreeNode();
+            // node.Text = JobSR.Job;
+            // node.Type = eNodeType.Folder;
+            // node.Tag = 0;
 
-            auxNode = new PanelTreeNode();
-            auxNode.Text = JobSR.General;
-            auxNode.Tag = 1;
-            auxNode.Type = eNodeType.Item;
-            node.Nodes.Add(auxNode);
-            SelectNode(auxNode);
+            // auxNode = new PanelTreeNode();
+            // auxNode.Text = JobSR.General;
+            // auxNode.Tag = 1;
+            // auxNode.Type = eNodeType.Item;
+            // node.Nodes.Add(auxNode);
+            // SelectNode(auxNode);
 
-            auxNode = new PanelTreeNode();
-            auxNode.Text = JobSR.Advanced;
-            auxNode.Tag = 2;
-            auxNode.Type = eNodeType.Item;
+            // auxNode = new PanelTreeNode();
+            // auxNode.Text = JobSR.Advanced;
+            // auxNode.Tag = 2;
+            // auxNode.Type = eNodeType.Item;
 
-            node.Nodes.Add(auxNode);
-            AddNode(node);
+            // node.Nodes.Add(auxNode);
+            // AddNode(node);
 
-            // creating
-            if(this.data.Name.Length == 0)
-            {
-                this.Text = JobSR.NewJobStep;
-            }
-            else
-            {
-                this.Text = JobSR.EditJobStep(this.data.Name);
-            }
+            // // creating
+            // if(this.data.Name.Length == 0)
+            // {
+            //     this.Text = JobSR.NewJobStep;
+            // }
+            // else
+            // {
+            //     this.Text = JobSR.EditJobStep(this.data.Name);
+            // }
         }
 
         /// <summary> 
@@ -104,11 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         protected override void Dispose(bool disposing)
         {
             if(disposing)
-            {
-                if(components != null)
-                {
-                    components.Dispose();
-                }
+            {             
             }
             base.Dispose(disposing);
         }
@@ -124,11 +121,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
         #endregion
 
-        private DialogResult dialogResult = DialogResult.Cancel;
-        public DialogResult DialogResult
-        {
-            get { return this.dialogResult; }
-        }
 
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
         {
@@ -137,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             //Make sure the job step name is not blank.
             if(this.data.Name == null || this.data.Name.Length == 0)
             {
-                throw new Exception(SRError.JobStepNameCannotBeBlank);
+                throw new Exception("SRError.JobStepNameCannotBeBlank");
             }
 
             //Check to make sure that the user has not entered a job step name that already exists.
@@ -147,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if(data.ID != ((JobStepData)this.data.Parent.Steps[stepIndex]).ID && data.Name == ((JobStepData)this.data.Parent.Steps[stepIndex]).Name)
                 {
                     //Throw an error if the job step name already exists
-                    throw new Exception(JobSR.JobStepNameAlreadyExists(this.data.Name));
+                    throw new Exception("JobSR.JobStepNameAlreadyExists(this.data.Name)");
                 }
             }
 
@@ -160,7 +152,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     // Caller: logviewer -> can launch job step dialog and user can make changes to this specific step
                     this.data.ApplyChanges(this.GetCurrentJob());
                 }
-                this.dialogResult = DialogResult.OK;
             }
             // regular execution always takes place
             return true;
