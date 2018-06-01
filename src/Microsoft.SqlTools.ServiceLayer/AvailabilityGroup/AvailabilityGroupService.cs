@@ -104,6 +104,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
                     {
                         var serverConnection = new ServerConnection(sqlConnection);
                         Server server = new Server(serverConnection);
+                        server.SetDefaultInitFields(typeof(SMO.AvailabilityGroup), true);
+                        server.SetDefaultInitFields(typeof(SMO.AvailabilityReplica), true);
+                        server.SetDefaultInitFields(typeof(SMO.AvailabilityDatabase), true);
                         result.Succeeded = true;
                         result.AvailabilityGroups = server.AvailabilityGroups.OfType<SMO.AvailabilityGroup>().Select(ag => CreateAvailabilityGroupInfo(ag)).ToArray();
                         sqlConnection.Close();
@@ -140,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AvailabilityGroup
                 Replicas = availabilityGroup.AvailabilityReplicas.OfType<SMO.AvailabilityReplica>().Select(ar => CreateAvailabilityReplicaInfo(ar)).ToArray(),
                 Databases = availabilityGroup.AvailabilityDatabases.OfType<SMO.AvailabilityDatabase>().Select(database => CreateAvailabilityDatabaseInfo(database)).ToArray(),
             };
-
+            
             ag.IsSupported_BasicAvailabilityGroup = availabilityGroup.IsSupportedProperty("BasicAvailabilityGroup");
             ag.BasicAvailabilityGroup = ag.IsSupported_BasicAvailabilityGroup ? availabilityGroup.BasicAvailabilityGroup : false;
 
