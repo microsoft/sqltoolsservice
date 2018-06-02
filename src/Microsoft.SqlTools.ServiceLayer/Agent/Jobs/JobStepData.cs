@@ -692,12 +692,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private void SetDefaults()
         {
             this.alreadyCreated = false;
-            this.currentName = originalName = String.Empty;
-            this.command = String.Empty;
+            this.currentName = originalName = string.Empty;
+            this.command = string.Empty;
             this.commandExecutionSuccessCode = 0;
             this.databaseName = "master";
-            this.databaseUserName = String.Empty;
-            this.server = String.Empty;
+            this.databaseUserName = string.Empty;
+            this.server = string.Empty;
             this.originalId = this.id = -1;
             this.failureAction = StepCompletionAction.QuitWithFailure;
             this.failStep = null;

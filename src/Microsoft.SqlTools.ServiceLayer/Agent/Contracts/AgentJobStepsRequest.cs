@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Job Steps parameters
     /// </summary>
-    public class AgentStepsParams : GeneralRequestDetails
+    public class AgentJobStepsParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
     }
@@ -20,43 +20,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Job Steps result
     /// </summary>
-    public class AgentStepsResult
+    public class AgentJobStepsResult
     {
 
         public bool Succeeded { get; set; }
 
         public string ErrorMessage { get; set; }
 
-        public AgentStepInfo[] Steps { get; set; }
+        public AgentJobStepInfo[] Steps { get; set; }
     }
 
     /// <summary>
     /// SQL Agent Steps request type
     /// </summary>
-    public class AgentStepsRequest
+    public class AgentJobStepsRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<AgentStepsParams, AgentStepsResult> Type =
-            RequestType<AgentStepsParams, AgentStepsResult>.Create("agent/steps");
+            RequestType<AgentJobStepsParams, AgentJobStepsResult> Type =
+            RequestType<AgentJobStepsParams, AgentJobStepsResult>.Create("agent/jobsteps");
     }
 
     /// <summary>
     /// SQL Agent create Step params
     /// </summary>
-    public class CreateAgentStepParams : GeneralRequestDetails
+    public class CreateAgentJobStepParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
 
-        public AgentStepInfo Step { get; set; }
+        public AgentJobStepInfo Step { get; set; }
     }
 
     /// <summary>
     /// SQL Agent create Step result
     /// </summary>
-    public class CreateAgentStepResult
+    public class CreateAgentJobStepResult
     {
         public bool Succeeded { get; set; }
 
@@ -66,30 +66,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Step request type
     /// </summary>
-    public class CreateAgentStepRequest
+    public class CreateAgentJobStepRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateAgentStepParams, CreateAgentStepResult> Type =
-            RequestType<CreateAgentStepParams, CreateAgentStepResult>.Create("agent/createstep");
+            RequestType<CreateAgentJobStepParams, CreateAgentJobStepResult> Type =
+            RequestType<CreateAgentJobStepParams, CreateAgentJobStepResult>.Create("agent/createjobstep");
     }
 
     /// <summary>
     /// SQL Agent delete Step params
     /// </summary>
-    public class DeleteAgentStepParams : GeneralRequestDetails
+    public class DeleteAgentJobStepParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
 
-        public AgentStepInfo Step { get; set; }
+        public AgentJobStepInfo Step { get; set; }
     }
 
     /// <summary>
     /// SQL Agent delete Step result
     /// </summary>
-    public class DeleteAgentStepResult
+    public class DeleteAgentJobStepResult
     {
         public bool Succeeded { get; set; }
 
@@ -99,30 +99,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent delete Step request type
     /// </summary>
-    public class DeleteAgentStepRequest
+    public class DeleteAgentJobStepRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DeleteAgentStepParams, DeleteAgentStepResult> Type =
-            RequestType<DeleteAgentStepParams, DeleteAgentStepResult>.Create("agent/deletestep");
+            RequestType<DeleteAgentJobStepParams, DeleteAgentJobStepResult> Type =
+            RequestType<DeleteAgentJobStepParams, DeleteAgentJobStepResult>.Create("agent/deletejobstep");
     }
 
     /// <summary>
     /// SQL Agent update Step params
     /// </summary>
-    public class UpdateAgentStepParams : GeneralRequestDetails
+    public class UpdateAgentJobStepParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
 
-        public AgentStepInfo Step { get; set; }
+        public AgentJobStepInfo Step { get; set; }
     }
 
     /// <summary>
     /// SQL Agent update Step result
     /// </summary>
-    public class UpdateAgentStepResult
+    public class UpdateAgentJobStepResult
     {
         public bool Succeeded { get; set; }
 
@@ -132,13 +132,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent update Step request type
     /// </summary>
-    public class UpdateAgentStepRequest
+    public class UpdateAgentJobStepRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<UpdateAgentStepParams, UpdateAgentStepResult> Type =
-            RequestType<UpdateAgentStepParams, UpdateAgentStepResult>.Create("agent/updatestep");
+            RequestType<UpdateAgentJobStepParams, UpdateAgentJobStepResult> Type =
+            RequestType<UpdateAgentJobStepParams, UpdateAgentJobStepResult>.Create("agent/updatejobstep");
     }
 }

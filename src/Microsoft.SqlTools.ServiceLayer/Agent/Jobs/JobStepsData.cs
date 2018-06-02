@@ -485,7 +485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 Job job = null;
                 // If JobID is passed in look up by jobID
-                if (!String.IsNullOrEmpty(jobIdString))
+                if (!string.IsNullOrEmpty(jobIdString))
                 {
                     job = this.context.Server.JobServer.Jobs.ItemById(Guid.Parse(jobIdString));
                 }

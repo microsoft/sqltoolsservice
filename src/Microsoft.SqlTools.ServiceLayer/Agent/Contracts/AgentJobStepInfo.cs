@@ -9,8 +9,12 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
-    public class AgentStepInfo
+    public class AgentJobStepInfo
     {
-        int JobId { get; set; }
+        public string JobId { get; set; }
+
+        public string Script { get; set; }
+
+        public string ScriptName { get; set; }
     }
 }

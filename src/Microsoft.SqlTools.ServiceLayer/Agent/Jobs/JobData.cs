@@ -615,7 +615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             parameters.GetParam("scriptName", ref this.scriptName);
 
             // get the Urn
-            string urn = String.Empty;
+            string urn = string.Empty;
 
             parameters.GetParam("urn", ref urn);
 
@@ -633,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.targetLocalServer = false;
             }
             // we are in properties mode.
-            if (this.originalName.Length > 0 || !String.IsNullOrEmpty(this.jobIdString))
+            if (this.originalName.Length > 0 || !string.IsNullOrEmpty(this.jobIdString))
             {
                 this.mode = DialogMode.Properties;
 
@@ -813,19 +813,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         // loads default values for a new job.
         private void SetDefaults()
         {
-            this.description = String.Empty;
+            this.description = string.Empty;
             this.enabled = true;
             this.source = null;
 
             // notifications
-            this.operatorToEmail = String.Empty;
+            this.operatorToEmail = string.Empty;
             this.emailLevel = CompletionAction.Never;
 
-            this.operatorToPage = String.Empty;
+            this.operatorToPage = string.Empty;
             this.pageLevel = CompletionAction.Never;
-
             this.eventLogLevel = CompletionAction.Never;
-
             this.deleteLevel = CompletionAction.Never;
 
             this.generalInfoLoaded = true;
@@ -863,9 +861,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             this.eventLogLevel = job.EventLogLevel;
-
             this.deleteLevel = job.DeleteLevel;
-
             this.notificationsLoaded = true;
         }
 
@@ -1013,16 +1009,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 this.owners = new string[validLoginNames.Count];
                 validLoginNames.CopyTo(this.owners, 0);
-
-
             }
             else
             {
                 // the user is the only person allowed to own the job
                 this.owners = new string[1] { server.ConnectionContext.TrueLogin };
             }
-
         }
+
         private void LoadTargetServers()
         {
             if ((UserRole & UserRoles.SysAdmin) > 0 || (UserRole & UserRoles.AgentOperator) > 0)
@@ -1041,7 +1035,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 this.targetServers = new MsaJobTargetServer[0];
             }
-
         }
 
         private void LoadOperators()
@@ -1400,11 +1393,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
     }
 }
-
-
-
-
-
-
-
-

@@ -567,7 +567,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             this.actions.CloseOnUserCancel = true;
             this.actions.QuitOnError = true;
-         
         }
 
         /// <summary>
@@ -582,35 +581,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 for (int i = 0; i < this.urnParameters.Length; i++)
                 {
                     Job job = this.smoServer.GetSmoObject(urnParameters[i]) as Job;
-
-
                     string selectedStep = null;
-
                     DataTable dtSteps = GetJobDataSteps(job);
                     if (dtSteps == null || dtSteps.Rows == null)
+                    {
                         continue;
+                    }
 
                     if (dtSteps.Rows.Count > 1) //check if job is multi step job
                     {
                         // selectedStep = ShowStepDialog(job, dtSteps);
                         if (selectedStep == null) //check if the job was canceled
+                        {
                             continue;
+                        }
                     }
 
                     //Copy the LastRunTime of the job into prevRunTime before the job started.                         
                     DateTime prevRunTime = job.LastRunDate;
                     this.actions.AddAction(new StartJobAction(job, selectedStep));
                     this.actions.AddAction(new WaitForJobToFinishAction(job, prevRunTime));
-                }
-
-                if (this.actions.Count <= 0)
-                {
-                    //This is a workaround for the class dialog	invocation problem
-                    //This dialog is invoked from two places		
-                    //JobsActivityMonitor (JobsPanel.cs) OnStartJobAtStep method
-                    // and SSMS Context menu mpu\ssms\shared\SqlMgmt\src\RunningFormsTable.cs method StartFormExecution
-                    //It is no way for us to prevent the dialog execution from the context menu (when job was canceled), besides redisgning the architecture		
-                    //this.Close();
                 }
             }
         }
@@ -623,13 +613,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private DataTable GetJobDataSteps(Job job)
         {
             if (job == null || job.Parent == null || job.Parent.Parent == null)
+            {
                 return null;
+            }
 
             // perform an enumerator query to get the steps. We could use the
             // SMO step object but this is too inefficient as it generates a batch 
             // per step.
             Request request = new Request();
-
             request.Fields = new string[] {"Name", "ID", "SubSystem"};
             request.Urn = job.Urn + "/Step";
             request.OrderByList = new OrderBy[] {new OrderBy("ID", OrderBy.Direction.Asc)};
@@ -716,7 +707,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 while (!this.abortEvent.WaitOne(WaitForJobToFinishAction.ServerPollingInterval))
                 {
                     if (actions.Progress.IsAborted)
+                    {
                         break;
+                    }
 
                     this.job.Refresh();
                     // If this job hasn't started yet then don't check for its status
@@ -725,7 +718,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         switch (this.job.CurrentRunStatus)
                         {
                             case JobExecutionStatus.Idle:
-
                                 actions.Progress.UpdateActionProgress(index, 100);
 
                                 // see if the job succeeded.
@@ -744,36 +736,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 }
 
                                 jobFinished = true;
-
                                 break;
 
                             case JobExecutionStatus.Suspended:
-
                                 actions.Progress.UpdateActionProgress(index, "AgentActionSR.Suspended");
                                 break;
 
                             case JobExecutionStatus.BetweenRetries:
-
                                 actions.Progress.UpdateActionProgress(index, "AgentActionSR.BetweenRetries");
                                 break;
 
                             case JobExecutionStatus.Executing:
-
                                 actions.Progress.UpdateActionProgress(index, "AgentActionSR.Executing");
                                 break;
 
                             case JobExecutionStatus.PerformingCompletionAction:
-
                                 actions.Progress.UpdateActionProgress(index, "AgentActionSR.PerformingCompletionAction");
                                 break;
 
                             case JobExecutionStatus.WaitingForStepToFinish:
-
                                 actions.Progress.UpdateActionProgress(index, "AgentActionSR.WaitingForStepToFinish");
                                 break;
 
                             case JobExecutionStatus.WaitingForWorkerThread:
-
                                 actions.Progress.UpdateActionProgress(index, "AgentActionSR.WaitingForWorkerThread");
                                 break;
 

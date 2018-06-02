@@ -3,15 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System;
-using System.Drawing;
 using System.Collections;
-using System.ComponentModel;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo.Agent;
 using System.Globalization;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -22,81 +20,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     internal class JobStepPropertySheet : ManagementActionBase
     {
-        /// <summary> 
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.Container components = null;
-
-        JobStepData data = null;
+        private JobStepData data = null;
         
-        // accept edits to job step dialog and on OK commit the changes
-        // Caller: logviewer -> can launch job step dialog and user can make changes to this specific step
-        string acceptedits = string.Empty;
-        bool commitEditsToJobStep = false;
-
-        public JobStepPropertySheet()
+        public JobStepPropertySheet(CDataContainer dataContainer, JobStepData data)
         {
-            // This call is required by the Windows.Forms Form Designer.
-            // InitializeComponent();
-
-            // TODO: Add any initialization after the InitializeComponent call
-        }
-
-        public JobStepPropertySheet(CDataContainer dataContainer, JobStepData data, IServiceProvider serviceProvider)
-        {
-        //     InitializeComponent();
-
-        //     CUtils utils = new CUtils();
-        //     this.Icon = utils.LoadIcon("Job_steps.ico");
-
             this.DataContainer = dataContainer;
-            // this.data = data;
-            // Init(serviceProvider);
         }
 
-        public void Init(IServiceProvider serviceProvider)
+        public void Init()
         {
-            STParameters parameters = new STParameters(this.DataContainer.Document);
-            parameters.GetParam("acceptedits", ref acceptedits);
-            commitEditsToJobStep = (acceptedits == "true") ? true : false;
-
-            // PanelTreeNode node;
-            // PanelTreeNode auxNode;
-            // JobPropertiesAdvanced advanced = new JobPropertiesAdvanced(this.DataContainer, this.data, serviceProvider);
-            // JobStepProperties general = new JobStepProperties(this.DataContainer, this.data, advanced, serviceProvider);
-
-            // AddView(general);
-            // AddView(advanced);
-
-            // node = new PanelTreeNode();
-            // node.Text = JobSR.Job;
-            // node.Type = eNodeType.Folder;
-            // node.Tag = 0;
-
-            // auxNode = new PanelTreeNode();
-            // auxNode.Text = JobSR.General;
-            // auxNode.Tag = 1;
-            // auxNode.Type = eNodeType.Item;
-            // node.Nodes.Add(auxNode);
-            // SelectNode(auxNode);
-
-            // auxNode = new PanelTreeNode();
-            // auxNode.Text = JobSR.Advanced;
-            // auxNode.Tag = 2;
-            // auxNode.Type = eNodeType.Item;
-
-            // node.Nodes.Add(auxNode);
-            // AddNode(node);
-
-            // // creating
-            // if(this.data.Name.Length == 0)
-            // {
-            //     this.Text = JobSR.NewJobStep;
-            // }
-            // else
-            // {
-            //     this.Text = JobSR.EditJobStep(this.data.Name);
-            // }
+            JobPropertiesAdvanced advanced = new JobPropertiesAdvanced(this.DataContainer, this.data);
+            JobStepProperties general = new JobStepProperties(this.DataContainer, this.data, advanced);
         }
 
         /// <summary> 
@@ -110,49 +44,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             base.Dispose(disposing);
         }
 
-        #region Component Designer generated code
-        /// <summary> 
-        /// Required method for Designer support - do not modify 
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
+        public bool Create()
         {
-            components = new System.ComponentModel.Container();
-        }
-        #endregion
-
-
-        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
-        {
-            base.DoPreProcessExecution(runType, out executionResult);
-
-            //Make sure the job step name is not blank.
-            if(this.data.Name == null || this.data.Name.Length == 0)
+            // Make sure the job step name is not blank.
+            if (this.data.Name == null || this.data.Name.Length == 0)
             {
                 throw new Exception("SRError.JobStepNameCannotBeBlank");
             }
 
-            //Check to make sure that the user has not entered a job step name that already exists.
-            for(int stepIndex = 0; stepIndex < this.data.Parent.Steps.Count; stepIndex++)
+            // Check to make sure that the user has not entered a job step name that already exists.
+            for (int stepIndex = 0; stepIndex < this.data.Parent.Steps.Count; stepIndex++)
             {
                 // don't compare if the id's are the same.
                 if(data.ID != ((JobStepData)this.data.Parent.Steps[stepIndex]).ID && data.Name == ((JobStepData)this.data.Parent.Steps[stepIndex]).Name)
                 {
-                    //Throw an error if the job step name already exists
+                    // Throw an error if the job step name already exists
                     throw new Exception("JobSR.JobStepNameAlreadyExists(this.data.Name)");
                 }
             }
 
-            // simulate IDOK
-            if(runType == RunType.RunNowAndExit)
-            {
-                if (commitEditsToJobStep)
-                {
-                    // accept edits to job step dialog and on OK commit the changes
-                    // Caller: logviewer -> can launch job step dialog and user can make changes to this specific step
-                    this.data.ApplyChanges(this.GetCurrentJob());
-                }
-            }
+            this.data.ApplyChanges(this.GetCurrentJob());
+
             // regular execution always takes place
             return true;
         }
@@ -167,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             parameters.GetParam("jobid", ref jobIdString);
 
             // If JobID is passed in look up by jobID
-            if (!String.IsNullOrEmpty(jobIdString))
+            if (!string.IsNullOrEmpty(jobIdString))
             {
                 job = this.DataContainer.Server.JobServer.Jobs.ItemById(Guid.Parse(jobIdString));
             }
@@ -178,8 +90,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             return job;
-
         }
+
         /// <summary>
         /// We don't own the CDataContainer that we get from our creator. We need to
         /// return false here so that the base class won't dispose it in its Dispose method
@@ -194,11 +106,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
     }
 }
-
-
-
-
-
-
-
-

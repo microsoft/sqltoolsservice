@@ -99,8 +99,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
 
             // Job Steps request handlers
-
-            
+            this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentJobStepRequest.Type, HandleDeleteAgentJobStepRequest);
 
             // Alerts request handlers
             this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest);
@@ -122,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         #region "Jobs Handlers"
-    
+
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
@@ -148,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var agentJobs = new List<AgentJobInfo>();
                         if (this.jobs != null)
                         {
-                            
+
                             foreach (var job in this.jobs.Values)
                             {
                                 agentJobs.Add(JobUtilities.ConvertToAgentJobInfo(job));
@@ -164,17 +165,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     await requestContext.SendError(e);
                 }
-            });                
+            });
         }
 
         /// <summary>
         /// Handle request to get Agent Job history
         /// </summary>
-        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext) 
+        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext)
         {
             await Task.Run(async () =>
             {
-                try 
+                try
                 {
                     var result = new AgentJobHistoryResult();
                     ConnectionInfo connInfo;
@@ -189,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ServerConnection connection = tuple.Item3;
                         int count = dt.Rows.Count;
                         List<AgentJobHistoryInfo> jobHistories = new List<AgentJobHistoryInfo>();
-                        if (count > 0) 
+                        if (count > 0)
                         {
                             var job = dt.Rows[0];
                             string jobName = Convert.ToString(job[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
@@ -208,11 +209,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         await requestContext.SendResult(result);
                     }
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     await requestContext.SendError(e);
                 }
-            });                
+            });
         }
 
         /// <summary>
@@ -223,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await Task.Run(async () =>
             {
                 var result = new AgentJobActionResult();
-                try 
+                try
                 {
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
@@ -232,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (connInfo != null)
                     {
                         var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        var serverConnection = new ServerConnection(sqlConnection);     
+                        var serverConnection = new ServerConnection(sqlConnection);
                         var jobHelper = new JobHelper(serverConnection);
                         jobHelper.JobName = parameters.JobName;
                         switch(parameters.Action)
@@ -259,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         await requestContext.SendResult(result);
                     }
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     result.Succeeded = false;
                     result.ErrorMessage = e.Message;
@@ -271,14 +272,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
         {
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            var serverConnection = new ServerConnection(sqlConnection);     
-            var server = new Server(serverConnection);       
-            var filter = new JobHistoryFilter(); 
+            var serverConnection = new ServerConnection(sqlConnection);
+            var server = new Server(serverConnection);
+            var filter = new JobHistoryFilter();
             filter.JobID = new Guid(jobId);
             var dt = server.JobServer.EnumJobHistory(filter);
             var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
-        }        
+        }
 
         internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
         {
@@ -292,11 +293,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await requestContext.SendResult(result);
         }
 
+        internal async Task HandleCreateAgentJobStepRequest(CreateAgentJobStepParams parameters, RequestContext<CreateAgentJobStepResult> requestContext)
+        {
+             bool succeeded = await ConfigureAgentJobStep(
+                parameters.OwnerUri,
+                parameters.Step,
+                AgentConfigAction.Create);
+
+            await requestContext.SendResult(new CreateAgentJobStepResult()
+            {
+                Succeeded = succeeded
+            });
+        }
+
+        internal async Task HandleUpdateAgentJobStepRequest(UpdateAgentJobStepParams parameters, RequestContext<UpdateAgentJobStepResult> requestContext)
+        {
+            UpdateAgentJobStepResult result = new UpdateAgentJobStepResult();
+            await requestContext.SendResult(result);
+        }
+
         internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<DeleteAgentJobResult> requestContext)
         {
             DeleteAgentJobResult result = new DeleteAgentJobResult();
             await requestContext.SendResult(result);
+        }
 
+        internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<DeleteAgentJobStepResult> requestContext)
+        {
+            DeleteAgentJobStepResult result = new DeleteAgentJobStepResult();
+            await requestContext.SendResult(result);
         }
 
         #endregion // "Jobs Handlers"
@@ -305,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to get the alerts list
-        /// </summary>        
+        /// </summary>
         internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
         {
             await Task.Run(async () =>
@@ -322,8 +347,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
                     AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
-
-
                 }
 
                 await requestContext.SendResult(result);
@@ -338,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to create an alert
-        /// </summary>        
+        /// </summary>
         internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
         {
             await Task.Run(async () =>
@@ -357,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to update an alert
-        /// </summary>        
+        /// </summary>
         internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
         {
             await Task.Run(async () =>
@@ -391,7 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to delete an alert
-        /// </summary>        
+        /// </summary>
         internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<DeleteAgentAlertResult> requestContext)
         {
             await Task.Run(async () =>
@@ -476,10 +499,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
              bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.Proxy.AccountName, 
-                parameters.Proxy, 
+                parameters.Proxy.AccountName,
+                parameters.Proxy,
                 AgentConfigAction.Create);
-            
+
             await requestContext.SendResult(new CreateAgentProxyResult()
             {
                 Succeeded = succeeded
@@ -490,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.OriginalProxyName, 
+                parameters.OriginalProxyName,
                 parameters.Proxy,
                 AgentConfigAction.Update);
 
@@ -504,7 +527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.Proxy.AccountName, 
+                parameters.Proxy.AccountName,
                 parameters.Proxy,
                 AgentConfigAction.Drop);
 
@@ -513,6 +536,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Succeeded = succeeded
             });
         }
+
+        internal async Task<bool> ConfigureAgentJobStep(
+            string ownerUri,
+            AgentJobStepInfo stepInfo,
+            AgentConfigAction configAction)
+        {
+            return await Task<bool>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("job", string.Empty);                    
+                    param.SetParam("jobid", stepInfo.JobId);
+                    param.SetParam("script", stepInfo.Script);
+                    param.SetParam("scriptName", stepInfo.ScriptName);
+
+                    var jobData = new JobData(dataContainer);
+                    using (var jobStep = new JobSteps(dataContainer, jobData))
+                    {
+                        jobStep.CreateJobStep();
+                    }
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    // log exception here
+                    return false;
+                }
+            });
+        }
+
 
         internal async Task<bool> ConfigureAgentProxy(
             string ownerUri,

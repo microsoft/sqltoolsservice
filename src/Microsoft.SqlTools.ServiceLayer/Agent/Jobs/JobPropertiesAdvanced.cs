@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
         private JobStepData data;
         private IServiceProvider serviceProvider;
-        public JobPropertiesAdvanced(CDataContainer dataContainer, JobStepData context, IServiceProvider service)
+        public JobPropertiesAdvanced(CDataContainer dataContainer, JobStepData context)
         {
             // This call is required by the Windows.Forms Form Designer.
             // InitializeComponent();

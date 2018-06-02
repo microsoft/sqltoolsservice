@@ -25,11 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         JobStepData data;
 
         public JobStepSubSystems(CDataContainer dataContainer)
-            : this(dataContainer, null, null)
+            : this(dataContainer, null)
         {
         }
 
-        public JobStepSubSystems(CDataContainer dataContainer, JobStepData data, IServiceProvider serviceProvider)
+        public JobStepSubSystems(CDataContainer dataContainer, JobStepData data)
         {
             this.data = data;
             var availableSystems =
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             foreach (var agentSubSystemId in availableSystems)
             {
-                var agentSubSystem = CreateJobStepSubSystem(agentSubSystemId, dataContainer, data, serviceProvider);
+                var agentSubSystem = CreateJobStepSubSystem(agentSubSystemId, dataContainer, data);
                 // The server might have some new subsystem we don't know about, just ignore it.
                 if (agentSubSystem != null)
                 {
@@ -81,8 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private static JobStepSubSystem CreateJobStepSubSystem(
             AgentSubSystem agentSubSystem, 
             CDataContainer dataContainer, 
-            JobStepData data, 
-            IServiceProvider serviceProvider)
+            JobStepData data)
         {
             // switch (agentSubSystem)
             // {
@@ -234,11 +233,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
     }
 }
-
-
-
-
-
-
-
-
