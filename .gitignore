@@ -277,9 +277,6 @@ Session.vim
 .netrwhist
 *~
 
-# Visual Studio Code
-.vscode/
-
 # docfx generated files
 _site
 docs/metadata
