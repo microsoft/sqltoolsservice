@@ -154,7 +154,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             try
             {
-                monitor.StopMonitoringSession(parameters.OwnerUri);
+                ProfilerSession session;
+                monitor.StopMonitoringSession(parameters.OwnerUri, out session);
+                session.XEventSession.Stop();
+
                 await requestContext.SendResult(new StopProfilingResult
                 {
                     Succeeded = true
@@ -163,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             catch (Exception e)
             {
                 await requestContext.SendError(e);
-            } 
+            }
         }
 
         /// <summary>
@@ -224,9 +227,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private static Session CreateSession(SqlStoreConnection connection, string sessionName)
         {
-            string createSessionSql = 
+            string createSessionSql =
                 @"
-                CREATE EVENT SESSION [Profiler] ON SERVER 
+                CREATE EVENT SESSION [Profiler] ON SERVER
                 ADD EVENT sqlserver.attention(
                     ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
                     WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
@@ -251,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             connection.ServerConnection.ExecuteNonQuery(createSessionSql);
 
             XEStore store = new XEStore(connection);
-            return store.Sessions[sessionName];            
+            return store.Sessions[sessionName];
         }
 
         /// <summary>
@@ -275,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void Dispose()
         {
             if (!disposed)
-            {                
+            {
                 disposed = true;
             }
         }

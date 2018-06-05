@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         [Fact]
         public async void VerifyScriptAsCreateTable()
         {
-            string query = @"CREATE TABLE testTable1 (c1 int) 
+            string query = @"CREATE TABLE testTable1 (c1 int)
                             GO
                             CREATE CLUSTERED INDEX [ClusteredIndex-1] ON [dbo].[testTable1]
                             (
@@ -167,17 +167,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAsForMultipleObjects(query, scriptingObjects, scriptCreateDrop, expectedScripts);
         }
 
-        [Fact]
+        // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/631
+        // [Fact]
         public async void VerifyScriptAsExecuteStoredProcedure()
         {
-            string query = @"CREATE PROCEDURE testSp1 
-                @BusinessEntityID [int], 
-                @JobTitle [nvarchar](50), 
-                @HireDate [datetime], 
-                @RateChangeDate [datetime], 
-                @Rate [money], 
+            string query = @"CREATE PROCEDURE testSp1
+                @BusinessEntityID [int],
+                @JobTitle [nvarchar](50),
+                @HireDate [datetime],
+                @RateChangeDate [datetime],
+                @Rate [money],
                 @PayFrequency [tinyint]
-                AS  
+                AS
                 BEGIN Select * from sys.all_columns END";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Execute;
             ScriptingObject scriptingObject = new ScriptingObject
@@ -320,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
                     {
                         scriptCreateOperation = $"Script{operation}";
                     }
-                    
+
                     scriptingParams.ScriptOptions = new ScriptOptions
                     {
                         ScriptCreateDrop = scriptCreateOperation,
