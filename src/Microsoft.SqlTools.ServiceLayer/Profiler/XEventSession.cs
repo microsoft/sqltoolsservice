@@ -14,9 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         public Session Session { get; set; }
 
-        public void Drop()
+        public void Stop()
         {
-            this.Session.Drop();
+            this.Session.Stop();
         }
 
         public string GetTargetXml()

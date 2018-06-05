@@ -16,8 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         string GetTargetXml();
 
         /// <summary>
-        /// Drops the XEvent session on the database
+        /// Stops XEvent session
         /// </summary>
-        void Drop();
+        void Stop();
     }
 }

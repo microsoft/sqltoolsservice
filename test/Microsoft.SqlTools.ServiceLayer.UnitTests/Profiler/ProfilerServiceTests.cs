@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
     /// Unit tests for ProfilerService
     /// </summary>
     public class ProfilerServiceTests
-    {   
+    {
         /// <summary>
         /// Test starting a profiling session and receiving event callback
         /// </summary>
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             string testUri = "profiler_uri";
             var requestContext = new Mock<RequestContext<StartProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                .Returns<StartProfilingResult>((result) => 
+                .Returns<StartProfilingResult>((result) =>
                 {
                     // capture the session id for sending the stop message
                     sessionId = result.SessionId;
@@ -74,13 +74,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public async Task TestStopProfilingRequest()
         {
             bool success = false;
-            bool dropped = false;
+            bool stopped = false;
             string testUri = "test_session";
 
             // capture stopping results
             var requestContext = new Mock<RequestContext<StopProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StopProfilingResult>()))
-                .Returns<StopProfilingResult>((result) => 
+                .Returns<StopProfilingResult>((result) =>
                 {
                     success = result.Succeeded;
                     return Task.FromResult(0);
@@ -88,11 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // capture if session was dropped
             var mockSession = new Mock<IXEventSession>();
-            mockSession.Setup(p => p.Drop()).Callback(() => 
-                {  
-                    dropped = true; 
+            mockSession.Setup(p => p.Stop()).Callback(() =>
+                {
+                    stopped = true;
                 });
-            
+
             var sessionListener = new TestSessionListener();
             var profilerService = new ProfilerService();
             profilerService.SessionMonitor.AddSessionListener(sessionListener);
@@ -116,9 +116,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // check that session was succesfully stopped and drop was called
             Assert.True(success);
-            Assert.True(dropped);
+            Assert.True(stopped);
 
-            // should not be able to remove the session, it should already be gone 
+            // should not be able to remove the session, it should already be gone
             ProfilerSession ps;
             Assert.False(profilerService.SessionMonitor.StopMonitoringSession(testUri, out ps));
         }
