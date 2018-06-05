@@ -192,6 +192,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             return testXEventXml;
         }
+
+        public void Drop()
+        {}
     }
 
     public class TestXEventSessionFactory : IXEventSessionFactory

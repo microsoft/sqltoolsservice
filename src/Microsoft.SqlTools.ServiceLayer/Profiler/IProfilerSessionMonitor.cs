@@ -27,6 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Stops monitoring a profiler session
         /// </summary>
-        bool StopMonitoringSession(string sessionId);
+        bool StopMonitoringSession(string sessionId, out ProfilerSession session);
     }
 }

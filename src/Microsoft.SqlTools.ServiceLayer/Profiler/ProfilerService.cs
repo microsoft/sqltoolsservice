@@ -154,21 +154,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             try
             {
-                monitor.StopMonitoringSession(parameters.OwnerUri);
-
-                //get connection to find session
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                
-                var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-
-                //locate and drop the session
-                XEStore store = new XEStore(connection);
-                Session session = store.Sessions["Profiler"];
-                session.Drop();
+                ProfilerSession session;
+                monitor.StopMonitoringSession(parameters.OwnerUri, out session);
+                session.XEventSession.Drop();
 
                 await requestContext.SendResult(new StopProfilingResult
                 {

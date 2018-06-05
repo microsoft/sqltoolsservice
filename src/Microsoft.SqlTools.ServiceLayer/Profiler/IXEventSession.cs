@@ -14,5 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Reads XEvent XML from the default session target
         /// </summary>
         string GetTargetXml();
+
+        /// <summary>
+        /// Drops the XEvent session on the database
+        /// </summary>
+        void Drop();
     }
 }
