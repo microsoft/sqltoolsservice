@@ -177,8 +177,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         }
 
-
-
         // /// <summary>
         // /// Get the values needed to commit changes from the UI controls
         // /// </summary>
@@ -197,87 +195,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //     }
 
         //     STrace.Assert(this.selectedSubSystem != null, "this.selectedSubSystem is null!");
-        // }
-
-
-        // private void stepName_TextChanged(System.Object sender, System.EventArgs e)
-        // {
-        //     UpdateCommandUI();
-        // }
-
-        // public override bool IsRunTypeEnabled(RunType runType)
-        // {
-        //     switch (runType)
-        //     {
-        //         case RunType.ScriptToJob:
-        //         case RunType.ScriptToClipboard:
-        //         case RunType.ScriptToFile:
-        //         case RunType.ScriptToWindow:
-        //         case RunType.RunNow:
-        //             return false;
-        //         case RunType.RunNowAndExit:
-        //             return this.stepName.Text.Length > 0;
-        //     }
-        //     return base.IsRunTypeEnabled(runType);
-        // }
-
-        // private void runAs_SelectedValueChanged(object sender, EventArgs e)
-        // {
-        //     string proxyName = this.runAs.SelectedItem as string;
-        //     if (proxyName != null)
-        //         this.data.ProxyName = proxyName;
-        //     else
-        //         this.data.ProxyName = string.Empty;
-        // }
-
-        // private void next_ButtonClicked(object sender, EventArgs e)
-        // {
-        //     this.currentStepID++;
-        //     if (this.currentStepID > this.stepsCount)
-        //     {
-        //         return;
-        //     }
-
-        //     try
-        //     {
-        //         UpdateStepDetails(this.currentStepID);
-        //         if (this.currentStepID == this.stepsCount)
-        //         {
-        //             //disable Next Button and make sure Previous button is Enabled.
-        //             this.nextButton.Enabled = false;
-        //         }
-        //         this.prevButton.Enabled = true; //Enable Previous Button
-        //     }
-        //     catch (Exception em)
-        //     {
-        //         MessageBoxProvider.ShowMessage(em, null, Microsoft.NetEnterpriseServers.ExceptionMessageBoxButtons.OK, Microsoft.NetEnterpriseServers.ExceptionMessageBoxSymbol.Error, null);
-        //         this.currentStepID--;
-        //     }
-        // }
-
-        // private void previous_ButtonClicked(object sender, EventArgs e)
-        // {
-        //     this.currentStepID--;
-        //     if (this.currentStepID < jobIdLowerBound)
-        //     {
-        //         return;
-        //     }
-
-        //     try
-        //     {
-        //         UpdateStepDetails(this.currentStepID);
-        //         if (this.currentStepID == jobIdLowerBound)
-        //         {
-        //             this.prevButton.Enabled = false;
-        //         }
-        //         this.nextButton.Enabled = true;
-        //     }
-        //     catch (Exception em)
-        //     {
-        //         MessageBoxProvider.ShowMessage(em, null, Microsoft.NetEnterpriseServers.ExceptionMessageBoxButtons.OK, Microsoft.NetEnterpriseServers.ExceptionMessageBoxSymbol.Error, null);
-        //         this.currentStepID++;
-        //     }
-        
         // }
     }
 }

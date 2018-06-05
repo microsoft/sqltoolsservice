@@ -50,18 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private IServiceProvider serviceProvider;
         public JobPropertiesAdvanced(CDataContainer dataContainer, JobStepData context)
         {
-            // This call is required by the Windows.Forms Form Designer.
-            // InitializeComponent();
-
-            // this.retryAttempts.Maximum = Int32.MaxValue;
-            // this.retryInterval.Maximum = Int32.MaxValue;
-
-            // this.DataContainer = dataContainer;
-            // this.data = context;
-            // this.serviceProvider = service;
-            // InitializeData();
-            // this.HelpF1Keyword = AssemblyVersionInfo.VersionHelpKeywordPrefix + @".ag.job.stepadvanced.f1";
-            // UpdateControlStatus();
+            this.DataContainer = dataContainer;
+            this.data = context;
         }
 
         // public void SetSpecificActions(Control control, string actionsText)
@@ -98,15 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //     {
         //         stepControl.Load(this.data);
         //     }
-
         // }
-
-        public void SetActionToPersist()
-        {
-            // Save the data
-            //OnGatherUiInformation(RunType.RunNow);
-
-        }
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -118,111 +100,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             base.Dispose(disposing);
         }
-
-        #region Component Designer generated code
-        /// <summary> 
-        /// Required method for Designer support - do not modify 
-        /// the contents of this method with the code editor.
-        /// </summary>
-        // private void InitializeComponent()
-        // {
-        //     System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(JobPropertiesAdvanced));
-        //     this.onSuccessActionLabel = new System.Windows.Forms.Label();
-        //     this.onSuccessAction = new System.Windows.Forms.ComboBox();
-        //     this.retryAttemptsLabel = new System.Windows.Forms.Label();
-        //     this.retryIntervalLabel = new System.Windows.Forms.Label();
-        //     this.retryAttempts = new System.Windows.Forms.NumericUpDown();
-        //     this.retryInterval = new System.Windows.Forms.NumericUpDown();
-        //     this.onFailureAction = new System.Windows.Forms.ComboBox();
-        //     this.onFailureActionLabel = new System.Windows.Forms.Label();
-        //     this.stepSecificActions = new Microsoft.SqlServer.Management.Controls.Separator();
-        //     this.specificActionsPanel = new System.Windows.Forms.Panel();
-        //     ((System.ComponentModel.ISupportInitialize)(this.retryAttempts)).BeginInit();
-        //     ((System.ComponentModel.ISupportInitialize)(this.retryInterval)).BeginInit();
-        //     this.SuspendLayout();
-        //     this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-        //     this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        //     // 
-        //     // onSuccessActionLabel
-        //     // 
-        //     resources.ApplyResources(this.onSuccessActionLabel, "onSuccessActionLabel");
-        //     this.onSuccessActionLabel.Name = "onSuccessActionLabel";
-        //     // 
-        //     // onSuccessAction
-        //     // 
-        //     resources.ApplyResources(this.onSuccessAction, "onSuccessAction");
-        //     this.onSuccessAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-        //     this.onSuccessAction.FormattingEnabled = true;
-        //     this.onSuccessAction.Name = "onSuccessAction";
-        //     // 
-        //     // retryAttemptsLabel
-        //     // 
-        //     resources.ApplyResources(this.retryAttemptsLabel, "retryAttemptsLabel");
-        //     this.retryAttemptsLabel.Name = "retryAttemptsLabel";
-        //     // 
-        //     // retryIntervalLabel
-        //     // 
-        //     resources.ApplyResources(this.retryIntervalLabel, "retryIntervalLabel");
-        //     this.retryIntervalLabel.Name = "retryIntervalLabel";
-        //     // 
-        //     // retryAttempts
-        //     // 
-        //     resources.ApplyResources(this.retryAttempts, "retryAttempts");
-        //     this.retryAttempts.Name = "retryAttempts";
-        //     // 
-        //     // retryInterval
-        //     // 
-        //     resources.ApplyResources(this.retryInterval, "retryInterval");
-        //     this.retryInterval.Name = "retryInterval";
-        //     // 
-        //     // onFailureAction
-        //     // 
-        //     resources.ApplyResources(this.onFailureAction, "onFailureAction");
-        //     this.onFailureAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-        //     this.onFailureAction.FormattingEnabled = true;
-        //     this.onFailureAction.Name = "onFailureAction";
-        //     // 
-        //     // onFailureActionLabel
-        //     // 
-        //     resources.ApplyResources(this.onFailureActionLabel, "onFailureActionLabel");
-        //     this.onFailureActionLabel.Name = "onFailureActionLabel";
-        //     // 
-        //     // stepSecificActions
-        //     // 
-        //     resources.ApplyResources(this.stepSecificActions, "stepSecificActions");
-        //     this.stepSecificActions.Name = "stepSecificActions";
-        //     // 
-        //     // specificActionsPanel
-        //     // 
-        //     resources.ApplyResources(this.specificActionsPanel, "specificActionsPanel");
-        //     this.specificActionsPanel.Name = "specificActionsPanel";
-        //     // 
-        //     // JobPropertiesAdvanced
-        //     // 
-        //     this.Controls.Add(this.specificActionsPanel);
-        //     this.Controls.Add(this.stepSecificActions);
-        //     this.Controls.Add(this.onFailureAction);
-        //     this.Controls.Add(this.onFailureActionLabel);
-        //     this.Controls.Add(this.retryInterval);
-        //     this.Controls.Add(this.retryAttempts);
-        //     this.Controls.Add(this.retryIntervalLabel);
-        //     this.Controls.Add(this.retryAttemptsLabel);
-        //     this.Controls.Add(this.onSuccessAction);
-        //     this.Controls.Add(this.onSuccessActionLabel);
-        //     this.Name = "JobPropertiesAdvanced";
-        //     resources.ApplyResources(this, "$this");
-        //     ((System.ComponentModel.ISupportInitialize)(this.retryAttempts)).EndInit();
-        //     ((System.ComponentModel.ISupportInitialize)(this.retryInterval)).EndInit();
-        //     this.ResumeLayout(false);
-
-        // }
-        #endregion
-
-        #region IPanelForm overrides
-        // public override void OnRunNow(object sender)
-        // {
-        //     base.OnRunNow(sender);
-        // }
 
         // public override void OnGatherUiInformation(RunType runType)
         // {
@@ -255,42 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //             activeControl.Save(this.data, false);
         //         }
         //     }
-
         // }
-        #endregion
-
-        #region ui stuff
-        // private void InitializeData()
-        // {
-        //     if (this.data == null)
-        //     {
-        //         return;
-        //     }
-        //     LoadComboData();
-
-        //     this.retryAttempts.Value = this.data.RetryAttempts;
-        //     this.retryInterval.Value = this.data.RetryInterval;
-        // }
-        // private void LoadComboData()
-        // {
-        //     PopulateActionList(this.onSuccessAction, onSuccessActionList);
-        //     SetSelectedAction(this.onSuccessAction, data.SuccessAction, data.SuccessStep);
-        //     PopulateActionList(this.onFailureAction, onFailureActionList);
-        //     SetSelectedAction(this.onFailureAction, data.FailureAction, data.FailStep);
-        // }
-        // private void UpdateControlStatus()
-        // {
-        //     // must have internal state
-        //     STrace.Assert(this.data != null);
-        //     if (this.data == null)
-        //     {
-        //         return;
-        //     }
-
-        //     SetDialogFieldsReadOnly(this.data.Parent.Parent.IsReadOnly,
-        //         new Control[] { onSuccessAction, onFailureAction, retryAttempts, retryInterval, specificActionsPanel });
-        // }
-        #endregion
 
         #region helpers
         // private void PopulateActionList(ComboBox control, NextAction[] actionList)
@@ -320,62 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //         }
         //     }
         // }
-        // private void SetSelectedAction(ComboBox control, StepCompletionAction action, JobStepData step)
-        // {
-        //     foreach (NextActionComboItem comboItem in control.Items)
-        //     {
-        //         if (comboItem != null && comboItem.Action == action && comboItem.Data == step)
-        //         {
-        //             control.SelectedItem = comboItem;
-        //             break;
-        //         }
-        //     }
-        // }
-        // private struct NextAction
-        // {
-        //     public NextAction(StepCompletionAction action, String description)
-        //     {
-        //         Action = action;
-        //         Description = description;
-        //     }
-        //     public StepCompletionAction Action;
-        //     public String Description;
-        // }
-        // private static NextAction[] onSuccessActionList = {   
-        //  new NextAction(StepCompletionAction.GoToNextStep, JobSR.GotoNextStep)
-        // ,new NextAction(StepCompletionAction.QuitWithSuccess, JobSR.QuitWithSuccess)
-        // ,new NextAction(StepCompletionAction.QuitWithFailure, JobSR.QuitWithFailure) };
-        // private static NextAction[] onFailureActionList = {
-        //  new NextAction(StepCompletionAction.QuitWithFailure, JobSR.QuitWithFailure)
-        // ,new NextAction(StepCompletionAction.GoToNextStep, JobSR.GotoNextStep)
-        // ,new NextAction(StepCompletionAction.QuitWithSuccess, JobSR.QuitWithSuccess) };
-
-        // private class NextActionComboItem
-        // {
-        //     private string description;
-        //     private StepCompletionAction action;
-        //     private JobStepData data;
-        //     public NextActionComboItem(string description, StepCompletionAction action, JobStepData data)
-        //     {
-        //         this.description = description;
-        //         this.action = action;
-        //         this.data = data;
-        //     }
-        //     public override string ToString()
-        //     {
-        //         return this.description;
-        //     }
-        //     public StepCompletionAction Action { get { return this.action; } }
-        //     public JobStepData Data { get { return this.data; } }
-        // }
+       
         #endregion
     }
 }
-
-
-
-
-
-
-
-

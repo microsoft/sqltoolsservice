@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public JobStepPropertySheet(CDataContainer dataContainer, JobStepData data)
         {
             this.DataContainer = dataContainer;
+            this.data = data;
         }
 
         public void Init()
