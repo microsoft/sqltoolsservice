@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
@@ -352,10 +353,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     param.SetParam("job", string.Empty);                    
                     param.SetParam("jobid", jobInfo.JobId);
 
-                    var jobData = new JobData(dataContainer);
+                    var jobData = new JobData(dataContainer, jobInfo);
                     using (JobActions jobActions = new JobActions(dataContainer, jobData))
                     {
-
+                        var executionHandler = new ExecutonHandler(jobActions);
+                        executionHandler.RunNow(RunType.RunNow, this);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);

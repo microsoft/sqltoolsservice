@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -29,7 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {          
             this.DataContainer = dataContainer;
             this.data = data;
-
         }
 
         /// <summary>
@@ -50,86 +50,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
         }
 
-        
+        /// <summary>
+        /// called by ManagementActionBase.PreProcessExecution to enable derived
+        /// classes to take over execution  and do entire execution in this method
+        /// rather than having the framework to execute
+        /// </summary>
+        /// <param name="runType"></param>
+        /// <param name="executionResult"></param>
+        /// <returns>
+        /// true if regular execution should take place, false if everything,
+        /// has been done by this function
+        /// </returns>
+        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
+        {
+            base.DoPreProcessExecution(runType, out executionResult);
+            this.data.ApplyChanges(creating: true);
+            this.DataContainer.SqlDialogSubject	= this.data.Job;
 
-        // private void InitializeData()
-        // {
-        //     // if (this.data == null)
-        //     // {
-        //     //     return;
-        //     // }
-        //     // // job name
-        //     // this.name.Text = this.data.Name;
+            // if we're here, then execution was completed successfully
+            // if (runType == RunType.RunNow || runType == RunType.RunNowAndExit)
+            // {
+            // }
 
-        //     // this.owner.Text = this.data.Owner;
+            return false;
+        }
 
-        //     // PopulateCategoryCombobox();
-
-        //     // this.description.Text = this.data.Description;
-        //     // this.enabled.Checked = this.data.Enabled;
-
-        //     // if (this.data.Mode == JobData.DialogMode.Properties)
-        //     // {
-        //     //     this.source.Text = this.data.Source;
-        //     //     this.created.Text = this.data.DateCreated.ToString(CultureInfo.CurrentCulture);
-        //     //     this.lastModified.Text = this.data.DateLastModified.ToString(CultureInfo.CurrentCulture);
-        //     //     if (this.data.LastRunDate != DateTime.MinValue)
-        //     //     {
-        //     //         this.lastExecuted.Text = this.data.LastRunDate.ToString(CultureInfo.CurrentCulture);
-        //     //     }
-        //     // }
-        // }
-
-        // Populate the category combo box
-        // private void PopulateCategoryCombobox()
-        // {
-        //     string currentCategory;
-        //     //Because this combo box will be populated with varying categories
-        //     //make sure it is cleaned up before adding more entries.
-        //     this.category.Items.Clear();
-
-        //     //First set the data.Category to the appropriate category.  
-        //     //We will scan the categories object collection for the correct object and set the
-        //     //current data.Category to this object
-        //     if (this.data.Category != null)
-        //     {
-        //         currentCategory = this.data.Category.ToString();
-        //     }
-        //     else
-        //     {
-        //         currentCategory = this.data.TargetLocalServer ? LocalizableCategorySR.CategoryLocal : LocalizableCategorySR.CategoryMultiServer;
-        //     }
-        //     bool categoryFound = false;
-
-        //     for (int i = 0; i < this.data.Categories.Length; i++)
-        //     {
-        //         if (this.data.Categories[i].Name == currentCategory)
-        //         {
-        //             this.data.Category = this.data.Categories[i];
-        //             categoryFound = true;
-        //             break;
-        //         }
-        //     }
-        //     //Could not find the category. Set the current category to null
-        //     if (!categoryFound)
-        //     {
-        //         this.data.Category = null;
-        //     }
-        //     // populate the categories combo
-        //     this.category.Items.AddRange(this.data.Categories);
-        //     if (this.data.Category != null)
-        //     {
-        //         this.category.SelectedItem = this.data.Category;
-        //     }
-        //     else
-        //     {
-        //         this.category.SelectedIndex = 0;
-        //     }
-        //     this.category.Refresh();
-
-        // }
-
-        //Create the XML document that will be used to pass to the LogViewerForm dialog.
+        // Create the XML document that will be used to pass to the LogViewerForm dialog.
         private XmlDocument CreateLogViewerXmlDocument()
         {
             XmlDocument doc = new XmlDocument();

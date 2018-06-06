@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using SMO = Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -602,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region construction
-        public JobData(CDataContainer data)
+        public JobData(CDataContainer data, AgentJobInfo jobInfo = null)
         {
             this.context = data;
 
@@ -653,6 +654,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.mode = DialogMode.Create;
                 // set defaults that do not involve going to the server to retrieve
                 SetDefaults();
+            }
+
+            // load AgentJobInfo data
+            if (jobInfo != null)
+            {
+                this.currentName = jobInfo.Name;
+                this.owner = jobInfo.Owner;
+                this.description = jobInfo.Description;
             }
         }
         #endregion
@@ -1097,14 +1106,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region saving
-        public void ApplyChanges()
+        public void ApplyChanges(bool creating)
         {
             Job job = null;
             bool scripting = this.context.Server.ConnectionContext.SqlExecutionModes == SqlExecutionModes.CaptureSql;
             bool targetServerSelected = false;
 
-            // get a job object
-            bool creating = this.mode == DialogMode.Create;
+            this.mode = creating ? DialogMode.Create : DialogMode.Properties; 
 
             ///Before any job posting if donem make sure that if this is an MSX job that the user has selected at
             ///least one Target Server.
@@ -1133,8 +1141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 // just lookup the original object
                 STParameters parameters = new STParameters(this.context.Document);
-                string urn = String.Empty;
-
+                string urn = string.Empty;
                 job = this.context.Server.GetSmoObject(this.urn) as Job;
             }
 

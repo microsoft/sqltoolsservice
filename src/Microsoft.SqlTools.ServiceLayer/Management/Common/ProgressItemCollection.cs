@@ -9,7 +9,7 @@ using System.Collections;
 using System.Threading;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
 	/// <summary>
 	/// Allows for the mapping of objects that implement IProgressItem to individual items in the
