@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleCreateAgentJobRequest
         /// </summary>
-        [Fact]
+        //[Fact]
         public async Task TestHandleCreateAgentJobRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleCreateAgentJobStepRequest
         /// </summary>
-        [Fact]
+        //[Fact]
         public async Task TestHandleCreateAgentJobStepRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
