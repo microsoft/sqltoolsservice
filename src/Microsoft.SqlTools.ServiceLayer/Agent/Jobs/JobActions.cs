@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// called by ManagementActionBase.PreProcessExecution to enable derived
-        /// classes to take over execution  and do entire execution in this method
+        /// classes to take over execution and do entire execution in this method
         /// rather than having the framework to execute
         /// </summary>
         /// <param name="runType"></param>
@@ -65,12 +65,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             base.DoPreProcessExecution(runType, out executionResult);
             this.data.ApplyChanges(creating: true);
-            this.DataContainer.SqlDialogSubject	= this.data.Job;
-
-            // if we're here, then execution was completed successfully
-            // if (runType == RunType.RunNow || runType == RunType.RunNowAndExit)
-            // {
-            // }
+            if (!IsScripting(runType)) 
+            {
+                this.DataContainer.SqlDialogSubject	= this.data.Job;
+            }
 
             return false;
         }

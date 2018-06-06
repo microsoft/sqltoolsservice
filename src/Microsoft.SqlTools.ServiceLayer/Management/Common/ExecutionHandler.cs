@@ -184,15 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         }
 
         /// <summary>
-        /// we call the run now implementaion of each panel form view in there order from views array. 
-        /// If any exception is generated or one panel execution results in an exception we stop the 
-        /// execution and we set the execution mode flag to failure. Otherwise if all panels execution 
-        /// was successfull the execution of the tree panel form will be successfull. Only the OnRunNow 
-        /// of the panels that are initialized are called
-        /// 
-        /// this method can be called by an worker thread, so user controls shouldnt perform ui operations
-        /// on their ILaunchFormHostedControl.OnRunNow (Windows guidelines)
-        /// and all these ui operations should have been already performed ILaunchFormHostedControl.OnGatherUiInformation()
+        /// we call the run now implementaion of the management action.
+        /// If any exception is generated we stop the execution and we set the execution mode flag to failure. 
         /// </summary>
         /// <param name="sender"></param>
         public void RunNow(RunType runType, object sender)
@@ -209,19 +202,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     EnsureValidScriptBuilder();
                 }
 
-                //do preprocess action. It is possible to do entire execution from inside this method
+                // do preprocess action. It is possible to do entire execution from inside this method
                 if (this.managementAction != null)
                 {
                     PreProcessExecutionInfo preProcessInfo = new PreProcessExecutionInfo(runType);
                     if (!this.managementAction.PreProcessExecution(preProcessInfo, out this.executionResult))
                     {                       
-                        //In case of scripting preProcessInfo.Script must contain text of the script
+                        // In case of scripting preProcessInfo.Script must contain text of the script
                         if (executionResult == ExecutionMode.Success && IsScripting(runType) && preProcessInfo.Script != null)
                         {
                             this.script.Append(preProcessInfo.Script);
                         }
 
-                        return; //result of execution is in executionResult
+                        return; // result of execution is in executionResult
                     }
                 }
                 // NOTE: post process action is done in finally block below

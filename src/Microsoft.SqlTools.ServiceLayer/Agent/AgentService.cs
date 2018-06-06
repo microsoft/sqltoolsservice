@@ -357,7 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     using (JobActions jobActions = new JobActions(dataContainer, jobData))
                     {
                         var executionHandler = new ExecutonHandler(jobActions);
-                        executionHandler.RunNow(RunType.RunNow, this);
+                        executionHandler.RunNow(RunType.ScriptToWindow, this);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -493,7 +493,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("alert", alert.JobName);
 
-                using (AgentAlert agentAlert = new AgentAlert(dataContainer, alert))
+                using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
                 {
                     agentAlert.CreateOrUpdate();
                 }
@@ -520,7 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("alert", alert.JobName);
 
-                    using (AgentAlert agentAlert = new AgentAlert(dataContainer, alert))
+                    using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
                     {
                         agentAlert.Drop();
                     }

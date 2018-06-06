@@ -12,10 +12,9 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Admin;
-using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -34,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Mode the dialog has been launched
         /// </summary>
-        internal enum DialogMode { Create, Properties, Unknown };
+        internal enum ActionMode { Create, Edit, Unknown };
         /// <summary>
         /// If the job has been pushed from an MSX then it's category ID will always be 1
         /// </summary>
@@ -56,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Mode we are working in.
         /// </summary>
-        private DialogMode mode;
+        private ActionMode mode;
 
         /*
          * fields that map to the SMO Job object
@@ -200,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.context;
             }
         }
-        public DialogMode Mode
+        public ActionMode Mode
         {
             get
             {
@@ -561,7 +560,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             get
             {
                 return IsRemotelyOriginated
-            || (this.mode == DialogMode.Properties && !IsUserAgentAdmin && this.TrueLogin != this.Owner);
+            || (this.mode == ActionMode.Edit && !IsUserAgentAdmin && this.TrueLogin != this.Owner);
             }
         }
 
@@ -636,14 +635,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // we are in properties mode.
             if (this.originalName.Length > 0 || !string.IsNullOrEmpty(this.jobIdString))
             {
-                this.mode = DialogMode.Properties;
+                this.mode = ActionMode.Edit;
 
             }
             else if (this.script.Length > 0)
             {
                 // we are creating a new job, but prepopulating 
                 // one step with the script passed to us
-                this.mode = DialogMode.Create;
+                this.mode = ActionMode.Create;
                 this.Name = this.scriptName;
                 SetDefaults();
                 this.jobSteps = new JobStepsData(context, script, this);
@@ -651,7 +650,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // creating a new job
             else
             {
-                this.mode = DialogMode.Create;
+                this.mode = ActionMode.Create;
                 // set defaults that do not involve going to the server to retrieve
                 SetDefaults();
             }
@@ -716,7 +715,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private void CheckAndLoadMsaInformation()
         {
-            if (msaInformationLoaded || this.mode == DialogMode.Create)
+            if (msaInformationLoaded || this.mode == ActionMode.Create)
             {
                 return;
             }
@@ -753,7 +752,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private void CheckAndLoadGeneralData()
         {
-            if (this.generalInfoLoaded || this.mode == DialogMode.Create)
+            if (this.generalInfoLoaded || this.mode == ActionMode.Create)
             {
                 return;
             }
@@ -780,7 +779,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 return;
             }
-            if (this.Mode == DialogMode.Properties)
+            if (this.Mode == ActionMode.Edit)
             {
                 this.owner = this.Job.OwnerLoginName;
             }
@@ -844,7 +843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private void CheckAndLoadNotifications()
         {
-            if (this.notificationsLoaded || this.Mode == DialogMode.Create)
+            if (this.notificationsLoaded || this.Mode == ActionMode.Create)
             {
                 return;
             }
@@ -881,7 +880,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return;
             }
 
-            if (this.Mode == DialogMode.Properties)
+            if (this.Mode == ActionMode.Edit)
             {
                 this.category = ConvertStringToCategory(this.Job.Category);
             }
@@ -1112,7 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             bool scripting = this.context.Server.ConnectionContext.SqlExecutionModes == SqlExecutionModes.CaptureSql;
             bool targetServerSelected = false;
 
-            this.mode = creating ? DialogMode.Create : DialogMode.Properties; 
+            this.mode = creating ? ActionMode.Create : ActionMode.Edit; 
 
             ///Before any job posting if donem make sure that if this is an MSX job that the user has selected at
             ///least one Target Server.
@@ -1190,7 +1189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 job.Alter();
             }
 
-            if (!this.IsReadOnly)
+            if (!this.IsReadOnly && !scripting)
             {
                 if (this.targetLocalServer)
                 {
@@ -1267,7 +1266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 // TODO: this seems wrong. Why do it here and not in SMO?
                 this.context.Server.ConnectionContext.ExecuteNonQuery(
-                    String.Format(CultureInfo.InvariantCulture, "EXECUTE msdb.dbo.sp_post_msx_operation  N'INSERT', N'JOB', @job_id = '{0}'"
+                    string.Format(CultureInfo.InvariantCulture, "EXECUTE msdb.dbo.sp_post_msx_operation  N'INSERT', N'JOB', @job_id = '{0}'"
                     , job.JobID));
             }
 

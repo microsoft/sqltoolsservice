@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                         CategoryType = 1,
                         LastRun = "today",
                         NextRun = "tomorrow",
-                        JobId = "Job1"
+                        JobId = Guid.NewGuid().ToString()
                     }
                 }, createContext.Object);
                 createContext.VerifyAll();

@@ -30,8 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         public void Init()
         {
-            JobPropertiesAdvanced advanced = new JobPropertiesAdvanced(this.DataContainer, this.data);
-            JobStepProperties general = new JobStepProperties(this.DataContainer, this.data, advanced);
+            JobStepProperties general = new JobStepProperties(this.DataContainer, this.data);
         }
 
         /// <summary> 

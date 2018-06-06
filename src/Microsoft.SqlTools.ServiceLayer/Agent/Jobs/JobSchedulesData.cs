@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.allowEnableDisable = parent.AllowEnableDisable;
 
             // if we're creating a new job
-            if (this.parent.Mode != JobData.DialogMode.Properties)
+            if (this.parent.Mode != JobData.ActionMode.Edit)
             {
                 this.SetDefaults();
             }

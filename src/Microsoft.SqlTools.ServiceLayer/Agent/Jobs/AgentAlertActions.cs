@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 	/// <summary>
 	/// AgentAlert class
 	/// </summary>
-	internal class AgentAlert : ManagementActionBase
+	internal class AgentAlertActions : ManagementActionBase
 	{
         /// <summary>
         /// Agent alert info instance
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// Default constructor that will be used to create dialog
         /// </summary>
         /// <param name="dataContainer"></param>
-        public AgentAlert(CDataContainer dataContainer, AgentAlertInfo alertInfo)
+        public AgentAlertActions(CDataContainer dataContainer, AgentAlertInfo alertInfo)
         {
             this.alertInfo = alertInfo;
             this.DataContainer = dataContainer;
@@ -47,6 +47,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new Exception("SRError.AlertNameCannotBeBlank");
             }
             return alertName.Trim();
+        }
+
+        /// <summary>
+        /// called by ManagementActionBase.PreProcessExecution
+        /// </summary>        
+        /// <returns>
+        /// true if regular execution should take place, false if everything,
+        /// has been done by this function
+        /// </returns>
+        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
+        {
+            base.DoPreProcessExecution(runType, out executionResult);
+            return false;
         }
 
         public bool Drop()

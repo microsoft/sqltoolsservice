@@ -13,17 +13,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Execute task
         /// </summary>
-        Execute,
+        Execute = 0,
 
         /// <summary>
         /// Script task
         /// </summary>
-        Script,
+        Script = 1,
 
         /// <summary>
         /// Execute and script task
         /// Needed for tasks that will show the script when execution completes
         /// </summary>
-        ExecuteAndScript
+        ExecuteAndScript = 2
     }
 }

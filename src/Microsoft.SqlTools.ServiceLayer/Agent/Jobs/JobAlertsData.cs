@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.deletedJobAlerts = new ArrayList();
 
             // if we're creating a new job
-            if (this.parent.Mode != JobData.DialogMode.Properties)
+            if (this.parent.Mode != JobData.ActionMode.Edit)
             {
                 SetDefaults();
             }

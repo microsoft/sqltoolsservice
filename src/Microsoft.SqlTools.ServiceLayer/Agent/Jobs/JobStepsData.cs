@@ -13,9 +13,8 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlServer.Management.Diagnostics;
-using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -72,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Mode in which the dialog has been launched
         /// </summary>
-        JobData.DialogMode Mode
+        JobData.ActionMode Mode
         {
             get
             {
@@ -82,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 else
                 {
-                    return JobData.DialogMode.Unknown;
+                    return JobData.ActionMode.Unknown;
                 }
             }
         }
@@ -219,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.deletedJobSteps = new ArrayList();
 
             // if we're creating a new job
-            if (this.parent.Mode != JobData.DialogMode.Properties)
+            if (this.parent.Mode != JobData.ActionMode.Edit)
             {
                 SetDefaults();
                 if (script != null && script.Length != 0)
@@ -378,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 // get the last step
                 JobStepData lastStep = this.jobSteps[this.jobSteps.Count-1] as JobStepData;
-                if (lastStep != null && parent.Mode == JobData.DialogMode.Properties && lastStep.SuccessAction == StepCompletionAction.GoToNextStep)
+                if (lastStep != null && parent.Mode == JobData.ActionMode.Edit && lastStep.SuccessAction == StepCompletionAction.GoToNextStep)
                 {
                     lastStepCompletionActionWillChange = true;
                 }
@@ -605,7 +604,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 job.StartStepID = 0;
                 changesMade = true;
             }
-            else if (parent.Mode == JobData.DialogMode.Create || job.StartStepID != this.startStep.ID)
+            else if (parent.Mode == JobData.ActionMode.Create || job.StartStepID != this.startStep.ID)
             {
                 job.StartStepID = this.startStep.ID;
                 job.Alter();

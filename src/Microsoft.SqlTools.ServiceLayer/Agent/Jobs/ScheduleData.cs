@@ -8,42 +8,21 @@ using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlServer.Management.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Globalization;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-
-#region FxCopSuppressions
-// the link demand errors can be suppressed because they aren't 't used for security only to control API exposure
-[module: SuppressMessage("Microsoft.Security", "CA2126:TypeLinkDemandsRequireInheritanceDemands", Scope = "type", Target = "Microsoft.SqlServer.Management.SqlMgmt.JobScheduleData")]
-[module: SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase", Scope = "member", Target = "Microsoft.SqlServer.Management.SqlMgmt.SimpleJobSchedule.ToString():System.String")]
-
-// SimpleJobSchedule is a value type struct with no constructors, so the link demand doesn't
-// prevent construction anyway.
-[module: SuppressMessage("Microsoft.Security", "CA2108:ReviewDeclarativeSecurityOnValueTypes", Scope="type", Target="Microsoft.SqlServer.Management.SqlMgmt.SimpleJobSchedule", Justification="Temporary suppression: Revisit in SQL 11")]
-#endregion
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Smo.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-#if DEBUG || EXPOSE_MANAGED_INTERNALS
-    public
-#else
-    internal
-#endif
-    enum DialogMode { Create, Properties, Unknown };
-
     /// <summary>
     /// simple job schedule structure.
     /// </summary>
-#if !DEBUG && !EXPOSE_MANAGED_INTERNALS
-	[System.Security.Permissions.StrongNameIdentityPermissionAttribute(
-		System.Security.Permissions.SecurityAction.LinkDemand, 
-		PublicKey=Microsoft.SqlServer.Management.SqlMgmt.CodeSigning.PublicKeyConstants.PublicKey)]
-#endif
+
     public struct SimpleJobSchedule
     {
         #region consts

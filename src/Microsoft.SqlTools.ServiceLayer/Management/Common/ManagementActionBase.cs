@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 if (DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
                 {                
                     ExecuteForSql(executionInfo, out executionResult);
-                    return false;//execution of the entire control was done here
+                    return false; // execution of the entire action was done here
                 }
             }
 
@@ -343,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             ExecutionMode executionResult;
             if (DoPreProcessExecution(runType, out executionResult))
             {
-                //true return value means that we need to do execution ourselves
+                // true return value means that we need to do execution ourselves
                 executionResult = PanelExecutionHandler.Run(runType, this);
             }
 
@@ -426,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 sc = sqlDialogSubject.ExecutionManager.ConnectionContext.CapturedSql.Text;
             }
 
-            StringBuilder script  = new StringBuilder(4096);
+            StringBuilder script = new StringBuilder(4096);
             if (sc != null)
             {
                 for (int i = 0; i < sc.Count; i ++)
@@ -485,6 +485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 SqlExecutionModes newMode = isScripting
                     ? SqlExecutionModes.CaptureSql
                     : SqlExecutionModes.ExecuteSql;
+
                 // now, do the execution itself
                 GetServerConnectionForScript().SqlExecutionModes = newMode;
                 if (sqlDialogSubject != null)
@@ -501,7 +502,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                         szScript = BuildSqlScript();
                     }
                 }
-
             }
             finally
             {
