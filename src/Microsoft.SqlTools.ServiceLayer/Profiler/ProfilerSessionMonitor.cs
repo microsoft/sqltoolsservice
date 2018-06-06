@@ -72,17 +72,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Stop monitoring the session specified by the sessionId
         /// </summary>
-        public bool StopMonitoringSession(string sessionId)
+        public bool StopMonitoringSession(string sessionId, out ProfilerSession session)
         {
             lock (this.sessionsLock)
             {
                 if (this.monitoredSessions.ContainsKey(sessionId))
                 {
-                    ProfilerSession session;
                     return this.monitoredSessions.Remove(sessionId, out session);
                 }
                 else
                 {
+                    session = null;
                     return false;
                 }
             }

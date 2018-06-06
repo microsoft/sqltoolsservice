@@ -52,7 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "create agent alert" request handler with valid parameters
         /// </summary>
-        [Fact]
+        // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/630
+        // [Fact]
         public async Task TestHandleCreateAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -84,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //             {
                 //                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                 //                 Alert = alert
-                //             }, deleteContext.Object);   
+                //             }, deleteContext.Object);
                 //         }
                 //     }
                 // }
@@ -123,13 +124,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
                 }, createContext.Object);
-    
+
                 await service.HandleUpdateAgentAlertRequest(new UpdateAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
                 }, updateContext.Object);
-                
+
                 await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
