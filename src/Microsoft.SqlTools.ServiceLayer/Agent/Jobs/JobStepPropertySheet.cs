@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public bool Create()
         {
             // Make sure the job step name is not blank.
-            if (this.data.Name == null || this.data.Name.Length == 0)
+            if (string.IsNullOrWhiteSpace(this.data.Name))
             {
                 throw new Exception("SRError.JobStepNameCannotBeBlank");
             }
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private Job GetCurrentJob()
         {
             Job job = null;
-            string urn = String.Empty;
+            string urn = string.Empty;
             string jobIdString = null;
             STParameters parameters = new STParameters(this.DataContainer.Document);
             parameters.GetParam("urn", ref urn);

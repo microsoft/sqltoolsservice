@@ -283,8 +283,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
         {
-            CreateAgentJobResult result = new CreateAgentJobResult();
-            await requestContext.SendResult(result);
+            Tuple<bool, string> result = await ConfigureAgentJob(
+                parameters.OwnerUri,
+                parameters.Job,
+                AgentConfigAction.Create);
+
+            await requestContext.SendResult(new CreateAgentJobResult()
+            {
+                Succeeded = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         internal async Task HandleUpdateAgentJobRequest(UpdateAgentJobParams parameters, RequestContext<UpdateAgentJobResult> requestContext)
@@ -295,14 +303,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleCreateAgentJobStepRequest(CreateAgentJobStepParams parameters, RequestContext<CreateAgentJobStepResult> requestContext)
         {
-             bool succeeded = await ConfigureAgentJobStep(
+            Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
                 parameters.Step,
                 AgentConfigAction.Create);
 
             await requestContext.SendResult(new CreateAgentJobStepResult()
             {
-                Succeeded = succeeded
+                Succeeded = result.Item1,
+                ErrorMessage = result.Item2
             });
         }
 
@@ -322,6 +331,83 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             DeleteAgentJobStepResult result = new DeleteAgentJobStepResult();
             await requestContext.SendResult(result);
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentJob(
+            string ownerUri,
+            AgentJobInfo jobInfo,
+            AgentConfigAction configAction)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("job", string.Empty);                    
+                    param.SetParam("jobid", jobInfo.JobId);
+
+                    var jobData = new JobData(dataContainer);
+                    using (JobActions jobActions = new JobActions(dataContainer, jobData))
+                    {
+
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    // log exception here
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
+            string ownerUri,
+            AgentJobStepInfo stepInfo,
+            AgentConfigAction configAction)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(stepInfo.JobId))
+                    {
+                        return new Tuple<bool, string>(false, "JobId cannot be null");
+                    }
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("job", string.Empty);                    
+                    param.SetParam("jobid", stepInfo.JobId);
+                    param.SetParam("script", stepInfo.Script);
+                    param.SetParam("scriptName", stepInfo.ScriptName);
+
+                    var jobData = new JobData(dataContainer);
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData))
+                    {
+                        jobStep.CreateJobStep();
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    // log exception here
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
         }
 
         #endregion // "Jobs Handlers"
@@ -536,44 +622,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Succeeded = succeeded
             });
         }
-
-        internal async Task<bool> ConfigureAgentJobStep(
-            string ownerUri,
-            AgentJobStepInfo stepInfo,
-            AgentConfigAction configAction)
-        {
-            return await Task<bool>.Run(() =>
-            {
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", stepInfo.JobId);
-                    param.SetParam("script", stepInfo.Script);
-                    param.SetParam("scriptName", stepInfo.ScriptName);
-
-                    var jobData = new JobData(dataContainer);
-                    using (var jobStep = new JobSteps(dataContainer, jobData))
-                    {
-                        jobStep.CreateJobStep();
-                    }
-
-                    return true;
-                }
-                catch (Exception)
-                {
-                    // log exception here
-                    return false;
-                }
-            });
-        }
-
 
         internal async Task<bool> ConfigureAgentProxy(
             string ownerUri,

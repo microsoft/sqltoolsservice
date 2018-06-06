@@ -4,28 +4,26 @@
 //
 
 using System;
-using System.Drawing;
 using System.Collections;
-using System.Text;
-using System.ComponentModel;
-using System.Data;
-using System.Xml;
-using System.IO;
-using System.Threading;
-using System.Diagnostics;
 using System.Collections.Specialized;
-using Microsoft.SqlServer.Management.Smo;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Xml;
+using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// base class that can be used to derived from for the main classes [containers] of the dialogs
     /// </summary>
-    public class ManagementActionBase : IDisposable
+    public class ManagementActionBase : IDisposable, IExecutionAwareManagementAction, IManagementAction
     {
 #region Members
 
@@ -58,6 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //We'll get this object out of CDataContainer, that must be initialized
         //property by the initialization code
         private ServerConnection  serverConnection;
+
+        private ExecutionHandlerDelegate cachedPanelExecutionHandler;
 
 #endregion
 
@@ -169,6 +169,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             // call virtual function to do regular execution
             return DoPreProcessExecution(executionInfo.RunType, out executionResult);
         }
+
+        /// <summary>
+        /// called after dialog's host executes actions on all panels in the dialog one by one
+        /// NOTE: it might be called from worker thread
+        /// </summary>
+        /// <param name="executionMode">result of the execution</param>
+        /// <param name="runType">type of execution</param>
+        public void PostProcessExecution(RunType runType, ExecutionMode executionResult)
+        {
+            //delegate to the protected virtual method
+            DoPostProcessExecution(runType, executionResult);
+        }
 #endregion
 
 
@@ -184,7 +196,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 return true;
             }
         }
-
 
         /// <summary>
         /// called by IExecutionAwareSqlControlCollection.PreProcessExecution to enable derived
@@ -207,6 +218,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return true; 
         }
 
+        /// <summary>
+        /// called after dialog's host executes actions on all panels in the dialog one by one
+        /// NOTE: it might be called from worker thread
+        /// </summary>
+        /// <param name="executionMode">result of the execution</param>
+        /// <param name="runType">type of execution</param>
+        protected virtual void DoPostProcessExecution(RunType runType, ExecutionMode executionResult)
+        {
+            //nothing to do in the base class
+        }
+        
         /// <summary>
         /// called before dialog's host executes OnReset method on all panels in the dialog one by one
         /// NOTE: it might be called from worker thread
@@ -267,12 +289,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-
-//         /// <summary>
-//         /// SMO Server connection that MUST be used for all enumerator calls
-//         /// We'll get this object out of CDataContainer, that must be initialized
-//         /// property by the initialization code
-//         /// </summary>
+        /// <summary>
+        /// SMO Server connection that MUST be used for all enumerator calls
+        /// We'll get this object out of CDataContainer, that must be initialized
+        /// property by the initialization code
+        /// </summary>
         protected ServerConnection ServerConnection
         {
             get
@@ -316,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (DoPreProcessExecution(runType, out executionResult))
             {
                 //true return value means that we need to do execution ourselves
-                //executionResult = PanelExecutionHandler.Run(runType, this);
+                executionResult = PanelExecutionHandler.Run(runType, this);
             }
 
             return executionResult;
@@ -508,6 +529,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
+         /// <summary>
+        /// returns internal helper class that we delegate execution of the panels one by one when 
+        /// we do it ourselves during scripting
+        /// </summary>
+        private ExecutionHandlerDelegate PanelExecutionHandler
+        {
+            get
+            {
+                if (this.cachedPanelExecutionHandler == null)
+                {                   
+                    this.cachedPanelExecutionHandler = new ExecutionHandlerDelegate(this);
+                }
+                return this.cachedPanelExecutionHandler;
+            }
+        }
+
 // #region ICustomAttributeProvider
 //         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(bool inherit)
 //         {
@@ -640,5 +677,162 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 //                 return finalReturnValue;
 //             }
 //         }
+
+////////////////////////////////////
+/// 
+/// 
+
+
+        /// <summary>
+        /// execution mode by default for now is success
+        /// </summary>
+        private ExecutionMode m_executionMode = ExecutionMode.Success;
+
+        /// <summary>
+        /// execution mode accessor
+        /// </summary>
+        protected ExecutionMode ExecutionMode
+        {
+            get
+            {
+                return m_executionMode;
+            }
+            set
+            {
+                m_executionMode = value;
+            }
+        }
+
+         public virtual ExecutionMode LastExecutionResult
+        {
+            get
+            {
+                return ExecutionMode;
+            }
+        }
+
+
+        /// <summary>
+        /// Overridable function that allow a derived class to implement
+        /// a finalizing action after a RunNow or RunNowAndClose where sucesfully executed
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual void OnTaskCompleted(object sender, ExecutionMode executionMode, RunType executionType)
+        {
+            //nothing
+        }
+
+
+        /// <summary>
+        /// Overridable function that allow a derived class to implement its
+        /// OnRunNow functionality
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual void OnRunNow(object sender)
+        {
+            //nothing
+        }
+
+        /// <summary>
+        /// Overridable function that allow a derived class to implement its
+        /// OnReset functionality
+        /// </summary>
+        /// <param name="sender"></param>
+        // public virtual void OnReset(object sender)
+        // {
+        //     //nothing
+        // }
+
+
+        // /// <summary>
+        // /// Overridable function that allow a derived class to implement its
+        // /// OnScriptToWindow functionality
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // public virtual string OnScriptToWindow(object sender)
+        // {
+        //     //redirect to the single scripting virtual method by default
+        //     return Script();
+        // }
+
+        // /// <summary>
+        // /// Overridable function that allow a derived class to implement its
+        // /// OnScriptToWindow functionality
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // public virtual string OnScriptToFile(object sender)
+        // {
+        //     //redirect to the single scripting virtual method by default
+        //     return Script();
+        // }
+
+
+        // /// <summary>
+        // /// Overridable function that allow a derived class to implement its
+        // /// OnScriptToClipboard functionality. 
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // public virtual string OnScriptToClipboard(object sender)
+        // {
+        //     //redirect to the single scripting virtual method by default
+        //     return Script();
+        // }
+
+        // /// <summary>
+        // /// Overridable function that allow a derived class to implement its
+        // /// OnScriptToJob functionality. 
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // public virtual string OnScriptToJob(object sender)
+        // {
+        //     //redirect to the single scripting virtual method by default
+        //     return Script();
+        // }
+
+        public virtual string OnScript(object sender)
+        {
+            //redirect to the single scripting virtual method by default
+            return Script();
+        }
+
+        /// <summary>
+        /// derived class should override this method if it does same action for all types of scripting,
+        /// because all ILaunchFormHostedControl scripting methods implemented in this class simply
+        /// call this method
+        /// </summary>
+        /// <returns></returns>
+        protected virtual string Script()
+        {
+            //redirect to the RunNow method. Our host should be turning script capture on and off for
+            //OLAP/SQL servers and composing the text of the resulting script by itself
+            OnRunNow(this);
+
+            //null is a special value. It means that we want to indicate that we didn't want to generate 
+            //script text
+            return null;
+        }
+
+
+        /// <summary>
+        /// performs custom action wen user requests a cancel
+        /// this is called from the UI thread and generally executes
+        /// smoServer.Cancel() or amoServer.Cancel() causing
+        /// the worker thread to inttrerupt its current action
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual void OnCancel(object sender)
+        {
+            if (this.dataContainer == null)
+            {
+                return;
+            }
+
+            if (this.dataContainer.Server != null)
+            {
+                // TODO: uncomment next line when SMO server will have support for Cancel
+                // this.dataContainer.Server.Cancel();
+            }          
+        }
+
     }
 }

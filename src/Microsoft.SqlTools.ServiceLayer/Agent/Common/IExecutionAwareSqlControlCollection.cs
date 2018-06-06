@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 	/// IExecutionAwareSqlControlCollection allows control's container to do pre and post
 	/// processing of the execution commands
 	/// </summary>
-	public interface IExecutionAwareSqlControlCollection : ISqlControlCollection
+	public interface IExecutionAwareManagementAction : ISqlControlCollection
 	{
         /// <summary>
         /// called before dialog's host executes actions on all panels in the dialog one by one.
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// false if the Cancel operation was done entirely inside this method and there is nothing
         /// extra that should be done
         /// </returns>
-        bool Cancel();
+        //bool Cancel();
 
         /// <summary>
         /// called after dialog's host executes actions on all panels in the dialog one by one
@@ -92,12 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// true if regular execution should take place, false if everything
         /// has been done by this function
         /// </returns>
-        bool PreProcessReset();
+       // bool PreProcessReset();
 
         /// <summary>
         /// called after dialog's host executes OnReset method on all panels in the dialog one by one
         /// NOTE: it might be called from worker thread
         /// </summary>
-        void PostProcessReset();
+        //void PostProcessReset();
 	}
 }

@@ -26,54 +26,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     internal class JobSchedules : ManagementActionBase
     {
-        #region consts - grid columns
-        private const int colScheduleId = 0;
-        private const int colScheduleName = 1;
-        private const int colScheduleEnabled = 2;
-        private const int colScheduleDescription = 3;
-        private const int colScheduleJobInSchedule = 4;
-        #endregion
-
-        #region members
         private bool sharedSchedulesSupported = false;
         private JobData data;
 
-        // private System.Windows.Forms.Label scheduleLabel;
-        // private System.Windows.Forms.Button addSchedule;
-        // private System.Windows.Forms.Button editSchedule;
-        // private System.Windows.Forms.Button deleteSchedule;
-        // private SqlManagerUIDlgGrid scheduleList;
-        // private System.Windows.Forms.Button newSchedule;
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.Container components = null;
-        #endregion
-
-        #region construction
-        public JobSchedules()
-        {
-            //
-            // Required for Windows Form Designer support
-            //
-            // InitializeComponent();
-            // InitializeGrid();
-            data = null;
-        }
-
         public JobSchedules(CDataContainer dataContainer, JobData data)
         {
-            //
-            // Required for Windows Form Designer support
-            //
-            //InitializeComponent();
-
-            this.DataContainer = dataContainer; // initialize this before grid so grid knows if we have Yukon or not
+            this.DataContainer = dataContainer;
             this.data = data;
-        }
-        #endregion
 
-        #region cleanup
+            this.sharedSchedulesSupported = this.DataContainer.Server.Information.Version.Major >= 9;
+        }
+
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -81,112 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             if (disposing)
             {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
             }
             base.Dispose(disposing);
         }
-        #endregion
-
-        #region Windows Form Designer generated code
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        // private void InitializeComponent()
-        // {
-        //     System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(JobSchedules));
-        //     this.scheduleLabel = new System.Windows.Forms.Label();
-        //     this.scheduleList = new Microsoft.SqlServer.Management.SqlManagerUI.SqlManagerUIDlgGrid();
-        //     this.addSchedule = new System.Windows.Forms.Button();
-        //     this.editSchedule = new System.Windows.Forms.Button();
-        //     this.deleteSchedule = new System.Windows.Forms.Button();
-        //     this.newSchedule = new System.Windows.Forms.Button();
-        //     ((System.ComponentModel.ISupportInitialize)(this.scheduleList)).BeginInit();
-        //     this.SuspendLayout();
-        //     this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-        //     this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        //     // 
-        //     // scheduleLabel
-        //     // 
-        //     resources.ApplyResources(this.scheduleLabel, "scheduleLabel");
-        //     this.scheduleLabel.Name = "scheduleLabel";
-        //     // 
-        //     // scheduleList
-        //     // 
-        //     resources.ApplyResources(this.scheduleList, "scheduleList");
-        //     this.scheduleList.BackColor = System.Drawing.SystemColors.Window;
-        //     this.scheduleList.ForceEnabled = false;
-        //     this.scheduleList.Name = "scheduleList";
-        //     this.scheduleList.SelectionType = Microsoft.SqlServer.Management.UI.Grid.GridSelectionType.RowBlocks;
-        //     this.scheduleList.SelectionChanged += new Microsoft.SqlServer.Management.UI.Grid.SelectionChangedEventHandler(this.GridSelectionChanged);
-        //     this.scheduleList.MouseButtonDoubleClicked += new Microsoft.SqlServer.Management.UI.Grid.MouseButtonDoubleClickedEventHandler(this.OnDoubleClicked);
-        //     // 
-        //     // addSchedule
-        //     // 
-        //     resources.ApplyResources(this.addSchedule, "addSchedule");
-        //     this.addSchedule.Name = "addSchedule";
-        //     this.addSchedule.Click += new System.EventHandler(this.addSchedule_Click);
-        //     // 
-        //     // editSchedule
-        //     // 
-        //     resources.ApplyResources(this.editSchedule, "editSchedule");
-        //     this.editSchedule.Name = "editSchedule";
-        //     this.editSchedule.Click += new System.EventHandler(this.editSchedule_Click);
-        //     // 
-        //     // deleteSchedule
-        //     // 
-        //     resources.ApplyResources(this.deleteSchedule, "deleteSchedule");
-        //     this.deleteSchedule.Name = "deleteSchedule";
-        //     this.deleteSchedule.Click += new System.EventHandler(this.deleteSchedule_Click);
-        //     // 
-        //     // newSchedule
-        //     // 
-        //     resources.ApplyResources(this.newSchedule, "newSchedule");
-        //     this.newSchedule.Name = "newSchedule";
-        //     this.newSchedule.Click += new System.EventHandler(this.newSchedule_Click);
-        //     // 
-        //     // JobSchedules
-        //     // 
-        //     this.Controls.Add(this.newSchedule);
-        //     this.Controls.Add(this.deleteSchedule);
-        //     this.Controls.Add(this.editSchedule);
-        //     this.Controls.Add(this.addSchedule);
-        //     this.Controls.Add(this.scheduleList);
-        //     this.Controls.Add(this.scheduleLabel);
-        //     this.Name = "JobSchedules";
-        //     resources.ApplyResources(this, "$this");
-        //     ((System.ComponentModel.ISupportInitialize)(this.scheduleList)).EndInit();
-        //     this.ResumeLayout(false);
-
-        // }
-        #endregion
-
-        #region IPanelForm implementation
-        // void IPanelForm.OnInitialization()
-        // {
-        //     System.Diagnostics.Debug.Assert(this.DataContainer != null);
-        //     System.Diagnostics.Debug.Assert(this.DataContainer.Server != null);
-        //     if (this.DataContainer.Server.Information.Version.Major >= 9)
-        //     {
-        //         this.sharedSchedulesSupported = true;
-        //         this.deleteSchedule.Text = JobSR.ButtonAsRemove;
-        //     }
-        //     else
-        //     {
-        //         this.sharedSchedulesSupported = false;
-        //         this.deleteSchedule.Text = JobSR.ButtonAsDelete;
-        //     }
-
-        //     this.HelpF1Keyword = AssemblyVersionInfo.VersionHelpKeywordPrefix + @".ag.job.schedules.f1";
-
-        //     InitializeGrid();
-        //     InitializeData();
-        //     UpdateControlStatus();
-        // }
-        #endregion
 
         #region ui stuff
         private void InitializeData()
@@ -254,113 +114,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             return rv;
         }
-        /// <summary>
-        /// set up the grid headers etc.
-        /// </summary>
-        // private void InitializeGrid()
-        // {
-        //     GridColumnInfo ci = new GridColumnInfo();
-        //     // setup th id column
-        //     ci.ColumnWidth = 60;
-        //     ci.WidthType = GridColumnWidthType.InPixels;
-        //     this.scheduleList.AddColumn(ci);
-        //     this.scheduleList.SetHeaderInfo(colScheduleId, "ID", null); // $CONSIDER localize the string after Beta 2 string freeze is lifted - apred June 1, 2004
-        //     // setup the name column
-        //     ci.ColumnWidth = 180;
-        //     ci.WidthType = GridColumnWidthType.InPixels;
-        //     this.scheduleList.AddColumn(ci);
-        //     this.scheduleList.SetHeaderInfo(colScheduleName, JobSR.Name, null);
-        //     // setup the enabled column
-        //     ci.ColumnWidth = 60;
-        //     ci.WidthType = GridColumnWidthType.InPixels;
-        //     this.scheduleList.AddColumn(ci);
-        //     this.scheduleList.SetHeaderInfo(colScheduleEnabled, JobSR.Enabled, null);
-        //     // setup the description column
-        //     ci.ColumnWidth = 350;
-        //     ci.WidthType = GridColumnWidthType.InPixels;
-        //     this.scheduleList.AddColumn(ci);
-        //     this.scheduleList.SetHeaderInfo(colScheduleDescription, JobSR.Description, null);
-        //     // setup 'jobs in schedule' column (optional)
-        //     if (this.sharedSchedulesSupported == true)
-        //     {
-        //         ci.ColumnWidth = 30;
-        //         ci.WidthType = GridColumnWidthType.InPixels;
-        //         ci.ColumnType = GridColumnType.Hyperlink;
-        //         this.scheduleList.AddColumn(ci);
-        //         this.scheduleList.SetHeaderInfo(colScheduleJobInSchedule, JobSR.GridHeader_ScheduleJobsInSchedule, null);
-        //     }
-
-        //     this.scheduleList.GridSpecialEvent += new GridSpecialEventHandler(this.grid_GridSpecialEvent); //for hyperlink click
-        //     this.scheduleList.KeyPressedOnCell += new KeyPressedOnCellEventHandler(this.grid_KeyPressedOnCell); //for hyperlink handling
-        // }
-        // private void UpdateControlStatus()
-        // {
-        //     // check that the selected row is valid
-        //     if (this.scheduleList.SelectedCells.Count == 1)
-        //     {
-        //         if (this.scheduleList.SelectedCells[0].Y > this.scheduleList.RowsNumber - 1 && this.scheduleList.RowsNumber > 0)
-        //         {
-        //             BlockOfCells[] blocks = new BlockOfCells[1];
-        //             blocks[0] = new BlockOfCells(this.scheduleList.RowsNumber - 1, 0);
-        //             BlockOfCellsCollection cells = new BlockOfCellsCollection(blocks);
-        //             this.scheduleList.SelectedCells = cells;
-        //             this.scheduleList.UpdateGrid();
-        //         }
-        //     }
-        //     // ensure that if there are rows in the grid one is always selected
-        //     if (this.scheduleList.RowsNumber > 0 && this.scheduleList.SelectedCells.Count == 0)
-        //     {
-        //         BlockOfCells[] blocks = new BlockOfCells[1];
-        //         blocks[0] = new BlockOfCells(0, 0);
-        //         BlockOfCellsCollection cells = new BlockOfCellsCollection(blocks);
-        //         this.scheduleList.SelectedCells = cells;
-        //         this.scheduleList.UpdateGrid();
-        //     }
-
-        //     // add enabled only if shared schedules are supported
-        //     this.addSchedule.Enabled = (this.sharedSchedulesSupported && !this.data.IsReadOnly);
-
-        //     this.newSchedule.Enabled = (true && !this.data.IsReadOnly);
-
-        //     // edit enabled if one row selected
-        //     this.editSchedule.Enabled = (this.scheduleList.RowsNumber > 0
-        //                                  && this.scheduleList.SelectedCells.Count == 1);
-        //     if (this.data.IsReadOnly)
-        //     {
-        //         this.editSchedule.Text = JobSR.ScheduleListView;
-        //     }
-
-        //     // delete enabled if at least one row selected
-        //     this.deleteSchedule.Enabled = (this.scheduleList.RowsNumber > 0
-        //                                    && this.scheduleList.SelectedCells.Count > 0) && !this.data.IsReadOnly;
-        // }
+       
         #endregion
 
         #region ui event handlers
-        // private void GridSelectionChanged(object sender, SelectionChangedEventArgs args)
-        // {
-        //     UpdateControlStatus();
-        // }
-
-        // private void newSchedule_Click(object sender, System.EventArgs e)
-        // {
-        //     JobScheduleData scheduleData = new JobScheduleData();
-
-
-        //     using (ScheduleDialog jobSchedule = new ScheduleDialog(scheduleData, this.data.JobSchedules.Schedules, this.DataContainer, this.ServiceProvider))
-        //     {
-        //         jobSchedule.Text = JobSR.NewSchedule;
-        //         jobSchedule.SetSite(this.ServiceProvider);
-
-        //         if (DialogResult.OK == jobSchedule.ShowDialog())
-        //         {
-        //             this.data.JobSchedules.AddSchedule(jobSchedule.Schedule);
-        //             this.scheduleList.DeleteAllRows();
-        //             PopulateGrid(this.data.JobSchedules);
-        //             UpdateControlStatus();
-        //         }
-        //     }
-        // }
+      
 
         // private void addSchedule_Click(object sender, System.EventArgs e)
         // {
@@ -463,17 +221,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //     UpdateControlStatus();
         // }
 
-        // private void OnDoubleClicked(object sender, Microsoft.SqlServer.Management.UI.Grid.MouseButtonDoubleClickedEventArgs args)
-        // {
-        //     // sanity check, may be outside of the visible range
-        //     if (args.RowIndex < 0 || args.RowIndex > this.scheduleList.RowsNumber)
-        //     {
-        //         return;
-        //     }
-
-        //     EditSelectedSchedule();
-        // }
-
         // private void EditSelectedSchedule()
         // {
         //     // check that a row is selected first
@@ -528,121 +275,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         //     }
         // }
 
-        // /// <summary>
-        // /// called when user followed hyperlink
-        // /// </summary>
-        // /// <param name="sender"></param>
-        // /// <param name="e"></param>
-        // private void grid_GridSpecialEvent(object sender, GridSpecialEventArgs e)
-        // {
-        //     if ((e.ColumnIndex == colScheduleJobInSchedule) && (e.EventType == GridSpecialEventArgs.HyperlinkClick))
-        //     {
-        //         ShowJobsReferencingScheduleDialog(e.RowIndex);
-        //     }
-        // }
-
-        // /// <summary>
-        // /// called when user pressed a key on grid's cell
-        // /// </summary>
-        // /// <param name="sender"></param>
-        // /// <param name="e"></param>
-        // private void grid_KeyPressedOnCell(object sender, KeyPressedOnCellEventArgs e)
-        // {
-        //     if ((e.ColumnIndex == colScheduleJobInSchedule) && (e.Key == Keys.Space))
-        //     {
-        //         ShowJobsReferencingScheduleDialog(e.RowIndex);
-        //     }
         // }
         #endregion
-
-        #region helper functions
-        /// <summary>
-        /// display jobs refrencing the schedule for a given row in grid
-        /// </summary>
-        /// <param name="iRow"></param>
-        // private void ShowJobsReferencingScheduleDialog(long lRow)
-        // {
-        //     System.Diagnostics.Debug.Assert(scheduleList != null);
-
-        //     int iRow = Convert.ToInt32(lRow);
-        //     string scheduleName = GetScheduleName(this.scheduleList, iRow);
-        //     int scheduleId = GetScheduleId(this.scheduleList, iRow);
-
-        //     // can't do anything if the schedule has not yet been created.
-        //     if (scheduleId < 0)
-        //     {
-        //         return;
-        //     }
-
-        //     System.Diagnostics.Debug.Assert(scheduleName != null);
-        //     System.Diagnostics.Debug.Assert(scheduleName.Length != 0);
-        //     System.Diagnostics.Debug.Assert(scheduleId != -1);
-
-        //     JobsReferencingScheduleForm jrsf = new JobsReferencingScheduleForm
-        //                                        (
-        //                                        this.DataContainer,
-        //                                        scheduleId,
-        //                                        scheduleName,
-        //                                        true,
-        //                                        this.ServiceProvider
-        //                                        );
-        //     using (jrsf)
-        //     {
-        //         DialogResult dr = jrsf.ShowDialog();
-        //     }
-        // }
-
-        /// <summary>
-        /// returns name of schedule for a given grid row
-        /// </summary>
-        /// <param name="grid"></param>
-        /// <param name="?"></param>
-        /// <returns></returns>
-        // private string GetScheduleName(SqlManagerUIDlgGrid grid, int iRow)
-        // {
-        //     String scheduleName = String.Empty;
-
-        //     System.Diagnostics.Debug.Assert(grid != null);
-        //     System.Diagnostics.Debug.Assert(iRow >= 0);
-        //     System.Diagnostics.Debug.Assert(iRow < grid.RowsNumber);
-
-        //     GridCell cell = grid.GetCellInfo(iRow, colScheduleName);
-
-        //     System.Diagnostics.Debug.Assert(cell != null);
-        //     System.Diagnostics.Debug.Assert(cell.CellData != null);
-
-        //     scheduleName = cell.CellData as String;
-
-        //     System.Diagnostics.Debug.Assert(scheduleName != null);
-
-        //     return scheduleName;
-        // }
-
-        /// <summary>
-        /// returns id of schedule for a given grid row
-        /// </summary>
-        /// <param name="grid"></param>
-        /// <param name="iRow"></param>
-        /// <returns></returns>
-        // private int GetScheduleId(SqlManagerUIDlgGrid grid, int iRow)
-        // {
-        //     int scheduleId = -1;
-
-        //     System.Diagnostics.Debug.Assert(grid != null);
-        //     System.Diagnostics.Debug.Assert(iRow >= 0);
-        //     System.Diagnostics.Debug.Assert(iRow < grid.RowsNumber);
-
-        //     GridCell cell = grid.GetCellInfo(iRow, colScheduleId);
-
-        //     System.Diagnostics.Debug.Assert(cell != null);
-        //     System.Diagnostics.Debug.Assert(cell.CellData != null);
-
-        //     scheduleId = Convert.ToInt32(cell.CellData as String, System.Globalization.CultureInfo.CurrentCulture);
-
-        //     System.Diagnostics.Debug.Assert(scheduleId != -1);
-
-        //     return scheduleId;
-        // }
 
         /// <summary>
         /// enumerates schedules list and returns back as s string in format 1,2,3
@@ -672,8 +306,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             return scheduleIdList;
         }
-        #endregion
-
-
     }
 }

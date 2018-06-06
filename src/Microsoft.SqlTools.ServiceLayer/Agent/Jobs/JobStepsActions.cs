@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
@@ -21,27 +22,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// Summary description for JobSteps.
     /// </summary>
-    internal class JobSteps : ManagementActionBase
+    internal class JobStepsActions : ManagementActionBase
     {
         private bool validated = true;
-        
+
         private JobData data;
 
-        public JobSteps(CDataContainer dataContainer, JobData data)
+        public JobStepsActions(CDataContainer dataContainer, JobData data)
         {
             this.DataContainer = dataContainer;
             this.data = data;
-        }
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {             
-            }
-            base.Dispose(disposing);
         }
 
         #region ISupportValidation
@@ -94,8 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (warningMessage.Length > 0)
             {
                 warningMessage.Append("JobSR.AreYouSure");
-
-                //valid = (ShowMessage(warningMessage.ToString(), SRError.SQLWorkbench, ExceptionMessageBoxButtons.YesNo, ExceptionMessageBoxSymbol.Warning) != DialogResult.No);
             }
 
             this.validated = valid;
@@ -104,7 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
 
-        #region ui setup
         // private void PopulateGrid(JobStepsData steps)
         // {
         //     for (int i = 0; i < steps.Steps.Count; i++)
@@ -142,59 +129,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="action"></param>
         /// <param name="targetStep"></param>
         /// <returns></returns>
-        private static string GetFriendlyNameForAction(StepCompletionAction action, JobStepData targetStep)
-        {
-            String friendlyName = String.Empty;
-            // switch (action)
-            // {
-            //     case StepCompletionAction.GoToNextStep:
-            //         friendlyName = JobSR.GotoNextStep;
-            //         break;
-            //     case StepCompletionAction.QuitWithFailure:
-            //         friendlyName = JobSR.QuitWithFailure;
-            //         break;
-            //     case StepCompletionAction.QuitWithSuccess:
-            //         friendlyName = JobSR.QuitWithSuccess;
-            //         break;
-            //     case StepCompletionAction.GoToStep:
-            //         STrace.Assert(targetStep != null, "Action type is goto step, but the target step is null");
-            //         if (targetStep != null)
-            //         {
-            //             friendlyName = JobSR.GotoStep(targetStep.ID, targetStep.Name);
-            //         }
-            //         break;
-            //     default:
-            //         STrace.Assert(false, "Unknown jobstep completion action");
-            //         break;
-            // }
-            return friendlyName;
-        }
-        private void PopulateStartStepCombo(JobStepsData steps)
-        {
-            // clear any existing items
-            // this.startStep.Items.Clear();
-            // // selected step
-            // // add new ones
-            // for (int i = 0; i < steps.Steps.Count; i++)
-            // {
-            //     JobStepData step = steps.Steps[i] as JobStepData;
-            //     if (step != null)
-            //     {
-            //         this.startStep.Items.Add(step);
-            //     }
-            // }
-            // // set the start step
-            // if (this.data.JobSteps.StartStep != null)
-            // {
-            //     this.startStep.SelectedItem = this.data.JobSteps.StartStep;
-            // }
-        }
-
-        #endregion
+        // private static string GetFriendlyNameForAction(StepCompletionAction action, JobStepData targetStep)
+        // {
+        //     String friendlyName = String.Empty;
+        //     // switch (action)
+        //     // {
+        //     //     case StepCompletionAction.GoToNextStep:
+        //     //         friendlyName = JobSR.GotoNextStep;
+        //     //         break;
+        //     //     case StepCompletionAction.QuitWithFailure:
+        //     //         friendlyName = JobSR.QuitWithFailure;
+        //     //         break;
+        //     //     case StepCompletionAction.QuitWithSuccess:
+        //     //         friendlyName = JobSR.QuitWithSuccess;
+        //     //         break;
+        //     //     case StepCompletionAction.GoToStep:
+        //     //         STrace.Assert(targetStep != null, "Action type is goto step, but the target step is null");
+        //     //         if (targetStep != null)
+        //     //         {
+        //     //             friendlyName = JobSR.GotoStep(targetStep.ID, targetStep.Name);
+        //     //         }
+        //     //         break;
+        //     //     default:
+        //     //         STrace.Assert(false, "Unknown jobstep completion action");
+        //     //         break;
+        //     // }
+        //     return friendlyName;
+        // }
+      
 
         public void CreateJobStep()
         {
-            JobStepData data = new JobStepData(this.data.JobSteps);
+            //JobStepData data = new JobStepData(this.data.JobSteps);
+            JobStepData data = this.data.JobSteps.Steps[0] as JobStepData;
             JobStepPropertySheet jsProp = new JobStepPropertySheet(this.DataContainer, data);
 
             jsProp.Init();

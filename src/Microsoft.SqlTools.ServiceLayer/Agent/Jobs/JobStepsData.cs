@@ -226,7 +226,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     LoadFromScript(script);
                 }
-
             }
             else
             {
@@ -470,8 +469,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private void LoadData()
         {
             STParameters parameters = new STParameters(this.context.Document);
-            string urn = String.Empty;
-            string jobIdString = String.Empty;
+            string urn = string.Empty;
+            string jobIdString = string.Empty;
             parameters.GetParam("urn", ref urn);
             parameters.GetParam("jobid", ref jobIdString);
             

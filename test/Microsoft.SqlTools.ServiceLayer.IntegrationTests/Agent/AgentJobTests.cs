@@ -18,10 +18,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     public class AgentJobTests
     {
         /// <summary>
-        /// TestHandleUpdateAgentJobStepRequest
+        /// TestHandleCreateAgentJobRequest
         /// </summary>
         [Fact]
-        public async Task TestHandleUpdateAgentJobStepRequest()
+        public async Task TestHandleCreateAgentJobRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var createContext = new Mock<RequestContext<CreateAgentJobResult>>();
+                var service = new AgentService();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await service.HandleCreateAgentJobRequest(new CreateAgentJobParams
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                }, createContext.Object);
+                createContext.VerifyAll();
+            }
+        }
+
+        /// <summary>
+        /// TestHandleCreateAgentJobStepRequest
+        /// </summary>
+        [Fact]
+        public async Task TestHandleCreateAgentJobStepRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -46,35 +65,3 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     }
 }
 
-/*
-            this.originalName = source.originalName;
-            this.currentName = source.currentName;
-            this.alreadyCreated = source.alreadyCreated;
-            this.deleted = source.deleted;
-            this.command = source.command;
-            this.commandExecutionSuccessCode = source.commandExecutionSuccessCode;
-            this.databaseName = source.databaseName;
-            this.databaseUserName = source.databaseUserName;
-            this.server = source.server;
-            this.id = source.id;
-            this.originalId = source.originalId;
-            this.failureAction = source.failureAction;
-            this.failStep = source.failStep;
-            this.failStepId = source.failStepId;
-            this.successAction = source.successAction;
-            this.successStep = source.successStep;
-            this.successStepId = source.successStepId;
-            this.priority = source.priority;
-            this.outputFileName = source.outputFileName;
-            this.appendToLogFile = source.appendToLogFile;
-            this.appendToStepHist = source.appendToStepHist;
-            this.writeLogToTable = source.writeLogToTable;
-            this.appendLogToTable = source.appendLogToTable;
-            this.retryAttempts = source.retryAttempts;
-            this.retryInterval = source.retryInterval;
-            this.subSystem = source.subSystem;
-            this.proxyName = source.proxyName;
-            this.urn = source.urn;
-            this.parent = source.parent;
-
- */
