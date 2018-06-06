@@ -2873,6 +2873,111 @@
         <target state="new">Cannot create script for modify alerts.</target>
         <note> Exception thrown when we cannot create script that modify alerts</note>
       </trans-unit>
+      <trans-unit id="CategoryLocal">
+        <source>[Uncategorized (Local)]</source>
+        <target state="new">[Uncategorized (Local)]</target>
+        <note>job categories</note>
+      </trans-unit>
+      <trans-unit id="CategoryFromMsx">
+        <source>Jobs from MSX</source>
+        <target state="new">Jobs from MSX</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryMultiServer">
+        <source>[Uncategorized (Multi-Server)]</source>
+        <target state="new">[Uncategorized (Multi-Server)]</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryDBMaint">
+        <source>Database Maintenance</source>
+        <target state="new">Database Maintenance</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryWebAssistant">
+        <source>Web Assistant</source>
+        <target state="new">Web Assistant</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryFullText">
+        <source>Full-Text</source>
+        <target state="new">Full-Text</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplDistribution">
+        <source>REPL-Distribution</source>
+        <target state="new">REPL-Distribution</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplDistributionCleanup">
+        <source>REPL-Distribution Cleanup</source>
+        <target state="new">REPL-Distribution Cleanup</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplHistoryCleanup">
+        <source>REPL-History Cleanup</source>
+        <target state="new">REPL-History Cleanup</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplLogReader">
+        <source>REPL-LogReader</source>
+        <target state="new">REPL-LogReader</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplMerge">
+        <source>REPL-Merge</source>
+        <target state="new">REPL-Merge</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplSnapShot">
+        <source>REPL-Snapshot</source>
+        <target state="new">REPL-Snapshot</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplCheckup">
+        <source>REPL-Checkup</source>
+        <target state="new">REPL-Checkup</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplCleanup">
+        <source>REPL-Subscription Cleanup</source>
+        <target state="new">REPL-Subscription Cleanup</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplAlert">
+        <source>REPL-Alert Response</source>
+        <target state="new">REPL-Alert Response</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplQReader">
+        <source>REPL-QueueReader</source>
+        <target state="new">REPL-QueueReader</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryReplication">
+        <source>Replication</source>
+        <target state="new">Replication</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryUncategorized">
+        <source>[Uncategorized]</source>
+        <target state="new">[Uncategorized]</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryLogShipping">
+        <source>Log Shipping</source>
+        <target state="new">Log Shipping</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryDBEngineTuningAdvisor">
+        <source>Database Engine Tuning Advisor</source>
+        <target state="new">Database Engine Tuning Advisor</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CategoryDataCollector">
+        <source>Data Collector</source>
+        <target state="new">Data Collector</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

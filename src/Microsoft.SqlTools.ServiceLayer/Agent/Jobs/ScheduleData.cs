@@ -707,11 +707,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
     }
 
-#if !DEBUG && !EXPOSE_MANAGED_INTERNALS
-	[System.Security.Permissions.StrongNameIdentityPermissionAttribute(
-		System.Security.Permissions.SecurityAction.LinkDemand, 
-		PublicKey=Microsoft.SqlServer.Management.SqlMgmt.CodeSigning.PublicKeyConstants.PublicKey)]
-#endif
     public class JobScheduleData
     {
         #region data members
