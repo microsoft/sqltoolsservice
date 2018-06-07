@@ -2424,4 +2424,88 @@
     <value>Cannot create script for modify alerts.</value>
     <comment> Exception thrown when we cannot create script that modify alerts</comment>
   </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Uncategorized (Local)]</value>
+    <comment>job categories</comment>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>Jobs from MSX</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Uncategorized (Multi-Server)]</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Database Maintenance</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Web Assistant</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Full-Text</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-Distribution</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL-Distribution Cleanup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL-History Cleanup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL-Merge</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL-Snapshot</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL-Checkup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL-Subscription Cleanup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL-Alert Response</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-QueueReader</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Replication</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Uncategorized]</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Log Shipping</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Database Engine Tuning Advisor</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Data Collector</value>
+    <comment></comment>
+  </data>
 </root>

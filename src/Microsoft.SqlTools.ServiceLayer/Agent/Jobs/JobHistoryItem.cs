@@ -19,7 +19,6 @@ using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-
      /// <summary>
     /// severity associated with a log entry (ILogEntry)
     //  these should be ordered least severe to most severe where possible.
@@ -48,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         bool            CanLoadSubEntries       {get;}
         List<ILogEntry> SubEntries              {get;}
     }
-
 
     internal class LogSourceJobHistory : ILogSource, IDisposable //, ITypedColumns, ILogCommandTarget
     {
@@ -204,48 +202,10 @@ ORDER BY [InstanceID] ASC";
                 "LogViewerSR.Field_RetriesAttempted"
             };
 
-            columnTypes = new TypedColumnCollection();
-            for (int i = 0; i < m_fieldNames.Length; i++)
-            {
-                columnTypes.AddColumnType(m_fieldNames[i], SourceColumnTypes[i]);
-            }
-
-            //m_customCommandHandler = customCommandHandler;
-            
             this.serviceProvider = serviceProvider;
         }
         #endregion
 
-        private static int[] SourceColumnTypes
-        {
-            get
-            {
-                return new int[] 
-                {
-                    GridColumnType.Hyperlink,
-                    GridColumnType.Text,
-                    GridColumnType.Hyperlink,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text,
-                    GridColumnType.Text
-                };
-            }
-        }
-
-        public TypedColumnCollection ColumnTypes
-        {
-            get
-            {
-                return columnTypes;
-            }
-        }
         #region ILogSource interface implementation
 
         bool ILogSource.OrderedByDateDescending
@@ -345,12 +305,12 @@ ORDER BY [InstanceID] ASC";
                       (this.m_sqlConnectionInfo.ServerVersion == null 
                     || this.m_sqlConnectionInfo.ServerVersion.Major >= 9) ?
 
-                                String.Format(jobHistoryQuery,
+                                string.Format(jobHistoryQuery,
                                               historyTableDeclaration,
                                               historyTableName,
                                               jobId) :
 
-                                String.Format(jobHistoryQuery,
+                                string.Format(jobHistoryQuery,
                                               historyTableDeclaration80,
                                               historyTableName80,
                                               jobId);

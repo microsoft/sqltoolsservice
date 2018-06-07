@@ -4173,6 +4173,174 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string CategoryLocal
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryLocal);
+            }
+        }
+
+        public static string CategoryFromMsx
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryFromMsx);
+            }
+        }
+
+        public static string CategoryMultiServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryMultiServer);
+            }
+        }
+
+        public static string CategoryDBMaint
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryDBMaint);
+            }
+        }
+
+        public static string CategoryWebAssistant
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryWebAssistant);
+            }
+        }
+
+        public static string CategoryFullText
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryFullText);
+            }
+        }
+
+        public static string CategoryReplDistribution
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplDistribution);
+            }
+        }
+
+        public static string CategoryReplDistributionCleanup
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplDistributionCleanup);
+            }
+        }
+
+        public static string CategoryReplHistoryCleanup
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplHistoryCleanup);
+            }
+        }
+
+        public static string CategoryReplLogReader
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplLogReader);
+            }
+        }
+
+        public static string CategoryReplMerge
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplMerge);
+            }
+        }
+
+        public static string CategoryReplSnapShot
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplSnapShot);
+            }
+        }
+
+        public static string CategoryReplCheckup
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplCheckup);
+            }
+        }
+
+        public static string CategoryReplCleanup
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplCleanup);
+            }
+        }
+
+        public static string CategoryReplAlert
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplAlert);
+            }
+        }
+
+        public static string CategoryReplQReader
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplQReader);
+            }
+        }
+
+        public static string CategoryReplication
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryReplication);
+            }
+        }
+
+        public static string CategoryUncategorized
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryUncategorized);
+            }
+        }
+
+        public static string CategoryLogShipping
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryLogShipping);
+            }
+        }
+
+        public static string CategoryDBEngineTuningAdvisor
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryDBEngineTuningAdvisor);
+            }
+        }
+
+        public static string CategoryDataCollector
+        {
+            get
+            {
+                return Keys.GetString(Keys.CategoryDataCollector);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -6109,6 +6277,69 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CannotCreateScriptForModifyAlerts = "CannotCreateScriptForModifyAlerts";
+
+
+            public const string CategoryLocal = "CategoryLocal";
+
+
+            public const string CategoryFromMsx = "CategoryFromMsx";
+
+
+            public const string CategoryMultiServer = "CategoryMultiServer";
+
+
+            public const string CategoryDBMaint = "CategoryDBMaint";
+
+
+            public const string CategoryWebAssistant = "CategoryWebAssistant";
+
+
+            public const string CategoryFullText = "CategoryFullText";
+
+
+            public const string CategoryReplDistribution = "CategoryReplDistribution";
+
+
+            public const string CategoryReplDistributionCleanup = "CategoryReplDistributionCleanup";
+
+
+            public const string CategoryReplHistoryCleanup = "CategoryReplHistoryCleanup";
+
+
+            public const string CategoryReplLogReader = "CategoryReplLogReader";
+
+
+            public const string CategoryReplMerge = "CategoryReplMerge";
+
+
+            public const string CategoryReplSnapShot = "CategoryReplSnapShot";
+
+
+            public const string CategoryReplCheckup = "CategoryReplCheckup";
+
+
+            public const string CategoryReplCleanup = "CategoryReplCleanup";
+
+
+            public const string CategoryReplAlert = "CategoryReplAlert";
+
+
+            public const string CategoryReplQReader = "CategoryReplQReader";
+
+
+            public const string CategoryReplication = "CategoryReplication";
+
+
+            public const string CategoryUncategorized = "CategoryUncategorized";
+
+
+            public const string CategoryLogShipping = "CategoryLogShipping";
+
+
+            public const string CategoryDBEngineTuningAdvisor = "CategoryDBEngineTuningAdvisor";
+
+
+            public const string CategoryDataCollector = "CategoryDataCollector";
 
 
             private Keys()

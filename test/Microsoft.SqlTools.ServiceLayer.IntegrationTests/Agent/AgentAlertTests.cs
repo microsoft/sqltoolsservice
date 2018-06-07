@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify default agent/alerts handlers
         /// </summary>
-        [Fact]
+        //[Fact]
         public async Task TestHandleAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

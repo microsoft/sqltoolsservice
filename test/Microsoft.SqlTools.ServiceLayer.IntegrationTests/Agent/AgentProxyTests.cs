@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "update agent alert" request handler with valid parameters
         /// </summary>
-        [Fact]
+        //[Fact]
         public async Task TestHandleUpdateAgentProxyRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

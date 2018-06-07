@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// Custom attribute that can be applied on particular DB commander to
