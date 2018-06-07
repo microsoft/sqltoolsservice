@@ -107,9 +107,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
+            //do I need to make a new request handler for pausing?
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
+            this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -159,6 +161,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.XEventSession.Stop();
 
                 await requestContext.SendResult(new StopProfilingResult
+                {
+                    Succeeded = true
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handle request to pause a profiling session
+        /// </summary>
+        internal async Task HandlePauseProfilingRequest(PauseProfilingParams parameters, RequestContext<PauseProfilingResult> requestContext)
+        {
+            try
+            {
+                //ProfilerSession session;
+                //this is where I'm going to put my pause code
+                Console.WriteLine("Got Paused");
+                //monitor.StopMonitoringSession(parameters.OwnerUri, out session);
+                //session.XEventSession.Stop();
+
+                await requestContext.SendResult(new PauseProfilingResult
                 {
                     Succeeded = true
                 });
