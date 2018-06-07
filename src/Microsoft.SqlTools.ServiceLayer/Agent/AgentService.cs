@@ -27,13 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     public class AgentService
     {
-        internal enum AgentConfigAction
-        {
-            Create,
-            Update,
-            Drop
-        }
-
         private Dictionary<Guid, JobProperties> jobs = null;
         private ConnectionService connectionService = null;
         private static readonly Lazy<AgentService> instance = new Lazy<AgentService>(() => new AgentService());
@@ -284,10 +277,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
         {
-            Tuple<bool, string> result = await ConfigureAgentJob(
+            var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
                 parameters.Job,
-                AgentConfigAction.Create);
+                ConfigAction.Create,
+                ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
             await requestContext.SendResult(new CreateAgentJobResult()
             {
@@ -298,8 +292,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleUpdateAgentJobRequest(UpdateAgentJobParams parameters, RequestContext<UpdateAgentJobResult> requestContext)
         {
-            UpdateAgentJobResult result = new UpdateAgentJobResult();
-            await requestContext.SendResult(result);
+            var result = await ConfigureAgentJob(
+                parameters.OwnerUri,
+                parameters.Job,
+                ConfigAction.Update,
+                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+
+            await requestContext.SendResult(new UpdateAgentJobResult()
+            {
+                Succeeded = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<DeleteAgentJobResult> requestContext)
+        {
+             var result = await ConfigureAgentJob(
+                parameters.OwnerUri,
+                parameters.Job,
+                ConfigAction.Drop,
+                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+
+            await requestContext.SendResult(new DeleteAgentJobResult()
+            {
+                Succeeded = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         internal async Task HandleCreateAgentJobStepRequest(CreateAgentJobStepParams parameters, RequestContext<CreateAgentJobStepResult> requestContext)
@@ -307,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
                 parameters.Step,
-                AgentConfigAction.Create);
+                ConfigAction.Create);
 
             await requestContext.SendResult(new CreateAgentJobStepResult()
             {
@@ -322,12 +340,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await requestContext.SendResult(result);
         }
 
-        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<DeleteAgentJobResult> requestContext)
-        {
-            DeleteAgentJobResult result = new DeleteAgentJobResult();
-            await requestContext.SendResult(result);
-        }
-
         internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<DeleteAgentJobStepResult> requestContext)
         {
             DeleteAgentJobStepResult result = new DeleteAgentJobStepResult();
@@ -337,7 +349,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
             string ownerUri,
             AgentJobInfo jobInfo,
-            AgentConfigAction configAction)
+            ConfigAction configAction,
+            RunType runType)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
@@ -354,17 +367,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     param.SetParam("jobid", jobInfo.JobId);
 
                     var jobData = new JobData(dataContainer, jobInfo);
-                    using (JobActions jobActions = new JobActions(dataContainer, jobData))
+                    using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
                     {
                         var executionHandler = new ExecutonHandler(jobActions);
-                        executionHandler.RunNow(RunType.ScriptToWindow, this);
+                        executionHandler.RunNow(runType, this);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
                 }
                 catch (Exception ex)
                 {
-                    // log exception here
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
@@ -373,7 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
             string ownerUri,
             AgentJobStepInfo stepInfo,
-            AgentConfigAction configAction)
+            ConfigAction configAction)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
@@ -589,7 +601,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 parameters.OwnerUri,
                 parameters.Proxy.AccountName,
                 parameters.Proxy,
-                AgentConfigAction.Create);
+                ConfigAction.Create);
 
             await requestContext.SendResult(new CreateAgentProxyResult()
             {
@@ -603,7 +615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 parameters.OwnerUri,
                 parameters.OriginalProxyName,
                 parameters.Proxy,
-                AgentConfigAction.Update);
+                ConfigAction.Update);
 
             await requestContext.SendResult(new UpdateAgentProxyResult()
             {
@@ -617,7 +629,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 parameters.OwnerUri,
                 parameters.Proxy.AccountName,
                 parameters.Proxy,
-                AgentConfigAction.Drop);
+                ConfigAction.Drop);
 
             await requestContext.SendResult(new DeleteAgentProxyResult()
             {
@@ -629,7 +641,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string ownerUri,
             string accountName,
             AgentProxyInfo proxy,
-            AgentConfigAction configAction)
+            ConfigAction configAction)
         {
             return await Task<bool>.Run(() =>
             {
@@ -646,15 +658,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     using (AgentProxyAccount agentProxy = new AgentProxyAccount(dataContainer, proxy))
                     {
-                        if (configAction == AgentConfigAction.Create)
+                        if (configAction == ConfigAction.Create)
                         {
                             return agentProxy.Create();
                         }
-                        else if (configAction == AgentConfigAction.Update)
+                        else if (configAction == ConfigAction.Update)
                         {
                             return agentProxy.Update();
                         }
-                        else if (configAction == AgentConfigAction.Drop)
+                        else if (configAction == ConfigAction.Drop)
                         {
                             return agentProxy.Drop();
                         }

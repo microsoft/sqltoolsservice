@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Job params
     /// </summary>
-    public class CreateAgentJobParams : GeneralRequestDetails
+    public class CreateAgentJobParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
 
@@ -79,42 +80,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent delete Alert params
-    /// </summary>
-    public class DeleteAgentJobParams : GeneralRequestDetails
-    {
-        public string OwnerUri { get; set; }
-
-        public AgentJobInfo Job { get; set; }
-    }
-
-    /// <summary>
-    /// SQL Agent delete Job result
-    /// </summary>
-    public class DeleteAgentJobResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
-    /// SQL Agent delete Job request type
-    /// </summary>
-    public class DeleteAgentJobRequest
-    {
-        /// <summary>
-        /// Request definition
-        /// </summary>
-        public static readonly
-            RequestType<DeleteAgentJobParams, DeleteAgentJobResult> Type =
-            RequestType<DeleteAgentJobParams, DeleteAgentJobResult>.Create("agent/deletejob");
-    }
-
-    /// <summary>
     /// SQL Agent update Job params
     /// </summary>
-    public class UpdateAgentJobParams : GeneralRequestDetails
+    public class UpdateAgentJobParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
 
@@ -142,6 +110,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public static readonly
             RequestType<UpdateAgentJobParams, UpdateAgentJobResult> Type =
             RequestType<UpdateAgentJobParams, UpdateAgentJobResult>.Create("agent/updatejob");
+    }    
+
+    /// <summary>
+    /// SQL Agent delete Alert params
+    /// </summary>
+    public class DeleteAgentJobParams : TaskRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public AgentJobInfo Job { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent delete Job result
+    /// </summary>
+    public class DeleteAgentJobResult
+    {
+        public bool Succeeded { get; set; }
+
+        public string ErrorMessage { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent delete Job request type
+    /// </summary>
+    public class DeleteAgentJobRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DeleteAgentJobParams, DeleteAgentJobResult> Type =
+            RequestType<DeleteAgentJobParams, DeleteAgentJobResult>.Create("agent/deletejob");
     }
 
     /// <summary>

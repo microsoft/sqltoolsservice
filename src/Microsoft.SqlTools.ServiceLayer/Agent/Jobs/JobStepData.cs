@@ -962,7 +962,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (!scripting && jobStep != null && jobStep.State != SMO.SqlSmoState.Existing)
                 {

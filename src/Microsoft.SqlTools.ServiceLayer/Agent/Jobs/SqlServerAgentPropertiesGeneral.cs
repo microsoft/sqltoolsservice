@@ -96,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string machineName = CUtils.GetMachineName(SqlServerName);
 
             bool IsDefaultInstance = true;            
-            bool agentStopped = false;
 
             /// Determine if we work with the default instance
             if (0 != InstanceName.Length)

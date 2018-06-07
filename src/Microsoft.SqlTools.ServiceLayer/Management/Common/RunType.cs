@@ -18,5 +18,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         ScriptToWindow,
         ScriptToClipboard,
         ScriptToJob
-    }   
+    }
 }

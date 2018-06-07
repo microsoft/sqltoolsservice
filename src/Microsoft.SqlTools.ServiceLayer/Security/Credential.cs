@@ -61,7 +61,7 @@ namespace  Microsoft.SqlTools.ServiceLayer.Security
         /// called on background thread by the framework to execute the action
         /// </summary>
         /// <param name="node"></param>
-        public void OnRunNow(object sender)
+        public override void OnRunNow(object sender)
         {
             this.credentialData.SendDataToServer();
 

@@ -4,32 +4,25 @@
 //
 
 using System;
-using System.Collections;
-using System.Globalization;
-using System.Xml;
-using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     /// <summary>
-    /// Summary description for JobPropertiesGeneral.
+    /// JobActions provides basic SQL Server Agent Job configuration actions
     /// </summary>
     internal class JobActions : ManagementActionBase
     {
         private JobData data;
-        private IManagedConnection managedConnection = null;
+        private ConfigAction configAction;
 
-        public JobActions(CDataContainer dataContainer, JobData data)
+        public JobActions(CDataContainer dataContainer, JobData data, ConfigAction configAction)
         {          
             this.DataContainer = dataContainer;
             this.data = data;
+            this.configAction = configAction;
         }
 
         /// <summary>
@@ -42,21 +35,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             base.Dispose(disposing);
 
-            // Dispose of the data member (a reference to JobProperties data).
-            if (this.data != null)
-            {
-                //release the object
-                this.data = null;
-            }
+            //release the data object
+            this.data = null;
         }
 
         /// <summary>
-        /// called by ManagementActionBase.PreProcessExecution to enable derived
-        /// classes to take over execution and do entire execution in this method
-        /// rather than having the framework to execute
+        /// called by ManagementActionBase.PreProcessExecution
         /// </summary>
-        /// <param name="runType"></param>
-        /// <param name="executionResult"></param>
         /// <returns>
         /// true if regular execution should take place, false if everything,
         /// has been done by this function
@@ -71,31 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             return false;
-        }
-
-        // Create the XML document that will be used to pass to the LogViewerForm dialog.
-        private XmlDocument CreateLogViewerXmlDocument()
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml("<params><sourcetype>jobhistory</sourcetype><nt>false</nt></params>");
-
-            string jobName = this.data.Job.Name;
-
-            XmlElement jobElement = doc.CreateElement("job");
-            jobElement.InnerText = jobName;
-            doc.DocumentElement.AppendChild(jobElement);
-
-            XmlElement serverNameElement = doc.CreateElement("servername");
-            serverNameElement.InnerText = this.managedConnection.Connection.ServerName;
-            doc.DocumentElement.AppendChild(serverNameElement);
-
-            XmlElement urnElement = doc.CreateElement("urn");
-            urnElement.InnerText = "Server[@Name='" + this.managedConnection.Connection.ServerName;
-
-            urnElement.InnerText += "']/JobServer/Job[@Name='" + Urn.EscapeString(jobName) + "' and @CategoryID='" + this.data.Job.CategoryID + "']";
-            doc.DocumentElement.AppendChild(urnElement);
-
-            return doc;
-        }
+        }       
     }
 }
