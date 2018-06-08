@@ -10,9 +10,22 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
+    /// <summary>
+    ///  This class performs an important function.
+    /// </summary>
     public class XEventSession : IXEventSession
     {
         public Session Session { get; set; }
+
+        public int ID
+        {
+            get { return Session.ID; }
+        }
+
+        public void Start()
+        {
+            this.Session.Start();
+        }
 
         public void Stop()
         {
