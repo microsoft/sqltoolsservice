@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         };
 
         // XEvent Session ID's matched to the Profiler ID's watching them
-        private Dictionary<int, List<Viewer>> sessionViewers = new Dictionary<int, List<Viewer>>();
+        private Dictionary<int, List<string>> sessionViewers = new Dictionary<int, List<string>>();
 
         // XEvent Session ID's matched to their Profiler Sessions
         private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
@@ -91,16 +91,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     this.monitoredSessions.Add(session.ID, profilerSession);
                 }
 
-                // add viewer to profiler session
-                var viewer = new Viewer(viewerID, true, session.ID);
-                List<Viewer> viewers;
-                if(this.sessionViewers.TryGetValue(session.ID, out viewers))
+                // create a new viewer, or configure existing viewer
+                Viewer viewer;
+                if(!this.allViewers.TryGetValue(viewerID, out viewer))
                 {
-                    viewers.Add(viewer);
+                    viewer = new Viewer(viewerID, true, session.ID);
+                    allViewers.Add(viewerID, viewer);
                 }
                 else
                 {
-                    viewers = new List<Viewer>{ viewer };
+                    viewer.active = true;
+                    viewer.xeSessionID = session.ID;
+                }
+
+                // add viewer to XEvent session viewers
+                List<string> viewers;
+                if(this.sessionViewers.TryGetValue(session.ID, out viewers))
+                {
+                    viewers.Add(viewerID);
+                }
+                else
+                {
+                    viewers = new List<string>{ viewerID };
                     sessionViewers.Add(session.ID, viewers);
                 }
             }
@@ -132,40 +144,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void PauseViewer(string viewerID)
         {
             //This is called both to pause & unpause viewers
+            lock (this.sessionsLock)
+            {
+                //update the status in all viewers
+                Viewer v = this.allViewers[viewerID];
+                this.allViewers[viewerID] = new Viewer(viewerID, !v.active, v.xeSessionID);
 
-            //update the status in all viewers
-            Viewer viewer = this.allViewers[viewerID];
-            viewer.active = !viewer.active;
-            //update the viewer in the session viewer's list
-            viewer = this.sessionViewers[viewer.xeSessionID].Find(v => v.ID == viewerID);
-            viewer.active = !viewer.active;
+                //update the viewer in the session viewer's list
+                //viewer = this.sessionViewers[viewer.xeSessionID].Find(v => v.ID == viewerID);
+                //viewer.active = !viewer.active;
+            }
         }
 
         private bool RemoveSession(int sessionID, out ProfilerSession session)
         {
-            if(this.monitoredSessions.Remove(sessionID, out session))
+            lock (this.sessionsLock)
             {
-                //remove all viewers for this session
-                List<Viewer> viewers;
-                if(sessionViewers.Remove(sessionID, out viewers))
+                if(this.monitoredSessions.Remove(sessionID, out session))
                 {
-                    foreach(Viewer v in viewers)
+                    //remove all viewers for this session
+                    List<string> viewerIDs;
+                    if(sessionViewers.Remove(sessionID, out viewerIDs))
                     {
-                        //TODO: Notify users that the session has stopped
-                        this.allViewers.Remove(v.ID);
+                        foreach(String vID in viewerIDs)
+                        {
+                            //TODO: Notify users that the session has stopped
+                            this.allViewers.Remove(vID);
+                        }
+                        return true;
                     }
-                    return true;
+                    else
+                    {
+                        session = null;
+                        return false;
+                    }
                 }
                 else
                 {
                     session = null;
                     return false;
                 }
-            }
-            else
-            {
-                session = null;
-                return false;
             }
         }
 
@@ -181,8 +199,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     foreach (var session in this.monitoredSessions.Values)
                     {
-                        List<Viewer> viewers = this.sessionViewers[session.XEventSession.ID];
-                        if(viewers.Any(v => v.active))
+                        List<string> viewers = this.sessionViewers[session.XEventSession.ID];
+                        if(viewers.Any(v => allViewers[v].active))
                         {
                             ProcessSession(session);
                         }
@@ -206,10 +224,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     if (events.Count > 0)
                     {
                         // notify all viewers for the polled session
-                        List<Viewer> viewers = this.sessionViewers[session.XEventSession.ID];
-                        foreach(Viewer v in viewers)
+                        List<string> viewerIDs = this.sessionViewers[session.XEventSession.ID];
+                        foreach(string vID in viewerIDs)
                         {
-                            SendEventsToListeners(v.ID, events);
+                            if(allViewers[vID].active)
+                            {
+                                SendEventsToListeners(vID, events);
+                            }
                         }
                     }
                 });
