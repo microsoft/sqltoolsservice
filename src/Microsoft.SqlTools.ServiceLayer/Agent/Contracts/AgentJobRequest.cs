@@ -23,13 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Job activity result
     /// </summary>
-    public class AgentJobsResult
+    public class AgentJobsResult : ResultStatus
     {
-
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-
         public AgentJobInfo[] Jobs { get; set; }
     }
 
@@ -59,11 +54,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Job result
     /// </summary>
-    public class CreateAgentJobResult
+    public class CreateAgentJobResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
+        public AgentJobInfo Job { get; set; }
     }
 
     /// <summary>
@@ -86,17 +79,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string OwnerUri { get; set; }
 
+        public string OriginalJobName { get; set; }
+
         public AgentJobInfo Job { get; set; }
     }
 
     /// <summary>
     /// SQL Agent update Job result
     /// </summary>
-    public class UpdateAgentJobResult
+    public class UpdateAgentJobResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
     }
 
     /// <summary>
@@ -123,16 +115,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent delete Job result
-    /// </summary>
-    public class DeleteAgentJobResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
     /// SQL Agent delete Job request type
     /// </summary>
     public class DeleteAgentJobRequest
@@ -141,8 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DeleteAgentJobParams, DeleteAgentJobResult> Type =
-            RequestType<DeleteAgentJobParams, DeleteAgentJobResult>.Create("agent/deletejob");
+            RequestType<DeleteAgentJobParams, ResultStatus> Type =
+            RequestType<DeleteAgentJobParams, ResultStatus>.Create("agent/deletejob");
     }
 
     /// <summary>
@@ -158,13 +140,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Job history result
     /// </summary>
-    public class AgentJobHistoryResult
+    public class AgentJobHistoryResult : ResultStatus
     {
-
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-
         public AgentJobHistoryInfo[] Jobs { get; set; }
     }
 
@@ -194,16 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Job activity result
-    /// </summary>
-    public class AgentJobActionResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
     /// SQL Agent Jobs request type
     /// </summary>
     public class AgentJobActionRequest
@@ -212,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<AgentJobActionParams, AgentJobActionResult> Type =
-            RequestType<AgentJobActionParams, AgentJobActionResult>.Create("agent/jobaction");
+            RequestType<AgentJobActionParams, ResultStatus> Type =
+            RequestType<AgentJobActionParams, ResultStatus>.Create("agent/jobaction");
     }
 }

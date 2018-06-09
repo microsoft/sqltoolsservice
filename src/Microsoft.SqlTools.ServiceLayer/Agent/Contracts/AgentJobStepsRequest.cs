@@ -20,13 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Job Steps result
     /// </summary>
-    public class AgentJobStepsResult
+    public class AgentJobStepsResult : ResultStatus
     {
-
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-
         public AgentJobStepInfo[] Steps { get; set; }
     }
 
@@ -50,17 +45,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string OwnerUri { get; set; }
 
+        public string OriginalJobStepName { get; set; }
+
         public AgentJobStepInfo Step { get; set; }
     }
 
     /// <summary>
     /// SQL Agent create Step result
     /// </summary>
-    public class CreateAgentJobStepResult
+    public class CreateAgentJobStepResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
+        public AgentJobStepInfo Step { get; set; }
     }
 
     /// <summary>
@@ -87,16 +82,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent delete Step result
-    /// </summary>
-    public class DeleteAgentJobStepResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
     /// SQL Agent delete Step request type
     /// </summary>
     public class DeleteAgentJobStepRequest
@@ -105,8 +90,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DeleteAgentJobStepParams, DeleteAgentJobStepResult> Type =
-            RequestType<DeleteAgentJobStepParams, DeleteAgentJobStepResult>.Create("agent/deletejobstep");
+            RequestType<DeleteAgentJobStepParams, ResultStatus> Type =
+            RequestType<DeleteAgentJobStepParams, ResultStatus>.Create("agent/deletejobstep");
     }
 
     /// <summary>
@@ -122,11 +107,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent update Step result
     /// </summary>
-    public class UpdateAgentJobStepResult
+    public class UpdateAgentJobStepResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
+        public AgentJobStepInfo Step { get; set; }
     }
 
     /// <summary>

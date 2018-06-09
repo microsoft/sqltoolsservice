@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentProxiesResult
     {
-        public bool Succeeded { get; set; }
+        public bool Success { get; set; }
 
         public string ErrorMessage { get; set; }
 
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class CreateAgentProxyResult
     {
-        public bool Succeeded { get; set; }
+        public bool Success { get; set; }
 
         public string ErrorMessage { get; set; }
     }
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class DeleteAgentProxyResult
     {
-        public bool Succeeded { get; set; }
+        public bool Success { get; set; }
 
         public string ErrorMessage { get; set; }
     }
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class UpdateAgentProxyResult
     {
-        public bool Succeeded { get; set; }
+        public bool Success { get; set; }
 
         public string ErrorMessage { get; set; }
     }
