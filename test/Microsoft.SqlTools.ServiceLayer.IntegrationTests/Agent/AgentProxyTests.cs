@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using Xunit;
 
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             {
                 var createContext = new Mock<RequestContext<CreateAgentProxyResult>>();
                 var updateContext = new Mock<RequestContext<UpdateAgentProxyResult>>();
-                var deleteContext = new Mock<RequestContext<DeleteAgentProxyResult>>();
+                var deleteContext = new Mock<RequestContext<ResultStatus>>();
 
                 var service = new AgentService();
                 var proxy = new AgentProxyInfo()

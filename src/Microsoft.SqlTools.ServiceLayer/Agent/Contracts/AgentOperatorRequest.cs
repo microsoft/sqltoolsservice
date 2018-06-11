@@ -20,12 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Operators request result
     /// </summary>
-    public class AgentOperatorsResult
+    public class AgentOperatorsResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-
         public AgentOperatorInfo[] Operators { get; set; }
     }
 
@@ -55,11 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Operator result
     /// </summary>
-    public class CreateAgentOperatorResult
+    public class CreateAgentOperatorResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
     }
 
     /// <summary>
@@ -88,11 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent delete Operator result
     /// </summary>
-    public class DeleteAgentOperatorResult
+    public class DeleteAgentOperatorResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
     }
 
     /// <summary>
@@ -121,11 +111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent update Operator result
     /// </summary>
-    public class UpdateAgentOperatorResult
+    public class UpdateAgentOperatorResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
     }
 
     /// <summary>

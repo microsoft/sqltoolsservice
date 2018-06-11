@@ -45,11 +45,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public DateTime LastResponseDate { get; set; }
         public int MessageId { get; set; }
         public string NotificationMessage { get; set; }
-        public int OccurrenceCount { get; }
+        public int OccurrenceCount { get; set; }
         public string PerformanceCondition { get; set; }        
         public int Severity { get; set; }
         public string DatabaseName { get; set; }
-        public DateTime CountResetDate { get; }
+        public DateTime CountResetDate { get; set; }
         public string CategoryName { get; set; }
         public AlertType AlertType { get; set; }
         public string WmiEventNamespace { get; set; }

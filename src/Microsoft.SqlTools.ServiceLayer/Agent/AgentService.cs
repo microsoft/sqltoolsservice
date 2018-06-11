@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
@@ -149,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 agentJobs.Add(JobUtilities.ConvertToAgentJobInfo(job));
                             }
                         }
-                        result.Succeeded = true;
+                        result.Success = true;
                         result.Jobs = agentJobs.ToArray();
                         sqlConnection.Close();
                     }
@@ -198,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();
-                        result.Succeeded = true;
+                        result.Success = true;
                         connection.Disconnect();
                         await requestContext.SendResult(result);
                     }
@@ -213,11 +214,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to Run a Job
         /// </summary>
-        internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<AgentJobActionResult> requestContext)
+        internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {
-                var result = new AgentJobActionResult();
+                var result = new ResultStatus();
                 try
                 {
                     ConnectionInfo connInfo;
@@ -250,13 +251,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             default:
                                 break;
                         }
-                        result.Succeeded = true;
+                        result.Success = true;
                         await requestContext.SendResult(result);
                     }
                 }
                 catch (Exception e)
                 {
-                    result.Succeeded = false;
+                    result.Success = false;
                     result.ErrorMessage = e.Message;
                     await requestContext.SendResult(result);
                 }
@@ -285,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             await requestContext.SendResult(new CreateAgentJobResult()
             {
-                Succeeded = result.Item1,
+                Success = result.Item1,
                 ErrorMessage = result.Item2
             });
         }
@@ -300,12 +301,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             await requestContext.SendResult(new UpdateAgentJobResult()
             {
-                Succeeded = result.Item1,
+                Success = result.Item1,
                 ErrorMessage = result.Item2
             });
         }
 
-        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<DeleteAgentJobResult> requestContext)
+        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<ResultStatus> requestContext)
         {
              var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
@@ -313,9 +314,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConfigAction.Drop,
                 ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
-            await requestContext.SendResult(new DeleteAgentJobResult()
+            await requestContext.SendResult(new ResultStatus()
             {
-                Succeeded = result.Item1,
+                Success = result.Item1,
                 ErrorMessage = result.Item2
             });
         }
@@ -329,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             await requestContext.SendResult(new CreateAgentJobStepResult()
             {
-                Succeeded = result.Item1,
+                Success = result.Item1,
                 ErrorMessage = result.Item2
             });
         }
@@ -340,9 +341,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await requestContext.SendResult(result);
         }
 
-        internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<DeleteAgentJobStepResult> requestContext)
+        internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            DeleteAgentJobStepResult result = new DeleteAgentJobStepResult();
+            ResultStatus result = new ResultStatus();
             await requestContext.SendResult(result);
         }
 
@@ -515,27 +516,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to delete an alert
         /// </summary>
-        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<DeleteAgentAlertResult> requestContext)
+        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {
-                var result = new DeleteAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                AgentAlertInfo alert = parameters.Alert;
-                if (connInfo != null && ValidateAgentAlertInfo(alert))
+                var result = new ResultStatus();
+                try
                 {
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("alert", alert.JobName);
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
 
-                    using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
+                    AgentAlertInfo alert = parameters.Alert;
+                    if (connInfo != null && ValidateAgentAlertInfo(alert))
                     {
-                        agentAlert.Drop();
+                        CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                        STParameters param = new STParameters(dataContainer.Document);
+                        param.SetParam("alert", alert.JobName);
+
+                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
+                        {
+                            agentAlert.Drop();
+                            result.Success = true;
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
                 }
 
                 await requestContext.SendResult(result);
@@ -605,7 +615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             await requestContext.SendResult(new CreateAgentProxyResult()
             {
-                Succeeded = succeeded
+                Success = succeeded
             });
         }
 
@@ -619,11 +629,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             await requestContext.SendResult(new UpdateAgentProxyResult()
             {
-                Succeeded = succeeded
+                Success = succeeded
             });
         }
 
-        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<DeleteAgentProxyResult> requestContext)
+        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
         {
             bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
@@ -631,9 +641,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 parameters.Proxy,
                 ConfigAction.Drop);
 
-            await requestContext.SendResult(new DeleteAgentProxyResult()
+            await requestContext.SendResult(new ResultStatus()
             {
-                Succeeded = succeeded
+                Success = succeeded
             });
         }
 
