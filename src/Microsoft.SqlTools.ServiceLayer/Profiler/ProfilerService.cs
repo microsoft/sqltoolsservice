@@ -132,7 +132,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (connInfo != null)
                 {
                     int xEventSessionID = StartSession(parameters.OwnerUri, parameters.TemplateName, connInfo);
-                    //this could cause errors
                     result.SessionId = xEventSessionID.ToString();
                     result.Succeeded = true;
                 }

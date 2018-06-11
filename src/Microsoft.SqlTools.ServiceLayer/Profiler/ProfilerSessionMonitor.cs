@@ -141,18 +141,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// Toggle the pause state for the viewer
+        /// </summary>
         public void PauseViewer(string viewerID)
         {
-            //This is called both to pause & unpause viewers
+
             lock (this.sessionsLock)
             {
                 //update the status in all viewers
                 Viewer v = this.allViewers[viewerID];
                 this.allViewers[viewerID] = new Viewer(viewerID, !v.active, v.xeSessionID);
-
-                //update the viewer in the session viewer's list
-                //viewer = this.sessionViewers[viewer.xeSessionID].Find(v => v.ID == viewerID);
-                //viewer.active = !viewer.active;
             }
         }
 
