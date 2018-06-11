@@ -516,27 +516,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Handle request to delete an alert
         /// </summary>
-        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<DeleteAgentAlertResult> requestContext)
+        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {
-                var result = new DeleteAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                AgentAlertInfo alert = parameters.Alert;
-                if (connInfo != null && ValidateAgentAlertInfo(alert))
+                var result = new ResultStatus();
+                try
                 {
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("alert", alert.JobName);
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
 
-                    using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
+                    AgentAlertInfo alert = parameters.Alert;
+                    if (connInfo != null && ValidateAgentAlertInfo(alert))
                     {
-                        agentAlert.Drop();
+                        CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                        STParameters param = new STParameters(dataContainer.Document);
+                        param.SetParam("alert", alert.JobName);
+
+                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
+                        {
+                            agentAlert.Drop();
+                            result.Success = true;
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
                 }
 
                 await requestContext.SendResult(result);
@@ -624,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<DeleteAgentProxyResult> requestContext)
+        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
         {
             bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
@@ -632,7 +641,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 parameters.Proxy,
                 ConfigAction.Drop);
 
-            await requestContext.SendResult(new DeleteAgentProxyResult()
+            await requestContext.SendResult(new ResultStatus()
             {
                 Success = succeeded
             });
