@@ -49,13 +49,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
         {
             base.DoPreProcessExecution(runType, out executionResult);
-            this.data.ApplyChanges(creating: true);
+            this.data.ApplyChanges(creating: this.configAction == ConfigAction.Create);
             if (!IsScripting(runType)) 
             {
                 this.DataContainer.SqlDialogSubject	= this.data.Job;
             }
 
             return false;
-        }       
+        }
     }
 }

@@ -6,9 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
@@ -362,10 +364,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                        connInfo, 
+                        databaseExists: true);
+
+                    XmlDocument jobDoc = CreateJobXmlDocument(
+                        dataContainer.Server.Name.ToUpper(),
+                        jobInfo.Name);
+
+                    dataContainer.Init(jobDoc.InnerXml);
+
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", jobInfo.JobId);
+                    param.SetParam("jobid", string.Empty);
 
                     var jobData = new JobData(dataContainer, jobInfo);
                     using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
@@ -381,6 +392,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
+        }
+
+        public XmlDocument CreateJobXmlDocument(string svrName, string jobName)
+        {
+            // XML element strings
+            const string XmlFormDescElementName = "formdescription";
+            const string XmlParamsElementName = "params";
+            const string XmlJobElementName = "job";
+            const string XmlUrnElementName = "urn";
+            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
+
+            // Write out XML.
+            StringWriter textWriter = new StringWriter();
+            XmlTextWriter xmlWriter = new XmlTextWriter(textWriter);
+
+            xmlWriter.WriteStartElement(XmlFormDescElementName);
+            xmlWriter.WriteStartElement(XmlParamsElementName);
+
+            xmlWriter.WriteElementString(XmlJobElementName, jobName);
+            xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
+    
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndElement();
+    
+            xmlWriter.Close();
+
+            // Create an XML document.
+            XmlDocument doc = new XmlDocument();
+            XmlTextReader rdr = new XmlTextReader(new System.IO.StringReader(textWriter.ToString()));
+            rdr.MoveToContent();
+            doc.LoadXml(rdr.ReadOuterXml());
+            return doc;
         }
 
         internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
@@ -402,7 +445,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("job", string.Empty);                    
                     param.SetParam("jobid", stepInfo.JobId);
@@ -446,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 if (connInfo != null)
                 {
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
                 }
 
@@ -502,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             if (connInfo != null && ValidateAgentAlertInfo(alert))
             {
-                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                 STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("alert", alert.JobName);
 
@@ -531,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     AgentAlertInfo alert = parameters.Alert;
                     if (connInfo != null && ValidateAgentAlertInfo(alert))
                     {
-                        CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                        CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                         STParameters param = new STParameters(dataContainer.Document);
                         param.SetParam("alert", alert.JobName);
 
@@ -572,7 +615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     out connInfo);
 
                 AgentOperatorInfo operatorInfo = parameters.Operator;
-                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                 STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("operator", operatorInfo.Name);
 
@@ -662,7 +705,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("proxyaccount", accountName);
 

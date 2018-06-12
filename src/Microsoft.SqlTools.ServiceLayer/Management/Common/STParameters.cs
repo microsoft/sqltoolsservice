@@ -8,7 +8,7 @@ using System.Xml;
 using System.Collections;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// SqlTools Parameters, used to define what goes into starting up a Workbench Form

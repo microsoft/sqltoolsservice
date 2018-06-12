@@ -13,14 +13,15 @@ using System.IO;
 using System.Reflection;
 using System.Security;
 using System.Xml;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Assembly = System.Reflection.Assembly;
-using System.Xml.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// CDataContainer
@@ -178,7 +179,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         throw new InvalidOperationException();
                     }
 
-
                     if (this.sqlCiWithConnection != null)
                     {
                         this.serverConnection = this.sqlCiWithConnection.ServerConnection;
@@ -323,7 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             get
             {
-                string result = String.Empty;
+                string result = string.Empty;
 
                 if (this.IsNewObject)
                 {
@@ -421,8 +421,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 return result;
             }
-
-
         }
 
         /// <summary>
@@ -691,15 +689,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (serverType == ServerType.SQL)
             {
-                    //does some extra initialization
-                    ApplyConnectionInfo(GetTempSqlConnectionInfoWithConnection(serverName, trusted, userName, password, databaseName), true);
+                // does some extra initialization
+                ApplyConnectionInfo(GetTempSqlConnectionInfoWithConnection(serverName, trusted, userName, password, databaseName), true);
 
-                    //NOTE: ServerConnection property will constuct the object if needed
-                    m_server = new Server(ServerConnection);
-            }         
+                // NOTE: ServerConnection property will constuct the object if needed
+                m_server = new Server(ServerConnection);
+            }
             else
             {
-                    throw new ArgumentException("SRError.UnknownServerType(serverType.ToString()), serverType");
+                throw new ArgumentException("SRError.UnknownServerType(serverType.ToString()), serverType");
             }
 
             if (xmlParameters != null)
@@ -774,13 +772,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (site != null)
             {
-                //see if service provider supports INodeInformation interface from the object explorer
+                // see if service provider supports INodeInformation interface from the object explorer
                 try
                 {
-                    //NOTE: we're trying to forcefully set connection information on the data container.
-                    //If this code doesn't execute, then dc.Init call below will result in CDataContainer
-                    //initializing its ConnectionInfo member with a new object contructed off the parameters
-                    //in the XML doc [server name, user name etc]
+                    // NOTE: we're trying to forcefully set connection information on the data container.
+                    // If this code doesn't execute, then dc.Init call below will result in CDataContainer
+                    // initializing its ConnectionInfo member with a new object contructed off the parameters
+                    // in the XML doc [server name, user name etc]
                     IManagedConnection managedConnection = site.GetService(typeof(IManagedConnection)) as IManagedConnection;
                     if (managedConnection != null)
                     {
@@ -810,15 +808,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="doc"></param>
         public virtual void Init(XmlDocument doc)
         {
-            //First, we read the data from XML by calling LoadData
+            // First, we read the data from XML by calling LoadData
             this.Document = doc;
 
             LoadData();
 
-            //Second, create the rignt server and connection objects
+            // Second, create the rignt server and connection objects
             if (this.serverType == ServerType.SQL)
             {
-                //ensure that we have a valid ConnectionInfo
+                // ensure that we have a valid ConnectionInfo
                 if (ConnectionInfo == null)
                 {
                     throw new InvalidOperationException();
@@ -826,7 +824,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 if (m_server == null)
                 {
-                    //NOTE: ServerConnection property will constuct the object if needed
+                    // NOTE: ServerConnection property will constuct the object if needed
                     m_server = new Server(ServerConnection);
                 }
             }           
@@ -852,19 +850,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             param.SetDocument(m_doc);
 
-            // DEVNOTE: chrisze 02/25/03
             // This is an ugly way to distinguish between different server types
             // Maybe we should pass server type as one of the parameters?
-            //
             bStatus = param.GetParam("servername", ref this.serverName);
 
             if (!bStatus || this.serverName.Length == 0)
             {
-               
                 {
-                    bStatus = param.GetParam("database", ref this.sqlceFilename);
-				
-				    if (bStatus && !String.IsNullOrEmpty(this.sqlceFilename))
+                    bStatus = param.GetParam("database", ref this.sqlceFilename);	
+				    if (bStatus && !string.IsNullOrEmpty(this.sqlceFilename))
 				    {
 					    this.serverType = ServerType.SQLCE;
 				    }
@@ -880,15 +874,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
             else
             {
-                //OK, let's see if <servertype> was specified in the parameters. It it was, use
-                //it to double check that it is SQL
+                // OK, let's see if <servertype> was specified in the parameters. It it was, use
+                // it to double check that it is SQL
                 string specifiedServerType = "";
                 bStatus = param.GetParam("servertype", ref specifiedServerType);
                 if (bStatus)
                 {
                     if (specifiedServerType != null && "sql" != specifiedServerType.ToLowerInvariant())
                     {
-                        this.serverType = ServerType.UNKNOWN;//we know only about 3 types, and 2 of them were excluded by if branch above
+                        this.serverType = ServerType.UNKNOWN; // we know only about 3 types, and 2 of them were excluded by if branch above
                     }
                     else
                     {
@@ -902,7 +896,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
 
             // Ensure there is no password in the XML document
-            string temp = String.Empty;
+            string temp = string.Empty;
             if (param.GetParam("password", ref temp))
             {
                 temp = null;               
@@ -955,7 +949,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             object result = GetDocumentPropertyValue(propertyName);
             if (result == null)
             {
-                result = String.Empty;
+                result = string.Empty;
             }
 
             return (string)result;
@@ -993,7 +987,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
         }
 
-
         #endregion
 
         #region Private helpers
@@ -1004,7 +997,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         private void InitializeObjectNameAndSchema()
         {
             string documentUrn = this.GetDocumentPropertyString("urn");
-
             if (documentUrn.Length != 0)
             {
                 Urn urn = new Urn(documentUrn);
@@ -1060,8 +1052,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnSqlConnectionClosed(object sender, EventArgs e)
-        {          
-            //nothing - per MRaheem we'll let user deal with this situation
+        {
         }
 
         /// <summary>
@@ -1075,12 +1066,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             this.connectionInfo = ci;
             this.ownConnection = ownConnection;
 
-            //cache the cast value. It is OK that it is null for non SQL types
+            // cache the cast value. It is OK that it is null for non SQL types
             this.sqlCiWithConnection = ci as SqlConnectionInfoWithConnection;
 
             if (this.sqlCiWithConnection != null)
             {               
-                //we want to be notified if it is closed
+                // we want to be notified if it is closed
                 this.sqlCiWithConnection.ConnectionClosed += new EventHandler(OnSqlConnectionClosed);
             }
         }
@@ -1212,5 +1203,112 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         #endregion
+
+        
+        /// <summary>
+        /// Create a data container object
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
+        internal static CDataContainer CreateDataContainer(
+            ConnectionInfo connInfo,            
+            bool databaseExists = false,
+            XmlDocument containerDoc = null)
+        {
+            if (containerDoc == null)
+            {
+                containerDoc = CreateDataContainerDocument(connInfo, databaseExists);
+            }
+
+            CDataContainer dataContainer;
+
+             // add alternate port to server name property if provided
+            var connectionDetails = connInfo.ConnectionDetails;
+            string serverName = !connectionDetails.Port.HasValue
+                ? connectionDetails.ServerName
+                : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
+
+            // check if the connection is using SQL Auth or Integrated Auth
+            // TODO: ConnectionQueue try to get an existing connection (ConnectionQueue)
+            if (string.Equals(connectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
+            {
+                var passwordSecureString = BuildSecureStringFromPassword(connectionDetails.Password);
+                dataContainer = new CDataContainer(
+                    CDataContainer.ServerType.SQL,
+                    serverName,
+                    false,
+                    connectionDetails.UserName,
+                    passwordSecureString,
+                    connectionDetails.DatabaseName,
+                    containerDoc.InnerXml);
+            }
+            else
+            {
+                dataContainer = new CDataContainer(
+                    CDataContainer.ServerType.SQL,
+                    serverName,
+                    true,
+                    null,
+                    null,
+                    connectionDetails.DatabaseName,
+                    containerDoc.InnerXml);
+            }
+
+            return dataContainer;
+        }
+
+        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) {
+            var passwordSecureString = new System.Security.SecureString();
+            if (password != null) {
+                foreach (char c in password) {
+                    passwordSecureString.AppendChar(c);
+                }
+            }
+            return passwordSecureString;
+        }
+
+        /// <summary>
+        /// Create data container document
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create document for existing database or not</param>
+        /// <returns></returns>
+        private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
+        {
+            string xml = string.Empty;
+
+            if (!databaseExists)
+            {
+                xml =
+                string.Format(@"<?xml version=""1.0""?>
+                <formdescription><params>
+                <servername>{0}</servername>
+                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                <servertype>sql</servertype>
+                <urn>Server[@Name='{0}']</urn>
+                <itemtype>Database</itemtype>                
+                </params></formdescription> ",
+                connInfo.ConnectionDetails.ServerName.ToUpper(),
+                connInfo.ConnectionDetails.UserName);
+            }
+            else
+            {
+                xml =
+                string.Format(@"<?xml version=""1.0""?>
+                <formdescription><params>
+                <servername>{0}</servername>
+                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
+                <servertype>sql</servertype>
+                <urn>Server[@Name='{0}']</urn>
+                <database>{2}</database>                
+                </params></formdescription> ",
+                connInfo.ConnectionDetails.ServerName.ToUpper(),
+                connInfo.ConnectionDetails.UserName,
+                connInfo.ConnectionDetails.DatabaseName);
+            }
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+            return xmlDoc;
+        }
     }
 }

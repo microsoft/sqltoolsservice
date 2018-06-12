@@ -77,8 +77,8 @@ namespace  Microsoft.SqlTools.ServiceLayer.Security
             this.credentialData.CredentialIdentity = "this.textBoxIdentity.Text";
 
 
-            this.credentialData.SecurePassword = AdminService.BuildSecureStringFromPassword("password");
-            this.credentialData.SecurePasswordConfirm = AdminService.BuildSecureStringFromPassword("password");
+            this.credentialData.SecurePassword = CDataContainer.BuildSecureStringFromPassword("password");
+            this.credentialData.SecurePasswordConfirm = CDataContainer.BuildSecureStringFromPassword("password");
 
             if (this.ServerConnection.ServerVersion.Major >= 10)
             {

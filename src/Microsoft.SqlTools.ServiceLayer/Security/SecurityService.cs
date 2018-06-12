@@ -9,6 +9,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
@@ -95,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     parameters.OwnerUri,
                     out connInfo);
 
-                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                 Credential credential = new Credential(dataContainer);
 
                 await requestContext.SendResult(result);

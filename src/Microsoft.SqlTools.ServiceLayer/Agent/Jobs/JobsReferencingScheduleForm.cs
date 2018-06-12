@@ -9,18 +9,14 @@ using System.Collections;
 using System.ComponentModel;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlServer.Management.SqlManagerUI
 {
     /// <summary>
     /// Summary description for JobsRefrencingScheduleForm.
     /// </summary>
-#if DEBUG || EXPOSE_MANAGED_INTERNALS
-    public
-#else
-    internal
-#endif
-    class JobsReferencingScheduleForm
+    public class JobsReferencingScheduleForm
     {
         #region UI Variables
 

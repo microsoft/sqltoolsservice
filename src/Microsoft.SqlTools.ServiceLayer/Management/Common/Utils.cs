@@ -4,20 +4,20 @@
 //
 
 using System;
-using System.Text;
-using System.Xml;
-using System.Threading;
+using System.Collections;
+using System.Data.SqlClient;
+using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using System.Data.SqlClient;
-using System.Collections;
-using System.Reflection;
-using System.Globalization;
 using SMO = Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// Internal reusable helpers

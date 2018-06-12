@@ -17,6 +17,7 @@ using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -117,8 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             /// </remarks>
             public DatabaseData(CDataContainer context)
             {      
-                this.name = String.Empty;
-                this.owner = String.Empty;
+                this.name = string.Empty;
+                this.owner = string.Empty;
                 this.restrictAccess = DatabaseUserAccess.Multiple;
                 this.isReadOnly = false;
                 this.databaseState = DatabaseStatus.Normal;
@@ -175,7 +176,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.twoDigitYearCutoff = context.Server.Configuration.TwoDigitYearCutoff.ConfigValue;
 
                 this.targetRecoveryTime = 0;
-
 
                 ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 

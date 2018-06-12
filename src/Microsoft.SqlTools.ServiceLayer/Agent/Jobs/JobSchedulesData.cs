@@ -15,7 +15,9 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using SMO = Microsoft.SqlServer.Management.Smo;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {

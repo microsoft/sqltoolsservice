@@ -34,6 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private IServiceProvider serviceProvider;
 
         /// <summary>
+        /// execution mode by default for now is success
+        /// </summary>
+        private ExecutionMode m_executionMode = ExecutionMode.Success;
+
+        /// <summary>
         /// data container with initialization-related information
         /// </summary>
         private CDataContainer dataContainer;
@@ -52,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //property by the initialization code
         private ServerConnection  serverConnection;
 
-        private ExecutionHandlerDelegate cachedPanelExecutionHandler;
+        private ExecutionHandlerDelegate cachedExecutionHandlerDelegate;
 
 #endregion
 
@@ -71,8 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         void IDisposable.Dispose()
         {
-            //BUGBUG - do we need finalizer
-            Dispose(true);//call protected virtual method
+            // BUGBUG - do we need finalizer
+            Dispose(true); // call protected virtual method
         }
 
         /// <summary>
@@ -103,27 +108,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 throw new ArgumentNullException("sp");
             }
 
-            //allow to be sited only once
+            // allow to be sited only once
             if (this.serviceProvider == null)
             {                             
-                //cache the service provider
+                // cache the service provider
                 this.serviceProvider = sp;             
 
-                //call protected virtual method to enable derived classes to do initialization
-                //OnHosted();
+                // call protected virtual method to enable derived classes to do initialization
+                // OnHosted();
             }
         }
 
 #endregion
 
-#region IExecutionAwareSqlControlCollection implementation
+#region IExecutionAwareManagementAction implementation
 
         /// <summary>
-        /// called before dialog's host executes actions on all panels in the dialog one by one.
+        /// called before management action executes onRun method.
         /// If something fails inside this function and the execution should be aborted,
-        /// it can either raise an exception [in which case the framework will show message box with exception text] 
+        /// it can either raise an exception [in which case the framework will fail with exception text] 
         /// or set executionResult out parameter to be ExecutionMode.Failure
-        /// NOTE: it might be called from worker thread
         /// </summary>
         /// <param name="executionInfo">information about execution action</param>
         /// <param name="executionResult">result of the execution</param>
@@ -149,10 +153,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 }
             }
 
-            if (DataContainer != null)
+            if (this.DataContainer != null)
             {
                 // we take over execution here. We substitute the server here for SQL containers
-                if (DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
+                if (this.DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
                 {                
                     ExecuteForSql(executionInfo, out executionResult);
                     return false; // execution of the entire action was done here
@@ -199,13 +203,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             get
             {
-                //by default we own it
+                // by default we own it
                 return true;
             }
         }
 
         /// <summary>
-        /// called by IExecutionAwareSqlControlCollection.PreProcessExecution to enable derived
+        /// called by IExecutionAwareManagementAction.PreProcessExecution to enable derived
         /// classes to take over execution of the dialog and do entire execution in this method
         /// rather than having the framework to execute dialog views one by one.
         /// 
@@ -226,42 +230,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         }
 
         /// <summary>
-        /// called after dialog's host executes actions on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
+        /// called after management action executes onRun method.
         /// </summary>
         /// <param name="executionMode">result of the execution</param>
         /// <param name="runType">type of execution</param>
         protected virtual void DoPostProcessExecution(RunType runType, ExecutionMode executionResult)
         {
             //nothing to do in the base class
-        }
-        
-        /// <summary>
-        /// called before dialog's host executes OnReset method on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
-        /// </summary>
-        /// <returns>
-        /// true if regular execution should take place, false if everything
-        /// has been done by this function
-        /// </returns>
-        /// <returns></returns>
-        protected virtual bool DoPreProcessReset()
-        {
-            if ((this.dataContainer != null) && this.dataContainer.IsNewObject)
-            {
-                this.dataContainer.Reset();
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// called after dialog's host executes OnReset method on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
-        /// </summary>
-        protected virtual void DoPostProcessReset()
-        {
-            //nothing in the base class
         }
 
         /// <summary>
@@ -446,18 +421,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private void ExecuteForSql(PreProcessExecutionInfo executionInfo, out ExecutionMode executionResult) 
         {          
             Microsoft.SqlServer.Management.Smo.Server oldServer = null;
-            if (NeedToSwitchServer)
+            if (this.NeedToSwitchServer)
             {
                 // We use a new instance of the SMO Server object every time we script
                 // so that any changes that are made to the SMO server while scripting are
                 // not kept when the script operation is completed.
-                oldServer = DataContainer.Server;
+                oldServer = this.DataContainer.Server;
 
-                //BUGBUG - see if we can use copy ctor instead
-                DataContainer.Server = new Microsoft.SqlServer.Management.Smo.Server(DataContainer.ServerConnection);
+                // BUGBUG - see if we can use copy ctor instead
+                this.DataContainer.Server = new Microsoft.SqlServer.Management.Smo.Server(DataContainer.ServerConnection);
             }
 
-            string szScript = null;
+            string script = null;
             bool isScripting = IsScripting(executionInfo.RunType);
             var executionModeOriginal = GetServerConnectionForScript().SqlExecutionModes;
             // For Azure the ExecutionManager is different depending on which ExecutionManager
@@ -499,7 +474,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 {
                     if (executionResult == ExecutionMode.Success)
                     {
-                        szScript = BuildSqlScript();
+                        script = BuildSqlScript();
                     }
                 }
             }
@@ -524,13 +499,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 //see if we need to restore the server
                 if (oldServer != null)
                 {
-                    DataContainer.Server = oldServer;
+                    this.DataContainer.Server = oldServer;
                 }
             }
 
             if (isScripting)
             {
-                executionInfo.Script = szScript;
+                executionInfo.Script = script;
             }
         }
 
@@ -542,108 +517,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             get
             {
-                if (this.cachedPanelExecutionHandler == null)
+                if (this.cachedExecutionHandlerDelegate == null)
                 {                   
-                    this.cachedPanelExecutionHandler = new ExecutionHandlerDelegate(this);
+                    this.cachedExecutionHandlerDelegate = new ExecutionHandlerDelegate(this);
                 }
-                return this.cachedPanelExecutionHandler;
+                return this.cachedExecutionHandlerDelegate;
             }
         }
 
-// #region ICustomAttributeProvider
-//         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(bool inherit)
-//         {
-//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
-//             //to the derived classes
-//             return GetMergedArray(DoGetCustomAttributes(inherit), GetType().GetCustomAttributes(inherit));
-//         }
-//         object[] System.Reflection.ICustomAttributeProvider.GetCustomAttributes(Type attributeType, bool inherit)
-//         {
-//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
-//             //to the derived classes
-//             return GetMergedArray(DoGetCustomAttributes(attributeType, inherit), 
-//                                   GetType().GetCustomAttributes(attributeType, inherit));
-//         }
-//         bool System.Reflection.ICustomAttributeProvider.IsDefined(Type attributeType, bool inherit)
-//         {
-//             //we merge attributes from 2 sources: type attributes and the derived classes, giving preference
-//             //to the derived classes
-//             if (!DoIsDefined(attributeType, inherit))
-//             {
-//                 return GetType().IsDefined(attributeType, inherit);
-//             }
-//             else
-//             {
-//                 return true;
-//             }
-//         }
-// #endregion
-// #region ICustomAttributeProvider helpers
-//         protected virtual object[] DoGetCustomAttributes(bool inherit)
-//         {
-//             return GetMergedArray(DoGetCustomAttributes(typeof(ScriptTypeAttribute), inherit), 
-//                                   DoGetCustomAttributes(typeof(DialogScriptableAttribute), inherit));
-//         }
-//         protected virtual object[] DoGetCustomAttributes(Type attributeType, bool inherit)
-//         {
-//             //if the type specifies this attribute, we don't bother - it overrides
-//             //our behavior
-//             object[] typeAttribs = GetType().GetCustomAttributes(attributeType, inherit);
-//             if (typeAttribs != null && typeAttribs.Length > 0)
-//             {
-//                 return null;
-//             }
-//             //we expose default custom attribute for script type
-//             if (attributeType.Equals(typeof(ScriptTypeAttribute)))
-//             {
-//                 string scriptType = ScriptType;
-//                 if (scriptType != null)
-//                 {
-//                     return new object[] {new ScriptTypeAttribute(scriptType)};
-//                 }
-//                 else
-//                 {
-//                     return null;
-//                 }
-//             }
-//             else if (attributeType.Equals(typeof(DialogScriptableAttribute)))
-//             {
-//                 bool canScriptToWindow = true;
-//                 bool canScriptToFile = true;
-//                 bool canScriptToClipboard = true;
-//                 bool canScriptToJob = true;
-//                 GetScriptableOptions(out canScriptToWindow, 
-//                                      out canScriptToFile, 
-//                                      out canScriptToClipboard,
-//                                      out canScriptToJob);
-//                 return new object[] {new DialogScriptableAttribute(canScriptToWindow, 
-//                                                                    canScriptToFile, 
-//                                                                    canScriptToClipboard,
-//                                                                    canScriptToJob)};
-//             }
-//             return null;
-//         }
-//         protected virtual bool DoIsDefined(Type attributeType, bool inherit)
-//         {
-//             return false;
-//         }
-//         /// <summary>
-//         /// detects whether script types are applicable for this dlg or not. By default 
-//         /// the framework relies on DialogScriptableAttribute set on the dlg class and won't  
-//         /// call this method if the attribute is specified
-//         /// By default we assume that all script types are enabled
-//         /// </summary>
-//         /// <param name="?"></param>
-//         /// <param name="?"></param>
-//         /// <param name="?"></param>
-//         protected virtual void GetScriptableOptions(out bool canScriptToWindow, 
-//                                                     out bool canScriptToFile, 
-//                                                     out bool canScriptToClipboard,
-//                                                     out bool canScriptToJob)
-//         {
-//             canScriptToWindow = canScriptToFile = canScriptToClipboard = canScriptToJob = true;
-//         }
-// #endregion
         protected IServiceProvider ServiceProvider
         {
             get
@@ -656,35 +537,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 return this.serviceProvider;
             }
         }
-//         /// <summary>
-//         /// returns combination of the given 2 arrays
-//         /// </summary>
-//         /// <param name="array1"></param>
-//         /// <param name="array2"></param>
-//         /// <returns></returns>
-//         protected object[] GetMergedArray(object[] array1, object[] array2)
-//         {
-//             if (array1 == null)
-//             {
-//                 return array2;
-//             }
-//             else if (array2 == null)
-//             {
-//                 return array1;
-//             }
-//             else
-//             {
-//                 object[] finalReturnValue = new object[array1.Length + array2.Length];
-//                 array1.CopyTo(finalReturnValue, 0);
-//                 array2.CopyTo(finalReturnValue, array1.Length);
-//                 return finalReturnValue;
-//             }
-//         }
-
-        /// <summary>
-        /// execution mode by default for now is success
-        /// </summary>
-        private ExecutionMode m_executionMode = ExecutionMode.Success;
 
         /// <summary>
         /// execution mode accessor
@@ -737,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="sender"></param>
         public virtual string OnScript(object sender)
         {
-            //redirect to the single scripting virtual method by default
+            // redirect to the single scripting virtual method by default
             return Script();
         }
 
@@ -757,7 +609,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             // script text
             return null;
         }
-
 
         /// <summary>
         /// performs custom action wen user requests a cancel
@@ -779,6 +630,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 // this.dataContainer.Server.Cancel();
             }          
         }
-
     }
 }
