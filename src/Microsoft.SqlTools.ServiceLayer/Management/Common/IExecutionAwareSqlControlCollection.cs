@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     public class PreProcessExecutionInfo
     {
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 	/// IExecutionAwareSqlControlCollection allows control's container to do pre and post
 	/// processing of the execution commands
 	/// </summary>
-	public interface IExecutionAwareSqlControlCollection : ISqlControlCollection
+	public interface IExecutionAwareManagementAction : ISqlControlCollection, IManagementAction
 	{
         /// <summary>
         /// called before dialog's host executes actions on all panels in the dialog one by one.
@@ -77,27 +77,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         bool Cancel();
 
         /// <summary>
-        /// called after dialog's host executes actions on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
+        /// called after host executes actions
         /// </summary>
         /// <param name="executionMode">result of the execution</param>
         /// <param name="runType">type of execution</param>
         void PostProcessExecution(RunType runType, ExecutionMode executionMode);
-
-        /// <summary>
-        /// called before dialog's host executes OnReset method on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
-        /// </summary>
-        /// <returns>
-        /// true if regular execution should take place, false if everything
-        /// has been done by this function
-        /// </returns>
-        bool PreProcessReset();
-
-        /// <summary>
-        /// called after dialog's host executes OnReset method on all panels in the dialog one by one
-        /// NOTE: it might be called from worker thread
-        /// </summary>
-        void PostProcessReset();
 	}
 }

@@ -17,6 +17,8 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
@@ -26,13 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     public class AgentService
     {
-        internal enum AgentConfigAction
-        {
-            Create,
-            Update,
-            Drop
-        }
-
         private Dictionary<Guid, JobProperties> jobs = null;
         private ConnectionService connectionService = null;
         private static readonly Lazy<AgentService> instance = new Lazy<AgentService>(() => new AgentService());
@@ -88,9 +83,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
+
+            // Jobs request handlers
             this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
             this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
             this.ServiceHost.SetRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest);
+
+            this.ServiceHost.SetRequestHandler(CreateAgentJobRequest.Type, HandleCreateAgentJobRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
+
+            // Job Steps request handlers
+            this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentJobStepRequest.Type, HandleDeleteAgentJobStepRequest);
 
             // Alerts request handlers
             this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest);
@@ -112,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         #region "Jobs Handlers"
-    
+
         /// <summary>
         /// Handle request to get Agent job activities
         /// </summary>
@@ -138,13 +144,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var agentJobs = new List<AgentJobInfo>();
                         if (this.jobs != null)
                         {
-                            
+
                             foreach (var job in this.jobs.Values)
                             {
                                 agentJobs.Add(JobUtilities.ConvertToAgentJobInfo(job));
                             }
                         }
-                        result.Succeeded = true;
+                        result.Success = true;
                         result.Jobs = agentJobs.ToArray();
                         sqlConnection.Close();
                     }
@@ -154,17 +160,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     await requestContext.SendError(e);
                 }
-            });                
+            });
         }
 
         /// <summary>
         /// Handle request to get Agent Job history
         /// </summary>
-        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext) 
+        internal async Task HandleJobHistoryRequest(AgentJobHistoryParams parameters, RequestContext<AgentJobHistoryResult> requestContext)
         {
             await Task.Run(async () =>
             {
-                try 
+                try
                 {
                     var result = new AgentJobHistoryResult();
                     ConnectionInfo connInfo;
@@ -179,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ServerConnection connection = tuple.Item3;
                         int count = dt.Rows.Count;
                         List<AgentJobHistoryInfo> jobHistories = new List<AgentJobHistoryInfo>();
-                        if (count > 0) 
+                        if (count > 0)
                         {
                             var job = dt.Rows[0];
                             string jobName = Convert.ToString(job[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
@@ -193,27 +199,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();
-                        result.Succeeded = true;
+                        result.Success = true;
                         connection.Disconnect();
                         await requestContext.SendResult(result);
                     }
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     await requestContext.SendError(e);
                 }
-            });                
+            });
         }
 
         /// <summary>
         /// Handle request to Run a Job
         /// </summary>
-        internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<AgentJobActionResult> requestContext)
+        internal async Task HandleJobActionRequest(AgentJobActionParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {
-                var result = new AgentJobActionResult();
-                try 
+                var result = new ResultStatus();
+                try
                 {
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
@@ -222,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (connInfo != null)
                     {
                         var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        var serverConnection = new ServerConnection(sqlConnection);     
+                        var serverConnection = new ServerConnection(sqlConnection);
                         var jobHelper = new JobHelper(serverConnection);
                         jobHelper.JobName = parameters.JobName;
                         switch(parameters.Action)
@@ -245,13 +251,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             default:
                                 break;
                         }
-                        result.Succeeded = true;
+                        result.Success = true;
                         await requestContext.SendResult(result);
                     }
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
-                    result.Succeeded = false;
+                    result.Success = false;
                     result.ErrorMessage = e.Message;
                     await requestContext.SendResult(result);
                 }
@@ -261,13 +267,162 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
         {
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            var serverConnection = new ServerConnection(sqlConnection);     
-            var server = new Server(serverConnection);       
-            var filter = new JobHistoryFilter(); 
+            var serverConnection = new ServerConnection(sqlConnection);
+            var server = new Server(serverConnection);
+            var filter = new JobHistoryFilter();
             filter.JobID = new Guid(jobId);
             var dt = server.JobServer.EnumJobHistory(filter);
             var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
+        }
+
+        internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
+        {
+            var result = await ConfigureAgentJob(
+                parameters.OwnerUri,
+                parameters.Job,
+                ConfigAction.Create,
+                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+
+            await requestContext.SendResult(new CreateAgentJobResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        internal async Task HandleUpdateAgentJobRequest(UpdateAgentJobParams parameters, RequestContext<UpdateAgentJobResult> requestContext)
+        {
+            var result = await ConfigureAgentJob(
+                parameters.OwnerUri,
+                parameters.Job,
+                ConfigAction.Update,
+                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+
+            await requestContext.SendResult(new UpdateAgentJobResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+             var result = await ConfigureAgentJob(
+                parameters.OwnerUri,
+                parameters.Job,
+                ConfigAction.Drop,
+                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        internal async Task HandleCreateAgentJobStepRequest(CreateAgentJobStepParams parameters, RequestContext<CreateAgentJobStepResult> requestContext)
+        {
+            Tuple<bool, string> result = await ConfigureAgentJobStep(
+                parameters.OwnerUri,
+                parameters.Step,
+                ConfigAction.Create);
+
+            await requestContext.SendResult(new CreateAgentJobStepResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        internal async Task HandleUpdateAgentJobStepRequest(UpdateAgentJobStepParams parameters, RequestContext<UpdateAgentJobStepResult> requestContext)
+        {
+            UpdateAgentJobStepResult result = new UpdateAgentJobStepResult();
+            await requestContext.SendResult(result);
+        }
+
+        internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            ResultStatus result = new ResultStatus();
+            await requestContext.SendResult(result);
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentJob(
+            string ownerUri,
+            AgentJobInfo jobInfo,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("job", string.Empty);                    
+                    param.SetParam("jobid", jobInfo.JobId);
+
+                    var jobData = new JobData(dataContainer, jobInfo);
+                    using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(jobActions);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
+            string ownerUri,
+            AgentJobStepInfo stepInfo,
+            ConfigAction configAction)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(stepInfo.JobId))
+                    {
+                        return new Tuple<bool, string>(false, "JobId cannot be null");
+                    }
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("job", string.Empty);                    
+                    param.SetParam("jobid", stepInfo.JobId);
+                    param.SetParam("script", stepInfo.Script);
+                    param.SetParam("scriptName", stepInfo.ScriptName);
+
+                    var jobData = new JobData(dataContainer);
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData))
+                    {
+                        jobStep.CreateJobStep();
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    // log exception here
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
         }
 
         #endregion // "Jobs Handlers"
@@ -276,7 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to get the alerts list
-        /// </summary>        
+        /// </summary>
         internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
         {
             await Task.Run(async () =>
@@ -293,8 +448,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
                     AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
-
-
                 }
 
                 await requestContext.SendResult(result);
@@ -309,7 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to create an alert
-        /// </summary>        
+        /// </summary>
         internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
         {
             await Task.Run(async () =>
@@ -328,7 +481,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to update an alert
-        /// </summary>        
+        /// </summary>
         internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
         {
             await Task.Run(async () =>
@@ -353,7 +506,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("alert", alert.JobName);
 
-                using (AgentAlert agentAlert = new AgentAlert(dataContainer, alert))
+                using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
                 {
                     agentAlert.CreateOrUpdate();
                 }
@@ -362,28 +515,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         /// <summary>
         /// Handle request to delete an alert
-        /// </summary>        
-        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<DeleteAgentAlertResult> requestContext)
+        /// </summary>
+        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {
-                var result = new DeleteAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                AgentAlertInfo alert = parameters.Alert;
-                if (connInfo != null && ValidateAgentAlertInfo(alert))
+                var result = new ResultStatus();
+                try
                 {
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("alert", alert.JobName);
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
 
-                    using (AgentAlert agentAlert = new AgentAlert(dataContainer, alert))
+                    AgentAlertInfo alert = parameters.Alert;
+                    if (connInfo != null && ValidateAgentAlertInfo(alert))
                     {
-                        agentAlert.Drop();
+                        CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                        STParameters param = new STParameters(dataContainer.Document);
+                        param.SetParam("alert", alert.JobName);
+
+                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
+                        {
+                            agentAlert.Drop();
+                            result.Success = true;
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
                 }
 
                 await requestContext.SendResult(result);
@@ -447,13 +609,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
              bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.Proxy.AccountName, 
-                parameters.Proxy, 
-                AgentConfigAction.Create);
-            
+                parameters.Proxy.AccountName,
+                parameters.Proxy,
+                ConfigAction.Create);
+
             await requestContext.SendResult(new CreateAgentProxyResult()
             {
-                Succeeded = succeeded
+                Success = succeeded
             });
         }
 
@@ -461,27 +623,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.OriginalProxyName, 
+                parameters.OriginalProxyName,
                 parameters.Proxy,
-                AgentConfigAction.Update);
+                ConfigAction.Update);
 
             await requestContext.SendResult(new UpdateAgentProxyResult()
             {
-                Succeeded = succeeded
+                Success = succeeded
             });
         }
 
-        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<DeleteAgentProxyResult> requestContext)
+        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
         {
             bool succeeded = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.Proxy.AccountName, 
+                parameters.Proxy.AccountName,
                 parameters.Proxy,
-                AgentConfigAction.Drop);
+                ConfigAction.Drop);
 
-            await requestContext.SendResult(new DeleteAgentProxyResult()
+            await requestContext.SendResult(new ResultStatus()
             {
-                Succeeded = succeeded
+                Success = succeeded
             });
         }
 
@@ -489,7 +651,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string ownerUri,
             string accountName,
             AgentProxyInfo proxy,
-            AgentConfigAction configAction)
+            ConfigAction configAction)
         {
             return await Task<bool>.Run(() =>
             {
@@ -506,15 +668,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     using (AgentProxyAccount agentProxy = new AgentProxyAccount(dataContainer, proxy))
                     {
-                        if (configAction == AgentConfigAction.Create)
+                        if (configAction == ConfigAction.Create)
                         {
                             return agentProxy.Create();
                         }
-                        else if (configAction == AgentConfigAction.Update)
+                        else if (configAction == ConfigAction.Update)
                         {
                             return agentProxy.Update();
                         }
-                        else if (configAction == AgentConfigAction.Drop)
+                        else if (configAction == ConfigAction.Drop)
                         {
                             return agentProxy.Drop();
                         }

@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
 #region interfaces
     /// <summary>

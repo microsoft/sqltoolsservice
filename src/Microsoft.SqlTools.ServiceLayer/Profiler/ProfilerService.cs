@@ -107,7 +107,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
-            //do I need to make a new request handler for pausing?
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);

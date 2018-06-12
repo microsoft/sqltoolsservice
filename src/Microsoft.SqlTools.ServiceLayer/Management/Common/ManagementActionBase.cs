@@ -4,35 +4,28 @@
 //
 
 using System;
-using System.Drawing;
 using System.Collections;
-using System.Text;
-using System.ComponentModel;
+using System.Collections.Specialized;
 using System.Data;
-using System.Xml;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Diagnostics;
-using System.Collections.Specialized;
-using Microsoft.SqlServer.Management.Smo;
+using System.Text;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
-    /// base class that can be used to derived from for the main classes [containers] of the dialogs
+    /// base class that can be used to derived from for the main classes
     /// </summary>
-    public class ManagementActionBase : IDisposable
+    public class ManagementActionBase : IDisposable, IExecutionAwareManagementAction
     {
 #region Members
-
-        /// <summary>
-        /// selected node as specified to SelectNode method
-        /// </summary>
-        //private TreeNode    selectedNode;
 
         /// <summary>
         /// service provider of our host. We should direct all host-specific requests to the services
@@ -58,6 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //We'll get this object out of CDataContainer, that must be initialized
         //property by the initialization code
         private ServerConnection  serverConnection;
+
+        private ExecutionHandlerDelegate cachedPanelExecutionHandler;
 
 #endregion
 
@@ -141,10 +136,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </returns>
         public bool PreProcessExecution(PreProcessExecutionInfo executionInfo, out ExecutionMode executionResult)
         {
-            //we start from failure
+            // we start from failure
             executionResult = ExecutionMode.Failure;
 
-            //OK, we do server switching for scripting for SQL/Analysis Server execution here
+            // OK, we do server switching for scripting for SQL Server execution here
             RunType runType = executionInfo.RunType;
             if (IsScripting(runType))
             {
@@ -156,18 +151,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (DataContainer != null)
             {
-                //we take over execution here. We substitute the server here for AMO and SQL
-                //dialogs
+                // we take over execution here. We substitute the server here for SQL containers
                 if (DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
                 {                
                     ExecuteForSql(executionInfo, out executionResult);
-                    return false;//execution of the entire control was done here
+                    return false; // execution of the entire action was done here
                 }
             }
 
-
             // call virtual function to do regular execution
             return DoPreProcessExecution(executionInfo.RunType, out executionResult);
+        }
+
+        /// <summary>
+        /// called after dialog's host executes actions on all panels in the dialog one by one
+        /// NOTE: it might be called from worker thread
+        /// </summary>
+        /// <param name="executionMode">result of the execution</param>
+        /// <param name="runType">type of execution</param>
+        public void PostProcessExecution(RunType runType, ExecutionMode executionResult)
+        {
+            //delegate to the protected virtual method
+            DoPostProcessExecution(runType, executionResult);
+        }
+
+        /// <summary>
+        /// called when the host received Cancel request. NOTE: this method can return while
+        /// operation is still being canceled
+        /// </summary>
+        /// <returns>
+        /// true if the host should do standard cancel for the currently running view or
+        /// false if the Cancel operation was done entirely inside this method and there is nothing
+        /// extra that should be done
+        /// </returns>
+        public bool Cancel()
+        {
+            return true;
         }
 #endregion
 
@@ -184,7 +203,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 return true;
             }
         }
-
 
         /// <summary>
         /// called by IExecutionAwareSqlControlCollection.PreProcessExecution to enable derived
@@ -207,6 +225,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return true; 
         }
 
+        /// <summary>
+        /// called after dialog's host executes actions on all panels in the dialog one by one
+        /// NOTE: it might be called from worker thread
+        /// </summary>
+        /// <param name="executionMode">result of the execution</param>
+        /// <param name="runType">type of execution</param>
+        protected virtual void DoPostProcessExecution(RunType runType, ExecutionMode executionResult)
+        {
+            //nothing to do in the base class
+        }
+        
         /// <summary>
         /// called before dialog's host executes OnReset method on all panels in the dialog one by one
         /// NOTE: it might be called from worker thread
@@ -267,12 +296,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-
-//         /// <summary>
-//         /// SMO Server connection that MUST be used for all enumerator calls
-//         /// We'll get this object out of CDataContainer, that must be initialized
-//         /// property by the initialization code
-//         /// </summary>
+        /// <summary>
+        /// SMO Server connection that MUST be used for all enumerator calls
+        /// We'll get this object out of CDataContainer, that must be initialized
+        /// property by the initialization code
+        /// </summary>
         protected ServerConnection ServerConnection
         {
             get
@@ -315,15 +343,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             ExecutionMode executionResult;
             if (DoPreProcessExecution(runType, out executionResult))
             {
-                //true return value means that we need to do execution ourselves
-                //executionResult = PanelExecutionHandler.Run(runType, this);
+                // true return value means that we need to do execution ourselves
+                executionResult = PanelExecutionHandler.Run(runType, this);
             }
 
             return executionResult;
         }
 
         /// <summary>
-        /// determines whether we need to substitute SMO/AMO server objects with the
+        /// determines whether we need to substitute SMO server objects with the
         /// temporary ones while doing scripting
         /// </summary>
         /// <returns></returns>
@@ -384,25 +412,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
             catch (System.Exception)
             {
-                //We may not have a valid dialog subject here (such as if the object hasn't been created yet)
-                //so in that case we'll just ignore it as that's a normal scenario. 
+                // We may not have a valid dialog subject here (such as if the object hasn't been created yet)
+                // so in that case we'll just ignore it as that's a normal scenario. 
             }
 
             StringCollection sc = GetServerConnectionForScript().CapturedSql.Text;
-            //Scripting may happen on either the server ExecutionManager or the
-            //ExecutionManager of the object itself. So we make sure to check
-            //the subject text if the server ExecutionManager didn't have any
-            //scripts after doing the scripting
+            // Scripting may happen on either the server ExecutionManager or the
+            // ExecutionManager of the object itself. So we make sure to check
+            // the subject text if the server ExecutionManager didn't have any
+            // scripts after doing the scripting
             if (sc.Count == 0 && sqlDialogSubject != null)
             {
                 sc = sqlDialogSubject.ExecutionManager.ConnectionContext.CapturedSql.Text;
             }
-            int                 i;
-            StringBuilder       script  = new StringBuilder(4096);  
 
+            StringBuilder script = new StringBuilder(4096);
             if (sc != null)
             {
-                for (i = 0; i < sc.Count; i ++)
+                for (int i = 0; i < sc.Count; i ++)
                 {
                     script.AppendFormat("{0}\r\nGO\r\n", sc[i].ToString());
                 }
@@ -411,9 +438,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return script.ToString();
         }
 
-
         /// <summary>
-        /// called when we need to script a Sql server dlg.
+        /// called when we need to script a Sql Server action
         /// </summary>
         /// <param name="executionInfo"></param>
         /// <param name="executionResult"></param>
@@ -431,13 +457,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 DataContainer.Server = new Microsoft.SqlServer.Management.Smo.Server(DataContainer.ServerConnection);
             }
 
-            String szScript = null;
+            string szScript = null;
             bool isScripting = IsScripting(executionInfo.RunType);
             var executionModeOriginal = GetServerConnectionForScript().SqlExecutionModes;
-            //For Azure the ExecutionManager is different depending on which ExecutionManager
-            //used - one at the Server level and one at the Database level. So to ensure we
-            //don't use the wrong execution mode we need to set the mode for both (for on-prem
-            //this will essentially be a no-op)
+            // For Azure the ExecutionManager is different depending on which ExecutionManager
+            // used - one at the Server level and one at the Database level. So to ensure we
+            // don't use the wrong execution mode we need to set the mode for both (for on-prem
+            // this will essentially be a no-op)
             SqlExecutionModes subjectExecutionModeOriginal = executionModeOriginal;
             SqlSmoObject sqlDialogSubject = null;
             try
@@ -446,8 +472,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
             catch (System.Exception)
             {
-                //We may not have a valid dialog subject here (such as if the object hasn't been created yet)
-                //so in that case we'll just ignore it as that's a normal scenario. 
+                // We may not have a valid dialog subject here (such as if the object hasn't been created yet)
+                // so in that case we'll just ignore it as that's a normal scenario. 
             }
 
             if (sqlDialogSubject != null)
@@ -459,7 +485,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 SqlExecutionModes newMode = isScripting
                     ? SqlExecutionModes.CaptureSql
                     : SqlExecutionModes.ExecuteSql;
-                //now, do the execution itself
+
+                // now, do the execution itself
                 GetServerConnectionForScript().SqlExecutionModes = newMode;
                 if (sqlDialogSubject != null)
                 {
@@ -475,7 +502,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                         szScript = BuildSqlScript();
                     }
                 }
-
             }
             finally
             {
@@ -505,6 +531,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (isScripting)
             {
                 executionInfo.Script = szScript;
+            }
+        }
+
+         /// <summary>
+        /// returns internal helper class that we delegate execution of the panels one by one when 
+        /// we do it ourselves during scripting
+        /// </summary>
+        private ExecutionHandlerDelegate PanelExecutionHandler
+        {
+            get
+            {
+                if (this.cachedPanelExecutionHandler == null)
+                {                   
+                    this.cachedPanelExecutionHandler = new ExecutionHandlerDelegate(this);
+                }
+                return this.cachedPanelExecutionHandler;
             }
         }
 
@@ -602,20 +644,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 //             canScriptToWindow = canScriptToFile = canScriptToClipboard = canScriptToJob = true;
 //         }
 // #endregion
-//         protected IServiceProvider ServiceProvider
-//         {
-//             get
-//             {
-//                 if (this.serviceProvider == null)
-//                 {
-//                     STrace.Assert(false, "Cannot work without service provider!");
-//                     STrace.LogExThrow();
-//                     //BUGBUG - should we have our own exception here?
-//                     throw new InvalidOperationException();
-//                 }
-//                 return this.serviceProvider;
-//             }
-//         }
+        protected IServiceProvider ServiceProvider
+        {
+            get
+            {
+                if (this.serviceProvider == null)
+                {
+
+                    throw new InvalidOperationException();
+                }
+                return this.serviceProvider;
+            }
+        }
 //         /// <summary>
 //         /// returns combination of the given 2 arrays
 //         /// </summary>
@@ -640,5 +680,105 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 //                 return finalReturnValue;
 //             }
 //         }
+
+        /// <summary>
+        /// execution mode by default for now is success
+        /// </summary>
+        private ExecutionMode m_executionMode = ExecutionMode.Success;
+
+        /// <summary>
+        /// execution mode accessor
+        /// </summary>
+        protected ExecutionMode ExecutionMode
+        {
+            get
+            {
+                return m_executionMode;
+            }
+            set
+            {
+                m_executionMode = value;
+            }
+        }
+
+        public virtual ExecutionMode LastExecutionResult
+        {
+            get
+            {
+                return ExecutionMode;
+            }
+        }
+
+        /// <summary>
+        /// Overridable function that allow a derived class to implement
+        /// a finalizing action after a RunNow or RunNowAndClose where sucesfully executed
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual void OnTaskCompleted(object sender, ExecutionMode executionMode, RunType executionType)
+        {
+            //nothing
+        }
+
+
+        /// <summary>
+        /// Overridable function that allow a derived class to implement its
+        /// OnRunNow functionality
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual void OnRunNow(object sender)
+        {
+            //nothing
+        }
+
+        /// <summary>
+        /// Overridable function that allow a derived class to implement its
+        /// OnScript functionality. 
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual string OnScript(object sender)
+        {
+            //redirect to the single scripting virtual method by default
+            return Script();
+        }
+
+        /// <summary>
+        /// derived class should override this method if it does same action for all types of scripting,
+        /// because all ILaunchFormHostedControl scripting methods implemented in this class simply
+        /// call this method
+        /// </summary>
+        /// <returns></returns>
+        protected virtual string Script()
+        {
+            // redirect to the RunNow method. Our host should be turning script capture on and off for
+            // OLAP/SQL servers and composing the text of the resulting script by itself
+            OnRunNow(this);
+
+            // null is a special value. It means that we want to indicate that we didn't want to generate 
+            // script text
+            return null;
+        }
+
+
+        /// <summary>
+        /// performs custom action wen user requests a cancel
+        /// this is called from the UI thread and generally executes
+        /// smoServer.Cancel() or amoServer.Cancel() causing
+        /// the worker thread to inttrerupt its current action
+        /// </summary>
+        /// <param name="sender"></param>
+        public virtual void OnCancel(object sender)
+        {
+            if (this.dataContainer == null)
+            {
+                return;
+            }
+
+            if (this.dataContainer.Server != null)
+            {
+                // TODO: uncomment next line when SMO server will have support for Cancel
+                // this.dataContainer.Server.Cancel();
+            }          
+        }
+
     }
 }

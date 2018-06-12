@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// what type of actions does the worker know to execute
@@ -19,5 +19,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         ScriptToClipboard,
         ScriptToJob
     }
-    
 }

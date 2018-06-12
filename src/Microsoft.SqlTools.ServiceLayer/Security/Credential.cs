@@ -21,21 +21,8 @@ namespace  Microsoft.SqlTools.ServiceLayer.Security
     internal class Credential : ManagementActionBase
     {
 
-// #region Trace support
-//         private const string componentName = "Credential";
-
-//         public string ComponentName
-//         {
-//             get
-//             {
-//                 return componentName;
-//             }
-//         }
-// #endregion
-
 #region Constants
         private const int MAX_SQL_SYS_NAME_LENGTH = 128; // max sql sys name length
-        private const string PASSWORD_MASK_STRING = "**********";
 #endregion
 
 #region Variables
@@ -70,18 +57,15 @@ namespace  Microsoft.SqlTools.ServiceLayer.Security
         }
 #endregion
 
-#region Overrides SqlManagementUserControl
         /// <summary>
         /// called on background thread by the framework to execute the action
         /// </summary>
         /// <param name="node"></param>
-        public void OnRunNow(object sender)
+        public override void OnRunNow(object sender)
         {
             this.credentialData.SendDataToServer();
 
         }
-
-#endregion
 
         /// <summary>
         /// update logic layer based on content of user interface

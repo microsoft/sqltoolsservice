@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentProxiesResult
     {
-        public bool Succeeded { get; set; }
+        public bool Success { get; set; }
 
         public string ErrorMessage { get; set; }
 
@@ -55,11 +55,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Proxy result
     /// </summary>
-    public class CreateAgentProxyResult
+    public class CreateAgentProxyResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
+        public AgentProxyInfo Proxy { get; set; }
     }
 
     /// <summary>
@@ -73,39 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public static readonly
             RequestType<CreateAgentProxyParams, CreateAgentProxyResult> Type =
             RequestType<CreateAgentProxyParams, CreateAgentProxyResult>.Create("agent/createproxy");
-    }
-
-    /// <summary>
-    /// SQL Agent delete Proxy params
-    /// </summary>
-    public class DeleteAgentProxyParams : GeneralRequestDetails
-    {
-        public string OwnerUri { get; set; }
-
-        public AgentProxyInfo Proxy { get; set; }
-    }
-
-    /// <summary>
-    /// SQL Agent delete Proxy result
-    /// </summary>
-    public class DeleteAgentProxyResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
-    /// SQL Agent delete Proxy request type
-    /// </summary>
-    public class DeleteAgentProxyRequest
-    {
-        /// <summary>
-        /// Request definition
-        /// </summary>
-        public static readonly
-            RequestType<DeleteAgentProxyParams, DeleteAgentProxyResult> Type =
-            RequestType<DeleteAgentProxyParams, DeleteAgentProxyResult>.Create("agent/deleteproxy");
     }
 
     /// <summary>
@@ -123,11 +88,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent update Proxy result
     /// </summary>
-    public class UpdateAgentProxyResult
+    public class UpdateAgentProxyResult : ResultStatus
     {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
+        public AgentProxyInfo Proxy { get; set; }
     }
 
     /// <summary>
@@ -141,5 +104,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public static readonly
             RequestType<UpdateAgentProxyParams, UpdateAgentProxyResult> Type =
             RequestType<UpdateAgentProxyParams, UpdateAgentProxyResult>.Create("agent/updateproxy");
+    }    
+
+    /// <summary>
+    /// SQL Agent delete Proxy params
+    /// </summary>
+    public class DeleteAgentProxyParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public AgentProxyInfo Proxy { get; set; }
     }
+
+    /// <summary>
+    /// SQL Agent delete Proxy request type
+    /// </summary>
+    public class DeleteAgentProxyRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DeleteAgentProxyParams, ResultStatus> Type =
+            RequestType<DeleteAgentProxyParams, ResultStatus>.Create("agent/deleteproxy");
+    }    
 }

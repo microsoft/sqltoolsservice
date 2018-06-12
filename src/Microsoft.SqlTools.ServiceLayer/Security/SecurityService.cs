@@ -75,7 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
+
+            // Credential request handlers
             this.ServiceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest);
+            this.ServiceHost.SetRequestHandler(UpdateCredentialRequest.Type, HandleUpdateCredentialRequest);
+            this.ServiceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
         }
 
         /// <summary>
@@ -100,6 +104,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 await requestContext.SendError(e);
             }
+        }
+
+        /// <summary>
+        /// Handle request to update a credential
+        /// </summary>
+        internal async Task HandleUpdateCredentialRequest(UpdateCredentialParams parameters, RequestContext<UpdateCredentialResult> requestContext)
+        {
+            var result = new UpdateCredentialResult();
+            await requestContext.SendResult(result);
+        }
+
+        /// <summary>
+        /// Handle request to delete a credential
+        /// </summary>
+        internal async Task HandleDeleteCredentialRequest(DeleteCredentialParams parameters, RequestContext<DeleteCredentialResult> requestContext)
+        {
+            var result = new DeleteCredentialResult();
+            await requestContext.SendResult(result);            
         }
 
         /// <summary>

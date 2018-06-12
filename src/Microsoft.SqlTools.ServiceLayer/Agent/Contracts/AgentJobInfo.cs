@@ -15,6 +15,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class AgentJobInfo
     {
         public string Name { get; set; }
+        public string Owner { get; set; }
+        public string Description { get; set; }
         public int CurrentExecutionStatus { get; set; }
         public int LastRunOutcome { get; set; }
         public string CurrentExecutionStep { get; set; }
@@ -30,5 +32,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string NextRun { get; set; }
         public string JobId { get; set; }
     }
-    
 }

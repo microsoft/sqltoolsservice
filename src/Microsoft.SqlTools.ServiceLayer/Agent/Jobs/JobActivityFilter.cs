@@ -266,8 +266,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             (this as IFilterDefinition).Enabled = (template as IFilterDefinition).Enabled;
         }
 
-
-
         /// <summary>
         /// tells us if filtering is enabled or diabled
         /// a disabled filter lets everything pass and filters nothing out
@@ -303,7 +301,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             sb.Append(" ) ");
         }
-
 
         /// <summary>
         /// fetch an xpath clause used for filtering 
@@ -342,6 +339,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
     }
 }
-
-
-

@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     public class JobProperties
     {
         private string name;
+        
         private int currentExecutionStatus;
         private int lastRunOutcome;
         private string currentExecutionStep;
