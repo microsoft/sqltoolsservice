@@ -130,8 +130,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (connInfo != null)
                 {
-                    int xEventSessionID = StartSession(parameters.OwnerUri, parameters.TemplateName, connInfo);
-                    result.SessionId = xEventSessionID.ToString();
+                    int xEventSessionId = StartSession(parameters.OwnerUri, parameters.TemplateName, connInfo);
+                    result.SessionId = xEventSessionId.ToString();
                     result.Succeeded = true;
                 }
                 else
@@ -159,10 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 monitor.StopMonitoringSession(parameters.OwnerUri, out session);
                 session.XEventSession.Stop();
 
-                await requestContext.SendResult(new StopProfilingResult
-                {
-                    Succeeded = true
-                });
+                await requestContext.SendResult(new StopProfilingResult{});
             }
             catch (Exception e)
             {
@@ -179,10 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 monitor.PauseViewer(parameters.OwnerUri);
 
-                await requestContext.SendResult(new PauseProfilingResult
-                {
-                    Succeeded = true
-                });
+                await requestContext.SendResult(new PauseProfilingResult{});
             }
             catch (Exception e)
             {
@@ -195,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// for the provided connection and template info
         /// </summary>
         /// <returns>
-        /// The XEvent Session ID that was started
+        /// The XEvent Session Id that was started
         /// </returns>
         internal int StartSession(string ownerUri, string template, ConnectionInfo connInfo)
         {
@@ -205,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // start monitoring the profiler session
             monitor.StartMonitoringSession(ownerUri, xeSession);
 
-            return xeSession.ID;
+            return xeSession.Id;
         }
 
         /// <summary>
@@ -214,7 +208,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public IXEventSession GetOrCreateXEventSession(string template, ConnectionInfo connInfo)
         {
-            // TODO: Change this to handle different names based off of templates
             string sessionName = "Profiler";
 
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);

@@ -22,16 +22,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Starts monitoring a profiler session
         /// </summary>
-        bool StartMonitoringSession(string viewerID, IXEventSession session);
+        bool StartMonitoringSession(string viewerId, IXEventSession session);
 
         /// <summary>
         /// Stops monitoring a profiler session
         /// </summary>
-        bool StopMonitoringSession(string viewerID, out ProfilerSession session);
+        bool StopMonitoringSession(string viewerId, out ProfilerSession session);
 
         /// <summary>
         /// Pauses or Unpauses the stream of events to the viewer
         /// </summary>
-        void PauseViewer(string viewerID);
+        void PauseViewer(string viewerId);
     }
 }

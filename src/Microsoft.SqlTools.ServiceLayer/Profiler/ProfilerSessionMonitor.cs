@@ -20,7 +20,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    /// Classs to monitor active profiler sessions
+    /// Class to monitor active profiler sessions
     /// </summary>
     public class ProfilerSessionMonitor : IProfilerSessionMonitor
     {
@@ -30,30 +30,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private object listenersLock = new object();
 
+        private object pollingLock = new object();
+
         private Task processorThread = null;
 
-        public struct Viewer
+        private struct Viewer
         {
-            public string ID;
-            public bool active;
+            public string Id { get; set; }
+            public bool active { get; set; }
 
-            public int xeSessionID;
+            public int xeSessionId { get; set; }
 
-            public Viewer(string ID, bool active, int xeID)
+            public Viewer(string Id, bool active, int xeId)
             {
-                this.ID = ID;
+                this.Id = Id;
                 this.active = active;
-                this.xeSessionID = xeID;
+                this.xeSessionId = xeId;
             }
         };
 
-        // XEvent Session ID's matched to the Profiler ID's watching them
+        // XEvent Session Id's matched to the Profiler Id's watching them
         private Dictionary<int, List<string>> sessionViewers = new Dictionary<int, List<string>>();
 
-        // XEvent Session ID's matched to their Profiler Sessions
+        // XEvent Session Id's matched to their Profiler Sessions
         private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
 
-        // ViewerID -> Viewer objects
+        // ViewerId -> Viewer objects
         private Dictionary<string, Viewer> allViewers = new Dictionary<string, Viewer>();
 
         private List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
@@ -70,9 +72,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Start monitoring the provided sessions
+        /// Start monitoring the provided session
         /// </summary>
-        public bool StartMonitoringSession(string viewerID, IXEventSession session)
+        public bool StartMonitoringSession(string viewerId, IXEventSession session)
         {
             lock (this.sessionsLock)
             {
@@ -83,55 +85,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
 
                 // create new profiling session if needed
-                if (!this.monitoredSessions.ContainsKey(session.ID))
+                if (!this.monitoredSessions.ContainsKey(session.Id))
                 {
                     var profilerSession = new ProfilerSession();
                     profilerSession.XEventSession = session;
 
-                    this.monitoredSessions.Add(session.ID, profilerSession);
+                    this.monitoredSessions.Add(session.Id, profilerSession);
                 }
 
                 // create a new viewer, or configure existing viewer
                 Viewer viewer;
-                if(!this.allViewers.TryGetValue(viewerID, out viewer))
+                if (!this.allViewers.TryGetValue(viewerId, out viewer))
                 {
-                    viewer = new Viewer(viewerID, true, session.ID);
-                    allViewers.Add(viewerID, viewer);
+                    viewer = new Viewer(viewerId, true, session.Id);
+                    allViewers.Add(viewerId, viewer);
                 }
                 else
                 {
                     viewer.active = true;
-                    viewer.xeSessionID = session.ID;
+                    viewer.xeSessionId = session.Id;
                 }
 
                 // add viewer to XEvent session viewers
                 List<string> viewers;
-                if(this.sessionViewers.TryGetValue(session.ID, out viewers))
+                if (this.sessionViewers.TryGetValue(session.Id, out viewers))
                 {
-                    viewers.Add(viewerID);
+                    viewers.Add(viewerId);
                 }
                 else
                 {
-                    viewers = new List<string>{ viewerID };
-                    sessionViewers.Add(session.ID, viewers);
+                    viewers = new List<string>{ viewerId };
+                    sessionViewers.Add(session.Id, viewers);
                 }
             }
 
             return true;
         }
 
-        // TODO: Clean this up
         /// <summary>
-        /// Stop monitoring the session watched by viewerID
+        /// Stop monitoring the session watched by viewerId
         /// </summary>
-        public bool StopMonitoringSession(string viewerID, out ProfilerSession session)
+        public bool StopMonitoringSession(string viewerId, out ProfilerSession session)
         {
             lock (this.sessionsLock)
             {
                 Viewer v;
-                if(this.allViewers.TryGetValue(viewerID, out v))
+                if (this.allViewers.TryGetValue(viewerId, out v))
                 {
-                    return RemoveSession(v.xeSessionID, out session);
+                    return RemoveSession(v.xeSessionId, out session);
                 }
                 else
                 {
@@ -144,31 +145,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Toggle the pause state for the viewer
         /// </summary>
-        public void PauseViewer(string viewerID)
+        public void PauseViewer(string viewerId)
         {
-
             lock (this.sessionsLock)
             {
-                //update the status in all viewers
-                Viewer v = this.allViewers[viewerID];
-                this.allViewers[viewerID] = new Viewer(viewerID, !v.active, v.xeSessionID);
+                Viewer v = this.allViewers[viewerId];
+                v.active = !v.active;
+                this.allViewers[viewerId] = v;
             }
         }
 
-        private bool RemoveSession(int sessionID, out ProfilerSession session)
+        private bool RemoveSession(int sessionId, out ProfilerSession session)
         {
             lock (this.sessionsLock)
             {
-                if(this.monitoredSessions.Remove(sessionID, out session))
+                if (this.monitoredSessions.Remove(sessionId, out session))
                 {
                     //remove all viewers for this session
-                    List<string> viewerIDs;
-                    if(sessionViewers.Remove(sessionID, out viewerIDs))
+                    List<string> viewerIds;
+                    if (sessionViewers.Remove(sessionId, out viewerIds))
                     {
-                        foreach(String vID in viewerIDs)
+                        foreach (String viewerId in viewerIds)
                         {
-                            //TODO: Notify users that the session has stopped
-                            this.allViewers.Remove(vID);
+                            this.allViewers.Remove(viewerId);
                         }
                         return true;
                     }
@@ -186,6 +185,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        public void PollSession(int sessionId)
+        {
+            lock (this.sessionsLock)
+            {
+                this.monitoredSessions[sessionId].pollImmediatly = true;
+            }
+            lock (this.pollingLock)
+            {
+                Monitor.Pulse(pollingLock);
+            }
+        }
+
         /// <summary>
         /// The core queue processing method
         /// </summary>
@@ -194,19 +205,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             while (true)
             {
-                lock (this.sessionsLock)
+                lock (this.pollingLock)
                 {
-                    foreach (var session in this.monitoredSessions.Values)
+                    lock (this.sessionsLock)
                     {
-                        List<string> viewers = this.sessionViewers[session.XEventSession.ID];
-                        if(viewers.Any(v => allViewers[v].active))
+                        foreach (var session in this.monitoredSessions.Values)
                         {
-                            ProcessSession(session);
+                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
+                            if (viewers.Any(v => allViewers[v].active))
+                            {
+                                ProcessSession(session);
+                            }
                         }
                     }
+                    Monitor.Wait(this.pollingLock, PollingLoopDelay);
                 }
-
-                Thread.Sleep(PollingLoopDelay);
             }
         }
 
@@ -223,12 +236,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     if (events.Count > 0)
                     {
                         // notify all viewers for the polled session
-                        List<string> viewerIDs = this.sessionViewers[session.XEventSession.ID];
-                        foreach(string vID in viewerIDs)
+                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                        foreach (string viewerId in viewerIds)
                         {
-                            if(allViewers[vID].active)
+                            if (allViewers[viewerId].active)
                             {
-                                SendEventsToListeners(vID, events);
+                                SendEventsToListeners(viewerId, events);
                             }
                         }
                     }
@@ -261,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Write(LogLevel.Warning, "Failed to pool session. error: " + ex.Message);
             }

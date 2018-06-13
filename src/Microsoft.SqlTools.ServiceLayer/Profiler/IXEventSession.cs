@@ -11,9 +11,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     public interface IXEventSession
     {
         /// <summary>
-        /// Gets unique XEvent session ID
+        /// Gets unique XEvent session Id
         /// </summary>
-        int ID { get; }
+        int Id { get; }
 
         /// <summary>
         /// Starts XEvent session

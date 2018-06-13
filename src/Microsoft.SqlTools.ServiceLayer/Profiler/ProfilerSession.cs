@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
 
-        // TODO: Add ability to trigger instant polling
+        public bool pollImmediatly = false;
 
         /// <summary>
         /// Connection to use for the session
@@ -44,10 +44,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (this.pollingLock)
             {
-                if (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay)
+                if (pollImmediatly || (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay))
                 {
                     this.isPolling = true;
                     this.lastPollTime = DateTime.Now;
+                    this.pollImmediatly = false;
                     return true;
                 }
                 else

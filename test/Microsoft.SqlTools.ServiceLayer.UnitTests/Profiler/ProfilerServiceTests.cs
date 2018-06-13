@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -27,7 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// Test starting a profiling session and receiving event callback
         /// </summary>
         /// <returns></returns>
-        // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/459
         [Fact]
         public async Task TestStartProfilingRequest()
         {
@@ -55,15 +55,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             requestParams.OwnerUri = testUri;
             requestParams.TemplateName = "Standard";
 
+            // start profiling session
             await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);
 
-            // wait a bit for profile sessions to be polled
-            Thread.Sleep(1000);
+            profilerService.SessionMonitor.PollSession(1);
+            // simulate a short polling delay
+            Thread.Sleep(200);
+            profilerService.SessionMonitor.PollSession(1);
+
+            // wait for polling to finish, or for timeout
+            System.Timers.Timer pollingTimer = new System.Timers.Timer();
+            pollingTimer.Interval = 10000;
+            pollingTimer.Start();
+            bool timeout = false;
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
+            while (sessionId == null && !timeout)
+            {}
+            pollingTimer.Stop();
 
             requestContext.VerifyAll();
 
             // Check that the correct XEvent session was started
             Assert.Equal(sessionId, "1");
+
             // check that the proper owner Uri was used
             Assert.Equal(sessionListener.PreviousSessionId, testUri);
             Assert.Equal(sessionListener.PreviousEvents.Count, 1);
@@ -85,11 +99,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StopProfilingResult>()))
                 .Returns<StopProfilingResult>((result) =>
                 {
-                    success = result.Succeeded;
+                    success = true;
                     return Task.FromResult(0);
                 });
 
-            // capture if session was dropped
+            // capture if session was stopped
             var mockSession = new Mock<IXEventSession>();
             mockSession.Setup(p => p.Stop()).Callback(() =>
                 {
@@ -131,19 +145,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             bool success = false;
             string testUri = "test_session";
+            bool recievedEvents = false;
 
-            // capture stopping results
+            // capture pausing results
             var requestContext = new Mock<RequestContext<PauseProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<PauseProfilingResult>()))
                 .Returns<PauseProfilingResult>((result) =>
                 {
-                    success = result.Succeeded;
+                    success = true;
                     return Task.FromResult(0);
                 });
 
-            var sessionListener = new TestSessionListener();
+            // capture listener event notifications
+            var mockListener = new Mock<IProfilerSessionListener>();
+            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>())).Callback(() =>
+                {
+                    recievedEvents = true;
+                });
+
+            // setup profiler service
             var profilerService = new ProfilerService();
-            profilerService.SessionMonitor.AddSessionListener(sessionListener);
+            profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
@@ -151,32 +173,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var requestParams = new PauseProfilingParams();
             requestParams.OwnerUri = testUri;
 
+            // begin monitoring session
             profilerService.SessionMonitor.StartMonitoringSession(testUri, new TestXEventSession1());
 
-            // wait a bit for profile sessions to be polled
-            Thread.Sleep(1500);
+            // poll the session
+            profilerService.SessionMonitor.PollSession(1);
+            Thread.Sleep(500);
+            profilerService.SessionMonitor.PollSession(1);
 
-            Assert.Equal(sessionListener.PreviousSessionId, testUri);
+            // wait for polling to finish, or for timeout
+            System.Timers.Timer pollingTimer = new System.Timers.Timer();
+            pollingTimer.Interval = 10000;
+            pollingTimer.Start();
+            bool timeout = false;
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
+            while (!recievedEvents && !timeout)
+            {}
+            pollingTimer.Stop();
+
+            // confirm that polling works
+            Assert.True(recievedEvents);
 
             // pause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
             Assert.True(success);
 
-            sessionListener.PreviousSessionId = "";
+            recievedEvents = false;
             success = false;
 
-            Thread.Sleep(1500);
+            profilerService.SessionMonitor.PollSession(1);
 
-            // check that session wasn't polled, and no events were sent to listener
-            Assert.Equal(sessionListener.PreviousSessionId, "");
+            // confirm that no events were sent to paused listener
+            Assert.False(recievedEvents);
 
             // unpause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
             Assert.True(success);
 
-            Thread.Sleep(1500);
-            // check that polling resumed, and events got sent to listener
-            Assert.Equal(sessionListener.PreviousSessionId, testUri);
+            profilerService.SessionMonitor.PollSession(1);
+
+            // wait for polling to finish, or for timeout
+            timeout = false;
+            pollingTimer.Start();
+            while (!recievedEvents && !timeout)
+            {}
+
+            // check that events got sent to listener
+            Assert.True(recievedEvents);
 
             requestContext.VerifyAll();
         }

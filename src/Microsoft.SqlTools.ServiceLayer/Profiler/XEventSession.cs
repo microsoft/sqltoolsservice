@@ -11,13 +11,13 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    ///  This class performs an important function.
+    /// Class to access underlying XEvent session.
     /// </summary>
     public class XEventSession : IXEventSession
     {
         public Session Session { get; set; }
 
-        public int ID
+        public int Id
         {
             get { return Session.ID; }
         }
