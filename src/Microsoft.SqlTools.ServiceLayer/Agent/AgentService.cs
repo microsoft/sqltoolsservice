@@ -340,14 +340,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleUpdateAgentJobStepRequest(UpdateAgentJobStepParams parameters, RequestContext<UpdateAgentJobStepResult> requestContext)
         {
-            UpdateAgentJobStepResult result = new UpdateAgentJobStepResult();
-            await requestContext.SendResult(result);
+            Tuple<bool, string> result = await ConfigureAgentJobStep(
+                parameters.OwnerUri,
+                parameters.Step,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new UpdateAgentJobStepResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            ResultStatus result = new ResultStatus();
-            await requestContext.SendResult(result);
+            Tuple<bool, string> result = await ConfigureAgentJobStep(
+                parameters.OwnerUri,
+                parameters.Step,
+                ConfigAction.Drop,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
@@ -430,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     param.SetParam("jobid", string.Empty);
 
                     var jobData = new JobData(dataContainer);
-                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo))
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
                     {
                         var executionHandler = new ExecutonHandler(jobStep);
                         executionHandler.RunNow(runType, this);

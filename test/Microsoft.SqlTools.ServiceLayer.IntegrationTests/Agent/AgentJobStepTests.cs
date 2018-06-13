@@ -26,23 +26,42 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                 // setup
+                // setup
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var job = AgentTestUtils.GetTestJobInfo();
                 await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
                 await AgentTestUtils.CreateAgentJob(service, connectionResult, job);
-
                 var stepInfo =  AgentTestUtils.GetTestJobStepInfo(connectionResult, job);
 
                 // test
-                var createContext = new Mock<RequestContext<CreateAgentJobStepResult>>();
-                await service.HandleCreateAgentJobStepRequest(new CreateAgentJobStepParams
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Step = stepInfo
-                }, createContext.Object);
-                createContext.VerifyAll();
+                await AgentTestUtils.CreateAgentJobStep(service, connectionResult, stepInfo);
+
+                // cleanup
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);                
+            }
+        }
+
+        /// <summary>
+        /// TestHandleUpdateAgentJobStepRequest
+        /// </summary>
+        [Fact]
+        public async Task TestHandleUpdateAgentJobStepRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                var service = new AgentService();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var job = AgentTestUtils.GetTestJobInfo();
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
+                await AgentTestUtils.CreateAgentJob(service, connectionResult, job);
+                var stepInfo =  AgentTestUtils.GetTestJobStepInfo(connectionResult, job);
+                await AgentTestUtils.CreateAgentJobStep(service, connectionResult, stepInfo);
+
+                // test
+                stepInfo.Script = "SELECT * FROM sys.objects";
+                await AgentTestUtils.UpdateAgentJobStep(service, connectionResult, stepInfo);
 
                 // cleanup
                 await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);                

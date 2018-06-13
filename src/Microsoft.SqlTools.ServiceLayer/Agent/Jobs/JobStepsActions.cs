@@ -23,11 +23,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public JobStepsActions(
             CDataContainer dataContainer, 
             JobData jobData,
-            AgentJobStepInfo stepInfo)
+            AgentJobStepInfo stepInfo,
+            ConfigAction configAction)
         {
             this.DataContainer = dataContainer;
             this.jobData = jobData;
-            this.data = new JobStepData(jobData.JobSteps);
+
+            if (configAction == ConfigAction.Update)
+            {
+                JobStep jobStep = GetJobStep(this.jobData, stepInfo.StepName);
+                this.data = new JobStepData(jobStep, jobData.JobSteps);
+            }
+            else
+            {
+                 this.data = new JobStepData(jobData.JobSteps);
+            }
 
             // load properties from AgentJobStepInfo
             this.data.ID = stepInfo.Id;
@@ -63,6 +73,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             // regular execution always takes place
             return true;
+        }
+
+        private JobStep GetJobStep(JobData jobData, string stepName)
+        {
+            JobStep jobStep = null;
+            if (jobData.Job != null)
+            {
+                const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']/Step[@Name='{2}']";
+                string serverName = this.DataContainer.Server.Name.ToUpper();
+                string urn = string.Format(UrnFormatStr, serverName, jobData.Job.Name, stepName);
+                jobStep = jobData.Job.Parent.Parent.GetSmoObject(urn) as JobStep;
+            }
+            return jobStep;
         }
     }
 }

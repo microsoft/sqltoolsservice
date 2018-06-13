@@ -120,6 +120,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             }, context.Object);
             context.VerifyAll();
         }
+        
+        internal static async Task UpdateAgentJobStep(
+            AgentService service, 
+            TestConnectionResult connectionResult, 
+            AgentJobStepInfo stepInfo)
+        {
+            var context = new Mock<RequestContext<UpdateAgentJobStepResult>>();     
+            await service.HandleUpdateAgentJobStepRequest(new UpdateAgentJobStepParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                Step = stepInfo
+            }, context.Object);
+            context.VerifyAll();
+        }
 
         internal static async Task<AgentAlertInfo[]> GetAgentAlerts(string connectionUri)
         {
