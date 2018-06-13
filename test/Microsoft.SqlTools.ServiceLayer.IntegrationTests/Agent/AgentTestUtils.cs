@@ -24,6 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             return new AgentJobStepInfo()
             {
+                Id = 1,
                 JobName = job.Name,
                 StepName = stepName,
                 SubSystem = "T-SQL",

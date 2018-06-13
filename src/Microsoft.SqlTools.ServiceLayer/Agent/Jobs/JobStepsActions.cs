@@ -30,7 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.data = new JobStepData(jobData.JobSteps);
 
             // load properties from AgentJobStepInfo
+            this.data.ID = stepInfo.Id;
             this.data.Name = stepInfo.StepName;
+            this.data.Command = stepInfo.Script;
         }
 
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
@@ -54,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
             }
 
-            if (runType == RunType.RunNowAndExit)
+            if (runType == RunType.RunNow)
             {                   
                 this.data.ApplyChanges(this.jobData.Job);
             }

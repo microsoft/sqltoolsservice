@@ -430,9 +430,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     param.SetParam("jobid", string.Empty);
 
                     var jobData = new JobData(dataContainer);
-                    using (var jobStep = new JobStepsActions(dataContainer, jobData))
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo))
                     {
-                        jobData.Name = stepInfo.JobName;
                         var executionHandler = new ExecutonHandler(jobStep);
                         executionHandler.RunNow(runType, this);
                     }

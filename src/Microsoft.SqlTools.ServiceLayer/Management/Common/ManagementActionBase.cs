@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (DoPreProcessExecution(runType, out executionResult))
             {
                 // true return value means that we need to do execution ourselves
-                executionResult = PanelExecutionHandler.Run(runType, this);
+                executionResult = ExecutionHandlerDelegate.Run(runType, this);
             }
 
             return executionResult;
@@ -513,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// returns internal helper class that we delegate execution of the panels one by one when 
         /// we do it ourselves during scripting
         /// </summary>
-        private ExecutionHandlerDelegate PanelExecutionHandler
+        private ExecutionHandlerDelegate ExecutionHandlerDelegate
         {
             get
             {

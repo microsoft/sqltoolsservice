@@ -714,7 +714,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.successStep = null;
             this.successStepId = -1;
             this.priority = OSRunPriority.Normal;
-            this.outputFileName = String.Empty;
+            this.outputFileName = string.Empty;
             this.appendToLogFile = false;
             this.appendToStepHist = false;
             this.writeLogToTable = false;
