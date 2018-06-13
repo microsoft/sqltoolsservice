@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public async Task TestStartProfilingRequest()
         {
             string sessionId = null;
+            bool recievedEvents = false;
             string testUri = "profiler_uri";
             var requestContext = new Mock<RequestContext<StartProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
@@ -42,10 +43,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     return Task.FromResult(0);
                 });
 
-            var sessionListener = new TestSessionListener();
+            // capture listener event notifications
+            var mockListener = new Mock<IProfilerSessionListener>();
+            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>())).Callback(() =>
+                {
+                    recievedEvents = true;
+                });
+
+            //var sessionListener = new TestSessionListener();
 
             var profilerService = new ProfilerService();
-            profilerService.SessionMonitor.AddSessionListener(sessionListener);
+            profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
@@ -70,7 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool timeout = false;
             pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
             while (sessionId == null && !timeout)
-            {}
+            {
+                Thread.Sleep(250);
+            }
             pollingTimer.Stop();
 
             requestContext.VerifyAll();
@@ -79,8 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.Equal(sessionId, "1");
 
             // check that the proper owner Uri was used
-            Assert.Equal(sessionListener.PreviousSessionId, testUri);
-            Assert.Equal(sessionListener.PreviousEvents.Count, 1);
+            Assert.True(recievedEvents);
         }
 
         /// <summary>
@@ -188,7 +197,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool timeout = false;
             pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
             while (!recievedEvents && !timeout)
-            {}
+            {
+                Thread.Sleep(250);
+            }
             pollingTimer.Stop();
 
             // confirm that polling works
@@ -216,7 +227,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             timeout = false;
             pollingTimer.Start();
             while (!recievedEvents && !timeout)
-            {}
+            {
+                Thread.Sleep(250);
+            }
 
             // check that events got sent to listener
             Assert.True(recievedEvents);
