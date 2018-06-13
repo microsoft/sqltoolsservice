@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.configAction = configAction;
             this.DataContainer = dataContainer;
             this.jobData = jobData;
-            
+
             if (configAction == ConfigAction.Create)
             {
                 this.data = new JobStepData(jobData.JobSteps);

@@ -2522,4 +2522,16 @@
     <comment>.
  Parameters: 0 - jobName (string) </comment>
   </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>The name of the alert cannot be blank.</value>
+    <comment></comment>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Cannot create new alert.</value>
+    <comment></comment>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Cannot alter alert.</value>
+    <comment></comment>
+  </data>
 </root>

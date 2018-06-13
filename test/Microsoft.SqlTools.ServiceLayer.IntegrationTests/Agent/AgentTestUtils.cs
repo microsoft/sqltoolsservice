@@ -164,6 +164,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             AgentService service = new AgentService();
             await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
             return agentAlerts;
-        }      
+        }
     }
 }

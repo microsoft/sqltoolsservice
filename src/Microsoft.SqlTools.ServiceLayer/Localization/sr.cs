@@ -4349,6 +4349,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string AlertNameCannotBeBlank
+        {
+            get
+            {
+                return Keys.GetString(Keys.AlertNameCannotBeBlank);
+            }
+        }
+
+        public static string CannotCreateNewAlert
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotCreateNewAlert);
+            }
+        }
+
+        public static string CannotAlterAlert
+        {
+            get
+            {
+                return Keys.GetString(Keys.CannotAlterAlert);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -6367,6 +6391,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string JobStepNameAlreadyExists = "JobStepNameAlreadyExists";
+
+
+            public const string AlertNameCannotBeBlank = "AlertNameCannotBeBlank";
+
+
+            public const string CannotCreateNewAlert = "CannotCreateNewAlert";
+
+
+            public const string CannotAlterAlert = "CannotAlterAlert";
 
 
             private Keys()

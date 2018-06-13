@@ -522,12 +522,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        private bool ValidateAgentAlertInfo(AgentAlertInfo alert)
-        {
-            return alert != null
-                && !string.IsNullOrWhiteSpace(alert.JobName);
-        }
-
         /// <summary>
         /// Handle request to create an alert
         /// </summary>
@@ -541,7 +535,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     parameters.OwnerUri,
                     out connInfo);
 
-                CreateOrUpdateAgentAlert(connInfo, parameters.Alert);
+                await ConfigureAgentAlert(
+                    parameters.OwnerUri,
+                    parameters.Alert,
+                    ConfigAction.Create,
+                    RunType.RunNow);
 
                 await requestContext.SendResult(result);
             });
@@ -560,25 +558,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     parameters.OwnerUri,
                     out connInfo);
 
-                CreateOrUpdateAgentAlert(connInfo, parameters.Alert);
+                await ConfigureAgentAlert(
+                    parameters.OwnerUri,
+                    parameters.Alert,
+                    ConfigAction.Update,
+                    RunType.RunNow);
 
                 await requestContext.SendResult(result);
             });
-        }
-
-        private void CreateOrUpdateAgentAlert(ConnectionInfo connInfo, AgentAlertInfo alert)
-        {
-            if (connInfo != null && ValidateAgentAlertInfo(alert))
-            {
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                STParameters param = new STParameters(dataContainer.Document);
-                param.SetParam("alert", alert.JobName);
-
-                using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
-                {
-                    agentAlert.CreateOrUpdate();
-                }
-            }
         }
 
         /// <summary>
@@ -591,24 +578,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 var result = new ResultStatus();
                 try
                 {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
+                    await ConfigureAgentAlert(
                         parameters.OwnerUri,
-                        out connInfo);
-
-                    AgentAlertInfo alert = parameters.Alert;
-                    if (connInfo != null && ValidateAgentAlertInfo(alert))
-                    {
-                        CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                        STParameters param = new STParameters(dataContainer.Document);
-                        param.SetParam("alert", alert.JobName);
-
-                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
-                        {
-                            agentAlert.Drop();
-                            result.Success = true;
-                        }
-                    }
+                        parameters.Alert,
+                        ConfigAction.Drop,
+                        RunType.RunNow);
                 }
                 catch (Exception ex)
                 {
@@ -617,6 +591,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
 
                 await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentAlert(
+            string ownerUri,
+            AgentAlertInfo alert,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                        connInfo, 
+                        databaseExists: true);
+
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("alert", alert.JobName);
+
+                    if (alert != null && !string.IsNullOrWhiteSpace(alert.JobName))
+                    {
+                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert, configAction))
+                        {
+                            var executionHandler = new ExecutonHandler(agentAlert);
+                            executionHandler.RunNow(runType, this);
+                        }
+                    }            
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
             });
         }
 

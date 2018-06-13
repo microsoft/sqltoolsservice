@@ -2995,6 +2995,21 @@
         <note>.
  Parameters: 0 - jobName (string) </note>
       </trans-unit>
+      <trans-unit id="AlertNameCannotBeBlank">
+        <source>The name of the alert cannot be blank.</source>
+        <target state="new">The name of the alert cannot be blank.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CannotCreateNewAlert">
+        <source>Cannot create new alert.</source>
+        <target state="new">Cannot create new alert.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CannotAlterAlert">
+        <source>Cannot alter alert.</source>
+        <target state="new">Cannot alter alert.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
