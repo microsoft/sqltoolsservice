@@ -328,7 +328,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
                 parameters.Step,
-                ConfigAction.Create);
+                ConfigAction.Create,
+                RunType.RunNow);
 
             await requestContext.SendResult(new CreateAgentJobStepResult()
             {
@@ -397,7 +398,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
             string ownerUri,
             AgentJobStepInfo stepInfo,
-            ConfigAction configAction)
+            ConfigAction configAction,
+            RunType runType)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
@@ -412,14 +414,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(
                         ownerUri,
                         out connInfo);
-
-                    // CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    // STParameters param = new STParameters(dataContainer.Document);
-                    // param.SetParam("job", string.Empty);                    
-                    // param.SetParam("jobid", stepInfo.JobId);
-                    // param.SetParam("script", stepInfo.Script);
-                    // param.SetParam("scriptName", stepInfo.ScriptName);
-                    // var jobData = new JobData(dataContainer);
 
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(
                         connInfo, 
@@ -436,10 +430,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     param.SetParam("jobid", string.Empty);
 
                     var jobData = new JobData(dataContainer);
-                    
                     using (var jobStep = new JobStepsActions(dataContainer, jobData))
                     {
-                        jobStep.CreateJobStep();
+                        jobData.Name = stepInfo.JobName;
+                        var executionHandler = new ExecutonHandler(jobStep);
+                        executionHandler.RunNow(runType, this);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);

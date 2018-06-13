@@ -1067,4 +1067,6 @@ CategoryLogShipping = Log Shipping
 CategoryDBEngineTuningAdvisor = Database Engine Tuning Advisor
 CategoryDataCollector = Data Collector
 
-
+JobAlreadyExists(string jobName) = A job named '{0}' already exists.  Enter a unique name for the job.
+JobStepNameCannotBeBlank = The name of the job step cannot be blank.
+JobStepNameAlreadyExists(string jobName) = There is already a step named '{0}' for this job. You must specify a different name.
