@@ -10,40 +10,14 @@ using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using Xunit;
-using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
     public class AgentJobTests
     {
-        public async Task<AgentJobInfo> CreateAgentJob(TestConnectionResult connectionResult)
-        {
-            var job = AgentTestUtils.GetTestJobInfo();
-            var context = new Mock<RequestContext<CreateAgentJobResult>>();     
-            await new AgentService().HandleCreateAgentJobRequest(new CreateAgentJobParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                Job = job
-            }, context.Object);
-            context.VerifyAll();
-            return job;
-        }
-
-        public async Task<AgentJobInfo> UpdateAgentJob(TestConnectionResult connectionResult, AgentJobInfo job)
-        {
-            job.Description = "Update job description";
-            var context = new Mock<RequestContext<UpdateAgentJobResult>>();     
-            await new AgentService().HandleUpdateAgentJobRequest(new UpdateAgentJobParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                Job = job
-            }, context.Object);
-            context.VerifyAll();
-            return job;
-        }
-
         /// <summary>
         /// TestHandleCreateAgentJobRequest
         /// </summary>
@@ -52,8 +26,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
+                // setup
+                var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                await CreateAgentJob(connectionResult);
+                var job = AgentTestUtils.GetTestJobInfo();
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
+
+                // test
+                await AgentTestUtils.CreateAgentJob(service, connectionResult, job);
+
+                // cleanup
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
             }
         }
 
@@ -65,35 +48,39 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
+                // setup
+                var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                var job = await CreateAgentJob(connectionResult);
-                await UpdateAgentJob(connectionResult, job);
+                var job = AgentTestUtils.GetTestJobInfo();
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
+                await AgentTestUtils.CreateAgentJob(service, connectionResult, job);
+
+                // test
+                await AgentTestUtils.UpdateAgentJob(service, connectionResult, job);
+
+                // cleanup
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
             }
         }
 
         /// <summary>
-        /// TestHandleCreateAgentJobStepRequest
+        /// TestHandleDeleteAgentJobRequest
         /// </summary>
-        //[Fact]
-        public async Task TestHandleCreateAgentJobStepRequest()
+        [Fact]
+        public async Task TestHandleDeleteAgentJobRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                var createContext = new Mock<RequestContext<CreateAgentJobStepResult>>();
+                // setup
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                await service.HandleCreateAgentJobStepRequest(new CreateAgentJobStepParams
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Step = new AgentJobStepInfo()
-                    {
-                        // JobId = Guid.NewGuid().ToString(),
-                        Script = @"c:\xplat\test.sql",
-                        ScriptName = "Test Script"
-                    }
-                }, createContext.Object);
-                createContext.VerifyAll();
+                var job = AgentTestUtils.GetTestJobInfo();
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
+                await AgentTestUtils.CreateAgentJob(service, connectionResult, job);
+
+                // test
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
             }
-        }
+        }      
     }
 }

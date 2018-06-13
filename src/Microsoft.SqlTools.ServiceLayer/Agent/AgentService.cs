@@ -394,6 +394,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
+        internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
+            string ownerUri,
+            AgentJobStepInfo stepInfo,
+            ConfigAction configAction)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(stepInfo.JobName))
+                    {
+                        return new Tuple<bool, string>(false, "JobId cannot be null");
+                    }
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        ownerUri,
+                        out connInfo);
+
+                    // CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    // STParameters param = new STParameters(dataContainer.Document);
+                    // param.SetParam("job", string.Empty);                    
+                    // param.SetParam("jobid", stepInfo.JobId);
+                    // param.SetParam("script", stepInfo.Script);
+                    // param.SetParam("scriptName", stepInfo.ScriptName);
+                    // var jobData = new JobData(dataContainer);
+
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                        connInfo, 
+                        databaseExists: true);
+
+                    XmlDocument jobDoc = CreateJobXmlDocument(
+                        dataContainer.Server.Name.ToUpper(),
+                        stepInfo.JobName);
+
+                    dataContainer.Init(jobDoc.InnerXml);
+
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("job", string.Empty);                    
+                    param.SetParam("jobid", string.Empty);
+
+                    var jobData = new JobData(dataContainer);
+                    
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData))
+                    {
+                        jobStep.CreateJobStep();
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    // log exception here
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
         public XmlDocument CreateJobXmlDocument(string svrName, string jobName)
         {
             // XML element strings
@@ -424,48 +482,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             rdr.MoveToContent();
             doc.LoadXml(rdr.ReadOuterXml());
             return doc;
-        }
-
-        internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
-            string ownerUri,
-            AgentJobStepInfo stepInfo,
-            ConfigAction configAction)
-        {
-            return await Task<Tuple<bool, string>>.Run(() =>
-            {
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(stepInfo.JobId))
-                    {
-                        return new Tuple<bool, string>(false, "JobId cannot be null");
-                    }
-
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", stepInfo.JobId);
-                    param.SetParam("script", stepInfo.Script);
-                    param.SetParam("scriptName", stepInfo.ScriptName);
-
-                    var jobData = new JobData(dataContainer);
-                    using (var jobStep = new JobStepsActions(dataContainer, jobData))
-                    {
-                        jobStep.CreateJobStep();
-                    }
-
-                    return new Tuple<bool, string>(true, string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    // log exception here
-                    return new Tuple<bool, string>(false, ex.ToString());
-                }
-            });
         }
 
         #endregion // "Jobs Handlers"
