@@ -51,8 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     recievedEvents = true;
                 });
 
-            //var sessionListener = new TestSessionListener();
-
             var profilerService = new ProfilerService();
             profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
