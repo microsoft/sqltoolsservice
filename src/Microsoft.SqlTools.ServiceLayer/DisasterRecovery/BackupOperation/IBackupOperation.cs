@@ -5,6 +5,7 @@
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System.Data.SqlClient;
 

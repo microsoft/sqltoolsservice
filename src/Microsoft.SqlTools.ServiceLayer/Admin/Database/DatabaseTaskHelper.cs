@@ -6,6 +6,7 @@
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections;

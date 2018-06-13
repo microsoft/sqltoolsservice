@@ -2508,4 +2508,18 @@
     <value>Data Collector</value>
     <comment></comment>
   </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>A job named '{0}' already exists.  Enter a unique name for the job.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>The name of the job step cannot be blank.</value>
+    <comment></comment>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>There is already a step named '{0}' for this job. You must specify a different name.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
 </root>

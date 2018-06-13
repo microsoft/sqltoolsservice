@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
@@ -1139,9 +1140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             else
             {
                 // just lookup the original object
-                STParameters parameters = new STParameters(this.context.Document);
-                string urn = string.Empty;
-                job = this.context.Server.GetSmoObject(this.urn) as Job;
+                job = this.Job;
             }
 
             if (!this.IsReadOnly)

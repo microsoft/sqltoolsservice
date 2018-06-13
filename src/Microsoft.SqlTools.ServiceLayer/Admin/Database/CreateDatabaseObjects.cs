@@ -20,6 +20,7 @@ using System.Globalization;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {

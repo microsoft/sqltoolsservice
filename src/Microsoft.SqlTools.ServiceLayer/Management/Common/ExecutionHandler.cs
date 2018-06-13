@@ -111,12 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// handler that we delegate execution related tasks to
         /// </summary>
-        private ExecutionHandlerDelegate panelExecutionHandler;
-
-        /// <summary>
-        /// class that describes available views
-        /// </summary>
-        private ISqlControlCollection viewsHolder;
+        private ExecutionHandlerDelegate executionHandlerDelegate;
 
         /// <summary>
         /// class that describes available views that is also aware of execution
@@ -134,11 +129,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private StringBuilder script; 
 
         /// <summary>
-        /// index of the panel that is being executed
-        /// </summary>
-        private int currentlyExecutingPanelIndex;
-
-        /// <summary>
         /// creates instance of the class and returns service provider that aggregates the provider
         /// provider with extra services
         /// </summary>
@@ -152,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         public ExecutonHandler(IExecutionAwareManagementAction managementAction)
         {     
             this.managementAction = managementAction;
-            this.panelExecutionHandler = new ExecutionHandlerDelegate(managementAction);
+            this.executionHandlerDelegate = new ExecutionHandlerDelegate(managementAction);
         }
 
         #region public interface
@@ -194,7 +184,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 // reset some internal vars
                 this.executionResult = ExecutionMode.Failure;
-                this.currentlyExecutingPanelIndex = -1; // will become 0 if we're executing on view by view basis
 
                 // ensure that we have valid StringBulder for scripting
                 if (IsScripting(runType))
@@ -220,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 // NOTE: post process action is done in finally block below
 
                 // start executing
-                this.executionResult = this.panelExecutionHandler.Run(runType, sender);
+                this.executionResult = this.executionHandlerDelegate.Run(runType, sender);
             }
             #region error handling
 
@@ -238,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
             catch (Exception e)
             {
-                ProcessExceptionDuringExecution(e, this.currentlyExecutingPanelIndex);
+                ProcessExceptionDuringExecution(e);
 
                 return;
             } 
@@ -272,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             //otherwise do cancel ourselves
             // if everything goes OK, Run() method will return with Cancel result
-            this.panelExecutionHandler.Cancel(sender);
+            this.executionHandlerDelegate.Cancel(sender);
         }
 
         /// <summary>
@@ -333,10 +322,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// helper function that is called when we caught an exception during execution
         /// </summary>
         /// <param name="e"></param>
-        /// <param name="failedViewIndex">-1 indicates that we don't know</param>
-        private void ProcessExceptionDuringExecution(Exception e, int failedViewIndex)
+        private void ProcessExceptionDuringExecution(Exception ex)
         {
-            //show the error
+            // show the error
             this.executionResult = ExecutionMode.Failure;
         }
         #endregion

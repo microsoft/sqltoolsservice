@@ -16,7 +16,7 @@ using SFC = Microsoft.SqlServer.Management.Sdk.Sfc;
 /// Moved GetConnectionName static call in a public class acessible for both 
 /// OEXM and OE
 /// </summary>
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     internal class SharedConnectionUtil
     {

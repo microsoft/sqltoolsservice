@@ -15,7 +15,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using SMO = Microsoft.SqlServer.Management.Smo;
 
-
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     internal class JobStepData
@@ -45,26 +44,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// Original name of this step
         /// </summary>
         string originalName;
+
         /// <summary>
         /// Current name
         /// </summary>
         string currentName;
+
         /// <summary>
         /// Current step id
         /// </summary>
         int id;
+
         /// <summary>
         /// Original step id
         /// </summary>
         int originalId;
+
         /// <summary>
         /// Subsystem that will execute this step
         /// </summary>
         AgentSubSystem subSystem;
+
         /// <summary>
         /// action to take if the step fails
         /// </summary>
         StepCompletionAction failureAction;
+
         /// <summary>
         /// Action to take if the step succeeds
         /// </summary>
@@ -175,6 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return jobStep;
             }
         }
+
         /// <summary>
         /// Server version
         /// </summary>
@@ -185,6 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.parent.Version;
             }
         }
+
         /// <summary>
         /// indicates whether the job exists on the server
         /// </summary>
@@ -237,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region Properties for Job Step
-        public String Name
+        public string Name
         {
             get
             {
@@ -248,7 +255,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.currentName = value.Trim();
             }
         }
-        public String Command
+
+        public string Command
         {
             get
             {
@@ -274,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.commandExecutionSuccessCode = value;
             }
         }
-        public String DatabaseName
+        public string DatabaseName
         {
             get
             {
@@ -287,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.databaseName = value;
             }
         }
-        public String DatabaseUserName
+        public string DatabaseUserName
         {
             get
             {
@@ -300,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.databaseUserName = value;
             }
         }
-        public String Server
+        public string Server
         {
             get
             {
@@ -706,7 +714,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.successStep = null;
             this.successStepId = -1;
             this.priority = OSRunPriority.Normal;
-            this.outputFileName = String.Empty;
+            this.outputFileName = string.Empty;
             this.appendToLogFile = false;
             this.appendToStepHist = false;
             this.writeLogToTable = false;
@@ -1027,15 +1035,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.failStep = step;
         }
 
-
         #endregion
     }
 }
-
-
-
-
-
-
-
-

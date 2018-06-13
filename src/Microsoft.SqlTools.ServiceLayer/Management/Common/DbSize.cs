@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.SqlServer.Management.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// Helper class to describe the size of an Azure database

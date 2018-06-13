@@ -13,6 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string JobId { get; set; }
 
+        public string JobName { get; set; }
+
         public string Script { get; set; }
 
         public string ScriptName { get; set; }

@@ -2978,6 +2978,23 @@
         <target state="new">Data Collector</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="JobAlreadyExists">
+        <source>A job named '{0}' already exists.  Enter a unique name for the job.</source>
+        <target state="new">A job named '{0}' already exists.  Enter a unique name for the job.</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
+      <trans-unit id="JobStepNameCannotBeBlank">
+        <source>The name of the job step cannot be blank.</source>
+        <target state="new">The name of the job step cannot be blank.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="JobStepNameAlreadyExists">
+        <source>There is already a step named '{0}' for this job. You must specify a different name.</source>
+        <target state="new">There is already a step named '{0}' for this job. You must specify a different name.</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

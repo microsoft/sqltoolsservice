@@ -4341,6 +4341,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string JobStepNameCannotBeBlank
+        {
+            get
+            {
+                return Keys.GetString(Keys.JobStepNameCannotBeBlank);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4574,6 +4582,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string OperatorProperties(string operatorName)
         {
             return Keys.GetString(Keys.OperatorProperties, operatorName);
+        }
+
+        public static string JobAlreadyExists(string jobName)
+        {
+            return Keys.GetString(Keys.JobAlreadyExists, jobName);
+        }
+
+        public static string JobStepNameAlreadyExists(string jobName)
+        {
+            return Keys.GetString(Keys.JobStepNameAlreadyExists, jobName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -6340,6 +6358,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CategoryDataCollector = "CategoryDataCollector";
+
+
+            public const string JobAlreadyExists = "JobAlreadyExists";
+
+
+            public const string JobStepNameCannotBeBlank = "JobStepNameCannotBeBlank";
+
+
+            public const string JobStepNameAlreadyExists = "JobStepNameAlreadyExists";
 
 
             private Keys()

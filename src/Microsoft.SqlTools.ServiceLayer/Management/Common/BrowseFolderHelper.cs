@@ -14,7 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     /// <summary>
     /// Helper static class for the BrowseFolder dialog

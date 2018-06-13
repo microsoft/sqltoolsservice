@@ -7,12 +7,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -190,51 +191,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
-        /// Create a data container object
-        /// </summary>
-        /// <param name="connInfo">connection info</param>
-        /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
-        internal static CDataContainer CreateDataContainer(ConnectionInfo connInfo, bool databaseExists = false)
-        {
-            XmlDocument xmlDoc = CreateDataContainerDocument(connInfo, databaseExists);
-            CDataContainer dataContainer;
-
-             // add alternate port to server name property if provided
-            var connectionDetails = connInfo.ConnectionDetails;
-            string serverName = !connectionDetails.Port.HasValue
-                ? connectionDetails.ServerName
-                : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
-
-            // check if the connection is using SQL Auth or Integrated Auth
-            //TODO: ConnectionQueue try to get an existing connection (ConnectionQueue)
-            if (string.Equals(connectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
-            {
-                var passwordSecureString = BuildSecureStringFromPassword(connectionDetails.Password);
-                dataContainer = new CDataContainer(
-                    CDataContainer.ServerType.SQL,
-                    serverName,
-                    false,
-                    connectionDetails.UserName,
-                    passwordSecureString,
-                    connectionDetails.DatabaseName,
-                    xmlDoc.InnerXml);
-            }
-            else
-            {
-                dataContainer = new CDataContainer(
-                    CDataContainer.ServerType.SQL,
-                    serverName,
-                    true,
-                    null,
-                    null,
-                    connectionDetails.DatabaseName,
-                    xmlDoc.InnerXml);
-            }
-
-            return dataContainer;
-        }
-
-        /// <summary>
         /// Create database task helper
         /// </summary>
         /// <param name="connInfo">connection info</param>
@@ -242,63 +198,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns></returns>
         internal static DatabaseTaskHelper CreateDatabaseTaskHelper(ConnectionInfo connInfo, bool databaseExists = false)
         {
-            var dataContainer = CreateDataContainer(connInfo, databaseExists);
+            var dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists);
             var taskHelper = new DatabaseTaskHelper(dataContainer);
             return taskHelper;
-        }
-
-        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) {
-            var passwordSecureString = new System.Security.SecureString();
-            if (password != null) {
-                foreach (char c in password) {
-                    passwordSecureString.AppendChar(c);
-                }
-            }
-            return passwordSecureString;
-        }
-
-        /// <summary>
-        /// Create data container document
-        /// </summary>
-        /// <param name="connInfo">connection info</param>
-        /// <param name="databaseExists">flag indicating whether to create document for existing database or not</param>
-        /// <returns></returns>
-        private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
-        {
-            string xml = string.Empty;
-
-            if (!databaseExists)
-            {
-                xml =
-                string.Format(@"<?xml version=""1.0""?>
-                <formdescription><params>
-                <servername>{0}</servername>
-                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
-                <servertype>sql</servertype>
-                <urn>Server[@Name='{0}']</urn>
-                <itemtype>Database</itemtype>                
-                </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(),
-                connInfo.ConnectionDetails.UserName);
-            }
-            else
-            {
-                xml =
-                string.Format(@"<?xml version=""1.0""?>
-                <formdescription><params>
-                <servername>{0}</servername>
-                <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
-                <servertype>sql</servertype>
-                <urn>Server[@Name='{0}']</urn>
-                <database>{2}</database>                
-                </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(),
-                connInfo.ConnectionDetails.UserName,
-                connInfo.ConnectionDetails.DatabaseName);
-            }
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
-            return xmlDoc;
         }
 
         /// <summary>

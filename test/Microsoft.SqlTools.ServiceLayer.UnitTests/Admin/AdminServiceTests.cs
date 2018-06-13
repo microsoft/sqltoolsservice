@@ -9,6 +9,7 @@ using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Admin
 {
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Admin
         public void TestBuildingSecureStringFromPassword()
         {
             string password = "test_password";
-            var secureString = AdminService.BuildSecureStringFromPassword(password);
+            var secureString = CDataContainer.BuildSecureStringFromPassword(password);
             Assert.Equal(password.Length, secureString.Length);
         }
 
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Admin
         public void TestBuildingSecureStringFromNullPassword()
         {
             string password = null;
-            var secureString = AdminService.BuildSecureStringFromPassword(password);
+            var secureString = CDataContainer.BuildSecureStringFromPassword(password);
             Assert.Equal(0, secureString.Length);
         }
     }

@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.SqlServer.Diagnostics.STrace;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.Win32;
-using SizeUnits = Microsoft.SqlTools.ServiceLayer.Admin.DbSize.SizeUnits;
+using SizeUnits = Microsoft.SqlTools.ServiceLayer.Management.DbSize.SizeUnits;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {

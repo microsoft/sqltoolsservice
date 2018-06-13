@@ -6,9 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
@@ -326,7 +328,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             Tuple<bool, string> result = await ConfigureAgentJobStep(
                 parameters.OwnerUri,
                 parameters.Step,
-                ConfigAction.Create);
+                ConfigAction.Create,
+                RunType.RunNow);
 
             await requestContext.SendResult(new CreateAgentJobStepResult()
             {
@@ -337,14 +340,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleUpdateAgentJobStepRequest(UpdateAgentJobStepParams parameters, RequestContext<UpdateAgentJobStepResult> requestContext)
         {
-            UpdateAgentJobStepResult result = new UpdateAgentJobStepResult();
-            await requestContext.SendResult(result);
+            Tuple<bool, string> result = await ConfigureAgentJobStep(
+                parameters.OwnerUri,
+                parameters.Step,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new UpdateAgentJobStepResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         internal async Task HandleDeleteAgentJobStepRequest(DeleteAgentJobStepParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            ResultStatus result = new ResultStatus();
-            await requestContext.SendResult(result);
+            Tuple<bool, string> result = await ConfigureAgentJobStep(
+                parameters.OwnerUri,
+                parameters.Step,
+                ConfigAction.Drop,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
@@ -362,10 +383,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                        connInfo, 
+                        databaseExists: true);
+
+                    XmlDocument jobDoc = CreateJobXmlDocument(
+                        dataContainer.Server.Name.ToUpper(),
+                        jobInfo.Name);
+
+                    dataContainer.Init(jobDoc.InnerXml);
+
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", jobInfo.JobId);
+                    param.SetParam("jobid", string.Empty);
 
                     var jobData = new JobData(dataContainer, jobInfo);
                     using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
@@ -386,13 +416,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
             string ownerUri,
             AgentJobStepInfo stepInfo,
-            ConfigAction configAction)
+            ConfigAction configAction,
+            RunType runType)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(stepInfo.JobId))
+                    if (string.IsNullOrWhiteSpace(stepInfo.JobName))
                     {
                         return new Tuple<bool, string>(false, "JobId cannot be null");
                     }
@@ -402,17 +433,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                        connInfo, 
+                        databaseExists: true);
+
+                    XmlDocument jobDoc = CreateJobXmlDocument(
+                        dataContainer.Server.Name.ToUpper(),
+                        stepInfo.JobName);
+
+                    dataContainer.Init(jobDoc.InnerXml);
+
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", stepInfo.JobId);
-                    param.SetParam("script", stepInfo.Script);
-                    param.SetParam("scriptName", stepInfo.ScriptName);
+                    param.SetParam("jobid", string.Empty);
 
                     var jobData = new JobData(dataContainer);
-                    using (var jobStep = new JobStepsActions(dataContainer, jobData))
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
                     {
-                        jobStep.CreateJobStep();
+                        var executionHandler = new ExecutonHandler(jobStep);
+                        executionHandler.RunNow(runType, this);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -423,6 +462,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
+        }
+
+        public XmlDocument CreateJobXmlDocument(string svrName, string jobName)
+        {
+            // XML element strings
+            const string XmlFormDescElementName = "formdescription";
+            const string XmlParamsElementName = "params";
+            const string XmlJobElementName = "job";
+            const string XmlUrnElementName = "urn";
+            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
+
+            // Write out XML.
+            StringWriter textWriter = new StringWriter();
+            XmlTextWriter xmlWriter = new XmlTextWriter(textWriter);
+
+            xmlWriter.WriteStartElement(XmlFormDescElementName);
+            xmlWriter.WriteStartElement(XmlParamsElementName);
+
+            xmlWriter.WriteElementString(XmlJobElementName, jobName);
+            xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
+    
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndElement();
+    
+            xmlWriter.Close();
+
+            // Create an XML document.
+            XmlDocument doc = new XmlDocument();
+            XmlTextReader rdr = new XmlTextReader(new System.IO.StringReader(textWriter.ToString()));
+            rdr.MoveToContent();
+            doc.LoadXml(rdr.ReadOuterXml());
+            return doc;
         }
 
         #endregion // "Jobs Handlers"
@@ -446,7 +517,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 if (connInfo != null)
                 {
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
                 }
 
@@ -502,7 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             if (connInfo != null && ValidateAgentAlertInfo(alert))
             {
-                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                 STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("alert", alert.JobName);
 
@@ -531,7 +602,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     AgentAlertInfo alert = parameters.Alert;
                     if (connInfo != null && ValidateAgentAlertInfo(alert))
                     {
-                        CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                        CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                         STParameters param = new STParameters(dataContainer.Document);
                         param.SetParam("alert", alert.JobName);
 
@@ -572,7 +643,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     out connInfo);
 
                 AgentOperatorInfo operatorInfo = parameters.Operator;
-                CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                 STParameters param = new STParameters(dataContainer.Document);
                 param.SetParam("operator", operatorInfo.Name);
 
@@ -662,7 +733,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ownerUri,
                         out connInfo);
 
-                    CDataContainer dataContainer = AdminService.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("proxyaccount", accountName);
 
