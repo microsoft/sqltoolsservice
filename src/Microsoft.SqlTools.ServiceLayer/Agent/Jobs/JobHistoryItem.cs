@@ -64,7 +64,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private ILogEntry m_currentEntry = null;
         private int m_index = 0;
         private bool m_isClosed = false;
-        private TypedColumnCollection columnTypes;
         private IServiceProvider serviceProvider = null;
 
         private static string historyTableDeclaration   = "declare @tmp_sp_help_jobhistory table";

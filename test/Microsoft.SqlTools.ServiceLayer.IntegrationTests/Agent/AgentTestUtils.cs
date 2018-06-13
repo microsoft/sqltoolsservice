@@ -135,6 +135,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             context.VerifyAll();
         }
 
+        internal static async Task DeleteAgentJobStep(
+            AgentService service, 
+            TestConnectionResult connectionResult, 
+            AgentJobStepInfo stepInfo)
+        {
+            var context = new Mock<RequestContext<ResultStatus>>();     
+            await service.HandleDeleteAgentJobStepRequest(new DeleteAgentJobStepParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                Step = stepInfo
+            }, context.Object);
+        }
+
         internal static async Task<AgentAlertInfo[]> GetAgentAlerts(string connectionUri)
         {
             var requestParams = new AgentAlertsParams()
@@ -151,6 +164,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             AgentService service = new AgentService();
             await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
             return agentAlerts;
-        }
+        }      
     }
 }

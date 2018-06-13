@@ -368,6 +368,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
+        private void CreateJobData(
+            string ownerUri, 
+            string jobName,
+            out CDataContainer dataContainer,
+            out JobData jobData,
+            AgentJobInfo jobInfo = null)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                ownerUri,
+                out connInfo);
+
+            dataContainer = CDataContainer.CreateDataContainer(
+                connInfo, 
+                databaseExists: true);
+
+            XmlDocument jobDoc = CreateJobXmlDocument(
+                dataContainer.Server.Name.ToUpper(),
+                jobName);
+
+            dataContainer.Init(jobDoc.InnerXml);
+
+            STParameters param = new STParameters(dataContainer.Document);
+            param.SetParam("job", string.Empty);                    
+            param.SetParam("jobid", string.Empty);
+
+            jobData = new JobData(dataContainer, jobInfo);
+        }
+
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
             string ownerUri,
             AgentJobInfo jobInfo,
@@ -378,26 +407,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 try
                 {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(ownerUri, jobInfo.Name, out dataContainer, out jobData, jobInfo);
 
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                        connInfo, 
-                        databaseExists: true);
-
-                    XmlDocument jobDoc = CreateJobXmlDocument(
-                        dataContainer.Server.Name.ToUpper(),
-                        jobInfo.Name);
-
-                    dataContainer.Init(jobDoc.InnerXml);
-
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", string.Empty);
-
-                    var jobData = new JobData(dataContainer, jobInfo);
                     using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
                     {
                         var executionHandler = new ExecutonHandler(jobActions);
@@ -428,26 +441,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         return new Tuple<bool, string>(false, "JobId cannot be null");
                     }
 
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
 
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                        connInfo, 
-                        databaseExists: true);
-
-                    XmlDocument jobDoc = CreateJobXmlDocument(
-                        dataContainer.Server.Name.ToUpper(),
-                        stepInfo.JobName);
-
-                    dataContainer.Init(jobDoc.InnerXml);
-
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", string.Empty);
-
-                    var jobData = new JobData(dataContainer);
                     using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
                     {
                         var executionHandler = new ExecutonHandler(jobStep);
@@ -464,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        public XmlDocument CreateJobXmlDocument(string svrName, string jobName)
+        public static XmlDocument CreateJobXmlDocument(string svrName, string jobName)
         {
             // XML element strings
             const string XmlFormDescElementName = "formdescription";
