@@ -4373,6 +4373,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string InvalidScheduleTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidScheduleTitle);
+            }
+        }
+
+        public static string InvalidWeeklySchedule
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidWeeklySchedule);
+            }
+        }
+
+        public static string StartDateGreaterThanEndDate
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartDateGreaterThanEndDate);
+            }
+        }
+
+        public static string StartTimeGreaterThanEndTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartTimeGreaterThanEndTime);
+            }
+        }
+
+        public static string EndTimeEqualToStartTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.EndTimeEqualToStartTime);
+            }
+        }
+
+        public static string InvalidStartDate
+        {
+            get
+            {
+                return Keys.GetString(Keys.InvalidStartDate);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4616,6 +4664,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string JobStepNameAlreadyExists(string jobName)
         {
             return Keys.GetString(Keys.JobStepNameAlreadyExists, jobName);
+        }
+
+        public static string ScheduleNameAlreadyExists(string scheduleName)
+        {
+            return Keys.GetString(Keys.ScheduleNameAlreadyExists, scheduleName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -6400,6 +6453,27 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CannotAlterAlert = "CannotAlterAlert";
+
+
+            public const string InvalidScheduleTitle = "InvalidScheduleTitle";
+
+
+            public const string InvalidWeeklySchedule = "InvalidWeeklySchedule";
+
+
+            public const string StartDateGreaterThanEndDate = "StartDateGreaterThanEndDate";
+
+
+            public const string StartTimeGreaterThanEndTime = "StartTimeGreaterThanEndTime";
+
+
+            public const string EndTimeEqualToStartTime = "EndTimeEqualToStartTime";
+
+
+            public const string InvalidStartDate = "InvalidStartDate";
+
+
+            public const string ScheduleNameAlreadyExists = "ScheduleNameAlreadyExists";
 
 
             private Keys()

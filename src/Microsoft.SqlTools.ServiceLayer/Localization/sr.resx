@@ -2534,4 +2534,33 @@
     <value>Cannot alter alert.</value>
     <comment></comment>
   </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Invalid Schedule</value>
+    <comment> Schedule error message</comment>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Select at least one day to be part of this weekly schedule.</value>
+    <comment></comment>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>The job schedule starting date cannot be greater than the ending date.</value>
+    <comment></comment>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>The job schedule starting time cannot be after the ending time.</value>
+    <comment></comment>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>The job schedule ending time must be after the starting time.</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>Start date must be on or after January 1, 1990.</value>
+    <comment></comment>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>There is already a schedule named '{0}' for this job.  You must specify a different name.</value>
+    <comment>.
+ Parameters: 0 - scheduleName (string) </comment>
+  </data>
 </root>

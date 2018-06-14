@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (createNewAlert)
                 {
                     alert = new Alert(this.DataContainer.Server.JobServer, alertName);
-                }               
+                }
 
                 // apply changes from input parameter to SMO alert object
                 UpdateAlertProperties(alert);

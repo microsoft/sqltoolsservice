@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Common;
@@ -21,7 +19,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -266,18 +263,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
-        {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            var serverConnection = new ServerConnection(sqlConnection);
-            var server = new Server(serverConnection);
-            var filter = new JobHistoryFilter();
-            filter.JobID = new Guid(jobId);
-            var dt = server.JobServer.EnumJobHistory(filter);
-            var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
-            return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
-        }
-
         internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
         {
             var result = await ConfigureAgentJob(
@@ -366,36 +351,207 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Success = result.Item1,
                 ErrorMessage = result.Item2
             });
-        }
+        }        
 
-        private void CreateJobData(
-            string ownerUri, 
-            string jobName,
-            out CDataContainer dataContainer,
-            out JobData jobData,
-            AgentJobInfo jobInfo = null)
+        #endregion // "Jobs Handlers"
+
+		#region "Alert Handlers"
+
+        /// <summary>
+        /// Handle request to get the alerts list
+        /// </summary>
+        internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
         {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(
-                ownerUri,
-                out connInfo);
+            await Task.Run(async () =>
+            {
+                var result = new AgentAlertsResult();
+                result.Alerts = new List<AgentAlertInfo>().ToArray();
 
-            dataContainer = CDataContainer.CreateDataContainer(
-                connInfo, 
-                databaseExists: true);
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
 
-            XmlDocument jobDoc = CreateJobXmlDocument(
-                dataContainer.Server.Name.ToUpper(),
-                jobName);
+                if (connInfo != null)
+                {
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
+                }
 
-            dataContainer.Init(jobDoc.InnerXml);
-
-            STParameters param = new STParameters(dataContainer.Document);
-            param.SetParam("job", string.Empty);                    
-            param.SetParam("jobid", string.Empty);
-
-            jobData = new JobData(dataContainer, jobInfo);
+                await requestContext.SendResult(result);
+            });
         }
+
+        /// <summary>
+        /// Handle request to create an alert
+        /// </summary>
+        internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
+        {
+            var result = await ConfigureAgentAlert(
+                parameters.OwnerUri,
+                parameters.Alert,
+                ConfigAction.Create,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new CreateAgentAlertResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });      
+        }
+
+        /// <summary>
+        /// Handle request to update an alert
+        /// </summary>
+        internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
+        {
+            var result = await ConfigureAgentAlert(
+                parameters.OwnerUri,
+                parameters.Alert,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new UpdateAgentAlertResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        /// <summary>
+        /// Handle request to delete an alert
+        /// </summary>
+        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            var result = await ConfigureAgentAlert(
+                parameters.OwnerUri,
+                parameters.Alert,
+                ConfigAction.Drop,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        #endregion // "Alert Handlers"
+
+        #region "Operator Handlers"
+
+        internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }        
+
+        internal async Task HandleCreateAgentOperatorRequest(
+            CreateAgentOperatorParams parameters, 
+            RequestContext<AgentOperatorResult> requestContext)
+        {
+            var result = await ConfigureAgentOperator(
+                parameters.OwnerUri, 
+                parameters.Operator, 
+                ConfigAction.Create, 
+                RunType.RunNow);
+
+            await requestContext.SendResult(new AgentOperatorResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Operator = parameters.Operator
+            });
+        }
+
+        internal async Task HandleUpdateAgentOperatorRequest(
+            UpdateAgentOperatorParams parameters, 
+            RequestContext<AgentOperatorResult> requestContext)
+        {
+            var result = await ConfigureAgentOperator(
+                parameters.OwnerUri, 
+                parameters.Operator, 
+                ConfigAction.Update, 
+                RunType.RunNow);
+
+            await requestContext.SendResult(new AgentOperatorResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Operator = parameters.Operator
+            });
+        }
+
+        internal async Task HandleDeleteAgentOperatorRequest(
+            DeleteAgentOperatorParams parameters, 
+            RequestContext<ResultStatus> requestContext)
+        {
+            var result = await ConfigureAgentOperator(
+                parameters.OwnerUri, 
+                parameters.Operator, 
+                ConfigAction.Drop, 
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }        
+
+        #endregion // "Operator Handlers"
+
+
+        #region "Proxy Handlers"
+
+        internal async Task HandleAgentProxiesRequest(AgentProxiesParams parameters, RequestContext<AgentProxiesResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<CreateAgentProxyResult> requestContext)
+        {
+             bool succeeded = await ConfigureAgentProxy(
+                parameters.OwnerUri,
+                parameters.Proxy.AccountName,
+                parameters.Proxy,
+                ConfigAction.Create);
+
+            await requestContext.SendResult(new CreateAgentProxyResult()
+            {
+                Success = succeeded
+            });
+        }
+
+        internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<UpdateAgentProxyResult> requestContext)
+        {
+            bool succeeded = await ConfigureAgentProxy(
+                parameters.OwnerUri,
+                parameters.OriginalProxyName,
+                parameters.Proxy,
+                ConfigAction.Update);
+
+            await requestContext.SendResult(new UpdateAgentProxyResult()
+            {
+                Success = succeeded
+            });
+        }
+
+        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            bool succeeded = await ConfigureAgentProxy(
+                parameters.OwnerUri,
+                parameters.Proxy.AccountName,
+                parameters.Proxy,
+                ConfigAction.Drop);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = succeeded
+            });
+        }
+
+        #endregion // "Proxy Handlers"
+
+
+        #region "Helpers"
 
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
             string ownerUri,
@@ -461,139 +617,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        public static XmlDocument CreateJobXmlDocument(string svrName, string jobName)
-        {
-            // XML element strings
-            const string XmlFormDescElementName = "formdescription";
-            const string XmlParamsElementName = "params";
-            const string XmlJobElementName = "job";
-            const string XmlUrnElementName = "urn";
-            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
-
-            // Write out XML.
-            StringWriter textWriter = new StringWriter();
-            XmlTextWriter xmlWriter = new XmlTextWriter(textWriter);
-
-            xmlWriter.WriteStartElement(XmlFormDescElementName);
-            xmlWriter.WriteStartElement(XmlParamsElementName);
-
-            xmlWriter.WriteElementString(XmlJobElementName, jobName);
-            xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
-    
-            xmlWriter.WriteEndElement();
-            xmlWriter.WriteEndElement();
-    
-            xmlWriter.Close();
-
-            // Create an XML document.
-            XmlDocument doc = new XmlDocument();
-            XmlTextReader rdr = new XmlTextReader(new System.IO.StringReader(textWriter.ToString()));
-            rdr.MoveToContent();
-            doc.LoadXml(rdr.ReadOuterXml());
-            return doc;
-        }
-
-        #endregion // "Jobs Handlers"
-
-		#region "Alert Handlers"
-
-        /// <summary>
-        /// Handle request to get the alerts list
-        /// </summary>
-        internal async Task HandleAgentAlertsRequest(AgentAlertsParams parameters, RequestContext<AgentAlertsResult> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                var result = new AgentAlertsResult();
-                result.Alerts = new List<AgentAlertInfo>().ToArray();
-
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                if (connInfo != null)
-                {
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
-                }
-
-                await requestContext.SendResult(result);
-            });
-        }
-
-        /// <summary>
-        /// Handle request to create an alert
-        /// </summary>
-        internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                var result = new CreateAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                await ConfigureAgentAlert(
-                    parameters.OwnerUri,
-                    parameters.Alert,
-                    ConfigAction.Create,
-                    RunType.RunNow);
-
-                await requestContext.SendResult(result);
-            });
-        }
-
-        /// <summary>
-        /// Handle request to update an alert
-        /// </summary>
-        internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                var result = new UpdateAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                await ConfigureAgentAlert(
-                    parameters.OwnerUri,
-                    parameters.Alert,
-                    ConfigAction.Update,
-                    RunType.RunNow);
-
-                await requestContext.SendResult(result);
-            });
-        }
-
-        /// <summary>
-        /// Handle request to delete an alert
-        /// </summary>
-        internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                var result = new ResultStatus();
-                try
-                {
-                    await ConfigureAgentAlert(
-                        parameters.OwnerUri,
-                        parameters.Alert,
-                        ConfigAction.Drop,
-                        RunType.RunNow);
-                }
-                catch (Exception ex)
-                {
-                    result.Success = false;
-                    result.ErrorMessage = ex.ToString();
-                }
-
-                await requestContext.SendResult(result);
-            });
-        }
-
         internal async Task<Tuple<bool, string>> ConfigureAgentAlert(
             string ownerUri,
             AgentAlertInfo alert,
@@ -605,14 +628,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 try
                 {
                     ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                        connInfo, 
-                        databaseExists: true);
-
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("alert", alert.JobName);
 
@@ -634,98 +651,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        #endregion // "Alert Handlers"
-
-        #region "Operator Handlers"
-
-        internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
+        internal async Task<Tuple<bool, string>> ConfigureAgentOperator(
+            string ownerUri,
+            AgentOperatorInfo operatorInfo,
+            ConfigAction configAction,
+            RunType runType)
         {
-            await requestContext.SendResult(null);
-        }
-
-        internal async Task HandleCreateAgentOperatorRequest(CreateAgentOperatorParams parameters, RequestContext<CreateAgentOperatorResult> requestContext)
-        {
-            await Task.Run(async () =>
+            return await Task<Tuple<bool, string>>.Run(() =>
             {
-                var result = new CreateAgentOperatorResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                AgentOperatorInfo operatorInfo = parameters.Operator;
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                STParameters param = new STParameters(dataContainer.Document);
-                param.SetParam("operator", operatorInfo.Name);
-
-                using (AgentOperator agentOperator = new AgentOperator(dataContainer, operatorInfo))
+                try
                 {
-                    agentOperator.CreateOrUpdate();
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("operator", operatorInfo.Name);
+
+                    using (AgentOperatorActions agentOperator = new AgentOperatorActions(dataContainer, operatorInfo, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(agentOperator);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
                 }
-
-                await requestContext.SendResult(result);
-            });
-        }
-
-        internal async Task HandleUpdateAgentOperatorRequest(UpdateAgentOperatorParams parameters, RequestContext<UpdateAgentOperatorResult> requestContext)
-        {
-            await requestContext.SendResult(null);
-        }
-
-        internal async Task HandleDeleteAgentOperatorRequest(DeleteAgentOperatorParams parameters, RequestContext<DeleteAgentOperatorResult> requestContext)
-        {
-            await requestContext.SendResult(null);
-        }
-
-        #endregion // "Operator Handlers"
-
-
-        #region "Proxy Handlers"
-
-        internal async Task HandleAgentProxiesRequest(AgentProxiesParams parameters, RequestContext<AgentProxiesResult> requestContext)
-        {
-            await requestContext.SendResult(null);
-        }
-
-        internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<CreateAgentProxyResult> requestContext)
-        {
-             bool succeeded = await ConfigureAgentProxy(
-                parameters.OwnerUri,
-                parameters.Proxy.AccountName,
-                parameters.Proxy,
-                ConfigAction.Create);
-
-            await requestContext.SendResult(new CreateAgentProxyResult()
-            {
-                Success = succeeded
-            });
-        }
-
-        internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<UpdateAgentProxyResult> requestContext)
-        {
-            bool succeeded = await ConfigureAgentProxy(
-                parameters.OwnerUri,
-                parameters.OriginalProxyName,
-                parameters.Proxy,
-                ConfigAction.Update);
-
-            await requestContext.SendResult(new UpdateAgentProxyResult()
-            {
-                Success = succeeded
-            });
-        }
-
-        internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            bool succeeded = await ConfigureAgentProxy(
-                parameters.OwnerUri,
-                parameters.Proxy.AccountName,
-                parameters.Proxy,
-                ConfigAction.Drop);
-
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = succeeded
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
             });
         }
 
@@ -774,8 +727,73 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return false;
                 }
             });
+        }        
+
+        private void CreateJobData(
+            string ownerUri, 
+            string jobName,
+            out CDataContainer dataContainer,
+            out JobData jobData,
+            AgentJobInfo jobInfo = null)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+            XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(), jobName);
+            dataContainer.Init(jobDoc.InnerXml);
+
+            STParameters param = new STParameters(dataContainer.Document);
+            param.SetParam("job", string.Empty);                    
+            param.SetParam("jobid", string.Empty);
+
+            jobData = new JobData(dataContainer, jobInfo);
         }
 
-        #endregion // "Proxy Handlers"
+        public static XmlDocument CreateJobXmlDocument(string svrName, string jobName)
+        {
+            // XML element strings
+            const string XmlFormDescElementName = "formdescription";
+            const string XmlParamsElementName = "params";
+            const string XmlJobElementName = "job";
+            const string XmlUrnElementName = "urn";
+            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
+
+            // Write out XML.
+            StringWriter textWriter = new StringWriter();
+            XmlTextWriter xmlWriter = new XmlTextWriter(textWriter);
+
+            xmlWriter.WriteStartElement(XmlFormDescElementName);
+            xmlWriter.WriteStartElement(XmlParamsElementName);
+
+            xmlWriter.WriteElementString(XmlJobElementName, jobName);
+            xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
+    
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndElement();
+    
+            xmlWriter.Close();
+
+            // Create an XML document.
+            XmlDocument doc = new XmlDocument();
+            XmlTextReader rdr = new XmlTextReader(new System.IO.StringReader(textWriter.ToString()));
+            rdr.MoveToContent();
+            doc.LoadXml(rdr.ReadOuterXml());
+            return doc;
+        }
+
+        private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            var serverConnection = new ServerConnection(sqlConnection);
+            var server = new Server(serverConnection);
+            var filter = new JobHistoryFilter();
+            filter.JobID = new Guid(jobId);
+            var dt = server.JobServer.EnumJobHistory(filter);
+            var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
+            return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
+        }        
+
+        #endregion // "Helpers"
     }
 }

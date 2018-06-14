@@ -4,158 +4,15 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.Threading;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-    /// <summary>
-    /// Agent Operators management class
-    /// </summary>
-    internal class AgentOperator : ManagementActionBase
-    {
-        private AgentOperatorInfo operatorInfo;
-
-        AgentOperatorsData operatorsData = null;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public AgentOperator(CDataContainer dataContainer, AgentOperatorInfo operatorInfo)
-        {
-            try
-            {
-                if (dataContainer == null)
-                {
-                    throw new ArgumentNullException("dataContainer");
-                }
-
-                if (operatorInfo == null)
-                {
-                    throw new ArgumentNullException("operatorInfo");
-                }
-
-                this.operatorInfo = operatorInfo;
-                this.DataContainer = dataContainer;
-
-                STParameters parameters = new STParameters();
-                parameters.SetDocument(dataContainer.Document);
-
-                string agentOperatorName = null;
-                if (parameters.GetParam("operator", ref agentOperatorName))
-                {
-                    this.operatorsData = new AgentOperatorsData(dataContainer, agentOperatorName);
-                }
-                else
-                {
-                    throw new ArgumentNullException("agentOperatorName");
-                }
-            }
-            catch(Exception e)
-            {
-                throw new ApplicationException("AgentOperatorsSR.FailedToCreateInitializeAgentOperatorDialog", e);
-            }
-        }
-
-        /// <summary> 
-        /// Clean up any resources being used.
-        /// </summary>
-        protected override void Dispose(bool disposing)
-        {
-            if(disposing)
-            {    
-            }
-            base.Dispose(disposing);
-        }
-
-        public bool CreateOrUpdate()
-        {
-            this.operatorsData.ApplyChanges(this.operatorInfo);
-            return true;
-        }
-    }
-
-     #region internal structures
-    /// <summary>
-    /// Provides data to be consumed in the job notification grid
-    /// </summary>
-    internal struct AgentJobNotificationHelper
-    {
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="name">job name</param>
-        /// <param name="notifyEmail"></param>
-        /// <param name="notifyPager"></param>
-        public AgentJobNotificationHelper(string name, CompletionAction notifyEmail, CompletionAction notifyPager)
-        {
-            this.Name = name;
-            this.NotifyEmail = notifyEmail;
-            this.NotifyPager = notifyPager;
-        }
-        /// <summary>
-        /// Name of the job
-        /// </summary>
-        public string Name;
-        /// <summary>
-        /// job email notification action
-        /// </summary>
-        public CompletionAction NotifyEmail;
-        /// <summary>
-        /// job pager notification action
-        /// </summary>
-        public CompletionAction NotifyPager;
-    }
-    /// <summary>
-    /// Provides data to be consumed in the alert notification grid
-    /// </summary>
-    internal struct AgentAlertNotificationHelper
-    {
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="name">Name of the alert</param>
-        /// <param name="notifyEmail"></param>
-        /// <param name="notifyPager"></param>
-        /// <param name="alert">Alert object</param>
-        public AgentAlertNotificationHelper(string name, bool notifyEmail, bool notifyPager, Alert alert)
-        {
-            this.Name = name;
-            this.NotifyEmail = notifyEmail;
-            this.NotifyPager = notifyPager;
-            this.Alert = alert;
-        }
-        /// <summary>
-        /// Alert name
-        /// </summary>
-        public string Name;
-        /// <summary>
-        /// Indicates whether the alert will notify the operator through email
-        /// </summary>
-        public bool NotifyEmail;
-        /// <summary>
-        /// Indicates whether the alert will notify the operator through pager
-        /// </summary>
-        public bool NotifyPager;
-        /// <summary>
-        /// Alert object. optimisation to stop us having to lookup the alert object when needed
-        /// </summary>
-        public Alert Alert;
-    }
-    #endregion
     /// <summary>
     /// Proxy class for the AgentOperators dialog and property pages.
     /// Performs lazy instantiation of groups of data based around the operators dialog property pages
@@ -170,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <summary>
         /// Original operator name. Empty if we are creating a new operator
         /// </summary>
-        string originalOperatorName = String.Empty;
+        string originalOperatorName = string.Empty;
         /// <summary>
         /// Indicates whether we are creating an operator or not
         /// </summary>
@@ -209,6 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// will be null if the alert notifications have not been initialised
         /// </summary>
         IList<AgentAlertNotificationHelper> alertNotifications;
+
         /// <summary>
         /// will be null if the job notifications have not been initialised
         /// </summary>
@@ -222,6 +80,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region properties
+
+        /// <summary>
+        /// the current Operator SMO object
+        /// </summary>
+        public Operator Operator
+        {
+            get
+            {
+                JobServer jobServer = GetJobServer();
+                return jobServer.Operators[this.originalOperatorName];
+            }
+        }
+
         /// <summary>
         /// indicates if the data is in create mode
         /// </summary>
@@ -232,6 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.createMode;
             }
         }
+
         /// <summary>
         /// name of the object
         /// </summary>
@@ -248,6 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 name = value;
             }
         }
+
         /// <summary>
         /// Indicates if the dataobject is readonly
         /// </summary>
@@ -275,6 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 enabled = value;
             }
         }
+
         /// <summary>
         /// email address of this operator
         /// </summary>
@@ -291,6 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.emailAddress = value;
             }
         }
+
         /// <summary>
         /// pager address of this operator
         /// </summary>
@@ -324,6 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.pagerDays = value;
             }
         }
+
         /// <summary>
         /// Weekday start time for this operator to be active
         /// </summary>
@@ -340,6 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.weekdayStartTime = value;
             }
         }
+
         /// <summary>
         /// Weekday end time for this operator to be active
         /// </summary>
@@ -356,6 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.weekdayEndTime = value;
             }
         }
+
         /// <summary>
         /// Saturday start time for this operator to be active
         /// </summary>
@@ -372,6 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.saturdayStartTime = value;
             }
         }
+
         /// <summary>
         /// Saturday end time for this operator to be active
         /// </summary>
@@ -388,6 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.saturdayEndTime = value;
             }
         }
+
         /// <summary>
         /// Sunday start time for this operator to be active
         /// </summary>
@@ -404,6 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.sundayStartTime = value;
             }
         }
+
         /// <summary>
         /// Saturday end time for this operator to be active
         /// </summary>
@@ -438,6 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.alertNotifications = value;
             }
         }
+
         /// <summary>
         /// Jobs that notify this operator. This has to be set through the jobs dialog and is read only
         /// </summary>
@@ -463,6 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.lastEmailDate;
             }
         }
+
         /// <summary>
         /// Date this operator was last paged
         /// </summary>
@@ -480,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #region Constructors
 
-        public AgentOperatorsData(CDataContainer dataContainer, string operatorName)
+        public AgentOperatorsData(CDataContainer dataContainer, string operatorName, bool createMode)
         {
             if (dataContainer == null)
             {
@@ -497,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.originalOperatorName = operatorName;
             this.name = operatorName;
 
-            this.createMode = operatorName.Length == 0;
+            this.createMode = createMode;
         }
         #endregion
 
@@ -541,6 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.generalInitialized = true;
 
         }
+
         /// <summary>
         /// Load the data for the jobs that notify this operator. Can be called multiple times and will
         /// only load the data initially, or after a reset.
@@ -577,6 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
             }
         }
+
         /// <summary>
         /// Load alerts that notify this operator
         /// </summary>
@@ -824,9 +709,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         private void LoadGeneralDefaults()
         {
-            name = String.Empty;
-            this.emailAddress = String.Empty;
-            this.pagerAddress = String.Empty;
+            name = string.Empty;
+            this.emailAddress = string.Empty;
+            this.pagerAddress = string.Empty;
             enabled = true;
             pagerDays = 0;
 
@@ -835,6 +720,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.generalInitialized = true;
         }
+
         /// <summary>
         /// Set job notification defaults. This is just an empty list
         /// </summary>
@@ -842,6 +728,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             this.jobNotifications = new List<AgentJobNotificationHelper>();
         }
+
         /// <summary>
         /// set the alert notification defaults. This list will contain all of the alerts
         /// </summary>
@@ -858,6 +745,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.alertNotifications.Add(alertNotification);
             }
         }
+
         /// <summary>
         /// load defaults for the history page
         /// </summary>
@@ -878,9 +766,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private JobServer GetJobServer()
         {
             JobServer jobServer = this.dataContainer.Server.JobServer;
-            if(jobServer == null)
+            if (jobServer == null)
             {
-                throw new ApplicationException("AgentOperatorsSR.JobServerIsNotAvailable");
+                throw new ApplicationException(SR.JobServerIsNotAvailable);
             }
             return jobServer;
         }
@@ -894,7 +782,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private Operator GetCurrentOperator()
         {
             JobServer jobServer = GetJobServer();
-
             Operator currentOperator = jobServer.Operators[this.originalOperatorName];
             this.createMode = (currentOperator == null);
             if (this.createMode)
@@ -913,6 +800,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             return new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second);
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -944,4 +832,81 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
         #endregion
     }
+
+#region internal structures
+    /// <summary>
+    /// Provides data to be consumed in the job notification grid
+    /// </summary>
+    internal struct AgentJobNotificationHelper
+    {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="name">job name</param>
+        /// <param name="notifyEmail"></param>
+        /// <param name="notifyPager"></param>
+        public AgentJobNotificationHelper(string name, CompletionAction notifyEmail, CompletionAction notifyPager)
+        {
+            this.Name = name;
+            this.NotifyEmail = notifyEmail;
+            this.NotifyPager = notifyPager;
+        }
+
+        /// <summary>
+        /// Name of the job
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// job email notification action
+        /// </summary>
+        public CompletionAction NotifyEmail;
+
+        /// <summary>
+        /// job pager notification action
+        /// </summary>
+        public CompletionAction NotifyPager;
+    }
+
+    /// <summary>
+    /// Provides data to be consumed in the alert notification grid
+    /// </summary>
+    internal struct AgentAlertNotificationHelper
+    {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="name">Name of the alert</param>
+        /// <param name="notifyEmail"></param>
+        /// <param name="notifyPager"></param>
+        /// <param name="alert">Alert object</param>
+        public AgentAlertNotificationHelper(string name, bool notifyEmail, bool notifyPager, Alert alert)
+        {
+            this.Name = name;
+            this.NotifyEmail = notifyEmail;
+            this.NotifyPager = notifyPager;
+            this.Alert = alert;
+        }
+
+        /// <summary>
+        /// Alert name
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Indicates whether the alert will notify the operator through email
+        /// </summary>
+        public bool NotifyEmail;
+
+        /// <summary>
+        /// Indicates whether the alert will notify the operator through pager
+        /// </summary>
+        public bool NotifyPager;
+
+        /// <summary>
+        /// Alert object. optimisation to stop us having to lookup the alert object when needed
+        /// </summary>
+        public Alert Alert;
+    }
+    #endregion    
 }

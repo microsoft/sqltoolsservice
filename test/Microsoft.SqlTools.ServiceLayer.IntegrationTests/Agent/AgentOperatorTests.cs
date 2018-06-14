@@ -16,34 +16,69 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
     public class AgentOperatorTests
     {
+        /// <summary>
+        /// Verify the default "create agent alert" request handler with valid parameters
+        /// </summary>
+        [Fact]
+        public async Task TestHandleCreateAgentOperatorRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                var service = new AgentService();
+                var operatorInfo = AgentTestUtils.GetTestOperatorInfo();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await AgentTestUtils.DeleteAgentOperator(service, connectionResult, operatorInfo);
+
+                 // test
+                await AgentTestUtils.CreateAgentOperator(service, connectionResult, operatorInfo);
+
+                // cleanup
+                await AgentTestUtils.DeleteAgentOperator(service, connectionResult, operatorInfo);
+            }
+        }
 
         /// <summary>
-        /// Verify the default "update agent alert" request handler with valid parameters
+        /// TestHandleUpdateAgentOperatorRequest
         /// </summary>
-        //[Fact]
+        [Fact]
         public async Task TestHandleUpdateAgentOperatorRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                var createContext = new Mock<RequestContext<CreateAgentOperatorResult>>();
-
+                // setup
                 var service = new AgentService();
-                var operatorInfo = new AgentOperatorInfo()
-                {
-                    Id = 10,
-                    Name = "Joe DBA",
-                    EmailAddress = "test@aol.com"
-                };
-
+                var operatorInfo = AgentTestUtils.GetTestOperatorInfo();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await AgentTestUtils.DeleteAgentOperator(service, connectionResult, operatorInfo);
+                await AgentTestUtils.CreateAgentOperator(service, connectionResult, operatorInfo);
 
-                await service.HandleCreateAgentOperatorRequest(new CreateAgentOperatorParams
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Operator = operatorInfo
-                }, createContext.Object);
+                // test
+                operatorInfo.EmailAddress = "updated@email.com";
+                await AgentTestUtils.UpdateAgentOperator(service, connectionResult, operatorInfo);
 
-                createContext.VerifyAll();
+                // cleanup
+                await AgentTestUtils.DeleteAgentOperator(service, connectionResult, operatorInfo);
+            }
+        }
+
+        /// <summary>
+        /// TestHandleDeleteAgentOperatorRequest
+        /// </summary>
+        [Fact]
+        public async Task TestHandleDeleteAgentOperatorRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                var service = new AgentService();
+                var operatorInfo = AgentTestUtils.GetTestOperatorInfo();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await AgentTestUtils.DeleteAgentOperator(service, connectionResult, operatorInfo);
+                await AgentTestUtils.CreateAgentOperator(service, connectionResult, operatorInfo);
+
+                 // test
+                await AgentTestUtils.DeleteAgentOperator(service, connectionResult, operatorInfo);
             }
         }
     }
