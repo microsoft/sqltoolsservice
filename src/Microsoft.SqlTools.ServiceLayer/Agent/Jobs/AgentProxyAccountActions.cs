@@ -6,19 +6,15 @@
 using System;
 using System.Collections;
 using System.Data;
-using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-    internal class AgentProxyAccount : ManagementActionBase
+    internal class AgentProxyAccountActions : ManagementActionBase
     {
         #region Constants
         internal const string ProxyAccountPropertyName = "proxyaccount";
@@ -47,35 +43,79 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         // Flag indicating that proxy account should be duplicated
         private bool duplicate;
 
-        public static string SysadminAccount
-        {
-            get { return "AgentProxyAccountSR.SysadminAccount"; }
-        }
+        private ConfigAction configAction;
+
+        private bool readOnly = false;
 
         /// <summary>
         /// Main constructor. Creates all pages and adds them 
         /// to the tree control.
         /// </summary>
-        public AgentProxyAccount(CDataContainer dataContainer, AgentProxyInfo proxyInfo)
+        public AgentProxyAccountActions(CDataContainer dataContainer, AgentProxyInfo proxyInfo, ConfigAction configAction)
         {
             this.DataContainer = dataContainer;
             this.proxyInfo = proxyInfo;
+            this.configAction = configAction;
+
+            if (configAction != ConfigAction.Drop)
+            {
+                // Create data structures
+                int length = Enum.GetValues(typeof(ProxyPrincipalType)).Length;
+                this.principals = new ArrayList[length];
+                for (int i = 0; i < length; ++i)
+                {
+                    this.principals[i] = new ArrayList();
+                }
+                
+                if (configAction == ConfigAction.Update)
+                {
+                    RefreshData();
+                }
+            }
 
             // Find out if we are creating a new proxy account or
             // modifying an existing one.
             GetProxyAccountName(dataContainer, ref this.proxyAccountName, ref this.duplicate);
         }
 
+        public static string SysadminAccount
+        {
+            get { return SR.SysadminAccount; }
+        }
+
+        /// <summary>
+        /// Main execution method. Creates or Alters a proxyAccount name.
+        /// </summary>
+        /// <returns>Always returns false</returns>
+        protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
+        {        
+           base.DoPreProcessExecution(runType, out executionResult);
+
+           if (this.configAction == ConfigAction.Create)
+            {
+                return Create();
+            }
+            else if (this.configAction == ConfigAction.Update)
+            {
+                return Update();
+            }
+            else if (this.configAction == ConfigAction.Drop)
+            {
+                return Drop();
+            }
+
+            // Always return false to stop framework from calling OnRunNow
+            return false;
+        }
+
         /// <summary>
         /// It creates a new ProxyAccount or gets an existing
         /// one from JobServer and updates all properties.
         /// </summary>
-        private bool CreateOrUpdateProxyAccount(
-            AgentProxyInfo proxyInfo,
-            bool isUpdate)
+        private bool CreateOrUpdateProxyAccount(AgentProxyInfo proxyInfo)
         {
             ProxyAccount proxyAccount = null;
-            if (!isUpdate)        
+            if (this.configAction == ConfigAction.Create)        
             {
                 proxyAccount = new ProxyAccount(this.DataContainer.Server.JobServer, 
                                                 proxyInfo.AccountName,
@@ -91,14 +131,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // Try refresh and check again
                 this.DataContainer.Server.JobServer.ProxyAccounts.Refresh();
                 if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
-                {
-                    // fail since account exists and asked to create a new one
-                    if (!isUpdate)
-                    {
-                        return false;
-                    }
-        
-                    proxyAccount = AgentProxyAccount.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
+                {                   
+                    proxyAccount = AgentProxyAccountActions.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
                     // Set the other properties
                     proxyAccount.CredentialName = proxyInfo.CredentialName;
                     proxyAccount.Description = proxyInfo.Description;
@@ -113,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         proxyAccount.Rename(proxyInfo.AccountName);
                     }
-                }                
+                }             
             }
             else
             {
@@ -178,13 +212,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         public bool Create()
         {
-            CreateOrUpdateProxyAccount(this.proxyInfo, false);
+            CreateOrUpdateProxyAccount(this.proxyInfo);
             return true;
         }
 
         public bool Update()
         {
-            CreateOrUpdateProxyAccount(this.proxyInfo, true);
+            CreateOrUpdateProxyAccount(this.proxyInfo);
             return true;
         }
 
@@ -196,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.DataContainer.Server.JobServer.ProxyAccounts.Refresh();
                 if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
                 {
-                    ProxyAccount proxyAccount = AgentProxyAccount.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
+                    ProxyAccount proxyAccount = AgentProxyAccountActions.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
                     proxyAccount.DropIfExists();
                 }
             }
@@ -205,8 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// <summary>
-        /// Called to update the proxy object with properties
-        /// from this page.
+        /// Called to update the proxy object
         /// </summary>
         public void UpdateProxyAccount(ProxyAccount proxyAccount)
         {
@@ -217,9 +250,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             ArrayList principalsToAdd    = new ArrayList();
             ArrayList principalsToRemove = new ArrayList();
-
+            
             // Process Sql Logins 
-            if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumLogins() : null, this.principals[(int) ProxyPrincipalType.SqlLogin], principalsToAdd, principalsToRemove))
+            if (ExtractPermissionsToAddAndRemove(
+                this.configAction == ConfigAction.Update ? proxyAccount.EnumLogins() : null, 
+                this.principals[(int) ProxyPrincipalType.SqlLogin], 
+                principalsToAdd, 
+                principalsToRemove))
             {
                 foreach (string principal in principalsToRemove)
                 {
@@ -233,7 +270,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             // Process Server Roles
-            if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumServerRoles() : null, this.principals[(int) ProxyPrincipalType.ServerRole], principalsToAdd, principalsToRemove))
+            if (ExtractPermissionsToAddAndRemove(
+                this.configAction == ConfigAction.Update ? proxyAccount.EnumServerRoles() : null, 
+                this.principals[(int) ProxyPrincipalType.ServerRole], 
+                principalsToAdd, 
+                principalsToRemove))
             {
                 foreach (string principal in principalsToRemove)
                 {
@@ -247,7 +288,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             // Process Msdb Roles
-            if (ExtractPermissionsToAddAndRemove(this.proxyAccountName != null? proxyAccount.EnumMsdbRoles() : null, this.principals[(int) ProxyPrincipalType.MsdbRole], principalsToAdd, principalsToRemove))
+            if (ExtractPermissionsToAddAndRemove(
+                this.configAction == ConfigAction.Update ? proxyAccount.EnumMsdbRoles() : null, 
+                this.principals[(int) ProxyPrincipalType.MsdbRole], 
+                principalsToAdd, 
+                principalsToRemove))
             {
                 foreach (string principal in principalsToRemove)
                 {
@@ -260,7 +305,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
             }
         }
-
 
         /// <summary>
         /// This method scans two list of principals - an existing one extracted from ProxyAccount object
@@ -328,28 +372,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private void RefreshData()
         {
-            // List all the jobsteps that use current 
-            // proxy account
-            Request req = new Request();
-            req.Urn = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
-                                    "Server/JobServer/Job/Step[@ProxyName=\'{0}\']", 
-                                    Urn.EscapeString(this.proxyAccountName));
-            req.ResultType = ResultType.IDataReader;
-            req.Fields = new string[] {"Name", "SubSystem"};
-            req.ParentPropertiesRequests = new PropertiesRequest[1];
-            req.ParentPropertiesRequests[0] = new PropertiesRequest(new string[] {"Name"});
-
-            Enumerator en = new Enumerator();
-            using (IDataReader reader = en.Process(this.DataContainer.ServerConnection, req).Data as IDataReader)
+           // Reset all principal collections
+            for (int i = 0; i < this.principals.Length; ++i)
             {
-                while (reader.Read())
+                this.principals[i].Clear();
+            }
+
+            // Add new data from proxy account
+            if (this.proxyAccountName != null)
+            {
+                ProxyAccount proxyAccount = GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);
+
+                // Get all the logins associated with this proxy
+                DataTable dt = proxyAccount.EnumLogins();
+                foreach (DataRow row in dt.Rows)
                 {
-                    //JobStepSubSystems.
-                    // @TODO - write to output collection
-                    //                       new GridCell(reader.GetString(0)),   // Job Name (parent property is first)   
-                    //                       new GridCell(reader.GetString(1)),   // JobStep Name
-                    //                       new GridCell(JobStepSubSystems.LookupFriendlyName((AgentSubSystem) reader.GetInt32(2)))    // JobStep SubSystem
+                    this.principals[(int)ProxyPrincipalType.SqlLogin].Add(row["Name"]);
                 }
+
+                // Get all the Server roles associated with this proxy
+                dt = proxyAccount.EnumServerRoles();
+                foreach (DataRow row in dt.Rows)
+                {
+                    this.principals[(int)ProxyPrincipalType.ServerRole].Add(row["Name"]);
+                }
+
+                // Get all the MSDB roles associated with this account
+                dt = proxyAccount.EnumMsdbRoles();
+                foreach (DataRow row in dt.Rows)
+                {
+                    this.principals[(int)ProxyPrincipalType.MsdbRole].Add(row["Name"]);
+                }
+
+                // only sa can modify
+                this.readOnly = !this.DataContainer.Server.ConnectionContext.IsInFixedServerRole(FixedServerRoles.SysAdmin);
             }
         }
 
@@ -383,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // if still cannot get the proxy throw an exception
                 if (proxyAccount == null)
                 {
-                    throw new ApplicationException("SRError.ProxyAccountNotFound(proxyAccountName)");
+                    throw new ApplicationException(SR.ProxyAccountNotFound(proxyAccountName));
                 }
             }
             return proxyAccount;
@@ -398,7 +454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             parameters.SetDocument(dataContainer.Document);
 
             // Get proxy name
-            parameters.GetParam(AgentProxyAccount.ProxyAccountPropertyName, ref proxyAccountName);
+            parameters.GetParam(AgentProxyAccountActions.ProxyAccountPropertyName, ref proxyAccountName);
             if (proxyAccountName != null && proxyAccountName.Length == 0)
             {
                 // Reset empty name back to null
@@ -407,8 +463,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             // Get duplicate flag
             string mode = string.Empty;
-            if (parameters.GetParam(AgentProxyAccount.ProxyAccountMode, ref mode) && 
-                0 == string.Compare(mode, AgentProxyAccount.ProxyAccountDuplicateMode, StringComparison.Ordinal))
+            if (parameters.GetParam(AgentProxyAccountActions.ProxyAccountMode, ref mode) && 
+                0 == string.Compare(mode, AgentProxyAccountActions.ProxyAccountDuplicateMode, StringComparison.Ordinal))
             {
                 duplicate = true;
             }
@@ -434,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 if (includeSysadmin)
                 {
-                    proxyAccounts.Add(AgentProxyAccount.SysadminAccount);
+                    proxyAccounts.Add(AgentProxyAccountActions.SysadminAccount);
                 }
 
                 // Get the list of proxy accounts

@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     break;
 
                 default:
-                    throw new InvalidOperationException("SRError.UnexpectedRunType");
+                    throw new InvalidOperationException(SR.UnexpectedRunType);
             }
                 
             if((this.managementAction.LastExecutionResult == ExecutionMode.Failure) || 

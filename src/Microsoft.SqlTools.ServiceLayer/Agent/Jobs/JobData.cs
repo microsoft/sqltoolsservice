@@ -1129,7 +1129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (!targetServerSelected)
                 {
                     ///Not target servers selected.  Throw error.
-                    throw new ApplicationException("SRError.TargetServerNotSelected");
+                    throw new ApplicationException(SR.TargetServerNotSelected);
                 }
             }
 
@@ -1386,7 +1386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 if (smoJobCollection.Contains(jobName))
                 {
-                    throw new ApplicationException("SRError.JobAlreadyExists(jobName)");
+                    throw new ApplicationException(SR.JobAlreadyExists(jobName));
                 }
             }
             finally

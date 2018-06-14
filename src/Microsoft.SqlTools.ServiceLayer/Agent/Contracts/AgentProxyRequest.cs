@@ -30,6 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
+    /// SQL Agent Proxy result
+    /// </summary>
+    public class AgentProxyResult : ResultStatus
+    {
+        public AgentProxyInfo Proxy { get; set; }
+    }    
+
+    /// <summary>
     /// SQL Agent Proxy Accounts request type
     /// </summary>
     public class AgentProxiesRequest
@@ -53,14 +61,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent create Proxy result
-    /// </summary>
-    public class CreateAgentProxyResult : ResultStatus
-    {
-        public AgentProxyInfo Proxy { get; set; }
-    }
-
-    /// <summary>
     /// SQL Agent create Proxy request type
     /// </summary>
     public class CreateAgentProxyRequest
@@ -69,8 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateAgentProxyParams, CreateAgentProxyResult> Type =
-            RequestType<CreateAgentProxyParams, CreateAgentProxyResult>.Create("agent/createproxy");
+            RequestType<CreateAgentProxyParams, AgentProxyResult> Type =
+            RequestType<CreateAgentProxyParams, AgentProxyResult>.Create("agent/createproxy");
     }
 
     /// <summary>
@@ -86,14 +86,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent update Proxy result
-    /// </summary>
-    public class UpdateAgentProxyResult : ResultStatus
-    {
-        public AgentProxyInfo Proxy { get; set; }
-    }
-
-    /// <summary>
     /// SQL Agent update Proxy request type
     /// </summary>
     public class UpdateAgentProxyRequest
@@ -102,8 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<UpdateAgentProxyParams, UpdateAgentProxyResult> Type =
-            RequestType<UpdateAgentProxyParams, UpdateAgentProxyResult>.Create("agent/updateproxy");
+            RequestType<UpdateAgentProxyParams, AgentProxyResult> Type =
+            RequestType<UpdateAgentProxyParams, AgentProxyResult>.Create("agent/updateproxy");
     }    
 
     /// <summary>

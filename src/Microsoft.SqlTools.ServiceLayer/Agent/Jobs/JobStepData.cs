@@ -527,7 +527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     // Return sysadmin account name when proxy
                     // name is not set, so we match the setter logic
-                    return AgentProxyAccount.SysadminAccount;
+                    return AgentProxyAccountActions.SysadminAccount;
                 }
                 else
                 {
@@ -537,7 +537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             set
             {
                 CheckAndLoadExpandedInformation();
-                if (value == AgentProxyAccount.SysadminAccount)
+                if (value == AgentProxyAccountActions.SysadminAccount)
                 {
                     // Sysadmin is just a special name used
                     // to reset proxy account 

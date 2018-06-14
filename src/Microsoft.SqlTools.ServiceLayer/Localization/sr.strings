@@ -1052,6 +1052,14 @@ CategoryLogShipping = Log Shipping
 CategoryDBEngineTuningAdvisor = Database Engine Tuning Advisor
 CategoryDataCollector = Data Collector
 
+UnknownSizeUnit(unit) = Unknown size unit {0} 
+UnexpectedRunType = Unexpected run type.
+CredentialNoLongerExists = The object does no longer exist on server.
+UnknownServerType(string serverTypeName) = Unknown server type '{0}'.
+SetOwnerFailed(string ownerName) = The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.
+TargetServerNotSelected = You must specify the Target Servers on which this multi server job will execute.
+ProxyAccountNotFound(string proxyName) = Proxy account '{0}' does not exist on the server.
+SysadminAccount = SQL Server Agent Service Account
 JobAlreadyExists(string jobName) = A job named '{0}' already exists.  Enter a unique name for the job.
 JobStepNameCannotBeBlank = The name of the job step cannot be blank.
 JobStepNameAlreadyExists(string jobName) = There is already a step named '{0}' for this job. You must specify a different name.

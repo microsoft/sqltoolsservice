@@ -4341,6 +4341,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string UnexpectedRunType
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnexpectedRunType);
+            }
+        }
+
+        public static string CredentialNoLongerExists
+        {
+            get
+            {
+                return Keys.GetString(Keys.CredentialNoLongerExists);
+            }
+        }
+
+        public static string TargetServerNotSelected
+        {
+            get
+            {
+                return Keys.GetString(Keys.TargetServerNotSelected);
+            }
+        }
+
+        public static string SysadminAccount
+        {
+            get
+            {
+                return Keys.GetString(Keys.SysadminAccount);
+            }
+        }
+
         public static string JobStepNameCannotBeBlank
         {
             get
@@ -4654,6 +4686,26 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string OperatorProperties(string operatorName)
         {
             return Keys.GetString(Keys.OperatorProperties, operatorName);
+        }
+
+        public static string UnknownSizeUnit(string unit)
+        {
+            return Keys.GetString(Keys.UnknownSizeUnit, unit);
+        }
+
+        public static string UnknownServerType(string serverTypeName)
+        {
+            return Keys.GetString(Keys.UnknownServerType, serverTypeName);
+        }
+
+        public static string SetOwnerFailed(string ownerName)
+        {
+            return Keys.GetString(Keys.SetOwnerFailed, ownerName);
+        }
+
+        public static string ProxyAccountNotFound(string proxyName)
+        {
+            return Keys.GetString(Keys.ProxyAccountNotFound, proxyName);
         }
 
         public static string JobAlreadyExists(string jobName)
@@ -6435,6 +6487,30 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CategoryDataCollector = "CategoryDataCollector";
+
+
+            public const string UnknownSizeUnit = "UnknownSizeUnit";
+
+
+            public const string UnexpectedRunType = "UnexpectedRunType";
+
+
+            public const string CredentialNoLongerExists = "CredentialNoLongerExists";
+
+
+            public const string UnknownServerType = "UnknownServerType";
+
+
+            public const string SetOwnerFailed = "SetOwnerFailed";
+
+
+            public const string TargetServerNotSelected = "TargetServerNotSelected";
+
+
+            public const string ProxyAccountNotFound = "ProxyAccountNotFound";
+
+
+            public const string SysadminAccount = "SysadminAccount";
 
 
             public const string JobAlreadyExists = "JobAlreadyExists";

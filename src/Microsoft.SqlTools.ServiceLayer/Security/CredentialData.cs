@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 				if (dataTable.Rows.Count == 0)
 				{
-					throw new Exception("SRError.CredentialNoLongerExists");
+					throw new Exception(SR.CredentialNoLongerExists);
 				}
 
 				System.Data.DataRow dataRow = dataTable.Rows[0];
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 			}
 			else
 			{
-				throw new Exception("SRError.CredentialNoLongerExists");
+				throw new Exception(SR.CredentialNoLongerExists);
 			}
 		}
 		#endregion

@@ -18,63 +18,68 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     public class AgentProxyTests
     {
         /// <summary>
+        /// TestHandleCreateAgentProxyRequest
+        /// </summary>
+        [Fact]
+        public async Task TestHandleCreateAgentProxyRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // cleanup
+                var service = new AgentService();
+                var proxy = AgentTestUtils.GetTestProxyInfo();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await AgentTestUtils.DeleteAgentProxy(service, connectionResult, proxy);    
+
+                // test
+                await AgentTestUtils.CreateAgentProxy(service, connectionResult, proxy);             
+
+                // cleanup
+                await AgentTestUtils.DeleteAgentProxy(service, connectionResult, proxy);    
+            }
+        }
+
+        /// <summary>
         /// Verify the default "update agent alert" request handler with valid parameters
         /// </summary>
-        //[Fact]
+        [Fact]
         public async Task TestHandleUpdateAgentProxyRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                var createContext = new Mock<RequestContext<CreateAgentProxyResult>>();
-                var updateContext = new Mock<RequestContext<UpdateAgentProxyResult>>();
-                var deleteContext = new Mock<RequestContext<ResultStatus>>();
-
+                // cleanup
                 var service = new AgentService();
-                var proxy = new AgentProxyInfo()
-                {
-                    Id = 10,                    
-                    AccountName = "Test Proxy 2",
-                    CredentialName = "User",
-                    Description = "",
-                    IsEnabled = true                    
-                };
-
+                var proxy = AgentTestUtils.GetTestProxyInfo();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Proxy = proxy
-                }, deleteContext.Object);
+                await AgentTestUtils.DeleteAgentProxy(service, connectionResult, proxy);    
+                await AgentTestUtils.CreateAgentProxy(service, connectionResult, proxy);
 
-                deleteContext.VerifyAll();
-
-                await service.HandleCreateAgentProxyRequest(new CreateAgentProxyParams
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Proxy = proxy
-                }, createContext.Object);
-
-                createContext.VerifyAll();
-
+                // test
                 string originalProxyName = proxy.AccountName;
                 proxy.AccountName = proxy.AccountName + " Updated";
-                await service.HandleUpdateAgentProxyRequest(new UpdateAgentProxyParams()
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    OriginalProxyName = originalProxyName,
-                    Proxy = proxy
-                }, updateContext.Object);
+                await AgentTestUtils.UpdateAgentProxy(service, connectionResult, originalProxyName, proxy);                
 
-                updateContext.VerifyAll();
-
-                await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Proxy = proxy
-                }, deleteContext.Object);
-
-                deleteContext.VerifyAll();
+                // cleanup
+                await AgentTestUtils.DeleteAgentProxy(service, connectionResult, proxy);    
             }
-        }   
+        }
+
+        /// <summary>
+        /// TestHandleDeleteAgentProxyRequest
+        /// </summary>
+        [Fact]
+        public async Task TestHandleDeleteAgentProxyRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // cleanup
+                var service = new AgentService();
+                var proxy = AgentTestUtils.GetTestProxyInfo();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                // test
+                await AgentTestUtils.DeleteAgentProxy(service, connectionResult, proxy);    
+            }
+        }           
     }
 }
