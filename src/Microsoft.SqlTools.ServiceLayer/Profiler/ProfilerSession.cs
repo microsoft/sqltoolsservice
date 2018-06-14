@@ -24,10 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
 
-        /// <summary>
-        /// Unique ID for the session
-        /// </summary>
-        public string SessionId { get; set; }
+        public bool pollImmediatly = false;
 
         /// <summary>
         /// Connection to use for the session
@@ -47,10 +44,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (this.pollingLock)
             {
-                if (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay)
+                if (pollImmediatly || (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay))
                 {
                     this.isPolling = true;
                     this.lastPollTime = DateTime.Now;
+                    this.pollImmediatly = false;
                     return true;
                 }
                 else
@@ -81,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// The delay between session polls
         /// </summary>
-        public TimeSpan PollingDelay 
+        public TimeSpan PollingDelay
         {
             get
             {
@@ -108,15 +106,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             return false;
         }
-        
+
         /// <summary>
         /// Removed profiler polling events from event list
-        /// </summary>        
+        /// </summary>
         public List<ProfilerEvent> FilterProfilerEvents(List<ProfilerEvent> events)
         {
             int idx = events.Count;
             while (--idx >= 0)
-            {               
+            {
                 if (IsProfilerEvent(events[idx]))
                 {
                     events.RemoveAt(idx);
@@ -126,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Filter the event list to not include previously seen events, 
+        /// Filter the event list to not include previously seen events,
         /// and to exclude events that happened before the profiling session began.
         /// </summary>
         public void FilterOldEvents(List<ProfilerEvent> events)
@@ -151,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     events.RemoveRange(0, idx + 1);
                 }
 
-                // save the last event so we know where to clean-up the list from next time 
+                // save the last event so we know where to clean-up the list from next time
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();

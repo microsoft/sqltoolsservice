@@ -110,6 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
+            this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -129,8 +130,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (connInfo != null)
                 {
-                    ProfilerSession session = StartSession(parameters.OwnerUri, connInfo);
-                    result.SessionId = session.SessionId;
+                    int xEventSessionId = StartSession(parameters.OwnerUri, parameters.TemplateName, connInfo);
+                    result.SessionId = xEventSessionId.ToString();
                     result.Succeeded = true;
                 }
                 else
@@ -158,10 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 monitor.StopMonitoringSession(parameters.OwnerUri, out session);
                 session.XEventSession.Stop();
 
-                await requestContext.SendResult(new StopProfilingResult
-                {
-                    Succeeded = true
-                });
+                await requestContext.SendResult(new StopProfilingResult{});
             }
             catch (Exception e)
             {
@@ -170,48 +168,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Starts a new profiler session for the provided connection
+        /// Handle request to pause a profiling session
         /// </summary>
-        internal ProfilerSession StartSession(string sessionId, ConnectionInfo connInfo)
+        internal async Task HandlePauseProfilingRequest(PauseProfilingParams parameters, RequestContext<PauseProfilingResult> requestContext)
+        {
+            try
+            {
+                monitor.PauseViewer(parameters.OwnerUri);
+
+                await requestContext.SendResult(new PauseProfilingResult{});
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Starts a new profiler session or connects to an existing session
+        /// for the provided connection and template info
+        /// </summary>
+        /// <returns>
+        /// The XEvent Session Id that was started
+        /// </returns>
+        internal int StartSession(string ownerUri, string template, ConnectionInfo connInfo)
         {
             // create a new XEvent session and Profiler session
-            var xeSession = this.XEventSessionFactory.CreateXEventSession(connInfo);
-            var profilerSession = new ProfilerSession()
-            {
-                SessionId = sessionId,
-                XEventSession = xeSession
-            };
+            var xeSession = this.XEventSessionFactory.GetOrCreateXEventSession(template, connInfo);
 
             // start monitoring the profiler session
-            monitor.StartMonitoringSession(profilerSession);
+            monitor.StartMonitoringSession(ownerUri, xeSession);
 
-            return profilerSession;
+            return xeSession.Id;
         }
 
         /// <summary>
-        /// Create a new XEvent sessions per the IXEventSessionFactory contract
-        /// </summary>
-        public IXEventSession CreateXEventSession(ConnectionInfo connInfo)
-        {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-            Session session = ProfilerService.GetOrCreateSession(connection, "Profiler");
-
-            // create xevent session wrapper
-            return new XEventSession()
-            {
-                Session = session
-            };
-        }
-
-        /// <summary>
-        /// Gets an existing XEvent session or creates one if no matching session exists.
+        /// Gets or creates an XEvent session with the given template per the IXEventSessionFactory contract
         /// Also starts the session if it isn't currently running
         /// </summary>
-        private static Session GetOrCreateSession(SqlStoreConnection connection, string sessionName)
+        public IXEventSession GetOrCreateXEventSession(string template, ConnectionInfo connInfo)
         {
+            string sessionName = "Profiler";
+
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             XEStore store = new XEStore(connection);
             Session session = store.Sessions[sessionName];
+
             // start the session if it isn't already running
             if (session == null)
             {
@@ -222,7 +225,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 session.Start();
             }
-            return session;
+
+            // create xevent session wrapper
+            return new XEventSession()
+            {
+                Session = session
+            };
         }
 
         private static Session CreateSession(SqlStoreConnection connection, string sessionName)

@@ -10,9 +10,22 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
+    /// <summary>
+    /// Class to access underlying XEvent session.
+    /// </summary>
     public class XEventSession : IXEventSession
     {
         public Session Session { get; set; }
+
+        public int Id
+        {
+            get { return Session.ID; }
+        }
+
+        public void Start()
+        {
+            this.Session.Start();
+        }
 
         public void Stop()
         {

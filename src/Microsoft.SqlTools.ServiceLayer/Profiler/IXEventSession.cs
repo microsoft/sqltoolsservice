@@ -11,13 +11,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     public interface IXEventSession
     {
         /// <summary>
-        /// Reads XEvent XML from the default session target
+        /// Gets unique XEvent session Id
         /// </summary>
-        string GetTargetXml();
+        int Id { get; }
+
+        /// <summary>
+        /// Starts XEvent session
+        /// </summary>
+        void Start();
 
         /// <summary>
         /// Stops XEvent session
         /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Reads XEvent XML from the default session target
+        /// </summary>
+        string GetTargetXml();
     }
 }

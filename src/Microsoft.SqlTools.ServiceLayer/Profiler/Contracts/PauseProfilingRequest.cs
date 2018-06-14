@@ -5,29 +5,30 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
 {
     /// <summary>
-    /// Stop Profiling request parameters
+    /// Pause Profiling request parameters
     /// </summary>
-    public class StopProfilingParams
+    public class PauseProfilingParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
     }
 
-    public class StopProfilingResult{}
+    public class PauseProfilingResult{}
 
     /// <summary>
-    /// Start Profile request type
+    /// Pause Profile request type
     /// </summary>
-    public class StopProfilingRequest
+    public class PauseProfilingRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<StopProfilingParams, StopProfilingResult> Type =
-            RequestType<StopProfilingParams, StopProfilingResult>.Create("profiler/stop");
+            RequestType<PauseProfilingParams, PauseProfilingResult> Type =
+            RequestType<PauseProfilingParams, PauseProfilingResult>.Create("profiler/pause");
     }
 }

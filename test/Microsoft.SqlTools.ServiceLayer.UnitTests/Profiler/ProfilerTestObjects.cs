@@ -188,19 +188,168 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "	</event>" +
             "</RingBufferTarget>";
 
+
+
+        public int Id { get { return 51; } }
+
+        public void Start(){}
+
+        public void Stop(){}
         public string GetTargetXml()
         {
             return testXEventXml;
         }
+    }
+
+    public class TestXEventSession1 : IXEventSession
+    {
+        private const string testXEventXml_1 =
+            "<RingBufferTarget truncated=\"0\" processingTime=\"3\" totalEventsProcessed=\"1\" eventCount=\"1\" droppedCount=\"0\" memoryUsed=\"47996\">" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-09-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
+            "	</event>" +
+            "</RingBufferTarget>";
+
+        private const string testXEventXml_2 =
+            "<RingBufferTarget truncated=\"0\" processingTime=\"3\" totalEventsProcessed=\"1\" eventCount=\"1\" droppedCount=\"0\" memoryUsed=\"47996\">" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-09-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
+            "	</event>" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
+            "	</event>" +
+            "</RingBufferTarget>";
+
+        private const string testXEventXml_3 =
+            "<RingBufferTarget truncated=\"0\" processingTime=\"3\" totalEventsProcessed=\"1\" eventCount=\"1\" droppedCount=\"0\" memoryUsed=\"47996\">" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-09-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
+            "	</event>" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
+            "	</event>" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-11-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
+            "	</event>" +
+            "</RingBufferTarget>";
+
+        public int Id { get { return 1; } }
+
+        public void Start(){}
 
         public void Stop(){}
+
+        private int pollCount = 0;
+        private string[] poll_returns = { testXEventXml_1, testXEventXml_2, testXEventXml_3 };
+        public string GetTargetXml()
+        {
+            string res = poll_returns[pollCount];
+            pollCount++;
+            pollCount = pollCount > 2 ? 0 : pollCount;
+            return res;
+        }
+    }
+
+        public class TestXEventSession2 : IXEventSession
+    {
+        private const string testXEventXml_1 =
+            "<RingBufferTarget truncated=\"0\" processingTime=\"3\" totalEventsProcessed=\"1\" eventCount=\"1\" droppedCount=\"0\" memoryUsed=\"47996\">" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-09-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "		</data>" +
+            "	</event>" +
+            "</RingBufferTarget>";
+
+        private const string testXEventXml_2 =
+            "<RingBufferTarget truncated=\"0\" processingTime=\"3\" totalEventsProcessed=\"1\" eventCount=\"1\" droppedCount=\"0\" memoryUsed=\"47996\">" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-09-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "		</data>" +
+            "	</event>" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "		</data>" +
+            "	</event>" +
+            "</RingBufferTarget>";
+
+        private const string testXEventXml_3 =
+            "<RingBufferTarget truncated=\"0\" processingTime=\"3\" totalEventsProcessed=\"1\" eventCount=\"1\" droppedCount=\"0\" memoryUsed=\"47996\">" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-09-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "		</data>" +
+            "	</event>" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "		</data>" +
+            "	</event>" +
+            "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-11-08T07:46:53.579Z\">" +
+            "		<data name=\"session_id\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "		</data>" +
+            "	</event>" +
+            "</RingBufferTarget>";
+
+        public int Id { get { return 2; } }
+
+        public void Start(){}
+
+        public void Stop(){}
+
+        private int pollCount = 0;
+        private string[] poll_returns = { testXEventXml_1, testXEventXml_2, testXEventXml_3 };
+        public string GetTargetXml()
+        {
+            string res = poll_returns[pollCount];
+            pollCount++;
+            pollCount = pollCount > 2 ? 0 : pollCount;
+            return res;
+        }
     }
 
     public class TestXEventSessionFactory : IXEventSessionFactory
     {
-        public IXEventSession CreateXEventSession(ConnectionInfo connInfo)
+        private int sessionNum = 1;
+        public IXEventSession GetOrCreateXEventSession(string template, ConnectionInfo connInfo)
         {
-            return new TestXEventSession();
+            if(sessionNum == 1)
+            {
+                sessionNum = 2;
+                return new TestXEventSession1();
+            }
+            else
+            {
+                sessionNum = 1;
+                return new TestXEventSession2();
+            }
         }
     }
 }

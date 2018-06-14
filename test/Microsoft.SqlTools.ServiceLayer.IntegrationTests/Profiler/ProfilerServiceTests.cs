@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
                 string sessionId = null;
                 var startContext = new Mock<RequestContext<StartProfilingResult>>();
                 startContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
-                    .Returns<StartProfilingResult>((result) => 
+                    .Returns<StartProfilingResult>((result) =>
                     {
                         // capture the session id for sending the stop message
                         sessionId = result.SessionId;
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
                 await profilerService.HandleStopProfilingRequest(stopParams, stopContext.Object);
 
                 stopContext.VerifyAll();
-            }           
+            }
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
             ProfilerService profilerService = new ProfilerService();
-            IXEventSession xeSession = profilerService.CreateXEventSession(liveConnection.ConnectionInfo);
+            IXEventSession xeSession = profilerService.GetOrCreateXEventSession("Profiler", liveConnection.ConnectionInfo);
             Assert.NotNull(xeSession);
             Assert.NotNull(xeSession.GetTargetXml());
         }
