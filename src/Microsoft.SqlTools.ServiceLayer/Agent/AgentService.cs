@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Common;
@@ -21,7 +19,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -266,18 +263,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
-        {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            var serverConnection = new ServerConnection(sqlConnection);
-            var server = new Server(serverConnection);
-            var filter = new JobHistoryFilter();
-            filter.JobID = new Guid(jobId);
-            var dt = server.JobServer.EnumJobHistory(filter);
-            var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
-            return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
-        }
-
         internal async Task HandleCreateAgentJobRequest(CreateAgentJobParams parameters, RequestContext<CreateAgentJobResult> requestContext)
         {
             var result = await ConfigureAgentJob(
@@ -366,135 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Success = result.Item1,
                 ErrorMessage = result.Item2
             });
-        }
-
-        internal async Task<Tuple<bool, string>> ConfigureAgentJob(
-            string ownerUri,
-            AgentJobInfo jobInfo,
-            ConfigAction configAction,
-            RunType runType)
-        {
-            return await Task<Tuple<bool, string>>.Run(() =>
-            {
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                        connInfo, 
-                        databaseExists: true);
-
-                    XmlDocument jobDoc = CreateJobXmlDocument(
-                        dataContainer.Server.Name.ToUpper(),
-                        jobInfo.Name);
-
-                    dataContainer.Init(jobDoc.InnerXml);
-
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", string.Empty);
-
-                    var jobData = new JobData(dataContainer, jobInfo);
-                    using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
-                    {
-                        var executionHandler = new ExecutonHandler(jobActions);
-                        executionHandler.RunNow(runType, this);
-                    }
-
-                    return new Tuple<bool, string>(true, string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    return new Tuple<bool, string>(false, ex.ToString());
-                }
-            });
-        }
-
-        internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
-            string ownerUri,
-            AgentJobStepInfo stepInfo,
-            ConfigAction configAction,
-            RunType runType)
-        {
-            return await Task<Tuple<bool, string>>.Run(() =>
-            {
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(stepInfo.JobName))
-                    {
-                        return new Tuple<bool, string>(false, "JobId cannot be null");
-                    }
-
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                        connInfo, 
-                        databaseExists: true);
-
-                    XmlDocument jobDoc = CreateJobXmlDocument(
-                        dataContainer.Server.Name.ToUpper(),
-                        stepInfo.JobName);
-
-                    dataContainer.Init(jobDoc.InnerXml);
-
-                    STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("job", string.Empty);                    
-                    param.SetParam("jobid", string.Empty);
-
-                    var jobData = new JobData(dataContainer);
-                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
-                    {
-                        var executionHandler = new ExecutonHandler(jobStep);
-                        executionHandler.RunNow(runType, this);
-                    }
-
-                    return new Tuple<bool, string>(true, string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    // log exception here
-                    return new Tuple<bool, string>(false, ex.ToString());
-                }
-            });
-        }
-
-        public XmlDocument CreateJobXmlDocument(string svrName, string jobName)
-        {
-            // XML element strings
-            const string XmlFormDescElementName = "formdescription";
-            const string XmlParamsElementName = "params";
-            const string XmlJobElementName = "job";
-            const string XmlUrnElementName = "urn";
-            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
-
-            // Write out XML.
-            StringWriter textWriter = new StringWriter();
-            XmlTextWriter xmlWriter = new XmlTextWriter(textWriter);
-
-            xmlWriter.WriteStartElement(XmlFormDescElementName);
-            xmlWriter.WriteStartElement(XmlParamsElementName);
-
-            xmlWriter.WriteElementString(XmlJobElementName, jobName);
-            xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
-    
-            xmlWriter.WriteEndElement();
-            xmlWriter.WriteEndElement();
-    
-            xmlWriter.Close();
-
-            // Create an XML document.
-            XmlDocument doc = new XmlDocument();
-            XmlTextReader rdr = new XmlTextReader(new System.IO.StringReader(textWriter.ToString()));
-            rdr.MoveToContent();
-            doc.LoadXml(rdr.ReadOuterXml());
-            return doc;
-        }
+        }        
 
         #endregion // "Jobs Handlers"
 
@@ -511,9 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 result.Alerts = new List<AgentAlertInfo>().ToArray();
 
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
+                ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
 
                 if (connInfo != null)
                 {
@@ -525,29 +380,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        private bool ValidateAgentAlertInfo(AgentAlertInfo alert)
-        {
-            return alert != null
-                && !string.IsNullOrWhiteSpace(alert.JobName);
-        }
-
         /// <summary>
         /// Handle request to create an alert
         /// </summary>
         internal async Task HandleCreateAgentAlertRequest(CreateAgentAlertParams parameters, RequestContext<CreateAgentAlertResult> requestContext)
         {
-            await Task.Run(async () =>
+            var result = await ConfigureAgentAlert(
+                parameters.OwnerUri,
+                parameters.Alert,
+                ConfigAction.Create,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new CreateAgentAlertResult()
             {
-                var result = new CreateAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                CreateOrUpdateAgentAlert(connInfo, parameters.Alert);
-
-                await requestContext.SendResult(result);
-            });
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });      
         }
 
         /// <summary>
@@ -555,33 +403,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         internal async Task HandleUpdateAgentAlertRequest(UpdateAgentAlertParams parameters, RequestContext<UpdateAgentAlertResult> requestContext)
         {
-            await Task.Run(async () =>
+            var result = await ConfigureAgentAlert(
+                parameters.OwnerUri,
+                parameters.Alert,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new UpdateAgentAlertResult()
             {
-                var result = new UpdateAgentAlertResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                CreateOrUpdateAgentAlert(connInfo, parameters.Alert);
-
-                await requestContext.SendResult(result);
+                Success = result.Item1,
+                ErrorMessage = result.Item2
             });
-        }
-
-        private void CreateOrUpdateAgentAlert(ConnectionInfo connInfo, AgentAlertInfo alert)
-        {
-            if (connInfo != null && ValidateAgentAlertInfo(alert))
-            {
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                STParameters param = new STParameters(dataContainer.Document);
-                param.SetParam("alert", alert.JobName);
-
-                using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
-                {
-                    agentAlert.CreateOrUpdate();
-                }
-            }
         }
 
         /// <summary>
@@ -589,37 +421,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         internal async Task HandleDeleteAgentAlertRequest(DeleteAgentAlertParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            await Task.Run(async () =>
+            var result = await ConfigureAgentAlert(
+                parameters.OwnerUri,
+                parameters.Alert,
+                ConfigAction.Drop,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
             {
-                var result = new ResultStatus();
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-
-                    AgentAlertInfo alert = parameters.Alert;
-                    if (connInfo != null && ValidateAgentAlertInfo(alert))
-                    {
-                        CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                        STParameters param = new STParameters(dataContainer.Document);
-                        param.SetParam("alert", alert.JobName);
-
-                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert))
-                        {
-                            agentAlert.Drop();
-                            result.Success = true;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result.Success = false;
-                    result.ErrorMessage = ex.ToString();
-                }
-
-                await requestContext.SendResult(result);
+                Success = result.Item1,
+                ErrorMessage = result.Item2
             });
         }
 
@@ -630,41 +441,60 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
         {
             await requestContext.SendResult(null);
-        }
+        }        
 
-        internal async Task HandleCreateAgentOperatorRequest(CreateAgentOperatorParams parameters, RequestContext<CreateAgentOperatorResult> requestContext)
+        internal async Task HandleCreateAgentOperatorRequest(
+            CreateAgentOperatorParams parameters, 
+            RequestContext<AgentOperatorResult> requestContext)
         {
-            await Task.Run(async () =>
+            var result = await ConfigureAgentOperator(
+                parameters.OwnerUri, 
+                parameters.Operator, 
+                ConfigAction.Create, 
+                RunType.RunNow);
+
+            await requestContext.SendResult(new AgentOperatorResult()
             {
-                var result = new CreateAgentOperatorResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-
-                AgentOperatorInfo operatorInfo = parameters.Operator;
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                STParameters param = new STParameters(dataContainer.Document);
-                param.SetParam("operator", operatorInfo.Name);
-
-                using (AgentOperator agentOperator = new AgentOperator(dataContainer, operatorInfo))
-                {
-                    agentOperator.CreateOrUpdate();
-                }
-
-                await requestContext.SendResult(result);
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Operator = parameters.Operator
             });
         }
 
-        internal async Task HandleUpdateAgentOperatorRequest(UpdateAgentOperatorParams parameters, RequestContext<UpdateAgentOperatorResult> requestContext)
+        internal async Task HandleUpdateAgentOperatorRequest(
+            UpdateAgentOperatorParams parameters, 
+            RequestContext<AgentOperatorResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            var result = await ConfigureAgentOperator(
+                parameters.OwnerUri, 
+                parameters.Operator, 
+                ConfigAction.Update, 
+                RunType.RunNow);
+
+            await requestContext.SendResult(new AgentOperatorResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Operator = parameters.Operator
+            });
         }
 
-        internal async Task HandleDeleteAgentOperatorRequest(DeleteAgentOperatorParams parameters, RequestContext<DeleteAgentOperatorResult> requestContext)
+        internal async Task HandleDeleteAgentOperatorRequest(
+            DeleteAgentOperatorParams parameters, 
+            RequestContext<ResultStatus> requestContext)
         {
-            await requestContext.SendResult(null);
-        }
+            var result = await ConfigureAgentOperator(
+                parameters.OwnerUri, 
+                parameters.Operator, 
+                ConfigAction.Drop, 
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }        
 
         #endregion // "Operator Handlers"
 
@@ -718,6 +548,140 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
+        #endregion // "Proxy Handlers"
+
+
+        #region "Helpers"
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentJob(
+            string ownerUri,
+            AgentJobInfo jobInfo,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(ownerUri, jobInfo.Name, out dataContainer, out jobData, jobInfo);
+
+                    using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(jobActions);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentJobStep(
+            string ownerUri,
+            AgentJobStepInfo stepInfo,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(stepInfo.JobName))
+                    {
+                        return new Tuple<bool, string>(false, "JobId cannot be null");
+                    }
+
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
+
+                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(jobStep);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    // log exception here
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentAlert(
+            string ownerUri,
+            AgentAlertInfo alert,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("alert", alert.JobName);
+
+                    if (alert != null && !string.IsNullOrWhiteSpace(alert.JobName))
+                    {
+                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert, configAction))
+                        {
+                            var executionHandler = new ExecutonHandler(agentAlert);
+                            executionHandler.RunNow(runType, this);
+                        }
+                    }            
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentOperator(
+            string ownerUri,
+            AgentOperatorInfo operatorInfo,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("operator", operatorInfo.Name);
+
+                    using (AgentOperatorActions agentOperator = new AgentOperatorActions(dataContainer, operatorInfo, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(agentOperator);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
         internal async Task<bool> ConfigureAgentProxy(
             string ownerUri,
             string accountName,
@@ -763,8 +727,73 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return false;
                 }
             });
+        }        
+
+        private void CreateJobData(
+            string ownerUri, 
+            string jobName,
+            out CDataContainer dataContainer,
+            out JobData jobData,
+            AgentJobInfo jobInfo = null)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+            XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(), jobName);
+            dataContainer.Init(jobDoc.InnerXml);
+
+            STParameters param = new STParameters(dataContainer.Document);
+            param.SetParam("job", string.Empty);                    
+            param.SetParam("jobid", string.Empty);
+
+            jobData = new JobData(dataContainer, jobInfo);
         }
 
-        #endregion // "Proxy Handlers"
+        public static XmlDocument CreateJobXmlDocument(string svrName, string jobName)
+        {
+            // XML element strings
+            const string XmlFormDescElementName = "formdescription";
+            const string XmlParamsElementName = "params";
+            const string XmlJobElementName = "job";
+            const string XmlUrnElementName = "urn";
+            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
+
+            // Write out XML.
+            StringWriter textWriter = new StringWriter();
+            XmlTextWriter xmlWriter = new XmlTextWriter(textWriter);
+
+            xmlWriter.WriteStartElement(XmlFormDescElementName);
+            xmlWriter.WriteStartElement(XmlParamsElementName);
+
+            xmlWriter.WriteElementString(XmlJobElementName, jobName);
+            xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
+    
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndElement();
+    
+            xmlWriter.Close();
+
+            // Create an XML document.
+            XmlDocument doc = new XmlDocument();
+            XmlTextReader rdr = new XmlTextReader(new System.IO.StringReader(textWriter.ToString()));
+            rdr.MoveToContent();
+            doc.LoadXml(rdr.ReadOuterXml());
+            return doc;
+        }
+
+        private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            var serverConnection = new ServerConnection(sqlConnection);
+            var server = new Server(serverConnection);
+            var filter = new JobHistoryFilter();
+            filter.JobID = new Guid(jobId);
+            var dt = server.JobServer.EnumJobHistory(filter);
+            var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
+            return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
+        }        
+
+        #endregion // "Helpers"
     }
 }

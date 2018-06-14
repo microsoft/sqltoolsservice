@@ -64,8 +64,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 await AgentTestUtils.UpdateAgentJobStep(service, connectionResult, stepInfo);
 
                 // cleanup
-                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);                
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
             }
         }
+
+        /// <summary>
+        /// TestHandleDeleteAgentJobRequest
+        /// </summary>
+        [Fact]
+        public async Task TestHandleDeleteAgentJobStepRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                var service = new AgentService();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var job = AgentTestUtils.GetTestJobInfo();
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);
+                await AgentTestUtils.CreateAgentJob(service, connectionResult, job);
+                var stepInfo =  AgentTestUtils.GetTestJobStepInfo(connectionResult, job);
+                await AgentTestUtils.CreateAgentJobStep(service, connectionResult, stepInfo);
+
+                 // test
+                await AgentTestUtils.DeleteAgentJobStep(service, connectionResult, stepInfo);
+
+                // cleanup
+                await AgentTestUtils.DeleteAgentJob(service, connectionResult, job, verify: false);             
+            }
+        }          
     }
 }

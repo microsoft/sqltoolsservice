@@ -2995,6 +2995,57 @@
         <note>.
  Parameters: 0 - jobName (string) </note>
       </trans-unit>
+      <trans-unit id="AlertNameCannotBeBlank">
+        <source>The name of the alert cannot be blank.</source>
+        <target state="new">The name of the alert cannot be blank.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CannotCreateNewAlert">
+        <source>Cannot create new alert.</source>
+        <target state="new">Cannot create new alert.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CannotAlterAlert">
+        <source>Cannot alter alert.</source>
+        <target state="new">Cannot alter alert.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidScheduleTitle">
+        <source>Invalid Schedule</source>
+        <target state="new">Invalid Schedule</target>
+        <note> Schedule error message</note>
+      </trans-unit>
+      <trans-unit id="InvalidWeeklySchedule">
+        <source>Select at least one day to be part of this weekly schedule.</source>
+        <target state="new">Select at least one day to be part of this weekly schedule.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StartDateGreaterThanEndDate">
+        <source>The job schedule starting date cannot be greater than the ending date.</source>
+        <target state="new">The job schedule starting date cannot be greater than the ending date.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StartTimeGreaterThanEndTime">
+        <source>The job schedule starting time cannot be after the ending time.</source>
+        <target state="new">The job schedule starting time cannot be after the ending time.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EndTimeEqualToStartTime">
+        <source>The job schedule ending time must be after the starting time.</source>
+        <target state="new">The job schedule ending time must be after the starting time.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidStartDate">
+        <source>Start date must be on or after January 1, 1990.</source>
+        <target state="new">Start date must be on or after January 1, 1990.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScheduleNameAlreadyExists">
+        <source>There is already a schedule named '{0}' for this job.  You must specify a different name.</source>
+        <target state="new">There is already a schedule named '{0}' for this job.  You must specify a different name.</target>
+        <note>.
+ Parameters: 0 - scheduleName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

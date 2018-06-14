@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     {
         private JobStepData data;
         private JobData jobData;
+        private ConfigAction configAction;
 
         public JobStepsActions(
             CDataContainer dataContainer, 
@@ -26,17 +27,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             AgentJobStepInfo stepInfo,
             ConfigAction configAction)
         {
+            this.configAction = configAction;
             this.DataContainer = dataContainer;
             this.jobData = jobData;
 
-            if (configAction == ConfigAction.Update)
+            if (configAction == ConfigAction.Create)
             {
-                JobStep jobStep = GetJobStep(this.jobData, stepInfo.StepName);
-                this.data = new JobStepData(jobStep, jobData.JobSteps);
+                this.data = new JobStepData(jobData.JobSteps);
             }
             else
             {
-                 this.data = new JobStepData(jobData.JobSteps);
+                JobStep jobStep = GetJobStep(this.jobData, stepInfo.StepName);
+                this.data = new JobStepData(jobStep, jobData.JobSteps);
             }
 
             // load properties from AgentJobStepInfo
@@ -48,27 +50,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
         {
             base.DoPreProcessExecution(runType, out executionResult);
-
-            // Make sure the job step name is not blank.
-            if (this.data.Name == null || this.data.Name.Length == 0)
+            if (this.configAction == ConfigAction.Drop)
             {
-                throw new Exception(SR.JobStepNameCannotBeBlank);
-            }
-
-            // Check to make sure that the user has not entered a job step name that already exists.
-            for (int stepIndex = 0; stepIndex < this.data.Parent.Steps.Count; ++stepIndex)
-            {
-                // don't compare if the id's are the same.
-                if (data.ID != ((JobStepData)this.data.Parent.Steps[stepIndex]).ID && data.Name == ((JobStepData)this.data.Parent.Steps[stepIndex]).Name)
+                if (this.data.JobStep != null)
                 {
-                    // Throw an error if the job step name already exists
-                    throw new Exception(SR.JobStepNameAlreadyExists(this.data.Name));
+                    this.data.JobStep.DropIfExists();                    
                 }
             }
+            else
+            {
+                // Make sure the job step name is not blank.
+                if (this.data.Name == null || this.data.Name.Length == 0)
+                {
+                    throw new Exception(SR.JobStepNameCannotBeBlank);
+                }
 
-            if (runType == RunType.RunNow)
-            {                   
-                this.data.ApplyChanges(this.jobData.Job);
+                // Check to make sure that the user has not entered a job step name that already exists.
+                for (int stepIndex = 0; stepIndex < this.data.Parent.Steps.Count; ++stepIndex)
+                {
+                    // don't compare if the id's are the same.
+                    if (data.ID != ((JobStepData)this.data.Parent.Steps[stepIndex]).ID && data.Name == ((JobStepData)this.data.Parent.Steps[stepIndex]).Name)
+                    {
+                        // Throw an error if the job step name already exists
+                        throw new Exception(SR.JobStepNameAlreadyExists(this.data.Name));
+                    }
+                }
+
+                if (runType == RunType.RunNow)
+                {                   
+                    this.data.ApplyChanges(this.jobData.Job);
+                }
             }
 
             // regular execution always takes place

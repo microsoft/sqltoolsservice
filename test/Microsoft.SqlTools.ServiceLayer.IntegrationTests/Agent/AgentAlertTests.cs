@@ -3,21 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Profiler;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
@@ -53,43 +43,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "create agent alert" request handler with valid parameters
         /// </summary>
-        // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/630
-        // [Fact]
+        [Fact]
         public async Task TestHandleCreateAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                // setup
+                var createContext = new Mock<RequestContext<CreateAgentAlertResult>>();
+                var deleteContext = new Mock<RequestContext<ResultStatus>>();
 
-                var requestParams = new CreateAgentAlertParams
+                var service = new AgentService();
+                var alert = new AgentAlertInfo()
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Alert = new AgentAlertInfo()
-                    {
-                        JobName = "Test Job Name"
-                    }
+                    JobName = "test_update_job",
+                    AlertType = AlertType.SqlServerEvent,
+                    Severity = 1
                 };
 
-                var requestContext = new Mock<RequestContext<CreateAgentAlertResult>>();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Alert = alert
+                }, deleteContext.Object);
 
-                AgentService service = new AgentService();
-                await service.HandleCreateAgentAlertRequest(requestParams, requestContext.Object);
+                // test
+                await service.HandleCreateAgentAlertRequest(new CreateAgentAlertParams
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Alert = alert
+                }, createContext.Object);
+                createContext.VerifyAll();
 
-                // var agentAlerts = await AgentTestUtils.GetAgentAlerts(connectionResult.ConnectionInfo.OwnerUri);
-                // if (agentAlerts != null && agentAlerts.Length > 0)
-                // {
-                //     foreach (var agentAlert in agentAlerts)
-                //     {
-                //         if (agentAlert.JobName.Equals(alert.JobName))
-                //         {
-                //             await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
-                //             {
-                //                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                //                 Alert = alert
-                //             }, deleteContext.Object);
-                //         }
-                //     }
-                // }
+                // cleanup
+                await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Alert = alert
+                }, deleteContext.Object);                
             }
         }
 
@@ -101,6 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
+                // setup
                 var createContext = new Mock<RequestContext<CreateAgentAlertResult>>();
                 var updateContext = new Mock<RequestContext<UpdateAgentAlertResult>>();
                 var deleteContext = new Mock<RequestContext<ResultStatus>>();
@@ -126,21 +118,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     Alert = alert
                 }, createContext.Object);
 
+                // test
+                alert.Severity = 2;
                 await service.HandleUpdateAgentAlertRequest(new UpdateAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
                 }, updateContext.Object);
+                updateContext.VerifyAll();
 
+                // cleanup
                 await service.HandleDeleteAgentAlertRequest(new DeleteAgentAlertParams()
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Alert = alert
                 }, deleteContext.Object);
-
-                createContext.VerifyAll();
-                updateContext.VerifyAll();
-                deleteContext.VerifyAll();
             }
         }
     }

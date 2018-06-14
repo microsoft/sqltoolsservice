@@ -1,3 +1,4 @@
+#if false
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -28,17 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 	/// </summary>
     internal class SqlServerAgentPropertiesJobSystem : ManagementActionBase
 	{
-        #region Private members
-
-        private int shutDownWaitTime;
-        private bool sysAdminOnly;
-        private string domainUser = string.Empty;
-        private string userName = string.Empty;
-        private string passwdMask = new string('*', 16);
-        private SecureString securePasswd = new SecureString();
-
-        #endregion
-
         #region Implementation
         
         private void ApplyChanges()
@@ -148,11 +138,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 	}
 }
-
-
-
-
-
-
-
-
+#endif

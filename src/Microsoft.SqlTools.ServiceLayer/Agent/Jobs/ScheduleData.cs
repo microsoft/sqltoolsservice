@@ -7,7 +7,6 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,6 +15,7 @@ using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -30,16 +30,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region private struct members
-        private String name;
-        private String description;
-        private System.Int32 id;
-        private System.Int32 activeEndDate;
-        private System.Int32 activeEndTimeOfDay;
-        private System.Int32 activeStartDate;
-        private System.Int32 activeStartTimeOfDay;
-        private System.Int32 frequencyInterval;
-        private System.Int32 frequencyRecurrenceFactor;
-        private System.Int32 frequencySubDayInterval;
+        private string name;
+        private string description;
+        private int id;
+        private int activeEndDate;
+        private int activeEndTimeOfDay;
+        private int activeStartDate;
+        private int activeStartTimeOfDay;
+        private int frequencyInterval;
+        private int frequencyRecurrenceFactor;
+        private int frequencySubDayInterval;
         private FrequencyTypes frequencyTypes;
         private FrequencySubDayTypes frequencySubDayTypes;
         private FrequencyRelativeIntervals frequencyRelativeIntervals;
@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 if (this.FrequencyInterval == 0)
                 {
-                    return String.Empty;
+                    return string.Empty;
                 }
 
                 StringBuilder daysOfWeek = new StringBuilder();
@@ -347,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             get
             {
-                string format = String.Empty;
+                string format = string.Empty;
 
                 switch (this.FrequencyTypes)
                 {
@@ -508,43 +508,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region public properties
-        public System.Int32 ActiveEndDate
+        public int ActiveEndDate
         {
             get { return activeEndDate; }
             set { activeEndDate = value; }
         }
 
-        public System.Int32 ActiveEndTimeOfDay
+        public int ActiveEndTimeOfDay
         {
             get { return activeEndTimeOfDay; }
             set { activeEndTimeOfDay = value; }
         }
 
-        public System.Int32 ActiveStartDate
+        public int ActiveStartDate
         {
             get { return activeStartDate; }
             set { activeStartDate = value; }
         }
 
-        public System.Int32 ActiveStartTimeOfDay
+        public int ActiveStartTimeOfDay
         {
             get { return activeStartTimeOfDay; }
             set { activeStartTimeOfDay = value; }
         }
 
-        public System.Int32 FrequencyInterval
+        public int FrequencyInterval
         {
             get { return frequencyInterval; }
             set { frequencyInterval = value; }
         }
 
-        public System.Int32 FrequencyRecurrenceFactor
+        public int FrequencyRecurrenceFactor
         {
             get { return frequencyRecurrenceFactor; }
             set { frequencyRecurrenceFactor = value; }
         }
 
-        public System.Int32 FrequencySubDayInterval
+        public int FrequencySubDayInterval
         {
             get { return frequencySubDayInterval; }
             set { frequencySubDayInterval = value; }
@@ -592,7 +592,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
         }
 
-        public System.Int32 ID
+        public int ID
         {
             get { return id; }
             set { id = value; }
@@ -1147,16 +1147,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             if (jobSchedules != null && version.Major < 9)
             {
-                ///Check to see if a duplicate job schedule name has been entered.  This condition is permissable
-                ///in SQL 9, but not in previous versions.
+                // Check to see if a duplicate job schedule name has been entered.  This condition is permissable
+                // in SQL 9, but not in previous versions.
                 for (int index = 0; index < jobSchedules.Count; index++)
                 {
-                    //If the schedule name matches an existing job, throw an error and ask user to enter another
-                    //name.
+                    // If the schedule name matches an existing job, throw an error and ask user to enter another
+                    // name.
                     if (((JobScheduleData)jobSchedules[index]).Name == this.Name &&
                         this.currentName != this.originalName)
                     {
-                        sbError.Append("SRError.ScheduleNameAlreadyExists(this.Name)" + "\n");
+                        sbError.Append(SR.ScheduleNameAlreadyExists(this.Name) + "\n");
                         break;
                     }
                 }
@@ -1165,40 +1165,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // weekly schdule - ensure that the start date is less than the end date
             if (this.ActiveStartDate > this.ActiveEndDate)
             {
-                sbError.Append("SRError.StartDateGreaterThanEndDate" + "\n");
+                sbError.Append(SR.StartDateGreaterThanEndDate + "\n");
             }
 
-            //One Time events validations
+            // One Time events validations
             if (this.FrequencyTypes == FrequencyTypes.OneTime)
             {
-                //Check to make sure that the start time is greater than the baseline
-                //date of 01/01/1990
+                // Check to make sure that the start time is greater than the baseline
+                // date of 01/01/1990
                 if (this.ActiveStartDate < minStartDate)
                 {
-                    sbError.Append("SRError.InvalidStartDate" + "\n");
+                    sbError.Append(SR.InvalidStartDate + "\n");
                 }
             }
 
 
-            //Recurring schdule.  Start time must be less than the end time.
+            // Recurring schdule.  Start time must be less than the end time.
             if (this.FrequencyTypes != FrequencyTypes.OneTime &&
                 this.FrequencyTypes != FrequencyTypes.OnIdle)
             {
-                //Check to make sure that the start time is greater than the baseline
-                //date of 01/01/1990
+                // Check to make sure that the start time is greater than the baseline
+                // date of 01/01/1990
                 if (this.ActiveStartDate < minStartDate)
                 {
-                    sbError.Append("SRError.InvalidStartDate" + "\n");
+                    sbError.Append(SR.InvalidStartDate + "\n");
                 }
 
 
-                //Check to ensure that the StartTime != to the EndTime
+                // Check to ensure that the StartTime != to the EndTime
                 if (this.ActiveStartTime == this.ActiveEndTime)
                 {
-                    sbError.Append("SRError.EndTimeEqualToStartTime" + "\n");
+                    sbError.Append(SR.EndTimeEqualToStartTime + "\n");
 
                 }
-
             }
 
             // weekly schedule - at least one day should be selected
@@ -1206,11 +1205,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 if (this.FrequencyInterval == 0)
                 {
-                    sbError.Append("SRError.InvalidWeeklySchedule" + "\n");
+                    sbError.Append(SR.InvalidWeeklySchedule + "\n");
                 }
             }
-
-            // $FUTURE add extra checks in future - e.g. 147675 - starttime/endtime startdate/enddate and thier format
 
             // return error
             if (sbError.ToString().Length > 0)
@@ -1243,6 +1240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.alreadyCreated = false;
             }
         }
+
         /// <summary>
         /// Provide context to create a new schedule.
         /// </summary>
@@ -1259,6 +1257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             this.source = schedule;
         }
+
         public override string ToString()
         {
             return this.GetSimpleJobDescription();
@@ -1322,6 +1321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.alreadyCreated = false;
             }
         }
+
         /// <summary>
         /// set defaults assuming no parent.
         /// </summary>
@@ -1362,14 +1362,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #region static constants
         /// <summary>
-        /// Maximum date supported by SSMS.
-        /// This is the same as the culture max date because SQl Agent range is larger than all cultures' ranges.
+        /// Maximum date supported
+        /// This is the same as the culture max date because SQL Agent range is larger than all cultures' ranges.
         /// </summary>
         public static DateTime MaxAgentDateValue
         {
             get
             {
-                return DateTime.Now; // Utils.GetMaxCultureDateTime().Date;
+                return Utils.GetMaxCultureDateTime().Date;
             }
         }
         /// <summary>

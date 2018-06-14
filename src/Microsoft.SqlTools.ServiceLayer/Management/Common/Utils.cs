@@ -261,6 +261,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             return "[" + s.Replace("]", "]]") + "]";
         }
+
+        /// <summary>
+        /// Some calendars, such as the UmAlQuraCalendar, support an upper date range that is earlier than MaxValue. 
+        /// In these cases, trying to access MaxValue in variable assignments or formatting and parsing operations can throw 
+        /// an ArgumentOutOfRangeException. Rather than retrieving the value of DateTime.MaxValue, you can retrieve the value 
+        /// of the specified culture's latest valid date value from the 
+        /// System.Globalization.CultureInfo.DateTimeFormat.Calendar.MaxSupportedDateTime property. 
+        /// http://msdn.microsoft.com/en-us/library/system.datetime.maxvalue(v=VS.90).aspx
+        /// </summary>
+        /// <returns></returns>
+        public static DateTime GetMaxCultureDateTime()
+        {
+            CultureInfo currentCulture = System.Threading.Thread.CurrentThread.CurrentCulture;
+            return currentCulture.DateTimeFormat.Calendar.MaxSupportedDateTime;
+        }
     }
 
     /// <summary>

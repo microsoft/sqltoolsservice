@@ -888,18 +888,6 @@ InvalidPathError = Cannot access the specified path on the server: {0}
 # Profiler
 ProfilerConnectionNotFound = Connection not found
 
-
-
-
-
-
-
-
-
-
-
-
-
 #############################################################################
 # SQL Agent
 EnableAlertsTitle(String serverName) = Enable Alerts - {0}
@@ -1016,8 +1004,6 @@ CannotCreateInitializeHistoryPage = Cannot create/initialize History page.
 ; Exception throw when dialog cannot refresh operator
 CannotResetOperator = Cannot reset operator.
 
-
-#
 ; Name of label on notifications page
 AlertList = Alert list:
 ; Name of label on notifications page
@@ -1042,7 +1028,6 @@ OnSuccess = On success
 CannotModifyAlerts = Cannot modify alerts.
 ; Exception thrown when we cannot create script that modify alerts
 CannotCreateScriptForModifyAlerts = Cannot create script for modify alerts.
-
 
 ;job categories
 CategoryLocal = [Uncategorized (Local)]
@@ -1070,3 +1055,15 @@ CategoryDataCollector = Data Collector
 JobAlreadyExists(string jobName) = A job named '{0}' already exists.  Enter a unique name for the job.
 JobStepNameCannotBeBlank = The name of the job step cannot be blank.
 JobStepNameAlreadyExists(string jobName) = There is already a step named '{0}' for this job. You must specify a different name.
+AlertNameCannotBeBlank = The name of the alert cannot be blank.
+CannotCreateNewAlert = Cannot create new alert.
+CannotAlterAlert = Cannot alter alert.
+
+; Schedule error message
+InvalidScheduleTitle = Invalid Schedule
+InvalidWeeklySchedule = Select at least one day to be part of this weekly schedule.
+StartDateGreaterThanEndDate = The job schedule starting date cannot be greater than the ending date.
+StartTimeGreaterThanEndTime = The job schedule starting time cannot be after the ending time.
+EndTimeEqualToStartTime = The job schedule ending time must be after the starting time.
+InvalidStartDate = Start date must be on or after January 1, 1990.
+ScheduleNameAlreadyExists(string scheduleName)=There is already a schedule named '{0}' for this job.  You must specify a different name.

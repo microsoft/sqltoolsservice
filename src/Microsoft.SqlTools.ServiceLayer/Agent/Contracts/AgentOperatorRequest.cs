@@ -39,6 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
+    /// SQL Agent Operator result
+    /// </summary>
+    public class AgentOperatorResult : ResultStatus
+    {
+        public AgentOperatorInfo Operator { get; set; }
+    }    
+
+    /// <summary>
     /// SQL Agent create Operator params
     /// </summary>
     public class CreateAgentOperatorParams : GeneralRequestDetails
@@ -46,13 +54,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string OwnerUri { get; set; }
 
         public AgentOperatorInfo Operator { get; set; }
-    }
-
-    /// <summary>
-    /// SQL Agent create Operator result
-    /// </summary>
-    public class CreateAgentOperatorResult : ResultStatus
-    {
     }
 
     /// <summary>
@@ -64,38 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateAgentOperatorParams, CreateAgentOperatorResult> Type =
-            RequestType<CreateAgentOperatorParams, CreateAgentOperatorResult>.Create("agent/createoperator");
-    }
-
-    /// <summary>
-    /// SQL Agent delete Operator params
-    /// </summary>
-    public class DeleteAgentOperatorParams : GeneralRequestDetails
-    {
-        public string OwnerUri { get; set; }
-
-        public AgentOperatorInfo Operator { get; set; }
-    }
-
-    /// <summary>
-    /// SQL Agent delete Operator result
-    /// </summary>
-    public class DeleteAgentOperatorResult : ResultStatus
-    {
-    }
-
-    /// <summary>
-    /// SQL Agent delete Operator request type
-    /// </summary>
-    public class DeleteAgentOperatorRequest
-    {
-        /// <summary>
-        /// Request definition
-        /// </summary>
-        public static readonly
-            RequestType<DeleteAgentOperatorParams, DeleteAgentOperatorResult> Type =
-            RequestType<DeleteAgentOperatorParams, DeleteAgentOperatorResult>.Create("agent/deleteoperator");
+            RequestType<CreateAgentOperatorParams, AgentOperatorResult> Type =
+            RequestType<CreateAgentOperatorParams, AgentOperatorResult>.Create("agent/createoperator");
     }
 
     /// <summary>
@@ -109,13 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent update Operator result
-    /// </summary>
-    public class UpdateAgentOperatorResult : ResultStatus
-    {
-    }
-
-    /// <summary>
     /// SQL Agent update Operator request type
     /// </summary>
     public class UpdateAgentOperatorRequest
@@ -124,7 +88,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<UpdateAgentOperatorParams, UpdateAgentOperatorResult> Type =
-            RequestType<UpdateAgentOperatorParams, UpdateAgentOperatorResult>.Create("agent/updateoperator");
+            RequestType<UpdateAgentOperatorParams, AgentOperatorResult> Type =
+            RequestType<UpdateAgentOperatorParams, AgentOperatorResult>.Create("agent/updateoperator");
+    }    
+
+    /// <summary>
+    /// SQL Agent delete Operator params
+    /// </summary>
+    public class DeleteAgentOperatorParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public AgentOperatorInfo Operator { get; set; }
     }
+
+    /// <summary>
+    /// SQL Agent delete Operator request type
+    /// </summary>
+    public class DeleteAgentOperatorRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DeleteAgentOperatorParams, ResultStatus> Type =
+            RequestType<DeleteAgentOperatorParams, ResultStatus>.Create("agent/deleteoperator");
+    }    
 }

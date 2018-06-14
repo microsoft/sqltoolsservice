@@ -4,14 +4,8 @@
 //
 
 using System;
-using System.Collections;
-using System.Data;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -27,14 +21,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         private AgentAlertInfo alertInfo = null;
 
+        private ConfigAction configAction;
+
         /// <summary>
         /// Default constructor that will be used to create dialog
         /// </summary>
         /// <param name="dataContainer"></param>
-        public AgentAlertActions(CDataContainer dataContainer, AgentAlertInfo alertInfo)
+        public AgentAlertActions(CDataContainer dataContainer, AgentAlertInfo alertInfo, ConfigAction configAction)
         {
             this.alertInfo = alertInfo;
             this.DataContainer = dataContainer;
+            this.configAction = configAction;
         }
 
         private static string GetAlertName(CDataContainer container)
@@ -44,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             parameters.SetDocument(container.Document);
             if (parameters.GetParam("alert", ref alertName) == false || string.IsNullOrWhiteSpace(alertName))
             {
-                throw new Exception("SRError.AlertNameCannotBeBlank");
+                throw new Exception(SR.AlertNameCannotBeBlank);
             }
             return alertName.Trim();
         }
@@ -59,8 +56,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
         {
             base.DoPreProcessExecution(runType, out executionResult);
-            return false;
-        }
+            if (this.configAction == ConfigAction.Drop)
+            {
+                Drop();
+            }
+            else
+            {
+                CreateOrUpdate();
+            }
+
+            // regular execution always takes place
+            return true;
+        }   
 
         public bool Drop()
         {     
@@ -136,11 +143,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ApplicationException applicationException;
                 if (createNewAlert)
                 {
-                    applicationException = new ApplicationException("AgentAlertSR.CannotCreateNewAlert", e);
+                    applicationException = new ApplicationException(SR.CannotCreateNewAlert, e);
                 }
                 else
                 {
-                    applicationException = new ApplicationException("AgentAlertSR.CannotAlterAlert", e);
+                    applicationException = new ApplicationException(SR.CannotAlterAlert, e);
                 }
                 throw applicationException;
             }
