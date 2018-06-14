@@ -9,6 +9,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
@@ -67,6 +68,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Name = "Joe DBA",
                 EmailAddress = "test@aol.com"
             };
+        }
+
+        internal static AgentProxyInfo GetTestProxyInfo()
+        {
+            return new AgentProxyInfo()
+            {                
+                AccountName = "Test Proxy",
+                CredentialName = SecurityTestUtils.TestCredentialName,
+                Description = "Test proxy description",
+                IsEnabled = true                    
+            };  
         }        
 
         internal static async Task CreateAgentJob(
@@ -185,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Operator = operatorInfo
             }, context.Object);
             context.VerifyAll();
-        }        
+        }
 
         internal static async Task DeleteAgentOperator(
             AgentService service, 
@@ -199,7 +211,51 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Operator = operatorInfo
             }, context.Object);
             context.VerifyAll();
-        }      
+        }        
+
+        internal static async Task CreateAgentProxy(
+            AgentService service, 
+            TestConnectionResult connectionResult,
+            AgentProxyInfo proxy)
+        {
+            var context = new Mock<RequestContext<AgentProxyResult>>();
+            await service.HandleCreateAgentProxyRequest(new CreateAgentProxyParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                Proxy = proxy
+            }, context.Object);
+            context.VerifyAll();
+        }
+
+        internal static async Task UpdateAgentProxy(
+            AgentService service, 
+            TestConnectionResult connectionResult,
+            string originalProxyName,
+            AgentProxyInfo proxy)
+        {
+            var context = new Mock<RequestContext<AgentProxyResult>>();
+            await service.HandleUpdateAgentProxyRequest(new UpdateAgentProxyParams()
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                OriginalProxyName = originalProxyName,
+                Proxy = proxy
+            }, context.Object);
+            context.VerifyAll();
+        }    
+
+        internal static async Task DeleteAgentProxy(
+            AgentService service, 
+            TestConnectionResult connectionResult, 
+            AgentProxyInfo proxy)
+        {
+            var context = new Mock<RequestContext<ResultStatus>>();
+            await service.HandleDeleteAgentProxyRequest(new DeleteAgentProxyParams()
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                Proxy = proxy
+            }, context.Object);
+            context.VerifyAll();
+        }    
 
         internal static async Task<AgentAlertInfo[]> GetAgentAlerts(string connectionUri)
         {

@@ -3,33 +3,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System;
-using System.Drawing;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo.Agent;
 using System.Globalization;
 using System.Text;
-using Microsoft.SqlServer.Management.SqlManagerUI;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
     /// <summary>
     /// Summary description for JobSchedules.
     /// </summary>
-    internal class JobSchedules : ManagementActionBase
+    internal class JobSchedulesActions : ManagementActionBase
     {
         private bool sharedSchedulesSupported = false;
         private JobData data;
 
-        public JobSchedules(CDataContainer dataContainer, JobData data)
+        public JobSchedulesActions(CDataContainer dataContainer, JobData data)
         {
             this.DataContainer = dataContainer;
             this.data = data;

@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -86,43 +87,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <summary>
         /// Handle request to create a credential
         /// </summary>
-        internal async Task HandleCreateCredentialRequest(CreateCredentialParams parameters, RequestContext<CreateCredentialResult> requestContext)
-        {
-            try
-            {
-                var result = new CreateCredentialResult();
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
+        internal async Task HandleCreateCredentialRequest(CreateCredentialParams parameters, RequestContext<CredentialResult> requestContext)
+        {               
+            var result = await ConfigureCredential(parameters.OwnerUri,
+                parameters.Credential,
+                ConfigAction.Create,
+                RunType.RunNow);
 
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                Credential credential = new Credential(dataContainer);
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            await requestContext.SendResult(new CredentialResult()
             {
-                await requestContext.SendError(e);
-            }
+                Credential = parameters.Credential,
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         /// <summary>
         /// Handle request to update a credential
         /// </summary>
-        internal async Task HandleUpdateCredentialRequest(UpdateCredentialParams parameters, RequestContext<UpdateCredentialResult> requestContext)
-        {
-            var result = new UpdateCredentialResult();
-            await requestContext.SendResult(result);
+        internal async Task HandleUpdateCredentialRequest(UpdateCredentialParams parameters, RequestContext<CredentialResult> requestContext)
+        {             
+            var result = await ConfigureCredential(parameters.OwnerUri,
+                parameters.Credential,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new CredentialResult()
+            {
+                Credential = parameters.Credential,
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         /// <summary>
         /// Handle request to delete a credential
         /// </summary>
-        internal async Task HandleDeleteCredentialRequest(DeleteCredentialParams parameters, RequestContext<DeleteCredentialResult> requestContext)
+        internal async Task HandleDeleteCredentialRequest(DeleteCredentialParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            var result = new DeleteCredentialResult();
-            await requestContext.SendResult(result);            
+            var result = await ConfigureCredential(parameters.OwnerUri,
+                parameters.Credential,
+                ConfigAction.Drop,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
         }
 
         /// <summary>
@@ -135,5 +147,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 disposed = true;
             }
         }
+
+#region "Helpers"
+
+        internal async Task<Tuple<bool, string>> ConfigureCredential(
+            string ownerUri,
+            CredentialInfo credential,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+                    using (CredentialActions actions = new CredentialActions(dataContainer, credential, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(actions);
+                        executionHandler.RunNow(runType, this);
+                    }        
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+#endregion // "Helpers"
     }
 }

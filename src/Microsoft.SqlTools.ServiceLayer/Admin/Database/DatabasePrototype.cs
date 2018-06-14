@@ -2042,7 +2042,7 @@ WHERE do.database_id = @DbID
                            if ((null != sqlException) && CUtils.IsPermissionDeniedException(sqlException))
                            {
                                
-                               throw new Exception("SRError.SetOwnerFailed(this.Owner)" + ex.ToString());
+                               throw new Exception(SR.SetOwnerFailed(this.Owner) + ex.ToString());
                            }
                            else
                            {

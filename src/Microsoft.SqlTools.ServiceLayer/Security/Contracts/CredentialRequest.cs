@@ -22,12 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// Create Credential result
     /// </summary>
-    public class CreateCredentialResult
+    public class CredentialResult : ResultStatus
     {
-
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
+        public CredentialInfo Credential { get; set; }
+        
     }
 
     /// <summary>
@@ -39,41 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateCredentialParams, CreateCredentialResult> Type =
-            RequestType<CreateCredentialParams, CreateCredentialResult>.Create("security/createcredential");
-    }
-
-    /// <summary>
-    /// Delete Credential params
-    /// </summary>
-    public class DeleteCredentialParams : GeneralRequestDetails
-    {
-        public string OwnerUri { get; set; }
-
-        public CredentialInfo Credential { get; set; }
-    }
-
-    /// <summary>
-    /// Delete Credential result
-    /// </summary>
-    public class DeleteCredentialResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
-    /// Delete Credential request type
-    /// </summary>
-    public class DeleteCredentialRequest
-    {
-        /// <summary>
-        /// Request definition
-        /// </summary>
-        public static readonly
-            RequestType<DeleteCredentialParams, DeleteCredentialResult> Type =
-            RequestType<DeleteCredentialParams, DeleteCredentialResult>.Create("security/deletecredential");
+            RequestType<CreateCredentialParams, CredentialResult> Type =
+            RequestType<CreateCredentialParams, CredentialResult>.Create("security/createcredential");
     }
 
     /// <summary>
@@ -87,16 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     }
 
     /// <summary>
-    /// Update Credential result
-    /// </summary>
-    public class UpdateCredentialResult
-    {
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
-
-    /// <summary>
     /// Update Credential request type
     /// </summary>
     public class UpdateCredentialRequest
@@ -105,7 +60,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<UpdateCredentialParams, UpdateCredentialResult> Type =
-            RequestType<UpdateCredentialParams, UpdateCredentialResult>.Create("security/updatecredential");
-    }    
+            RequestType<UpdateCredentialParams, CredentialResult> Type =
+            RequestType<UpdateCredentialParams, CredentialResult>.Create("security/updatecredential");
+    }
+
+    /// <summary>
+    /// Delete Credential params
+    /// </summary>
+    public class DeleteCredentialParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+
+        public CredentialInfo Credential { get; set; }
+    }
+
+    /// <summary>
+    /// Delete Credential request type
+    /// </summary>
+    public class DeleteCredentialRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DeleteCredentialParams, ResultStatus> Type =
+            RequestType<DeleteCredentialParams, ResultStatus>.Create("security/deletecredential");
+    }
 }

@@ -7,10 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
-using System.Text;
-using System.Xml;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
@@ -433,10 +429,10 @@ ORDER BY [InstanceID] ASC";
                 {
                     m_originalSourceName = sourceName;
 
-                    m_pointInTime = Convert.ToDateTime(dr[JobUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
-                    m_serverName = Convert.ToString(dr[JobUtilities.UrnServer], System.Globalization.CultureInfo.InvariantCulture);
-                    m_fieldJobName = Convert.ToString(dr[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                    switch ((Microsoft.SqlServer.Management.Smo.Agent.CompletionResult)Convert.ToInt32(dr[JobUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture))
+                    m_pointInTime = Convert.ToDateTime(dr[AgentUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+                    m_serverName = Convert.ToString(dr[AgentUtilities.UrnServer], System.Globalization.CultureInfo.InvariantCulture);
+                    m_fieldJobName = Convert.ToString(dr[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                    switch ((Microsoft.SqlServer.Management.Smo.Agent.CompletionResult)Convert.ToInt32(dr[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture))
                     {
                         case CompletionResult.Cancelled:
                             m_severity = SeverityClass.Cancelled;
@@ -483,7 +479,7 @@ ORDER BY [InstanceID] ASC";
 
                     // if stepId is zero then dont show stepID and step name in log viewer
                     // Valid step Ids starts from index 1
-                    int currentStepId = (int)dr[JobUtilities.UrnStepID];
+                    int currentStepId = (int)dr[AgentUtilities.UrnStepID];
                     if (currentStepId == 0)
                     {
                         m_fieldStepID = String.Empty;
@@ -493,18 +489,18 @@ ORDER BY [InstanceID] ASC";
                     else
                     {
                         m_fieldStepID = Convert.ToString(currentStepId, System.Globalization.CultureInfo.CurrentCulture);
-                        m_fieldStepName = Convert.ToString(dr[JobUtilities.UrnStepName], System.Globalization.CultureInfo.CurrentCulture);
+                        m_fieldStepName = Convert.ToString(dr[AgentUtilities.UrnStepName], System.Globalization.CultureInfo.CurrentCulture);
                     }
                     
-                    m_fieldMessage = Convert.ToString(dr[JobUtilities.UrnMessage], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldSqlSeverity = Convert.ToString(dr[JobUtilities.UrnSqlSeverity], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldSqlMessageID = Convert.ToString(dr[JobUtilities.UrnSqlMessageID], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldOperatorEmailed = Convert.ToString(dr[JobUtilities.UrnOperatorEmailed], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldOperatorNetsent = Convert.ToString(dr[JobUtilities.UrnOperatorNetsent], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldOperatorPaged = Convert.ToString(dr[JobUtilities.UrnOperatorPaged], System.Globalization.CultureInfo.CurrentCulture);
-                    m_fieldRetriesAttempted = Convert.ToString(dr[JobUtilities.UrnRetriesAttempted], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldMessage = Convert.ToString(dr[AgentUtilities.UrnMessage], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldSqlSeverity = Convert.ToString(dr[AgentUtilities.UrnSqlSeverity], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldSqlMessageID = Convert.ToString(dr[AgentUtilities.UrnSqlMessageID], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldOperatorEmailed = Convert.ToString(dr[AgentUtilities.UrnOperatorEmailed], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldOperatorNetsent = Convert.ToString(dr[AgentUtilities.UrnOperatorNetsent], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldOperatorPaged = Convert.ToString(dr[AgentUtilities.UrnOperatorPaged], System.Globalization.CultureInfo.CurrentCulture);
+                    m_fieldRetriesAttempted = Convert.ToString(dr[AgentUtilities.UrnRetriesAttempted], System.Globalization.CultureInfo.CurrentCulture);
 
-                    Int64 hhmmss = Convert.ToInt64(dr[JobUtilities.UrnRunDuration], System.Globalization.CultureInfo.InvariantCulture); // HHMMSS
+                    Int64 hhmmss = Convert.ToInt64(dr[AgentUtilities.UrnRunDuration], System.Globalization.CultureInfo.InvariantCulture); // HHMMSS
                     int hh = Convert.ToInt32(hhmmss / 10000, System.Globalization.CultureInfo.InvariantCulture);
                     int mm = Convert.ToInt32((hhmmss / 100) % 100, System.Globalization.CultureInfo.InvariantCulture);
                     int ss = Convert.ToInt32(hhmmss % 100, System.Globalization.CultureInfo.InvariantCulture);
@@ -537,7 +533,7 @@ ORDER BY [InstanceID] ASC";
                 {
                     DataRow dr = dt.Rows[i];
 
-                    object o = dr[JobUtilities.UrnStepID];
+                    object o = dr[AgentUtilities.UrnStepID];
 
                     try
                     {
@@ -575,8 +571,8 @@ ORDER BY [InstanceID] ASC";
                 {
                     m_originalSourceName = sourceName;
 
-                    m_pointInTime = Convert.ToDateTime(dr[JobUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
-                    m_fieldJobName = Convert.ToString(dr[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                    m_pointInTime = Convert.ToDateTime(dr[AgentUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture);
+                    m_fieldJobName = Convert.ToString(dr[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
 
                     m_severity = SeverityClass.InProgress;
 
@@ -591,7 +587,7 @@ ORDER BY [InstanceID] ASC";
                     m_fieldRetriesAttempted = null;
                     m_serverName = null;
 
-                    m_fieldDuration = Convert.ToString(Convert.ToDateTime(dr[JobUtilities.UrnServerTime]) - Convert.ToDateTime(dr[JobUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture), System.Globalization.CultureInfo.InvariantCulture);
+                    m_fieldDuration = Convert.ToString(Convert.ToDateTime(dr[AgentUtilities.UrnServerTime]) - Convert.ToDateTime(dr[AgentUtilities.UrnRunDate], System.Globalization.CultureInfo.InvariantCulture), System.Globalization.CultureInfo.InvariantCulture);
                 }
                 catch (InvalidCastException)
                 {

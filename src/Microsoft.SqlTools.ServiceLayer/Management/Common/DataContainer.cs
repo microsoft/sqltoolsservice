@@ -669,7 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }           
             else
             {
-                    throw new ArgumentException("SRError.UnknownServerType(serverType.ToString()), serverType");
+                    throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
             }
         }
 
@@ -697,7 +697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
             else
             {
-                throw new ArgumentException("SRError.UnknownServerType(serverType.ToString()), serverType");
+                throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
             }
 
             if (xmlParameters != null)

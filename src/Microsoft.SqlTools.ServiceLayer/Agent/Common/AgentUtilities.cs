@@ -11,11 +11,10 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent 
 {
-    public class JobUtilities
+    public class AgentUtilities
     {
         public const string UrnJobName = "JobName";
         public const string UrnJobId = "JobId";
@@ -106,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     foreach (ILogEntry step in entry.SubEntries)
                     {
-                        jobSteps.Add(JobUtilities.ConvertToAgentJobStep(step, jobRow));
+                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(step, jobRow));
                     }
                 }
                 jobHistoryInfo.Steps = jobSteps.ToArray();

@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     case SizeUnits.TB:
                         return sizeBase*1024.0*1024.0*1024.0*1024.0;
                 }
-                throw new InvalidOperationException("SR.UnknownSizeUnit(SizeUnit.ToString())");
+                throw new InvalidOperationException(SR.UnknownSizeUnit(SizeUnit.ToString()));
             }
         }
         #region Object Overrides 

@@ -14,8 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class CredentialInfo
     {
-        public string Identity { get; set; }
         public int Id { get; }
+        public string Identity { get; set; }
+        public string Name { get; set; }
         public DateTime DateLastModified { get; }
         public DateTime CreateDate { get; }
        public string ProviderName { get; set; }       

@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using SMO = Microsoft.SqlServer.Management.Smo;
@@ -523,15 +522,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             set
             {
                 CheckAndLoadMsaInformation();
-                //If a change in the targetLocalServer was detected, then fire the OnCategoriesChanged
-                //event so that the categories drop down list is properly populated.
+                // If a change in the targetLocalServer was detected, then fire the OnCategoriesChanged
+                // event so that the categories drop down list is properly populated.
                 if (this.targetLocalServer != value)
                 {
                     this.targetLocalServer = value;
                     this.displayableCategories = null;
                     CheckAndLoadDisplayableCategories();
                     OnCategoriesChanged();
-                    //TODO: add method to do this?
                     this.owners = null;
                     OnOwnersChanged();
                 }
@@ -581,7 +579,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private void OnCategoriesChanged()
         {
-            //Fire the categories changed event.
+            // Fire the categories changed event.
             if (this.CategoriesChanged != null)
             {
                 this.CategoriesChanged(this, EventArgs.Empty);
@@ -589,7 +587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
         private void OnOwnersChanged()
         {
-            //Fire the categories changed event.
+            // Fire the categories changed event.
             if (this.OwnersChanged != null)
             {
                 this.OwnersChanged(this, EventArgs.Empty);
@@ -1129,7 +1127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (!targetServerSelected)
                 {
                     ///Not target servers selected.  Throw error.
-                    throw new ApplicationException("SRError.TargetServerNotSelected");
+                    throw new ApplicationException(SR.TargetServerNotSelected);
                 }
             }
 
@@ -1386,7 +1384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 if (smoJobCollection.Contains(jobName))
                 {
-                    throw new ApplicationException("SRError.JobAlreadyExists(jobName)");
+                    throw new ApplicationException(SR.JobAlreadyExists(jobName));
                 }
             }
             finally

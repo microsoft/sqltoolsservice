@@ -3046,6 +3046,50 @@
         <note>.
  Parameters: 0 - scheduleName (string) </note>
       </trans-unit>
+      <trans-unit id="SysadminAccount">
+        <source>SQL Server Agent Service Account</source>
+        <target state="new">SQL Server Agent Service Account</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ProxyAccountNotFound">
+        <source>Proxy account '{0}' does not exist on the server.</source>
+        <target state="new">Proxy account '{0}' does not exist on the server.</target>
+        <note>.
+ Parameters: 0 - proxyName (string) </note>
+      </trans-unit>
+      <trans-unit id="CredentialNoLongerExists">
+        <source>The object does no longer exist on server.</source>
+        <target state="new">The object does no longer exist on server.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnknownServerType">
+        <source>Unknown server type '{0}'.</source>
+        <target state="new">Unknown server type '{0}'.</target>
+        <note>.
+ Parameters: 0 - serverTypeName (string) </note>
+      </trans-unit>
+      <trans-unit id="SetOwnerFailed">
+        <source>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</source>
+        <target state="new">The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</target>
+        <note>.
+ Parameters: 0 - ownerName (string) </note>
+      </trans-unit>
+      <trans-unit id="TargetServerNotSelected">
+        <source>You must specify the Target Servers on which this multi server job will execute.</source>
+        <target state="new">You must specify the Target Servers on which this multi server job will execute.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnexpectedRunType">
+        <source>Unexpected run type.</source>
+        <target state="new">Unexpected run type.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnknownSizeUnit">
+        <source>Unknown size unit {0} </source>
+        <target state="new">Unknown size unit {0} </target>
+        <note>.
+ Parameters: 0 - unit (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

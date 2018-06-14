@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                             foreach (var job in this.jobs.Values)
                             {
-                                agentJobs.Add(JobUtilities.ConvertToAgentJobInfo(job));
+                                agentJobs.Add(AgentUtilities.ConvertToAgentJobInfo(job));
                             }
                         }
                         result.Success = true;
@@ -187,14 +187,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         if (count > 0)
                         {
                             var job = dt.Rows[0];
-                            string jobName = Convert.ToString(job[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                            Guid jobId = (Guid) job[JobUtilities.UrnJobId];
-                            int runStatus = Convert.ToInt32(job[JobUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                            string jobName = Convert.ToString(job[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                            Guid jobId = (Guid) job[AgentUtilities.UrnJobId];
+                            int runStatus = Convert.ToInt32(job[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
                             var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
-                            jobHistories = JobUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();
@@ -506,45 +506,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await requestContext.SendResult(null);
         }
 
-        internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<CreateAgentProxyResult> requestContext)
+        internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<AgentProxyResult> requestContext)
         {
-             bool succeeded = await ConfigureAgentProxy(
+            var result = await ConfigureAgentProxy(
                 parameters.OwnerUri,
                 parameters.Proxy.AccountName,
                 parameters.Proxy,
-                ConfigAction.Create);
+                ConfigAction.Create,
+                RunType.RunNow);
 
-            await requestContext.SendResult(new CreateAgentProxyResult()
+            await requestContext.SendResult(new AgentProxyResult()
             {
-                Success = succeeded
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Proxy = parameters.Proxy
             });
         }
 
-        internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<UpdateAgentProxyResult> requestContext)
+        internal async Task HandleUpdateAgentProxyRequest(UpdateAgentProxyParams parameters, RequestContext<AgentProxyResult> requestContext)
         {
-            bool succeeded = await ConfigureAgentProxy(
+            var result = await ConfigureAgentProxy(
                 parameters.OwnerUri,
-                parameters.OriginalProxyName,
+                parameters.Proxy.AccountName,
                 parameters.Proxy,
-                ConfigAction.Update);
+                ConfigAction.Update,
+                RunType.RunNow);
 
-            await requestContext.SendResult(new UpdateAgentProxyResult()
+            await requestContext.SendResult(new AgentProxyResult()
             {
-                Success = succeeded
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Proxy = parameters.Proxy
             });
         }
 
         internal async Task HandleDeleteAgentProxyRequest(DeleteAgentProxyParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            bool succeeded = await ConfigureAgentProxy(
+            var result = await ConfigureAgentProxy(
                 parameters.OwnerUri,
                 parameters.Proxy.AccountName,
                 parameters.Proxy,
-                ConfigAction.Drop);
+                ConfigAction.Drop,
+                RunType.RunNow);
 
             await requestContext.SendResult(new ResultStatus()
             {
-                Success = succeeded
+                Success = result.Item1,
+                ErrorMessage = result.Item2
             });
         }
 
@@ -682,49 +690,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        internal async Task<bool> ConfigureAgentProxy(
+        internal async Task<Tuple<bool, string>> ConfigureAgentProxy(
             string ownerUri,
             string accountName,
             AgentProxyInfo proxy,
-            ConfigAction configAction)
+            ConfigAction configAction,
+            RunType runType)
         {
             return await Task<bool>.Run(() =>
             {
                 try
                 {
                     ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("proxyaccount", accountName);
 
-                    using (AgentProxyAccount agentProxy = new AgentProxyAccount(dataContainer, proxy))
+                    using (AgentProxyAccountActions agentProxy = new AgentProxyAccountActions(dataContainer, proxy, configAction))
                     {
-                        if (configAction == ConfigAction.Create)
-                        {
-                            return agentProxy.Create();
-                        }
-                        else if (configAction == ConfigAction.Update)
-                        {
-                            return agentProxy.Update();
-                        }
-                        else if (configAction == ConfigAction.Drop)
-                        {
-                            return agentProxy.Drop();
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        var executionHandler = new ExecutonHandler(agentProxy);
+                        executionHandler.RunNow(runType, this);
                     }
+
+                    return new Tuple<bool, string>(true, string.Empty);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // log exception here
-                    return false;
+                    return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
         }        

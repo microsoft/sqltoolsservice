@@ -2508,6 +2508,42 @@
     <value>Data Collector</value>
     <comment></comment>
   </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Unknown size unit {0} </value>
+    <comment>.
+ Parameters: 0 - unit (string) </comment>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Unexpected run type.</value>
+    <comment></comment>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>The object does no longer exist on server.</value>
+    <comment></comment>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Unknown server type '{0}'.</value>
+    <comment>.
+ Parameters: 0 - serverTypeName (string) </comment>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</value>
+    <comment>.
+ Parameters: 0 - ownerName (string) </comment>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>You must specify the Target Servers on which this multi server job will execute.</value>
+    <comment></comment>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>Proxy account '{0}' does not exist on the server.</value>
+    <comment>.
+ Parameters: 0 - proxyName (string) </comment>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>SQL Server Agent Service Account</value>
+    <comment></comment>
+  </data>
   <data name="JobAlreadyExists" xml:space="preserve">
     <value>A job named '{0}' already exists.  Enter a unique name for the job.</value>
     <comment>.
