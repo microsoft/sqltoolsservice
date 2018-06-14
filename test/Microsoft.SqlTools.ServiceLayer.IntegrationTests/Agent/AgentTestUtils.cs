@@ -9,6 +9,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
@@ -72,11 +73,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         internal static AgentProxyInfo GetTestProxyInfo()
         {
             return new AgentProxyInfo()
-            {
-                Id = 10,                    
-                AccountName = "Test Proxy 2",
-                CredentialName = "User",
-                Description = "",
+            {                
+                AccountName = "Test Proxy",
+                CredentialName = SecurityTestUtils.TestCredentialName,
+                Description = "Test proxy description",
                 IsEnabled = true                    
             };  
         }        

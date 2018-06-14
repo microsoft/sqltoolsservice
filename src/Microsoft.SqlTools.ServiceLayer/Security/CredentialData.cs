@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -13,19 +12,11 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
-	internal class CredentialException : Exception
-	{
-		public CredentialException(string message)
-			: base(message)
-		{
-		}
-	}
-
 	internal class CredentialData : IDisposable
 	{
 		#region Properties
@@ -50,17 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             set 
             { 
                 securePassword = value; 
-                PasswordWasChanged = true; 
-            } 
-        }
-
-		private SecureString securePasswordConfirm;
-		public SecureString SecurePasswordConfirm 
-        { 
-            get { return securePasswordConfirm; } 
-            set 
-            { 
-                securePasswordConfirm = value; 
                 PasswordWasChanged = true; 
             } 
         }
@@ -94,6 +74,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             get { return providerName; } 
             set { providerName = value; } 
         }
+
+		public Microsoft.SqlServer.Management.Smo.Credential Credential
+		{
+			get
+			{
+				return !string.IsNullOrWhiteSpace(this.CredentialName)
+					? this.Context.Server.Credentials[this.CredentialName]
+					: null;
+			}
+		}
 		#endregion
 
 		private const string ENUMERATOR_FIELD_IDENTITY = "Identity";
@@ -102,9 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		#region Constructor
 		private CDataContainer context = null;
 		private CDataContainer Context { get { return context; } set { context = value; } }
-		public CredentialData(CDataContainer ctxt)
+		private CredentialInfo credential;
+
+		public CredentialData(CDataContainer context, CredentialInfo credential)
 		{
-			this.Context = ctxt;
+			this.Context = context;
+			this.credential = credential;
 			LoadDataFromXmlContext();
 		}
 		#endregion
@@ -115,6 +108,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		{
 			LoadDataFromXmlContext();
 			LoadDataFromServer();
+
+			// apply CredentialInfo properties
+			this.CredentialIdentity = this.credential.Identity;
+			this.CredentialName = this.credential.Name;
+            this.SecurePassword = CDataContainer.BuildSecureStringFromPassword(string.Empty);
+   
+			// need to update only during create time
+			this.IsEncryptionByProvider = false;
+			if (this.IsEncryptionByProvider)
+			{
+				this.ProviderName = string.Empty; // lookup provider here
+			}
+			else
+			{
+				this.ProviderName = string.Empty;
+			}
 		}
 
 		/// <summary>
@@ -175,11 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 			}
 
 			this.SecurePassword = new SecureString();
-			this.SecurePasswordConfirm = new SecureString();
-
 			this.PasswordWasChanged = false;
 		}
-
 
 		/// <summary>
 		/// SendDataToServer
@@ -249,7 +255,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		public void Dispose()
 		{
 			this.SecurePassword.Dispose();
-			this.SecurePasswordConfirm.Dispose();
 		}
 
 	    #endregion
