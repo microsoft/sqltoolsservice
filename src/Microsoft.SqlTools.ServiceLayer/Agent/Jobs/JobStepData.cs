@@ -5,13 +5,9 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using SMO = Microsoft.SqlServer.Management.Smo;
 
@@ -202,6 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.alreadyCreated;
             }
         }
+
         public bool ToBeDeleted
         {
             get
@@ -213,6 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.deleted = value;
             }
         }
+
         public JobStepsData Parent
         {
             get
@@ -220,6 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.parent;
             }
         }
+
         public string[] Databases
         {
             get
@@ -227,6 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.parent.Databases;
             }
         }
+
         public bool StepIdChanged
         {
             get
@@ -237,6 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                    this.id != this.originalId;
             }
         }
+
         public bool IsReadOnly
         {
             get { return parent.IsReadOnly; }
@@ -269,6 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.command = value;
             }
         }
+
         public int CommandExecutionSuccessCode
         {
             get
@@ -282,6 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.commandExecutionSuccessCode = value;
             }
         }
+
         public string DatabaseName
         {
             get
@@ -295,6 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.databaseName = value;
             }
         }
+
         public string DatabaseUserName
         {
             get
@@ -308,6 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.databaseUserName = value;
             }
         }
+
         public string Server
         {
             get
@@ -321,6 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.server = value;
             }
         }
+
         public int ID
         {
             get
@@ -332,6 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.id = value;
             }
         }
+
         public StepCompletionAction FailureAction
         {
             get
@@ -344,6 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.failureAction;
             }
         }
+
         public JobStepData FailStep
         {
             get
@@ -355,6 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.failStep;
             }
         }
+
         public StepCompletionAction SuccessAction
         {
             get
@@ -367,6 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.successAction;
             }
         }
+
         public JobStepData SuccessStep
         {
             get
@@ -378,6 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.successStep;
             }
         }
+
         public OSRunPriority Priority
         {
             get
@@ -391,6 +402,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.priority = value;
             }
         }
+
         public string OutputFileName
         {
             get
@@ -404,6 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.outputFileName = value;
             }
         }
+
         public bool AppendToLogFile
         {
             get
@@ -417,6 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.appendToLogFile = value;
             }
         }
+
         public bool AppendToStepHistory
         {
             get
@@ -430,6 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.appendToStepHist = value;
             }
         }
+
         public bool CanLogToTable
         {
             get
@@ -437,6 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.Version.Major >= 9;
             }
         }
+
         public bool WriteLogToTable
         {
             get
@@ -450,6 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.writeLogToTable = value;
             }
         }
+
         public bool AppendLogToTable
         {
             get
@@ -463,6 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.appendLogToTable = value;
             }
         }
+
         public int RetryAttempts
         {
             get
@@ -476,6 +494,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.retryAttempts = value;
             }
         }
+
         public int RetryInterval
         {
             get
@@ -558,18 +577,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             SetDefaults();
         }
+
         // new job step with context
         public JobStepData(JobStepsData parent)
         {
             this.parent = parent;
             SetDefaults();
         }
+
         // existing job step
         public JobStepData(JobStep source, JobStepsData parent)
         {
             this.parent = parent;
             LoadData(source);
         }
+
         // copy constructor
         public JobStepData(JobStepData source)
         {
@@ -647,6 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.cachedSource = source;
         }
+
         /// <summary>
         /// Load all data nessesary to edit a job
         /// </summary>
@@ -694,6 +717,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.cachedSource = null;
         }
+
         /// <summary>
         /// Set defaults for a new empty job
         /// </summary>
@@ -725,6 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.proxyName = string.Empty;
             this.urn = null;
         }
+
         /// <summary>
         /// Load the completion actions for the step
         /// </summary>
@@ -751,6 +776,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             return ApplyChanges(job, false);
         }
+
         /// <summary>
         /// Save changes to the job step
         /// </summary>

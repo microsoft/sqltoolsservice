@@ -22,28 +22,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		#region Properties
 		private string credentialName = string.Empty;
 		public string CredentialName 
-        { 
-            get { return credentialName; } 
-            set { credentialName = value; } 
-        }
+		{ 
+			get { return credentialName; } 
+			set { credentialName = value; } 
+		}
 
 		private string credentialIdentity = string.Empty;
 		public string CredentialIdentity 
-        { 
-            get { return credentialIdentity; } 
-            set { credentialIdentity = value; } 
-        }
+		{ 
+			get { return credentialIdentity; } 
+			set { credentialIdentity = value; } 
+		}
 
 		private SecureString securePassword;
 		public SecureString SecurePassword 
-        { 
-            get { return securePassword; } 
-            set 
-            { 
-                securePassword = value; 
-                PasswordWasChanged = true; 
-            } 
-        }
+		{ 
+			get { return securePassword; } 
+			set 
+			{ 
+				securePassword = value; 
+				PasswordWasChanged = true; 
+			} 
+		}
 
 		private bool isPropertiesMode = false;
 		public bool IsPropertiesMode
@@ -56,24 +56,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 		private bool passwordWasChanged = false;
 		public bool PasswordWasChanged 
-        { 
-            get { return passwordWasChanged; } 
-            set { passwordWasChanged = value; } 
-        }
+		{ 
+			get { return passwordWasChanged; } 
+			set { passwordWasChanged = value; } 
+		}
 
-        private bool isEncryptionByProvider = false;
-        public bool IsEncryptionByProvider 
-        { 
-            get { return isEncryptionByProvider; } 
-            set { isEncryptionByProvider = value; } 
-        }
+		private bool isEncryptionByProvider = false;
+		public bool IsEncryptionByProvider 
+		{ 
+			get { return isEncryptionByProvider; } 
+			set { isEncryptionByProvider = value; } 
+		}
 
-        private string providerName = string.Empty;
-        public string ProviderName 
-        { 
-            get { return providerName; } 
-            set { providerName = value; } 
-        }
+		private string providerName = string.Empty;
+		public string ProviderName 
+		{ 
+			get { return providerName; } 
+			set { providerName = value; } 
+		}
 
 		public Microsoft.SqlServer.Management.Smo.Credential Credential
 		{
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		#endregion
 
 		private const string ENUMERATOR_FIELD_IDENTITY = "Identity";
-        private const string ENUMERATOR_FIELD_PROVIDER_NAME = "ProviderName";
+		private const string ENUMERATOR_FIELD_PROVIDER_NAME = "ProviderName";
 
 		#region Constructor
 		private CDataContainer context = null;
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 			// apply CredentialInfo properties
 			this.CredentialIdentity = this.credential.Identity;
 			this.CredentialName = this.credential.Name;
-            this.SecurePassword = CDataContainer.BuildSecureStringFromPassword(string.Empty);
+			this.SecurePassword = CDataContainer.BuildSecureStringFromPassword(string.Empty);
    
 			// need to update only during create time
 			this.IsEncryptionByProvider = false;
@@ -146,18 +146,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		{
 			if (this.IsPropertiesMode == true)
 			{
-                bool isKatmaiAndNotMatrix = (this.context.Server.Version.Major >= 10);
+				bool isKatmaiAndNotMatrix = (this.context.Server.Version.Major >= 10);
 
 				Urn urn = new Urn("Server/Credential[@Name='" + Urn.EscapeString(this.CredentialName) + "']");
-                string [] fields;
-                if (isKatmaiAndNotMatrix)
-                {
-                    fields = new string[] { ENUMERATOR_FIELD_IDENTITY, ENUMERATOR_FIELD_PROVIDER_NAME };
-                }
-                else
-                {
-                    fields = new string[] { ENUMERATOR_FIELD_IDENTITY };
-                }
+				string [] fields;
+				if (isKatmaiAndNotMatrix)
+				{
+					fields = new string[] { ENUMERATOR_FIELD_IDENTITY, ENUMERATOR_FIELD_PROVIDER_NAME };
+				}
+				else
+				{
+					fields = new string[] { ENUMERATOR_FIELD_IDENTITY };
+				}
 				Request r = new Request(urn, fields);
 				System.Data.DataTable dataTable = Enumerator.GetData(this.Context.ConnectionInfo, r);
 
@@ -169,18 +169,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 				System.Data.DataRow dataRow = dataTable.Rows[0];
 				this.CredentialIdentity = Convert.ToString(dataRow[ENUMERATOR_FIELD_IDENTITY], System.Globalization.CultureInfo.InvariantCulture);
 
-                if (isKatmaiAndNotMatrix)
-                {
-                    this.providerName = Convert.ToString(dataRow[ENUMERATOR_FIELD_PROVIDER_NAME], System.Globalization.CultureInfo.InvariantCulture);
-                    this.isEncryptionByProvider = !string.IsNullOrEmpty(providerName);
-                }
+				if (isKatmaiAndNotMatrix)
+				{
+					this.providerName = Convert.ToString(dataRow[ENUMERATOR_FIELD_PROVIDER_NAME], System.Globalization.CultureInfo.InvariantCulture);
+					this.isEncryptionByProvider = !string.IsNullOrEmpty(providerName);
+				}
 			}
 			else
 			{
 				this.CredentialName = string.Empty;
 				this.CredentialIdentity = string.Empty;
-                this.providerName = string.Empty;
-                this.isEncryptionByProvider = false;
+				this.providerName = string.Empty;
+				this.isEncryptionByProvider = false;
 			}
 
 			this.SecurePassword = new SecureString();
@@ -212,11 +212,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 			Microsoft.SqlServer.Management.Smo.Credential smoCredential = new Microsoft.SqlServer.Management.Smo.Credential (
 				this.Context.Server,
 				this.CredentialName);
-            if (this.isEncryptionByProvider)
-            {
-                smoCredential.MappedClassType = MappedClassType.CryptographicProvider;
-                smoCredential.ProviderName = this.providerName;
-            }
+			if (this.isEncryptionByProvider)
+			{
+				smoCredential.MappedClassType = MappedClassType.CryptographicProvider;
+				smoCredential.ProviderName = this.providerName;
+			}
 			smoCredential.Create(this.CredentialIdentity, this.SecurePassword.ToString());
 			GC.Collect(); // this.SecurePassword.ToString() just created an immutable string that lives in memory
 		}
@@ -257,6 +257,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 			this.SecurePassword.Dispose();
 		}
 
-	    #endregion
+		#endregion
 	}
 }

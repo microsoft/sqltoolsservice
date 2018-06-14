@@ -90,6 +90,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 await AgentTestUtils.DeleteAgentProxy(service, connectionResult, proxy);
                 await SecurityTestUtils.CleanupCredential(connectionResult, credential); 
             }
-        }           
+        }
     }
 }

@@ -7,15 +7,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Data;
-using System.Globalization;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -59,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.parent;
             }
         }
+
         /// <summary>
         /// Server Version
         /// </summary>
@@ -69,6 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.parent.Version;
             }
         }
+
         /// <summary>
         /// Mode in which the dialog has been launched
         /// </summary>
@@ -86,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
             }
         }
+
         /// <summary>
         /// List of steps in this job
         /// </summary>
@@ -96,6 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.jobSteps;
             }
         }
+
         /// <summary>
         /// The default start step
         /// </summary>
@@ -122,6 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.startStep = value;
             }
         }
+
         /// <summary>
         /// List of all available databases on the server
         /// </summary>
@@ -133,6 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.databases;
             }
         }
+
         /// <summary>
         /// Indicates whether or not the order of the steps has changed
         /// </summary>
@@ -152,6 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return orderChanged;
             }
         }
+
         /// <summary>
         /// Indicates whether or not the Job is read only
         /// </summary>
@@ -188,6 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             CommonInit(context, parent, script);
         }
+
         /// <summary>
         /// Create a new jobsteps data object
         /// </summary>
@@ -205,6 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             CommonInit(context, parent, null);
         }
+
         /// <summary>
         /// Common initialization routines for constructrs
         /// </summary>
@@ -246,6 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.jobSteps.Add(step);
             RecalculateStepIds();
         }
+
         /// <summary>
         /// Insert a jobstep into an existing location
         /// </summary>
@@ -256,6 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.jobSteps.Insert(index, step);
             RecalculateStepIds();
         }
+
         /// <summary>
         /// Delete a jobstep
         /// </summary>
@@ -275,6 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             RecalculateStepIds();
         }
+
         /// <summary>
         /// Get a JobStepData object for a step id
         /// </summary>
@@ -365,6 +371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             return unreachableSteps;
         }
+
         /// <summary>
         /// Checks to see if the Last steps success completion action will change.
         /// It will if we are editing a job, and the last steps Success Completion
@@ -404,6 +411,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             OnStepOrderChanged(EventArgs.Empty);
         }
+
         /// <summary>
         /// Delayed loading of database information
         /// </summary>
@@ -420,6 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.databases[i] = this.context.Server.Databases[i].Name;
             }
         }
+
         /// <summary>
         /// fire the StepOrderChanged event 
         /// </summary>
@@ -430,6 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.StepOrderChanged(this, args);
             }
         }
+
         /// <summary>
         ///  SMO job object we are manipulating
         /// </summary>
@@ -463,6 +473,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             jsd.Name = "1";
             this.jobSteps.Add(jsd);
         }
+
         /// <summary>
         /// Load job steps from the server
         /// </summary>
@@ -617,10 +628,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
     }
 }
-
-
-
-
-
-
-

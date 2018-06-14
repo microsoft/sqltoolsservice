@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                             foreach (var job in this.jobs.Values)
                             {
-                                agentJobs.Add(JobUtilities.ConvertToAgentJobInfo(job));
+                                agentJobs.Add(AgentUtilities.ConvertToAgentJobInfo(job));
                             }
                         }
                         result.Success = true;
@@ -187,14 +187,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         if (count > 0)
                         {
                             var job = dt.Rows[0];
-                            string jobName = Convert.ToString(job[JobUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                            Guid jobId = (Guid) job[JobUtilities.UrnJobId];
-                            int runStatus = Convert.ToInt32(job[JobUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                            string jobName = Convert.ToString(job[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
+                            Guid jobId = (Guid) job[AgentUtilities.UrnJobId];
+                            int runStatus = Convert.ToInt32(job[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
                             var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
-                            jobHistories = JobUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();

@@ -163,8 +163,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    //STParameters param = new STParameters(dataContainer.Document);
-                    //param.SetParam("alert", alert.JobName);
 
                     using (CredentialActions actions = new CredentialActions(dataContainer, credential, configAction))
                     {

@@ -5,11 +5,11 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 
@@ -18,12 +18,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// <summary>
     /// Summary description for JobNotifications.
     /// </summary>
-    internal class JobNotifications : ManagementActionBase
+    internal class JobNotificationsActions : ManagementActionBase
     {
         private JobData data;
         private bool loading = false;
 
-        public JobNotifications(CDataContainer dataContainer, JobData data)
+        public JobNotificationsActions(CDataContainer dataContainer, JobData data)
         {
             this.DataContainer = dataContainer;
             this.data = data;
