@@ -20,9 +20,9 @@ using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnec
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 {
     /// <summary>
-    /// Tests for the security service component
+    /// Tests for the Credential management component
     /// </summary>
-    public class SecuritygServiceTests
+    public class CredentialTests
     {
         /// <summary>
         /// TestHandleCreateCredentialRequest

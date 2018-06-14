@@ -17,13 +17,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 {
     public static class SecurityTestUtils
     {
-        public static string TestCredentialName = "localhost\\Administrator";
+        public static string TestCredentialName = "Current User";
+
+        internal static string GetCurrentUserIdentity()
+        {               
+            return string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
+        }
 
         internal static CredentialInfo GetTestCredentialInfo()
         {
             return new CredentialInfo()
             {
-                Identity = TestCredentialName,
+                Identity = GetCurrentUserIdentity(),
                 Name = TestCredentialName
             };
         }
