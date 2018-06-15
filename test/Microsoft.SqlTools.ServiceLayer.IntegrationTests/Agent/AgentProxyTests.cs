@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                // cleanup
+                // setup
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var credential = await SecurityTestUtils.SetupCredential(connectionResult);
                 var service = new AgentService();
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                // cleanup
+                // setup
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var credential = await SecurityTestUtils.SetupCredential(connectionResult);
                 var service = new AgentService();

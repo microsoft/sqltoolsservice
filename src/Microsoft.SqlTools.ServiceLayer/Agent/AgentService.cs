@@ -114,6 +114,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(CreateAgentProxyRequest.Type, HandleCreateAgentProxyRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentProxyRequest.Type, HandleUpdateAgentProxyRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentProxyRequest.Type, HandleDeleteAgentProxyRequest);
+
+            // Schedule request handlers
+            this.ServiceHost.SetRequestHandler(AgentSchedulesRequest.Type, HandleAgentSchedulesRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest);
         }
 
         #region "Jobs Handlers"
@@ -558,6 +564,61 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion // "Proxy Handlers"
 
+        #region "Schedule Handlers"
+
+        internal async Task HandleAgentSchedulesRequest(AgentSchedulesParams parameters, RequestContext<AgentSchedulesResult> requestContext)
+        {
+            await requestContext.SendResult(null);
+        }
+
+        internal async Task HandleCreateAgentScheduleRequest(CreateAgentScheduleParams parameters, RequestContext<AgentScheduleResult> requestContext)
+        {
+            var result = await ConfigureAgentSchedule(
+                parameters.OwnerUri,
+                parameters.Schedule,
+                ConfigAction.Create,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new AgentScheduleResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Schedule = parameters.Schedule
+            });
+        }
+
+        internal async Task HandleUpdateAgentScheduleRequest(UpdateAgentScheduleParams parameters, RequestContext<AgentScheduleResult> requestContext)
+        {
+            var result = await ConfigureAgentSchedule(
+                parameters.OwnerUri,
+                parameters.Schedule,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new AgentScheduleResult()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2,
+                Schedule = parameters.Schedule
+            });
+        }
+
+        internal async Task HandleDeleteAgentScheduleRequest(DeleteAgentScheduleParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            var result = await ConfigureAgentSchedule(
+                parameters.OwnerUri,
+                parameters.Schedule,
+                ConfigAction.Drop,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        #endregion // "Schedule Handlers"
 
         #region "Helpers"
 
@@ -720,7 +781,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
-        }        
+        }
+
+        internal async Task<Tuple<bool, string>> ConfigureAgentSchedule(
+            string ownerUri,
+            AgentScheduleInfo schedule,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return await Task<bool>.Run(() =>
+            {
+                try
+                {
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(ownerUri, schedule.JobName, out dataContainer, out jobData);
+
+                    const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']/Schedule[@Name='{2}']";
+                    string serverName = dataContainer.Server.Name.ToUpper();
+                    string scheduleUrn = string.Format(UrnFormatStr, serverName, jobData.Job.Name, schedule.Name);
+
+                    STParameters param = new STParameters(dataContainer.Document);
+                    param.SetParam("urn", scheduleUrn);
+
+                    using (JobSchedulesActions actions = new JobSchedulesActions(dataContainer, jobData, schedule, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(actions);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
 
         private void CreateJobData(
             string ownerUri, 
