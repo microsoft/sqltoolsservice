@@ -232,7 +232,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 Task.Factory.StartNew(() =>
                 {
-                    var events = PollSession(session);
+                    bool eventsLost;
+                    var events = PollSession(session, out eventsLost);
                     if (events.Count > 0)
                     {
                         // notify all viewers for the polled session
@@ -241,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             if (allViewers[viewerId].active)
                             {
-                                SendEventsToListeners(viewerId, events);
+                                SendEventsToListeners(viewerId, events, eventsLost);
                             }
                         }
                     }
@@ -249,13 +250,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        private List<ProfilerEvent> PollSession(ProfilerSession session)
+        private List<ProfilerEvent> PollSession(ProfilerSession session, out bool eventsLost)
         {
             var events = new List<ProfilerEvent>();
             try
             {
                 if (session == null || session.XEventSession == null)
                 {
+                    eventsLost = false;
                     return events;
                 }
 
@@ -283,20 +285,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.IsPolling = false;
             }
 
-            session.FilterOldEvents(events);
+            eventsLost = session.FilterOldEvents(events);
             return session.FilterProfilerEvents(events);
         }
 
         /// <summary>
         /// Notify listeners when new profiler events are available
         /// </summary>
-        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events)
+        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
             lock (listenersLock)
             {
                 foreach (var listener in this.listeners)
                 {
-                    listener.EventsAvailable(sessionId, events);
+                    listener.EventsAvailable(sessionId, events, eventsLost);
                 }
             }
         }

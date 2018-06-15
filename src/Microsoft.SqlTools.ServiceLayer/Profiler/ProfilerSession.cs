@@ -127,8 +127,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Filter the event list to not include previously seen events,
         /// and to exclude events that happened before the profiling session began.
         /// </summary>
-        public void FilterOldEvents(List<ProfilerEvent> events)
+        /// <returns> 
+        /// Bool indicating if there is a possibility that events were lost between polling
+        /// </returns>
+        public bool FilterOldEvents(List<ProfilerEvent> events)
         {
+            bool eventsLost = false;
             if (lastSeenEvent != null)
             {
                 // find the last event we've previously seen
@@ -148,6 +152,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     events.RemoveRange(0, idx + 1);
                 }
+                else
+                {
+                    // last seen event was overwritten
+                    // other events may have been lost as well
+                    eventsLost = true;
+                }
 
                 // save the last event so we know where to clean-up the list from next time
                 if (events.Count > 0)
@@ -166,6 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // ignore all events before the session began
                 events.Clear();
             }
+            return eventsLost;
         }
     }
 }

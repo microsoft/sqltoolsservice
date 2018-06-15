@@ -14,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         public string OwnerUri { get; set; }
 
         public List<ProfilerEvent> Events { get; set; }
+
+        public bool EventsLost { get; set; }
     }
 
     public class ProfilerEventsAvailableNotification

@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // capture listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
-            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>())).Callback(() =>
+            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
                 {
                     recievedEvents = true;
                 });
@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // capture listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
-            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>())).Callback(() =>
+            mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
                 {
                     recievedEvents = true;
                 });

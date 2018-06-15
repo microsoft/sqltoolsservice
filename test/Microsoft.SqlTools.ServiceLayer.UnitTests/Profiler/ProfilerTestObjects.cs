@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public List<ProfilerEvent> PreviousEvents { get; set; }
 
-        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
             this.PreviousSessionId = sessionId;
             this.PreviousEvents = events;
