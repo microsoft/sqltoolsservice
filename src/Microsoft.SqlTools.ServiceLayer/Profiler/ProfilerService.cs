@@ -282,6 +282,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Callback when the XEvent session is closed unexpectedly
+        /// </summary>
+        public void SessionStopped(string viewerId, int sessionId)
+        {
+            // notify the client that their session closed
+            this.ServiceHost.SendEvent(
+                ProfilerSessionStoppedNotification.Type,
+                new ProfilerSessionStoppedParams()
+                {
+                    OwnerUri = viewerId,
+                    SessionId = sessionId
+                });
+        }
+
+        /// <summary>
         /// Disposes the Profiler Service
         /// </summary>
         public void Dispose()

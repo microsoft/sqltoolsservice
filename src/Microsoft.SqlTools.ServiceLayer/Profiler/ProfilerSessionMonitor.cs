@@ -276,9 +276,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                 }
             }
+            catch (XEventException)
+            {
+                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
+                ProfilerSession tempSession;
+                RemoveSession(session.XEventSession.Id, out tempSession);
+            }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Warning, "Failed to pool session. error: " + ex.Message);
+                Logger.Write(LogLevel.Warning, "Failed to poll session. error: " + ex.Message);
             }
             finally
             {
@@ -287,6 +293,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             eventsLost = session.FilterOldEvents(events);
             return session.FilterProfilerEvents(events);
+        }
+
+        /// <summary>
+        /// Notify listeners about closed sessions
+        /// </summary>
+        private void SendStoppedSessionInfoToListeners(int sessionId)
+        {
+            lock (listenersLock)
+            {
+                foreach (var listener in this.listeners)
+                {
+                    foreach(string viewerId in sessionViewers[sessionId])
+                    {
+                        listener.SessionStopped(viewerId, sessionId);
+                    }
+                }
+            }
         }
 
         /// <summary>

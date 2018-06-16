@@ -46,6 +46,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             this.PreviousSessionId = sessionId;
             this.PreviousEvents = events;
         }
+
+        public void SessionStopped(string viewerId, int sessionId)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class TestXEventSession : IXEventSession
