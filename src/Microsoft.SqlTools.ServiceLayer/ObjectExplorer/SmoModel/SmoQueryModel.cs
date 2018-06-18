@@ -551,6 +551,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c));
                 }
             }
+            View parentView = context.Parent as View;
+            if (parentView != null)
+            {
+                var retValue = parentView.Triggers;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentView, c));
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }

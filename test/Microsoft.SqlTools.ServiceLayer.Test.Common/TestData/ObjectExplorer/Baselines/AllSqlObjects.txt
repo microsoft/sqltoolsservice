@@ -116,6 +116,7 @@ NodeType: Column Label: LastName (Name(nvarchar), not null) SubType: Status:
 NodeType: Column Label: Suffix (nvarchar(10), null) SubType: Status:
 NodeType: Column Label: JobTitle (nvarchar(50), not null) SubType: Status:
 NodeType: Column Label: AdditionalContactInfo (AdditionalContactInfoSchemaCollection, null) SubType: Status:
+NodeType: Trigger Label: ViewTrigger SubType: Status:
 NodeType: Synonym Label: dbo.MyProduct SubType: Status:
 NodeType: StoredProcedure Label: dbo.uspGetList SubType: Status:
 NodeType: StoredProcedureParameter Label: @Product (varchar, Input, No default) SubType:Input Status:
