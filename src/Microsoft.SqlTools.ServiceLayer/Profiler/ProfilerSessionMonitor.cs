@@ -290,6 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.IsPolling = false;
             }
 
+            session.FilterOldEvents(events);
             return session.FilterProfilerEvents(events);
         }
 
