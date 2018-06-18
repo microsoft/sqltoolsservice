@@ -361,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Executing the same query twice with different command behavior causes the second
                     // execution to return no rows if there's a trailing comment with no newline after,
                     // so add a newline to the end of the query. See https://github.com/Microsoft/sqlopsstudio/issues/1424
-                    dbCommand.CommandText += "\n";
+                    dbCommand.CommandText += Environment.NewLine;
 
                     // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
                     // key columns in the result set, even if they weren't part of the select statement.
