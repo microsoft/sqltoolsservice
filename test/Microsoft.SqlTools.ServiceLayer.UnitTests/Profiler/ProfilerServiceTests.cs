@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// </summary>
         /// <returns></returns>
         // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/459
-        //[Fact]
+        [Fact]
         public async Task TestStartProfilingRequest()
         {
             string sessionId = null;
@@ -234,6 +234,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.True(recievedEvents);
 
             requestContext.VerifyAll();
+        }
+
+         /// <summary>
+        /// Test notifications for stopped sessions
+        /// </summary>
+        [Fact]
+        public async Task TestStoppedSessionNotification()
+        {
+            bool sessionStopped = false;
+            string testUri = "profiler_uri";
+
+            // capture listener event notifications
+            var mockSession = new Mock<IXEventSession>();
+            mockSession.Setup(p => p.GetTargetXml()).Callback(() =>
+                {
+                    throw new XEventException();
+                });
+
+            var mockListener = new Mock<IProfilerSessionListener>();
+            mockListener.Setup(p => p.SessionStopped(It.IsAny<string>(), It.IsAny<int>())).Callback(() =>
+            {
+                sessionStopped = true;
+            });
+
+            var profilerService = new ProfilerService();
+            profilerService.SessionMonitor.AddSessionListener(mockListener.Object);
+            profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
+            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
+
+            // start monitoring test session
+            profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
+
+            // wait for polling to finish, or for timeout
+            System.Timers.Timer pollingTimer = new System.Timers.Timer();
+            pollingTimer.Interval = 10000;
+            pollingTimer.Start();
+            bool timeout = false;
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
+            while (sessionStopped == false && !timeout)
+            {
+                Thread.Sleep(250);
+            }
+            pollingTimer.Stop();
+
+            // check that a stopped session notification was sent
+            Assert.True(sessionStopped);
         }
     }
 }

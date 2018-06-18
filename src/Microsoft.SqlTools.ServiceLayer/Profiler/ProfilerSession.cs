@@ -24,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
 
+        private bool eventsLost = false;
+
         public bool pollImmediatly = false;
 
         /// <summary>
@@ -88,6 +90,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Could events have been lost in the last poll
+        /// </summary>
+        public bool EventsLost
+        {
+            get
+            {
+                return this.eventsLost;
+            }
+        }
+
+        /// <summary>
         /// Determine if an event was caused by the XEvent polling queries
         /// </summary>
         private bool IsProfilerEvent(ProfilerEvent currentEvent)
@@ -127,12 +140,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Filter the event list to not include previously seen events,
         /// and to exclude events that happened before the profiling session began.
         /// </summary>
-        /// <returns> 
-        /// Bool indicating if there is a possibility that events were lost between polling
-        /// </returns>
-        public bool FilterOldEvents(List<ProfilerEvent> events)
+        public void FilterOldEvents(List<ProfilerEvent> events)
         {
-            bool eventsLost = false;
+            this.eventsLost = false;
             if (lastSeenEvent != null)
             {
                 // find the last event we've previously seen
@@ -156,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     // last seen event was overwritten
                     // other events may have been lost as well
-                    eventsLost = true;
+                    this.eventsLost = true;
                 }
 
                 // save the last event so we know where to clean-up the list from next time
@@ -176,7 +186,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // ignore all events before the session began
                 events.Clear();
             }
-            return eventsLost;
         }
     }
 }

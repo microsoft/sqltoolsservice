@@ -232,9 +232,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 Task.Factory.StartNew(() =>
                 {
-                    bool eventsLost;
-                    var events = PollSession(session, out eventsLost);
-                    if (events.Count > 0)
+                    var events = PollSession(session);
+                    bool eventsLost = session.EventsLost;
+                    if (events.Count > 0 || eventsLost)
                     {
                         // notify all viewers for the polled session
                         List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
@@ -250,14 +250,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        private List<ProfilerEvent> PollSession(ProfilerSession session, out bool eventsLost)
+        private List<ProfilerEvent> PollSession(ProfilerSession session)
         {
             var events = new List<ProfilerEvent>();
             try
             {
                 if (session == null || session.XEventSession == null)
                 {
-                    eventsLost = false;
                     return events;
                 }
 
@@ -291,7 +290,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 session.IsPolling = false;
             }
 
-            eventsLost = session.FilterOldEvents(events);
             return session.FilterProfilerEvents(events);
         }
 

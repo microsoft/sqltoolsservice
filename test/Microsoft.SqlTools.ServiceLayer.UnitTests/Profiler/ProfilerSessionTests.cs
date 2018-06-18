@@ -52,7 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.Equal(profilerEvents.Count, 0);
         }
 
-
         /// <summary>
         /// Test the FilterProfilerEvents method
         /// </summary>
@@ -74,6 +73,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.Equal(profilerEvents.Count, expectedEventCount + 1);
             var newProfilerEvents = profilerSession.FilterProfilerEvents(profilerEvents);
             Assert.Equal(newProfilerEvents.Count, expectedEventCount);           
+        }
+
+        /// <summary>
+        /// Test notifications for lost events
+        /// </summary>
+        [Fact]
+        public void TestEventsLost()
+        {
+            // create a profiler session and get some test events
+            var profilerSession = new ProfilerSession();
+            var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
+
+            // filter all the results from the first poll
+            // these events happened before the profiler began
+            profilerSession.FilterOldEvents(profilerEvents);
+            Assert.Equal(profilerEvents.Count, 0);
+            // No events should be lost
+            Assert.False(profilerSession.EventsLost);
+
+            // simulate a complete ring buffer overwrite
+            // by filtering a list of completely new events
+            profilerEvents.Clear();
+            ProfilerEvent newEvent = new ProfilerEvent("test event", "6/18/2018");
+            profilerEvents.Add(newEvent);         
+            profilerSession.FilterOldEvents(profilerEvents);
+
+            // should show possible event loss
+            Assert.True(profilerSession.EventsLost);
+
+            //poll again with previously seen events
+            profilerEvents.Add(newEvent);
+
+            // old events were seen, no event loss occured
+            profilerSession.FilterOldEvents(profilerEvents);           
+            Assert.False(profilerSession.EventsLost);    
         }
 
         /// <summary>
