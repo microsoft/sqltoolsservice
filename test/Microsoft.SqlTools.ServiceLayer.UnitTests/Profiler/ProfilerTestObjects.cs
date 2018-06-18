@@ -25,11 +25,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             get
             {
+                ProfilerEvent event1 = new ProfilerEvent("event1", "1/1/2017");
+                event1.Values.Add("event_sequence", "1");
+                ProfilerEvent event2 = new ProfilerEvent("event2", "1/2/2017");
+                event2.Values.Add("event_sequence", "2");
+                ProfilerEvent event3 = new ProfilerEvent("event3", "1/3/2017");
+                event3.Values.Add("event_sequence", "3");
+                
                 return new List<ProfilerEvent>
                 {
-                    new ProfilerEvent("event1", "1/1/2017"),
-                    new ProfilerEvent("event2", "1/2/2017"),
-                    new ProfilerEvent("event3", "1/3/2017")
+                    event1,
+                    event2,
+                    event3
                 };
             }
         }

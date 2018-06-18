@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             requestContext.VerifyAll();
         }
 
-         /// <summary>
+        /// <summary>
         /// Test notifications for stopped sessions
         /// </summary>
         [Fact]

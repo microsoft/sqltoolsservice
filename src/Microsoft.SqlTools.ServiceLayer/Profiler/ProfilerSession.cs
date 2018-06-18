@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private ProfilerEvent lastSeenEvent = null;
 
         private bool eventsLost = false;
+        int lastSeenId = -1;
 
         public bool pollImmediatly = false;
 
@@ -143,13 +144,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void FilterOldEvents(List<ProfilerEvent> events)
         {
             this.eventsLost = false;
-            if (lastSeenEvent != null)
+            
+            if (lastSeenId != -1)
             {
                 // find the last event we've previously seen
                 bool foundLastEvent = false;
                 int idx = events.Count;
+                int earliestSeenEventId = int.Parse(events.LastOrDefault().Values["event_sequence"]);
                 while (--idx >= 0)
                 {
+                    // update the furthest back event we've found so far
+                    earliestSeenEventId = Math.Min(earliestSeenEventId, int.Parse(events[idx].Values["event_sequence"]));
                     if (events[idx].Equals(lastSeenEvent))
                     {
                         foundLastEvent = true;
@@ -164,15 +169,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 else
                 {
-                    // last seen event was overwritten
-                    // other events may have been lost as well
-                    this.eventsLost = true;
+                    if(earliestSeenEventId > (lastSeenId + 1))
+                    {
+                        this.eventsLost = true;
+                    }
                 }
 
                 // save the last event so we know where to clean-up the list from next time
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();
+                    lastSeenId = int.Parse(lastSeenEvent.Values["event_sequence"]);
                 }
             }
             else    // first poll at start of session, all data is old
@@ -181,6 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();
+                    lastSeenId = int.Parse(lastSeenEvent.Values["event_sequence"]);
                 }
 
                 // ignore all events before the session began
