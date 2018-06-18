@@ -57,7 +57,10 @@
     <NavigationPath Parent="Table" Field="Columns" SubField="DefaultConstraint" FieldType="Column" />
     <NavigationPath Parent="UserDefinedTableType" Field="Columns" SubField="DefaultConstraint" FieldType="Column" />
   </Node>
-  <Node Name="SqlDmlTrigger" Type="Trigger" Parent="Table" ValidFor="NotSqlDw" />
+  <Node Name="SqlDmlTrigger" Type="Trigger" ValidFor="NotSqlDw">
+    <Parent>Table</Parent>
+    <Parent>View</Parent>
+  </Node>
   <Node Name="SqlFullTextIndex" Parent="Table" Collection="False" ValidFor="NotSqlDw" />
   <Node Name="SqlStatistic" Parent="TableViewBase"/>
 
