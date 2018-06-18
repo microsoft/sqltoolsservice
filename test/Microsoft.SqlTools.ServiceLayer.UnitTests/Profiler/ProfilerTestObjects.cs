@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public List<ProfilerEvent> PreviousEvents { get; set; }
 
+        public bool Stopped { get; set; }
+
         public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
             this.PreviousSessionId = sessionId;
@@ -49,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public void SessionStopped(string viewerId, int sessionId)
         {
-            throw new NotImplementedException();
+            Stopped = true;
         }
     }
 

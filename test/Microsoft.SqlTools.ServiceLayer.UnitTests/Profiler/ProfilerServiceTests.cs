@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// </summary>
         /// <returns></returns>
         // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/459
-        [Fact]
+        //[Fact]
         public async Task TestStartProfilingRequest()
         {
             string sessionId = null;
