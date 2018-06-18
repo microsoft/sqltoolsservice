@@ -30,14 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Proxy result
-    /// </summary>
-    public class AgentProxyResult : ResultStatus
-    {
-        public AgentProxyInfo Proxy { get; set; }
-    }    
-
-    /// <summary>
     /// SQL Agent Proxy Accounts request type
     /// </summary>
     public class AgentProxiesRequest
@@ -49,6 +41,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
             RequestType<AgentProxiesParams, AgentProxiesResult> Type =
             RequestType<AgentProxiesParams, AgentProxiesResult>.Create("agent/proxies");
     }
+
+    /// <summary>
+    /// SQL Agent Proxy result
+    /// </summary>
+    public class AgentProxyResult : ResultStatus
+    {
+        public AgentProxyInfo Proxy { get; set; }
+    }    
 
     /// <summary>
     /// SQL Agent create Proxy Account params

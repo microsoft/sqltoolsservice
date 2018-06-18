@@ -801,6 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.id = value;
             }
         }
+
         public string Name
         {
             get
@@ -812,6 +813,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.currentName = value;
             }
         }
+
         public bool Enabled
         {
             get
@@ -823,6 +825,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.enabled = value;
             }
         }
+
         public bool AllowEnableDisable
         {
             get
@@ -830,6 +833,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.allowEnableDisable;
             }
         }
+
         public string Description
         {
             get
@@ -837,6 +841,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.ToString();
             }
         }
+
         public bool Created
         {
             get
@@ -848,6 +853,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.alreadyCreated = value;
             }
         }
+
         public DateTime ActiveStartDate
         {
             get
@@ -859,6 +865,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.startDate = value;
             }
         }
+
         public TimeSpan ActiveStartTime
         {
             get
@@ -870,6 +877,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.startTime = value;
             }
         }
+
         public DateTime ActiveEndDate
         {
             get
@@ -883,6 +891,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                    : value;
             }
         }
+
         public TimeSpan ActiveEndTime
         {
             get
@@ -896,6 +905,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                    : value;
             }
         }
+
         public bool HasEndDate
         {
             get
@@ -903,6 +913,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.endDate < JobScheduleData.MaxAgentDateValue;
             }
         }
+
         public bool HasEndTime
         {
             get
@@ -910,6 +921,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.endTime < JobScheduleData.MaxAgentTimeValue;
             }
         }
+
         public FrequencyTypes FrequencyTypes
         {
             get
@@ -921,6 +933,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.frequencyType = value;
             }
         }
+
         public int FrequencyInterval
         {
             get
@@ -932,6 +945,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.frequencyInterval = value;
             }
         }
+
         public int FrequencyRecurranceFactor
         {
             get
@@ -943,6 +957,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.frequencyRecurranceFactor = value;
             }
         }
+
         public FrequencyRelativeIntervals FrequencyRelativeIntervals
         {
             get
@@ -954,6 +969,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.frequencyRelativeInterval = value;
             }
         }
+
         public int FrequencySubDayInterval
         {
             get
@@ -965,6 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.frequencySubDayInterval = value;
             }
         }
+
         public FrequencySubDayTypes FrequencySubDayTypes
         {
             get
@@ -976,6 +993,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.frequencySubDayTypes = value;
             }
         }
+
         public JobSchedule SourceSchedule
         {
             get
@@ -983,6 +1001,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 return this.source;
             }
         }
+
         public bool IsReadOnly
         {
             get { return isReadOnly; }
@@ -1328,7 +1347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private void SetDefaults()
         {
             this.alreadyCreated = false;
-            currentName = originalName = String.Empty;
+            currentName = originalName = string.Empty;
             this.enabled = true;
 
             this.frequencyType = FrequencyTypes.Weekly;  //SQL2K default value 
