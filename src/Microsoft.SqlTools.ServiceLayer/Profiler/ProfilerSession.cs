@@ -155,6 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     // update the furthest back event we've found so far
                     earliestSeenEventId = Math.Min(earliestSeenEventId, int.Parse(events[idx].Values["event_sequence"]));
+
                     if (events[idx].Equals(lastSeenEvent))
                     {
                         foundLastEvent = true;
@@ -167,12 +168,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     events.RemoveRange(0, idx + 1);
                 }
-                else
+                else if(earliestSeenEventId > (lastSeenId + 1))
                 {
-                    if(earliestSeenEventId > (lastSeenId + 1))
-                    {
-                        this.eventsLost = true;
-                    }
+                    // if there's a gap between the expected next event sequence
+                    // and the furthest back event seen, we know we've lost events
+                    this.eventsLost = true;
                 }
 
                 // save the last event so we know where to clean-up the list from next time
