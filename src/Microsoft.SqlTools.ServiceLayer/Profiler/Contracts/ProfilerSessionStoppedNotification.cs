@@ -9,19 +9,17 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
 {
-    public class ProfilerEventsAvailableParams
+    public class ProfilerSessionStoppedParams
     {
         public string OwnerUri { get; set; }
 
-        public List<ProfilerEvent> Events { get; set; }
-
-        public bool EventsLost { get; set; }
+        public int SessionId { get; set; }
     }
 
-    public class ProfilerEventsAvailableNotification
+    public class ProfilerSessionStoppedNotification
     {
         public static readonly
-            EventType<ProfilerEventsAvailableParams> Type =
-            EventType<ProfilerEventsAvailableParams>.Create("profiler/eventsavailable");
+            EventType<ProfilerSessionStoppedParams> Type =
+            EventType<ProfilerSessionStoppedParams>.Create("profiler/sessionstopped");
     }
 }

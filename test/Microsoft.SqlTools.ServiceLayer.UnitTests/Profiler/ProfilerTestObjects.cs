@@ -25,11 +25,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             get
             {
+                ProfilerEvent event1 = new ProfilerEvent("event1", "1/1/2017");
+                event1.Values.Add("event_sequence", "1");
+                ProfilerEvent event2 = new ProfilerEvent("event2", "1/2/2017");
+                event2.Values.Add("event_sequence", "2");
+                ProfilerEvent event3 = new ProfilerEvent("event3", "1/3/2017");
+                event3.Values.Add("event_sequence", "3");
+                
                 return new List<ProfilerEvent>
                 {
-                    new ProfilerEvent("event1", "1/1/2017"),
-                    new ProfilerEvent("event2", "1/2/2017"),
-                    new ProfilerEvent("event3", "1/3/2017")
+                    event1,
+                    event2,
+                    event3
                 };
             }
         }
@@ -41,10 +48,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public List<ProfilerEvent> PreviousEvents { get; set; }
 
-        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
+        public bool Stopped { get; set; }
+
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
             this.PreviousSessionId = sessionId;
             this.PreviousEvents = events;
+        }
+
+        public void SessionStopped(string viewerId, int sessionId)
+        {
+            Stopped = true;
         }
     }
 
@@ -210,6 +224,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>1</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "		</data>" +
             "	</event>" +
             "</RingBufferTarget>";
 
@@ -220,12 +238,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>1</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "       </data>" +
             "	</event>" +
             "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
             "		<data name=\"session_id\">" +
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>1</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "       </data>" +
             "	</event>" +
             "</RingBufferTarget>";
 
@@ -236,18 +262,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>1</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "       </data>" +
             "	</event>" +
             "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
             "		<data name=\"session_id\">" +
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>1</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "       </data>" +
             "	</event>" +
             "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-11-08T07:46:53.579Z\">" +
             "		<data name=\"session_id\">" +
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>1</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>3</value>" +
+            "       </data>" +
             "	</event>" +
             "</RingBufferTarget>";
 
@@ -277,6 +315,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>2</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "       </data>" +
             "	</event>" +
             "</RingBufferTarget>";
 
@@ -287,12 +329,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>2</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "       </data>" +
             "	</event>" +
             "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
             "		<data name=\"session_id\">" +
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>2</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "       </data>" +
             "	</event>" +
             "</RingBufferTarget>";
 
@@ -303,18 +353,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>2</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>1</value>" +
+            "       </data>" +
             "	</event>" +
             "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-10-08T07:46:53.579Z\">" +
             "		<data name=\"session_id\">" +
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>2</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>2</value>" +
+            "       </data>" +
             "	</event>" +
             "	<event name=\"existing_connection\" package=\"sqlserver\" timestamp=\"2017-11-08T07:46:53.579Z\">" +
             "		<data name=\"session_id\">" +
             "			<type name=\"int16\" package=\"package0\"></type>" +
             "			<value>2</value>" +
             "		</data>" +
+            "       <data name=\"event_sequence\">" +
+            "			<type name=\"int16\" package=\"package0\"></type>" +
+            "			<value>3</value>" +
+            "       </data>" +
             "	</event>" +
             "</RingBufferTarget>";
 

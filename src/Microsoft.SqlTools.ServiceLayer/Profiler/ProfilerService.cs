@@ -268,7 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Callback when profiler events are available
         /// </summary>
-        public void EventsAvailable(string sessionId, List<ProfilerEvent> events)
+        public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
             // pass the profiler events on to the client
             this.ServiceHost.SendEvent(
@@ -276,7 +276,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 new ProfilerEventsAvailableParams()
                 {
                     OwnerUri = sessionId,
-                    Events = events
+                    Events = events,
+                    EventsLost = eventsLost
+                });
+        }
+
+        /// <summary>
+        /// Callback when the XEvent session is closed unexpectedly
+        /// </summary>
+        public void SessionStopped(string viewerId, int sessionId)
+        {
+            // notify the client that their session closed
+            this.ServiceHost.SendEvent(
+                ProfilerSessionStoppedNotification.Type,
+                new ProfilerSessionStoppedParams()
+                {
+                    OwnerUri = viewerId,
+                    SessionId = sessionId
                 });
         }
 

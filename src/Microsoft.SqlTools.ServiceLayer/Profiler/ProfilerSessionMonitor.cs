@@ -233,7 +233,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 Task.Factory.StartNew(() =>
                 {
                     var events = PollSession(session);
-                    if (events.Count > 0)
+                    bool eventsLost = session.EventsLost;
+                    if (events.Count > 0 || eventsLost)
                     {
                         // notify all viewers for the polled session
                         List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
@@ -241,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             if (allViewers[viewerId].active)
                             {
-                                SendEventsToListeners(viewerId, events);
+                                SendEventsToListeners(viewerId, events, eventsLost);
                             }
                         }
                     }
@@ -274,9 +275,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                 }
             }
+            catch (XEventException)
+            {
+                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
+                ProfilerSession tempSession;
+                RemoveSession(session.XEventSession.Id, out tempSession);
+            }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Warning, "Failed to pool session. error: " + ex.Message);
+                Logger.Write(LogLevel.Warning, "Failed to poll session. error: " + ex.Message);
             }
             finally
             {
@@ -288,15 +295,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Notify listeners when new profiler events are available
+        /// Notify listeners about closed sessions
         /// </summary>
-        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events)
+        private void SendStoppedSessionInfoToListeners(int sessionId)
         {
             lock (listenersLock)
             {
                 foreach (var listener in this.listeners)
                 {
-                    listener.EventsAvailable(sessionId, events);
+                    foreach(string viewerId in sessionViewers[sessionId])
+                    {
+                        listener.SessionStopped(viewerId, sessionId);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Notify listeners when new profiler events are available
+        /// </summary>
+        private void SendEventsToListeners(string sessionId, List<ProfilerEvent> events, bool eventsLost)
+        {
+            lock (listenersLock)
+            {
+                foreach (var listener in this.listeners)
+                {
+                    listener.EventsAvailable(sessionId, events, eventsLost);
                 }
             }
         }
