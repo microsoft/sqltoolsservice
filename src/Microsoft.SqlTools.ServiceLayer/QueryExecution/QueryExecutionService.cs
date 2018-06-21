@@ -3,20 +3,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.Utility;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -190,6 +193,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             try
             {
+                if (executeParams.IsParse) {
+                    ParseResult result = Parser.Parse(executeParams.QueryString);
+                        SimpleExecuteResult parseResult = new SimpleExecuteResult {
+                            RowCount = 0,
+                            ColumnInfo = null,
+                            Rows = null
+                        };
+                    if (result.Errors.Count() > 0) {
+                        parseResult.Parseable = false;
+                    } else {
+                        parseResult.Parseable = true;
+                    }
+                    await requestContext.SendResult(parseResult);
+                    return;
+                }
                 string randomUri = Guid.NewGuid().ToString();
                 ExecuteStringParams executeStringParams = new ExecuteStringParams
                 {
@@ -572,6 +590,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Private Helpers
+
+
 
         private Query CreateQuery(ExecuteRequestParamsBase executeParams, ConnectionInfo connInfo)
         {

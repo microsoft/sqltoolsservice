@@ -21,6 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// The owneruri to get connection from
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Boolean indicating whether query is just to parse
+        /// </summary>
+        public bool IsParse { get; set; }
     }
 
     /// <summary>
@@ -43,6 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// 2D array of the cell values requested from result set
         /// </summary>
         public DbCellValue[][] Rows { get; set; }
+
+        /// <summary>
+        /// Boolean indicating whether the query string was parseable
+        /// </summary>
+        public bool Parseable { get; set; }
     }
 
     public class SimpleExecuteRequest
