@@ -207,9 +207,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private static BaseXEStore CreateXEventStore(ConnectionInfo connInfo, SqlStoreConnection connection)
         {   
             BaseXEStore store = null;
-            if(connInfo.IsCloud)
+            if (connInfo.IsCloud)
             {
-                if(DatabaseUtils.IsSystemDatabaseConnection(connInfo.ConnectionDetails.DatabaseName))
+                if (DatabaseUtils.IsSystemDatabaseConnection(connInfo.ConnectionDetails.DatabaseName))
                 {
                     throw new NotSupportedException("Cannot profile Azure system databases");
                 }
@@ -305,7 +305,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             string createStatement = connInfo.IsCloud ? createAzureSessionSql : createSessionSql;
             connection.ServerConnection.ExecuteNonQuery(createStatement);
-
             BaseXEStore store = CreateXEventStore(connInfo, connection);
             return store.Sessions[sessionName];
         }
