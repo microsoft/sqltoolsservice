@@ -243,6 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
+            serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
 
@@ -280,6 +281,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #endregion
 
         #region Request Handlers
+
+        /// <summary>
+        /// T-SQL syntax parse request callback
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
+        {            
+            try
+            {            
+                ParseResult result = Parser.Parse(param.Query);
+                SyntaxParseResult syntaxResult = new SyntaxParseResult();
+                if (result != null && result.Errors.Count() == 0)
+                {
+                    syntaxResult.Parseable = true;
+                } else 
+                {
+                    syntaxResult.Parseable = false;
+                    string[] errorMessages = {};
+                    for (int i = 0; i < result.Errors.Count(); i++)
+                    {
+                        errorMessages.Append(result.Errors.ElementAt(i).Message);
+                    }
+                    syntaxResult.Errors = errorMessages;
+                }
+                await requestContext.SendResult(syntaxResult);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
 
         /// <summary>
         /// Auto-complete completion provider request callback
