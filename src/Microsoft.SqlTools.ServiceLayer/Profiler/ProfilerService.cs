@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 if (DatabaseUtils.IsSystemDatabaseConnection(connInfo.ConnectionDetails.DatabaseName))
                 {
-                    throw new NotSupportedException("Cannot profile Azure system databases");
+                    throw new NotSupportedException(SR.AzureSystemDbProfilingError);
                 }
                 store = new DatabaseXEStore(connection, connInfo.ConnectionDetails.DatabaseName);
             }
