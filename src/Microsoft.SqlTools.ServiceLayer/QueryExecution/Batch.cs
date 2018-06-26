@@ -358,6 +358,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 List<DbColumn[]> columnSchemas = null;
                 if (getFullColumnSchema)
                 {
+                    // Executing the same query twice with different command behavior causes the second
+                    // execution to return no rows if there's a trailing comment with no newline after,
+                    // so add a newline to the end of the query. See https://github.com/Microsoft/sqlopsstudio/issues/1424
+                    dbCommand.CommandText += Environment.NewLine;
+
                     // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
                     // key columns in the result set, even if they weren't part of the select statement.
                     // Extra key columns get added to the end, so just correlate via Column Ordinal.

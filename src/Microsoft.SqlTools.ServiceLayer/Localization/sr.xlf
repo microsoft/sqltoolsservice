@@ -2256,6 +2256,11 @@
         <target state="new">Connection not found</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AzureSystemDbProfilingError">
+        <source>Cannot profile Azure system databases</source>
+        <target state="new">Cannot profile Azure system databases</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
         <source>Please provide a file path instead of directory path</source>
         <target state="new">Please provide a file path instead of directory path</target>

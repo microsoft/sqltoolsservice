@@ -58,68 +58,68 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             switch (categoryId)
             {
                 case 0:
-                    localisableCategory = "LocalizableCategorySR.CategoryLocal";
+                    localisableCategory = SR.CategoryLocal;
                     break;
                 case 1:
-                    localisableCategory = "LocalizableCategorySR.CategoryFromMsx";
+                    localisableCategory = SR.CategoryFromMsx;
                     break;
                 case 2:
-                    localisableCategory = "LocalizableCategorySR.CategoryMultiServer";
+                    localisableCategory = SR.CategoryMultiServer;
                     break;
                 case 3:
-                    localisableCategory = "LocalizableCategorySR.CategoryDBMaint";
+                    localisableCategory = SR.CategoryDBMaint;
                     break;
                 case 4:
-                    localisableCategory = "LocalizableCategorySR.CategoryWebAssistant";
+                    localisableCategory = SR.CategoryWebAssistant;
                     break;
                 case 5:
-                    localisableCategory = "LocalizableCategorySR.CategoryFullText";
+                    localisableCategory = SR.CategoryFullText;
                     break;
                 case 6:
-                    localisableCategory = "LocalizableCategorySR.CategoryLogShipping";
+                    localisableCategory = "Log Shippings"; // SR.CategoryLogShippings;
                     break;
                 case 7:
-                    localisableCategory = "LocalizableCategorySR.CategoryDBEngineTuningAdvisor";
+                    localisableCategory = SR.CategoryDBEngineTuningAdvisor;
                     break;
                 case 8:
-                    localisableCategory = "LocalizableCategorySR.CategoryDataCollector";
+                    localisableCategory = SR.CategoryDataCollector;
                     break;
                 case 10:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplDistribution";
+                    localisableCategory = SR.CategoryReplDistribution;
                     break;
                 case 11:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplDistributionCleanup";
+                    localisableCategory = SR.CategoryReplDistributionCleanup;
                     break;
                 case 12:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplHistoryCleanup";
+                    localisableCategory = SR.CategoryReplHistoryCleanup;
                     break;
                 case 13:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplLogReader";
+                    localisableCategory = SR.CategoryReplLogReader;
                     break;
                 case 14:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplMerge";
+                    localisableCategory = SR.CategoryReplMerge;
                     break;
                 case 15:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplSnapShot";
+                    localisableCategory = SR.CategoryReplSnapShot;
                     break;
                 case 16:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplCheckup";
+                    localisableCategory = SR.CategoryReplCheckup;
                     break;
                 case 17:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplCleanup";
+                    localisableCategory = SR.CategoryReplCleanup;
                     break;
                 case 18:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplAlert";
+                    localisableCategory = SR.CategoryReplAlert;
                     break;
                 case 19:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplQReader";
+                    localisableCategory = SR.CategoryReplQReader;
                     break;
                 case 20:
-                    localisableCategory = "LocalizableCategorySR.CategoryReplication";
+                    localisableCategory = SR.CategoryReplication;
                     break;
                 case 98:
                 case 99:
-                    localisableCategory = "LocalizableCategorySR.CategoryUncategorized";
+                    localisableCategory = SR.CategoryUncategorized;
                     break;
                 default:
                     localisableCategory = defaultName;

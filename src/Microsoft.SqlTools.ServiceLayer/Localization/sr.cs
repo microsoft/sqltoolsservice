@@ -3661,6 +3661,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string AzureSystemDbProfilingError
+        {
+            get
+            {
+                return Keys.GetString(Keys.AzureSystemDbProfilingError);
+            }
+        }
+
         public static string UserCancelledSelectStep
         {
             get
@@ -6145,6 +6153,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ProfilerConnectionNotFound = "ProfilerConnectionNotFound";
+
+
+            public const string AzureSystemDbProfilingError = "AzureSystemDbProfilingError";
 
 
             public const string EnableAlertsTitle = "EnableAlertsTitle";

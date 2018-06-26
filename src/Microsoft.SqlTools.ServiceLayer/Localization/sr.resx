@@ -2023,6 +2023,10 @@
     <value>Connection not found</value>
     <comment></comment>
   </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Cannot profile Azure system databases</value>
+    <comment></comment>
+  </data>
   <data name="EnableAlertsTitle" xml:space="preserve">
     <value>Enable Alerts - {0}</value>
     <comment>.

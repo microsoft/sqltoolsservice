@@ -24,6 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
 
+        private bool eventsLost = false;
+        int lastSeenId = -1;
+
         public bool pollImmediatly = false;
 
         /// <summary>
@@ -88,6 +91,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Could events have been lost in the last poll
+        /// </summary>
+        public bool EventsLost
+        {
+            get
+            {
+                return this.eventsLost;
+            }
+        }
+
+        /// <summary>
         /// Determine if an event was caused by the XEvent polling queries
         /// </summary>
         private bool IsProfilerEvent(ProfilerEvent currentEvent)
@@ -101,7 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 || currentEvent.Name.Equals("sql_batch_starting"))
                 && currentEvent.Values.ContainsKey("batch_text"))
             {
-                return currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_session_targets");
+                return currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_session_targets")
+                    || currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_database_session_targets");
             }
 
             return false;
@@ -129,13 +144,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public void FilterOldEvents(List<ProfilerEvent> events)
         {
-            if (lastSeenEvent != null)
+            this.eventsLost = false;
+            
+            if (lastSeenId != -1)
             {
                 // find the last event we've previously seen
                 bool foundLastEvent = false;
                 int idx = events.Count;
+                int earliestSeenEventId = int.Parse(events.LastOrDefault().Values["event_sequence"]);
                 while (--idx >= 0)
                 {
+                    // update the furthest back event we've found so far
+                    earliestSeenEventId = Math.Min(earliestSeenEventId, int.Parse(events[idx].Values["event_sequence"]));
+
                     if (events[idx].Equals(lastSeenEvent))
                     {
                         foundLastEvent = true;
@@ -148,11 +169,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     events.RemoveRange(0, idx + 1);
                 }
+                else if(earliestSeenEventId > (lastSeenId + 1))
+                {
+                    // if there's a gap between the expected next event sequence
+                    // and the furthest back event seen, we know we've lost events
+                    this.eventsLost = true;
+                }
 
                 // save the last event so we know where to clean-up the list from next time
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();
+                    lastSeenId = int.Parse(lastSeenEvent.Values["event_sequence"]);
                 }
             }
             else    // first poll at start of session, all data is old
@@ -161,6 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (events.Count > 0)
                 {
                     lastSeenEvent = events.LastOrDefault();
+                    lastSeenId = int.Parse(lastSeenEvent.Values["event_sequence"]);
                 }
 
                 // ignore all events before the session began

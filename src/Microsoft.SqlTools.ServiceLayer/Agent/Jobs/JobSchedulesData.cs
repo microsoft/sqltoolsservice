@@ -305,10 +305,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
     }
 }
-
-
-
-
-
-
-
