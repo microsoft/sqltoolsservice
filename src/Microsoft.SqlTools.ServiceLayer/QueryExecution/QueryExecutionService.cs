@@ -3,20 +3,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.Utility;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -572,6 +574,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Private Helpers
+
+
 
         private Query CreateQuery(ExecuteRequestParamsBase executeParams, ConnectionInfo connInfo)
         {

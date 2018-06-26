@@ -702,7 +702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     if (string.IsNullOrWhiteSpace(stepInfo.JobName))
                     {
-                        return new Tuple<bool, string>(false, "JobId cannot be null");
+                        return new Tuple<bool, string>(false, "JobName cannot be null");
                     }
 
                     JobData jobData;
