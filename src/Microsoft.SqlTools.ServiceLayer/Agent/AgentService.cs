@@ -357,7 +357,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Success = result.Item1,
                 ErrorMessage = result.Item2
             });
-        }        
+        }
+
+        internal async Task HandleAgentJobDefaultsRequest(AgentJobDefaultsParams parameters, RequestContext<AgentJobDefaultsResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentJobDefaultsResult();
+                try
+                {
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(parameters.OwnerUri, "default", out dataContainer, out jobData);
+
+                    // current connection user name for 
+                    result.Owner = dataContainer.ConnectionInfo.UserName.TrimEnd();             
+
+                    var categories = jobData.Categories;
+                    result.Categories = new AgentJobCategory[categories.Length];
+                    for (int i = 0; i < categories.Length; ++i)
+                    {
+                        result.Categories[i] = new AgentJobCategory
+                        { 
+                            Id = categories[i].SmoCategory.ID,
+                            Name = categories[i].SmoCategory.Name
+                        };
+                    }
+
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
+        }
 
         #endregion // "Jobs Handlers"
 
