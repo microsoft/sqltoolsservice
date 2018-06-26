@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string stepName = entry.StepName;
             string message = entry.Message;
             DateTime runDate = logEntry.PointInTime;
-            int runStatus = Convert.ToInt32(jobRow[UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+            int runStatus = logEntry.Severity == SeverityClass.Success ? 1 : 0;
             AgentJobStep step = new AgentJobStep();
             step.StepId = stepId;
             step.StepName = stepName;
@@ -82,9 +82,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // Make a new AgentJobHistoryInfo object
                 var jobHistoryInfo = new AgentJobHistoryInfo();
                 jobHistoryInfo.InstanceId = Convert.ToInt32(jobRow[UrnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
-                jobHistoryInfo.RunStatus = Convert.ToInt32(jobRow[UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
                 jobHistoryInfo.JobId = (Guid) jobRow[UrnJobId];
                 var logEntry = entry as LogSourceJobHistory.LogEntryJobHistory;
+                jobHistoryInfo.RunStatus = entry.Severity == SeverityClass.Error ? 0 : 1;
                 jobHistoryInfo.SqlMessageId = logEntry.SqlMessageID;
                 jobHistoryInfo.Message = logEntry.Message;
                 jobHistoryInfo.StepId = logEntry.StepID;
