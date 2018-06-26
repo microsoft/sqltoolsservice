@@ -92,6 +92,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
 
+            this.ServiceHost.SetRequestHandler(AgentJobDefaultsRequest.Type, HandleAgentJobDefaultsRequest);
+
             // Job Steps request handlers
             this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest);
@@ -371,7 +373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     CreateJobData(parameters.OwnerUri, "default", out dataContainer, out jobData);
 
                     // current connection user name for 
-                    result.Owner = dataContainer.ConnectionInfo.UserName.TrimEnd();             
+                    result.Owner = dataContainer.ServerConnection.TrueLogin;            
 
                     var categories = jobData.Categories;
                     result.Categories = new AgentJobCategory[categories.Length];
