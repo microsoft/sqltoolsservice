@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public static readonly
             RequestType<UpdateAgentJobParams, UpdateAgentJobResult> Type =
             RequestType<UpdateAgentJobParams, UpdateAgentJobResult>.Create("agent/updatejob");
-    }    
+    }
 
     /// <summary>
     /// SQL Agent delete Alert params
@@ -181,5 +181,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public static readonly
             RequestType<AgentJobActionParams, ResultStatus> Type =
             RequestType<AgentJobActionParams, ResultStatus>.Create("agent/jobaction");
+    }
+
+    /// <summary>
+    /// SQL Agent Job Defaults params
+    /// </summary>
+    public class AgentJobDefaultsParams
+    {
+        public string OwnerUri { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent Job Category class
+    /// </summary>
+    public class AgentJobCategory
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent Job Defaults result
+    /// </summary>
+    public class AgentJobDefaultsResult : ResultStatus
+    {
+        public string Owner { get; set; }
+
+        public AgentJobCategory[] Categories { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent Job Defaults request type
+    /// </summary>
+    public class AgentJobDefaultsRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<AgentJobDefaultsParams, AgentJobDefaultsResult> Type =
+            RequestType<AgentJobDefaultsParams, AgentJobDefaultsResult>.Create("agent/jobdefaults");
     }
 }

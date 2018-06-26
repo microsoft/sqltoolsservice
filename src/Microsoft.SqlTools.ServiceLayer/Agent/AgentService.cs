@@ -92,6 +92,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
 
+            this.ServiceHost.SetRequestHandler(AgentJobDefaultsRequest.Type, HandleAgentJobDefaultsRequest);
+
             // Job Steps request handlers
             this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest);
@@ -357,7 +359,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Success = result.Item1,
                 ErrorMessage = result.Item2
             });
-        }        
+        }
+
+        internal async Task HandleAgentJobDefaultsRequest(AgentJobDefaultsParams parameters, RequestContext<AgentJobDefaultsResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentJobDefaultsResult();
+                try
+                {
+                    JobData jobData;
+                    CDataContainer dataContainer;
+                    CreateJobData(parameters.OwnerUri, "default", out dataContainer, out jobData);
+
+                    // current connection user name for 
+                    result.Owner = dataContainer.ServerConnection.TrueLogin;            
+
+                    var categories = jobData.Categories;
+                    result.Categories = new AgentJobCategory[categories.Length];
+                    for (int i = 0; i < categories.Length; ++i)
+                    {
+                        result.Categories[i] = new AgentJobCategory
+                        { 
+                            Id = categories[i].SmoCategory.ID,
+                            Name = categories[i].SmoCategory.Name
+                        };
+                    }
+
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
+        }
 
         #endregion // "Jobs Handlers"
 
