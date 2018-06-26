@@ -115,7 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 || currentEvent.Name.Equals("sql_batch_starting"))
                 && currentEvent.Values.ContainsKey("batch_text"))
             {
-                return currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_session_targets");
+                return currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_session_targets")
+                    || currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_database_session_targets");
             }
 
             return false;

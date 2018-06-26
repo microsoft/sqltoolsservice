@@ -17,12 +17,14 @@ using System.Xml;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.XEvent;
+using Microsoft.SqlServer.Management.XEventDbScoped;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
@@ -202,6 +204,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return xeSession.Id;
         }
 
+        private static BaseXEStore CreateXEventStore(ConnectionInfo connInfo, SqlStoreConnection connection)
+        {   
+            BaseXEStore store = null;
+            if (connInfo.IsCloud)
+            {
+                if (DatabaseUtils.IsSystemDatabaseConnection(connInfo.ConnectionDetails.DatabaseName))
+                {
+                    throw new NotSupportedException(SR.AzureSystemDbProfilingError);
+                }
+                store = new DatabaseXEStore(connection, connInfo.ConnectionDetails.DatabaseName);
+            }
+            else
+            {
+                store = new XEStore(connection);
+            }
+            return store;
+        }
+
         /// <summary>
         /// Gets or creates an XEvent session with the given template per the IXEventSessionFactory contract
         /// Also starts the session if it isn't currently running
@@ -212,13 +232,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-            XEStore store = new XEStore(connection);
+            BaseXEStore store = CreateXEventStore(connInfo, connection);
             Session session = store.Sessions[sessionName];
 
             // start the session if it isn't already running
             if (session == null)
             {
-                session = CreateSession(connection, sessionName);
+                session = CreateSession(connInfo, connection, sessionName);
             }
 
             if (session != null && !session.IsRunning)
@@ -233,8 +253,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             };
         }
 
-        private static Session CreateSession(SqlStoreConnection connection, string sessionName)
-        {
+        private static Session CreateSession(ConnectionInfo connInfo, SqlStoreConnection connection, string sessionName)
+        {            
             string createSessionSql =
                 @"
                 CREATE EVENT SESSION [Profiler] ON SERVER
@@ -259,9 +279,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
                 WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
 
-            connection.ServerConnection.ExecuteNonQuery(createSessionSql);
+            string createAzureSessionSql =
+                @"
+                CREATE EVENT SESSION [Profiler] ON DATABASE
+                ADD EVENT sqlserver.attention(
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
+                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
+                ADD EVENT sqlserver.existing_connection(SET collect_options_text=(1)
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
+                ADD EVENT sqlserver.login(SET collect_options_text=(1)
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
+                ADD EVENT sqlserver.logout(
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
+                ADD EVENT sqlserver.rpc_completed(
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
+                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
+                ADD EVENT sqlserver.sql_batch_completed(
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
+                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
+                ADD EVENT sqlserver.sql_batch_starting(
+                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
+                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0))))
+                ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
+                WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
 
-            XEStore store = new XEStore(connection);
+            string createStatement = connInfo.IsCloud ? createAzureSessionSql : createSessionSql;
+            connection.ServerConnection.ExecuteNonQuery(createStatement);
+            BaseXEStore store = CreateXEventStore(connInfo, connection);
             return store.Sessions[sessionName];
         }
 
