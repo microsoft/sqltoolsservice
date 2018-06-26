@@ -290,29 +290,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
         {            
-            try
-            {            
-                ParseResult result = Parser.Parse(param.Query);
-                SyntaxParseResult syntaxResult = new SyntaxParseResult();
-                if (result != null && result.Errors.Count() == 0)
-                {
-                    syntaxResult.Parseable = true;
-                } else 
-                {
-                    syntaxResult.Parseable = false;
-                    string[] errorMessages = {};
-                    for (int i = 0; i < result.Errors.Count(); i++)
-                    {
-                        errorMessages.Append(result.Errors.ElementAt(i).Message);
-                    }
-                    syntaxResult.Errors = errorMessages;
-                }
-                await requestContext.SendResult(syntaxResult);
-            }
-            catch (Exception ex)
+            await Task.Run(async () => 
             {
-                await requestContext.SendError(ex.ToString());
-            }
+                try
+                {   
+                    ParseResult result = Parser.Parse(param.Query);
+                    SyntaxParseResult syntaxResult = new SyntaxParseResult();
+                    if (result != null && result.Errors.Count() == 0)
+                    {
+                        syntaxResult.Parseable = true;
+                    } else 
+                    {
+                        syntaxResult.Parseable = false;
+                        string[] errorMessages = new string[result.Errors.Count()];
+                        for (int i = 0; i < result.Errors.Count(); i++)
+                        {
+                            errorMessages[i] = result.Errors.ElementAt(i).Message;
+                        }
+                        syntaxResult.Errors = errorMessages;
+                    }
+                    await requestContext.SendResult(syntaxResult);
+                }
+                catch (Exception ex)
+                {
+                    await requestContext.SendError(ex.ToString());
+                }
+            });
         }
 
         /// <summary>
@@ -533,7 +536,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         await requestContext.SendResult(hover);
                     }
                 }
-
                 await requestContext.SendResult(null);
             }
             catch (Exception ex)
