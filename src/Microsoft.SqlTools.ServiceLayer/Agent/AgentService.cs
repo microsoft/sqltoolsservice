@@ -607,7 +607,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleAgentSchedulesRequest(AgentSchedulesParams parameters, RequestContext<AgentSchedulesResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            await Task.Run(async () =>
+            {
+                var result = new AgentSchedulesResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                            
+                    int scheduleCount = dataContainer.Server.JobServer.SharedSchedules.Count;
+                    var schedules = new AgentScheduleInfo[scheduleCount];
+                    for (int i = 0; i < scheduleCount; ++i)
+                    {
+                        var schedule = dataContainer.Server.JobServer.SharedSchedules[i];
+                        schedules[i] = new AgentScheduleInfo();
+                        schedules[i].Id = schedule.ID;
+                        schedules[i].Name = schedule.Name;
+                        schedules[i].IsEnabled = schedule.IsEnabled;
+                        schedules[i].FrequencyTypes = (Contracts.FrequencyTypes)schedule.FrequencyTypes;                        
+                        schedules[i].FrequencySubDayTypes = (Contracts.FrequencySubDayTypes)schedule.FrequencySubDayTypes;
+                        schedules[i].FrequencySubDayInterval = schedule.FrequencySubDayInterval;
+                        schedules[i].FrequencyRelativeIntervals = (Contracts.FrequencyRelativeIntervals)schedule.FrequencyRelativeIntervals;
+                        schedules[i].FrequencyRecurrenceFactor = schedule.FrequencyRecurrenceFactor;
+                        schedules[i].FrequencyInterval = schedule.FrequencyInterval;
+                        schedules[i].DateCreated = schedule.DateCreated;
+                        schedules[i].ActiveStartTimeOfDay = schedule.ActiveStartTimeOfDay;
+                        schedules[i].ActiveStartDate = schedule.ActiveStartDate;
+                        schedules[i].ActiveEndTimeOfDay = schedule.ActiveEndTimeOfDay;
+                        schedules[i].JobCount = schedule.JobCount;
+                        schedules[i].ActiveEndDate = schedule.ActiveEndDate;
+                        schedules[i].ScheduleUid = schedule.ScheduleUid;
+                    }
+                    result.Schedules = schedules;
+                    result.Success = true;  
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
         }
 
         internal async Task HandleCreateAgentScheduleRequest(CreateAgentScheduleParams parameters, RequestContext<AgentScheduleResult> requestContext)

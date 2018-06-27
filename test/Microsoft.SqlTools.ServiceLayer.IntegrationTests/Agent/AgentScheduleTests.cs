@@ -19,6 +19,30 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     public class AgentScheduleTests
     {
         /// <summary>
+        /// HandleAgentSchedulesRequest
+        /// </summary>
+        [Fact]
+        public async Task HandleAgentSchedulesRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var service = new AgentService();
+
+                // test
+                var context = new Mock<RequestContext<AgentSchedulesResult>>();
+                await service.HandleAgentSchedulesRequest(new AgentSchedulesParams
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                }, context.Object);
+                context.VerifyAll();
+            }
+        }
+
+
+
+        /// <summary>
         /// TestHandleCreateAgentScheduleRequest
         /// </summary>
         [Fact]
