@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentScheduleInfo
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string JobName { get; set; }
         public bool IsEnabled { get; set; }
