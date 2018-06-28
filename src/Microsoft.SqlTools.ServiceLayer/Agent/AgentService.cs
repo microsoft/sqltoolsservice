@@ -424,88 +424,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         alerts[i] = new AgentAlertInfo
                         {
                             Id = alert.ID,
-                            DelayBetweenResponses = alert.ID,
-                            EventDescriptionKeyword = alert.ID,
-                            EventSource = alert.ID,
-                            HasNotification = alert.ID,
-                            IncludeEventDescription = alert.ID,
-                            IsEnabled = alert.ID,
-                            JobId = alert.ID,
-                            JobName = alert.ID,
-                            LastOccurrenceDate = alert.ID,
-                            LastResponseDate = alert.ID,
-                            MessageId = alert.ID,
-                            NotificationMessage = alert.ID,
-                            OccurrenceCount = alert.ID,
-                            PerformanceCondition = alert.ID,     
-                            Severity = alert.ID,
-                            DatabaseName = alert.ID,
-                            CountResetDate = alert.ID,
-                            CategoryName = alert.ID,
-                            AlertType = alert.ID,
-                            WmiEventNamespace = alert.ID,
-                            WmiEventQuery = alert.ID
+                            DelayBetweenResponses = alert.DelayBetweenResponses,
+                            EventDescriptionKeyword = alert.EventDescriptionKeyword,
+                            EventSource = alert.EventSource,
+                            HasNotification = alert.HasNotification,
+                            IncludeEventDescription = (Contracts.NotifyMethods)alert.IncludeEventDescription,
+                            IsEnabled = alert.IsEnabled,
+                            JobId = alert.JobID != null ? alert.JobID.ToString() : null,
+                            JobName = alert.JobName,
+                            LastOccurrenceDate = alert.LastOccurrenceDate != null ? alert.LastOccurrenceDate.ToString() : null,
+                            LastResponseDate = alert.LastResponseDate != null ? alert.LastResponseDate.ToString() : null,
+                            MessageId = alert.MessageID,
+                            NotificationMessage = alert.NotificationMessage,
+                            OccurrenceCount = alert.OccurrenceCount,
+                            PerformanceCondition = alert.PerformanceCondition,     
+                            Severity = alert.Severity,
+                            DatabaseName = alert.DatabaseName,
+                            CountResetDate = alert.CountResetDate != null ? alert.CountResetDate.ToString() : null,
+                            CategoryName = alert.CategoryName,
+                            AlertType = (Contracts.AlertType)alert.AlertType,
+                            WmiEventNamespace = alert.WmiEventNamespace,
+                            WmiEventQuery = alert.WmiEventQuery
                         };
                     }
-            
                 }
                 catch (Exception ex)
                 {
                     result.Success = false;
                     result.ErrorMessage = ex.ToString();
                 }
-
                 await requestContext.SendResult(result);
             });
         }
-
-
-#if false
-
-await Task.Run(async () =>
-            {
-                var result = new AgentSchedulesResult();
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                            
-                    int scheduleCount = dataContainer.Server.JobServer.SharedSchedules.Count;
-                    var schedules = new AgentScheduleInfo[scheduleCount];
-                    for (int i = 0; i < scheduleCount; ++i)
-                    {
-                        var schedule = dataContainer.Server.JobServer.SharedSchedules[i];
-                        schedules[i] = new AgentScheduleInfo();
-                        schedules[i].Id = schedule.ID;
-                        schedules[i].Name = schedule.Name;
-                        schedules[i].IsEnabled = schedule.IsEnabled;
-                        schedules[i].FrequencyTypes = (Contracts.FrequencyTypes)schedule.FrequencyTypes;                        
-                        schedules[i].FrequencySubDayTypes = (Contracts.FrequencySubDayTypes)schedule.FrequencySubDayTypes;
-                        schedules[i].FrequencySubDayInterval = schedule.FrequencySubDayInterval;
-                        schedules[i].FrequencyRelativeIntervals = (Contracts.FrequencyRelativeIntervals)schedule.FrequencyRelativeIntervals;
-                        schedules[i].FrequencyRecurrenceFactor = schedule.FrequencyRecurrenceFactor;
-                        schedules[i].FrequencyInterval = schedule.FrequencyInterval;
-                        schedules[i].DateCreated = schedule.DateCreated;
-                        schedules[i].ActiveStartTimeOfDay = schedule.ActiveStartTimeOfDay;
-                        schedules[i].ActiveStartDate = schedule.ActiveStartDate;
-                        schedules[i].ActiveEndTimeOfDay = schedule.ActiveEndTimeOfDay;
-                        schedules[i].JobCount = schedule.JobCount;
-                        schedules[i].ActiveEndDate = schedule.ActiveEndDate;
-                        schedules[i].ScheduleUid = schedule.ScheduleUid;
-                    }
-                    result.Schedules = schedules;
-                    result.Success = true;  
-                }
-                catch (Exception ex)
-                {
-                    result.Success = false;
-                    result.ErrorMessage = ex.ToString();
-                }
-
-                await requestContext.SendResult(result);
-            });
-#endif 
 
         /// <summary>
         /// Handle request to create an alert
@@ -567,7 +517,54 @@ await Task.Run(async () =>
 
         internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            await Task.Run(async () =>
+            {
+                var result = new AgentAlertsResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+                    int alertsCount = dataContainer.Server.JobServer.Alerts.Count;
+                    var alerts = new AgentAlertInfo[alertsCount];
+                    for (int i = 0; i < alertsCount; ++i)
+                    {
+                        var alert = dataContainer.Server.JobServer.Alerts[i];
+                        alerts[i] = new AgentAlertInfo
+                        {
+                            Id = alert.ID,
+                            DelayBetweenResponses = alert.DelayBetweenResponses,
+                            EventDescriptionKeyword = alert.EventDescriptionKeyword,
+                            EventSource = alert.EventSource,
+                            HasNotification = alert.HasNotification,
+                            IncludeEventDescription = (Contracts.NotifyMethods)alert.IncludeEventDescription,
+                            IsEnabled = alert.IsEnabled,
+                            JobId = alert.JobID != null ? alert.JobID.ToString() : null,
+                            JobName = alert.JobName,
+                            LastOccurrenceDate = alert.LastOccurrenceDate != null ? alert.LastOccurrenceDate.ToString() : null,
+                            LastResponseDate = alert.LastResponseDate != null ? alert.LastResponseDate.ToString() : null,
+                            MessageId = alert.MessageID,
+                            NotificationMessage = alert.NotificationMessage,
+                            OccurrenceCount = alert.OccurrenceCount,
+                            PerformanceCondition = alert.PerformanceCondition,     
+                            Severity = alert.Severity,
+                            DatabaseName = alert.DatabaseName,
+                            CountResetDate = alert.CountResetDate != null ? alert.CountResetDate.ToString() : null,
+                            CategoryName = alert.CategoryName,
+                            AlertType = (Contracts.AlertType)alert.AlertType,
+                            WmiEventNamespace = alert.WmiEventNamespace,
+                            WmiEventQuery = alert.WmiEventQuery
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
         }        
 
         internal async Task HandleCreateAgentOperatorRequest(
