@@ -585,20 +585,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             if ((operatorInfo.PagerDays & Contracts.WeekDays.WeekDays) > 0)
             {
-                currentOperator.WeekdayPagerStartTime = operatorInfo.WeekdayPagerStartTime;
-                currentOperator.WeekdayPagerEndTime = operatorInfo.WeekdayPagerEndTime;
+                TimeSpan weekdayPagerStartTime = default(TimeSpan);
+                if (!string.IsNullOrWhiteSpace(operatorInfo.WeekdayPagerStartTime))
+                {
+                    weekdayPagerStartTime = TimeSpan.Parse(operatorInfo.WeekdayPagerStartTime);
+                }
+
+                TimeSpan weekdayPagerEndTime = default(TimeSpan);
+                if (!string.IsNullOrWhiteSpace(operatorInfo.WeekdayPagerEndTime))
+                {
+                    weekdayPagerEndTime = TimeSpan.Parse(operatorInfo.WeekdayPagerEndTime);
+                }
+
+                currentOperator.WeekdayPagerStartTime = weekdayPagerStartTime;
+                currentOperator.WeekdayPagerEndTime = weekdayPagerEndTime;
             }
 
             if ((operatorInfo.PagerDays & Contracts.WeekDays.Saturday) > 0)
             {
-                currentOperator.SaturdayPagerStartTime = operatorInfo.SaturdayPagerStartTime;
-                currentOperator.SaturdayPagerEndTime = operatorInfo.SaturdayPagerEndTime;
+                TimeSpan saturdayPagerStartTime = default(TimeSpan);
+                if (!string.IsNullOrWhiteSpace(operatorInfo.SaturdayPagerStartTime))
+                {
+                    saturdayPagerStartTime = TimeSpan.Parse(operatorInfo.SaturdayPagerStartTime);
+                }
+
+                TimeSpan saturdayPagerEndTime = default(TimeSpan);
+                if (!string.IsNullOrWhiteSpace(operatorInfo.SaturdayPagerEndTime))
+                {
+                    saturdayPagerEndTime = TimeSpan.Parse(operatorInfo.SaturdayPagerEndTime);
+                }
+
+                currentOperator.SaturdayPagerStartTime = saturdayPagerStartTime;
+                currentOperator.SaturdayPagerEndTime = saturdayPagerEndTime;
             }
 
             if ((operatorInfo.PagerDays & Contracts.WeekDays.Sunday) > 0)
             {
-                currentOperator.SundayPagerStartTime = operatorInfo.SundayPagerStartTime;
-                currentOperator.SundayPagerEndTime = operatorInfo.SundayPagerEndTime;
+                TimeSpan sundayPagerStartTime = default(TimeSpan);
+                if (!string.IsNullOrWhiteSpace(operatorInfo.SundayPagerStartTime))
+                {
+                    sundayPagerStartTime = TimeSpan.Parse(operatorInfo.SundayPagerStartTime);
+                }
+
+                TimeSpan sundayPagerEndTime = default(TimeSpan);
+                if (!string.IsNullOrWhiteSpace(operatorInfo.SundayPagerEndTime))
+                {
+                    sundayPagerEndTime = TimeSpan.Parse(operatorInfo.SundayPagerEndTime);
+                }
+
+                currentOperator.SundayPagerStartTime = sundayPagerStartTime;
+                currentOperator.SundayPagerEndTime = sundayPagerEndTime;
             }
 
             if (this.createMode)

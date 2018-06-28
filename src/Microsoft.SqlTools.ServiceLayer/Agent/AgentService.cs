@@ -519,42 +519,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
-                var result = new AgentAlertsResult();
+                var result = new AgentOperatorsResult();
                 try
                 {
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-                    int alertsCount = dataContainer.Server.JobServer.Alerts.Count;
-                    var alerts = new AgentAlertInfo[alertsCount];
-                    for (int i = 0; i < alertsCount; ++i)
+                    int operatorCount = dataContainer.Server.JobServer.Operators.Count;
+                    var operators = new AgentOperatorInfo[operatorCount];
+                    for (int i = 0; i < operatorCount; ++i)
                     {
-                        var alert = dataContainer.Server.JobServer.Alerts[i];
-                        alerts[i] = new AgentAlertInfo
+                        var item = dataContainer.Server.JobServer.Operators[i];
+                        operators[i] = new AgentOperatorInfo
                         {
-                            Id = alert.ID,
-                            DelayBetweenResponses = alert.DelayBetweenResponses,
-                            EventDescriptionKeyword = alert.EventDescriptionKeyword,
-                            EventSource = alert.EventSource,
-                            HasNotification = alert.HasNotification,
-                            IncludeEventDescription = (Contracts.NotifyMethods)alert.IncludeEventDescription,
-                            IsEnabled = alert.IsEnabled,
-                            JobId = alert.JobID != null ? alert.JobID.ToString() : null,
-                            JobName = alert.JobName,
-                            LastOccurrenceDate = alert.LastOccurrenceDate != null ? alert.LastOccurrenceDate.ToString() : null,
-                            LastResponseDate = alert.LastResponseDate != null ? alert.LastResponseDate.ToString() : null,
-                            MessageId = alert.MessageID,
-                            NotificationMessage = alert.NotificationMessage,
-                            OccurrenceCount = alert.OccurrenceCount,
-                            PerformanceCondition = alert.PerformanceCondition,     
-                            Severity = alert.Severity,
-                            DatabaseName = alert.DatabaseName,
-                            CountResetDate = alert.CountResetDate != null ? alert.CountResetDate.ToString() : null,
-                            CategoryName = alert.CategoryName,
-                            AlertType = (Contracts.AlertType)alert.AlertType,
-                            WmiEventNamespace = alert.WmiEventNamespace,
-                            WmiEventQuery = alert.WmiEventQuery
+                            Name = item.Name,
+                            Id = item.ID,
+                            EmailAddress = item.EmailAddress,
+                            Enabled = item.Enabled,
+                            LastEmailDate = item.LastEmailDate.ToString(),
+                            LastNetSendDate = item.LastNetSendDate.ToString(),
+                            LastPagerDate = item.LastPagerDate.ToString(),
+                            PagerAddress = item.PagerAddress,
+                            CategoryName = item.CategoryName,
+                            PagerDays = (Contracts.WeekDays)item.PagerDays,
+                            SaturdayPagerEndTime = item.SaturdayPagerEndTime.ToString(),
+                            SaturdayPagerStartTime = item.SaturdayPagerEndTime.ToString(),
+                            SundayPagerEndTime = item.SundayPagerEndTime.ToString(),
+                            SundayPagerStartTime = item.SundayPagerStartTime.ToString(),
+                            NetSendAddress = item.NetSendAddress,
+                            WeekdayPagerStartTime = item.WeekdayPagerStartTime.ToString(),
+                            WeekdayPagerEndTime = item.WeekdayPagerEndTime.ToString()
                         };
                     }
                 }
@@ -565,7 +560,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 await requestContext.SendResult(result);
             });
-        }        
+        }
 
         internal async Task HandleCreateAgentOperatorRequest(
             CreateAgentOperatorParams parameters, 
