@@ -447,6 +447,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             WmiEventQuery = alert.WmiEventQuery
                         };
                     }
+
+                    result.Alerts = alerts;
+                    result.Success = true;
                 }
                 catch (Exception ex)
                 {
@@ -552,6 +555,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             WeekdayPagerEndTime = item.WeekdayPagerEndTime.ToString()
                         };
                     }
+
+                    result.Operators = operators;
+                    result.Success = true;
                 }
                 catch (Exception ex)
                 {
