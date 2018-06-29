@@ -39,17 +39,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public int HasNotification { get; set; }
         public NotifyMethods IncludeEventDescription { get; set; }
         public bool IsEnabled { get; set; }
-        public Guid JobId { get; set; }
+        public string JobId { get; set; }
         public string JobName { get; set; }
-        public DateTime LastOccurrenceDate { get; set; }
-        public DateTime LastResponseDate { get; set; }
+        public string LastOccurrenceDate { get; set; }
+        public string LastResponseDate { get; set; }
         public int MessageId { get; set; }
         public string NotificationMessage { get; set; }
         public int OccurrenceCount { get; set; }
         public string PerformanceCondition { get; set; }        
         public int Severity { get; set; }
         public string DatabaseName { get; set; }
-        public DateTime CountResetDate { get; set; }
+        public string CountResetDate { get; set; }
         public string CategoryName { get; set; }
         public AlertType AlertType { get; set; }
         public string WmiEventNamespace { get; set; }

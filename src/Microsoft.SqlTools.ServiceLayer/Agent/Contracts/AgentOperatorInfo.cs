@@ -33,18 +33,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public int Id { get; set; }
         public string EmailAddress { get; set; }
         public bool Enabled { get; set; }
-        public DateTime LastEmailDate { get; set; }
-        public DateTime LastNetSendDate { get; set; }        
-        public DateTime LastPagerDate { get; set; }        
+        public string LastEmailDate { get; set; }
+        public string LastNetSendDate { get; set; }        
+        public string LastPagerDate { get; set; }        
         public string PagerAddress { get; set; }        
         public string CategoryName { get; set; }        
         public WeekDays PagerDays { get; set; }
-        public TimeSpan SaturdayPagerEndTime { get; set; }
-        public TimeSpan SaturdayPagerStartTime { get; set; }
-        public TimeSpan SundayPagerEndTime { get; set; }
-        public TimeSpan SundayPagerStartTime { get; set; }
+        public string SaturdayPagerEndTime { get; set; }
+        public string SaturdayPagerStartTime { get; set; }
+        public string SundayPagerEndTime { get; set; }
+        public string SundayPagerStartTime { get; set; }
         public string NetSendAddress { get; set; }
-        public TimeSpan WeekdayPagerStartTime { get; set; }
-        public TimeSpan WeekdayPagerEndTime { get; set; }
+        public string WeekdayPagerStartTime { get; set; }
+        public string WeekdayPagerEndTime { get; set; }
     }
 }

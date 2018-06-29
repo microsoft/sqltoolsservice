@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify default agent/alerts handlers
         /// </summary>
-        //[Fact]
+        [Fact]
         public async Task TestHandleAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -33,11 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 };
 
                 var requestContext = new Mock<RequestContext<AgentAlertsResult>>();
-
                 AgentService service = new AgentService();
                 await service.HandleAgentAlertsRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
             }
-
         }
 
         /// <summary>

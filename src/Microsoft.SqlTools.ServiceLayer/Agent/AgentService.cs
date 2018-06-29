@@ -410,17 +410,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await Task.Run(async () =>
             {
                 var result = new AgentAlertsResult();
-                result.Alerts = new List<AgentAlertInfo>().ToArray();
-
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-
-                if (connInfo != null)
+                try
                 {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
-                }
 
+                    int alertsCount = dataContainer.Server.JobServer.Alerts.Count;
+                    var alerts = new AgentAlertInfo[alertsCount];
+                    for (int i = 0; i < alertsCount; ++i)
+                    {
+                        var alert = dataContainer.Server.JobServer.Alerts[i];
+                        alerts[i] = new AgentAlertInfo
+                        {
+                            Id = alert.ID,
+                            DelayBetweenResponses = alert.DelayBetweenResponses,
+                            EventDescriptionKeyword = alert.EventDescriptionKeyword,
+                            EventSource = alert.EventSource,
+                            HasNotification = alert.HasNotification,
+                            IncludeEventDescription = (Contracts.NotifyMethods)alert.IncludeEventDescription,
+                            IsEnabled = alert.IsEnabled,
+                            JobId = alert.JobID != null ? alert.JobID.ToString() : null,
+                            JobName = alert.JobName,
+                            LastOccurrenceDate = alert.LastOccurrenceDate != null ? alert.LastOccurrenceDate.ToString() : null,
+                            LastResponseDate = alert.LastResponseDate != null ? alert.LastResponseDate.ToString() : null,
+                            MessageId = alert.MessageID,
+                            NotificationMessage = alert.NotificationMessage,
+                            OccurrenceCount = alert.OccurrenceCount,
+                            PerformanceCondition = alert.PerformanceCondition,     
+                            Severity = alert.Severity,
+                            DatabaseName = alert.DatabaseName,
+                            CountResetDate = alert.CountResetDate != null ? alert.CountResetDate.ToString() : null,
+                            CategoryName = alert.CategoryName,
+                            AlertType = (Contracts.AlertType)alert.AlertType,
+                            WmiEventNamespace = alert.WmiEventNamespace,
+                            WmiEventQuery = alert.WmiEventQuery
+                        };
+                    }
+
+                    result.Alerts = alerts;
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
                 await requestContext.SendResult(result);
             });
         }
@@ -485,8 +520,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleAgentOperatorsRequest(AgentOperatorsParams parameters, RequestContext<AgentOperatorsResult> requestContext)
         {
-            await requestContext.SendResult(null);
-        }        
+            await Task.Run(async () =>
+            {
+                var result = new AgentOperatorsResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+                    int operatorCount = dataContainer.Server.JobServer.Operators.Count;
+                    var operators = new AgentOperatorInfo[operatorCount];
+                    for (int i = 0; i < operatorCount; ++i)
+                    {
+                        var item = dataContainer.Server.JobServer.Operators[i];
+                        operators[i] = new AgentOperatorInfo
+                        {
+                            Name = item.Name,
+                            Id = item.ID,
+                            EmailAddress = item.EmailAddress,
+                            Enabled = item.Enabled,
+                            LastEmailDate = item.LastEmailDate.ToString(),
+                            LastNetSendDate = item.LastNetSendDate.ToString(),
+                            LastPagerDate = item.LastPagerDate.ToString(),
+                            PagerAddress = item.PagerAddress,
+                            CategoryName = item.CategoryName,
+                            PagerDays = (Contracts.WeekDays)item.PagerDays,
+                            SaturdayPagerEndTime = item.SaturdayPagerEndTime.ToString(),
+                            SaturdayPagerStartTime = item.SaturdayPagerEndTime.ToString(),
+                            SundayPagerEndTime = item.SundayPagerEndTime.ToString(),
+                            SundayPagerStartTime = item.SundayPagerStartTime.ToString(),
+                            NetSendAddress = item.NetSendAddress,
+                            WeekdayPagerStartTime = item.WeekdayPagerStartTime.ToString(),
+                            WeekdayPagerEndTime = item.WeekdayPagerEndTime.ToString()
+                        };
+                    }
+
+                    result.Operators = operators;
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
 
         internal async Task HandleCreateAgentOperatorRequest(
             CreateAgentOperatorParams parameters, 
@@ -548,7 +628,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleAgentProxiesRequest(AgentProxiesParams parameters, RequestContext<AgentProxiesResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            await Task.Run(async () =>
+            {
+                var result = new AgentProxiesResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                            
+                    int proxyCount = dataContainer.Server.JobServer.ProxyAccounts.Count;
+                    var proxies = new AgentProxyInfo[proxyCount];
+                    for (int i = 0; i < proxyCount; ++i)
+                    {
+                        var proxy = dataContainer.Server.JobServer.ProxyAccounts[i];
+                        proxies[i] = new AgentProxyInfo
+                        {
+                            Id = proxy.ID,
+                            AccountName = proxy.Name,
+                            Description = proxy.Description,
+                            CredentialName = proxy.CredentialName,
+                            CredentialIdentity = proxy.CredentialIdentity,
+                            CredentialId = proxy.CredentialID,
+                            IsEnabled = proxy.IsEnabled,
+                        };
+                    }
+                    result.Proxies = proxies;
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
         }
 
         internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<AgentProxyResult> requestContext)

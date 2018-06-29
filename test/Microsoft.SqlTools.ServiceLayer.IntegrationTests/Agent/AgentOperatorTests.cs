@@ -17,6 +17,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     public class AgentOperatorTests
     {
         /// <summary>
+        /// Verify default agent/operators handlers
+        /// </summary>
+        [Fact]
+        public async Task TestHandleAgentOperatorsRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                var requestParams = new AgentOperatorsParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                };
+
+                var requestContext = new Mock<RequestContext<AgentOperatorsResult>>();
+                AgentService service = new AgentService();
+                await service.HandleAgentOperatorsRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
+            }
+        }
+
+        /// <summary>
         /// Verify the default "create agent alert" request handler with valid parameters
         /// </summary>
         [Fact]
