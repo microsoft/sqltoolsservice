@@ -628,7 +628,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleAgentProxiesRequest(AgentProxiesParams parameters, RequestContext<AgentProxiesResult> requestContext)
         {
-            await requestContext.SendResult(null);
+            await Task.Run(async () =>
+            {
+                var result = new AgentProxiesResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                            
+                    int proxyCount = dataContainer.Server.JobServer.ProxyAccounts.Count;
+                    var proxies = new AgentProxyInfo[proxyCount];
+                    for (int i = 0; i < proxyCount; ++i)
+                    {
+                        var proxy = dataContainer.Server.JobServer.ProxyAccounts[i];
+                        proxies[i] = new AgentProxyInfo
+                        {
+                            Id = proxy.ID,
+                            AccountName = proxy.Name,
+                            Description = proxy.Description,
+                            CredentialName = proxy.CredentialName,
+                            CredentialIdentity = proxy.CredentialIdentity,
+                            CredentialId = proxy.CredentialID,
+                            IsEnabled = proxy.IsEnabled,
+                        };
+                    }
+                    result.Proxies = proxies;
+                    result.Success = true;
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
         }
 
         internal async Task HandleCreateAgentProxyRequest(CreateAgentProxyParams parameters, RequestContext<AgentProxyResult> requestContext)

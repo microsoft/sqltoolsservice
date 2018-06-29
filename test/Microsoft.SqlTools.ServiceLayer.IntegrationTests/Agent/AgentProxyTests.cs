@@ -22,6 +22,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
     public class AgentProxyTests
     {
         /// <summary>
+        /// Verify default agent/proxies handlers
+        /// </summary>
+        [Fact]
+        public async Task TestHandleAgentProxiesRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var requestParams = new AgentProxiesParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                };
+
+                var requestContext = new Mock<RequestContext<AgentProxiesResult>>();
+                AgentService service = new AgentService();
+                await service.HandleAgentProxiesRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
+            }
+        }
+
+        /// <summary>
         /// TestHandleCreateAgentProxyRequest
         /// </summary>
         [Fact]
