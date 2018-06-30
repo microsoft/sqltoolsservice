@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class AgentAlertInfo
     {
         public int Id { get; set; }
+        public string Name { get; set; }
         public int DelayBetweenResponses { get; set; }
         public string EventDescriptionKeyword { get; set; }
         public string EventSource { get; set; }
