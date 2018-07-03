@@ -645,13 +645,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var proxy = dataContainer.Server.JobServer.ProxyAccounts[i];
                         proxies[i] = new AgentProxyInfo
                         {
-                            Id = proxy.ID,
                             AccountName = proxy.Name,
                             Description = proxy.Description,
-                            CredentialName = proxy.CredentialName,
-                            CredentialIdentity = proxy.CredentialIdentity,
-                            CredentialId = proxy.CredentialID,
-                            IsEnabled = proxy.IsEnabled,
+                            CredentialName = proxy.CredentialName
                         };
                     }
                     result.Proxies = proxies;
@@ -897,9 +893,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("alert", alert.JobName);
+                    param.SetParam("alert", alert.Name);
 
-                    if (alert != null && !string.IsNullOrWhiteSpace(alert.JobName))
+                    if (alert != null)
                     {
                         using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert, configAction))
                         {
