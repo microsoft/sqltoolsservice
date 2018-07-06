@@ -170,14 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new ArgumentNullException("alert");
             }
 
-            if (!string.IsNullOrWhiteSpace(this.alertInfo.DatabaseName))
-            {
-                alert.DatabaseName = this.alertInfo.DatabaseName;
-            }
-            else
-            {
-                alert.DatabaseName = string.Empty;
-            }
+            alert.DatabaseName = !string.IsNullOrWhiteSpace(this.alertInfo.DatabaseName)
+                ? this.alertInfo.DatabaseName :  string.Empty;
 
             if (!string.IsNullOrWhiteSpace(this.alertInfo.CategoryName))
             {
@@ -203,6 +197,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     alert.EventDescriptionKeyword = this.alertInfo.EventDescriptionKeyword;
                 }
+
+                // clear out other alert type fields
+                alert.PerformanceCondition	= string.Empty;
+                alert.WmiEventNamespace = string.Empty;
+			    alert.WmiEventQuery = string.Empty;
             }
         }
     }
