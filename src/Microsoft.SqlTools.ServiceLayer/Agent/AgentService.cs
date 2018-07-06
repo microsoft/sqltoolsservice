@@ -468,6 +468,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             var result = await ConfigureAgentAlert(
                 parameters.OwnerUri,
+                parameters.Alert.Name,
                 parameters.Alert,
                 ConfigAction.Create,
                 RunType.RunNow);
@@ -486,6 +487,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             var result = await ConfigureAgentAlert(
                 parameters.OwnerUri,
+                parameters.OriginalAlertName,
                 parameters.Alert,
                 ConfigAction.Update,
                 RunType.RunNow);
@@ -504,6 +506,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             var result = await ConfigureAgentAlert(
                 parameters.OwnerUri,
+                parameters.Alert.Name,
                 parameters.Alert,
                 ConfigAction.Drop,
                 RunType.RunNow);
@@ -881,6 +884,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task<Tuple<bool, string>> ConfigureAgentAlert(
             string ownerUri,
+            string alertName,
             AgentAlertInfo alert,
             ConfigAction configAction,
             RunType runType)
@@ -893,11 +897,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     STParameters param = new STParameters(dataContainer.Document);
-                    param.SetParam("alert", alert.Name);
+                    param.SetParam("alert", alertName);
 
                     if (alert != null)
                     {
-                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alert, configAction))
+                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alertName, alert, configAction))
                         {
                             var executionHandler = new ExecutonHandler(agentAlert);
                             executionHandler.RunNow(runType, this);

@@ -44,11 +44,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string JobName { get; set; }
         public string LastOccurrenceDate { get; set; }
         public string LastResponseDate { get; set; }
-        public int MessageId { get; set; }
+        public int? MessageId { get; set; }
         public string NotificationMessage { get; set; }
         public int OccurrenceCount { get; set; }
         public string PerformanceCondition { get; set; }        
-        public int Severity { get; set; }
+        public int? Severity { get; set; }
         public string DatabaseName { get; set; }
         public string CountResetDate { get; set; }
         public string CategoryName { get; set; }
