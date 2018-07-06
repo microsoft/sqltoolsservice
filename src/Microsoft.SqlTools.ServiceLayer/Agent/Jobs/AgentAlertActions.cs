@@ -11,11 +11,11 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-	/// <summary>
-	/// AgentAlert class
-	/// </summary>
-	internal class AgentAlertActions : ManagementActionBase
-	{
+    /// <summary>
+    /// AgentAlert class
+    /// </summary>
+    internal class AgentAlertActions : ManagementActionBase
+    {
         /// <summary>
         /// Agent alert info instance
         /// </summary>
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // clear out other alert type fields
                 alert.PerformanceCondition	= string.Empty;
                 alert.WmiEventNamespace = string.Empty;
-			    alert.WmiEventQuery = string.Empty;
+                alert.WmiEventQuery = string.Empty;
             }
         }
     }
