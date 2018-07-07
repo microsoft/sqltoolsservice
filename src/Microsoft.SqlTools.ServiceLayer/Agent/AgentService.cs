@@ -372,15 +372,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     CDataContainer dataContainer;
                     CreateJobData(parameters.OwnerUri, "default", out dataContainer, out jobData);
 
-                    // current connection user name for 
-                    result.Owner = dataContainer.ServerConnection.TrueLogin;            
+                    // current connection user name for
+                    result.Owner = dataContainer.ServerConnection.TrueLogin;
 
                     var categories = jobData.Categories;
                     result.Categories = new AgentJobCategory[categories.Length];
                     for (int i = 0; i < categories.Length; ++i)
                     {
                         result.Categories[i] = new AgentJobCategory
-                        { 
+                        {
                             Id = categories[i].SmoCategory.ID,
                             Name = categories[i].SmoCategory.Name
                         };
@@ -438,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             MessageId = alert.MessageID,
                             NotificationMessage = alert.NotificationMessage,
                             OccurrenceCount = alert.OccurrenceCount,
-                            PerformanceCondition = alert.PerformanceCondition,     
+                            PerformanceCondition = alert.PerformanceCondition,
                             Severity = alert.Severity,
                             DatabaseName = alert.DatabaseName,
                             CountResetDate = alert.CountResetDate.ToString(),
@@ -477,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });      
+            });
         }
 
         /// <summary>
@@ -573,13 +573,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         internal async Task HandleCreateAgentOperatorRequest(
-            CreateAgentOperatorParams parameters, 
+            CreateAgentOperatorParams parameters,
             RequestContext<AgentOperatorResult> requestContext)
         {
             var result = await ConfigureAgentOperator(
-                parameters.OwnerUri, 
-                parameters.Operator, 
-                ConfigAction.Create, 
+                parameters.OwnerUri,
+                parameters.Operator,
+                ConfigAction.Create,
                 RunType.RunNow);
 
             await requestContext.SendResult(new AgentOperatorResult()
@@ -591,13 +591,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         internal async Task HandleUpdateAgentOperatorRequest(
-            UpdateAgentOperatorParams parameters, 
+            UpdateAgentOperatorParams parameters,
             RequestContext<AgentOperatorResult> requestContext)
         {
             var result = await ConfigureAgentOperator(
-                parameters.OwnerUri, 
-                parameters.Operator, 
-                ConfigAction.Update, 
+                parameters.OwnerUri,
+                parameters.Operator,
+                ConfigAction.Update,
                 RunType.RunNow);
 
             await requestContext.SendResult(new AgentOperatorResult()
@@ -609,13 +609,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         internal async Task HandleDeleteAgentOperatorRequest(
-            DeleteAgentOperatorParams parameters, 
+            DeleteAgentOperatorParams parameters,
             RequestContext<ResultStatus> requestContext)
         {
             var result = await ConfigureAgentOperator(
-                parameters.OwnerUri, 
-                parameters.Operator, 
-                ConfigAction.Drop, 
+                parameters.OwnerUri,
+                parameters.Operator,
+                ConfigAction.Drop,
                 RunType.RunNow);
 
             await requestContext.SendResult(new ResultStatus()
@@ -623,7 +623,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Success = result.Item1,
                 ErrorMessage = result.Item2
             });
-        }        
+        }
 
         #endregion // "Operator Handlers"
 
@@ -640,7 +640,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                            
+
                     int proxyCount = dataContainer.Server.JobServer.ProxyAccounts.Count;
                     var proxies = new AgentProxyInfo[proxyCount];
                     for (int i = 0; i < proxyCount; ++i)
@@ -730,7 +730,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                            
+
                     int scheduleCount = dataContainer.Server.JobServer.SharedSchedules.Count;
                     var schedules = new AgentScheduleInfo[scheduleCount];
                     for (int i = 0; i < scheduleCount; ++i)
@@ -740,7 +740,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         schedules[i].Id = schedule.ID;
                         schedules[i].Name = schedule.Name;
                         schedules[i].IsEnabled = schedule.IsEnabled;
-                        schedules[i].FrequencyTypes = (Contracts.FrequencyTypes)schedule.FrequencyTypes;                        
+                        schedules[i].FrequencyTypes = (Contracts.FrequencyTypes)schedule.FrequencyTypes;
                         schedules[i].FrequencySubDayTypes = (Contracts.FrequencySubDayTypes)schedule.FrequencySubDayTypes;
                         schedules[i].FrequencySubDayInterval = schedule.FrequencySubDayInterval;
                         schedules[i].FrequencyRelativeIntervals = (Contracts.FrequencyRelativeIntervals)schedule.FrequencyRelativeIntervals;
@@ -755,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         schedules[i].ScheduleUid = schedule.ScheduleUid;
                     }
                     result.Schedules = schedules;
-                    result.Success = true;  
+                    result.Success = true;
                 }
                 catch (Exception ex)
                 {
@@ -818,6 +818,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #region "Helpers"
 
+        internal void ExecuteAction(ManagementActionBase action, RunType runType)
+        {
+            var executionHandler = new ExecutonHandler(action);
+            executionHandler.RunNow(runType, this);
+            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+            {
+                if (executionHandler.ExecutionFailureException != null)
+                {
+                    throw executionHandler.ExecutionFailureException;
+                }
+                else
+                {
+                    throw new Exception("Failed to execute action");
+                }
+            }
+        }
+
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
             string ownerUri,
             AgentJobInfo jobInfo,
@@ -832,10 +849,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     CDataContainer dataContainer;
                     CreateJobData(ownerUri, jobInfo.Name, out dataContainer, out jobData, jobInfo);
 
-                    using (JobActions jobActions = new JobActions(dataContainer, jobData, configAction))
+                    using (JobActions actions = new JobActions(dataContainer, jobData, configAction))
                     {
-                        var executionHandler = new ExecutonHandler(jobActions);
-                        executionHandler.RunNow(runType, this);
+                        ExecuteAction(actions, runType);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -866,10 +882,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     CDataContainer dataContainer;
                     CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
 
-                    using (var jobStep = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
+                    using (var actions = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
                     {
-                        var executionHandler = new ExecutonHandler(jobStep);
-                        executionHandler.RunNow(runType, this);
+                        ExecuteAction(actions, runType);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -901,12 +916,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     if (alert != null)
                     {
-                        using (AgentAlertActions agentAlert = new AgentAlertActions(dataContainer, alertName, alert, configAction))
+                        using (AgentAlertActions actions = new AgentAlertActions(dataContainer, alertName, alert, configAction))
                         {
-                            var executionHandler = new ExecutonHandler(agentAlert);
-                            executionHandler.RunNow(runType, this);
+                            ExecuteAction(actions, runType);
                         }
-                    }            
+                    }
 
                     return new Tuple<bool, string>(true, string.Empty);
                 }
@@ -933,10 +947,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("operator", operatorInfo.Name);
 
-                    using (AgentOperatorActions agentOperator = new AgentOperatorActions(dataContainer, operatorInfo, configAction))
+                    using (AgentOperatorActions actions = new AgentOperatorActions(dataContainer, operatorInfo, configAction))
                     {
-                        var executionHandler = new ExecutonHandler(agentOperator);
-                        executionHandler.RunNow(runType, this);
+                        ExecuteAction(actions, runType);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -965,10 +978,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("proxyaccount", accountName);
 
-                    using (AgentProxyAccountActions agentProxy = new AgentProxyAccountActions(dataContainer, proxy, configAction))
+                    using (AgentProxyAccountActions actions = new AgentProxyAccountActions(dataContainer, proxy, configAction))
                     {
-                        var executionHandler = new ExecutonHandler(agentProxy);
-                        executionHandler.RunNow(runType, this);
+                        ExecuteAction(actions, runType);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -1003,8 +1015,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     using (JobSchedulesActions actions = new JobSchedulesActions(dataContainer, jobData, schedule, configAction))
                     {
-                        var executionHandler = new ExecutonHandler(actions);
-                        executionHandler.RunNow(runType, this);
+                        ExecuteAction(actions, runType);
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -1017,7 +1028,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         private void CreateJobData(
-            string ownerUri, 
+            string ownerUri,
             string jobName,
             out CDataContainer dataContainer,
             out JobData jobData,
@@ -1031,7 +1042,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             dataContainer.Init(jobDoc.InnerXml);
 
             STParameters param = new STParameters(dataContainer.Document);
-            param.SetParam("job", string.Empty);                    
+            param.SetParam("job", string.Empty);
             param.SetParam("jobid", string.Empty);
 
             jobData = new JobData(dataContainer, jobInfo);
@@ -1055,10 +1066,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             xmlWriter.WriteElementString(XmlJobElementName, jobName);
             xmlWriter.WriteElementString(XmlUrnElementName, string.Format(UrnFormatStr, svrName, jobName));
-    
+
             xmlWriter.WriteEndElement();
             xmlWriter.WriteEndElement();
-    
+
             xmlWriter.Close();
 
             // Create an XML document.
@@ -1079,7 +1090,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             var dt = server.JobServer.EnumJobHistory(filter);
             var sqlConnInfo = new SqlConnectionInfo(serverConnection, SqlServer.Management.Common.ConnectionType.SqlConnection);
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
-        }        
+        }
 
         #endregion // "Helpers"
     }
