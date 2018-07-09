@@ -124,6 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private ExecutionMode executionResult;
 
         /// <summary>
+        /// exception that caused execution failure
+        /// </summary>
+        private Exception executionFailureException;
+
+        /// <summary>
         /// text of the generated script if RunNow method was called last time with scripting option
         /// </summary>
         private StringBuilder script; 
@@ -152,6 +157,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             get
             {
                 return this.executionResult;
+            }
+        }
+
+        /// <summary>
+        /// exception that caused execution failure
+        /// </summary>
+        public Exception ExecutionFailureException
+        {
+            get
+            {
+                return this.executionFailureException;
             }
         }
 
@@ -325,7 +341,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private void ProcessExceptionDuringExecution(Exception ex)
         {
             // show the error
-            this.executionResult = ExecutionMode.Failure;
+            this.executionResult = ExecutionMode.Failure; 
+            this.executionFailureException = ex;
         }
         #endregion
 	}

@@ -182,12 +182,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             
             if (alertInfo.AlertType == Contracts.AlertType.SqlServerEvent)
             {
-                if (this.alertInfo.MessageId.HasValue)
+                if (this.alertInfo.MessageId.HasValue && this.alertInfo.MessageId > 0)
                 {
                     alert.Severity = 0;
                     alert.MessageID = this.alertInfo.MessageId.Value;
                 }
-                else if (this.alertInfo.Severity.HasValue)
+                else if (this.alertInfo.Severity.HasValue && this.alertInfo.Severity > 0)
                 {
                     alert.Severity = this.alertInfo.Severity.Value;
                     alert.MessageID = 0;
