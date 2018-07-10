@@ -48,13 +48,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </param>
         public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
         {
+            string delimiter = ",";
+            if(!string.IsNullOrEmpty(saveParams.Delimiter))
+            {
+                delimiter = saveParams.Delimiter;
+            }            
+
             // Write out the header if we haven't already and the user chose to have it
             if (saveParams.IncludeHeaders && !headerWritten)
             {
                 // Build the string
                 var selectedColumns = columns.Skip(ColumnStartIndex ?? 0).Take(ColumnCount ?? columns.Count)
                     .Select(c => EncodeCsvField(c.ColumnName) ?? string.Empty);
-                string headerLine = string.Join(",", selectedColumns);
+                
+                string headerLine = string.Join(delimiter, selectedColumns);
 
                 // Encode it and write it out
                 byte[] headerBytes = Encoding.UTF8.GetBytes(headerLine + Environment.NewLine);
@@ -67,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             var selectedCells = row.Skip(ColumnStartIndex ?? 0)
                 .Take(ColumnCount ?? columns.Count)
                 .Select(c => EncodeCsvField(c.DisplayValue));
-            string rowLine = string.Join(",", selectedCells);
+            string rowLine = string.Join(delimiter, selectedCells);
 
             // Encode it and write it out
             byte[] rowBytes = Encoding.UTF8.GetBytes(rowLine + Environment.NewLine);

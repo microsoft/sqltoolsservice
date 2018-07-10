@@ -77,6 +77,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Include headers of columns in CSV
         /// </summary>
         public bool IncludeHeaders { get; set; }
+
+        /// <summary>
+        /// Delimeter for separating data items in CSV
+        /// </summary>
+        public string Delimiter { get; set; }
     }
 
     /// <summary>
