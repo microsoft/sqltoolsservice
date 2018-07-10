@@ -6,25 +6,24 @@
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
 {
-    /// <summary>
+    /// <summary>P
     /// Start Profiling request parameters
     /// </summary>
-    public class StartProfilingParams : GeneralRequestDetails
+    public class ListAvailableSessionsParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
-
-        public string SessionName {get; set; }
     }
 
-    public class StartProfilingResult
+    public class ListAvailableSessionsResult
     {
         /// <summary>
-        /// Session ID that was started
+        /// List of all XEvent sessions available
         /// </summary>
-        public string SessionId { get; set; }
+        public List<string> AvailableSessions { get; set; }
 
         public bool Succeeded { get; set; }
 
@@ -34,13 +33,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// <summary>
     /// Start Profile request type
     /// </summary>
-    public class StartProfilingRequest
+    public class ListAvailableSessionsRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<StartProfilingParams, StartProfilingResult> Type =
-            RequestType<StartProfilingParams, StartProfilingResult>.Create("profiler/start");
+            RequestType<ListAvailableSessionsParams, ListAvailableSessionsResult> Type =
+            RequestType<ListAvailableSessionsParams, ListAvailableSessionsResult>.Create("profiler/listavailablesessions");
     }
 }

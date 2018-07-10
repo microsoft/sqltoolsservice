@@ -12,14 +12,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// <summary>
     /// Start Profiling request parameters
     /// </summary>
-    public class StartProfilingParams : GeneralRequestDetails
+    public class CreateProfilerSessionParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
+
+        public string CreateStatement {get; set; }
 
         public string SessionName {get; set; }
     }
 
-    public class StartProfilingResult
+    public class CreateProfilerSessionResult
     {
         /// <summary>
         /// Session ID that was started
@@ -34,13 +36,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// <summary>
     /// Start Profile request type
     /// </summary>
-    public class StartProfilingRequest
+    public class CreateProfilerSessionRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<StartProfilingParams, StartProfilingResult> Type =
-            RequestType<StartProfilingParams, StartProfilingResult>.Create("profiler/start");
+            RequestType<CreateProfilerSessionParams, CreateProfilerSessionResult> Type =
+            RequestType<CreateProfilerSessionParams, CreateProfilerSessionResult>.Create("profiler/createsession");
     }
 }

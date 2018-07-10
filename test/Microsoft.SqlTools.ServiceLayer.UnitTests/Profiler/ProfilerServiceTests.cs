@@ -60,10 +60,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             var requestParams = new StartProfilingParams();
             requestParams.OwnerUri = testUri;
-            requestParams.TemplateName = "Standard";
+            //requestParams.TemplateName = "Standard";
 
             // start profiling session
-            await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);
+            //await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);
 
             profilerService.SessionMonitor.PollSession(1);
             // simulate a short polling delay
