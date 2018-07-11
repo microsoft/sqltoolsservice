@@ -434,12 +434,12 @@ SET NUMERIC_ROUNDABORT OFF;";
                         if (DBNull.Value != result)
                         {
                             string sessionId = (string)command.ExecuteScalar();
-                            _azureSessionId = new Guid(sessionId);
+                            Guid.TryParse(sessionId, out _azureSessionId);
                         }
                     }
                 }
             }
-            catch (SqlException exception)
+            catch (Exception exception)
             {
                 Logger.Write(LogLevel.Error, Resources.UnableToRetrieveAzureSessionId + exception.ToString());
             }
