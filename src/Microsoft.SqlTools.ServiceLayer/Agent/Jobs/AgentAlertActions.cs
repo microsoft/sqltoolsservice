@@ -11,11 +11,11 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-	/// <summary>
-	/// AgentAlert class
-	/// </summary>
-	internal class AgentAlertActions : ManagementActionBase
-	{
+    /// <summary>
+    /// AgentAlert class
+    /// </summary>
+    internal class AgentAlertActions : ManagementActionBase
+    {
         /// <summary>
         /// Agent alert info instance
         /// </summary>
@@ -23,12 +23,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private ConfigAction configAction;
 
+        private string originalAlertName = null;
+
         /// <summary>
         /// Default constructor that will be used to create dialog
         /// </summary>
         /// <param name="dataContainer"></param>
-        public AgentAlertActions(CDataContainer dataContainer, AgentAlertInfo alertInfo, ConfigAction configAction)
+        public AgentAlertActions(
+            CDataContainer dataContainer, string originalAlertName, 
+            AgentAlertInfo alertInfo, ConfigAction configAction)
         {
+            this.originalAlertName = originalAlertName;
             this.alertInfo = alertInfo;
             this.DataContainer = dataContainer;
             this.configAction = configAction;
@@ -134,6 +139,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         return false;
                     }
                     alert.Alter();
+
+                    if (!string.IsNullOrWhiteSpace(this.alertInfo.Name) && !string.Equals(alert.Name, this.alertInfo.Name)) 
+                    {
+                        alert.Rename(this.alertInfo.Name);
+                    }
                 }
 
                 return true;
@@ -160,10 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new ArgumentNullException("alert");
             }
 
-            if (!string.IsNullOrWhiteSpace(this.DataContainer.ConnectionInfo.DatabaseName))
-            {
-                alert.DatabaseName = this.DataContainer.ConnectionInfo.DatabaseName;
-            }
+            alert.DatabaseName = !string.IsNullOrWhiteSpace(this.alertInfo.DatabaseName)
+                ? this.alertInfo.DatabaseName :  string.Empty;
 
             if (!string.IsNullOrWhiteSpace(this.alertInfo.CategoryName))
             {
@@ -174,12 +182,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             
             if (alertInfo.AlertType == Contracts.AlertType.SqlServerEvent)
             {
-                alert.Severity = this.alertInfo.Severity;
-                alert.MessageID = this.alertInfo.MessageId;
+                if (this.alertInfo.MessageId.HasValue && this.alertInfo.MessageId > 0)
+                {
+                    alert.Severity = 0;
+                    alert.MessageID = this.alertInfo.MessageId.Value;
+                }
+                else if (this.alertInfo.Severity.HasValue && this.alertInfo.Severity > 0)
+                {
+                    alert.Severity = this.alertInfo.Severity.Value;
+                    alert.MessageID = 0;
+                }
+
                 if (!string.IsNullOrWhiteSpace(this.alertInfo.EventDescriptionKeyword))
                 {
                     alert.EventDescriptionKeyword = this.alertInfo.EventDescriptionKeyword;
                 }
+
+                // clear out other alert type fields
+                alert.PerformanceCondition	= string.Empty;
+                alert.WmiEventNamespace = string.Empty;
+                alert.WmiEventQuery = string.Empty;
             }
         }
     }
