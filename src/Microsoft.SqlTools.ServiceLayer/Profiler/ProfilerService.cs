@@ -134,6 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (connInfo != null)
                 {
+                    // TODO: Error messages here
                     var session = this.XEventSessionFactory.CreateXEventSession(parameters.CreateStatement, parameters.SessionName, connInfo);
                     this.monitor.StartMonitoringSession(parameters.OwnerUri, session);
                     result.SessionId = session.Id.ToString();
@@ -168,10 +169,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (connInfo != null)
                 {
-                    var session = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                    this.monitor.StartMonitoringSession(parameters.OwnerUri, session);
-                    result.SessionId = session.Id.ToString();
-                    result.Succeeded = true;         
+                    var session = this.XEventSessionFactory.GetXEventSession(parameters.XEventSessionName, connInfo);
+                    if (session != null)
+                    {
+                        this.monitor.StartMonitoringSession(parameters.OwnerUri, session);
+                        result.SessionId = session.Id.ToString();
+                        result.Succeeded = true;
+                    }
+                    else
+                    {
+                        // TODO: Localize string
+                        result.Succeeded = false;
+                        result.ErrorMessage = "Invalid session name";
+                    }         
                 }
                 else
                 {
@@ -252,8 +262,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             catch (Exception e)
             {
-                //TODO: Ask Anthony about situations where I should be returning actual objects versus returning errors
-                // It seems like there isn't much point to differentiating, they functionally do the same thing, but it's good to know
                 await requestContext.SendError(e);
             }
         }
@@ -302,22 +310,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             Session session = store.Sessions[sessionName];
 
             // make sure the session exists
-            if (session == null)
-        {
-                // TODO: Localize string
-                throw new ArgumentException("Could not find session.");
-            }
-
-            if (session != null && !session.IsRunning)
+            if (session != null)
             {
-                session.Start();
-            }
+                if (session != null && !session.IsRunning)
+                {
+                    session.Start();
+                }
 
-            // create xevent session wrapper
-            return new XEventSession()
+                // create xevent session wrapper
+                return new XEventSession()
+                {
+                    Session = session
+                };
+            }
+            else
             {
-                Session = session
-            };
+                return null;
+            }
         }
 
         private static BaseXEStore CreateXEventStore(ConnectionInfo connInfo, SqlStoreConnection connection)

@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     {
         public string OwnerUri { get; set; }
 
-        public string SessionName {get; set; }
+        public string XEventSessionName {get; set; }
     }
 
     public class StartProfilingResult
