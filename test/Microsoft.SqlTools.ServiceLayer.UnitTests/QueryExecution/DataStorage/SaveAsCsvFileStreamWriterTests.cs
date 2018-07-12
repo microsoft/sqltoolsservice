@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then: It should write one line with 2 items, comma delimited
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             Assert.Equal(1, lines.Length);
             string[] values = lines[0].Split(',');
             Assert.Equal(2, values.Length);
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Equal(2, headerValues.Length);
             for (int i = 1; i <= 2; i++)
             {
-                Assert.Equal(columns[i].ColumnName, headerValues[i-1]);
+                Assert.Equal(columns[i].ColumnName, headerValues[i - 1]);
             }
 
             // ... The second line should have two, comma separated values
@@ -209,8 +209,57 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Equal(2, dataValues.Length);
             for (int i = 1; i <= 2; i++)
             {
-                Assert.Equal(data[i].DisplayValue, dataValues[i-1]);
+                Assert.Equal(data[i].DisplayValue, dataValues[i - 1]);
             }
         }
+
+        [Fact]
+        public void WriteRowWithCustomDelimeters()
+        {
+            // Setup:
+            // ... Create a request params that has custom delimeter say pipe("|") then this delimeter should be used
+            // ... Create a set of data to write
+            // ... Create a memory location to store the data
+            var requestParams = new SaveResultsAsCsvRequestParams
+            {
+                Delimiter = "|",
+                IncludeHeaders = true
+            };
+            List<DbCellValue> data = new List<DbCellValue>
+            {
+                new DbCellValue { DisplayValue = "item1" },
+                new DbCellValue { DisplayValue = "item2" }
+            };
+            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
+            {
+                new DbColumnWrapper(new TestDbColumn("column1")),
+                new DbColumnWrapper(new TestDbColumn("column2"))
+            };
+            byte[] output = new byte[8192];
+
+            // If: I write a row
+            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
+            using (writer)
+            {
+                writer.WriteRow(data, columns);
+            }
+
+            // Then:
+            // ... It should have written two lines
+            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
+            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            Assert.Equal(2, lines.Length);
+
+            // ... It should have written a header line with two, pipe("|") separated names
+            string[] headerValues = lines[0].Split('|');
+            Assert.Equal(2, headerValues.Length);
+            for (int i = 0; i < columns.Count; i++)
+            {
+                Assert.Equal(columns[i].ColumnName, headerValues[i]);
+            }
+
+            // Note: No need to check values, it is done as part of the previous tests
+        }
+
     }
 }
