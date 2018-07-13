@@ -122,6 +122,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest);
+
+            // Credential request handler
+            this.ServiceHost.SetRequestHandler(AgentCredentialsRequest.Type, HandleAgentCredentialsRequest);
         }
 
         #region "Jobs Handlers"
@@ -637,7 +640,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                            
+
                     int proxyCount = dataContainer.Server.JobServer.ProxyAccounts.Count;
                     var proxies = new AgentProxyInfo[proxyCount];
                     for (int i = 0; i < proxyCount; ++i)
@@ -816,6 +819,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         #endregion // "Schedule Handlers"
+
+        #region "Credentials Handler"
+
+        internal async Task HandleAgentCredentialsRequest(AgentCredentialsParams parameters, RequestContext<AgentCredentialsResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentCredentialsResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    
+                    var credentials = dataContainer.Server.Credentials;
+                    int credentialsCount = credentials.Count;
+                    AgentCredential[] credentialsNames = new AgentCredential[credentialsCount];
+                    for (int i = 0; i < credentialsCount; ++i)
+                    {
+                        credentialsNames[i] = new AgentCredential();
+                        credentialsNames[i].CredentialName = credentials[i].Name;
+                        credentialsNames[i].CredentialIdentity = credentials[i].Identity;
+                        credentialsNames[i].CredentialID = credentials[i].ID;
+                    }
+                    result.Credentials = credentialsNames;
+                    result.Success = true;  
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
+        }
+
+        #endregion // "Operator Handlers"
 
         #region "Helpers"
 
