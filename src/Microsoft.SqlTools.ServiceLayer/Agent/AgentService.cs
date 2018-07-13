@@ -151,7 +151,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var agentJobs = new List<AgentJobInfo>();
                         if (this.jobs != null)
                         {
-
                             foreach (var job in this.jobs.Values)
                             {
                                 agentJobs.Add(AgentUtilities.ConvertToAgentJobInfo(job));

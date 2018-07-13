@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             System.Diagnostics.Debug.Assert(row["HasStep"]          != DBNull.Value, "HasStep is null!");
             System.Diagnostics.Debug.Assert(row["HasServer"]        != DBNull.Value, "HasServer is null!");
             System.Diagnostics.Debug.Assert(row["LastRunOutcome"]   != DBNull.Value, "LastRunOutcome is null!");
-            System.Diagnostics.Debug.Assert(row["JobID"]            != DBNull.Value, "JobID is null!");            
+            System.Diagnostics.Debug.Assert(row["JobID"]            != DBNull.Value, "JobID is null!");
 
             this.name                    = row["Name"].ToString();
             this.enabled                 = Convert.ToBoolean(row["IsEnabled"], CultureInfo.InvariantCulture);

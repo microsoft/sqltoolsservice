@@ -369,8 +369,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             request.Urn = urn;
             request.Fields = new string[] 
                 {
-                    "Name",                     
-                    "IsEnabled", 
+                    "Name",
+                    "IsEnabled",
                     "Category",
                     "CategoryID",
                     "CategoryType",
