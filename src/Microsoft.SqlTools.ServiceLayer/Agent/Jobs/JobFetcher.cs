@@ -369,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             request.Urn = urn;
             request.Fields = new string[] 
                 {
-                    "Name", 
+                    "Name",                     
                     "IsEnabled", 
                     "Category",
                     "CategoryID",
@@ -382,7 +382,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     "LastRunDate",
                     "NextRunDate",
                     "LastRunOutcome",
-                    "JobID"
+                    "JobID",
+                    "Description"
                 };
 
             DataTable dt = enumerator.Process(connection, request);

@@ -39,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return new AgentJobInfo
             {
                 Name = job.Name,
+                Description = job.Description,
                 CurrentExecutionStatus = job.CurrentExecutionStatus,
                 LastRunOutcome = job.LastRunOutcome,
                 CurrentExecutionStep = job.CurrentExecutionStep,
