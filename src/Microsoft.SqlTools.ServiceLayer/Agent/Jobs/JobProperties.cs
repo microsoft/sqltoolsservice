@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private DateTime lastRun;
         private DateTime nextRun;
         private Guid jobId;
+        private string description;
 
         private JobProperties()
         {
@@ -62,7 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.hasStep                 = Convert.ToBoolean(row["HasStep"], CultureInfo.InvariantCulture);
             this.hasTarget               = Convert.ToBoolean(row["HasServer"], CultureInfo.InvariantCulture);
             this.lastRunOutcome          = Convert.ToInt32(row["LastRunOutcome"], CultureInfo.InvariantCulture);
-            this.jobId                   = Guid.Parse(row["JobID"].ToString()); ;
+            this.jobId                   = Guid.Parse(row["JobID"].ToString());
+            this.description             = row["Description"].ToString();
 
             // for a job to be runnable, it must:
             // 1. have a target server
@@ -156,6 +158,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 return this.jobId;
             }
-        }  
+        }
+
+        public string Description
+        {
+            get
+            {
+                return this.description;
+            }
+        }
     }
 }
