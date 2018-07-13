@@ -14,11 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class CredentialInfo
     {
-        public int Id { get; }
+        public int Id { get; set; }
         public string Identity { get; set; }
         public string Name { get; set; }
-        public DateTime DateLastModified { get; }
-        public DateTime CreateDate { get; }
-       public string ProviderName { get; set; }       
+        public DateTime DateLastModified { get; set; }
+        public DateTime CreateDate { get; set; }
+        public string ProviderName { get; set; }       
     }
 }

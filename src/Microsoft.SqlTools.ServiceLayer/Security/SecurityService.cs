@@ -82,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest);
             this.ServiceHost.SetRequestHandler(UpdateCredentialRequest.Type, HandleUpdateCredentialRequest);
             this.ServiceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
+            this.ServiceHost.SetRequestHandler(GetCredentialsRequest.Type, HandleGetCredentialsRequest);
         }
 
         /// <summary>
@@ -136,6 +137,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 ErrorMessage = result.Item2
             });
         }
+
+        
+        /// <summary>
+        /// Handle request to get all credentials
+        /// </summary>
+        internal async Task HandleGetCredentialsRequest(GetCredentialsParams parameters, RequestContext<GetCredentialsResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new GetCredentialsResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    
+                    var credentials = dataContainer.Server.Credentials;
+                    int credentialsCount = credentials.Count;
+                    CredentialInfo[] credentialsInfos = new CredentialInfo[credentialsCount];
+                    for (int i = 0; i < credentialsCount; ++i)
+                    {
+                        credentialsInfos[i] = new CredentialInfo();
+                        credentialsInfos[i].Name = credentials[i].Name;
+                        credentialsInfos[i].Identity = credentials[i].Identity;
+                        credentialsInfos[i].Id = credentials[i].ID;
+                        credentialsInfos[i].DateLastModified = credentials[i].DateLastModified;
+                        credentialsInfos[i].CreateDate = credentials[i].CreateDate;
+                        credentialsInfos[i].ProviderName = credentials[i].ProviderName;
+                    }
+                    result.Credentials = credentialsInfos;
+                    result.Success = true;  
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = ex.ToString();
+                }
+
+                await requestContext.SendResult(result);
+            });
+        }
+
+
 
         /// <summary>
         /// Disposes the service
