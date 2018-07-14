@@ -122,6 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest);
+
         }
 
         #region "Jobs Handlers"

@@ -10,6 +10,32 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 {
     /// <summary>
+    /// Get Credential parameters
+    /// </summary>
+    public class GetCredentialsParams: GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+    }
+
+    public class GetCredentialsResult: ResultStatus
+    {
+        public CredentialInfo[] Credentials { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent Credentials request type
+    /// </summary>
+    public class GetCredentialsRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<GetCredentialsParams, GetCredentialsResult> Type =
+            RequestType<GetCredentialsParams, GetCredentialsResult>.Create("security/credentials");
+    }
+
+    /// <summary>
     /// Create Credential parameters
     /// </summary>
     public class CreateCredentialParams : GeneralRequestDetails
