@@ -275,6 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
+                parameters.Job.Name,
                 parameters.Job,
                 ConfigAction.Create,
                 ManagementUtils.asRunType(parameters.TaskExecutionMode));
@@ -290,6 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
+                parameters.OriginalJobName,
                 parameters.Job,
                 ConfigAction.Update,
                 ManagementUtils.asRunType(parameters.TaskExecutionMode));
@@ -305,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
              var result = await ConfigureAgentJob(
                 parameters.OwnerUri,
+                parameters.Job.Name,
                 parameters.Job,
                 ConfigAction.Drop,
                 ManagementUtils.asRunType(parameters.TaskExecutionMode));
@@ -837,6 +840,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task<Tuple<bool, string>> ConfigureAgentJob(
             string ownerUri,
+            string originalJobName,
             AgentJobInfo jobInfo,
             ConfigAction configAction,
             RunType runType)
@@ -847,7 +851,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     JobData jobData;
                     CDataContainer dataContainer;
-                    CreateJobData(ownerUri, jobInfo.Name, out dataContainer, out jobData, jobInfo);
+                    CreateJobData(ownerUri, originalJobName, out dataContainer, out jobData, configAction, jobInfo);
 
                     using (JobActions actions = new JobActions(dataContainer, jobData, configAction))
                     {
@@ -1032,20 +1036,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string jobName,
             out CDataContainer dataContainer,
             out JobData jobData,
+            ConfigAction configAction = ConfigAction.Create,
             AgentJobInfo jobInfo = null)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
             dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-
+             
             XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(), jobName);
             dataContainer.Init(jobDoc.InnerXml);
-
+            
             STParameters param = new STParameters(dataContainer.Document);
-            param.SetParam("job", string.Empty);
+            string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;            
+            param.SetParam("job",  configAction == ConfigAction.Update ? jobName : string.Empty);
             param.SetParam("jobid", string.Empty);
 
-            jobData = new JobData(dataContainer, jobInfo);
+            jobData = new JobData(dataContainer, jobInfo, configAction);
         }
 
         public static XmlDocument CreateJobXmlDocument(string svrName, string jobName)

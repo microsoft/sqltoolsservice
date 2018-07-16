@@ -275,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
         }
 
-        public String Description
+        public string Description
         {
             get
             {
@@ -601,7 +601,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         #endregion
 
         #region construction
-        public JobData(CDataContainer data, AgentJobInfo jobInfo = null)
+        public JobData(CDataContainer data, AgentJobInfo jobInfo = null, ConfigAction configAction = ConfigAction.Create)
         {
             this.context = data;
 
@@ -632,10 +632,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.targetLocalServer = false;
             }
             // we are in properties mode.
-            if (this.originalName.Length > 0 || !string.IsNullOrEmpty(this.jobIdString))
+            if (configAction == ConfigAction.Update)
             {
                 this.mode = ActionMode.Edit;
-
+                CheckAndLoadGeneralData();
             }
             else if (this.script.Length > 0)
             {
@@ -653,13 +653,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // set defaults that do not involve going to the server to retrieve
                 SetDefaults();
             }
-
+            
             // load AgentJobInfo data
             if (jobInfo != null)
             {
                 this.currentName = jobInfo.Name;
                 this.owner = jobInfo.Owner;
-                this.description = jobInfo.Description;
+                this.description = jobInfo.Description;                
+                this.enabled = jobInfo.Enabled;
             }
         }
         #endregion
@@ -758,7 +759,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             Job job = this.Job;
 
-            this.currentName = this.originalName;
+            this.currentName = job.Name;
             this.description = job.Description;
             this.enabled = job.IsEnabled;
             // this.source = job.Source;
@@ -1112,8 +1113,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.mode = creating ? ActionMode.Create : ActionMode.Edit; 
 
-            ///Before any job posting if donem make sure that if this is an MSX job that the user has selected at
-            ///least one Target Server.
+            // Before any job posting if donem make sure that if this is an MSX job that the user has selected at
+            // least one Target Server.
             if (!this.targetLocalServer)
             {
                 for (int i = 0; i < this.AvailableTargetServers.Length; ++i)
@@ -1126,7 +1127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 if (!targetServerSelected)
                 {
-                    ///Not target servers selected.  Throw error.
+                    // Not target servers selected.  Throw error.
                     throw new ApplicationException(SR.TargetServerNotSelected);
                 }
             }
@@ -1267,8 +1268,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     , job.JobID));
             }
 
-            //Do not attempt to save the job alert if we are in scripting mode, since the job id does not
-            //yet exists.
+            // Do not attempt to save the job alert if we are in scripting mode, since the job id does not
+            // yet exists.
             if (jobAlerts != null && !scripting)
             {
                 this.jobAlerts.ApplyChanges(job);
