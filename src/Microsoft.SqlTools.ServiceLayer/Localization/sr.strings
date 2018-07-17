@@ -888,6 +888,9 @@ InvalidPathError = Cannot access the specified path on the server: {0}
 # Profiler
 ProfilerConnectionNotFound = Connection not found
 AzureSystemDbProfilingError = Cannot profile Azure system databases
+CannotStopSessionError(String error) = Cannot stop session: {0}
+CannotStartSessionError(String error) = Cannot start session: {0}
+SessionNotFound = Cannot find requested XEvent session
 
 #############################################################################
 # SQL Agent

@@ -2027,6 +2027,20 @@
     <value>Cannot profile Azure system databases</value>
     <comment></comment>
   </data>
+  <data name="CannotStopSessionError" xml:space="preserve">
+    <value>Cannot stop session: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
+  </data>
+  <data name="CannotStartSessionError" xml:space="preserve">
+    <value>Cannot start session: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Cannot find requested XEvent session</value>
+    <comment></comment>
+  </data>
   <data name="EnableAlertsTitle" xml:space="preserve">
     <value>Enable Alerts - {0}</value>
     <comment>.

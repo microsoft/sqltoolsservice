@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e);
+                await requestContext.SendError(new Exception(SR.CannotStartSessionError(e.Message)));
             }
         }
 
@@ -159,8 +159,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 ProfilerSession session;
                 monitor.StopMonitoringSession(parameters.OwnerUri, out session);
-                session.XEventSession.Stop();
 
+                if (session == null)
+                {
+                    throw new Exception(SR.CannotStopSessionError(SR.SessionNotFound));
+                }
+
+                session.XEventSession.Stop();
                 await requestContext.SendResult(new StopProfilingResult{});
             }
             catch (Exception e)
