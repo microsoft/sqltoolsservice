@@ -3669,6 +3669,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SessionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SessionNotFound);
+            }
+        }
+
         public static string UserCancelledSelectStep
         {
             get
@@ -4549,6 +4557,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string EditDataIncorrectTable(string tableName)
         {
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
+        }
+
+        public static string StopSessionFailed(String error)
+        {
+            return Keys.GetString(Keys.StopSessionFailed, error);
+        }
+
+        public static string StartSessionFailed(String error)
+        {
+            return Keys.GetString(Keys.StartSessionFailed, error);
         }
 
         public static string EnableAlertsTitle(String serverName)
@@ -6156,6 +6174,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string AzureSystemDbProfilingError = "AzureSystemDbProfilingError";
+
+
+            public const string StopSessionFailed = "StopSessionFailed";
+
+
+            public const string StartSessionFailed = "StartSessionFailed";
+
+
+            public const string SessionNotFound = "SessionNotFound";
 
 
             public const string EnableAlertsTitle = "EnableAlertsTitle";
