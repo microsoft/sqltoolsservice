@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (session == null)
                 {
-                    throw new Exception(SR.CannotStopSessionError(SR.SessionNotFound));
+                    throw new Exception(SR.SessionNotFound);
                 }
 
                 session.XEventSession.Stop();
