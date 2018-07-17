@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // Try refresh and check again
                 this.DataContainer.Server.JobServer.ProxyAccounts.Refresh();
                 if (this.DataContainer.Server.JobServer.ProxyAccounts.Contains(this.proxyAccountName))
-                {                   
+                {              
                     proxyAccount = AgentProxyAccountActions.GetProxyAccount(this.proxyAccountName, this.DataContainer.Server.JobServer);    
                     // Set the other properties
                     proxyAccount.CredentialName = proxyInfo.CredentialName;
@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 #endif 
         }
-
+        
         public bool Create()
         {
             CreateOrUpdateProxyAccount(this.proxyInfo);
