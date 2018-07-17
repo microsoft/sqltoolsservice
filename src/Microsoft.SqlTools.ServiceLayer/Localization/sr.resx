@@ -2027,13 +2027,13 @@
     <value>Cannot profile Azure system databases</value>
     <comment></comment>
   </data>
-  <data name="CannotStopSessionError" xml:space="preserve">
-    <value>Cannot stop session: {0}</value>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Failed to stop session: {0}</value>
     <comment>.
  Parameters: 0 - error (String) </comment>
   </data>
-  <data name="CannotStartSessionError" xml:space="preserve">
-    <value>Cannot start session: {0}</value>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Failed to start session: {0}</value>
     <comment>.
  Parameters: 0 - error (String) </comment>
   </data>

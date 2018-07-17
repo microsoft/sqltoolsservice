@@ -3095,20 +3095,22 @@
         <note>.
  Parameters: 0 - unit (string) </note>
       </trans-unit>
-      <trans-unit id="CannotStopSessionError">
-        <source>Cannot stop session: {0}</source>
-        <target state="new">Cannot stop session: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CannotStartSessionError">
-        <source>Cannot start session: {0}</source>
-        <target state="new">Cannot start session: {0}</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SessionNotFound">
         <source>Cannot find requested XEvent session</source>
         <target state="new">Cannot find requested XEvent session</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="StopSessionFailed">
+        <source>Failed to stop session: {0}</source>
+        <target state="new">Failed to stop session: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="StartSessionFailed">
+        <source>Failed to start session: {0}</source>
+        <target state="new">Failed to start session: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>

@@ -4559,14 +4559,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
         }
 
-        public static string CannotStopSessionError(String error)
+        public static string StopSessionFailed(String error)
         {
-            return Keys.GetString(Keys.CannotStopSessionError, error);
+            return Keys.GetString(Keys.StopSessionFailed, error);
         }
 
-        public static string CannotStartSessionError(String error)
+        public static string StartSessionFailed(String error)
         {
-            return Keys.GetString(Keys.CannotStartSessionError, error);
+            return Keys.GetString(Keys.StartSessionFailed, error);
         }
 
         public static string EnableAlertsTitle(String serverName)
@@ -6176,10 +6176,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string AzureSystemDbProfilingError = "AzureSystemDbProfilingError";
 
 
-            public const string CannotStopSessionError = "CannotStopSessionError";
+            public const string StopSessionFailed = "StopSessionFailed";
 
 
-            public const string CannotStartSessionError = "CannotStartSessionError";
+            public const string StartSessionFailed = "StartSessionFailed";
 
 
             public const string SessionNotFound = "SessionNotFound";

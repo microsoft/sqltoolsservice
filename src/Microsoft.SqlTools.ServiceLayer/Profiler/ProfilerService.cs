@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             catch (Exception e)
             {
-                await requestContext.SendError(new Exception(SR.CannotStartSessionError(e.Message)));
+                await requestContext.SendError(new Exception(SR.StartSessionFailed(e.Message)));
             }
         }
 
@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             catch (Exception e)
             {
-                await requestContext.SendError(new Exception(SR.CannotStopSessionError(e.Message)));
+                await requestContext.SendError(new Exception(SR.StopSessionFailed(e.Message)));
             }
         }
 
