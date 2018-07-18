@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 .Returns<StartProfilingResult>((result) =>
                 {
                     // capture the session id for sending the stop message
-                    sessionId = result.SessionId;
+                    //sessionId = result.SessionId;
                     return Task.FromResult(0);
                 });
 
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             var requestParams = new StartProfilingParams();
             requestParams.OwnerUri = testUri;
-            requestParams.TemplateName = "Standard";
+            requestParams.SessionName = "Standard";
 
             // start profiling session
             await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);

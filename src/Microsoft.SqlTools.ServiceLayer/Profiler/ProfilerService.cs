@@ -113,6 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
+            this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -132,14 +133,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (connInfo != null)
                 {
-                    int xEventSessionId = StartSession(parameters.OwnerUri, parameters.TemplateName, connInfo);
-                    result.SessionId = xEventSessionId.ToString();
-                    result.Succeeded = true;
+                    int xEventSessionId = StartSession(parameters.OwnerUri, parameters.SessionName, connInfo);
                 }
                 else
                 {
-                    result.Succeeded = false;
-                    result.ErrorMessage = SR.ProfilerConnectionNotFound;
+                    throw new Exception(SR.ProfilerConnectionNotFound);
                 }
 
                 await requestContext.SendResult(result);
@@ -192,16 +190,66 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Handle request to pause a profiling session
+        /// </summary>
+        internal async Task HandleGetXEventSessionsRequest(GetXEventSessionsParams parameters, RequestContext<GetXEventSessionsResult> requestContext)
+        {
+            try
+            { 
+                var result = new GetXEventSessionsResult(); 
+                ConnectionInfo connInfo; 
+                ConnectionServiceInstance.TryFindConnection( 
+                    parameters.OwnerUri, 
+                    out connInfo); 
+                if (connInfo != null) 
+                { 
+                    List<string> sessions = GetXEventSessionList(parameters.OwnerUri, connInfo); 
+                    result.Sessions = sessions; 
+                } 
+                else 
+                { 
+                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                } 
+                await requestContext.SendResult(result); 
+            } 
+            catch (Exception e) 
+            { 
+                await requestContext.SendError(e); 
+            } 
+        }
+
+        /// <summary>
+        /// Gets a list of all running XEvent Sessions
+        /// </summary>
+        /// <returns>
+        /// A list of the names of all running XEvent sessions
+        /// </returns>
+        internal List<string> GetXEventSessionList(string ownerUri, ConnectionInfo connInfo)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo); 
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection); 
+            BaseXEStore store = CreateXEventStore(connInfo, connection); 
+
+            // get session names from the session list
+            List<string> results = store.Sessions.Aggregate(new List<string>(), (result, next) => { 
+                result.Add(next.Name); 
+                return result; 
+            } ); 
+
+            return results;
+        }
+
+        /// <summary>
         /// Starts a new profiler session or connects to an existing session
         /// for the provided connection and template info
         /// </summary>
         /// <returns>
         /// The XEvent Session Id that was started
         /// </returns>
-        internal int StartSession(string ownerUri, string template, ConnectionInfo connInfo)
+        internal int StartSession(string ownerUri, string sessionName, ConnectionInfo connInfo)
         {
             // create a new XEvent session and Profiler session
-            var xeSession = this.XEventSessionFactory.GetOrCreateXEventSession(template, connInfo);
+            var xeSession = this.XEventSessionFactory.GetXEventSession(sessionName, connInfo);
 
             // start monitoring the profiler session
             monitor.StartMonitoringSession(ownerUri, xeSession);
@@ -228,13 +276,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Gets or creates an XEvent session with the given template per the IXEventSessionFactory contract
+        /// Gets an XEvent session with the given name per the IXEventSessionFactory contract
         /// Also starts the session if it isn't currently running
         /// </summary>
-        public IXEventSession GetOrCreateXEventSession(string template, ConnectionInfo connInfo)
+        public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
         {
-            string sessionName = "Profiler";
-
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
@@ -243,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // start the session if it isn't already running
             if (session == null)
             {
-                session = CreateSession(connInfo, connection, sessionName);
+                throw new Exception(SR.SessionNotFound);
             }
 
             if (session != null && !session.IsRunning)
@@ -255,6 +301,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return new XEventSession()
             {
                 Session = session
+            };
+        }
+
+        /// <summary>
+        /// Creates and starts an XEvent session with the given name and create statement per the IXEventSessionFactory contract
+        /// </summary>
+        public IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
+            BaseXEStore store = CreateXEventStore(connInfo, connection);
+            Session session = store.Sessions[sessionName];
+
+            // session shouldn't already exist
+            if (session != null)
+            {
+                throw new Exception(SR.SessionAlreadyExists(sessionName));
+            }
+
+            connection.ServerConnection.ExecuteNonQuery(createStatement);
+            store.Refresh();
+
+            // create xevent session wrapper
+            return new XEventSession()
+            {
+                Session = store.Sessions[sessionName]
             };
         }
 
