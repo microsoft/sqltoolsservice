@@ -1155,7 +1155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     job.Category = this.category.SmoCategory.Name;
                 }
 
-                if (creating || this.description != job.Description)
+                if (!string.IsNullOrWhiteSpace(this.description) && (creating || this.description != job.Description))
                 {
                     job.Description = this.description;
                 }
