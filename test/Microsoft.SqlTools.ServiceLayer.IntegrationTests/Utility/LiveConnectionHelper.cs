@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
@@ -74,6 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             }
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
 
+            return await Connect(connectParams, ownerUri, connectionType, scriptFile);
+        }
+
+        private static async Task<TestConnectionResult> Connect(ConnectParams connectParams, string ownerUri, string connectionType, ScriptFile scriptFile)
+        {
             var connectionService = GetLiveTestConnectionService();
             var connectionResult =
                 await connectionService
@@ -91,6 +97,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
+        }
+
+        /// <summary>
+        /// Get connections to servers with HADR enabled, Most of the HADR scenarios require multiple servers.
+        /// </summary>
+        /// <param name="ownerUris">The list of owner Uri</param>
+        /// <returns>Returns the connections, one connection per owner Uri</returns>
+        public static async Task<IEnumerable<TestConnectionResult>> GetHADRConnections(IEnumerable<string> ownerUris)
+        {
+            List<TestConnectionResult> results = new List<TestConnectionResult>();
+            int idx = 1;
+            foreach (string ownerUri in ownerUris)
+            {
+                string key = string.Format("sql_hadr_{0}", idx);
+                ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(key, "master");
+                TestConnectionResult result = await Connect(connectParams, ownerUri, ServiceLayer.Connection.ConnectionType.Default, scriptFile: null);
+                results.Add(result);
+                idx++;
+            }
+
+            return results;
         }
 
         public static ConnectionInfo InitLiveConnectionInfoForDefinition(string databaseName = null)

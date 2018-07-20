@@ -10,6 +10,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.AvailabilityGroup;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
@@ -97,6 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             AgentService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(AgentService.Instance);
+
+            AvailabilityGroupService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(AvailabilityGroupService.Instance);
 
             DisasterRecoveryService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
