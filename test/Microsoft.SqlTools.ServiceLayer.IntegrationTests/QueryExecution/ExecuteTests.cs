@@ -1,4 +1,9 @@
-﻿
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -98,6 +103,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.Equal(master, connInfo.ConnectionDetails.DatabaseName);
         }
 
+        [Fact]
+        public void TestBatchExecutionTime() {
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            Query query = CreateAndExecuteQuery("select * from sys.databases", connInfo, fileStreamFactory);
+            DateTime elapsedTime = Convert.ToDateTime(query.Batches[0].ExecutionElapsedTime);
+            Query mutipleQuery = CreateAndExecuteQuery("select * from sys.databases\r\nGO 15", connInfo, fileStreamFactory);
+            DateTime multipleElapsedTime =  Convert.ToDateTime(mutipleQuery.Batches[0].ExecutionElapsedTime);
+            Assert.True(multipleElapsedTime > elapsedTime);
+        }
+
         public Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IFileStreamFactory fileStreamFactory)
         {
             Query query = new Query(queryText, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -105,5 +122,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             query.ExecutionTask.Wait();
             return query;
         }
+
     }
 }
