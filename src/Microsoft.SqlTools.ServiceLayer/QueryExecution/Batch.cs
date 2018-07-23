@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandText = BatchText;
                 dbCommand.CommandType = CommandType.Text;
                 dbCommand.CommandTimeout = 0;
-                executionStartTime = DateTime.Now;
+                executionStartTime = this.BatchExecutionCount > 1 ? executionStartTime : DateTime.Now;
 
                 List<DbColumn[]> columnSchemas = null;
                 if (getFullColumnSchema)
