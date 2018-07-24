@@ -303,6 +303,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             await SendMessageIfExecutingMultipleTimes(SR.EE_ExecutionInfo_InitializingLoop, false);
 
+            executionStartTime = DateTime.Now;
+
             while (canContinue && timesLoop > 0)
             {
                 try
@@ -353,7 +355,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandText = BatchText;
                 dbCommand.CommandType = CommandType.Text;
                 dbCommand.CommandTimeout = 0;
-                executionStartTime = this.BatchExecutionCount > 1 ? executionStartTime : DateTime.Now;
 
                 List<DbColumn[]> columnSchemas = null;
                 if (getFullColumnSchema)
