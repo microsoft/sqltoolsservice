@@ -7,10 +7,11 @@ using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Moq;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 {
@@ -102,6 +103,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                     Assert.Equal(connection.Database, newDatabaseName);
                 }
             }
+        }
+
+        /// <summary>
+        /// Test HandleGetConnectionStringRequest
+        /// </summary>
+        [Fact]
+        public async void GetCurrentConnectionStringTest()
+        {
+            // If we make a connection to a live database 
+            ConnectionService service = ConnectionService.Instance;
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
+            var requestParams = new GetConnectionStringParams()
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri
+            };
+
+            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+            requestContext.VerifyAll();
         }
     }
 }
