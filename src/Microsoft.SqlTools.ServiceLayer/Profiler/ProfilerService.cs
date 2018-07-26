@@ -138,19 +138,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     throw new ArgumentNullException("SessionName");
                 }
-                else if(parameters.CreateStatement == null)
+                else if(parameters.SessionTemplate == null)
                 {
                     throw new ArgumentNullException("CreateStatement");
                 }
                 else
                 {
                     // create a new XEvent session and Profiler session
-                    var xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.CreateStatement, parameters.SessionName, connInfo);
+                    var xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.SessionTemplate.CreateStatement, parameters.SessionName, connInfo);
                     // start monitoring the profiler session
                     monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                     var result = new CreateXEventSessionResult();
                     await requestContext.SendResult(result);
+                    
+                    SessionCreatedNotification(parameters.OwnerUri, parameters.SessionName, parameters.SessionTemplate.Name);
                 }
             }
             catch (Exception e)
