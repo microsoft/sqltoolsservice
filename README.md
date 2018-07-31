@@ -11,6 +11,9 @@ The SQL Tools Service is an application that provides core functionality for var
 # SQL Tools Service API Documentation
 Please see the SQL Tools Service API documentation at https://microsoft.github.io/sqltoolssdk/.
 
+# Setup, Building and Testing the codebase
+Please see the SQL Tools Service wiki documentation at https://github.com/Microsoft/sqltoolsservice/wiki
+
 # Contribution Guidelines
 
 We welcome many kinds of community contributions to this project!  Whether it's a feature implementation, 
