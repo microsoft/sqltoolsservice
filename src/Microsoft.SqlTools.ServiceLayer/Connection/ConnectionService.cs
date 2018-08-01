@@ -28,8 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// Main class for the Connection Management services
     /// </summary>
     public class ConnectionService
-    {
+    {        
         public const string AdminConnectionPrefix = "ADMIN:";
+        internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
 
         /// <summary>
@@ -1268,6 +1269,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     try
                     {
+                        if (!connStringParams.IncludePassword)
+                        {
+                            info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
+                        }
+
+                        info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
+
                         connectionString = BuildConnectionString(info.ConnectionDetails);
                     }
                     catch (Exception e)
