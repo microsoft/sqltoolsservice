@@ -1273,7 +1273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             info.ConnectionDetails.Password = "";
                         }
 
-                        info.ConnectionDetails.ApplicationName = "user-application-name"
+                        info.ConnectionDetails.ApplicationName = "user-application-name";
 
                         connectionString = BuildConnectionString(info.ConnectionDetails);
                     }
