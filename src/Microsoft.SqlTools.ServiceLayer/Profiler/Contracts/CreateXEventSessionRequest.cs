@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
 
         public string SessionName { get; set; }
 
-        public ProfilerSessionTemplate SessionTemplate { get; set; }
+        public ProfilerSessionTemplate Template { get; set; }
     }
 
     public class CreateXEventSessionResult{}
