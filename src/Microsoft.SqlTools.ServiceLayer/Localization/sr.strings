@@ -893,8 +893,6 @@ StartSessionFailed(String error) = Failed to start session: {0}
 PauseSessionFailed(String error) = Failed to pause session: {0}
 StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
-SessionNotMonitored = Profiler is not currently monitoring a session
-SessionDoesNotExist(String sessionName) = XEvent Session {0} does not exist
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
 
 #############################################################################

@@ -3124,17 +3124,6 @@
         <note>.
  Parameters: 0 - error (String) </note>
       </trans-unit>
-      <trans-unit id="SessionNotMonitored">
-        <source>Profiler is not currently monitoring a session</source>
-        <target state="new">Profiler is not currently monitoring a session</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="SessionDoesNotExist">
-        <source>XEvent Session {0} does not exist</source>
-        <target state="new">XEvent Session {0} does not exist</target>
-        <note>.
- Parameters: 0 - sessionName (String) </note>
-      </trans-unit>
       <trans-unit id="SessionAlreadyExists">
         <source>An XEvent session named {0} already exists</source>
         <target state="new">An XEvent session named {0} already exists</target>

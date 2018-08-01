@@ -134,11 +134,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     throw new Exception(SR.ProfilerConnectionNotFound);
                 }
-                else if(parameters.SessionName == null)
+                else if (parameters.SessionName == null)
                 {
                     throw new ArgumentNullException("SessionName");
                 }
-                else if(parameters.Template == null)
+                else if (parameters.Template == null)
                 {
                     throw new ArgumentNullException("Template");
                 }
@@ -353,11 +353,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             connection.ServerConnection.ExecuteNonQuery(statement);
             store.Refresh();
             session = store.Sessions[sessionName];
-            if(session == null){
-                // some error about bad create statements
-                throw new Exception();
+            if (session == null){
+                throw new Exception(SR.SessionNotFound);
             }
-            if(!session.IsRunning)
+            if (!session.IsRunning)
             {
                 session.Start();
             }
@@ -367,62 +366,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 Session = store.Sessions[sessionName]
             };
-        }
-
-        private static Session CreateSession(ConnectionInfo connInfo, SqlStoreConnection connection, string sessionName)
-        {            
-            string createSessionSql =
-                @"
-                CREATE EVENT SESSION [Profiler] ON SERVER
-                ADD EVENT sqlserver.attention(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.existing_connection(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.nt_username,sqlserver.server_principal_name,sqlserver.session_id)),
-                ADD EVENT sqlserver.login(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.nt_username,sqlserver.server_principal_name,sqlserver.session_id)),
-                ADD EVENT sqlserver.logout(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.nt_username,sqlserver.server_principal_name,sqlserver.session_id)),
-                ADD EVENT sqlserver.rpc_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_starting(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0))))
-                ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
-                WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
-
-            string createAzureSessionSql =
-                @"
-                CREATE EVENT SESSION [Profiler] ON DATABASE
-                ADD EVENT sqlserver.attention(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.existing_connection(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
-                ADD EVENT sqlserver.login(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
-                ADD EVENT sqlserver.logout(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
-                ADD EVENT sqlserver.rpc_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_starting(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0))))
-                ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
-                WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
-
-            string createStatement = connInfo.IsCloud ? createAzureSessionSql : createSessionSql;
-            connection.ServerConnection.ExecuteNonQuery(createStatement);
-            BaseXEStore store = CreateXEventStore(connInfo, connection);
-            return store.Sessions[sessionName];
         }
 
         /// <summary>

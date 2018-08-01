@@ -3677,14 +3677,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SessionNotMonitored
-        {
-            get
-            {
-                return Keys.GetString(Keys.SessionNotMonitored);
-            }
-        }
-
         public static string UserCancelledSelectStep
         {
             get
@@ -4585,11 +4577,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string StopSessionFailed(String error)
         {
             return Keys.GetString(Keys.StopSessionFailed, error);
-        }
-
-        public static string SessionDoesNotExist(String sessionName)
-        {
-            return Keys.GetString(Keys.SessionDoesNotExist, sessionName);
         }
 
         public static string SessionAlreadyExists(String sessionName)
@@ -6217,12 +6204,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SessionNotFound = "SessionNotFound";
-
-
-            public const string SessionNotMonitored = "SessionNotMonitored";
-
-
-            public const string SessionDoesNotExist = "SessionDoesNotExist";
 
 
             public const string SessionAlreadyExists = "SessionAlreadyExists";
