@@ -1268,6 +1268,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     try
                     {
+                        if (!connStringParams.IncludePassword)
+                        {
+                            info.ConnectionDetails.Password = "";
+                        }
+
                         connectionString = BuildConnectionString(info.ConnectionDetails);
                     }
                     catch (Exception e)

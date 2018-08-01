@@ -115,9 +115,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
+
+            requestContext.Setup(x => x.SendResult(It.Is<string>(connectionString) => 
+                string.IsNullOrEmpty(connectionString)))).Returns(Task.FromResult(new object()));
+
             var requestParams = new GetConnectionStringParams()
             {
-                OwnerUri = result.ConnectionInfo.OwnerUri
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                IncludePassword = false
             };
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
