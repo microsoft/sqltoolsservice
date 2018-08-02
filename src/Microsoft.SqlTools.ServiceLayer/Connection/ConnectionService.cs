@@ -14,11 +14,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
@@ -28,8 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// Main class for the Connection Management services
     /// </summary>
     public class ConnectionService
-    {
+    {        
         public const string AdminConnectionPrefix = "ADMIN:";
+        internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
 
         /// <summary>
@@ -949,7 +950,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
-            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabase);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
+            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
         }
 
         /// <summary> 
@@ -1253,9 +1255,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
+        /// Handles a request to get a connection string for the provided connection
+        /// </summary>
+        public async Task HandleGetConnectionStringRequest(
+            GetConnectionStringParams connStringParams,
+            RequestContext<string> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                string connectionString = string.Empty;
+                ConnectionInfo info;
+                if (TryFindConnection(connStringParams.OwnerUri, out info))
+                {
+                    try
+                    {
+                        if (!connStringParams.IncludePassword)
+                        {
+                            info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
+                        }
+
+                        info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
+
+                        connectionString = BuildConnectionString(info.ConnectionDetails);
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendError(e.ToString());
+                    }
+                }
+
+                await requestContext.SendResult(connectionString);
+            });
+        }
+
+        /// <summary>
         /// Handles a request to change the database for a connection
         /// </summary>
-        public async Task HandleChangeDatabase(
+        public async Task HandleChangeDatabaseRequest(
             ChangeDatabaseParams changeDatabaseParams,
             RequestContext<bool> requestContext)
         {

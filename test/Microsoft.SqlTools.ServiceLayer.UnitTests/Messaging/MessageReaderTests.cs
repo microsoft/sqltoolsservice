@@ -220,6 +220,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             inputStream.Dispose();
         }
 
+        [Fact]
+        public void ReaderDoesNotModifyDateStrings()
+        {
+            MemoryStream inputStream = new MemoryStream();
+            MessageReader messageReader =
+                new MessageReader(
+                    inputStream,
+                    this.messageSerializer);
+            
+            string dateString = "2018-04-27T18:33:55.870Z";
+
+            // Get a message with content that is a date as a string
+            byte[] messageBuffer = this.GetMessageBytes(
+                string.Format(Common.TestEventFormatString, dateString));
+
+            inputStream.Write(messageBuffer, 0, messageBuffer.Length);
+            inputStream.Flush();
+            inputStream.Seek(0, SeekOrigin.Begin);
+
+            Message messageResult = messageReader.ReadMessage().Result;
+            Assert.Equal(dateString, messageResult.Contents.Value<string>("someString"));
+
+            inputStream.Dispose();
+        }
+
         private byte[] GetMessageBytes(string messageString, Encoding encoding = null)
         {
             if (encoding == null)

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
@@ -18,8 +18,14 @@
     <Reference Include="System.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
-	<PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
-	<PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.10" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEvent" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventEnum" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScoped" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="140.17279.0-xplat" />  
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview2-26406-04" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />

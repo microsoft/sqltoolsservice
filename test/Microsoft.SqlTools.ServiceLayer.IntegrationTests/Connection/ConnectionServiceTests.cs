@@ -4,13 +4,15 @@
 //
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Moq;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 {
@@ -102,6 +104,30 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                     Assert.Equal(connection.Database, newDatabaseName);
                 }
             }
+        }
+
+        /// <summary>
+        /// Test HandleGetConnectionStringRequest
+        /// </summary>
+        [Fact]
+        public async void GetCurrentConnectionStringTest()
+        {
+            // If we make a connection to a live database 
+            ConnectionService service = ConnectionService.Instance;
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
+
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + ConnectionService.PasswordPlaceholder))))
+                .Returns(Task.FromResult(new object()));
+
+            var requestParams = new GetConnectionStringParams()
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                IncludePassword = false
+            };
+
+            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+            requestContext.VerifyAll();
         }
     }
 }

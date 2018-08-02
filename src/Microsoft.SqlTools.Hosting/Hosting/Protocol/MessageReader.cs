@@ -12,6 +12,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
@@ -110,7 +111,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             ShiftBufferBytesAndShrink(readOffset);
 
             // Get the JObject for the JSON content
-            JObject messageObject = JObject.Parse(messageContent);
+            JsonReader messageReader = new JsonTextReader(new StringReader(messageContent));
+            messageReader.DateParseHandling = DateParseHandling.None;
+            JObject messageObject = JObject.Load(messageReader);
 
             // Return the parsed message
             return this.messageSerializer.DeserializeMessage(messageObject);
