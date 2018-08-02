@@ -4559,14 +4559,29 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
         }
 
-        public static string StopSessionFailed(String error)
+        public static string CreateSessionFailed(String error)
         {
-            return Keys.GetString(Keys.StopSessionFailed, error);
+            return Keys.GetString(Keys.CreateSessionFailed, error);
         }
 
         public static string StartSessionFailed(String error)
         {
             return Keys.GetString(Keys.StartSessionFailed, error);
+        }
+
+        public static string PauseSessionFailed(String error)
+        {
+            return Keys.GetString(Keys.PauseSessionFailed, error);
+        }
+
+        public static string StopSessionFailed(String error)
+        {
+            return Keys.GetString(Keys.StopSessionFailed, error);
+        }
+
+        public static string SessionAlreadyExists(String sessionName)
+        {
+            return Keys.GetString(Keys.SessionAlreadyExists, sessionName);
         }
 
         public static string EnableAlertsTitle(String serverName)
@@ -6176,13 +6191,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string AzureSystemDbProfilingError = "AzureSystemDbProfilingError";
 
 
-            public const string StopSessionFailed = "StopSessionFailed";
+            public const string CreateSessionFailed = "CreateSessionFailed";
 
 
             public const string StartSessionFailed = "StartSessionFailed";
 
 
+            public const string PauseSessionFailed = "PauseSessionFailed";
+
+
+            public const string StopSessionFailed = "StopSessionFailed";
+
+
             public const string SessionNotFound = "SessionNotFound";
+
+
+            public const string SessionAlreadyExists = "SessionAlreadyExists";
 
 
             public const string EnableAlertsTitle = "EnableAlertsTitle";

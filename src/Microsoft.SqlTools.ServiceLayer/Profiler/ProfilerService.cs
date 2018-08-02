@@ -110,11 +110,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
+            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
             this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
+            this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
 
             this.SessionMonitor.AddSessionListener(this);
+        }
+
+        /// <summary>
+        /// Handle request to start a profiling session
+        /// </summary>
+        internal async Task HandleCreateXEventSessionRequest(CreateXEventSessionParams parameters, RequestContext<CreateXEventSessionResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+                if (connInfo == null)
+                {
+                    throw new Exception(SR.ProfilerConnectionNotFound);
+                }
+                else if (parameters.SessionName == null)
+                {
+                    throw new ArgumentNullException("SessionName");
+                }
+                else if (parameters.Template == null)
+                {
+                    throw new ArgumentNullException("Template");
+                }
+                else
+                {
+                    // create a new XEvent session and Profiler session
+                    var xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
+                    // start monitoring the profiler session
+                    monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+
+                    var result = new CreateXEventSessionResult();
+                    await requestContext.SendResult(result);
+                    
+                    SessionCreatedNotification(parameters.OwnerUri, parameters.SessionName, parameters.Template.Name);
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+            }
         }
 
         /// <summary>
@@ -124,25 +168,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             try
             {
-                var result = new StartProfilingResult();
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     parameters.OwnerUri,
                     out connInfo);
-
                 if (connInfo != null)
                 {
-                    int xEventSessionId = StartSession(parameters.OwnerUri, parameters.TemplateName, connInfo);
-                    result.SessionId = xEventSessionId.ToString();
-                    result.Succeeded = true;
+                    // create a new XEvent session and Profiler session
+                    var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                    // start monitoring the profiler session
+                    monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+
+                    var result = new StartProfilingResult();
+                    await requestContext.SendResult(result);
                 }
                 else
                 {
-                    result.Succeeded = false;
-                    result.ErrorMessage = SR.ProfilerConnectionNotFound;
+                    throw new Exception(SR.ProfilerConnectionNotFound);
                 }
-
-                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
@@ -160,13 +203,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 ProfilerSession session;
                 monitor.StopMonitoringSession(parameters.OwnerUri, out session);
 
-                if (session == null)
+                if (session != null)
+                {
+                    session.XEventSession.Stop();
+                    await requestContext.SendResult(new StopProfilingResult{});
+                }
+                else
                 {
                     throw new Exception(SR.SessionNotFound);
                 }
-
-                session.XEventSession.Stop();
-                await requestContext.SendResult(new StopProfilingResult{});
             }
             catch (Exception e)
             {
@@ -187,26 +232,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e);
+                await requestContext.SendError(new Exception(SR.PauseSessionFailed(e.Message)));
             }
         }
 
         /// <summary>
-        /// Starts a new profiler session or connects to an existing session
-        /// for the provided connection and template info
+        /// Handle request to pause a profiling session
+        /// </summary>
+        internal async Task HandleGetXEventSessionsRequest(GetXEventSessionsParams parameters, RequestContext<GetXEventSessionsResult> requestContext)
+        {
+            try
+            { 
+                var result = new GetXEventSessionsResult(); 
+                ConnectionInfo connInfo; 
+                ConnectionServiceInstance.TryFindConnection( 
+                    parameters.OwnerUri, 
+                    out connInfo); 
+                if (connInfo == null)
+                {
+                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                }
+                else
+                {
+                    List<string> sessions = GetXEventSessionList(parameters.OwnerUri, connInfo); 
+                    result.Sessions = sessions; 
+                    await requestContext.SendResult(result); 
+                }
+            } 
+            catch (Exception e) 
+            { 
+                await requestContext.SendError(e); 
+            } 
+        }
+
+        /// <summary>
+        /// Gets a list of all running XEvent Sessions
         /// </summary>
         /// <returns>
-        /// The XEvent Session Id that was started
+        /// A list of the names of all running XEvent sessions
         /// </returns>
-        internal int StartSession(string ownerUri, string template, ConnectionInfo connInfo)
+        internal List<string> GetXEventSessionList(string ownerUri, ConnectionInfo connInfo)
         {
-            // create a new XEvent session and Profiler session
-            var xeSession = this.XEventSessionFactory.GetOrCreateXEventSession(template, connInfo);
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo); 
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection); 
+            BaseXEStore store = CreateXEventStore(connInfo, connection); 
 
-            // start monitoring the profiler session
-            monitor.StartMonitoringSession(ownerUri, xeSession);
+            // get session names from the session list
+            List<string> results = store.Sessions.Aggregate(new List<string>(), (result, next) => { 
+                result.Add(next.Name); 
+                return result; 
+            } ); 
 
-            return xeSession.Id;
+            return results;
         }
 
         private static BaseXEStore CreateXEventStore(ConnectionInfo connInfo, SqlStoreConnection connection)
@@ -228,13 +305,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Gets or creates an XEvent session with the given template per the IXEventSessionFactory contract
+        /// Gets an XEvent session with the given name per the IXEventSessionFactory contract
         /// Also starts the session if it isn't currently running
         /// </summary>
-        public IXEventSession GetOrCreateXEventSession(string template, ConnectionInfo connInfo)
+        public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
         {
-            string sessionName = "Profiler";
-
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
@@ -243,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // start the session if it isn't already running
             if (session == null)
             {
-                session = CreateSession(connInfo, connection, sessionName);
+                throw new Exception(SR.SessionNotFound);
             }
 
             if (session != null && !session.IsRunning)
@@ -258,60 +333,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             };
         }
 
-        private static Session CreateSession(ConnectionInfo connInfo, SqlStoreConnection connection, string sessionName)
-        {            
-            string createSessionSql =
-                @"
-                CREATE EVENT SESSION [Profiler] ON SERVER
-                ADD EVENT sqlserver.attention(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.existing_connection(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.nt_username,sqlserver.server_principal_name,sqlserver.session_id)),
-                ADD EVENT sqlserver.login(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.nt_username,sqlserver.server_principal_name,sqlserver.session_id)),
-                ADD EVENT sqlserver.logout(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.nt_username,sqlserver.server_principal_name,sqlserver.session_id)),
-                ADD EVENT sqlserver.rpc_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_starting(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.nt_username,sqlserver.query_hash,sqlserver.server_principal_name,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0))))
-                ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
-                WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
-
-            string createAzureSessionSql =
-                @"
-                CREATE EVENT SESSION [Profiler] ON DATABASE
-                ADD EVENT sqlserver.attention(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.existing_connection(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
-                ADD EVENT sqlserver.login(SET collect_options_text=(1)
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
-                ADD EVENT sqlserver.logout(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.username,sqlserver.session_id)),
-                ADD EVENT sqlserver.rpc_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_completed(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0)))),
-                ADD EVENT sqlserver.sql_batch_starting(
-                    ACTION(package0.event_sequence,sqlserver.client_app_name,sqlserver.client_pid,sqlserver.database_id,sqlserver.username,sqlserver.query_hash,sqlserver.session_id)
-                    WHERE ([package0].[equal_boolean]([sqlserver].[is_system],(0))))
-                ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
-                WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)";
-
-            string createStatement = connInfo.IsCloud ? createAzureSessionSql : createSessionSql;
-            connection.ServerConnection.ExecuteNonQuery(createStatement);
+        /// <summary>
+        /// Creates and starts an XEvent session with the given name and create statement per the IXEventSessionFactory contract
+        /// </summary>
+        public IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+            SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
-            return store.Sessions[sessionName];
+            Session session = store.Sessions[sessionName];
+
+            // session shouldn't already exist
+            if (session != null)
+            {
+                throw new Exception(SR.SessionAlreadyExists(sessionName));
+            }
+            
+            var statement = createStatement.Replace("{sessionName}",sessionName);
+            connection.ServerConnection.ExecuteNonQuery(statement);
+            store.Refresh();
+            session = store.Sessions[sessionName];
+            if (session == null){
+                throw new Exception(SR.SessionNotFound);
+            }
+            if (!session.IsRunning)
+            {
+                session.Start();
+            }
+
+            // create xevent session wrapper
+            return new XEventSession()
+            {
+                Session = store.Sessions[sessionName]
+            };
         }
 
         /// <summary>
@@ -342,6 +396,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     OwnerUri = viewerId,
                     SessionId = sessionId
+                });
+        }
+
+        /// <summary>
+        /// Callback when a new session is created
+        /// </summary>
+        public void SessionCreatedNotification(string viewerId, string sessionName, string templateName)
+        {
+            // pass the profiler events on to the client
+            this.ServiceHost.SendEvent(
+                ProfilerSessionCreatedNotification.Type,
+                new ProfilerSessionCreatedParams()
+                {
+                    OwnerUri = viewerId,
+                    SessionName = sessionName,
+                    TemplateName = templateName
                 });
         }
 

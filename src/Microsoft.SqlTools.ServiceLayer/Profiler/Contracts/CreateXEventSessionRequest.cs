@@ -12,25 +12,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// <summary>
     /// Start Profiling request parameters
     /// </summary>
-    public class StartProfilingParams : GeneralRequestDetails
+    public class CreateXEventSessionParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
 
         public string SessionName { get; set; }
+
+        public ProfilerSessionTemplate Template { get; set; }
     }
 
-    public class StartProfilingResult{}
+    public class CreateXEventSessionResult{}
 
     /// <summary>
     /// Start Profile request type
     /// </summary>
-    public class StartProfilingRequest
+    public class CreateXEventSessionRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<StartProfilingParams, StartProfilingResult> Type =
-            RequestType<StartProfilingParams, StartProfilingResult>.Create("profiler/start");
+            RequestType<CreateXEventSessionParams, CreateXEventSessionResult> Type =
+            RequestType<CreateXEventSessionParams, CreateXEventSessionResult>.Create("profiler/createsession");
     }
 }
