@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
                     .Returns<StartProfilingResult>((result) =>
                     {
                         // capture the session id for sending the stop message
-                        //sessionId = result.SessionId;
                         return Task.FromResult(0);
                     });
 
