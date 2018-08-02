@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
     <PackageReference Include="Microsoft.SqlServer.Management.XEvent" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventEnum" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScoped" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17279.0-xplat" />
