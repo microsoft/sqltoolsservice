@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.SqlServer.Management.XEvent" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.XEventEnum" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScoped" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScopedEnum" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17279.0-xplat" />
     <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="140.17279.0-xplat" />  
