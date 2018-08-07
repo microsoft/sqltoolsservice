@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageDescription>
+    Defines the core messages needed for the Microsoft.SqlTools.Hosting service to communicate over the VSCode Language Server Protocol.
+    </PackageDescription>
+    <Description>$(PackageDescription)</Description>
+  </PropertyGroup>
+  <Import Project="..\sqltools.common.targets" />
+</Project>
