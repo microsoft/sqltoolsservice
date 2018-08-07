@@ -13,9 +13,9 @@
     <Authors>Microsoft</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageLicenseUrl>https://docs.microsoft.com/sql/relational-databases/server-management-objects-smo/smo-license-terms</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/Microsoft/sqltoolsservice/blob/master/license.txt</PackageLicenseUrl>
     <PackageIconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</PackageIconUrl>
-    <PackageProjectUrl>https://docs.microsoft.com/sql/relational-databases/server-management-objects-smo/overview-smo</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice/</PackageProjectUrl>
     <PackageTags>SQL XPLAT</PackageTags>
   </PropertyGroup>
 </Project>
