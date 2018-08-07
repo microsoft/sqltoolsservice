@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlTools.Hosting.v2;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {
