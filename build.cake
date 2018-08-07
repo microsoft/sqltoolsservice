@@ -48,6 +48,7 @@ public class BuildPlan
     public string[] Frameworks { get; set; }
     public string[] Rids { get; set; }
     public string[] MainProjects { get; set; }
+    public string[] PackageProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -65,6 +66,7 @@ var artifactFolder = System.IO.Path.Combine(workingDirectory, buildPlan.Artifact
 var publishFolder = System.IO.Path.Combine(artifactFolder, "publish");
 var logFolder = System.IO.Path.Combine(artifactFolder, "logs");
 var packageFolder = System.IO.Path.Combine(artifactFolder, "package");
+var nugetPackageFolder = System.IO.Path.Combine(artifactFolder, "nugetPackages");
 var scriptFolder =  System.IO.Path.Combine(artifactFolder, "scripts");
 
 /// <summary>
@@ -226,7 +228,30 @@ Task("BuildTest")
         }
     }
 });
-
+/// <summary>
+///  Build Test projects.
+/// </summary>
+Task("DotnetPack")
+    .IsDependentOn("Cleanup")
+    .IsDependentOn("Setup")
+    .IsDependentOn("Restore")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.PackageProjects)
+    {
+        // For now, putting all nugets in the 1 directory
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        var runLog = new List<string>();
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
+            new RunOptions
+            {
+                StandardOutputListing = runLog
+            })
+        .ExceptionOnError($"Packaging test {project} failed.");
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-pack.log"), runLog.ToArray());
+    }
+});
 /// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
 /// </summary>
@@ -477,6 +502,7 @@ Task("All")
     .IsDependentOn("Restore")
     .IsDependentOn("TestAll")
     .IsDependentOn("AllPublish")
+    .IsDependentOn("DotnetPack")
     //.IsDependentOn("TestPublished")
     .Does(() =>
 {

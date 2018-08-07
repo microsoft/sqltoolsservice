@@ -20,5 +20,11 @@
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.Serialization",
     "Microsoft.SqlTools.ResourceProvider"
+  ],
+  "PackageProjects": [
+    "Microsoft.SqlTools.CoreServices",
+    "Microsoft.SqlTools.DataProtocol.Contracts",
+    "Microsoft.SqlTools.Hosting.Contracts",
+    "Microsoft.SqlTools.Hosting.v2"
   ]
 }
