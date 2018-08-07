@@ -400,7 +400,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
     public class TestXEventSessionFactory : IXEventSessionFactory
     {
         private int sessionNum = 1;
-        public IXEventSession GetOrCreateXEventSession(string template, ConnectionInfo connInfo)
+        public IXEventSession GetXEventSession(string sessionName, ConnectionInfo connInfo)
+        {
+            if(sessionNum == 1)
+            {
+                sessionNum = 2;
+                return new TestXEventSession1();
+            }
+            else
+            {
+                sessionNum = 1;
+                return new TestXEventSession2();
+            }
+        }
+
+        public IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo)
         {
             if(sessionNum == 1)
             {

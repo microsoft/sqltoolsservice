@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -12,25 +13,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     /// <summary>
     /// Start Profiling request parameters
     /// </summary>
-    public class StartProfilingParams : GeneralRequestDetails
+    public class GetXEventSessionsParams : GeneralRequestDetails
     {
         public string OwnerUri { get; set; }
-
-        public string SessionName { get; set; }
     }
 
-    public class StartProfilingResult{}
+    public class GetXEventSessionsResult
+    {
+        /// <summary>
+        /// Session ID that was started
+        /// </summary>
+        public List<string> Sessions { get; set; }
+    }
 
     /// <summary>
     /// Start Profile request type
     /// </summary>
-    public class StartProfilingRequest
+    public class GetXEventSessionsRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<StartProfilingParams, StartProfilingResult> Type =
-            RequestType<StartProfilingParams, StartProfilingResult>.Create("profiler/start");
+            RequestType<GetXEventSessionsParams, GetXEventSessionsResult> Type =
+            RequestType<GetXEventSessionsParams, GetXEventSessionsResult>.Create("profiler/getsessions");
     }
 }
