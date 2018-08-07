@@ -248,7 +248,7 @@ Task("DotnetPack")
             {
                 StandardOutputListing = runLog
             })
-        .ExceptionOnError($"Packaging test {project} failed.");
+        .ExceptionOnError($"Packaging {project} failed.");
         System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-pack.log"), runLog.ToArray());
     }
 });
@@ -501,8 +501,8 @@ Task("All")
     .IsDependentOn("Cleanup")
     .IsDependentOn("Restore")
     .IsDependentOn("TestAll")
-    .IsDependentOn("AllPublish")
     .IsDependentOn("DotnetPack")
+    .IsDependentOn("AllPublish")
     //.IsDependentOn("TestPublished")
     .Does(() =>
 {

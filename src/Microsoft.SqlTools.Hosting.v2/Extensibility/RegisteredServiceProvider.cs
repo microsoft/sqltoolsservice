@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Hosting.v2;
 
 namespace Microsoft.SqlTools.Hosting.Extensibility
 {

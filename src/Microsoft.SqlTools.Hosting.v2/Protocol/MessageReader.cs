@@ -9,6 +9,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Hosting.v2;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {

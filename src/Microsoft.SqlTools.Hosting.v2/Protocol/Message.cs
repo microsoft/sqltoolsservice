@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Contracts.Internal;
+using Microsoft.SqlTools.Hosting.v2;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;

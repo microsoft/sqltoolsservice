@@ -13,6 +13,7 @@ using Microsoft.SqlTools.Hosting.Channels;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Contracts.Internal;
 using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Hosting.v2;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {
