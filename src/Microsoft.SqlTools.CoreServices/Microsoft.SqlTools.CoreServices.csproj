@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackageId>Microsoft.SqlTools.CoreServices</PackageId>
     <AssemblyName>Microsoft.SqlTools.CoreServices</AssemblyName>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
@@ -14,7 +14,7 @@
     <Description>$(PackageDescription)</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SqlServer.Smo.NetStandard" Version="140.2.9" />
+    <PackageReference Include="Microsoft.SqlServer.Smo" Version="140.2.10" />
     <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.4" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
