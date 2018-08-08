@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Common.Props" />
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
@@ -19,13 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEvent" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEventEnum" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScoped" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScopedEnum" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="140.17279.0-xplat" />  
+    <PackageReference Include="Microsoft.SqlServer.Management.XEvent" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventEnum" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScoped" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScopedEnum" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="$(SmoPackageVersion)" />  
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview2-26406-04" />
   </ItemGroup>
   <ItemGroup>
