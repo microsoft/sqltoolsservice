@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using Microsoft.SqlTools.Hosting.Contracts.Internal;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Xunit;
@@ -26,8 +27,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             rc.SendResult(CommonObjects.TestMessageContents.DefaultInstance);
 
             // Then: The message writer should have sent a response
-            Assert.Equal(1, bc.ToArray().Length);
-            Assert.Equal(MessageType.Response, bc.ToArray()[0].MessageType);
+            Assert.Single(bc);
+            Assert.Equal(MessageType.Response, bc.First().MessageType);
         }
 
         [Fact]
@@ -41,8 +42,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             rc.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance);
             
             // Then: The message writer should have sent an event
-            Assert.Equal(1, bc.ToArray().Length);
-            Assert.Equal(MessageType.Event, bc.ToArray()[0].MessageType);
+            Assert.Single(bc);
+            Assert.Equal(MessageType.Event, bc.First().MessageType);
         }
 
         [Fact]
@@ -59,8 +60,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: 
             // ... The message writer should have sent an error
-            Assert.Equal(1, bc.ToArray().Length);
-            Assert.Equal(MessageType.ResponseError, bc.ToArray()[0].MessageType);
+            Assert.Single(bc);
+            Assert.Equal(MessageType.ResponseError, bc.First().MessageType);
             
             // ... The error object it built should have the reuired fields set
             var contents = bc.ToArray()[0].GetTypedContents<Error>();
@@ -82,11 +83,12 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: 
             // ... The message writer should have sent an error
-            Assert.Equal(1, bc.ToArray().Length);
-            Assert.Equal(MessageType.ResponseError, bc.ToArray()[0].MessageType);
+            Assert.Single(bc);
+            var firstMessage = bc.First();
+            Assert.Equal(MessageType.ResponseError, firstMessage.MessageType);
             
             // ... The error object it built should have the reuired fields set
-            var contents = bc.ToArray()[0].GetTypedContents<Error>();
+            var contents = firstMessage.GetTypedContents<Error>();
             Assert.Equal(e.HResult, contents.Code);
             Assert.Equal(errorMessage, contents.Message);
             

@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ExtensibilityTests
             var services = provider.GetServices<MyProviderService>();
             // Then I expect empty enumerable to be returned
             Assert.NotNull(services);
-            Assert.Equal(0, services.Count());
+            Assert.Empty(services);
         }
 
         [Fact]
