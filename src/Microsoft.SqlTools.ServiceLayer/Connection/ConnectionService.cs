@@ -952,6 +952,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
             serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
+            serviceHost.SetRequestHandler(SerializeConnectionStringRequest.Type, HandleSerializeConnectionStringRequest);
         }
 
         /// <summary> 
@@ -1285,6 +1286,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
 
                 await requestContext.SendResult(connectionString);
+            });
+        }
+
+        /// <summary>
+        /// Handles a request to serialize a connection string
+        /// </summary>
+        public async Task HandleSerializeConnectionStringRequest(
+            string connectionString,
+            RequestContext<ConnectionDetails> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try {
+                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+                    ConnectionDetails details = new ConnectionDetails(){
+                        ApplicationIntent = builder.ApplicationIntent.ToString(),
+                        ApplicationName = builder.ApplicationName,
+                        AttachDbFilename = builder.AttachDBFilename,
+                        AuthenticationType = builder.IntegratedSecurity ? "Integrated" : "SqlLogin",
+                        ConnectRetryCount = builder.ConnectRetryCount,
+                        ConnectRetryInterval = builder.ConnectRetryInterval,
+                        ConnectTimeout = builder.ConnectTimeout,
+                        CurrentLanguage = builder.CurrentLanguage,
+                        DatabaseName = builder.InitialCatalog,
+                        Encrypt = builder.Encrypt,
+                        FailoverPartner = builder.FailoverPartner,
+                        LoadBalanceTimeout = builder.LoadBalanceTimeout,
+                        MaxPoolSize = builder.MaxPoolSize,
+                        MinPoolSize = builder.MinPoolSize,
+                        MultipleActiveResultSets = builder.MultipleActiveResultSets,
+                        MultiSubnetFailover = builder.MultiSubnetFailover,
+                        PacketSize = builder.PacketSize,
+                        Password = !builder.IntegratedSecurity ? builder.Password : "",
+                        PersistSecurityInfo = builder.PersistSecurityInfo,
+                        Pooling = builder.Pooling,
+                        Replication = builder.Replication,
+                        ServerName = builder.DataSource,
+                        TrustServerCertificate = builder.TrustServerCertificate,
+                        TypeSystemVersion = builder.TypeSystemVersion,
+                        UserName = builder.UserID,
+                        WorkstationId = builder.WorkstationID,
+                    };
+                    await requestContext.SendResult(details);
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e.ToString());
+                }
             });
         }
 
