@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler.Object);
             
             // Then: It should be the only request handler set
-            Assert.Equal(1, jh.requestHandlers.Count);
+            Assert.Single(jh.requestHandlers);
             Assert.Contains(CommonObjects.RequestType.MethodName, jh.requestHandlers.Keys);
             
             // If: I call the stored request handler
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetRequestHandler(CommonObjects.RequestType, requestHandler.Object);
             
             // Then: It should be the only request handler set
-            Assert.Equal(1, jh.requestHandlers.Count);
+            Assert.Single(jh.requestHandlers);
             Assert.Contains(CommonObjects.RequestType.MethodName, jh.requestHandlers.Keys);
             
             // If: I call the stored request handler
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler2.Object, true);
 
             // Then: There should only be one request handler
-            Assert.Equal(1, jh.requestHandlers.Count);
+            Assert.Single(jh.requestHandlers);
             Assert.Contains(CommonObjects.RequestType.MethodName, jh.requestHandlers.Keys);
 
             // If: I call the stored request handler
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler.Object);
             
             // Then: It should be the only event handler set
-            Assert.Equal(1, jh.eventHandlers.Count);
+            Assert.Single(jh.eventHandlers);
             Assert.Contains(CommonObjects.EventType.MethodName, jh.eventHandlers.Keys);
             
             // If: I call the stored event handler
@@ -248,7 +248,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetEventHandler(CommonObjects.EventType, eventHandler.Object);
             
             // Then: It should be the only event handler set
-            Assert.Equal(1, jh.eventHandlers.Count);
+            Assert.Single(jh.eventHandlers);
             Assert.Contains(CommonObjects.EventType.MethodName, jh.eventHandlers.Keys);
             
             // If: I call the stored event handler
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler2.Object, true);
             
             // Then: There should only be one event handler
-            Assert.Equal(1, jh.eventHandlers.Count);
+            Assert.Single(jh.eventHandlers);
             Assert.Contains(CommonObjects.EventType.MethodName, jh.eventHandlers.Keys);
             
             // If: I call the stored event handler
@@ -336,7 +336,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance);
             
             // Then: The message should be added to the output queue
-            Assert.Equal(1, jh.outputQueue.ToArray().Length);
+            Assert.Single(jh.outputQueue.ToArray());
             var m = jh.outputQueue.ToArray()[0];
             Assert.Equal(CommonObjects.TestMessageContents.SerializedContents, m.Contents);
             Assert.Equal(CommonObjects.EventType.MethodName, m.Method);
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Task<CommonObjects.TestMessageContents> requestTask = jh.SendRequest(CommonObjects.RequestType, CommonObjects.TestMessageContents.DefaultInstance);
             
             // Then: There should be a pending request
-            Assert.Equal(1, jh.pendingRequests.Count);
+            Assert.Single(jh.pendingRequests);
             
             // If: I then trick it into completing the request
             jh.pendingRequests.First().Value.SetResult(CommonObjects.ResponseMessage);
@@ -610,7 +610,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // ... There should be an outgoing message with the error
             var outgoing = jh.outputQueue.ToArray();
-            Assert.Equal(1, outgoing.Length);
+            Assert.Single(outgoing);
             Assert.Equal(MessageType.ResponseError, outgoing[0].MessageType);
             Assert.Equal(CommonObjects.MessageId, outgoing[0].Id);
             Assert.Equal(-32601, outgoing[0].Contents.Value<int>("code"));
@@ -643,7 +643,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // ... There should not be any outgoing messages
             var outgoing = jh.outputQueue.ToArray();
-            Assert.Equal(0, outgoing.Length);
+            Assert.Empty(outgoing);
         }
         
         #endregion

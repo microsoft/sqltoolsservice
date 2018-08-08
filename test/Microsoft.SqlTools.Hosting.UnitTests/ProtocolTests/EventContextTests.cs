@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             eventContext.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance);
             
             // Then: The message should be added to the queue
-            Assert.Equal(1, bc.ToArray().Length);
+            Assert.Single(bc.ToArray());
             Assert.Equal(MessageType.Event, bc.ToArray()[0].MessageType);
         }
     }

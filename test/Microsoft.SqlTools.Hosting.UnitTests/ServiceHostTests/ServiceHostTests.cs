@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             
             // ... There should have been a response sent
             var outgoing = bc.ToArray();
-            Assert.Equal(1, outgoing.Length);
+            Assert.Single(outgoing);
             Assert.Equal(CommonObjects.MessageId, outgoing[0].Id);
             Assert.Equal(JToken.FromObject(ir), JToken.FromObject(ir));
         }
@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             mockHandler.Verify(h => h(shutdownParams, mockContext), Times.Exactly(2));
             
             // ... There should have been a response sent
-            Assert.Equal(1, bc.ToArray().Length); 
+            Assert.Single(bc); 
         }
         
         #endregion
