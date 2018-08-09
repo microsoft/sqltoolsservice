@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Common.props" />
   <PropertyGroup Label="Configuration">
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <IsPackable>false</IsPackable>
     <ApplicationIcon />
     <StartupObject />
@@ -14,9 +15,9 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview2-26406-04" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="140.17279.0-xplat" />
-    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="140.17279.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="$(SmoPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
