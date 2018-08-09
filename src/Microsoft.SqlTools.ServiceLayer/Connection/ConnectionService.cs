@@ -1304,7 +1304,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e.ToString());
+                    // If theres an error in the parse, it means we just can't parse, so we return undefined
+                    // rather than an error.
+                    await requestContext.SendResult(null);
                 }
             });
         }
