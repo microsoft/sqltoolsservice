@@ -1298,43 +1298,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             await Task.Run(async () =>
             {
-                try {
-                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-                    ConnectionDetails details = new ConnectionDetails(){
-                        ApplicationIntent = builder.ApplicationIntent.ToString(),
-                        ApplicationName = builder.ApplicationName,
-                        AttachDbFilename = builder.AttachDBFilename,
-                        AuthenticationType = builder.IntegratedSecurity ? "Integrated" : "SqlLogin",
-                        ConnectRetryCount = builder.ConnectRetryCount,
-                        ConnectRetryInterval = builder.ConnectRetryInterval,
-                        ConnectTimeout = builder.ConnectTimeout,
-                        CurrentLanguage = builder.CurrentLanguage,
-                        DatabaseName = builder.InitialCatalog,
-                        Encrypt = builder.Encrypt,
-                        FailoverPartner = builder.FailoverPartner,
-                        LoadBalanceTimeout = builder.LoadBalanceTimeout,
-                        MaxPoolSize = builder.MaxPoolSize,
-                        MinPoolSize = builder.MinPoolSize,
-                        MultipleActiveResultSets = builder.MultipleActiveResultSets,
-                        MultiSubnetFailover = builder.MultiSubnetFailover,
-                        PacketSize = builder.PacketSize,
-                        Password = !builder.IntegratedSecurity ? builder.Password : "",
-                        PersistSecurityInfo = builder.PersistSecurityInfo,
-                        Pooling = builder.Pooling,
-                        Replication = builder.Replication,
-                        ServerName = builder.DataSource,
-                        TrustServerCertificate = builder.TrustServerCertificate,
-                        TypeSystemVersion = builder.TypeSystemVersion,
-                        UserName = builder.UserID,
-                        WorkstationId = builder.WorkstationID,
-                    };
-                    await requestContext.SendResult(details);
+                try
+                {
+                    await requestContext.SendResult(ParseConnectionString(connectionString));
                 }
                 catch (Exception e)
                 {
                     await requestContext.SendError(e.ToString());
                 }
             });
+        }
+
+        public ConnectionDetails ParseConnectionString(string connectionString)
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+            ConnectionDetails details = new ConnectionDetails(){
+                ApplicationIntent = builder.ApplicationIntent.ToString(),
+                ApplicationName = builder.ApplicationName,
+                AttachDbFilename = builder.AttachDBFilename,
+                AuthenticationType = builder.IntegratedSecurity ? "Integrated" : "SqlLogin",
+                ConnectRetryCount = builder.ConnectRetryCount,
+                ConnectRetryInterval = builder.ConnectRetryInterval,
+                ConnectTimeout = builder.ConnectTimeout,
+                CurrentLanguage = builder.CurrentLanguage,
+                DatabaseName = builder.InitialCatalog,
+                Encrypt = builder.Encrypt,
+                FailoverPartner = builder.FailoverPartner,
+                LoadBalanceTimeout = builder.LoadBalanceTimeout,
+                MaxPoolSize = builder.MaxPoolSize,
+                MinPoolSize = builder.MinPoolSize,
+                MultipleActiveResultSets = builder.MultipleActiveResultSets,
+                MultiSubnetFailover = builder.MultiSubnetFailover,
+                PacketSize = builder.PacketSize,
+                Password = !builder.IntegratedSecurity ? builder.Password : "",
+                PersistSecurityInfo = builder.PersistSecurityInfo,
+                Pooling = builder.Pooling,
+                Replication = builder.Replication,
+                ServerName = builder.DataSource,
+                TrustServerCertificate = builder.TrustServerCertificate,
+                TypeSystemVersion = builder.TypeSystemVersion,
+                UserName = builder.UserID,
+                WorkstationId = builder.WorkstationID,
+            };
+
+            return details;
         }
 
         /// <summary>
