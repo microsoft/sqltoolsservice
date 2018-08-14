@@ -151,11 +151,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 // Use the right read function for the type to read the data from the file
                 ReadMethod readFunc;
-                if(!readMethods.TryGetValue(colType, out readFunc))
+                if (!readMethods.TryGetValue(colType, out readFunc))
                 {
                     // Treat everything else as a string
                     readFunc = readMethods[typeof(string)];
-                } 
+                }
                 FileStreamReadResult result = readFunc(currentFileOffset, rowId, column);
                 currentFileOffset += result.TotalLength;
                 results.Add(result.Value);
@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             bool setInvariantCultureDisplayValue = false)
         {
             LengthResult length = ReadLength(offset);
-            DbCellValue result = new DbCellValue {RowId = rowId};
+            DbCellValue result = new DbCellValue { RowId = rowId };
 
             if (isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength))
             {
@@ -218,13 +218,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
-                if(setInvariantCultureDisplayValue)
+                if (setInvariantCultureDisplayValue)
                 {
-                    string icDisplayValue = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}", result.RawObject);                    
-                    
+                    string icDisplayValue = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}", result.RawObject);
+
                     // Only set the value when it is different from the DisplayValue to reduce the size of the result
                     //
-                    if(icDisplayValue != result.DisplayValue)
+                    if (icDisplayValue != result.DisplayValue)
                     {
                         result.InvariantCultureDisplayValue = icDisplayValue;
                     }
@@ -415,7 +415,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
-            return ReadCellHelper(offset, rowId, length => {
+            return ReadCellHelper(offset, rowId, length =>
+            {
                 long dtTicks = BitConverter.ToInt64(buffer, 0);
                 long dtOffset = BitConverter.ToInt64(buffer, 8);
                 return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset));
