@@ -23,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsNull { get; set; }
 
         /// <summary>
+        /// Culture invariant display value for the cell, this value can later be used by the client to convert back to the original value.
+        /// </summary>
+        public string InvariantCultureDisplayValue { get; set; }
+
+        /// <summary>
         /// The raw object for the cell, for use internally
         /// </summary>
         internal object RawObject { get; set; }
@@ -42,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             Validate.IsNotNull(nameof(other), other);
 
             other.DisplayValue = DisplayValue;
+            other.InvariantCultureDisplayValue = InvariantCultureDisplayValue;
             other.IsNull = IsNull;
             other.RawObject = RawObject;
             other.RowId = RowId;
