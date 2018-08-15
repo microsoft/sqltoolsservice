@@ -15,9 +15,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview2-26406-04" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
