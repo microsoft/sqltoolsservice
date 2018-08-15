@@ -14,27 +14,57 @@ namespace Microsoft.SqlTools.Utility
     /// <summary>
     /// Defines the level indicators for log messages.
     /// </summary>
+    [Flags]
     public enum LogLevel
     {
-        /// <summary>
-        /// Indicates a verbose log message.
-        /// </summary>
-        Verbose,
 
         /// <summary>
-        /// Indicates a normal, non-verbose log message.
+        /// Allows all events through.
         /// </summary>
-        Information,
+        All = -1,
 
         /// <summary>
-        /// Indicates a warning message.
+        /// Does not allow any events through.
         /// </summary>
-        Warning,
+        Off = 0,
 
         /// <summary>
-        /// Indicates an error message.
+        Allows only System.Diagnostics.TraceEventType.Critical events through.
         /// </summary>
-        Error
+        Critical = 1,
+
+        /// <summary>
+        /// Allows System.Diagnostics.TraceEventType.Critical and System.Diagnostics.TraceEventType.Error
+        /// events through.
+        /// </summary>
+        Error = 3,
+
+        /// <summary>
+        /// Allows System.Diagnostics.TraceEventType.Critical, System.Diagnostics.TraceEventType.Error,
+        /// and System.Diagnostics.TraceEventType.Warning events through.
+        /// </summary>
+        Warning = 7,
+
+        /// <summary>
+        /// Allows System.Diagnostics.TraceEventType.Critical, System.Diagnostics.TraceEventType.Error,
+        /// System.Diagnostics.TraceEventType.Warning, and System.Diagnostics.TraceEventType.Information
+        /// events through.
+        /// </summary>
+        Information = 15,
+
+        /// <summary>
+        /// Allows System.Diagnostics.TraceEventType.Critical, System.Diagnostics.TraceEventType.Error,
+        /// System.Diagnostics.TraceEventType.Warning, System.Diagnostics.TraceEventType.Information,
+        /// and System.Diagnostics.TraceEventType.Verbose events through.
+        /// </summary>
+        Verbose = 31,
+
+        /// <summary>
+        /// Allows the System.Diagnostics.TraceEventType.Stop, System.Diagnostics.TraceEventType.Start,
+        /// System.Diagnostics.TraceEventType.Suspend, System.Diagnostics.TraceEventType.Transfer,
+        /// and System.Diagnostics.TraceEventType.Resume events through.
+        /// </summary>
+        ActivityTracing = 65280
     }
 
     /// <summary>
@@ -43,6 +73,8 @@ namespace Microsoft.SqlTools.Utility
     /// </summary>
     public static class Logger
     {
+        private static TraceSource traceSource;
+
         private static LogWriter logWriter;
 
         private static bool isEnabled;
@@ -60,6 +92,7 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public static void Initialize(
             string logFilePath = "sqltools",
+            string source = "sqltools",
             LogLevel minimumLogLevel = LogLevel.Information,
             bool isEnabled = true)
         {
