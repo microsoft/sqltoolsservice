@@ -21,107 +21,122 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task HoverTestOnPrem()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                const string query = Scripts.TestDbSimpleSelectQuery;
-                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
-                Hover hover = await testService.CalculateRunTime(() => testService.RequestHover(queryTempFile.FilePath, query, 0, Scripts.TestDbComplexSelectQueries.Length + 1), true);
-                Assert.NotNull(hover);
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+                TestServerType serverType = TestServerType.OnPrem;
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                {
+                    const string query = Scripts.TestDbSimpleSelectQuery;
+                    await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                    await ValidateCompletionResponse(testService, queryTempFile.FilePath, Common.PerfTestDatabaseName, waitForIntelliSense: true);
+                    Hover hover = await testService.CalculateRunTime(() => testService.RequestHover(queryTempFile.FilePath, query, 0, Scripts.TestDbComplexSelectQueries.Length + 1), timer);
+                    Assert.NotNull(hover);
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task SuggestionsTest()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                const string query = Scripts.TestDbSimpleSelectQuery;
-                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
-                await ValidateCompletionResponse(testService, queryTempFile.FilePath, false, Common.PerfTestDatabaseName, true);
-                await ValidateCompletionResponse(testService, queryTempFile.FilePath, true, Common.PerfTestDatabaseName, false);
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+                TestServerType serverType = TestServerType.OnPrem;
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                {
+                    const string query = Scripts.TestDbSimpleSelectQuery;
+                    await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                    await ValidateCompletionResponse(testService, queryTempFile.FilePath, Common.PerfTestDatabaseName, timer: null, waitForIntelliSense: true);
+                    await ValidateCompletionResponse(testService, queryTempFile.FilePath, Common.PerfTestDatabaseName, timer: timer, waitForIntelliSense: false);
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task DiagnosticsTests()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-            SqlTestDb.CreateNew(serverType, doNotCleanupDb: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
-
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                await testService.ConnectForQuery(serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                TestServerType serverType = TestServerType.OnPrem;
+                SqlTestDb.CreateNew(serverType, doNotCleanupDb: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
 
-                Thread.Sleep(500);
-                var contentChanges = new TextDocumentChangeEvent[1];
-                contentChanges[0] = new TextDocumentChangeEvent()
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
                 {
-                    Range = new Range
+                    await testService.ConnectForQuery(serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+
+                    Thread.Sleep(500);
+                    var contentChanges = new TextDocumentChangeEvent[1];
+                    contentChanges[0] = new TextDocumentChangeEvent()
                     {
-                        Start = new Position
+                        Range = new Range
                         {
-                            Line = 0,
-                            Character = 5
+                            Start = new Position
+                            {
+                                Line = 0,
+                                Character = 5
+                            },
+                            End = new Position
+                            {
+                                Line = 0,
+                                Character = 6
+                            }
                         },
-                        End = new Position
-                        {
-                            Line = 0,
-                            Character = 6
-                        }
-                    },
-                    RangeLength = 1,
-                    Text = "z"
-                };
-                DidChangeTextDocumentParams changeParams = new DidChangeTextDocumentParams
-                {
-                    ContentChanges = contentChanges,
-                    TextDocument = new VersionedTextDocumentIdentifier
+                        RangeLength = 1,
+                        Text = "z"
+                    };
+                    DidChangeTextDocumentParams changeParams = new DidChangeTextDocumentParams
                     {
-                        Version = 2,
-                        Uri = queryTempFile.FilePath
-                    }
-                };
+                        ContentChanges = contentChanges,
+                        TextDocument = new VersionedTextDocumentIdentifier
+                        {
+                            Version = 2,
+                            Uri = queryTempFile.FilePath
+                        }
+                    };
 
-                TestTimer timer = new TestTimer() { PrintResult = true };
-                await testService.RequestChangeTextDocumentNotification(changeParams);
-                await testService.ExecuteWithTimeout(timer, 60000, async () =>
-                {
-                    var completeEvent = await testService.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
-                    return completeEvent?.Diagnostics != null && completeEvent.Diagnostics.Length > 0;
-                });
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+                    await testService.RequestChangeTextDocumentNotification(changeParams);
+                    await testService.ExecuteWithTimeout(timer, 60000, async () =>
+                    {
+                        var completeEvent = await testService.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
+                        return completeEvent?.Diagnostics != null && completeEvent.Diagnostics.Length > 0;
+                    });
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheColdAzureSimpleQuery()
         {
-            TestServerType serverType = TestServerType.Azure;
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbSimpleSelectQuery, false);
-            }
+                TestServerType serverType = TestServerType.Azure;
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbSimpleSelectQuery, false, timer);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheColdOnPremSimpleQuery()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbSimpleSelectQuery, false);
-            }
+                TestServerType serverType = TestServerType.OnPrem;
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbSimpleSelectQuery, false, timer);
+                }
+            });
             
         }
 
@@ -129,76 +144,94 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheWarmAzureSimpleQuery()
         {
-            TestServerType serverType = TestServerType.Azure;
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                const string query = Scripts.TestDbSimpleSelectQuery;
-                await VerifyBindingLoadScenario(testService, serverType, query, true);
-            }
+                TestServerType serverType = TestServerType.Azure;
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                {
+                    const string query = Scripts.TestDbSimpleSelectQuery;
+                    await VerifyBindingLoadScenario(testService, serverType, query, true, timer);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheWarmOnPremSimpleQuery()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                const string query = Scripts.TestDbSimpleSelectQuery;
-                await VerifyBindingLoadScenario(testService, serverType, query, true);
-            }
+                TestServerType serverType = TestServerType.OnPrem;
+
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                {
+                    const string query = Scripts.TestDbSimpleSelectQuery;
+                    await VerifyBindingLoadScenario(testService, serverType, query, true, timer);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheColdAzureComplexQuery()
         {
-            TestServerType serverType = TestServerType.Azure;
-
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbComplexSelectQueries,false);
-            }
+                TestServerType serverType = TestServerType.Azure;
+
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbComplexSelectQueries, false, timer);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheColdOnPremComplexQuery()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbComplexSelectQueries, false);
-            }
+                TestServerType serverType = TestServerType.OnPrem;
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbComplexSelectQueries, false, timer);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheWarmAzureComplexQuery()
         {
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                string query = Scripts.TestDbComplexSelectQueries; 
-                const TestServerType serverType = TestServerType.Azure;
-                await VerifyBindingLoadScenario(testService, serverType, query, true);
-            }
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    string query = Scripts.TestDbComplexSelectQueries;
+                    const TestServerType serverType = TestServerType.Azure;
+                    await VerifyBindingLoadScenario(testService, serverType, query, true, timer);
+                }
+            });
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheWarmOnPremComplexQuery()
         {
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                string query = Scripts.TestDbComplexSelectQueries;
-                const TestServerType serverType = TestServerType.OnPrem;
-                await VerifyBindingLoadScenario(testService, serverType, query, true);
-            }
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    string query = Scripts.TestDbComplexSelectQueries;
+                    const TestServerType serverType = TestServerType.OnPrem;
+                    await VerifyBindingLoadScenario(testService, serverType, query, true, timer);
+                }
+            });
         }
 
         #region Private Helper Methods
@@ -207,34 +240,36 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServiceDriverProvider testService, 
             TestServerType serverType, 
             string query, 
-            bool preLoad, 
+            bool preLoad,
+            TestTimer timer,
             [CallerMemberName] string testName = "")
         {
             string databaseName = Common.PerfTestDatabaseName;
             if (preLoad)
             {
                 await VerifyCompletationLoaded(testService, serverType, Scripts.TestDbSimpleSelectQuery, 
-                    databaseName, printResult: false, testName: testName);
+                    databaseName, null, testName: testName);
                 Console.WriteLine("Intellisense cache loaded.");
             }
             await VerifyCompletationLoaded(testService, serverType, query, databaseName, 
-                printResult: true, testName: testName);
+                timer, testName: testName);
         }
 
-        private  async Task VerifyCompletationLoaded(
-            TestServiceDriverProvider testService, 
-            TestServerType serverType, 
-            string query, 
+        private async Task VerifyCompletationLoaded(
+            TestServiceDriverProvider testService,
+            TestServerType serverType,
+            string query,
             string databaseName,
-            bool printResult, 
+            TestTimer timer,
             string testName)
         {
+
             using (SelfCleaningTempFile testTempFile = new SelfCleaningTempFile())
             {
                 testService.WriteToFile(testTempFile.FilePath, query);
                 await testService.ConnectForQuery(serverType, query, testTempFile.FilePath, databaseName);
-                await ValidateCompletionResponse(testService, testTempFile.FilePath, printResult, databaseName, 
-                    waitForIntelliSense: true, testName: testName);
+                await ValidateCompletionResponse(testService, testTempFile.FilePath, databaseName,
+                    waitForIntelliSense: true, timer: timer, testName: testName);
                 await testService.Disconnect(testTempFile.FilePath);
             }
         }
@@ -242,14 +277,17 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         private static async Task ValidateCompletionResponse(
             TestServiceDriverProvider testService, 
             string ownerUri, 
-            bool printResult, 
             string databaseName, 
-            bool waitForIntelliSense, 
+            bool waitForIntelliSense,
+            TestTimer timer = null,
             [CallerMemberName] string testName = "")
         {
-            TestTimer timer = new TestTimer() { PrintResult = printResult };
+            if (timer == null)
+            {
+                timer = new TestTimer { PrintResult = false };
+            }
             bool isReady = !waitForIntelliSense;
-            await testService.ExecuteWithTimeout(timer, 150000, async () =>
+            await testService.ExecuteWithTimeout(timer, 550000, async () =>
             {
                 if (isReady)
                 {
