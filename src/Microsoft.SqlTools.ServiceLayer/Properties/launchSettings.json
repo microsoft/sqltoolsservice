@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Microsoft.SqlTools.ServiceLayer": {
+      "commandName": "Project",
+      "commandLineArgs": "--log-dir C:\\Users\\arvran\\AppData\\Roaming\\sqlops\\mssql",
+      "workingDirectory": "d:\\src\\sqlopsstudio"
+    }
+  }
+}

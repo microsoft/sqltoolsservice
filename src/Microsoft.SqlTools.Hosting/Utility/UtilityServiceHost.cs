@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "Service host is shutting down...");
+            Logger.Write(LogLevel.Information, "Service host is shutting down...");
 
             // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();

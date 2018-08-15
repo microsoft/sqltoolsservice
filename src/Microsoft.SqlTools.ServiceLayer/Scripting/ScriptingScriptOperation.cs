@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 if (e.IsOperationCanceledException())
                 {
-                    Logger.Write(LogLevel.Normal, string.Format("Scripting operation {0} was canceled", this.OperationId));
+                    Logger.Write(LogLevel.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     { 
                         Canceled = true,
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             PopulateAdvancedScriptOptions(this.Parameters.ScriptOptions, publishModel.AdvancedOptions);
 
             Logger.Write(
-                LogLevel.Normal,
+                LogLevel.Information,
                 string.Format(
                     "Scripting object count {0}, objects: {1}",
                     selectedObjects.Count(),

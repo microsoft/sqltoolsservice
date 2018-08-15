@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
             ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
+            EnableLogging = true;
 
             try
             {

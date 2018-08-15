@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Normal, "Failed to close temporary connections. error: " + ex.Message);
+                Logger.Write(LogLevel.Information, "Failed to close temporary connections. error: " + ex.Message);
             }
         }
 

@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.Utility
         /// <summary>
         /// Indicates a normal, non-verbose log message.
         /// </summary>
-        Normal,
+        Information,
 
         /// <summary>
         /// Indicates a warning message.
@@ -60,11 +60,11 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public static void Initialize(
             string logFilePath = "sqltools",
-            LogLevel minimumLogLevel = LogLevel.Normal,
+            LogLevel minimumLogLevel = LogLevel.Information,
             bool isEnabled = true)
         {
             Logger.isEnabled = isEnabled;
-            
+
             // return if the logger is not enabled or already initialized
             if (!Logger.isEnabled || Logger.isInitialized)
             {
@@ -100,16 +100,11 @@ namespace Microsoft.SqlTools.Utility
             catch (Exception)
             {
                 // if the pid look up fails for any reason, just use a random number
-                uniqueId =  new Random().Next(1000, 9999);
+                uniqueId = new Random().Next(1000, 9999);
             }
 
             // make the log path unique
-            string fullFileName = string.Format(
-                "{0}_{1,4:D4}{2,2:D2}{3,2:D2}{4,2:D2}{5,2:D2}{6,2:D2}{7}.log", 
-                logFilePath,
-                DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-                DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, 
-                uniqueId);
+            string fullFileName = $"{logFilePath}_{DateTime.Now.Year,4:D4}{DateTime.Now.Month,2:D2}{DateTime.Now.Day,2:D2}{DateTime.Now.Hour,2:D2}{DateTime.Now.Minute,2:D2}{DateTime.Now.Second,2:D2}{uniqueId}.log";
 
             if (logWriter != null)
             {
@@ -117,13 +112,17 @@ namespace Microsoft.SqlTools.Utility
             }
 
             // TODO: Parameterize this
-            logWriter = 
+            logWriter =
                 new LogWriter(
-                    minimumLogLevel, 
+                    minimumLogLevel,
                     fullFileName,
                     true);
 
-            Logger.Write(LogLevel.Normal, "Initializing SQL Tools Service Host logger");
+            Logger.Write(LogLevel.Information, "Initializing SQL Tools Service Host logger");
+            TextWriterTraceListener listener = new TextWriterTraceListener(new StreamWriter($@"{Path.GetDirectoryName(fullFileName)}\smo_{Path.GetFileName(fullFileName)}"), "Smo");
+            listener.TraceOutputOptions = TraceOptions.DateTime | TraceOptions.ProcessId | TraceOptions.ThreadId | TraceOptions.LogicalOperationStack;
+            listener.Filter = new EventTypeFilter(SourceLevels.All);
+            Trace.Listeners.Add(listener);
         }
 
         /// <summary>
@@ -148,10 +147,10 @@ namespace Microsoft.SqlTools.Utility
         public static void Write(
             LogLevel logLevel,
             string logMessage,
-            [CallerMemberName] string callerName = null, 
+            [CallerMemberName] string callerName = null,
             [CallerFilePath] string callerSourceFile = null,
             [CallerLineNumber] int callerLineNumber = 0)
-        {            
+        {
             // return if the logger is not enabled or not initialized
             if (!Logger.isEnabled || !Logger.isInitialized)
             {
@@ -181,31 +180,31 @@ namespace Microsoft.SqlTools.Utility
             this.minimumLogLevel = minimumLogLevel;
 
             // Ensure that we have a usable log file path
-             if (!Path.IsPathRooted(logFilePath))
-             {
-                 logFilePath =
-                     Path.Combine(
-                         AppContext.BaseDirectory,
-                         logFilePath);
-             }
+            if (!Path.IsPathRooted(logFilePath))
+            {
+                logFilePath =
+                    Path.Combine(
+                        AppContext.BaseDirectory,
+                        logFilePath);
+            }
 
 
-             if (!this.TryOpenLogFile(logFilePath, deleteExisting))
-             {
-                 // If the log file couldn't be opened at this location,
-                 // try opening it in a more reliable path
-                 this.TryOpenLogFile(
-                     Path.Combine(
-                         Environment.GetEnvironmentVariable("TEMP"),
-                         Path.GetFileName(logFilePath)),
-                     deleteExisting);
-             }
+            if (!this.TryOpenLogFile(logFilePath, deleteExisting))
+            {
+                // If the log file couldn't be opened at this location,
+                // try opening it in a more reliable path
+                this.TryOpenLogFile(
+                    Path.Combine(
+                        Environment.GetEnvironmentVariable("TEMP"),
+                        Path.GetFileName(logFilePath)),
+                    deleteExisting);
+            }
         }
 
         public void Write(
-            LogLevel logLevel, 
-            string logMessage, 
-            string callerName = null, 
+            LogLevel logLevel,
+            string logMessage,
+            string callerName = null,
             string callerSourceFile = null,
             int callerLineNumber = 0)
         {
@@ -248,7 +247,7 @@ namespace Microsoft.SqlTools.Utility
         }
 
         private bool TryOpenLogFile(
-            string logFilePath, 
+            string logFilePath,
             bool deleteExisting)
         {
             try

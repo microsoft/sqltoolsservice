@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    Logger.Write(LogLevel.Normal, string.Format("Operation {0} was not found", operation.OperationId));
+                    Logger.Write(LogLevel.Information, string.Format("Operation {0} was not found", operation.OperationId));
                 }
 
                 await requestContext.SendResult(new ScriptingCancelResult());

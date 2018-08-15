@@ -326,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
-            Logger.Write(LogLevel.Normal, "Creating OE session");
+            Logger.Write(LogLevel.Information, "Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {

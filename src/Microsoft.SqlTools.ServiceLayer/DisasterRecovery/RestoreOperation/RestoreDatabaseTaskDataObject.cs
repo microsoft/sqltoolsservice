@@ -316,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Normal, $"Failed to execute restore task. error: {ex.Message}");
+                Logger.Write(LogLevel.Information, $"Failed to execute restore task. error: {ex.Message}");
                 throw ex;
             }
             finally
@@ -903,7 +903,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             catch(Exception ex )
             {
-                Logger.Write(LogLevel.Normal, $"Failed to get restore db files. error: {ex.Message}");
+                Logger.Write(LogLevel.Information, $"Failed to get restore db files. error: {ex.Message}");
             }
             return ret;
         }

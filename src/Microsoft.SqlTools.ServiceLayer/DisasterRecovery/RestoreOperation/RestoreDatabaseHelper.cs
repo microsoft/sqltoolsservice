@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     response.ErrorMessage += Environment.NewLine;
                     response.ErrorMessage += ex.InnerException.Message;
                 }
-                Logger.Write(LogLevel.Normal, $"Failed to create restore plan. error: { response.ErrorMessage}");
+                Logger.Write(LogLevel.Information, $"Failed to create restore plan. error: { response.ErrorMessage}");
             }
             return response;
 

@@ -39,9 +39,9 @@ namespace Microsoft.SqlTools.Credentials
                 }
 
                 // turn on Verbose logging during early development
-                // we need to switch to Normal when preparing for public preview
+                // we need to switch to Information when preparing for public preview
                 Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
+                Logger.Write(LogLevel.Information, "Starting SqlTools Credentials Provider");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(

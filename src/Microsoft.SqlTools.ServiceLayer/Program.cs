@@ -36,9 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
 
                 // turn on Verbose logging during early development
-                // we need to switch to Normal when preparing for public preview
+                // we need to switch to Information when preparing for public preview
                 Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
+                Logger.Write(LogLevel.Information, "Starting SQL Tools Service Host");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));

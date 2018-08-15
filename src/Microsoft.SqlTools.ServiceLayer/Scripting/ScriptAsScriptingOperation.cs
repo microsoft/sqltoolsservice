@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 if (e.IsOperationCanceledException())
                 {
-                    Logger.Write(LogLevel.Normal, string.Format("Scripting operation {0} was canceled", this.OperationId));
+                    Logger.Write(LogLevel.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     {
                         Canceled = true,
