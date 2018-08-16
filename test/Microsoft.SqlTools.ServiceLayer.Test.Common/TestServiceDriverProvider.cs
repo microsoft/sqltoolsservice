@@ -298,6 +298,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
 
+            return await RunQueryAndWaitToComplete(ownerUri, timeoutMilliseconds);
+        }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI
+        /// </summary>
+        public async Task<QueryCompleteParams> RunQueryAndWaitToComplete(string ownerUri, int timeoutMilliseconds = 5000)
+        {
+
             var queryParams = new ExecuteDocumentSelectionParams
             {
                 OwnerUri = ownerUri,
@@ -324,6 +333,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
 
+            return await RunQueryAndWaitToStart(ownerUri, timeoutMilliseconds);
+        }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI
+        /// </summary>
+        public async Task<BatchEventParams> RunQueryAndWaitToStart(string ownerUri, int timeoutMilliseconds = 5000)
+        {
             var queryParams = new ExecuteDocumentSelectionParams
             {
                 OwnerUri = ownerUri,

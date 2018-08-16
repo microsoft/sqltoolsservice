@@ -111,8 +111,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
                 {
                     await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                    testService.WriteToFile(queryTempFile.FilePath, query);
                     var queryResult = await testService.CalculateRunTime(
-                        () => testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query, 10000),
+                        () => testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, 50000),
                         timer);
 
                     Assert.NotNull(queryResult);
@@ -131,9 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
                 {
                     await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
-
-                    await testService.RunQueryAndWaitToStart(queryTempFile.FilePath, query, 10000);
-                    await testService.ExecuteWithTimeout(timer, 100000, async () =>
+                    testService.WriteToFile(queryTempFile.FilePath, query);
+                    await testService.RunQueryAndWaitToStart(queryTempFile.FilePath, 50000);
+                    await testService.ExecuteWithTimeout(timer, 500000, async () =>
                     {
                         var queryResult = await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
                         if (queryResult != null)
