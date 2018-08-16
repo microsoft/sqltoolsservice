@@ -952,7 +952,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
             serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
-            serviceHost.SetRequestHandler(SerializeConnectionStringRequest.Type, HandleSerializeConnectionStringRequest);
+            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
         }
 
         /// <summary> 
@@ -1292,7 +1292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Handles a request to serialize a connection string
         /// </summary>
-        public async Task HandleSerializeConnectionStringRequest(
+        public async Task HandleBuildConnectionInfoRequest(
             string connectionString,
             RequestContext<ConnectionDetails> requestContext)
         {
@@ -1314,7 +1314,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-            ConnectionDetails details = new ConnectionDetails(){
+            ConnectionDetails details = new ConnectionDetails()
+            {
                 ApplicationIntent = builder.ApplicationIntent.ToString(),
                 ApplicationName = builder.ApplicationName,
                 AttachDbFilename = builder.AttachDBFilename,
@@ -1332,7 +1333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 MultipleActiveResultSets = builder.MultipleActiveResultSets,
                 MultiSubnetFailover = builder.MultiSubnetFailover,
                 PacketSize = builder.PacketSize,
-                Password = !builder.IntegratedSecurity ? builder.Password : "",
+                Password = !builder.IntegratedSecurity ? builder.Password : string.Empty,
                 PersistSecurityInfo = builder.PersistSecurityInfo,
                 Pooling = builder.Pooling,
                 Replication = builder.Replication,

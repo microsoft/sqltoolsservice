@@ -10,10 +10,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     /// <summary>
     /// Serialize Connection String request 
     /// </summary>
-    public class SerializeConnectionStringRequest
+    public class BuildConnectionInfoRequest
     {
         public static readonly
             RequestType<string, ConnectionDetails> Type =
-            RequestType<string, ConnectionDetails>.Create("connection/serializeconnectionstring");
+            RequestType<string, ConnectionDetails>.Create("connection/buildconnectioninfo");
     }
 }
