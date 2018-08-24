@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
 using System;
 using System.IO;
-using System.Linq;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -99,6 +99,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal IFileStreamFactory JsonFileFactory { get; set; }
 
         /// <summary>
+        /// File factory to be used to create XML files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory XmlFileFactory { get; set; }
+
+        /// <summary>
         /// The collection of active queries
         /// </summary>
         internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
@@ -151,6 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
 
@@ -446,6 +453,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, jsonFactory);
+        }
+
+        /// <summary>
+        /// Process request to save a resultSet to a file in XML format
+        /// </summary>
+        internal async Task HandleSaveResultsAsXmlRequest(SaveResultsAsXmlRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // Use the default XML file factory if we haven't overridden it
+            IFileStreamFactory xmlFactory = XmlFileFactory ?? new SaveAsXmlFileStreamFactory
+            {
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
+            };
+            await SaveResultsHelper(saveParams, requestContext, xmlFactory);
         }
 
         #endregion
