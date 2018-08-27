@@ -5,6 +5,7 @@
 
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -17,82 +18,137 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [Fact]
         public async Task QueryResultSummaryOnPremTest()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            {
-                const string query = Scripts.MasterBasicQuery;
-
-                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
-                var queryResult = await testService.CalculateRunTime(() => testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query), true);
-
-                Assert.NotNull(queryResult);
-                Assert.True(queryResult.BatchSummaries.Any(x => x.ResultSetSummaries.Any(r => r.RowCount > 0)));
-
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+            await QueryResultSummaryOnPremTest(TestServerType.OnPrem, Scripts.MasterBasicQuery);
         }
 
         [Fact]
         public async Task QueryResultFirstOnPremTest()
         {
-            TestServerType serverType = TestServerType.OnPrem;
+            await QueryResultFirstOnPremTest(TestServerType.OnPrem, Scripts.MasterBasicQuery);
+        }
 
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            {
-                const string query = Scripts.MasterBasicQuery;
+        [Fact]
+        public async Task LongQueryResultSummaryOnPremTest()
+        {
+            await QueryResultSummaryOnPremTest(TestServerType.OnPrem, Scripts.MasterLongQuery);
+        }
 
-                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+        [Fact]
+        public async Task LongQueryResultFirstOnPremTest()
+        {
+            await QueryResultFirstOnPremTest(TestServerType.OnPrem, Scripts.MasterLongQuery);
+        }
 
-                var queryResult = await testService.CalculateRunTime(async () =>
-                {
-                    await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
-                    return await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
-                }, true);
+        [Fact]
+        public async Task QueryResultSummaryOnAzureTest()
+        {
+            await QueryResultSummaryOnPremTest(TestServerType.Azure, Scripts.MasterBasicQuery);
+        }
 
-                Assert.NotNull(queryResult);
-                Assert.NotNull(queryResult.ResultSubset);
-                Assert.True(queryResult.ResultSubset.Rows.Any());
+        [Fact]
+        public async Task QueryResultFirstOnAzureTest()
+        {
+            await QueryResultFirstOnPremTest(TestServerType.Azure, Scripts.MasterBasicQuery);
+        }
 
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+        [Fact]
+        public async Task LongQueryResultSummaryOnAzureTest()
+        {
+            await QueryResultSummaryOnPremTest(TestServerType.Azure, Scripts.MasterLongQuery);
+        }
+
+        [Fact]
+        public async Task LongQueryResultFirstOnAzureTest()
+        {
+            await QueryResultFirstOnPremTest(TestServerType.Azure, Scripts.MasterLongQuery);
         }
 
         [Fact]
         [CreateTestDb(TestServerType.OnPrem)]
         public async Task CancelQueryOnPremTest()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                await testService.ConnectForQuery(serverType, Scripts.DelayQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
-                var queryParams = new ExecuteDocumentSelectionParams
-                {
-                    OwnerUri = queryTempFile.FilePath,
-                    QuerySelection = null
-                };
+                TestServerType serverType = TestServerType.OnPrem;
 
-                var result = await testService.Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
-                if (result != null)
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
                 {
-                    TestTimer timer = new TestTimer() { PrintResult = true };
-                    await testService.ExecuteWithTimeout(timer, 100000, async () => 
+                    await testService.ConnectForQuery(serverType, Scripts.DelayQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                    var queryParams = new ExecuteDocumentSelectionParams
                     {
-                        var cancelQueryResult = await testService.CancelQuery(queryTempFile.FilePath);
-                        return true;
-                    },  TimeSpan.FromMilliseconds(10));
-                }
-                else
-                {
-                    Assert.True(false, "Failed to run the query");
-                }
+                        OwnerUri = queryTempFile.FilePath,
+                        QuerySelection = null
+                    };
 
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+                    testService.WriteToFile(queryTempFile.FilePath, Scripts.MasterLongQuery);
+
+                    var result = await testService.Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
+                    if (result != null)
+                    {
+                        await testService.ExecuteWithTimeout(timer, 100000, async () =>
+                        {
+                            var cancelQueryResult = await testService.CancelQuery(queryTempFile.FilePath);
+                            return true;
+                        }, TimeSpan.FromMilliseconds(10));
+                    }
+                    else
+                    {
+                        Assert.True(false, "Failed to run the query");
+
+                        await testService.Disconnect(queryTempFile.FilePath);
+                    }
+                }
+            });
+
+        }
+
+        private async Task QueryResultSummaryOnPremTest(TestServerType serverType, string query, [CallerMemberName] string testName = "")
+        {
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
+            {
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                    testService.WriteToFile(queryTempFile.FilePath, query);
+                    var queryResult = await testService.CalculateRunTime(
+                        () => testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, 50000),
+                        timer);
+
+                    Assert.NotNull(queryResult);
+                    Assert.True(queryResult.BatchSummaries.Any(x => x.ResultSetSummaries.Any(r => r.RowCount > 0)));
+
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            }, testName);
+        }
+
+        private async Task QueryResultFirstOnPremTest(TestServerType serverType, string query, [CallerMemberName] string testName = "")
+        {
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
+            {
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                    testService.WriteToFile(queryTempFile.FilePath, query);
+                    await testService.RunQueryAndWaitToStart(queryTempFile.FilePath, 50000);
+                    await testService.ExecuteWithTimeout(timer, 500000, async () =>
+                    {
+                        var queryResult = await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
+                        if (queryResult != null)
+                        {
+                            Assert.NotNull(queryResult);
+                            Assert.NotNull(queryResult.ResultSubset);
+                            Assert.True(queryResult.ResultSubset.Rows.Any());
+                        }
+                        return queryResult != null;
+                    }, TimeSpan.FromMilliseconds(10));
+
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            }, testName);
         }
     }
 }

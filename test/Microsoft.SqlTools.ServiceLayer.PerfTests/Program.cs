@@ -25,8 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             }
 
             Logger.Initialize("testdriver", LogLevel.Verbose);
-
-            return TestRunner.RunTests(args, "Microsoft.SqlTools.ServiceLayer.PerfTests.").Result;
+            return TestRunner.Instance.RunTests(args, "Microsoft.SqlTools.ServiceLayer.PerfTests.").Result;
         }
     }
 }
