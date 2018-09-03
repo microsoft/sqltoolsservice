@@ -16,30 +16,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     {
         public string OwnerUri { get; set; }
 
-        public string TemplateName 
-        {
-            get
-            {
-                return GetOptionValue<string>("templateName");
-            }
-            set
-            {
-                SetOptionValue("templateName", value);
-            }
-        }
+        public string SessionName { get; set; }
     }
 
-    public class StartProfilingResult
-    {
-        /// <summary>
-        /// Session ID that was started
-        /// </summary>
-        public string SessionId { get; set; }
-
-        public bool Succeeded { get; set; }
-
-        public string ErrorMessage { get; set; }
-    }
+    public class StartProfilingResult{}
 
     /// <summary>
     /// Start Profile request type

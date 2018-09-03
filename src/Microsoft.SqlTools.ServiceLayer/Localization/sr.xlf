@@ -3112,6 +3112,24 @@
         <note>.
  Parameters: 0 - error (String) </note>
       </trans-unit>
+      <trans-unit id="CreateSessionFailed">
+        <source>Failed to create session: {0}</source>
+        <target state="new">Failed to create session: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="PauseSessionFailed">
+        <source>Failed to pause session: {0}</source>
+        <target state="new">Failed to pause session: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="SessionAlreadyExists">
+        <source>An XEvent session named {0} already exists</source>
+        <target state="new">An XEvent session named {0} already exists</target>
+        <note>.
+ Parameters: 0 - sessionName (String) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

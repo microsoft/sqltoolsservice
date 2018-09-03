@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Connect with SMO and get the metadata for the table
             Server server = new Server(new ServerConnection(sqlConn));
             Database db = new Database(server, sqlConn.Database);
-            
+
             TableViewTableTypeBase smoResult;
             switch (objectType.ToLowerInvariant())
             {
@@ -82,17 +82,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 throw new ArgumentOutOfRangeException(nameof(objectNamedParts), SR.EditDataObjectNotFound);
             }
-            
+
             // Generate the edit column metadata
             List<EditColumnMetadata> editColumns = new List<EditColumnMetadata>();
             for (int i = 0; i < smoResult.Columns.Count; i++)
             {
                 Column smoColumn = smoResult.Columns[i];
 
-                // The default value may be escaped
-                string defaultValue = smoColumn.DefaultConstraint == null
-                    ? null
-                    : FromSqlScript.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
+                string defaultValue = null;
+                try
+                {
+                    // The default value may be escaped
+                    defaultValue = smoColumn.DefaultConstraint == null
+                        ? null
+                        : FromSqlScript.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
+                }
+                catch (PropertyCannotBeRetrievedException)
+                {
+                    // This exception will be thrown when the user doesn't have view definition privilege,
+                    // we can ignore it and use null as the default value; 
+                }
 
                 EditColumnMetadata column = new EditColumnMetadata
                 {
@@ -113,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Escape the parts of the name
-            string[] objectNameParts = {smoResult.Schema, smoResult.Name};
+            string[] objectNameParts = { smoResult.Schema, smoResult.Name };
             string escapedMultipartName = ToSqlScript.FormatMultipartIdentifier(objectNameParts);
 
             return new EditTableMetadata

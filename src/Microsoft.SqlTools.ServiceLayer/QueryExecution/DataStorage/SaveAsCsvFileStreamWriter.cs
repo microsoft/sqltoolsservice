@@ -48,23 +48,57 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </param>
         public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
         {
-            string delimiter = ",";
+            char delimiter = ',';
             if(!string.IsNullOrEmpty(saveParams.Delimiter))
             {
-                delimiter = saveParams.Delimiter;
-            }            
+                // first char in string
+                delimiter = saveParams.Delimiter[0];
+            }
+
+            string lineSeperator = Environment.NewLine;
+            if(!string.IsNullOrEmpty(saveParams.LineSeperator))
+            {
+                lineSeperator = saveParams.LineSeperator;
+            }
+
+            char textIdentifier = '"';
+            if(!string.IsNullOrEmpty(saveParams.TextIdentifier))
+            {
+                // first char in string
+                textIdentifier = saveParams.TextIdentifier[0];
+            }
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            int codepage;
+            Encoding encoding;
+            try
+            {
+                if(int.TryParse(saveParams.Encoding, out codepage))
+                {
+                    encoding = Encoding.GetEncoding(codepage);
+                }
+                else
+                {
+                    encoding = Encoding.GetEncoding(saveParams.Encoding);
+                }
+            }
+            catch
+            {    
+                // Fallback encoding when specified codepage is invalid
+                encoding = Encoding.GetEncoding("utf-8");
+            }
 
             // Write out the header if we haven't already and the user chose to have it
             if (saveParams.IncludeHeaders && !headerWritten)
             {
                 // Build the string
                 var selectedColumns = columns.Skip(ColumnStartIndex ?? 0).Take(ColumnCount ?? columns.Count)
-                    .Select(c => EncodeCsvField(c.ColumnName) ?? string.Empty);
+                    .Select(c => EncodeCsvField(c.ColumnName, delimiter, textIdentifier) ?? string.Empty);
                 
                 string headerLine = string.Join(delimiter, selectedColumns);
 
                 // Encode it and write it out
-                byte[] headerBytes = Encoding.UTF8.GetBytes(headerLine + Environment.NewLine);
+                byte[] headerBytes = encoding.GetBytes(headerLine + lineSeperator);
                 FileStream.Write(headerBytes, 0, headerBytes.Length);
 
                 headerWritten = true;
@@ -73,11 +107,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Build the string for the row
             var selectedCells = row.Skip(ColumnStartIndex ?? 0)
                 .Take(ColumnCount ?? columns.Count)
-                .Select(c => EncodeCsvField(c.DisplayValue));
+                .Select(c => EncodeCsvField(c.DisplayValue, delimiter, textIdentifier));
             string rowLine = string.Join(delimiter, selectedCells);
 
             // Encode it and write it out
-            byte[] rowBytes = Encoding.UTF8.GetBytes(rowLine + Environment.NewLine);
+            byte[] rowBytes = encoding.GetBytes(rowLine + lineSeperator);
             FileStream.Write(rowBytes, 0, rowBytes.Length);
         }
 
@@ -98,8 +132,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="field">The field to encode</param>
         /// <returns>The CSV encoded version of the original field</returns>
-        internal static string EncodeCsvField(string field)
+        internal static string EncodeCsvField(string field, char delimiter, char textIdentifier)
         {
+            string strTextIdentifier = textIdentifier.ToString();
+
             // Special case for nulls
             if (field == null)
             {
@@ -107,16 +143,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             // Whether this field has special characters which require it to be embedded in quotes
-            bool embedInQuotes = field.IndexOfAny(new[] {',', '\r', '\n', '"'}) >= 0 // Contains special characters
+            bool embedInQuotes = field.IndexOfAny(new[] { delimiter, '\r', '\n', textIdentifier }) >= 0 // Contains special characters
                                  || field.StartsWith(" ") || field.EndsWith(" ")          // Start/Ends with space
                                  || field.StartsWith("\t") || field.EndsWith("\t");       // Starts/Ends with tab
 
             //Replace all quotes in the original field with double quotes
-            string ret = field.Replace("\"", "\"\"");
+            string ret = field.Replace(strTextIdentifier, strTextIdentifier + strTextIdentifier);
 
             if (embedInQuotes)
             {
-                ret = $"\"{ret}\"";
+                ret = strTextIdentifier + $"{ret}" + strTextIdentifier;
             }
 
             return ret;

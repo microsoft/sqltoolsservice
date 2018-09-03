@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageDescription>
+    The contract types used for communication over the VSCode Language Server Protocol and the Database Management Protocol.
+    </PackageDescription>
+    <Description>$(PackageDescription)</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting.Contracts\Microsoft.SqlTools.Hosting.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+  <Import Project="..\sqltools.common.targets" />
+</Project>

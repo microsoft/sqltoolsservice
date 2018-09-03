@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <SmoPackageVersion>140.17282.0-xplat</SmoPackageVersion>
+  </PropertyGroup>
+</Project>

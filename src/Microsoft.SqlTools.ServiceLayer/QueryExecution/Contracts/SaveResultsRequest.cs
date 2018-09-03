@@ -79,9 +79,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IncludeHeaders { get; set; }
 
         /// <summary>
-        /// Delimeter for separating data items in CSV
+        /// Delimiter for separating data items in CSV
         /// </summary>
         public string Delimiter { get; set; }
+
+        /// <summary>
+        /// either CR, CRLF or LF to seperate rows in CSV
+        /// </summary>
+        public string LineSeperator { get; set; }
+
+        /// <summary>
+        /// Text identifier for alphanumeric columns in CSV
+        /// </summary>
+        public string TextIdentifier { get; set; }
+
+        /// <summary>
+        /// Encoding of the CSV file
+        /// </summary>
+        public string Encoding { get; set; }
     }
 
     /// <summary>

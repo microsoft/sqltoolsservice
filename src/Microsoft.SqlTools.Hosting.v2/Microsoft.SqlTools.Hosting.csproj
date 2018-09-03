@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>Microsoft.SqlTools.Hosting.v2</AssemblyName>
+    <PackageId>Microsoft.SqlTools.Hosting.v2</PackageId>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.SqlTools.Hosting.v2</RootNamespace>
+    <PackageDescription>
+    The Microsoft.SqlTools.Hosting framework can host applications implementing the VSCode Language Server Protocol and/or
+    applications implementing the Database Management Protocol. It handles service discovery, initialization, and communication over
+    the JSON-RPC protocol.
+    </PackageDescription>
+    <Description>$(PackageDescription)</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.Composition" Version="1.1.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Localization\transXliff" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.SqlTools.DataProtocol.Contracts\Microsoft.SqlTools.DataProtocol.Contracts.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting.Contracts\Microsoft.SqlTools.Hosting.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\sr.resx" />
+    <None Include="Localization\sr.strings" />
+  </ItemGroup>
+  <Import Project="..\sqltools.common.targets" />
+</Project>
