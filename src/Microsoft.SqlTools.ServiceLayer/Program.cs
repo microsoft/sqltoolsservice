@@ -7,6 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.IO;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -37,8 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer
 
                 // turn on Verbose logging during early development
                 // we need to switch to Information when preparing for public preview
-                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Information, "Starting SQL Tools Service Host");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePrefix: logFilePath, traceSource: "servicehost");
+                Logger.Write(TraceEventType.Information, "Starting SQL Tools Service Host");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
@@ -50,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
             catch (Exception e)
             {
-                Logger.Write(LogLevel.Error, string.Format("An unhandled exception occurred: {0}", e));
+                Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
                 Environment.Exit(1);
             }
         }

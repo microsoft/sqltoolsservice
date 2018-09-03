@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.Utility;
@@ -24,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 return 0;
             }
 
-            Logger.Initialize("testdriver", LogLevel.Verbose);
+            Logger.Initialize(logFilePrefix: "testdriver", traceSource: "perftests");
 
             return TestRunner.RunTests(args, "Microsoft.SqlTools.ServiceLayer.PerfTests.").Result;
         }

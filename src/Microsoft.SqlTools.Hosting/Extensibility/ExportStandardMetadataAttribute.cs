@@ -9,7 +9,7 @@ using System.Composition;
 namespace Microsoft.SqlTools.Extensibility
 {
     /// <summary>
-    /// Base attribute class for all export definitions. 
+    /// Base attribute class for TracingLevel export definitions. 
     /// </summary>
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

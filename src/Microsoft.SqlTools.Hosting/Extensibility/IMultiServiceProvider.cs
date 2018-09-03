@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.Extensibility
         }
         
         /// <summary>
-        /// Gets all services using the build in implementation
+        /// Gets TracingLevel services using the build in implementation
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>

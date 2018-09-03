@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -221,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Warning, $"Failed to disconnect Database task Helper connection. Error: {ex.Message}");
+                Logger.Write(TraceEventType.Warning, $"Failed to disconnect Database task Helper connection. Error: {ex.Message}");
             }
         }
     }

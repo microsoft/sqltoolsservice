@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -332,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Information, "Failed to close temporary connections. error: " + ex.Message);
+                Logger.Write(TraceEventType.Information, "Failed to close temporary connections. error: " + ex.Message);
             }
         }
 
@@ -980,7 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectParams connectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
 
             try
             {
@@ -1030,7 +1031,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             CancelConnectParams cancelParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleCancelConnectRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleCancelConnectRequest");
 
             try
             {
@@ -1050,7 +1051,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             DisconnectParams disconnectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDisconnectRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleDisconnectRequest");
 
             try
             {
@@ -1071,7 +1072,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ListDatabasesParams listDatabasesParams,
             RequestContext<ListDatabasesResponse> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "ListDatabasesRequest");
+            Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
 
             try
             {
@@ -1342,7 +1343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 catch (Exception e)
                 {
                     Logger.Write(
-                        LogLevel.Error,
+                        TraceEventType.Error,
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
                             newDatabaseName, 
@@ -1410,7 +1411,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 catch (Exception ex)
                 {
-                    Logger.Write(LogLevel.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                    Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
                 }
             }
         }
@@ -1455,7 +1456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string error = string.Format(CultureInfo.InvariantCulture, 
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(LogLevel.Error, error);
+                Logger.Write(TraceEventType.Error, error);
             }
             
             return null;

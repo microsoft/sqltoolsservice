@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
 {
     /// <summary>
-    /// Defines all possible message types.
+    /// Defines TracingLevel possible message types.
     /// </summary>
     public enum MessageType
     {

@@ -6,7 +6,7 @@
 	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 	  <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+	  <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<DebugType>portable</DebugType>

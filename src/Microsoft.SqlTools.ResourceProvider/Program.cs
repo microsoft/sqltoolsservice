@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -39,8 +40,8 @@ namespace Microsoft.SqlTools.ResourceProvider
 
                 // turn on Verbose logging during early development
                 // we need to switch to Information when preparing for public preview
-                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Information, "Starting SqlTools Resource Provider");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePrefix: logFilePath, traceSource: "resourceprovider");
+                Logger.Write(TraceEventType.Information, "Starting SqlTools Resource Provider");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(
@@ -55,7 +56,7 @@ namespace Microsoft.SqlTools.ResourceProvider
             }
             catch (Exception e)
             {
-                Logger.Write(LogLevel.Error, string.Format("An unhandled exception occurred: {0}", e));
+                Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
                 Environment.Exit(1);               
             }
         }

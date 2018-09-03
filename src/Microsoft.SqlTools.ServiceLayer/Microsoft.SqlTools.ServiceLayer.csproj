@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
@@ -8,7 +8,7 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>

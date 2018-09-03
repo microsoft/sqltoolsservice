@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -120,12 +121,12 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
         {
-            Logger.Write(LogLevel.Information, "Service host is shutting down...");
+            Logger.Write(TraceEventType.Information, "Service host is shutting down...");
 
-            // Call all the shutdown methods provided by the service components
+            // Call TracingLevel the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
             TimeSpan shutdownTimeout = TimeSpan.FromSeconds(ShutdownTimeoutInSeconds);
-            // shut down once all tasks are completed, or after the timeout expires, whichever comes first.
+            // shut down once TracingLevel tasks are completed, or after the timeout expires, whichever comes first.
             await Task.WhenAny(Task.WhenAll(shutdownTasks), Task.Delay(shutdownTimeout)).ContinueWith(t => Environment.Exit(0));
         }
 
@@ -137,7 +138,7 @@ namespace Microsoft.SqlTools.Utility
         /// <returns></returns>
         internal async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
         {
-            // Call all tasks that registered on the initialize request
+            // Call TracingLevel tasks that registered on the initialize request
             var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
             await Task.WhenAll(initializeTasks);
 

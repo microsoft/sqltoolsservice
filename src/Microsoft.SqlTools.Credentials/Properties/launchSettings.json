@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Microsoft.SqlTools.ServiceLayer": {
+    "Microsoft.SqlTools.Credentials": {
       "commandName": "Project",
       "commandLineArgs": "--log-dir C:\\Users\\arvran\\AppData\\Roaming\\sqlops\\mssql --enable-logging",
       "workingDirectory": "d:\\src\\sqlopsstudio"

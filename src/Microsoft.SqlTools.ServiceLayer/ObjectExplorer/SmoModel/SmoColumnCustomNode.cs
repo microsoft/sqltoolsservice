@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
@@ -73,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Error, $"Failed to get customized column name. error:{ex.Message}");
+                Logger.Write(TraceEventType.Error, $"Failed to get customized column name. error:{ex.Message}");
             }
             return string.Empty;
         }

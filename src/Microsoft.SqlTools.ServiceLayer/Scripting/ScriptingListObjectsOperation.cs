@@ -17,6 +17,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -61,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
 
                 Logger.Write(
-                    LogLevel.Verbose,
+                    TraceEventType.Verbose,
                     string.Format(
                         "Sending list object completion notification count {0}, objects: {1}",
                         databaseObjects,
@@ -78,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                Logger.Write(LogLevel.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
+                Logger.Write(TraceEventType.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
                 if (e.IsOperationCanceledException())
                 {
                     this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
@@ -89,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    Logger.Write(LogLevel.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
+                    Logger.Write(TraceEventType.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
                     this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
                     {
                         OperationId = this.OperationId,

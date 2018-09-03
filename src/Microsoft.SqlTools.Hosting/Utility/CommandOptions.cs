@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
@@ -22,7 +23,6 @@ namespace Microsoft.SqlTools.Hosting.Utility
             ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
-            EnableLogging = true;
 
             try
             {
@@ -38,7 +38,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
                         switch (argName)
                         {
                             case "-enable-logging":
-                                EnableLogging = true;
+                                break; //ignore this old option for now for backward compat - to be removed before checkin
+                            case "-tracing-level":
+                                SetTracingLevel(args[++i]);
                                 break;
                             case "-log-dir":
                                 SetLoggingDirectory(args[++i]);
@@ -120,6 +122,18 @@ namespace Microsoft.SqlTools.Hosting.Utility
                     ErrorMessage);
                 return str;
             }
+        }
+
+        public string TracingLevel { get; private set; }
+
+        private void SetTracingLevel(string tracingLevel)
+        {
+            if (string.IsNullOrWhiteSpace(tracingLevel))
+            {
+                return;
+            }
+
+            this.TracingLevel = tracingLevel;
         }
 
         private void SetLoggingDirectory(string loggingDirectory)

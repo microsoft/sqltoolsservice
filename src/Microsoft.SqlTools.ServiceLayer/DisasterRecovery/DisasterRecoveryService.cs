@@ -4,6 +4,7 @@
 //
 using System;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
@@ -183,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Error, "Failed to cancel restore session. error: " + ex.Message);
+                Logger.Write(TraceEventType.Error, "Failed to cancel restore session. error: " + ex.Message);
                 await requestContext.SendResult(result);
             }
         }

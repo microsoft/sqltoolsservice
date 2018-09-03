@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.Extensibility
                 }
                 catch (Exception)
                 {
-                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
+                    // we expect exceptions trying to scan TracingLevel DLLs since directory contains native libraries
                 }
             }
 
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// Initializes the store with a type to lookup exports of, and a function that configures the
         /// lookup parameters.
         /// </summary>
-        /// <param name="contractType">Type to use as a base for all extensions being looked up</param>
+        /// <param name="contractType">Type to use as a base for TracingLevel extensions being looked up</param>
         /// <param name="configure">Function that returns the configuration to be used</param>
         public ExtensionStore(Type contractType, Func<ConventionBuilder, ContainerConfiguration> configure)
         {

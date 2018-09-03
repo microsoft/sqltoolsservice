@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -6,6 +6,7 @@
     <AssemblyName>Microsoft.SqlTools.ServiceLayer.IntegrationTests</AssemblyName>
     <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>    
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />

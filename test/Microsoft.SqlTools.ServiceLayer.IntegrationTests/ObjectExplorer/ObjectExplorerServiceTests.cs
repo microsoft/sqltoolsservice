@@ -235,6 +235,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, "AllSqlObjects", queryFileName, baselineFileName), true);
         }
 
+        [Fact]
+        public void LoggerVerifyAllSqlObjects()
+        {
+            TestLogger test = new TestLogger()
+            {
+                TraceSource = System.Reflection.MethodInfo.GetCurrentMethod().Name,
+                EventType = System.Diagnostics.TraceEventType.Information,
+                TracingLevel = System.Diagnostics.SourceLevels.Information,
+            };
+
+            test.Initialize();
+            VerifyAllSqlObjects(); // This should emit log.
+            test.LogMessage = "An expected log message based on running of the VerifyAllSqlObjects() test";
+            test.Verify(); // The log message should be absent since the tracing level is set to Off.
+            test.Cleanup();
+
+        }
+
         //[Fact]
         //This takes take long to run so not a good test for CI builds
         public async void VerifySystemObjects()

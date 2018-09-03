@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.Utility;
 using System.Collections.Concurrent;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -51,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             catch(Exception ex) 
             {
-                Logger.Write(LogLevel.Warning, $"Failed to create restore config info. error: { ex.Message}");
+                Logger.Write(TraceEventType.Warning, $"Failed to create restore config info. error: { ex.Message}");
                 response.ErrorMessage = ex.Message;
             }
             finally
@@ -164,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     response.ErrorMessage += Environment.NewLine;
                     response.ErrorMessage += ex.InnerException.Message;
                 }
-                Logger.Write(LogLevel.Information, $"Failed to create restore plan. error: { response.ErrorMessage}");
+                Logger.Write(TraceEventType.Information, $"Failed to create restore plan. error: { response.ErrorMessage}");
             }
             return response;
 

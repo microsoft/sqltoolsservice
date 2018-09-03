@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
@@ -347,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (args != null)
             {
 
-                Logger.Write(LogLevel.Verbose, SR.BatchParserWrapperExecutionError);
+                Logger.Write(TraceEventType.Verbose, SR.BatchParserWrapperExecutionError);
                 throw new Exception(string.Format(CultureInfo.CurrentCulture,
                     SR.BatchParserWrapperExecutionEngineError, args.Message + Environment.NewLine + '\t' + args.Description));
 
@@ -389,7 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             catch (Exception e)
             {
                 // adding this for debugging
-                Logger.Write(LogLevel.Warning, "Exception Caught in BatchParserWrapper.OnBatchParserExecutionFinished(...)" + e.ToString());
+                Logger.Write(TraceEventType.Warning, "Exception Caught in BatchParserWrapper.OnBatchParserExecutionFinished(...)" + e.ToString());
                 throw;
             }
         }
@@ -408,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 if (args != null)
                 {
 
-                    Logger.Write(LogLevel.Information, SR.BatchParserWrapperExecutionEngineError);
+                    Logger.Write(TraceEventType.Information, SR.BatchParserWrapperExecutionEngineError);
                     throw new Exception(SR.BatchParserWrapperExecutionEngineError);
 
                 }
@@ -419,7 +420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 #if DEBUG
                 if (args != null)
                 {
-                    Logger.Write(LogLevel.Information, SR.BatchParserWrapperExecutionEngineBatchMessage);
+                    Logger.Write(TraceEventType.Information, SR.BatchParserWrapperExecutionEngineBatchMessage);
                 }
 #endif
             }
@@ -429,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 #if DEBUG
                 if (args != null && args.DataReader != null)
                 {
-                    Logger.Write(LogLevel.Information, SR.BatchParserWrapperExecutionEngineBatchResultSetProcessing);
+                    Logger.Write(TraceEventType.Information, SR.BatchParserWrapperExecutionEngineBatchResultSetProcessing);
                 }
 #endif
             }
@@ -437,13 +438,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             public void OnBatchResultSetFinished(object sender, EventArgs args)
             {
 #if DEBUG
-                Logger.Write(LogLevel.Information, SR.BatchParserWrapperExecutionEngineBatchResultSetFinished);
+                Logger.Write(TraceEventType.Information, SR.BatchParserWrapperExecutionEngineBatchResultSetFinished);
 #endif
             }
 
             public void OnBatchCancelling(object sender, EventArgs args)
             {
-                Logger.Write(LogLevel.Information, SR.BatchParserWrapperExecutionEngineBatchCancelling);
+                Logger.Write(TraceEventType.Information, SR.BatchParserWrapperExecutionEngineBatchCancelling);
             }
         }
 
