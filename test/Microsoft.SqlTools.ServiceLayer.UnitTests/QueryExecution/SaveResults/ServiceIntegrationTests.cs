@@ -244,6 +244,117 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
         #endregion
         
+        #region XML tests
+
+        [Fact]
+        public async Task SaveResultsXmlNonExistentQuery()
+        {
+            // Given: A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, false, ws);
+
+            // If: I attempt to save a result set from a query that doesn't exist
+            SaveResultsAsXmlRequestParams saveParams = new SaveResultsAsXmlRequestParams
+            {
+                OwnerUri = Constants.OwnerUri // Won't exist because nothing has executed
+            };
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await qes.HandleSaveResultsAsXmlRequest(saveParams, efv.Object);
+
+            // Then:
+            // ... An error event should have been fired
+            // ... No success event should have been fired
+            efv.Validate();
+        }
+
+        [Fact]
+        public async Task SaveResultAsXmlFailure()
+        {
+            // Given: 
+            // ... A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            ConcurrentDictionary<string, byte[]> storage;
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+
+            // ... The query execution service has executed a query with results
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            // If: I attempt to save a result set and get it to throw because of invalid column selection
+            SaveResultsAsXmlRequestParams saveParams = new SaveResultsAsXmlRequestParams
+            {
+                BatchIndex = 0,
+                FilePath = "qqq",
+                OwnerUri = Constants.OwnerUri,
+                ResultSetIndex = 0,
+                ColumnStartIndex = -1,
+                ColumnEndIndex = 100,
+                RowStartIndex = 0,
+                RowEndIndex = 5
+            };
+            qes.XmlFileFactory = GetXmlStreamFactory(storage, saveParams);
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await qes.HandleSaveResultsAsXmlRequest(saveParams, efv.Object);
+            await qes.ActiveQueries[saveParams.OwnerUri]
+                .Batches[saveParams.BatchIndex]
+                .ResultSets[saveParams.ResultSetIndex]
+                .SaveTasks[saveParams.FilePath];
+
+            // Then:
+            // ... An error event should have been fired
+            // ... No success event should have been fired
+            efv.Validate();
+        }
+
+        [Fact]
+        public async Task SaveResultsAsXmlSuccess()
+        {
+            // Given: 
+            // ... A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            ConcurrentDictionary<string, byte[]> storage;
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+
+            // ... The query execution service has executed a query with results
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            // If: I attempt to save a result set from a query
+            SaveResultsAsXmlRequestParams saveParams = new SaveResultsAsXmlRequestParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                FilePath = "qqq",
+                BatchIndex = 0,
+                ResultSetIndex = 0,
+                Formatted = true
+            };
+            qes.XmlFileFactory = GetXmlStreamFactory(storage, saveParams);
+            
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardResultValidator()
+                .Complete();
+            await qes.HandleSaveResultsAsXmlRequest(saveParams, efv.Object);
+            await qes.ActiveQueries[saveParams.OwnerUri]
+                .Batches[saveParams.BatchIndex]
+                .ResultSets[saveParams.ResultSetIndex]
+                .SaveTasks[saveParams.FilePath];
+
+            // Then:
+            // ... I should have a successful result
+            // ... There should not have been an error
+            efv.Validate();
+        }
+
+        #endregion
+        
         #region Excel Tests 
         
         [Fact]
@@ -385,6 +496,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             return mock.Object;
         }
 
+        private static IFileStreamFactory GetXmlStreamFactory(IDictionary<string, byte[]> storage,
+            SaveResultsAsXmlRequestParams saveParams)
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
+                .Returns<string>(output =>
+                {
+                    storage.Add(output, new byte[8192]);
+                    return new SaveAsXmlFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                });
+
+            return mock.Object;
+        }
+        
         private static IFileStreamFactory GetExcelStreamFactory(IDictionary<string, byte[]> storage,
             SaveResultsAsExcelRequestParams saveParams)
         {

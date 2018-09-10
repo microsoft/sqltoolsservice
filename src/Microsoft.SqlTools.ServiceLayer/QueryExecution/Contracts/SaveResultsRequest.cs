@@ -119,6 +119,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
+    /// Parameters to save results as XML
+    /// </summary>
+    public class SaveResultsAsXmlRequestParams: SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Formatting of the XML file
+        /// </summary>
+        public bool Formatted { get; set; }
+        
+        /// <summary>
+        /// Encoding of the XML file
+        /// </summary>
+        public string Encoding { get; set; }
+    }
+    
+    /// <summary>
     /// Parameters for the save results result
     /// </summary>
     public class SaveResultRequestResult
@@ -157,6 +173,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public static readonly
             RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult> Type =
             RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult>.Create("query/saveJson");
+    }
+    
+    /// <summary>
+    /// Request type to save results as XML
+    /// </summary>
+    public class SaveResultsAsXmlRequest
+    {
+        public static readonly
+            RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult> Type =
+                RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult>.Create("query/saveXml");
     }
 
 }

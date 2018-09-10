@@ -524,6 +524,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
+        /// Request to save query results as XML
+        /// </summary>
+        public async Task<SaveResultRequestResult> SaveAsXml(string ownerUri, string filename, int batchIndex, int resultSetIndex)
+        {
+            var saveParams = new SaveResultsAsXmlRequestParams
+            {
+                OwnerUri = ownerUri,
+                BatchIndex = batchIndex,
+                ResultSetIndex = resultSetIndex,
+                FilePath = filename
+            };
+
+            var result = await Driver.SendRequest(SaveResultsAsXmlRequest.Type, saveParams);
+            return result;
+        }
+        
+        /// <summary>
         /// Request a subset of results from a query
         /// </summary>
         public async Task<SubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
