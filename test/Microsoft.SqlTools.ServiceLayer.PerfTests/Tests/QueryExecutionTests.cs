@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                     await testService.RunQueryAndWaitToStart(queryTempFile.FilePath, 50000);
                     await testService.ExecuteWithTimeout(timer, 500000, async () =>
                     {
-                        var queryResult = await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
+                        var queryResult = await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 50);
                         if (queryResult != null)
                         {
                             Assert.NotNull(queryResult);

@@ -5,6 +5,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -434,8 +435,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             for (int i = 0; i < TestRunner.Instance.NumberOfRuns; i++)
             {
                 Console.WriteLine("Iteration Number: " + i);
-               
-                await testToRun(timer);
+                try
+                {
+                    await testToRun(timer);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine("Iteration Failed: " + ex.Message);
+                }
+                Thread.Sleep(5000);
             }
             timer.Print(testName);
         }
