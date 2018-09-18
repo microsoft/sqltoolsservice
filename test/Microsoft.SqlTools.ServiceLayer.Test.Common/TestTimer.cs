@@ -73,11 +73,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 double elapsed = Percentile(iterationArray, 0.5);
                 var currentColor = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test Name: {0} Run time in milliSeconds: {1}", testName, TotalMilliSeconds));
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test Name: {0} Run time in milliSeconds: {1}", testName, elapsed));
                 Console.ForegroundColor = currentColor;
                 string resultContent = Newtonsoft.Json.JsonConvert.SerializeObject(new TestResult
                 {
-                    ElapsedTime = TotalMilliSeconds,
+                    ElapsedTime = elapsed,
                     MetricValue = elapsed,
                     PrimaryMetric = "ElapsedTimeMetric",
                     Iterations = iterationArray,
