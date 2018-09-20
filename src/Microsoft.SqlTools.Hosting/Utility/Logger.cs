@@ -415,7 +415,7 @@ namespace Microsoft.SqlTools.Utility
             if (eventCache == null)
                 return message;
 
-            return $"{(IsEnabled(TraceOptions.DateTime) ? string.Format(CultureInfo.InvariantCulture, "{0} ", eventCache.DateTime.ToString("u", CultureInfo.InvariantCulture)) : string.Empty)}"
+            return $"{(IsEnabled(TraceOptions.DateTime) ? string.Format(CultureInfo.InvariantCulture, "{0} ", eventCache.DateTime.ToLocalTime().ToString("u", CultureInfo.InvariantCulture)) : string.Empty)}"
                  + $"{(IsEnabled(TraceOptions.ProcessId) ? string.Format(CultureInfo.InvariantCulture, "pid:{0} ", eventCache.ProcessId.ToString(CultureInfo.InvariantCulture)) : string.Empty)}"
                  + $"{(IsEnabled(TraceOptions.ThreadId) ? string.Format(CultureInfo.InvariantCulture, "tid:{0} ", eventCache.ThreadId.ToString(CultureInfo.InvariantCulture)) : string.Empty)}"
                  + message;
