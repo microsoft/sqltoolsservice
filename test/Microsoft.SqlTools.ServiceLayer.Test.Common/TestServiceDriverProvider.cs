@@ -5,15 +5,18 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
+using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
@@ -29,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public TestServiceDriverProvider()
         {
-            Driver = new ServiceTestDriver();
+            Driver = new ServiceTestDriver(TestRunner.Instance.ExecutableFilePath);
             Driver.Start().Wait();
             this.isRunning = true;
         }
@@ -229,6 +232,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
+        /// Request a list of completion items for a position in a block of text
+        /// </summary>
+        public async Task RequestRebuildIntelliSense(string ownerUri)
+        {
+            var rebuildIntelliSenseParams = new RebuildIntelliSenseParams();
+            rebuildIntelliSenseParams.OwnerUri = ownerUri;
+
+            await Driver.SendEvent(RebuildIntelliSenseNotification.Type, rebuildIntelliSenseParams);
+        }
+
+
+        /// <summary>
         /// Request a a hover tooltop
         /// </summary>
         public async Task<Hover> RequestHover(string ownerUri, string text, int line, int character)
@@ -284,6 +299,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
 
+            return await RunQueryAndWaitToComplete(ownerUri, timeoutMilliseconds);
+        }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI
+        /// </summary>
+        public async Task<QueryCompleteParams> RunQueryAndWaitToComplete(string ownerUri, int timeoutMilliseconds = 5000)
+        {
+
             var queryParams = new ExecuteDocumentSelectionParams
             {
                 OwnerUri = ownerUri,
@@ -300,6 +324,79 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI
+        /// </summary>
+        public async Task<BatchEventParams> RunQueryAndWaitToStart(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        {
+            // Write the query text to a backing file
+            WriteToFile(ownerUri, query);
+
+            return await RunQueryAndWaitToStart(ownerUri, timeoutMilliseconds);
+        }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI
+        /// </summary>
+        public async Task<BatchEventParams> RunQueryAndWaitToStart(string ownerUri, int timeoutMilliseconds = 5000)
+        {
+            var queryParams = new ExecuteDocumentSelectionParams
+            {
+                OwnerUri = ownerUri,
+                QuerySelection = null
+            };
+
+            var result = await Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
+            if (result != null)
+            {
+                var eventResult = await Driver.WaitForEvent(BatchStartEvent.Type, timeoutMilliseconds);
+                return eventResult;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<SessionCreatedParameters> RequestObjectExplorerCreateSession(ConnectionDetails connectionDetails, int timeoutMilliseconds = 5000)
+        {
+            var result = await Driver.SendRequest(CreateSessionRequest.Type, connectionDetails);
+            if (result != null)
+            {
+                var eventResult = await Driver.WaitForEvent(CreateSessionCompleteNotification.Type, timeoutMilliseconds);
+                return eventResult;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<ExpandResponse> RequestObjectExplorerExpand(ExpandParams expandParams, int timeoutMilliseconds = 5000)
+        {
+            var result = await Driver.SendRequest(ExpandRequest.Type, expandParams);
+            if (result)
+            {
+                var eventResult = await Driver.WaitForEvent(ExpandCompleteNotification.Type, timeoutMilliseconds);
+                return eventResult;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<ScriptingResult> RequestScript(ScriptingParams scriptingParams, int timeoutMilliseconds = 5000)
+        {
+            var result = await Driver.SendRequest(ScriptingRequest.Type, scriptingParams);
+            return result;
+        }
+
+        public async Task<CloseSessionResponse> RequestObjectExplorerCloseSession(CloseSessionParams closeSessionParams, int timeoutMilliseconds = 5000)
+        {
+            return await Driver.SendRequest(CloseSessionRequest.Type, closeSessionParams);
         }
 
         /// <summary>
@@ -324,7 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 await ConnectForQuery(serverType, query, queryTempFile.FilePath, databaseName);
-                var queryResult = await CalculateRunTime(() => RunQueryAndWaitToComplete(queryTempFile.FilePath, query, 50000), false);
+                var queryResult = await CalculateRunTime(() => RunQueryAndWaitToComplete(queryTempFile.FilePath, query, 50000));
                 Assert.NotNull(queryResult);
                 Assert.NotNull(queryResult.BatchSummaries);
 
@@ -332,11 +429,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public async Task<T> CalculateRunTime<T>(Func<Task<T>> testToRun, bool printResult, [CallerMemberName] string testName = "")
+        public static async Task RunTestIterations(Func<TestTimer, Task> testToRun, [CallerMemberName] string testName = "")
         {
-            TestTimer timer = new TestTimer() { PrintResult = printResult };
+            TestTimer timer = new TestTimer() { PrintResult = true };
+            for (int i = 0; i < TestRunner.Instance.NumberOfRuns; i++)
+            {
+                Console.WriteLine("Iteration Number: " + i);
+                try
+                {
+                    await testToRun(timer);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine("Iteration Failed: " + ex.Message);
+                }
+                Thread.Sleep(5000);
+            }
+            timer.Print(testName);
+        }
+
+        public async Task<T> CalculateRunTime<T>(Func<Task<T>> testToRun, TestTimer timer = null)
+        {
+            if (timer != null)
+            {
+                timer.Start();
+            }
             T result = await testToRun();
-            timer.EndAndPrint(testName);
+            if (timer != null)
+            {
+                timer.End();
+            }
 
             return result;
         }
@@ -344,11 +466,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public async Task ExecuteWithTimeout(TestTimer timer, int timeout, Func<Task<bool>> repeatedCode,
             TimeSpan? delay = null, [CallerMemberName] string testName = "")
         {
+            timer.Start();
             while (true)
             {
                 if (await repeatedCode())
                 {
-                    timer.EndAndPrint(testName);
+                    timer.End();
                     break;
                 }
                 if (timer.TotalMilliSecondsUntilNow >= timeout)
@@ -408,6 +531,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return result;
         }
 
+        /// <summary>
+        /// Request to save query results as XML
+        /// </summary>
+        public async Task<SaveResultRequestResult> SaveAsXml(string ownerUri, string filename, int batchIndex, int resultSetIndex)
+        {
+            var saveParams = new SaveResultsAsXmlRequestParams
+            {
+                OwnerUri = ownerUri,
+                BatchIndex = batchIndex,
+                ResultSetIndex = resultSetIndex,
+                FilePath = filename
+            };
+
+            var result = await Driver.SendRequest(SaveResultsAsXmlRequest.Type, saveParams);
+            return result;
+        }
+        
         /// <summary>
         /// Request a subset of results from a query
         /// </summary>

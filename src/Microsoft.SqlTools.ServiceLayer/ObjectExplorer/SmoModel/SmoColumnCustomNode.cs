@@ -109,25 +109,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     }
                 }
 
-                // These types support Length
+                // These types supports detailed information
                 switch (dataType.SqlDataType)
                 {
                     case SqlDataType.Char:
                     case SqlDataType.NChar:
                     case SqlDataType.Binary:
-                    case SqlDataType.VarChar:   // Supports Max Length
-                    case SqlDataType.NVarChar:  // Supports Max Length
-                    case SqlDataType.VarBinary: // Supports Max Length
-                        typeName += "(";
-                        if (dataType.MaximumLength == 0)
-                        {
-                            typeName += "max";
-                        }
-                        else
-                        {
-                            typeName += dataType.MaximumLength;
-                        }
-                        typeName += ")";
+                    case SqlDataType.VarChar:
+                    case SqlDataType.NVarChar:
+                    case SqlDataType.VarBinary:
+                        typeName += $"({dataType.MaximumLength})";
                         break;
                     case SqlDataType.Numeric:
                     case SqlDataType.Decimal:
@@ -137,6 +128,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     case SqlDataType.Time:
                     case SqlDataType.DateTimeOffset:
                         typeName += $"({dataType.NumericScale})";
+                        break;
+                    case SqlDataType.VarBinaryMax:
+                    case SqlDataType.NVarCharMax:
+                    case SqlDataType.VarCharMax:
+                        typeName += "(max)";
                         break;
                 }
             }

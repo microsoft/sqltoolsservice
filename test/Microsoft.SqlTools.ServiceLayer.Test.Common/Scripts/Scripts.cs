@@ -14,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         private const string ResourceNameRefix = "Microsoft.SqlTools.ServiceLayer.Test.Common.Scripts.";
 
         public const string MasterBasicQuery = "SELECT * FROM sys.all_columns"; //basic queries should return at least 10000 rows
+        public const string MasterLongQuery = @"SELECT * FROM sys.all_columns a1 
+                                                JOIN sys.all_columns a2 on a1.object_id = a2.object_id";
 
         public const string DelayQuery = "WAITFOR DELAY '00:01:00'";
 

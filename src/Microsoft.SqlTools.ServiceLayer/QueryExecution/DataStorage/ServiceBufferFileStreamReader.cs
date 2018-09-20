@@ -151,11 +151,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 // Use the right read function for the type to read the data from the file
                 ReadMethod readFunc;
-                if(!readMethods.TryGetValue(colType, out readFunc))
+                if (!readMethods.TryGetValue(colType, out readFunc))
                 {
                     // Treat everything else as a string
                     readFunc = readMethods[typeof(string)];
-                } 
+                }
                 FileStreamReadResult result = readFunc(currentFileOffset, rowId, column);
                 currentFileOffset += result.TotalLength;
                 results.Add(result.Value);
@@ -193,15 +193,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// If provided, this function will be used to determine if the value is null
         /// </param>
         /// <param name="toStringFunc">Optional function to use to convert the object to a string.</param>
+        /// <param name="setInvariantCultureDisplayValue">Optional parameter indicates whether the culture invariant display value should be provided.</param>
         /// <typeparam name="T">The expected type of the cell. Used to keep the code honest</typeparam>
         /// <returns>The object, a display value, and the length of the value + its length</returns>
         private FileStreamReadResult ReadCellHelper<T>(long offset, long rowId,
             Func<int, T> convertFunc,
             Func<int, bool> isNullFunc = null,
-            Func<T, string> toStringFunc = null)
+            Func<T, string> toStringFunc = null,
+            bool setInvariantCultureDisplayValue = false)
         {
             LengthResult length = ReadLength(offset);
-            DbCellValue result = new DbCellValue {RowId = rowId};
+            DbCellValue result = new DbCellValue { RowId = rowId };
 
             if (isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength))
             {
@@ -216,6 +218,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
+                if (setInvariantCultureDisplayValue)
+                {
+                    string icDisplayValue = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}", result.RawObject);
+
+                    // Only set the value when it is different from the DisplayValue to reduce the size of the result
+                    //
+                    if (icDisplayValue != result.DisplayValue)
+                    {
+                        result.InvariantCultureDisplayValue = icDisplayValue;
+                    }
+                }
                 result.IsNull = false;
             }
 
@@ -300,7 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A single</returns>
         internal FileStreamReadResult ReadSingle(long fileOffset, long rowId)
         {
-            return ReadCellHelper(fileOffset, rowId, length => BitConverter.ToSingle(buffer, 0));
+            return ReadCellHelper(fileOffset, rowId, length => BitConverter.ToSingle(buffer, 0), setInvariantCultureDisplayValue: true);
         }
 
         /// <summary>
@@ -311,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A double</returns>
         internal FileStreamReadResult ReadDouble(long fileOffset, long rowId)
         {
-            return ReadCellHelper(fileOffset, rowId, length => BitConverter.ToDouble(buffer, 0));
+            return ReadCellHelper(fileOffset, rowId, length => BitConverter.ToDouble(buffer, 0), setInvariantCultureDisplayValue: true);
         }
 
         /// <summary>
@@ -326,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 int[] arrInt32 = new int[(length - 3) / 4];
                 Buffer.BlockCopy(buffer, 3, arrInt32, 0, length - 3);
                 return new SqlDecimal(buffer[0], buffer[1], buffer[2] == 1, arrInt32);
-            });
+            }, setInvariantCultureDisplayValue: true);
         }
 
         /// <summary>
@@ -341,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 int[] arrInt32 = new int[length / 4];
                 Buffer.BlockCopy(buffer, 0, arrInt32, 0, length);
                 return new decimal(arrInt32);
-            });
+            }, setInvariantCultureDisplayValue: true);
         }
 
         /// <summary>
@@ -402,7 +415,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
-            return ReadCellHelper(offset, rowId, length => {
+            return ReadCellHelper(offset, rowId, length =>
+            {
                 long dtTicks = BitConverter.ToInt64(buffer, 0);
                 long dtOffset = BitConverter.ToInt64(buffer, 8);
                 return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset));
