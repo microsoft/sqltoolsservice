@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 return 0;
             }
 
-            Logger.Initialize(logFilePrefix: "testdriver", traceSource: "perftests");
+            Logger.Initialize(logFilePath: Logger.GenerateLogFilePath("testdriver"), traceSource: "perftests");
 
             return TestRunner.RunTests(args, "Microsoft.SqlTools.ServiceLayer.PerfTests.").Result;
         }

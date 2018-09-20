@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Common.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -29,8 +29,8 @@
     <PackageReference Include="System.Composition" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.DataProtocol.Contracts\Microsoft.SqlTools.DataProtocol.Contracts.csproj" />
+      <ProjectReference Include="..\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.v2.csproj" />
+      <ProjectReference Include="..\Microsoft.SqlTools.DataProtocol.Contracts\Microsoft.SqlTools.DataProtocol.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />

@@ -14,29 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class CommandOptionsTests
     {
-        [Fact]
-        public void LoggingEnabledWhenFlagProvided()
-        {
-            var args = new string[] {"--enable-logging"};
-            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-            Assert.NotNull(options);
-
-            Assert.True(options.EnableLogging);
-            Assert.False(options.ShouldExit);
-            Assert.Equal(options.Locale, string.Empty);
-        }
-
-        [Fact]
-        public void LoggingDisabledWhenFlagNotProvided()
-        {
-            var args = new string[] {};
-            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-            Assert.NotNull(options);
-
-            Assert.False(options.EnableLogging);
-            Assert.False(options.ShouldExit);
-            Assert.Equal(options.Locale, string.Empty);
-        }
 
         [Fact]
         public void UsageIsShownWhenHelpFlagProvided()
@@ -63,13 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         [Fact]
         public void DefaultValuesAreUsedWhenNoArgumentsAreProvided()
         {
-            var args = new string[] {};
+            var args = new string[] { };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.NotNull(options);
-   
-            Assert.False(options.EnableLogging);
+
+            Assert.Equal(string.Empty, options.ErrorMessage);
+            Assert.Null(options.TracingLevel);
+            Assert.Null(options.LogFilePath);
             Assert.False(options.ShouldExit);
-            Assert.True(string.IsNullOrWhiteSpace(options.LoggingDirectory));
+            Assert.False(string.IsNullOrWhiteSpace(options.LoggingDirectory));
+            Assert.Equal(Path.Combine(options.DefaultLogRoot, options.ServiceName), options.LoggingDirectory);
             Assert.Equal(options.Locale, string.Empty);
         }
         
@@ -107,7 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             // Asserting all options were properly set 
             Assert.NotNull(options);
-            Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
             Assert.Equal(options.Locale, string.Empty);
         }
@@ -123,6 +102,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
             Assert.Equal(options.LoggingDirectory, logDir);
+        }
+
+
+        [Fact]
+        public void TracingLevelSet()
+        {
+            string expectedLevel = "Critical";
+            var args = new string[] { "--tracing-level", expectedLevel };
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.TracingLevel, expectedLevel);
+        }
+
+
+        [Fact]
+        public void LogFilePathSet()
+        {
+            string expectedFilePath = Path.GetRandomFileName();
+            var args = new string[] { "--log-file", expectedFilePath };
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.LogFilePath, expectedFilePath);
         }
     }
 }

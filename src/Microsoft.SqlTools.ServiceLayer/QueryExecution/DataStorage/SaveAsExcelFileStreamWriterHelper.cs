@@ -794,7 +794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("cellStyles");
                 xw.WriteAttributeString("count", "1");
                 xw.WriteStartElement("cellStyle");
-                xw.WriteAttributeString("name", "Information");
+                xw.WriteAttributeString("name", "Normal");
                 xw.WriteAttributeString("builtinId", "0");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteEndElement(); // cellStyle

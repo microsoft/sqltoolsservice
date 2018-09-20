@@ -32,7 +32,9 @@ namespace Microsoft.SqlTools.ResourceProvider
                     return;
                 }
 
-                string logFilePath = "SqlToolsResourceProviderService";
+                string logFilePath = commandOptions.LogFilePath;
+                if (string.IsNullOrWhiteSpace(logFilePath))
+                    logFilePath = "SqlToolsResourceProviderService";
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
@@ -40,7 +42,7 @@ namespace Microsoft.SqlTools.ResourceProvider
 
                 // turn on Verbose logging during early development
                 // we need to switch to Information when preparing for public preview
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePrefix: logFilePath, traceSource: "resourceprovider");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "resourceprovider");
                 Logger.Write(TraceEventType.Information, "Starting SqlTools Resource Provider");
 
                 // set up the host details and profile paths 

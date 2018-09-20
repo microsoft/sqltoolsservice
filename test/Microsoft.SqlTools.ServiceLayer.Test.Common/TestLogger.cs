@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public class TestLogger
     {
-        private string logFilePrefix;
+        private string logFilePath;
         private string logMessage;
         private string logContents;
         private string logFileName;
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public string TestName { get => testName ?? TraceSource; set => testName = value; }
         public string TraceSource { get; set; } = "sqltoolsTest";
         public string LogMessage { get => logMessage ?? $"{TestName} test message"; set => logMessage = value; }
-        public string LogFilePrefix { get => logFilePrefix ?? Path.Combine(Directory.GetCurrentDirectory(), TraceSource); set => logFilePrefix = value; }
+        public string LogFilePath { get => logFilePath ?? Logger.GenerateLogFilePath(Path.Combine(Directory.GetCurrentDirectory(), TraceSource)); set => logFilePath = value; }
         public TraceEventType EventType { get; set; } = TraceEventType.Information;
         public SourceLevels TracingLevel { get; set; } = SourceLevels.Critical;
         public bool DoNotUseTraceSource { get; set; } = false;
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public string LogFileName { get => logFileName ?? Logger.LogFileFullPath; set => logFileName = value; }
         public void Initialize() =>
-            Logger.Initialize(TracingLevel, LogFilePrefix, TraceSource); // initialize the logger
+            Logger.Initialize(TracingLevel, LogFilePath, TraceSource); // initialize the logger
         public string LogContents
         {
             get
@@ -92,11 +92,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             if (expectLogMessage)
             {
-                Assert.True(Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
+                Assert.True(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
             }
             else
             {
-                Assert.False(Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
+                Assert.False(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
             }
             if (shouldVerifyCallstack)
                 VerifyCallstack(callstackMessage, expectLogMessage);
@@ -119,20 +119,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             if (expectLogMessage)
             {
-                Assert.True(Regex.IsMatch(LogContents, $"{message}", RegexOptions.Compiled));
+                Assert.True(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $"{message}", RegexOptions.Compiled));
             }
             else
             {
-                Assert.False(Regex.IsMatch(LogContents, $"{message}", RegexOptions.Compiled));
+                Assert.False(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $"{message}", RegexOptions.Compiled));
             }
+        }
+
+
+        public static void VerifyInitialization(SourceLevels expectedTracingLevel, string expectedTraceSource, string logFilePath, bool isLogFileExpectedToExist, int? testNo = null)
+        {
+            string FailureMessagePrefix = testNo.HasValue ? $"For Test No:{testNo.Value.ToString()}," : string.Empty;
+            Assert.False(string.IsNullOrWhiteSpace(logFilePath), $"{FailureMessagePrefix} LogFilePath should not be  null or whitespaces");
+            Assert.True(expectedTracingLevel == Logger.TracingLevel, $"{FailureMessagePrefix} expected Tracing Level did not match the configured value");
+            if (isLogFileExpectedToExist)
+                Assert.True(File.Exists(logFilePath), $"{FailureMessagePrefix} logFilePath:{logFilePath} must exist");
+            else
+                Assert.False(File.Exists(logFilePath), $"{FailureMessagePrefix} {logFilePath} must not exist");
+            Assert.True(string.Compare(expectedTraceSource, Logger.TraceSource.Name, ignoreCase: true) == 0, $"{FailureMessagePrefix} expected Trace Source Name did not match the configured value");
         }
 
         public void Cleanup() => Cleanup(Logger.LogFileFullPath);
 
-        public void Cleanup(string logFileName)
+        public static void Cleanup(string logFileName)
         {
-            // delete the test log file. We should have already asserted that this log file exists during verification.
-            File.Delete(logFileName);
+            if (File.Exists(logFileName))
+            {
+                Logger.Close();
+                File.Delete(logFileName);
+            }
         }
+
     }
 }

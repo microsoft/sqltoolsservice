@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         {
             JsonSerializerSettings = new JsonSerializerSettings();
 
-            // Camel case TracingLevel object properties
+            // Camel case all object properties
             JsonSerializerSettings.ContractResolver =
                 new CamelCasePropertyNamesContractResolver();
         }

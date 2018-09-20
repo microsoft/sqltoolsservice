@@ -87,24 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         }
 
         [Fact]
-        public void LoggerVerifyScriptAsCreateTable()
-        {
-            TestLogger test = new TestLogger()
-            {
-                TraceSource = System.Reflection.MethodInfo.GetCurrentMethod().Name,
-                EventType = System.Diagnostics.TraceEventType.Information,
-                TracingLevel = System.Diagnostics.SourceLevels.Information,
-            };
-
-            test.Initialize();
-            VerifyScriptAsCreateTable(); // This should emit log.
-            test.LogMessage = "An expected log message based on running of the VerifyAllSqlObjects() test";
-            test.Verify(); // The log message should be absent since the tracing level is set to Off.
-            test.Cleanup();
-
-        }
-
-        [Fact]
         public async void VerifyScriptAsCreateTable()
         {
             string query = @"CREATE TABLE testTable1 (c1 int)

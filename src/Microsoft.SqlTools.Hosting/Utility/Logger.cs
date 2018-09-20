@@ -7,65 +7,12 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.Utility
 {
-    ///// <summary>
-    ///// Defines the level indicators for log messages.
-    ///// </summary>
-    //[Flags]
-    //public enum LogLevel
-    //{
-
-    //    /// <summary>
-    //    /// Allows defaultTracingLevel events through.
-    //    /// </summary>
-    //    All = -1,
-
-    //    /// <summary>
-    //    /// Does not allow any events through.
-    //    /// </summary>
-    //    Off = 0,
-
-    //    /// <summary>
-    //    /// Allows only System.Diagnostics.TraceEventType.Critical events through.
-    //    /// </summary>
-    //    Critical = 1,
-
-    //    /// <summary>
-    //    /// Allows System.Diagnostics.TraceEventType.Critical and System.Diagnostics.TraceEventType.Error
-    //    /// events through.
-    //    /// </summary>
-    //    Error = 3,
-
-    //    /// <summary>
-    //    /// Allows System.Diagnostics.TraceEventType.Critical, System.Diagnostics.TraceEventType.Error,
-    //    /// and System.Diagnostics.TraceEventType.Warning events through.
-    //    /// </summary>
-    //    Warning = 7,
-
-    //    /// <summary>
-    //    /// Allows System.Diagnostics.TraceEventType.Critical, System.Diagnostics.TraceEventType.Error,
-    //    /// System.Diagnostics.TraceEventType.Warning, and System.Diagnostics.TraceEventType.Information
-    //    /// events through.
-    //    /// </summary>
-    //    Information = 15,
-
-    //    /// <summary>
-    //    /// Allows System.Diagnostics.TraceEventType.Critical, System.Diagnostics.TraceEventType.Error,
-    //    /// System.Diagnostics.TraceEventType.Warning, System.Diagnostics.TraceEventType.Information,
-    //    /// and System.Diagnostics.TraceEventType.Verbose events through.
-    //    /// </summary>
-    //    Verbose = 31,
-
-    //    /// <summary>
-    //    /// Allows the System.Diagnostics.TraceEventType.Stop, System.Diagnostics.TraceEventType.Start,
-    //    /// System.Diagnostics.TraceEventType.Suspend, System.Diagnostics.TraceEventType.Transfer,
-    //    /// and System.Diagnostics.TraceEventType.Resume events through.
-    //    /// </summary>
-    //    ActivityTracing = 65280
-    //}
-
     /// <summary>
     /// Ordinal value of each LogEvent value corresponds to a unique event id to be used in trace.
     /// By convention explicitly specify the integer value so that when this list grows large it is easy to figure out
@@ -84,23 +31,30 @@ namespace Microsoft.SqlTools.Utility
     /// </summary>
     public static class Logger
     {
-        private const SourceLevels defaultTracingLevel = SourceLevels.All; //DevNote: change to 'Critical' prior to checkin
-        private const string defaultTraceSrouce = "sqltools";
-        private static string logFilePrefix;
+        internal const SourceLevels defaultTracingLevel = SourceLevels.Critical; 
+        internal const string defaultTraceSrouce = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
+        private static string logFileFullPath;
 
         internal static TraceSource TraceSource { get; set; }
-        public static string LogFileFullPath { get; private set; }
-        private static SqlToolsTraceListener Listener { get; set; }
-        private static string LogFilePrefix
+        internal static string LogFileFullPath
         {
-            get => logFilePrefix;
-            set
+            get => logFileFullPath;
+            private set
             {
-                logFilePrefix = value;
-                ConfigureLogfilePath();
+                //If the log file path has a directory component then ensure that the directory exists.
+                if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(value));
+                logFileFullPath = value;
                 ConfigureListener();
             }
+        }
+
+        private static SqlToolsTraceListener Listener { get; set; }
+
+        private static void ConfigureLogFile(string logFilePrefix)
+        {
+            LogFileFullPath = GenerateLogFilePath(logFilePrefix);
         }
 
         /// <summary>
@@ -143,49 +97,60 @@ namespace Microsoft.SqlTools.Utility
         }
 
         /// <summary>
-        /// Initializes the Logger for the current session.
+        /// Initializes the Logger for the current process.
         /// </summary>
-        /// <param name="logFilePrefix">
-        /// Optional. Specifies the log name prefix for the log file name at which log messages will be written.
-        /// </param>
         /// <param name="tracingLevel">
         /// Optional. Specifies the minimum log message level to write to the log file.
         /// </param>
+        /// <param name="logFilePath">
+        /// Optional. Specifies the log name prefix for the log file name at which log messages will be written.
+        /// <param name="traceSource">
+        /// Optional. Specifies the tracesource name.
+        /// </param>
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
-            string logFilePrefix = defaultTraceSrouce,
+            string logFilePath = null,
             string traceSource = defaultTraceSrouce)
         {
             Logger.tracingLevel = tracingLevel;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
-            LogFilePrefix = logFilePrefix;
+            if (string.IsNullOrWhiteSpace(logFilePath))
+                logFilePath = GenerateLogFilePath(traceSource);
+            LogFileFullPath = logFilePath;
             Write(TraceEventType.Information, $"Initialized the {traceSource} logger");
         }
 
         /// <summary>
-        /// Initializes the Logger for the current session.
+        /// Initializes the Logger for the current process.
         /// </summary>
-        /// <param name="logFilePrefix">
-        /// Optional. Specifies the log name prefix for the log file name at which log messages will be written.
         /// </param>
         /// <param name="tracingLevel">
         /// Optional. Specifies the minimum log message level to write to the log file.
         /// </param>
-        public static void Initialize(string tracingLevel, string logFilePrefix = defaultTraceSrouce, string traceSource = defaultTraceSrouce)
+        /// <param name="logFilePath">
+        /// Optional. Specifies the log name prefix for the log file name at which log messages will be written.
+        /// <param name="traceSource">
+        /// Optional. Specifies the tracesource name.
+        /// </param>
+        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSrouce)
             => Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
-, logFilePrefix,
-                traceSource);
+                , logFilePath
+                , traceSource);
 
         /// <summary>
         /// Configures the LogfilePath for the tracelistener in use for this process.
         /// </summary>
-        private static void ConfigureLogfilePath()
+        /// <returns>
+        /// Returns the log file path corresponding to logfilePrefix
+        /// </returns>
+        public static string GenerateLogFilePath(string logFilePrefix)
         {
-            Debug.Assert(!string.IsNullOrWhiteSpace(LogFilePrefix), "LogfilePath cannot be configured if LogFilePrefix has not been set" );
+            if (string.IsNullOrWhiteSpace(logFilePrefix))
+                throw new ArgumentOutOfRangeException(nameof(logFilePrefix), $"LogfilePath cannot be configured if argument {nameof(logFilePrefix)} has not been set");
             // Create the log directory
-            string logDir = Path.GetDirectoryName(LogFilePrefix);
+            string logDir = Path.GetDirectoryName(logFilePrefix);
             if (!string.IsNullOrWhiteSpace(logDir))
             {
                 if (!Directory.Exists(logDir))
@@ -215,11 +180,11 @@ namespace Microsoft.SqlTools.Utility
             }
 
             // make the log path unique
-            LogFileFullPath = $"{LogFilePrefix}_{DateTime.Now.Year,4:D4}{DateTime.Now.Month,2:D2}{DateTime.Now.Day,2:D2}{DateTime.Now.Hour,2:D2}{DateTime.Now.Minute,2:D2}{DateTime.Now.Second,2:D2}{uniqueId}.log";
+            return $"{logFilePrefix}_{DateTime.Now.Year,4:D4}{DateTime.Now.Month,2:D2}{DateTime.Now.Day,2:D2}{DateTime.Now.Hour,2:D2}{DateTime.Now.Minute,2:D2}{DateTime.Now.Second,2:D2}{uniqueId}.log";
         }
 
         private static void ConfigureListener()
-        { 
+        {
             Debug.Assert(!string.IsNullOrWhiteSpace(LogFileFullPath), "Listeners cannot be configured if LogFileFullPath has not been set");
             Listener = new SqlToolsTraceListener(LogFileFullPath)
             {
@@ -315,15 +280,88 @@ namespace Microsoft.SqlTools.Utility
     }
 
     /// <summary>
-    /// This listener has the same behavior as TextWriterTraceListener except it controls how the 
-    /// TraceOptions.DateTime, TraceOptions.ProcessId and TraceOptions.ThreadId is written to the output stream.
-    /// This listener writes the above options if turned inline with the message 
-    /// instead of writing them to indented fields as is the case with TextWriterTraceListener.
+    /// Implementation of a Lazy class for disposable objects, so that the dispose calls can be correctly chained.
+    /// Stolen from: https://stackoverflow.com/questions/30664527/how-to-stop-streamwriter-to-not-to-create-file-if-nothing-to-write
     /// </summary>
-    internal class SqlToolsTraceListener : TextWriterTraceListener
+    /// <typeparam name="T"></typeparam>
+    public sealed class DisposableLazy<T> : Lazy<T>, IDisposable where T : IDisposable
     {
-        readonly string processId = Process.GetCurrentProcess().Id.ToString();
-        public SqlToolsTraceListener(string file, string listenerName = "") : base(new StreamWriter(file, append:true), listenerName) { }
+        public DisposableLazy(Func<T> valueFactory, LazyThreadSafetyMode mode = LazyThreadSafetyMode.ExecutionAndPublication) : base(valueFactory, mode)
+        {
+        }
+
+        // No unmanaged resources in this class, and it is sealed.
+        // No finalizer needed. See http://stackoverflow.com/a/3882819/613130
+        public void Dispose()
+        {
+            if (IsValueCreated)
+            {
+                Value.Dispose();
+            }
+        }
+    }
+
+    /// <summary>
+    /// This listener has the same behavior as TextWriterTraceListener except it controls how the 
+    /// options: TraceOptions.DateTime, TraceOptions.ProcessId and TraceOptions.ThreadId is written to the output stream.
+    /// This listener writes the above options, if turned on, inline with the message 
+    /// instead of writing them to indented fields as is the case with TextWriterTraceListener.
+    /// This implementation also lazily initializes the underlying tracelistener
+    /// </summary>
+    /// <remarks>
+    /// Implementation of this is a lazily initialize trace listener that is partly inspired 
+    /// by: https://stackoverflow.com/questions/30664527/how-to-stop-streamwriter-to-not-to-create-file-if-nothing-to-write
+    /// </remarks>
+    internal sealed class SqlToolsTraceListener : TraceListener
+    {
+        Lazy<TextWriterTraceListener> _lazyListerner;
+        private TextWriterTraceListener Listener => _lazyListerner.Value;
+
+        public SqlToolsTraceListener(string file, string listenerName = "") : base(listenerName) 
+            // Wrapping around lazy to make sure that we do not create file if the log.Write events are getting filtered out. i.e. the log file actually gets created the first time an actual write to log file happens.
+            => _lazyListerner = new Lazy<TextWriterTraceListener>(
+                valueFactory: () => new TextWriterTraceListener(new StreamWriter(file, append: true), listenerName),
+                // LazyThreadSafetyMode.PublicationOnly mode ensures that we keep trying to create the listener (especially the file that write) on all future log.write events even if previous attempt(s) have failed
+                mode: LazyThreadSafetyMode.PublicationOnly 
+             );
+        #region forward actual write events to the underlying listener.
+        public override void Write(string message) => Listener.Write(message);
+
+        public override void WriteLine(string message) => Listener.WriteLine(message);
+
+        /// <Summary> 
+        /// Closes the <see cref="System.Diagnostics.TextWriterTraceListener.Writer"> so that it no longer 
+        ///    receives tracing or debugging output.</see>
+        /// Make sure that we do not Close if the lazy listener never got created.
+        /// </Summary> 
+        public override void Close()
+        {
+            if (_lazyListerner.IsValueCreated)
+                Listener.Close();
+        }
+
+        /// <summary>
+        /// Releases all resources used by the <see cref="SqlToolsTraceListener"/>
+        /// No unmanaged resources in this class, and it is sealed.
+        /// No finalizer needed. See http://stackoverflow.com/a/3882819/613130
+        /// We skip disposing if the lazy listener never got created. 
+        /// </summary>
+        public new void Dispose()
+        {
+            if (_lazyListerner.IsValueCreated)
+                Listener.Dispose();
+        }
+
+        /// <summary>
+        /// Flushes the output buffer for the <see cref="System.Diagnostics.TextWriterTraceListener.Writer">.
+        /// Make sure that we do not Flush if the lazy listener never got created.
+        /// </summary>
+        public override void Flush()
+        {
+            if (_lazyListerner.IsValueCreated)
+                Listener.Flush();
+        }
+        #endregion
 
         public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id)
         {
@@ -384,5 +422,6 @@ namespace Microsoft.SqlTools.Utility
         }
 
         private bool IsEnabled(TraceOptions opt) => TraceOutputOptions.HasFlag(opt);
+
     }
 }

@@ -123,10 +123,10 @@ namespace Microsoft.SqlTools.Utility
         {
             Logger.Write(TraceEventType.Information, "Service host is shutting down...");
 
-            // Call TracingLevel the shutdown methods provided by the service components
+            // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
             TimeSpan shutdownTimeout = TimeSpan.FromSeconds(ShutdownTimeoutInSeconds);
-            // shut down once TracingLevel tasks are completed, or after the timeout expires, whichever comes first.
+            // shut down once all tasks are completed, or after the timeout expires, whichever comes first.
             await Task.WhenAny(Task.WhenAll(shutdownTasks), Task.Delay(shutdownTimeout)).ContinueWith(t => Environment.Exit(0));
         }
 
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.Utility
         /// <returns></returns>
         internal async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
         {
-            // Call TracingLevel tasks that registered on the initialize request
+            // Call all tasks that registered on the initialize request
             var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
             await Task.WhenAll(initializeTasks);
 

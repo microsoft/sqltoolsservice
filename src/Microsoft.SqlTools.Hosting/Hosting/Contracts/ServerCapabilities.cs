@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     public enum TextDocumentSyncKind
     {
         /// <summary>
-        /// Indicates that documents should not be synced at TracingLevel.
+        /// Indicates that documents should not be synced at all.
         /// </summary>
         None = 0,
 
