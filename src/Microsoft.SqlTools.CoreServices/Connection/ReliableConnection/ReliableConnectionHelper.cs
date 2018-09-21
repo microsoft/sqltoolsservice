@@ -429,7 +429,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
             Validate.IsNotNull(nameof(connection), connection);
             if (!(connection.State == ConnectionState.Open))
             {
-                Logger.Instance.Write(LogLevel.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
+                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
             }
 
             Func<string, bool> executeCommand = commandText =>
@@ -540,7 +540,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
                 return true;
             }
 
-            Logger.Instance.Write(LogLevel.Error, ex.ToString());
+            Logger.Write(TraceEventType.Error, ex.ToString());
             return false;
         }
 
@@ -668,7 +668,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
                 },
                 (ex) =>
                 {
-                    Logger.Instance.Write(LogLevel.Error, ex.ToString());
+                    Logger.Write(TraceEventType.Error, ex.ToString());
                     return StandardExceptionHandler(ex); // handled
                 },
                 useRetry: true);
@@ -739,7 +739,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
             Validate.IsNotNull(nameof(connection), connection);
             if (!(connection.State == ConnectionState.Open))
             {
-                Logger.Instance.Write(LogLevel.Error, "connection passed to GetServerVersion should be open.");
+                Logger.Write(TraceEventType.Error, "connection passed to GetServerVersion should be open.");
             }
 
             Func<string, ServerInfo> getServerInfo = commandText =>
@@ -788,8 +788,8 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
                     {
                         //we don't want to fail the normal flow if any unexpected thing happens
                         //during caching although it's unlikely. So we just log the exception and ignore it
-                        Logger.Instance.Write(LogLevel.Error, Resources.FailedToCacheIsCloud);
-                        Logger.Instance.Write(LogLevel.Error, ex.ToString());
+                        Logger.Write(TraceEventType.Error, Resources.FailedToCacheIsCloud);
+                        Logger.Write(TraceEventType.Error, ex.ToString());
                     }
                 });
 
@@ -892,7 +892,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
 
             if (handledEx != null)
             {
-                Logger.Instance.Write(LogLevel.Error, String.Format(Resources.ErrorParsingConnectionString, handledEx));
+                Logger.Write(TraceEventType.Error, String.Format(Resources.ErrorParsingConnectionString, handledEx));
                 return false;
             }
 

@@ -4,6 +4,7 @@
 //
 
 using System.Data.SqlClient;
+using System.Diagnostics;
 using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
                     RetryPolicyUtils.AppendThrottlingDataIfIsThrottlingError(sqlException, err);
                     if (RetryPolicyUtils.IsNonRetryableDataTransferError(err.Number))
                     {
-                        Logger.Instance.Write(LogLevel.Error, string.Format(Resources.ExceptionCannotBeRetried, err.Number, err.Message));
+                        Logger.Write(TraceEventType.Error, string.Format(Resources.ExceptionCannotBeRetried, err.Number, err.Message));
                         return false;
                     }
                 }

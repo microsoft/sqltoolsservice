@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Utility;
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
             RequestContext<THandler> requestContext, 
             string requestType)
         {
-            Logger.Instance.Write(LogLevel.Verbose, requestType);
+            Logger.Write(TraceEventType.Verbose, requestType);
 
             try
             {
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
             RequestContext<THandler> requestContext, 
             string requestType)
         {
-            Logger.Instance.Write(LogLevel.Verbose, requestType);
+            Logger.Write(TraceEventType.Verbose, requestType);
             return await Task.Factory.StartNew(() => {
                 try
                 {

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.CoreServices.LanguageServices
 {    
@@ -319,7 +320,7 @@ namespace Microsoft.SqlTools.CoreServices.LanguageServices
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Instance.Write(LogLevel.Error, "Unexpected exception on the binding queue: " + ex.ToString());
+                                    Logger.Write(TraceEventType.Error, "Unexpected exception on the binding queue: " + ex.ToString());
                                     if (queueItem.ErrorHandler != null)
                                     {
                                         result = queueItem.ErrorHandler(ex);
@@ -346,14 +347,14 @@ namespace Microsoft.SqlTools.CoreServices.LanguageServices
 
                                 bindTask
                                     .ContinueWith((a) => bindingContext.BindingLock.Set())
-                                    .ContinueWithOnFaulted(t => Logger.Instance.Write(LogLevel.Error, "Binding queue threw exception " + t.Exception.ToString()));
+                                    .ContinueWithOnFaulted(t => Logger.Write(TraceEventType.Error, "Binding queue threw exception " + t.Exception.ToString()));
                             }
                         }
                         catch (Exception ex)
                         {
                             // catch and log any exceptions raised in the binding calls
                             // set item processed to avoid deadlocks 
-                            Logger.Instance.Write(LogLevel.Error, "Binding queue threw exception " + ex.ToString());                            
+                            Logger.Write(TraceEventType.Error, "Binding queue threw exception " + ex.ToString());                            
                         }
                         finally
                         {

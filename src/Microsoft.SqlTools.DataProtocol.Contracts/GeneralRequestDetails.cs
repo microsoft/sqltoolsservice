@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts
                 {
                     result = default(T);
                     // TODO move logger to a utilities project
-                    // Logger.Instance.Write(LogLevel.Warning, string.Format(CultureInfo.InvariantCulture,
+                    // Logger.Write(TraceEventType.Warning, string.Format(CultureInfo.InvariantCulture,
                     //     "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
                 }
             }

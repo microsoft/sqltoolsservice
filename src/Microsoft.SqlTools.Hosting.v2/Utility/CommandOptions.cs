@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
@@ -14,6 +15,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
     /// </summary>
     public class CommandOptions
     {
+        //set default log directory
+        internal readonly string DefaultLogRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
         /// <summary>
         /// Construct and parse command line options from the arguments array
         /// </summary>
@@ -22,6 +26,11 @@ namespace Microsoft.SqlTools.Hosting.Utility
             ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
+
+            //set default log directory
+            LoggingDirectory = DefaultLogRoot;
+            if (!string.IsNullOrWhiteSpace(ServiceName))
+                LoggingDirectory = Path.Combine(LoggingDirectory, ServiceName);
 
             try
             {
@@ -37,7 +46,12 @@ namespace Microsoft.SqlTools.Hosting.Utility
                         switch (argName)
                         {
                             case "-enable-logging":
-                                EnableLogging = true;
+                                break; //ignore this old option for now for backward compat with older opsstudio code - to be removed in a future checkin
+                            case "-tracing-level":
+                                TracingLevel = args[++i];
+                                break;
+                            case "-log-file":
+                                LogFilePath = args[++i];
                                 break;
                             case "-log-dir":
                                 SetLoggingDirectory(args[++i]);
@@ -76,12 +90,6 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// </summary>
         public string ErrorMessage { get; private set; }
 
-
-        /// <summary>
-        /// Whether diagnostic logging is enabled
-        /// </summary>
-        public bool EnableLogging { get; private set; }
-
         /// <summary>
         /// Gets the directory where log files are output.
         /// </summary>
@@ -112,14 +120,20 @@ namespace Microsoft.SqlTools.Hosting.Utility
                 var str = string.Format("{0}" + Environment.NewLine +
                     ServiceName + " " + Environment.NewLine +
                     "   Options:" + Environment.NewLine +
-                    "        [--enable-logging]" + Environment.NewLine +
-                    "        [--log-dir **] (default: current directory)" + Environment.NewLine +
-                    "        [--help]" + Environment.NewLine +
+                    "        [--enable-logging ] (noop present for backward compat)" + Environment.NewLine +
+                    "        [--tracing-level **] (** can be any of: All, Off, Critical, Error, Warning, Information, Verbose)" + Environment.NewLine +
+                    "        [--log-file **]" + Environment.NewLine +
+                    "        [--log-dir **] (default: %APPDATA%\\<service name>)" + Environment.NewLine +
                     "        [--locale **] (default: 'en')" + Environment.NewLine,
+                    "        [--help]" + Environment.NewLine +
                     ErrorMessage);
                 return str;
             }
         }
+
+        public string TracingLevel { get; private set; }
+
+        public string LogFilePath { get; private set; }
 
         private void SetLoggingDirectory(string loggingDirectory)
         {

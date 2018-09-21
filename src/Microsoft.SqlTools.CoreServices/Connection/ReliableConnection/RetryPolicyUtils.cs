@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.Hosting.Utility;
 
@@ -344,7 +345,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
         {
             if (azureSessionId != Guid.Empty)
             {
-                Logger.Instance.Write(LogLevel.Warning, string.Format(
+                Logger.Write(TraceEventType.Warning, string.Format(
                     "Retry occurred: session: {0}; attempt - {1}; delay - {2}; exception - \"{3}\"",
                     azureSessionId,
                     retryState.RetryCount,
