@@ -43,9 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 
         private DateTime startTime;
 
-        public ServiceTestDriver()
+        public ServiceTestDriver(string executableFilePath = null)
         {
-            string serviceHostExecutable = Environment.GetEnvironmentVariable(ServiceHostEnvironmentVariable);
+            string serviceHostExecutable = executableFilePath != null ? executableFilePath : Environment.GetEnvironmentVariable(ServiceHostEnvironmentVariable);
             string serviceHostArguments = "--enable-logging";
             if (string.IsNullOrWhiteSpace(serviceHostExecutable))
             {

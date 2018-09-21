@@ -14,39 +14,45 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [Fact]
         public async Task TestSaveResultsToCsvTest()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                const string query = Scripts.MasterBasicQuery;
+                TestServerType serverType = TestServerType.OnPrem;
 
-                // Execute a query
-                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
-                await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
-                await testService.CalculateRunTime(() => testService.SaveAsCsv(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    const string query = Scripts.MasterBasicQuery;
+
+                    // Execute a query
+                    await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                    await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
+                    await testService.CalculateRunTime(() => testService.SaveAsCsv(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), timer);
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            });
         }
 
         [Fact]
         public async Task TestSaveResultsToJsonTest()
         {
-            TestServerType serverType = TestServerType.OnPrem;
-
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
-                const string query = Scripts.MasterBasicQuery;
+                TestServerType serverType = TestServerType.OnPrem;
 
-                // Execute a query
-                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
-                await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
-                await testService.CalculateRunTime(() => testService.SaveAsJson(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
-                await testService.Disconnect(queryTempFile.FilePath);
-            }
+                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+                using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+                {
+                    const string query = Scripts.MasterBasicQuery;
+
+                    // Execute a query
+                    await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                    await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
+                    await testService.CalculateRunTime(() => testService.SaveAsJson(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), timer);
+                    await testService.Disconnect(queryTempFile.FilePath);
+                }
+            });
         }
 
     }

@@ -1460,5 +1460,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.Equal(defaultDbName, dbName);
         }
+
+        /// <summary>
+        /// Test ParseConnectionString
+        /// </summary>
+        [Fact]
+        public void ParseConnectionStringTest()
+        {
+            // If we make a connection to a live database 
+            ConnectionService service = ConnectionService.Instance;
+            
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+
+            var details = service.ParseConnectionString(connectionString);
+
+            Assert.Equal("tcp:{servername},1433", details.ServerName);
+            Assert.Equal("{databasename}", details.DatabaseName);
+            Assert.Equal("{your_username}", details.UserName);
+            Assert.Equal("{your_password}", details.Password);
+            Assert.Equal(false, details.PersistSecurityInfo);
+            Assert.Equal(false, details.MultipleActiveResultSets);
+            Assert.Equal(true, details.Encrypt);
+            Assert.Equal(false, details.TrustServerCertificate);
+            Assert.Equal(30, details.ConnectTimeout);
+        }
     }
 }
