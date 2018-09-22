@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Utility
     public static class Logger
     {
         internal const SourceLevels defaultTracingLevel = SourceLevels.Critical; 
-        internal const string defaultTraceSrouce = "sqltools";
+        internal const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
         private static string logFileFullPath;
 
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.Utility
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
             string logFilePath = null,
-            string traceSource = defaultTraceSrouce)
+            string traceSource = defaultTraceSource)
         {
             Logger.tracingLevel = tracingLevel;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="traceSource">
         /// Optional. Specifies the tracesource name.
         /// </param>
-        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSrouce)
+        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource)
             => Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
