@@ -230,11 +230,8 @@ namespace Microsoft.SqlTools.Extensibility
                 var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
                 if (File.Exists(apiApplicationFileInfo.FullName))
                 {
-                    // Creating a new AssemblyContext instance for the same folder puts us at risk 
-                    // of loading the same DLL in multiple contexts, which leads to some unpredictable
-                    // behavior in the loader. See https://github.com/dotnet/coreclr/issues/19632
-
-                    return LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
+                    var asl = new AssemblyLoader(apiApplicationFileInfo.DirectoryName);
+                    return asl.LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
                 }
             }
             return Assembly.Load(assemblyName);
