@@ -61,7 +61,11 @@ namespace Microsoft.SqlTools.ResourceProvider
             catch (Exception e)
             {
                 Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
-                Environment.Exit(1);               
+                Environment.Exit(1);
+            }
+            finally
+            {
+                Logger.Close();
             }
         }
     }
