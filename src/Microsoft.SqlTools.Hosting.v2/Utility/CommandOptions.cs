@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
@@ -15,7 +14,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
     /// </summary>
     public class CommandOptions
     {
-        //set default log directory
+        // set default log directory
+        // refer to https://jimrich.sk/environment-specialfolder-on-windows-linux-and-os-x/ && https://stackoverflow.com/questions/895723/environment-getfolderpath-commonapplicationdata-is-still-returning-c-docum
+        // for cross platform locations
         internal readonly string DefaultLogRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
         /// <summary>
@@ -122,8 +123,8 @@ namespace Microsoft.SqlTools.Hosting.Utility
                 var str = string.Format("{0}" + Environment.NewLine +
                     ServiceName + " " + Environment.NewLine +
                     "   Options:" + Environment.NewLine +
-                    "        [--enable-logging ] (noop present for backward compat)" + Environment.NewLine +
-                    "        [--tracing-level **] (** can be any of: All, Off, Critical, Error, Warning, Information, Verbose)" + Environment.NewLine +
+                    "        [--enable-logging ] (obsolete - present for backward compat. Logging is always on, except -tracing-level Off has the effect of disabling logging)" + Environment.NewLine +
+                    "        [--tracing-level **] (** can be any of: All, Off, Critical, Error, Warning, Information, Verbose. Default is Critical)" + Environment.NewLine +
                     "        [--log-file **]" + Environment.NewLine +
                     "        [--log-dir **] (default: %APPDATA%\\<service name>)" + Environment.NewLine +
                     "        [--locale **] (default: 'en')" + Environment.NewLine,
