@@ -79,6 +79,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             base.ColumnName = "col";
         }
 
+        private string GetDbColString(Type colType)
+        {
+            if(colType == typeof(string))
+            {
+                return "nvarchar";
+            }
+            else if(colType == typeof(int))
+            {
+                return "int";
+            }
+            else if (colType == typeof(double) || colType == typeof(float) || colType == typeof(decimal))
+            {
+                return "decimal";
+            }
+            else if(colType == typeof(DateTime))
+            {
+                return "datetime";
+            }
+            return "nvarchar";
+        }
+
         /// <summary>
         /// Constructs a basic DbColumn that is an NVARCHAR(128) NULL
         /// </summary>
@@ -91,6 +112,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             base.AllowDBNull = true;
             base.DataType = typeof(string);
             base.DataTypeName = "nvarchar";
+            base.ColumnOrdinal = columnOrdinal;
+        }
+
+
+        /// <summary>
+        /// Constructs a DbColumn that is of input type
+        /// </summary>
+        /// <param name="columnName">Name of the column</param>
+        /// <param name="colType">Type of the column</param>
+        public TestDbColumn(string columnName, Type colType, int? columnOrdinal = null)
+        {
+            base.IsLong = false;
+            base.ColumnName = columnName;
+            base.ColumnSize = 128;
+            base.AllowDBNull = true;
+            base.DataType = colType;
+            base.DataTypeName = GetDbColString(colType);
             base.ColumnOrdinal = columnOrdinal;
         }
     }
