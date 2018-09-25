@@ -56,12 +56,12 @@ namespace Microsoft.SqlTools.Utility
         private static void ConfigureLogFile(string logFilePrefix) => LogFileFullPath = GenerateLogFilePath(logFilePrefix);
 
         /// <summary>
-        /// Calling method will turn on inclusion CallStack in the log for all future traces
+        /// Calling this method will turn on inclusion CallStack in the log for all future traces
         /// </summary>
         public static void StartCallStack() => Listener.TraceOutputOptions |= TraceOptions.Callstack;
 
         /// <summary>
-        /// Calling method will turn off inclusion of CallStack in the log for all future traces
+        /// Calling this method will turn off inclusion of CallStack in the log for all future traces
         /// </summary>
         public static void StopCallStack() => Listener.TraceOutputOptions &= ~TraceOptions.Callstack;
 
