@@ -70,7 +70,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 else
                 {
-                    jsonWriter.WriteValue(row[i].DisplayValue);
+                    // Try converting to column type
+                    try
+                    {
+                        var value = Convert.ChangeType(row[i].DisplayValue, columns[i].DataType);
+                        jsonWriter.WriteValue(value);
+                    }
+                    // Default column type as string
+                    catch
+                    {
+                        jsonWriter.WriteValue(row[i].DisplayValue);
+                    }
                 }
             }
 
