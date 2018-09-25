@@ -30,7 +30,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
             //set default log directory
             LoggingDirectory = DefaultLogRoot;
             if (!string.IsNullOrWhiteSpace(ServiceName))
+            {
                 LoggingDirectory = Path.Combine(LoggingDirectory, ServiceName);
+            }
 
             try
             {

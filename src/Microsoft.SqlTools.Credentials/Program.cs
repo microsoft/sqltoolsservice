@@ -35,14 +35,14 @@ namespace Microsoft.SqlTools.Credentials
 
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
+                {
                     logFilePath = "credentials";
+                }
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Logger.GenerateLogFilePath(Path.Combine(commandOptions.LoggingDirectory, logFilePath));
                 }
 
-                // turn on Verbose logging during early development
-                // we need to switch to Information when preparing for public preview
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "credentials");
                 Logger.Write(TraceEventType.Information, "Starting SqlTools Credentials Provider");
 

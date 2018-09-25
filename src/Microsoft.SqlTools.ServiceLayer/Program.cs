@@ -32,7 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
+                {
                     logFilePath = "sqltools";
+                }
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);

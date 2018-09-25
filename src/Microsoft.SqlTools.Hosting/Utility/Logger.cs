@@ -7,9 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.Utility
 {
@@ -44,7 +42,10 @@ namespace Microsoft.SqlTools.Utility
             {
                 //If the log file path has a directory component then ensure that the directory exists.
                 if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
+                {
                     Directory.CreateDirectory(Path.GetDirectoryName(value));
+                }
+
                 logFileFullPath = value;
                 ConfigureListener();
             }
@@ -52,10 +53,7 @@ namespace Microsoft.SqlTools.Utility
 
         private static SqlToolsTraceListener Listener { get; set; }
 
-        private static void ConfigureLogFile(string logFilePrefix)
-        {
-            LogFileFullPath = GenerateLogFilePath(logFilePrefix);
-        }
+        private static void ConfigureLogFile(string logFilePrefix) => LogFileFullPath = GenerateLogFilePath(logFilePrefix);
 
         /// <summary>
         /// Calling method will turn on inclusion CallStack in the log for all future traces
@@ -115,7 +113,10 @@ namespace Microsoft.SqlTools.Utility
             Logger.tracingLevel = tracingLevel;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
             if (string.IsNullOrWhiteSpace(logFilePath))
+            {
                 logFilePath = GenerateLogFilePath(traceSource);
+            }
+
             LogFileFullPath = logFilePath;
             Write(TraceEventType.Information, $"Initialized the {traceSource} logger");
         }
@@ -133,11 +134,13 @@ namespace Microsoft.SqlTools.Utility
         /// Optional. Specifies the tracesource name.
         /// </param>
         public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource)
-            => Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
+        { 
+            Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
                 , logFilePath
                 , traceSource);
+        }
 
         /// <summary>
         /// Configures the LogfilePath for the tracelistener in use for this process.
@@ -145,10 +148,12 @@ namespace Microsoft.SqlTools.Utility
         /// <returns>
         /// Returns the log file path corresponding to logfilePrefix
         /// </returns>
-        public static string GenerateLogFilePath(string logFilePrefix)
+        public static string GenerateLogFilePath(string logFilePrefix = defaultTraceSource)
         {
             if (string.IsNullOrWhiteSpace(logFilePrefix))
+            {
                 throw new ArgumentOutOfRangeException(nameof(logFilePrefix), $"LogfilePath cannot be configured if argument {nameof(logFilePrefix)} has not been set");
+            }
             // Create the log directory
             string logDir = Path.GetDirectoryName(logFilePrefix);
             if (!string.IsNullOrWhiteSpace(logDir))
@@ -185,7 +190,10 @@ namespace Microsoft.SqlTools.Utility
 
         private static void ConfigureListener()
         {
-            Debug.Assert(!string.IsNullOrWhiteSpace(LogFileFullPath), "Listeners cannot be configured if LogFileFullPath has not been set");
+            if (string.IsNullOrWhiteSpace(LogFileFullPath))
+            {
+                throw new InvalidOperationException("Listeners cannot be configured if LogFileFullPath has not been set");
+            }
             Listener = new SqlToolsTraceListener(LogFileFullPath)
             {
                 TraceOutputOptions = TraceOptions.DateTime | TraceOptions.ProcessId | TraceOptions.ThreadId,
@@ -257,7 +265,10 @@ namespace Microsoft.SqlTools.Utility
                     case TraceEventType.Critical:
                     case TraceEventType.Error:
                         if (eventType == TraceEventType.Critical)
+                        {
                             logMessage = $@"event={eventType}: {logMessage}";
+                        }
+
                         Trace.TraceError(logMessage);
                         break;
                     case TraceEventType.Warning:
@@ -271,32 +282,13 @@ namespace Microsoft.SqlTools.Utility
                     case TraceEventType.Transfer:
                     case TraceEventType.Verbose:
                         if (eventType != TraceEventType.Information)
+                        {
                             logMessage = $@"event={eventType}: {logMessage}";
+                        }
+
                         Trace.TraceInformation(logMessage);
                         break;
                 }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Implementation of a Lazy class for disposable objects, so that the dispose calls can be correctly chained.
-    /// Stolen from: https://stackoverflow.com/questions/30664527/how-to-stop-streamwriter-to-not-to-create-file-if-nothing-to-write
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public sealed class DisposableLazy<T> : Lazy<T>, IDisposable where T : IDisposable
-    {
-        public DisposableLazy(Func<T> valueFactory, LazyThreadSafetyMode mode = LazyThreadSafetyMode.ExecutionAndPublication) : base(valueFactory, mode)
-        {
-        }
-
-        // No unmanaged resources in this class, and it is sealed.
-        // No finalizer needed. See http://stackoverflow.com/a/3882819/613130
-        public void Dispose()
-        {
-            if (IsValueCreated)
-            {
-                Value.Dispose();
             }
         }
     }
@@ -314,17 +306,19 @@ namespace Microsoft.SqlTools.Utility
     /// </remarks>
     internal sealed class SqlToolsTraceListener : TraceListener
     {
-        Lazy<TextWriterTraceListener> _lazyListerner;
-        private TextWriterTraceListener Listener => _lazyListerner.Value;
-
-        public SqlToolsTraceListener(string file, string listenerName = "") : base(listenerName) 
+        Lazy<TextWriterTraceListener> _lazyListener;
+        private TextWriterTraceListener Listener => _lazyListener.Value;
+        private bool IsListenerCreated => _lazyListener.IsValueCreated;
+        public SqlToolsTraceListener(string file, string listenerName = "") : base(listenerName)
+        { 
             // Wrapping around lazy to make sure that we do not create file if the log.Write events are getting filtered out. i.e. the log file actually gets created the first time an actual write to log file happens.
-            => _lazyListerner = new Lazy<TextWriterTraceListener>(
+            _lazyListener = new Lazy<TextWriterTraceListener>(
                 valueFactory: () => new TextWriterTraceListener(new StreamWriter(file, append: true), listenerName),
                 // LazyThreadSafetyMode.PublicationOnly mode ensures that we keep trying to create the listener (especially the file that write) on all future log.write events even if previous attempt(s) have failed
-                mode: LazyThreadSafetyMode.PublicationOnly 
+                mode: LazyThreadSafetyMode.PublicationOnly
              );
-        #region forward actual write events to the underlying listener.
+        }
+        #region forward actual write/close/flush/dispose calls to the underlying listener.
         public override void Write(string message) => Listener.Write(message);
 
         public override void WriteLine(string message) => Listener.WriteLine(message);
@@ -336,8 +330,10 @@ namespace Microsoft.SqlTools.Utility
         /// </Summary> 
         public override void Close()
         {
-            if (_lazyListerner.IsValueCreated)
+            if (IsListenerCreated)
+            {
                 Listener.Close();
+            }
         }
 
         /// <summary>
@@ -348,8 +344,10 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         public new void Dispose()
         {
-            if (_lazyListerner.IsValueCreated)
+            if (IsListenerCreated)
+            {
                 Listener.Dispose();
+            }
         }
 
         /// <summary>
@@ -358,8 +356,10 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         public override void Flush()
         {
-            if (_lazyListerner.IsValueCreated)
+            if (IsListenerCreated)
+            {
                 Listener.Flush();
+            }
         }
         #endregion
 
@@ -372,7 +372,9 @@ namespace Microsoft.SqlTools.Utility
         public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string message)
         {
             if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
+            {
                 return;
+            }
 
             WriteHeader(eventCache, source, eventType, id);
             WriteLine(message);
@@ -382,14 +384,19 @@ namespace Microsoft.SqlTools.Utility
         public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string format, params object[] args)
         {
             if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
+            {
                 return;
+            }
 
             WriteHeader(eventCache, source, eventType, id);
             if (args != null)
+            {
                 WriteLine(String.Format(CultureInfo.InvariantCulture, format, args));
+            }
             else
+            {
                 WriteLine(format);
-
+            }
             WriteFooter(eventCache);
         }
 
@@ -399,21 +406,30 @@ namespace Microsoft.SqlTools.Utility
         private void WriteFooter(TraceEventCache eventCache)
         {
             if (eventCache == null)
+            {
                 return;
+            }
 
             IndentLevel++;
             if (TraceOutputOptions.HasFlag(TraceOptions.LogicalOperationStack))
+            {
                 WriteLine("LogicalOperationStack=" + eventCache.LogicalOperationStack);
+            }
 
             if (TraceOutputOptions.HasFlag(TraceOptions.Callstack))
+            {
                 WriteLine("Callstack=" + eventCache.Callstack);
+            }
 
             IndentLevel--;
         }
+
         private string FormatHeader(TraceEventCache eventCache, string message)
         {
             if (eventCache == null)
+            {
                 return message;
+            }
 
             return $"{(IsEnabled(TraceOptions.DateTime) ? string.Format(CultureInfo.InvariantCulture, "{0} ", eventCache.DateTime.ToLocalTime().ToString("u", CultureInfo.InvariantCulture)) : string.Empty)}"
                  + $"{(IsEnabled(TraceOptions.ProcessId) ? string.Format(CultureInfo.InvariantCulture, "pid:{0} ", eventCache.ProcessId.ToString(CultureInfo.InvariantCulture)) : string.Empty)}"

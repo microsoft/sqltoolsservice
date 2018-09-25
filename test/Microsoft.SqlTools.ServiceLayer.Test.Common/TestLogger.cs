@@ -1,4 +1,9 @@
-﻿using Microsoft.SqlTools.Utility;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -57,7 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             get
             {
                 if (pendingVerifications == null)
+                {
                     pendingVerifications = new List<Action>();
+                }
                 return pendingVerifications;
             }
             set => pendingVerifications = value;
@@ -99,7 +106,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 Assert.False(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
             }
             if (shouldVerifyCallstack)
+            {
                 VerifyCallstack(callstackMessage, expectLogMessage);
+            }
         }
 
         /// <summary>
@@ -134,9 +143,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             Assert.False(string.IsNullOrWhiteSpace(logFilePath), $"{FailureMessagePrefix} LogFilePath should not be  null or whitespaces");
             Assert.True(expectedTracingLevel == Logger.TracingLevel, $"{FailureMessagePrefix} expected Tracing Level did not match the configured value");
             if (isLogFileExpectedToExist)
+            {
                 Assert.True(File.Exists(logFilePath), $"{FailureMessagePrefix} logFilePath:{logFilePath} must exist");
+            }
             else
+            {
                 Assert.False(File.Exists(logFilePath), $"{FailureMessagePrefix} {logFilePath} must not exist");
+            }
             Assert.True(string.Compare(expectedTraceSource, Logger.TraceSource.Name, ignoreCase: true) == 0, $"{FailureMessagePrefix} expected Trace Source Name did not match the configured value");
         }
 

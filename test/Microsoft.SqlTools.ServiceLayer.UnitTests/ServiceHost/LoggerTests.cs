@@ -98,6 +98,74 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);
             }
+
+            #region TracingLevel Settings
+            //Test 6: Initialization tracingLevel specified as a null string.
+            {
+                string tracingLevel = null;
+                SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
+                string expectedTraceSource = Logger.defaultTraceSource;
+                Logger.Initialize(tracingLevel);
+                bool isLogFileExpectedToExist = false;
+                TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
+                TestLogger.Cleanup(Logger.LogFileFullPath);
+            }
+
+            //Test 7: Initialization tracingLevel specified as an empty string.
+            {
+                string tracingLevel = null;
+                SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
+                string expectedTraceSource = Logger.defaultTraceSource;
+                Logger.Initialize(tracingLevel);
+                bool isLogFileExpectedToExist = false;
+                TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
+                TestLogger.Cleanup(Logger.LogFileFullPath);
+            }
+
+            //Test 8: Initialization tracingLevel specified as an invalid string.
+            {
+                string tracingLevel = "invalid";
+                SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
+                string expectedTraceSource = Logger.defaultTraceSource;
+                Logger.Initialize(tracingLevel);
+                bool isLogFileExpectedToExist = false;
+                TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
+                TestLogger.Cleanup(Logger.LogFileFullPath);
+            }
+
+            //Test 9: Initialization with logfile set to empty string. 
+            {
+                SourceLevels expectedTracingLevel = SourceLevels.All;
+                string expectedTraceSource = Logger.defaultTraceSource;
+                string logFilePath = string.Empty;
+                Logger.Initialize(traceSource: expectedTraceSource, logFilePath: logFilePath, tracingLevel:expectedTracingLevel);
+                bool isLogFileExpectedToExist = ((uint)expectedTracingLevel >= (uint)SourceLevels.Information);
+                TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
+                TestLogger.Cleanup(Logger.LogFileFullPath);
+            }
+            //Test 10: Initialization with logfile set to null. 
+            {
+                SourceLevels expectedTracingLevel = SourceLevels.All;
+                string expectedTraceSource = Logger.defaultTraceSource;
+                string logFilePath = null;
+                Logger.Initialize(traceSource: expectedTraceSource, logFilePath: logFilePath, tracingLevel: expectedTracingLevel);
+                bool isLogFileExpectedToExist = ((uint)expectedTracingLevel >= (uint)SourceLevels.Information);
+                TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
+                TestLogger.Cleanup(Logger.LogFileFullPath);
+            }
+            //Test 11: Initialization with LogDirectory in Logger.GenerateLogFilePath set to empty string. 
+            {
+                SourceLevels expectedTracingLevel = SourceLevels.All;
+                string expectedTraceSource = Logger.defaultTraceSource;
+                string logFilePath = Logger.GenerateLogFilePath(Path.Combine(string.Empty, nameof(LoggerTestInitialization)));
+                Logger.Initialize(traceSource: expectedTraceSource, logFilePath: logFilePath, tracingLevel: expectedTracingLevel);
+                Assert.True(string.Compare(logFilePath, Logger.LogFileFullPath, ignoreCase: true) == 0, "The logfile should match the path specified");
+                bool isLogFileExpectedToExist = ((uint)expectedTracingLevel >= (uint)SourceLevels.Information);
+                TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
+                TestLogger.Cleanup(Logger.LogFileFullPath);
+            }
+            #endregion
+
         }
 
         /// <summary>
