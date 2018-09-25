@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
     /// </summary>
     public static class Logger
     {
-        internal const SourceLevels defaultTracingLevel = SourceLevels.Critical;
+        internal const SourceLevels defaultTracingLevel = SourceLevels.Critical; 
         internal const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
         private static string logFileFullPath;
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         public static void WriteWithCallstack(TraceEventType eventType, string logMessage) => WriteWithCallstack(eventType, LogEvent.Default, logMessage);
 
         /// <summary>
-        /// Writes a critical message to the log file.
+        /// Writes a message to the log file with accompanying callstack.
         /// </summary>
         /// <param name="eventType">The level at which the message will be written.</param>
         ///  <param name="logEvent">The event id enumeration for the log event.</param>

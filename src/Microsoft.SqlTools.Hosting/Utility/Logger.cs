@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.Utility
         /// Optional. Specifies the tracesource name.
         /// </param>
         public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource)
-        { 
+        {
             Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.Utility
         public static void WriteWithCallstack(TraceEventType eventType, string logMessage) => WriteWithCallstack(eventType, LogEvent.Default, logMessage);
 
         /// <summary>
-        /// Writes a critical message to the log file.
+        /// Writes a message to the log file with accompanying callstack.
         /// </summary>
         /// <param name="eventType">The level at which the message will be written.</param>
         ///  <param name="logEvent">The event id enumeration for the log event.</param>
@@ -310,7 +310,7 @@ namespace Microsoft.SqlTools.Utility
         private TextWriterTraceListener Listener => _lazyListener.Value;
         private bool IsListenerCreated => _lazyListener.IsValueCreated;
         public SqlToolsTraceListener(string file, string listenerName = "") : base(listenerName)
-        { 
+        {
             // Wrapping around lazy to make sure that we do not create file if the log.Write events are getting filtered out. i.e. the log file actually gets created the first time an actual write to log file happens.
             _lazyListener = new Lazy<TextWriterTraceListener>(
                 valueFactory: () => new TextWriterTraceListener(new StreamWriter(file, append: true), listenerName),
@@ -400,7 +400,7 @@ namespace Microsoft.SqlTools.Utility
             WriteFooter(eventCache);
         }
 
-        private void WriteHeader(TraceEventCache eventCache, String source, TraceEventType eventType, int id) 
+        private void WriteHeader(TraceEventCache eventCache, String source, TraceEventType eventType, int id)
             => Write(FormatHeader(eventCache, String.Format(CultureInfo.InvariantCulture, "{0} {1}: {2} : ", source, eventType.ToString(), id.ToString(CultureInfo.InvariantCulture))));
 
         private void WriteFooter(TraceEventCache eventCache)
