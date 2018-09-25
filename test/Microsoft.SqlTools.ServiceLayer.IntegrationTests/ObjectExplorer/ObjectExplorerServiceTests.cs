@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, "AllSqlObjects", queryFileName, baselineFileName), true);
         }
 
-        [Fact]
+        //[Fact]
         //This takes take long to run so not a good test for CI builds
         public async void VerifySystemObjects()
         {
