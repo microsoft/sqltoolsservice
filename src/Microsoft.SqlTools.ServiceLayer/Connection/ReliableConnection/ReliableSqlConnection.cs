@@ -360,18 +360,18 @@ SET NUMERIC_ROUNDABORT OFF;";
         }
 
         /// <summary>
-        /// Adds an info message event listener.
+        /// Adds an info message event Listener.
         /// </summary>
-        /// <param name="handler">An info message event listener.</param>
+        /// <param name="handler">An info message event Listener.</param>
         public void AddInfoMessageHandler(SqlInfoMessageEventHandler handler)
         {
             _underlyingConnection.InfoMessage += handler;
         }
 
         /// <summary>
-        /// Removes an info message event listener.
+        /// Removes an info message event Listener.
         /// </summary>
-        /// <param name="handler">An info message event listener.</param>
+        /// <param name="handler">An info message event Listener.</param>
         public void RemoveInfoMessageHandler(SqlInfoMessageEventHandler handler)
         {
             _underlyingConnection.InfoMessage -= handler;
@@ -436,7 +436,7 @@ SET NUMERIC_ROUNDABORT OFF;";
                             string sessionId = (string)command.ExecuteScalar();
                             if (!Guid.TryParse(sessionId, out _azureSessionId))
                             {
-                                Logger.Write(LogLevel.Error, Resources.UnableToRetrieveAzureSessionId);
+                                Logger.Write(TraceEventType.Error, Resources.UnableToRetrieveAzureSessionId);
                             }
                         }
                     }
@@ -444,7 +444,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             }
             catch (Exception exception)
             {
-                Logger.Write(LogLevel.Error, Resources.UnableToRetrieveAzureSessionId + exception.ToString());
+                Logger.Write(TraceEventType.Error, Resources.UnableToRetrieveAzureSessionId + exception.ToString());
             }
         }
 

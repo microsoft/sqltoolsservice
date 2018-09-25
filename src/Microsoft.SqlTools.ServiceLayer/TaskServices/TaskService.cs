@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Utility;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             this.serviceHost = serviceHost;
-            Logger.Write(LogLevel.Verbose, "TaskService initialized");
+            Logger.Write(TraceEventType.Verbose, "TaskService initialized");
             serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest);
             serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest);
             TaskManager.TaskAdded += OnTaskAdded;
@@ -66,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             ListTasksParams listTasksParams,
             RequestContext<ListTasksResponse> context)
         {
-            Logger.Write(LogLevel.Verbose, "HandleListTasksRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleListTasksRequest");
 
             Func<Task<ListTasksResponse>> getAllTasks = () =>
             {
@@ -86,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         internal async Task HandleCancelTaskRequest(CancelTaskParams cancelTaskParams, RequestContext<bool> context)
         {
-            Logger.Write(LogLevel.Verbose, "HandleCancelTaskRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleCancelTaskRequest");
             Func<Task<bool>> cancelTask = () =>
             {
                 Validate.IsNotNull(nameof(cancelTaskParams), cancelTaskParams);

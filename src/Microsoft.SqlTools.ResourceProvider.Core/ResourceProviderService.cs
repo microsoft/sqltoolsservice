@@ -5,6 +5,7 @@
 
 using System;
 using System.Composition;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(LogLevel.Verbose, "ResourceProvider initialized");
+            Logger.Write(TraceEventType.Verbose, "ResourceProvider initialized");
             serviceHost.SetRequestHandler(CreateFirewallRuleRequest.Type, HandleCreateFirewallRuleRequest);
             serviceHost.SetRequestHandler(CanHandleFirewallRuleRequest.Type, ProcessHandleFirewallRuleRequest);
 
@@ -112,7 +113,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         
         private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
         {
-            Logger.Write(LogLevel.Verbose, requestType);
+            Logger.Write(TraceEventType.Verbose, requestType);
 
             try
             {

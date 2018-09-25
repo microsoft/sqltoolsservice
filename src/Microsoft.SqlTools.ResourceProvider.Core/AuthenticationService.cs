@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(LogLevel.Verbose, "AuthenticationService initialized");
+            Logger.Write(TraceEventType.Verbose, "AuthenticationService initialized");
         }
         
         public async Task<IUserAccount> SetCurrentAccountAsync(Account account, Dictionary<string, AccountSecurityToken> securityTokenMappings)

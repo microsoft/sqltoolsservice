@@ -6,6 +6,7 @@
 using System;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
@@ -153,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 exceptionMessage = ex.Message;
             }
 
-            Logger.Write(LogLevel.Error, "Exception at ServerNode.CreateContext() : " + exceptionMessage);
+            Logger.Write(TraceEventType.Error, "Exception at ServerNode.CreateContext() : " + exceptionMessage);
             this.ErrorStateMessage = string.Format(SR.TreeNodeError, exceptionMessage);
             return null;
         }

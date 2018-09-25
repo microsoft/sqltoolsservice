@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
             bool shouldRetry =  canRetry
                    && ShouldRetryImpl(retryState);
 
-            Logger.Instance.Write(LogLevel.Error,
+            Logger.Write(TraceEventType.Error,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Retry requested: Retry count = {0}. Delay = {1}, SQL Error Number = {2}, Can retry error = {3}, Will retry = {4}", 
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
         {
             bool shouldIgnoreError = ErrorDetectionStrategy.ShouldIgnoreError(retryState.LastError);
 
-            Logger.Instance.Write(LogLevel.Error,
+            Logger.Write(TraceEventType.Error,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Ignore Error requested: Retry count = {0}. Delay = {1}, SQL Error Number = {2}, Should Ignore Error = {3}",

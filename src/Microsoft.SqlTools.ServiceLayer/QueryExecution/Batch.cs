@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await BatchStart(this);
             }
 
-            // Register the message listener to *this instance* of the batch
+            // Register the message Listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
             ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
             if (sqlConn != null)
@@ -460,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private DbCommand CreateCommand(DbConnection conn)
         {
-            // Register the message listener to *this instance* of the batch
+            // Register the message Listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
             ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
             DbCommand dbCommand;

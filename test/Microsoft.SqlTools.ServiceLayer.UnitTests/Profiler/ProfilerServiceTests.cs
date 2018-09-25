@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     return Task.FromResult(0);
                 });
 
-            // capture listener event notifications
+            // capture Listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
             mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
                 {
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     return Task.FromResult(0);
                 });
 
-            // capture listener event notifications
+            // capture Listener event notifications
             var mockListener = new Mock<IProfilerSessionListener>();
             mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
                 {
@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             profilerService.SessionMonitor.PollSession(1);
 
-            // confirm that no events were sent to paused listener
+            // confirm that no events were sent to paused Listener
             Assert.False(recievedEvents);
 
             // unpause viewer
@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 Thread.Sleep(250);
             }
 
-            // check that events got sent to listener
+            // check that events got sent to Listener
             Assert.True(recievedEvents);
 
             requestContext.VerifyAll();
@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool sessionStopped = false;
             string testUri = "profiler_uri";
 
-            // capture listener event notifications
+            // capture Listener event notifications
             var mockSession = new Mock<IXEventSession>();
             mockSession.Setup(p => p.GetTargetXml()).Callback(() =>
                 {

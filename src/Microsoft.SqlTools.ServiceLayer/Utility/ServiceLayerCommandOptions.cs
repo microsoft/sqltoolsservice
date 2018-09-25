@@ -9,7 +9,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     class ServiceLayerCommandOptions : CommandOptions
     {
-        private const string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
+        internal const string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
 
         public ServiceLayerCommandOptions(string[] args) : base(args, ServiceLayerServiceName)
         {

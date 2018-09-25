@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -286,7 +287,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     {
                         // Log the error and send an error event to the client
                         string message = string.Format("Exception occurred while receiving input message: {0}", e.Message);
-                        Logger.Instance.Write(LogLevel.Error, message);
+                        Logger.Write(TraceEventType.Error, message);
 
                         // TODO: Add event to output queue, and unit test it
 
@@ -297,7 +298,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // Verbose logging
                     string logMessage = string.Format("Received message of type[{0}] and method[{1}]",
                         incomingMessage.MessageType, incomingMessage.Method);
-                    Logger.Instance.Write(LogLevel.Verbose, logMessage);
+                    Logger.Write(TraceEventType.Verbose, logMessage);
 
                     // Process the message
                     try
@@ -310,7 +311,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         // TODO: Localize
                         string mnfLogMessage = string.Format("Failed to find method handler for type[{0}] and method[{1}]",
                             incomingMessage.MessageType, incomingMessage.Method);
-                        Logger.Instance.Write(LogLevel.Warning, mnfLogMessage);
+                        Logger.Write(TraceEventType.Warning, mnfLogMessage);
 
                         if (incomingMessage.MessageType == MessageType.Request)
                         {
@@ -325,12 +326,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         // General errors should be logged but not halt the processing loop
                         string geLogMessage = string.Format("Exception thrown when handling message of type[{0}] and method[{1}]: {2}",
                             incomingMessage.MessageType, incomingMessage.Method, e);
-                        Logger.Instance.Write(LogLevel.Error, geLogMessage);
+                        Logger.Write(TraceEventType.Error, geLogMessage);
                         // TODO: Should we be returning a response for failing requests?
                     }
                 }
                 
-                Logger.Instance.Write(LogLevel.Warning, "Exiting consume input loop!");
+                Logger.Write(TraceEventType.Warning, "Exiting consume input loop!");
             }, consumeOutputCancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
         }
 
@@ -355,7 +356,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     {
                         // If we hit an exception here, it is unrecoverable
                         string message = string.Format("Unexpected occurred while receiving output message: {0}", e.Message);
-                        Logger.Instance.Write(LogLevel.Error, message);
+                        Logger.Write(TraceEventType.Error, message);
 
                         break;
                     }
@@ -363,11 +364,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // Send the message 
                     string logMessage = string.Format("Sending message of type[{0}] and method[{1}]",
                         outgoingMessage.MessageType, outgoingMessage.Method);
-                    Logger.Instance.Write(LogLevel.Verbose, logMessage);
+                    Logger.Write(TraceEventType.Verbose, logMessage);
 
                     await protocolChannel.MessageWriter.WriteMessage(outgoingMessage);
                 }
-                Logger.Instance.Write(LogLevel.Warning, "Exiting consume output loop!");
+                Logger.Write(TraceEventType.Warning, "Exiting consume output loop!");
             }, consumeOutputCancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
         }
 

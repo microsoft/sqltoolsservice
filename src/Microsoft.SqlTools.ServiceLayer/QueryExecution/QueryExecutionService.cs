@@ -18,7 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
-
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -875,7 +875,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             // We don't particularly care if we fail to cancel during shutdown
                             string message = string.Format("Failed to cancel query {0} during query service disposal: {1}", query.Key, e);
-                            Logger.Write(LogLevel.Warning, message);
+                            Logger.Write(TraceEventType.Warning, message);
                         }
                     }
                     query.Value.Dispose();

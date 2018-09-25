@@ -105,6 +105,24 @@ GO";
             Cleanup(locations);
         }
 
+        [Fact]
+        public void LoggerGetValidTableDefinitionTest()
+        {
+            TestLogger test = new TestLogger()
+            {
+                TraceSource = System.Reflection.MethodInfo.GetCurrentMethod().Name,
+                EventType = System.Diagnostics.TraceEventType.Information,
+                TracingLevel = System.Diagnostics.SourceLevels.All,
+            };
+
+            test.Initialize();
+            GetValidTableDefinitionTest(); // This should emit log.from SMO code base
+            test.LogMessage = "OnScriptingProgress ScriptingCompleted"; //Log message to verify. This message comes from SMO code.
+            test.Verify(); // The log message should be absent since the tracing level is set to Off.
+            test.Cleanup();
+
+        }
+
         /// <summary>
         /// Test get definition for a invalid table object with active connection
         /// </summary>

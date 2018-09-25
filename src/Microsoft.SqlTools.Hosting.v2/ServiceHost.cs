@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.DataProtocol.Contracts;
@@ -168,7 +169,7 @@ namespace Microsoft.SqlTools.Hosting
         
         internal async Task HandleInitializeRequest(InitializeParameters initParams, RequestContext<InitializeResponse> requestContext)
         {
-            Logger.Instance.Write(LogLevel.Normal, "Service host received intialize request");
+            Logger.Write(TraceEventType.Information, "Service host received intialize request");
             
             // Call all initialize methods provided by the service components
             IEnumerable<Task> initializeTasks = initCallbacks.Select(t => t(initParams, requestContext));
@@ -194,7 +195,7 @@ namespace Microsoft.SqlTools.Hosting
         
         internal async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
         {
-            Logger.Instance.Write(LogLevel.Normal, "Service host received shutdown request");
+            Logger.Write(TraceEventType.Information, "Service host received shutdown request");
             
             // Call all the shutdown methods provided by the service components
             IEnumerable<Task> shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext));
