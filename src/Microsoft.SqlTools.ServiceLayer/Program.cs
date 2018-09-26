@@ -58,6 +58,10 @@ namespace Microsoft.SqlTools.ServiceLayer
                 Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
                 Environment.Exit(1);
             }
+            finally
+            {
+                Logger.Close();
+            }
         }
     }
 }
