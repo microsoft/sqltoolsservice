@@ -429,7 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNull(nameof(connection), connection);
             if (!(connection.State == ConnectionState.Open))
             {
-                Logger.Write(LogLevel.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
+                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
             }
 
             Func<string, bool> executeCommand = commandText =>
@@ -540,7 +540,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 return true;
             }
 
-            Logger.Write(LogLevel.Error, ex.ToString());
+            Logger.Write(TraceEventType.Error, ex.ToString());
             return false;
         }
 
@@ -612,14 +612,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             if (!string.IsNullOrWhiteSpace(filePath))
             {
                 // Remove filename from the filePath
-                Uri pathUri;
                 if (!Uri.IsWellFormedUriString(filePath, UriKind.Absolute))
                 {
                     // In linux "file://" is required otehrwise the Uri cannot parse the path
                     //this should be fixed in dotenet core 2.0
                     filePath = $"file://{filePath}";
                 }
-                if (!Uri.TryCreate(filePath, UriKind.Absolute, out pathUri))
+                if (!Uri.TryCreate(filePath, UriKind.Absolute, out Uri pathUri))
                 {
                     // Invalid Uri
                     return null;
@@ -668,7 +667,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 },
                 (ex) =>
                 {
-                    Logger.Write(LogLevel.Error, ex.ToString());
+                    Logger.Write(TraceEventType.Error, ex.ToString());
                     return StandardExceptionHandler(ex); // handled
                 },
                 useRetry: true);
@@ -701,8 +700,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo)
         {
             serverInfo = null;
-            SqlConnectionStringBuilder builder;
-            if (!TryGetConnectionStringBuilder(connectionString, out builder))
+            if (!TryGetConnectionStringBuilder(connectionString, out SqlConnectionStringBuilder builder))
             {
                 return false;
             }
@@ -739,7 +737,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNull(nameof(connection), connection);
             if (!(connection.State == ConnectionState.Open))
             {
-                Logger.Write(LogLevel.Error, "connection passed to GetServerVersion should be open.");
+                Logger.Write(TraceEventType.Error, "connection passed to GetServerVersion should be open.");
             }
 
             Func<string, ServerInfo> getServerInfo = commandText =>
@@ -788,8 +786,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     {
                         //we don't want to fail the normal flow if any unexpected thing happens
                         //during caching although it's unlikely. So we just log the exception and ignore it
-                        Logger.Write(LogLevel.Error, Resources.FailedToCacheIsCloud);
-                        Logger.Write(LogLevel.Error, ex.ToString());
+                        Logger.Write(TraceEventType.Error, Resources.FailedToCacheIsCloud);
+                        Logger.Write(TraceEventType.Error, ex.ToString());
                     }
                 });
 
@@ -892,7 +890,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             if (handledEx != null)
             {
-                Logger.Write(LogLevel.Error, String.Format(Resources.ErrorParsingConnectionString, handledEx));
+                Logger.Write(TraceEventType.Error, String.Format(Resources.ErrorParsingConnectionString, handledEx));
                 return false;
             }
 

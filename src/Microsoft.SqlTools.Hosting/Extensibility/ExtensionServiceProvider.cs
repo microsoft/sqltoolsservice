@@ -19,6 +19,13 @@ namespace Microsoft.SqlTools.Extensibility
 {
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
+        private static readonly string[] defaultInclusionList = 
+        {
+            "microsofsqltoolscredentials.dll",
+            "microsoft.sqltools.hosting.dll",
+            "microsoftsqltoolsservicelayer.dll"
+        };
+
         private Func<ConventionBuilder, ContainerConfiguration> config;
 
         public ExtensionServiceProvider(Func<ConventionBuilder, ContainerConfiguration> config)
@@ -27,18 +34,11 @@ namespace Microsoft.SqlTools.Extensibility
             this.config = config;
         }
 
-        public static ExtensionServiceProvider CreateDefaultServiceProvider()
+        public static ExtensionServiceProvider CreateDefaultServiceProvider(string[] inclusionList = null)
         {
             // only allow loading MEF dependencies from our assemblies until we can 
-            // better seperate out framework assemblies and extension assemblies
-            string[] inclusionList = 
-            {
-                "microsofsqltoolscredentials.dll",
-                "microsoft.sqltools.hosting.dll",
-                "microsoftsqltoolsservicelayer.dll"
-            };
-
-            return CreateFromAssembliesInDirectory(inclusionList);
+            // better seperate out framework assemblies and extension assemblies                        
+            return CreateFromAssembliesInDirectory(inclusionList ?? defaultInclusionList);
         }
 
         /// <summary>

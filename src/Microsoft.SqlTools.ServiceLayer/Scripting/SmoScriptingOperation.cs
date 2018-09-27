@@ -8,6 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
@@ -86,12 +87,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 catch (SqlException e)
                 {
                     Logger.Write(
-                        LogLevel.Verbose,
+                        TraceEventType.Verbose,
                         string.Format("Exception getting server name", e));
                 }
             }
 
-            Logger.Write(LogLevel.Verbose, string.Format("Resolved server name '{0}'", serverName));
+            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", serverName));
             return serverName;
         }
 
@@ -122,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             if (scriptOptionsParameters == null)
             {
-                Logger.Write(LogLevel.Verbose, "No advanced options set, the ScriptOptions object is null.");
+                Logger.Write(TraceEventType.Verbose, "No advanced options set, the ScriptOptions object is null.");
                 return;
             }
 
@@ -131,14 +132,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 PropertyInfo advancedOptionPropInfo = advancedOptions.GetType().GetProperty(optionPropInfo.Name);
                 if (advancedOptionPropInfo == null)
                 {
-                    Logger.Write(LogLevel.Warning, string.Format("Invalid property info name {0} could not be mapped to a property on SqlScriptOptions.", optionPropInfo.Name));
+                    Logger.Write(TraceEventType.Warning, string.Format("Invalid property info name {0} could not be mapped to a property on SqlScriptOptions.", optionPropInfo.Name));
                     continue;
                 }
 
                 object optionValue = optionPropInfo.GetValue(scriptOptionsParameters, index: null);
                 if (optionValue == null)
                 {
-                    Logger.Write(LogLevel.Verbose, string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
+                    Logger.Write(TraceEventType.Verbose, string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
                     continue;
                 }
 
@@ -168,13 +169,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, (string)optionValue, ignoreCase: true);
                     }
 
-                    Logger.Write(LogLevel.Verbose, string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
+                    Logger.Write(TraceEventType.Verbose, string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
                     advancedOptionPropInfo.SetValue(advancedOptions, smoValue);
                 }
                 catch (Exception e)
                 {
                     Logger.Write(
-                        LogLevel.Warning,
+                        TraceEventType.Warning,
                         string.Format("An exception occurred setting option {0} to value {1}: {2}", optionPropInfo.Name, optionValue, e));
                 }
             }

@@ -4,26 +4,16 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Concurrent;
-using System.Collections.Specialized;
-using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -188,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    Logger.Write(LogLevel.Normal, string.Format("Operation {0} was not found", operation.OperationId));
+                    Logger.Write(TraceEventType.Information, string.Format("Operation {0} was not found", operation.OperationId));
                 }
 
                 await requestContext.SendResult(new ScriptingCancelResult());

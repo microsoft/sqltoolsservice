@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.Utility;
@@ -69,13 +70,11 @@ namespace Microsoft.SqlTools.Credentials.Win32
 
         private void LoadInternal()
         {
-            uint count;
-
             IntPtr pCredentials = IntPtr.Zero;
-            bool result = NativeMethods.CredEnumerateW(Target, 0, out count, out pCredentials);
+            bool result = NativeMethods.CredEnumerateW(Target, 0, out uint count, out pCredentials);
             if (!result)
             {
-                Logger.Write(LogLevel.Error, string.Format("Win32Exception: {0}", new Win32Exception(Marshal.GetLastWin32Error()).ToString()));
+                Logger.Write(TraceEventType.Error, string.Format("Win32Exception: {0}", new Win32Exception(Marshal.GetLastWin32Error()).ToString()));
                 return;
             }
 

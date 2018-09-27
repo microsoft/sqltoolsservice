@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -31,16 +32,20 @@ namespace Microsoft.SqlTools.ResourceProvider
                     return;
                 }
 
-                string logFilePath = "SqlToolsResourceProviderService";
+                string logFilePath = commandOptions.LogFilePath;
+                if (string.IsNullOrWhiteSpace(logFilePath))
+                {
+                    logFilePath = "SqlToolsResourceProviderService";
+                }
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
                 }
 
                 // turn on Verbose logging during early development
-                // we need to switch to Normal when preparing for public preview
-                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Normal, "Starting SqlTools Resource Provider");
+                // we need to switch to Information when preparing for public preview
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "resourceprovider");
+                Logger.Write(TraceEventType.Information, "Starting SqlTools Resource Provider");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(
@@ -55,8 +60,12 @@ namespace Microsoft.SqlTools.ResourceProvider
             }
             catch (Exception e)
             {
-                Logger.Write(LogLevel.Error, string.Format("An unhandled exception occurred: {0}", e));
-                Environment.Exit(1);               
+                Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
+                Environment.Exit(1);
+            }
+            finally
+            {
+                Logger.Close();
             }
         }
     }

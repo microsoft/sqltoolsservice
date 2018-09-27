@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 return 0;
             }
 
-            Logger.Initialize("testdriver", LogLevel.Verbose);
+            Logger.Initialize("testdriver", TraceEventType.Verbose);
 
             int returnCode = 0;
             Task.Run(async () =>

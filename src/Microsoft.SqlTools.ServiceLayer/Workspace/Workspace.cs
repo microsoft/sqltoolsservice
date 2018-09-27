@@ -13,6 +13,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
@@ -121,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
 
-                Logger.Write(LogLevel.Verbose, "Opened file on disk: " + resolvedFile.FilePath);
+                Logger.Write(TraceEventType.Verbose, "Opened file on disk: " + resolvedFile.FilePath);
             }
 
             return scriptFile;
@@ -165,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 canReadFromDisk = resolvedFile.CanReadFromDisk;
             }
 
-            Logger.Write(LogLevel.Verbose, "Resolved path: " + filePath);
+            Logger.Write(TraceEventType.Verbose, "Resolved path: " + filePath);
 
             return new ResolvedFile(filePath, canReadFromDisk);
         }
@@ -213,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 
-                Logger.Write(LogLevel.Verbose, "Opened file as in-memory buffer: " + resolvedFile.FilePath);
+                Logger.Write(TraceEventType.Verbose, "Opened file as in-memory buffer: " + resolvedFile.FilePath);
             }
 
             return scriptFile;

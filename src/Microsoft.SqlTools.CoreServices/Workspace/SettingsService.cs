@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -100,7 +101,7 @@ namespace Microsoft.SqlTools.CoreServices.Workspace
         {
             try
             {
-                Logger.Instance.Write(LogLevel.Verbose, "HandleDidChangeConfigurationNotification");
+                Logger.Write(TraceEventType.Verbose, "HandleDidChangeConfigurationNotification");
 
                 // Propagate the changes to the event handlers
                 var configUpdateTasks = ConfigChangeCallbacks.Select(
@@ -109,7 +110,7 @@ namespace Microsoft.SqlTools.CoreServices.Workspace
             }
             catch (Exception ex)
             {
-                Logger.Instance.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
                 // Swallow exceptions here to prevent us from crashing
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;

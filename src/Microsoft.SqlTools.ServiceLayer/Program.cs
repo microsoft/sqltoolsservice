@@ -7,6 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.IO;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer
     internal class Program
     {
         /// <summary>
-        /// Main entry point into the SQL Tools API Service Host
+        /// Main entry point into the SQL Tools API Service Layer
         /// </summary>
         internal static void Main(string[] args)
         {
@@ -29,16 +30,20 @@ namespace Microsoft.SqlTools.ServiceLayer
                     return;
                 }
 
-                string logFilePath = "sqltools";
+                string logFilePath = commandOptions.LogFilePath;
+                if (string.IsNullOrWhiteSpace(logFilePath))
+                {
+                    logFilePath = "sqltools";
+                }
                 if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
                 {
                     logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
                 }
 
                 // turn on Verbose logging during early development
-                // we need to switch to Normal when preparing for public preview
-                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
+                // we need to switch to Information when preparing for public preview
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools");
+                Logger.Write(TraceEventType.Information, "Starting SQL Tools Service Layer");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
@@ -50,8 +55,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
             catch (Exception e)
             {
-                Logger.Write(LogLevel.Error, string.Format("An unhandled exception occurred: {0}", e));
+                Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
                 Environment.Exit(1);
+            }
+            finally
+            {
+                Logger.Close();
             }
         }
     }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Utility;
 
@@ -270,7 +271,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
             }
             catch
             {
-                Logger.Instance.Write(LogLevel.Error,  String.Format(Resources.FailedToParseConnectionString, connection.ConnectionString));
+                Logger.Write(TraceEventType.Error,  String.Format(Resources.FailedToParseConnectionString, connection.ConnectionString));
                 return null;
             }
         }

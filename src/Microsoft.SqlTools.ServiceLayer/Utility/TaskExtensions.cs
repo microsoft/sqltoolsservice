@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
@@ -42,8 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(LogLevel.Error, $"Exception in exception handling continuation: {e}");
-                    Logger.Write(LogLevel.Error, e.StackTrace);
+                    Logger.Write(TraceEventType.Error, $"Exception in exception handling continuation: {e}");
+                    Logger.Write(TraceEventType.Error, e.StackTrace);
                 }
             });
         }
@@ -79,8 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(LogLevel.Error, $"Exception in exception handling continuation: {e}");
-                    Logger.Write(LogLevel.Error, e.StackTrace);
+                    Logger.Write(TraceEventType.Error, $"Exception in exception handling continuation: {e}");
+                    Logger.Write(TraceEventType.Error, e.StackTrace);
                 }
             });
         }
@@ -94,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 sb.AppendLine($"{e.GetType().Name}: {e.Message}");
                 sb.AppendLine(e.StackTrace);
             }
-            Logger.Write(LogLevel.Error, sb.ToString());
+            Logger.Write(TraceEventType.Error, sb.ToString());
         }
     }
 }

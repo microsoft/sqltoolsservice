@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -169,7 +170,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         }
                         catch (Exception ex)
                         {
-                            Logger.Write(LogLevel.Verbose, ex.ToString());
+                            Logger.Write(TraceEventType.Verbose, ex.ToString());
                         }
                     }
 
@@ -217,7 +218,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 catch (MessageParseException e)
                 {
                     string message = string.Format("Exception occurred while parsing message: {0}", e.Message);
-                    Logger.Write(LogLevel.Error, message);
+                    Logger.Write(TraceEventType.Error, message);
                     await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
 
                     // Continue the loop
@@ -232,7 +233,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     // Log the error and send an error event to the client
                     string message = string.Format("Exception occurred while receiving message: {0}", e.Message);
-                    Logger.Write(LogLevel.Error, message);
+                    Logger.Write(TraceEventType.Error, message);
                     await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
 
                     // Continue the loop
@@ -246,7 +247,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // Verbose logging
                     string logMessage = string.Format("Received message of type[{0}] and method[{1}]",
                         newMessage.MessageType, newMessage.Method);
-                    Logger.Write(LogLevel.Verbose, logMessage);
+                    Logger.Write(TraceEventType.Verbose, logMessage);
 
                     // Process the message
                     await this.DispatchMessage(newMessage, this.MessageWriter);
@@ -312,7 +313,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
                     {
                         // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
-                        Logger.Write(LogLevel.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
+                        Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
                     }
                 }
             }

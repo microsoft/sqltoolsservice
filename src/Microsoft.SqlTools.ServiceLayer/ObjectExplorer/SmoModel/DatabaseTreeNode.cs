@@ -5,6 +5,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
@@ -70,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(LogLevel.Error, error);
+                Logger.Write(TraceEventType.Error, error);
                 ErrorMessage = ex.Message;
                 return false;
             }

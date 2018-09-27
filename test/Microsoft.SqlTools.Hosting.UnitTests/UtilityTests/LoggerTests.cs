@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Utility;
@@ -30,28 +31,28 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.UtilityTests
                 .ToList()
                 .ForEach(File.Delete);
 
-            Logger logger = new Logger();
-            // initialize the logger
-            logger.Initialize(
+            Logger.Initialize(
                 logFilePath: Path.Combine(Directory.GetCurrentDirectory(), "sqltools"),
-                minimumLogLevel: LogLevel.Verbose);
+                tracingLevel: SourceLevels.Verbose);
+
+            // Write a test message.
+            string logMessage = $"Message from {nameof(LoggerDefaultFile)} test";
+            Logger.Write(TraceEventType.Information, logMessage);
 
             // close the logger
-            logger.Close();
+            Logger.Close();
 
             // find the name of the new log file
-            string logFileName = Directory.GetFiles(Directory.GetCurrentDirectory())
-                .SingleOrDefault(fileName =>
-                    fileName.Contains("sqltools_")
-                    && fileName.EndsWith(".log", StringComparison.OrdinalIgnoreCase));
+            string logFileName = Logger.LogFileFullPath;
                 
             // validate the log file was created with desired name 
             Assert.True(!string.IsNullOrWhiteSpace(logFileName));
             if (!string.IsNullOrWhiteSpace(logFileName))
             {
                 Assert.True(logFileName.Length > "sqltools_.log".Length);
-                Assert.True(File.Exists(logFileName));
-
+                Assert.True(File.Exists(logFileName), $"the log file: {logFileName} must exist");
+                //Ensure that our log message exists in the log file
+                Assert.True(File.ReadAllText(logFileName).Contains(logMessage, StringComparison.InvariantCultureIgnoreCase), $"the log message:'{logMessage}' must be present in the log file");
                 // delete the test log file
                 if (File.Exists(logFileName))
                 {

@@ -12,8 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
     public class DatabaseLocksManagerTests
     {
-        private string server1 = "server1";
-        private string database1 = "database1";
+        private const string server1 = "server1";
+        private const string database1 = "database1";
        
         [Fact]
         public void GainFullAccessShouldDisconnectTheConnections()

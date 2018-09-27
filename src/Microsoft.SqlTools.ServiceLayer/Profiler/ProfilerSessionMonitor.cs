@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
 
         /// <summary>
-        /// Registers a session event listener to receive a callback when events arrive
+        /// Registers a session event Listener to receive a callback when events arrive
         /// </summary>
         public void AddSessionListener(IProfilerSessionListener listener)
         {
@@ -283,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Warning, "Failed to poll session. error: " + ex.Message);
+                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
             }
             finally
             {

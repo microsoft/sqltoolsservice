@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 
         protected virtual void PopulateChildren(bool refresh, string name = null)
         {
-            Logger.Write(LogLevel.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
+            Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
 
             SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         {
                             string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                            Logger.Write(LogLevel.Error, error);
+                            Logger.Write(TraceEventType.Error, error);
                             ErrorMessage = ex.Message;
                         }
                     }
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(LogLevel.Error, error);
+                Logger.Write(TraceEventType.Error, error);
                 ErrorMessage = ex.Message;
             }
             finally

@@ -1,6 +1,7 @@
 syntax: glob
 
 ### VisualStudio ###
+*.dgml
 
 # Project.json lock file
 project.lock.json
