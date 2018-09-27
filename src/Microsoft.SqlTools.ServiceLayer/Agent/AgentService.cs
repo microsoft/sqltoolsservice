@@ -186,6 +186,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         out connInfo);
                     if (connInfo != null)
                     {
+                        ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                        CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                        var jobs = dataContainer.Server.JobServer.Jobs;
                         Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
@@ -202,7 +205,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
-                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
+                            JobStepCollection steps = jobs[jobName].JobSteps;
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps);
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();

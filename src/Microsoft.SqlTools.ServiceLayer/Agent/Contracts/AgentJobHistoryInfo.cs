@@ -8,6 +8,7 @@ using System.Data;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlServer.Management.Smo.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
@@ -36,14 +37,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public AgentJobStep[] Steps { get; set; }
     }
 
-    public class AgentJobStep
-    {
-        public string StepId { get; set; }
-        public string StepName { get; set; }
-        public string Message { get; set; }
-        public DateTime RunDate { get; set; }
-        public int RunStatus { get; set; }
-
-    }
-    
+    public  class AgentJobStep {
+		public string jobId;
+		public string stepId;
+		public string stepName;
+		public string message;
+		public string runDate;
+		public CompletionResult runStatus;
+        public AgentJobStepInfo stepDetails;
+	}
 }

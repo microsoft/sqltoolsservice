@@ -57,24 +57,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
-        public static AgentJobStep ConvertToAgentJobStep(ILogEntry logEntry, DataRow jobRow)
+        internal static AgentJobStep ConvertToAgentJobStepInfo(JobStep step, LogSourceJobHistory.LogEntryJobHistory logEntry, string jobId)
         {
-            var entry = logEntry as LogSourceJobHistory.LogEntryJobHistory;
-            string stepId = entry.StepID;
-            string stepName = entry.StepName;
-            string message = entry.Message;
-            DateTime runDate = logEntry.PointInTime;
-            int runStatus = logEntry.Severity == SeverityClass.Success ? 1 : 0;
-            AgentJobStep step = new AgentJobStep();
-            step.StepId = stepId;
-            step.StepName = stepName;
-            step.Message = message;
-            step.RunDate = runDate;
-            step.RunStatus = runStatus;
-            return step;
+            AgentJobStepInfo stepInfo = new AgentJobStepInfo();
+            stepInfo.JobId = jobId;
+            stepInfo.JobName = logEntry.JobName;
+            stepInfo.StepName = step.Name;
+            stepInfo.SubSystem = step.SubSystem.ToString();
+            stepInfo.Id = step.ID;
+            stepInfo.FailureAction = step.OnFailAction.ToString();
+            stepInfo.SuccessAction = step.OnSuccessAction.ToString();
+            stepInfo.FailStepId = step.OnFailStep;
+            stepInfo.SuccessStepId = step.OnSuccessStep;
+            stepInfo.Command = step.Command;
+            stepInfo.CommandExecutionSuccessCode = step.CommandExecutionSuccessCode;
+            stepInfo.DatabaseName = step.DatabaseName;
+            stepInfo.DatabaseUserName = step.DatabaseUserName;
+            stepInfo.Server = step.Server;
+            stepInfo.OutputFileName = step.OutputFileName;
+            // stepInfo.AppendToLogFile = step.AppendToLogFile; 
+            // stepInfo.AppendToStepHist = step.AppendToStepHist;
+            // stepInfo.WriteLogToTable = step.WriteLogToTable;
+            stepInfo.RetryAttempts = step.RetryAttempts;
+            stepInfo.RetryInterval = step.RetryInterval;
+            stepInfo.ProxyName = step.ProxyName;
+            AgentJobStep jobStep = new AgentJobStep();
+            jobStep.stepId = logEntry.StepID;
+            jobStep.stepName = logEntry.StepName;
+            jobStep.stepDetails = stepInfo;
+            jobStep.message = logEntry.Message;
+            jobStep.runDate = step.LastRunDate.ToString();
+            jobStep.runStatus = step.LastRunOutcome;
+            return jobStep;
         }
 
-        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow) 
+        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow, JobStepCollection steps) 
         {
             List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
             // get all the values for a job history
@@ -104,9 +121,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 var jobSteps = new List<AgentJobStep>();
                 if (entry.CanLoadSubEntries)
                 {
-                    foreach (ILogEntry step in entry.SubEntries)
+                    foreach (JobStep step in steps)
                     {
-                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(step, jobRow));
+                        var jobId = jobRow[UrnJobId].ToString();
+                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, logEntry, jobId));
                     }
                 }
                 jobHistoryInfo.Steps = jobSteps.ToArray();
