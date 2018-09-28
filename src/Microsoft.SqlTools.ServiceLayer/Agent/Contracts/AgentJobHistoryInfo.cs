@@ -39,7 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public AgentAlertInfo[] Alerts { get; set; }
     }
 
-    public  class AgentJobStep {
+    public  class AgentJobStep 
+    {
 		public string jobId;
 		public string stepId;
 		public string stepName;
