@@ -209,7 +209,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             // Send Steps, Alerts and Schedules with job history in background
                             JobStepCollection steps = jobs[jobName].JobSteps;
                             JobScheduleCollection schedules = jobs[jobName].JobSchedules;
-                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps, schedules);
+                            List<Alert> alerts = new List<Alert>();
+                            foreach (Alert alert in dataContainer.Server.JobServer.Alerts)
+                            {
+                                if (alert.JobID == jobId && alert.JobName == jobName)
+                                {
+                                    alerts.Add(alert);
+                                }
+                            }
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps, schedules, alerts);
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();

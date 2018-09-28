@@ -113,8 +113,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return scheduleInfo;
         }
 
+        internal static AgentAlertInfo ConvertToAgentAlertInfo(Alert alert)
+        {
+            AgentAlertInfo alertInfo = new AgentAlertInfo();
+            alertInfo.Id = alert.ID;
+            alertInfo.Name = alert.Name;
+            alertInfo.DelayBetweenResponses = alert.DelayBetweenResponses;
+            alertInfo.EventDescriptionKeyword = alert.EventDescriptionKeyword;
+            alertInfo.EventSource = alert.EventSource;
+            alertInfo.HasNotification = alert.HasNotification;
+            alertInfo.IncludeEventDescription = (Contracts.NotifyMethods) alert.IncludeEventDescription;
+            alertInfo.IsEnabled = alert.IsEnabled;
+            alertInfo.JobId = alert.JobID.ToString();
+            alertInfo.JobName = alert.JobName;
+            alertInfo.LastOccurrenceDate = alert.LastOccurrenceDate.ToString();
+            alertInfo.LastResponseDate = alert.LastResponseDate.ToString();
+            alertInfo.MessageId = alert.MessageID;
+            alertInfo.NotificationMessage = alert.NotificationMessage;
+            alertInfo.OccurrenceCount = alert.OccurrenceCount;
+            alertInfo.PerformanceCondition = alert.PerformanceCondition;
+            alertInfo.Severity = alert.Severity;
+            alertInfo.DatabaseName = alert.DatabaseName;
+            alertInfo.CountResetDate = alert.CountResetDate.ToString();
+            alertInfo.CategoryName = alert.CategoryName;
+            alertInfo.AlertType = (Contracts.AlertType) alert.AlertType;
+            alertInfo.WmiEventNamespace = alert.WmiEventNamespace;
+            alertInfo.WmiEventQuery = alert.WmiEventQuery;
+            return alertInfo;
+        }
+
         public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, 
-        DataRow jobRow, JobStepCollection steps, JobScheduleCollection schedules) 
+        DataRow jobRow, JobStepCollection steps, JobScheduleCollection schedules, List<Alert> alerts) 
         {
             List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
             // get all the values for a job history
@@ -158,6 +187,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 jobHistoryInfo.Schedules = jobSchedules.ToArray();
                 
+                // Add alerts to the job if any
+                var jobAlerts = new List<AgentAlertInfo>();
+                foreach (Alert alert in alerts)
+                {   
+                    jobAlerts.Add(AgentUtilities.ConvertToAgentAlertInfo(alert));
+                }
+                jobHistoryInfo.Alerts = jobAlerts.ToArray();
                 jobs.Add(jobHistoryInfo);
             }
             return jobs;
