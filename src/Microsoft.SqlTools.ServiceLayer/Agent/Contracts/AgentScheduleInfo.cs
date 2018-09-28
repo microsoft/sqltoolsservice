@@ -64,5 +64,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public int JobCount { get; set; }
         public DateTime ActiveEndDate { get; set; }
         public Guid ScheduleUid { get; set; }
+        public string Description { get; set; }
     }
 }

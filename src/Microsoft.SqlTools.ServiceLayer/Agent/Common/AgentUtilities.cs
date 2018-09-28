@@ -75,9 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             stepInfo.DatabaseUserName = step.DatabaseUserName;
             stepInfo.Server = step.Server;
             stepInfo.OutputFileName = step.OutputFileName;
-            // stepInfo.AppendToLogFile = step.AppendToLogFile; 
-            // stepInfo.AppendToStepHist = step.AppendToStepHist;
-            // stepInfo.WriteLogToTable = step.WriteLogToTable;
             stepInfo.RetryAttempts = step.RetryAttempts;
             stepInfo.RetryInterval = step.RetryInterval;
             stepInfo.ProxyName = step.ProxyName;
@@ -91,7 +88,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return jobStep;
         }
 
-        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow, JobStepCollection steps) 
+        internal static AgentScheduleInfo ConvertToAgentScheduleInfo(JobSchedule schedule)
+        {
+            AgentScheduleInfo scheduleInfo = new AgentScheduleInfo();
+            scheduleInfo.Id = schedule.ID;
+            scheduleInfo.Name = schedule.Name;
+            scheduleInfo.JobName = " ";
+            scheduleInfo.IsEnabled = schedule.IsEnabled;
+            scheduleInfo.FrequencyTypes = (Contracts.FrequencyTypes) schedule.FrequencyTypes;
+            scheduleInfo.FrequencySubDayTypes = (Contracts.FrequencySubDayTypes) schedule.FrequencySubDayTypes;
+            scheduleInfo.FrequencySubDayInterval = schedule.FrequencySubDayInterval;
+            scheduleInfo.FrequencyRelativeIntervals = (Contracts.FrequencyRelativeIntervals) schedule.FrequencyRelativeIntervals;
+            scheduleInfo.FrequencyRecurrenceFactor = schedule.FrequencyRecurrenceFactor;
+            scheduleInfo.FrequencyInterval = schedule.FrequencyInterval;
+            scheduleInfo.DateCreated = schedule.DateCreated;
+            scheduleInfo.ActiveStartTimeOfDay = schedule.ActiveStartTimeOfDay;
+            scheduleInfo.ActiveStartDate = schedule.ActiveStartDate;
+            scheduleInfo.ActiveEndTimeOfDay = schedule.ActiveEndTimeOfDay;
+            scheduleInfo.ActiveEndDate = schedule.ActiveEndDate;
+            scheduleInfo.JobCount = schedule.JobCount;
+            scheduleInfo.ScheduleUid = schedule.ScheduleUid;
+            var scheduleData = new JobScheduleData(schedule);
+            scheduleInfo.Description = scheduleData.Description;
+            return scheduleInfo;
+        }
+
+        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, 
+        DataRow jobRow, JobStepCollection steps, JobScheduleCollection schedules) 
         {
             List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
             // get all the values for a job history
@@ -119,15 +142,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                if (entry.CanLoadSubEntries)
+                foreach (JobStep step in steps)
                 {
-                    foreach (JobStep step in steps)
-                    {
-                        var jobId = jobRow[UrnJobId].ToString();
-                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, logEntry, jobId));
-                    }
+                    var jobId = jobRow[UrnJobId].ToString();
+                    jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, logEntry, jobId));
                 }
+
                 jobHistoryInfo.Steps = jobSteps.ToArray();
+
+                // Add schedules to the job if any
+                var jobSchedules = new List<AgentScheduleInfo>();
+                foreach (JobSchedule schedule in schedules)
+                {
+                    jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
+                }
+                jobHistoryInfo.Schedules = jobSchedules.ToArray();
+                
                 jobs.Add(jobHistoryInfo);
             }
             return jobs;

@@ -205,8 +205,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
+
+                            // Send Steps, Alerts and Schedules with job history in background
                             JobStepCollection steps = jobs[jobName].JobSteps;
-                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps);
+                            JobScheduleCollection schedules = jobs[jobName].JobSchedules;
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps, schedules);
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();
@@ -743,6 +746,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     for (int i = 0; i < scheduleCount; ++i)
                     {
                         var schedule = dataContainer.Server.JobServer.SharedSchedules[i];
+                        var scheduleData = new JobScheduleData(schedule);
                         schedules[i] = new AgentScheduleInfo();
                         schedules[i].Id = schedule.ID;
                         schedules[i].Name = schedule.Name;
@@ -760,6 +764,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         schedules[i].JobCount = schedule.JobCount;
                         schedules[i].ActiveEndDate = schedule.ActiveEndDate;
                         schedules[i].ScheduleUid = schedule.ScheduleUid;
+                        schedules[i].Description = scheduleData.Description;
                     }
                     result.Schedules = schedules;
                     result.Success = true;
