@@ -97,13 +97,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public void Verify(TraceEventType eventType, string message, string callstackMessage, bool shouldVerifyCallstack = false, bool expectLogMessage = true)
         {
+            Logger.Flush();
+            // The Regex uses .* between the severity and the message to allow SMO to vary the content. 140 SMO has nothing there, 150 has a timestamp
             if (expectLogMessage)
             {
-                Assert.True(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
+                Assert.True(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:.*{message}", RegexOptions.Compiled));
             }
             else
             {
-                Assert.False(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:\s+\d+\s+:\s+{message}", RegexOptions.Compiled));
+                Assert.False(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $@"\b{eventType}:.*{message}", RegexOptions.Compiled));
             }
             if (shouldVerifyCallstack)
             {
