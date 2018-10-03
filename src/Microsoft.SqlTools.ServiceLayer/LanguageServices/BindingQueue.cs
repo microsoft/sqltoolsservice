@@ -310,9 +310,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 // handle the case a previous binding operation is still running
                                 if (!bindingContext.BindingLock.WaitOne(queueItem.WaitForLockTimeout ?? 0))
                                 {
-                                    queueItem.Result = queueItem.TimeoutOperation != null
-                                        ? queueItem.TimeoutOperation(bindingContext)
-                                        : null;
+                                    try
+                                    {
+                                        Logger.Write(TraceEventType.Warning, "Binding queue operation timed out waiting for previous operation to finish");
+                                        queueItem.Result = queueItem.TimeoutOperation != null
+                                            ? queueItem.TimeoutOperation(bindingContext)
+                                            : null;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Write(TraceEventType.Error, "Exception running binding queue lock timeout handler: " + ex.ToString());
+                                    }
+                                    finally
+                                    {
+                                        queueItem.ItemProcessed.Set();
+                                    }
 
                                     return;
                                 }
