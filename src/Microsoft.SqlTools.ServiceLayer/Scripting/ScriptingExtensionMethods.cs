@@ -103,10 +103,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string urn = string.Format(
                 "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
                 server.ToUpper(),
-                database,
+                Urn.EscapeString(database),
                 scriptingObject.Type,
-                scriptingObject.Name,
-                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", scriptingObject.Schema) : string.Empty);
+                Urn.EscapeString(scriptingObject.Name),
+                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema)) : string.Empty);
 
             return new Urn(urn);
         }
