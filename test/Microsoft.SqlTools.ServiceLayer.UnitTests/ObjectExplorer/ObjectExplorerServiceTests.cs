@@ -53,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
             connectedBindingQueue = new ConnectedBindingQueue(false);
             connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL", connectedBindingContext);
+            connectedBindingQueue.BindingContextTasks.Add(connectedBindingContext, Task.Run(() => null));
             mockConnectionOpener = new Mock<SqlConnectionOpener>();
             connectedBindingQueue.SetConnectionOpener(mockConnectionOpener.Object);
             service.ConnectedBindingQueue = connectedBindingQueue;

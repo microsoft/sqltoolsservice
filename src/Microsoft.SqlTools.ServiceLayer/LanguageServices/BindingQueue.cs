@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
 
-        private Dictionary<IBindingContext, Task> bindingContextTasks = new Dictionary<IBindingContext, Task>();
+        internal Dictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new Dictionary<IBindingContext, Task>();
 
         /// <summary>
         /// Constructor for a binding queue instance
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     var bindingContext = new T();
                     this.BindingContextMap.Add(key, bindingContext);
-                    this.bindingContextTasks.Add(bindingContext, Task.Run(() => null));
+                    this.BindingContextTasks.Add(bindingContext, Task.Run(() => null));
                 }
 
                 return this.BindingContextMap[key];
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     // remove key from the map
                     this.BindingContextMap.Remove(key);
-                    this.bindingContextTasks.Remove(bindingContext);
+                    this.BindingContextTasks.Remove(bindingContext);
                 }
             }
         }
@@ -296,10 +296,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
 
-                        var bindingContextTask = this.bindingContextTasks[bindingContext];
+                        var bindingContextTask = this.BindingContextTasks[bindingContext];
 
                         // Run in the binding context task in case this task has to wait for a previous binding operation
-                        this.bindingContextTasks[bindingContext] = bindingContextTask.ContinueWith((task) =>
+                        this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith((task) =>
                         {
                             bool lockTaken = false;
                             try
