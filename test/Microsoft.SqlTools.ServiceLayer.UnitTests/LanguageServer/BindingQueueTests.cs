@@ -213,5 +213,62 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Equal(1, this.timeoutCallCount);
             Assert.True(this.isCancelationRequested);
         }
+
+        /// <summary>
+        /// Queue an task with a long operation causing a timeout and make sure subsequent tasks still execute
+        /// </summary>
+        [Fact]
+        public void QueueWithTimeoutRunsNextTask()
+        {
+            string operationKey = "testkey";
+            ManualResetEvent firstEventExecuted = new ManualResetEvent(false);
+            ManualResetEvent secondEventExecuted = new ManualResetEvent(false);
+            bool firstOperationCanceled = false;
+            bool secondOperationExecuted = false;
+            InitializeTestSettings();
+
+            this.bindCallbackDelay = 1000;
+
+            this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                bindingTimeout: bindCallbackDelay / 2,
+                bindOperation: (bindingContext, cancellationToken) =>
+                {
+                    secondEventExecuted.WaitOne();
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        firstOperationCanceled = true;
+                    }
+                    firstEventExecuted.Set();
+                    return null;
+                },
+                timeoutOperation: TestTimeoutOperation);
+
+            this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                bindingTimeout: bindCallbackDelay,
+                bindOperation: (bindingContext, cancellationToken) =>
+                {
+                    secondOperationExecuted = true;
+                    secondEventExecuted.Set();
+                    return null;
+                },
+                waitForLockTimeout: bindCallbackDelay * 20,
+                timeoutOperation: (bindingContext) =>
+                {
+                    secondEventExecuted.Set();
+                    return null;
+                }
+            );
+
+            var result = firstEventExecuted.WaitOne(15000);
+            Assert.True(result);
+
+            this.bindingQueue.StopQueueProcessor(15000);
+
+            Assert.Equal(1, this.timeoutCallCount);
+            Assert.True(firstOperationCanceled);
+            Assert.True(secondOperationExecuted);
+        }
     }
 }

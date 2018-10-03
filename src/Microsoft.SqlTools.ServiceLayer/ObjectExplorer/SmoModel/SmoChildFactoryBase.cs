@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                 RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                OnExpandPopulateNonFolders(allChildren, parent, refresh, name);
+                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
                 OnBeginAsyncOperations(parent);
             }
             catch(Exception ex)
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -115,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             foreach (var querier in queriers)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (!querier.IsValidFor(serverValidFor))
                 {
                     continue;
@@ -125,6 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
                     foreach (var smoObject in smoObjectList)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         if (smoObject == null)
                         {
                             Logger.Write(TraceEventType.Error, "smoObject should not be null");

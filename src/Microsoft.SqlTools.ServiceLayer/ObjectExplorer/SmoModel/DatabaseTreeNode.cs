@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
 
@@ -40,12 +41,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        protected override void PopulateChildren(bool refresh, string name = null)
+        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
             SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
             if (IsAccessible(context))
             {
-                base.PopulateChildren(refresh, name);
+                base.PopulateChildren(refresh, name, cancellationToken);
             }
             else
             {

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
@@ -400,7 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             ServerNode node = SetupServerNodeWithServer(smoServer);
 
             // When I populate its children
-            IList<TreeNode> children = node.Expand();
+            IList<TreeNode> children = node.Expand(new CancellationToken());
 
             // Then I expect it to contain server-level folders 
             Assert.Equal(3, children.Count);
@@ -409,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             VerifyTreeNode<FolderNode>(children[2], "Folder", SR.SchemaHierarchy_ServerObjects);
             // And the database is contained under it
             TreeNode databases = children[0];
-            IList<TreeNode> dbChildren = databases.Expand();
+            IList<TreeNode> dbChildren = databases.Expand(new CancellationToken());
             Assert.Equal(2, dbChildren.Count);
             Assert.Equal(SR.SchemaHierarchy_SystemDatabases, dbChildren[0].NodeValue);
 

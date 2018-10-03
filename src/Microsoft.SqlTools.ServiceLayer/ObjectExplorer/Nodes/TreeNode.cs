@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
@@ -236,14 +237,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand(string name= null)
+        public IList<TreeNode> Expand(string name, CancellationToken cancellationToken)
         {
             // TODO consider why solution explorer has separate Children and Items options
             if (children.IsInitialized)
             {
                 return children;
             }
-            PopulateChildren(false, name);
+            PopulateChildren(false, name, cancellationToken);
             return children;
         }
 
@@ -251,19 +252,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand()
+        public IList<TreeNode> Expand(CancellationToken cancellationToken)
         {
-            return Expand(null);
+            return Expand(null, cancellationToken);
         }
 
         /// <summary>
         /// Refresh this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public virtual IList<TreeNode> Refresh()
+        public virtual IList<TreeNode> Refresh(CancellationToken cancellationToken)
         {
             // TODO consider why solution explorer has separate Children and Items options
-            PopulateChildren(true, null);
+            PopulateChildren(true, null, cancellationToken);
             return children;
         }
 
@@ -315,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected virtual void PopulateChildren(bool refresh, string name = null)
+        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
@@ -337,9 +338,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     foreach (var factory in childFactories)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
-                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects);
+                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken);
                             if (items != null)
                             {
                                 foreach (TreeNode item in items)
