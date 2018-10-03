@@ -228,6 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             InitializeTestSettings();
 
             this.bindCallbackDelay = 1000;
+            var totalTimeout = (this.bindCallbackDelay + this.bindingContext.BindingTimeout) * 2;
 
             this.bindingQueue.QueueBindingOperation(
                 key: operationKey,
@@ -253,15 +254,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                     secondEventExecuted.Set();
                     return null;
                 },
-                waitForLockTimeout: bindCallbackDelay * 20,
-                timeoutOperation: (bindingContext) =>
-                {
-                    secondEventExecuted.Set();
-                    return null;
-                }
+                waitForLockTimeout: totalTimeout
             );
 
-            var result = firstEventExecuted.WaitOne(15000);
+            var result = firstEventExecuted.WaitOne(totalTimeout);
             Assert.True(result);
 
             this.bindingQueue.StopQueueProcessor(15000);
