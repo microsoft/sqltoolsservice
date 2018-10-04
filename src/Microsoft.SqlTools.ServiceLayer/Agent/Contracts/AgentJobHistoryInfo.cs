@@ -8,7 +8,6 @@ using System.Data;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Agent;
-using Microsoft.SqlServer.Management.Smo.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
