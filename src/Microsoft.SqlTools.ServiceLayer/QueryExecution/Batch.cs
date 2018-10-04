@@ -364,6 +364,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // so add a newline to the end of the query. See https://github.com/Microsoft/sqlopsstudio/issues/1424
                     dbCommand.CommandText += Environment.NewLine;
 
+                    EnsureConnectionIsOpen(conn);
+
                     // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
                     // key columns in the result set, even if they weren't part of the select statement.
                     // Extra key columns get added to the end, so just correlate via Column Ordinal.
@@ -379,6 +381,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                     }
                 }
+
+                EnsureConnectionIsOpen(conn);
 
                 // Execute the command to get back a reader
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
@@ -717,6 +721,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return specialAction;
+        }
+
+        private void EnsureConnectionIsOpen(DbConnection conn)
+        {
+            // verify that the connection is open
+            if (conn.State != ConnectionState.Open)
+            {
+                try
+                {
+                    // close it in case it's in some non-Closed state
+                    conn.Close();
+                }
+                catch
+                {
+                    // ignore any exceptions thrown from .Close
+                    // if the connection is really broken the .Open call will throw
+                }
+                finally
+                {
+                    // try to reopen the connection
+                    conn.Open();
+                }
+            }
         }
 
         #endregion
