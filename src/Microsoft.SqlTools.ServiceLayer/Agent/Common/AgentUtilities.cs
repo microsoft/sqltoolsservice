@@ -57,24 +57,93 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
-        public static AgentJobStep ConvertToAgentJobStep(ILogEntry logEntry, DataRow jobRow)
+        internal static AgentJobStep ConvertToAgentJobStepInfo(JobStep step, LogSourceJobHistory.LogEntryJobHistory logEntry, string jobId)
         {
-            var entry = logEntry as LogSourceJobHistory.LogEntryJobHistory;
-            string stepId = entry.StepID;
-            string stepName = entry.StepName;
-            string message = entry.Message;
-            DateTime runDate = logEntry.PointInTime;
-            int runStatus = logEntry.Severity == SeverityClass.Success ? 1 : 0;
-            AgentJobStep step = new AgentJobStep();
-            step.StepId = stepId;
-            step.StepName = stepName;
-            step.Message = message;
-            step.RunDate = runDate;
-            step.RunStatus = runStatus;
-            return step;
+            AgentJobStepInfo stepInfo = new AgentJobStepInfo();
+            stepInfo.JobId = jobId;
+            stepInfo.JobName = logEntry.JobName;
+            stepInfo.StepName = step.Name;
+            stepInfo.SubSystem = step.SubSystem.ToString();
+            stepInfo.Id = step.ID;
+            stepInfo.FailureAction = step.OnFailAction.ToString();
+            stepInfo.SuccessAction = step.OnSuccessAction.ToString();
+            stepInfo.FailStepId = step.OnFailStep;
+            stepInfo.SuccessStepId = step.OnSuccessStep;
+            stepInfo.Command = step.Command;
+            stepInfo.CommandExecutionSuccessCode = step.CommandExecutionSuccessCode;
+            stepInfo.DatabaseName = step.DatabaseName;
+            stepInfo.DatabaseUserName = step.DatabaseUserName;
+            stepInfo.Server = step.Server;
+            stepInfo.OutputFileName = step.OutputFileName;
+            stepInfo.RetryAttempts = step.RetryAttempts;
+            stepInfo.RetryInterval = step.RetryInterval;
+            stepInfo.ProxyName = step.ProxyName;
+            AgentJobStep jobStep = new AgentJobStep();
+            jobStep.stepId = logEntry.StepID;
+            jobStep.stepName = logEntry.StepName;
+            jobStep.stepDetails = stepInfo;
+            jobStep.message = logEntry.Message;
+            jobStep.runDate = step.LastRunDate.ToString();
+            jobStep.runStatus = (Contracts.CompletionResult) step.LastRunOutcome;
+            return jobStep;
         }
 
-        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow) 
+        internal static AgentScheduleInfo ConvertToAgentScheduleInfo(JobSchedule schedule)
+        {
+            AgentScheduleInfo scheduleInfo = new AgentScheduleInfo();
+            scheduleInfo.Id = schedule.ID;
+            scheduleInfo.Name = schedule.Name;
+            scheduleInfo.JobName = " ";
+            scheduleInfo.IsEnabled = schedule.IsEnabled;
+            scheduleInfo.FrequencyTypes = (Contracts.FrequencyTypes) schedule.FrequencyTypes;
+            scheduleInfo.FrequencySubDayTypes = (Contracts.FrequencySubDayTypes) schedule.FrequencySubDayTypes;
+            scheduleInfo.FrequencySubDayInterval = schedule.FrequencySubDayInterval;
+            scheduleInfo.FrequencyRelativeIntervals = (Contracts.FrequencyRelativeIntervals) schedule.FrequencyRelativeIntervals;
+            scheduleInfo.FrequencyRecurrenceFactor = schedule.FrequencyRecurrenceFactor;
+            scheduleInfo.FrequencyInterval = schedule.FrequencyInterval;
+            scheduleInfo.DateCreated = schedule.DateCreated;
+            scheduleInfo.ActiveStartTimeOfDay = schedule.ActiveStartTimeOfDay;
+            scheduleInfo.ActiveStartDate = schedule.ActiveStartDate;
+            scheduleInfo.ActiveEndTimeOfDay = schedule.ActiveEndTimeOfDay;
+            scheduleInfo.ActiveEndDate = schedule.ActiveEndDate;
+            scheduleInfo.JobCount = schedule.JobCount;
+            scheduleInfo.ScheduleUid = schedule.ScheduleUid;
+            var scheduleData = new JobScheduleData(schedule);
+            scheduleInfo.Description = scheduleData.Description;
+            return scheduleInfo;
+        }
+
+        internal static AgentAlertInfo ConvertToAgentAlertInfo(Alert alert)
+        {
+            AgentAlertInfo alertInfo = new AgentAlertInfo();
+            alertInfo.Id = alert.ID;
+            alertInfo.Name = alert.Name;
+            alertInfo.DelayBetweenResponses = alert.DelayBetweenResponses;
+            alertInfo.EventDescriptionKeyword = alert.EventDescriptionKeyword;
+            alertInfo.EventSource = alert.EventSource;
+            alertInfo.HasNotification = alert.HasNotification;
+            alertInfo.IncludeEventDescription = (Contracts.NotifyMethods) alert.IncludeEventDescription;
+            alertInfo.IsEnabled = alert.IsEnabled;
+            alertInfo.JobId = alert.JobID.ToString();
+            alertInfo.JobName = alert.JobName;
+            alertInfo.LastOccurrenceDate = alert.LastOccurrenceDate.ToString();
+            alertInfo.LastResponseDate = alert.LastResponseDate.ToString();
+            alertInfo.MessageId = alert.MessageID;
+            alertInfo.NotificationMessage = alert.NotificationMessage;
+            alertInfo.OccurrenceCount = alert.OccurrenceCount;
+            alertInfo.PerformanceCondition = alert.PerformanceCondition;
+            alertInfo.Severity = alert.Severity;
+            alertInfo.DatabaseName = alert.DatabaseName;
+            alertInfo.CountResetDate = alert.CountResetDate.ToString();
+            alertInfo.CategoryName = alert.CategoryName;
+            alertInfo.AlertType = (Contracts.AlertType) alert.AlertType;
+            alertInfo.WmiEventNamespace = alert.WmiEventNamespace;
+            alertInfo.WmiEventQuery = alert.WmiEventQuery;
+            return alertInfo;
+        }
+
+        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, 
+        DataRow jobRow, JobStepCollection steps, JobScheduleCollection schedules, List<Alert> alerts) 
         {
             List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
             // get all the values for a job history
@@ -102,14 +171,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                if (entry.CanLoadSubEntries)
+                foreach (JobStep step in steps)
                 {
-                    foreach (ILogEntry step in entry.SubEntries)
-                    {
-                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(step, jobRow));
-                    }
+                    var jobId = jobRow[UrnJobId].ToString();
+                    jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, logEntry, jobId));
                 }
+
                 jobHistoryInfo.Steps = jobSteps.ToArray();
+
+                // Add schedules to the job if any
+                var jobSchedules = new List<AgentScheduleInfo>();
+                foreach (JobSchedule schedule in schedules)
+                {
+                    jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
+                }
+                jobHistoryInfo.Schedules = jobSchedules.ToArray();
+                
+                // Add alerts to the job if any
+                var jobAlerts = new List<AgentAlertInfo>();
+                foreach (Alert alert in alerts)
+                {   
+                    jobAlerts.Add(AgentUtilities.ConvertToAgentAlertInfo(alert));
+                }
+                jobHistoryInfo.Alerts = jobAlerts.ToArray();
                 jobs.Add(jobHistoryInfo);
             }
             return jobs;

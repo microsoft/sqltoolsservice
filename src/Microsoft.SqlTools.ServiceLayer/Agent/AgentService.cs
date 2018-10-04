@@ -186,6 +186,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         out connInfo);
                     if (connInfo != null)
                     {
+                        ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                        CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                        var jobs = dataContainer.Server.JobServer.Jobs;
                         Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
@@ -202,7 +205,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
-                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job);
+
+                            // Send Steps, Alerts and Schedules with job history in background
+                            JobStepCollection steps = jobs[jobName].JobSteps;
+                            JobScheduleCollection schedules = jobs[jobName].JobSchedules;
+                            List<Alert> alerts = new List<Alert>();
+                            foreach (Alert alert in dataContainer.Server.JobServer.Alerts)
+                            {
+                                if (alert.JobID == jobId && alert.JobName == jobName)
+                                {
+                                    alerts.Add(alert);
+                                }
+                            }
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps, schedules, alerts);
                             tlog.CloseReader();
                         }
                         result.Jobs = jobHistories.ToArray();
@@ -739,6 +754,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     for (int i = 0; i < scheduleCount; ++i)
                     {
                         var schedule = dataContainer.Server.JobServer.SharedSchedules[i];
+                        var scheduleData = new JobScheduleData(schedule);
                         schedules[i] = new AgentScheduleInfo();
                         schedules[i].Id = schedule.ID;
                         schedules[i].Name = schedule.Name;
@@ -756,6 +772,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         schedules[i].JobCount = schedule.JobCount;
                         schedules[i].ActiveEndDate = schedule.ActiveEndDate;
                         schedules[i].ScheduleUid = schedule.ScheduleUid;
+                        schedules[i].Description = scheduleData.Description;
                     }
                     result.Schedules = schedules;
                     result.Success = true;
