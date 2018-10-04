@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                                 queueItem.ItemProcessed.Set();                          
                             }
-                        });
+                        }, TaskContinuationOptions.None);
 
                         // if a queue processing cancellation was requested then exit the loop
                         if (token.IsCancellationRequested)
