@@ -39,14 +39,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public AgentAlertInfo[] Alerts { get; set; }
     }
 
+    public enum CompletionResult
+    {
+        Failed = 0,
+        Succeeded = 1,
+        Retry = 2,
+        Cancelled = 3,
+        InProgress = 4,
+        Unknown = 5
+    }
+
     public  class AgentJobStep 
     {
-		public string jobId;
-		public string stepId;
-		public string stepName;
-		public string message;
-		public string runDate;
-		public CompletionResult runStatus;
+        public string jobId;
+        public string stepId;
+        public string stepName;
+        public string message;
+        public string runDate;
+        public CompletionResult runStatus;
         public AgentJobStepInfo stepDetails;
 	}
 }

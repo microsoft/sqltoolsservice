@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             jobStep.stepDetails = stepInfo;
             jobStep.message = logEntry.Message;
             jobStep.runDate = step.LastRunDate.ToString();
-            jobStep.runStatus = step.LastRunOutcome;
+            jobStep.runStatus = (Contracts.CompletionResult) step.LastRunOutcome;
             return jobStep;
         }
 
