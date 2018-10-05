@@ -141,7 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void QueueWithUnhandledExceptionTest()
         {
             InitializeTestSettings();
-            ManualResetEvent mre = new ManualResetEvent(false);
             bool isExceptionHandled = false;
             object defaultReturnObject = new object();
             var queueItem = this.bindingQueue.QueueBindingOperation(
@@ -150,11 +149,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 timeoutOperation: TestTimeoutOperation,
                 errorHandler: (exception) => {
                     isExceptionHandled = true;
-                    mre.Set();
                     return defaultReturnObject;
                 });
 
-            mre.WaitOne(10000);
+            queueItem.ItemProcessed.WaitOne(10000);
             
             this.bindingQueue.StopQueueProcessor(15000);
 
