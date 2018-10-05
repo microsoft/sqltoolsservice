@@ -418,11 +418,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            {
                                if (forceRefresh)
                                {
-                                   nodes = node.Refresh().Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
-                                   nodes = node.Expand().Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Expand(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
