@@ -333,6 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 
             try
             {
+                ErrorMessage = null;
                 IEnumerable<ChildFactory> childFactories = context.GetObjectExplorerService().GetApplicableChildFactories(this);
                 if (childFactories != null)
                 {
