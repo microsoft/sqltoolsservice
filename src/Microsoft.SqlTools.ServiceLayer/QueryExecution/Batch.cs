@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
 using System.Collections.ObjectModel;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -364,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // so add a newline to the end of the query. See https://github.com/Microsoft/sqlopsstudio/issues/1424
                     dbCommand.CommandText += Environment.NewLine;
 
-                    EnsureConnectionIsOpen(conn);
+                    ConnectionService.EnsureConnectionIsOpen(conn);
 
                     // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
                     // key columns in the result set, even if they weren't part of the select statement.
@@ -382,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
 
-                EnsureConnectionIsOpen(conn);
+                ConnectionService.EnsureConnectionIsOpen(conn);
 
                 // Execute the command to get back a reader
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
@@ -721,29 +722,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return specialAction;
-        }
-
-        private void EnsureConnectionIsOpen(DbConnection conn)
-        {
-            // verify that the connection is open
-            if (conn.State != ConnectionState.Open)
-            {
-                try
-                {
-                    // close it in case it's in some non-Closed state
-                    conn.Close();
-                }
-                catch
-                {
-                    // ignore any exceptions thrown from .Close
-                    // if the connection is really broken the .Open call will throw
-                }
-                finally
-                {
-                    // try to reopen the connection
-                    conn.Open();
-                }
-            }
         }
 
         #endregion

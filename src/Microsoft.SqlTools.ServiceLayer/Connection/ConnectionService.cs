@@ -1528,5 +1528,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             
             return null;
         }
+
+        public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
+        {
+            // verify that the connection is open
+            if (conn.State != ConnectionState.Open || forceReopen)
+            {
+                try
+                {
+                    // close it in case it's in some non-Closed state
+                    conn.Close();
+                }
+                catch
+                {
+                    // ignore any exceptions thrown from .Close
+                    // if the connection is really broken the .Open call will throw
+                }
+                finally
+                {
+                    // try to reopen the connection
+                    conn.Open();
+                }
+            }
+        }
     }
 }
