@@ -436,6 +436,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
                 }
+
+                foreach (Batch b in Batches)
+                {
+                    if (b.HasError)
+                    {
+                        ConnectionService.EnsureConnectionIsOpen(sqlConn, forceReopen: true);
+                        break;
+                    }
+                }
             }
         }
 
