@@ -4,6 +4,8 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -15,6 +17,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
             return LoginCustomNodeHelper.GetStatus(smoObject);
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                return new List<NodeSmoProperty> {
+                    new NodeSmoProperty {
+                        Name = "IsDisabled",
+                        ValidFor = ValidForFlag.All
+                    }
+                };
+            }
         }
     }
 

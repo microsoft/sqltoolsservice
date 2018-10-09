@@ -4,6 +4,8 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -12,9 +14,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class TriggersChildFactory : SmoChildFactoryBase
     {
+        public static readonly List<NodeSmoProperty> SmoPropertyList = new List<NodeSmoProperty> {
+            new NodeSmoProperty {
+                Name = "IsEnabled",
+                ValidFor = ValidForFlag.All
+            }
+        };
+
         public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
             return TriggersCustomeNodeHelper.GetStatus(smoObject);
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                return TriggersChildFactory.SmoPropertyList;
+            }
         }
     }
 
@@ -24,6 +41,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             return TriggersCustomeNodeHelper.GetStatus(smoObject);
         }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                return TriggersChildFactory.SmoPropertyList;
+            }
+        }
     }
 
     internal partial class DatabaseTriggersChildFactory : SmoChildFactoryBase
@@ -31,6 +56,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
         {
             return TriggersCustomeNodeHelper.GetStatus(smoObject);
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                return TriggersChildFactory.SmoPropertyList;
+            }
         }
     }
 
