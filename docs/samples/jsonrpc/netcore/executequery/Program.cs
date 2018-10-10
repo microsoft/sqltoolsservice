@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.JsonRpc.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 
 namespace Microsoft.SqlTools.JsonRpc.ExecuteQuery
 {
@@ -19,10 +20,11 @@ namespace Microsoft.SqlTools.JsonRpc.ExecuteQuery
         internal static void Main(string[] args)
         {
             // set SQLTOOLSSERVICE_EXE to location of SQL Tools Service executable
-            Environment.SetEnvironmentVariable("SQLTOOLSSERVICE_EXE", @"Microsoft.SqlTools.ServiceLayer.exe");
+            Environment.SetEnvironmentVariable("SQLTOOLSSERVICE_EXE", @"MicrosoftSqlToolsServiceLayer.exe");
 
             // execute a query against localhost, master, with IntegratedAuth
             ExecuteQuery("SELECT * FROM sys.objects").Wait();
+
         }
         
         internal static async Task ExecuteQuery(string query)
@@ -43,7 +45,7 @@ namespace Microsoft.SqlTools.JsonRpc.ExecuteQuery
                 await testHelper.Connect(queryTempFile.FilePath, connectParams);
 
                 // execute the query
-                QueryExecuteCompleteParams queryComplete = 
+                QueryCompleteParams queryComplete = 
                     await testHelper.RunQuery(queryTempFile.FilePath, query);
 
                 if (queryComplete.BatchSummaries != null && queryComplete.BatchSummaries.Length > 0)
@@ -54,7 +56,7 @@ namespace Microsoft.SqlTools.JsonRpc.ExecuteQuery
                         var resultSet = batch.ResultSetSummaries[0];
 
                         // retrive the results
-                        QueryExecuteSubsetResult querySubset = await testHelper.ExecuteSubset(
+                        SubsetResult querySubset = await testHelper.ExecuteSubset(
                             queryTempFile.FilePath, batch.Id, 
                             resultSet.Id, 0, (int)resultSet.RowCount);
 
@@ -70,7 +72,7 @@ namespace Microsoft.SqlTools.JsonRpc.ExecuteQuery
                         {
                             for (int i = 0; i < resultSet.ColumnInfo.Length; ++i)
                             {
-                                Console.Write(row.GetValue(i) + ", ");
+                                Console.Write(row[i].DisplayValue + ", ");
                             }
                             Console.Write(Environment.NewLine);
                         }
