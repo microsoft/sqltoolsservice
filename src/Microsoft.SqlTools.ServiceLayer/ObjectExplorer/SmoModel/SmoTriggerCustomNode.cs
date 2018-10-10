@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -14,8 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class TriggersChildFactory : SmoChildFactoryBase
     {
-        public static readonly List<NodeSmoProperty> SmoPropertyList = new List<NodeSmoProperty> {
-            new NodeSmoProperty {
+        public static readonly List<NodeSmoProperty> SmoPropertyList = new List<NodeSmoProperty>
+        {
+            new NodeSmoProperty
+            {
                 Name = "IsEnabled",
                 ValidFor = ValidForFlag.All
             }

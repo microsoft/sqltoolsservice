@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -23,8 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             get
             {
-                return new List<NodeSmoProperty> {
-                    new NodeSmoProperty {
+                return new List<NodeSmoProperty>
+                {
+                    new NodeSmoProperty
+                    {
                         Name = "IsDisabled",
                         ValidFor = ValidForFlag.All
                     }
