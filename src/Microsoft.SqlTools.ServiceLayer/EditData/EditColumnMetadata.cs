@@ -37,6 +37,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public string EscapedName { get; set; }
 
         /// <summary>
+        /// The column's expression for select statement
+        /// </summary>
+        public string ExpressionForSelectStatement
+        {
+            get
+            {
+                return IsHierarchyId ? string.Format("{0}.ToString() {0}", EscapedName) : EscapedName;
+            }
+        }
+
+        /// <summary>
+        /// Whether or not the column's data type is HierarchyId
+        /// </summary>
+        public bool IsHierarchyId { get; set; }
+
+        /// <summary>
         /// Whether or not the column is computed
         /// </summary>
         public bool IsComputed { get; set; }

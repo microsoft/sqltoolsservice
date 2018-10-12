@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             newCells = new CellUpdate[AssociatedResultSet.Columns.Length];
-            
+
             // Process the default cell values. If the column is calculated, then the value is a placeholder
             DefaultValues = AssociatedObjectMetadata.Columns.Select((col, index) => col.IsCalculated.HasTrue()
                 ? SR.EditDataComputedColumnPlaceholder
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// provided cell update during commit
         /// </summary>
         public string[] DefaultValues { get; }
-        
+
         #region Public Methods
 
         /// <summary>
@@ -96,14 +96,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             List<string> inValues = new List<string>();
             List<SqlParameter> inParameters = new List<SqlParameter>();
             List<string> selectColumns = new List<string>();
-            for(int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
+            for (int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
             {
                 DbColumnWrapper column = AssociatedResultSet.Columns[i];
                 EditColumnMetadata metadata = AssociatedObjectMetadata.Columns[i];
                 CellUpdate cell = newCells[i];
-                
+
                 // Add the output columns regardless of whether the column is read only
-                outClauseColumnNames.Add($"inserted.{metadata.EscapedName}");
+                if (metadata.IsHierarchyId)
+                {
+                    outClauseColumnNames.Add($"inserted.{metadata.EscapedName}.ToString() {metadata.EscapedName}");
+                }
+                else
+                {
+                    outClauseColumnNames.Add($"inserted.{metadata.EscapedName}");
+                }
                 declareColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(column, useSemanticEquivalent: true)}");
                 selectColumns.Add(metadata.EscapedName);
 
@@ -112,16 +119,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 {
                     continue;
                 }
-                
+
                 // Add the input column
                 inColumnNames.Add(metadata.EscapedName);
-                
+
                 // Add the input values as parameters
                 string paramName = $"@Value{RowId}_{i}";
-                inValues.Add(paramName);
-                inParameters.Add(new SqlParameter(paramName, column.SqlDbType) {Value = cell.Value});
+
+                if (metadata.IsHierarchyId)
+                {
+                    inValues.Add($"CONVERT(hierarchyid,{paramName})");
+                }
+                else
+                {
+                    inValues.Add(paramName);
+                }
+
+                inParameters.Add(new SqlParameter(paramName, column.SqlDbType) { Value = cell.Value });
             }
-            
+
             // Put everything together into a single query            
             // Step 1) Build a temp table for inserting output values into
             string tempTableName = $"@Insert{RowId}Output";
@@ -130,32 +146,32 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Step 2) Build the insert statement
             string joinedOutClauseNames = string.Join(", ", outClauseColumnNames);
             string insertStatement = inValues.Count > 0
-                ? string.Format(InsertOutputValuesStatement, 
+                ? string.Format(InsertOutputValuesStatement,
                     AssociatedObjectMetadata.EscapedMultipartName,
-                    string.Join(", ", inColumnNames), 
+                    string.Join(", ", inColumnNames),
                     joinedOutClauseNames,
                     tempTableName,
                     string.Join(", ", inValues))
-                : string.Format(InsertOutputDefaultStatement, 
+                : string.Format(InsertOutputDefaultStatement,
                     AssociatedObjectMetadata.EscapedMultipartName,
                     joinedOutClauseNames,
                     tempTableName);
 
             // Step 3) Build the select statement
             string selectStatement = string.Format(SelectStatement, string.Join(", ", selectColumns), tempTableName);
-            
+
             // Step 4) Put it all together into a results object
             StringBuilder query = new StringBuilder();
             query.AppendLine(declareStatement);
             query.AppendLine(insertStatement);
             query.Append(selectStatement);
-            
+
             // Build the command
             DbCommand command = connection.CreateCommand();
             command.CommandText = query.ToString();
             command.CommandType = CommandType.Text;
             command.Parameters.AddRange(inParameters.ToArray());
-                
+
             return command;
         }
 
@@ -168,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
             // Get edit cells for each 
             EditCell[] editCells = newCells.Select(GetEditCell).ToArray();
-            
+
             return new EditRow
             {
                 Id = RowId,
@@ -190,23 +206,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 DbColumnWrapper column = AssociatedResultSet.Columns[i];
                 CellUpdate cell = newCells[i];
-                
+
                 // Continue if we're not inserting a value for this column
                 if (!IsCellValueProvided(column, cell, DefaultValues[i]))
                 {
                     continue;
                 }
-                
+
                 // Column is provided
                 inColumns.Add(AssociatedObjectMetadata.Columns[i].EscapedName);
                 inValues.Add(ToSqlScript.FormatValue(cell.AsDbCellValue, column));
             }
-            
+
             // Build the insert statement
             return inValues.Count > 0
-                ? string.Format(InsertScriptValuesStatement, 
+                ? string.Format(InsertScriptValuesStatement,
                     AssociatedObjectMetadata.EscapedMultipartName,
-                    string.Join(", ", inColumns), 
+                    string.Join(", ", inColumns),
                     string.Join(", ", inValues))
                 : string.Format(InsertScriptDefaultStatement, AssociatedObjectMetadata.EscapedMultipartName);
         }
@@ -225,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             newCells[columnId] = null;
             return new EditRevertCellResult
             {
-                IsRowDirty = true, 
+                IsRowDirty = true,
                 Cell = GetEditCell(null, columnId)
             };
         }
@@ -277,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 return false;
             }
-                
+
             // Make sure a value was provided for the cell
             if (cell == null)
             {
@@ -286,14 +302,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 {
                     throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue(column.ColumnName));
                 }
-                    
+
                 // There is a default value (or omitting the value is fine), so trust the db will apply it correctly
                 return false;
             }
 
             return true;
         }
-        
+
         private EditCell GetEditCell(CellUpdate cell, int index)
         {
             DbCellValue dbCell;

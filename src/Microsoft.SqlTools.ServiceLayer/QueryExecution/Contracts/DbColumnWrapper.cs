@@ -199,8 +199,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                 object assemblyQualifiedName = column.UdtAssemblyQualifiedName;
                 const string hierarchyId = "MICROSOFT.SQLSERVER.TYPES.SQLHIERARCHYID";
 
-                if (assemblyQualifiedName != null &&
-                    string.Equals(assemblyQualifiedName.ToString(), hierarchyId, StringComparison.OrdinalIgnoreCase))
+                if (assemblyQualifiedName != null
+                && assemblyQualifiedName.ToString().StartsWith(hierarchyId, StringComparison.OrdinalIgnoreCase))
                 {
                     DataType = typeof(SqlBinary);
                 }
@@ -260,6 +260,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public SqlDbType SqlDbType { get; private set; }
 
         /// <summary>
+        /// Whther this is a HierarchyId column
+        /// </summary>
+        public bool IsHierarchyId { get; set; }
+
+        /// <summary>
         /// Whether or not the column is an XML Reader type.
         /// </summary>
         /// <remarks>
@@ -286,10 +291,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         /// <remarks>
         /// Logic taken from SSDT determination of updatable columns
+        /// Special treatment for HierarchyId since we are using an Expression for HierarchyId column and expression column is readonly.
         /// </remarks>
-        public bool IsUpdatable => !IsAutoIncrement.HasTrue() && 
-                                   !IsReadOnly.HasTrue() && 
-                                   !IsSqlXmlType;
+        public bool IsUpdatable => (!IsAutoIncrement.HasTrue() &&
+                                   !IsReadOnly.HasTrue() &&
+                                   !IsSqlXmlType) || IsHierarchyId;
 
         #endregion
 
