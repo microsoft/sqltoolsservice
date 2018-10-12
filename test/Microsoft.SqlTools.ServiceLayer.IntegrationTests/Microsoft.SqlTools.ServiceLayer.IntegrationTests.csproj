@@ -1,26 +1,27 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Common.props" />
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>portable</DebugType>
     <AssemblyName>Microsoft.SqlTools.ServiceLayer.IntegrationTests</AssemblyName>
     <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
- 	  <Reference Include="Newtonsoft.Json">
-	    <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Moq">
-	    <HintPath>../../bin/ref/Moq.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Castle.Core">
-	    <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
-	  </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>../../bin/ref/Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
+    </Reference>
     <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
@@ -33,9 +34,7 @@
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

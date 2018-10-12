@@ -392,7 +392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         internal static void DataConnectionFailureRetry(RetryState retryState)
         {
-            Logger.Write(LogLevel.Normal, string.Format(CultureInfo.InvariantCulture,
+            Logger.Write(TraceEventType.Information, string.Format(CultureInfo.InvariantCulture,
                 "Connection retry number {0}. Delaying {1} ms before retry. Exception: {2}",
                 retryState.RetryCount,
                 retryState.Delay.TotalMilliseconds.ToString(CultureInfo.InvariantCulture),
@@ -403,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         internal static void CommandFailureRetry(RetryState retryState, string commandKeyword)
         {
-            Logger.Write(LogLevel.Normal, string.Format(
+            Logger.Write(TraceEventType.Information, string.Format(
                 CultureInfo.InvariantCulture,
                 "{0} retry number {1}. Delaying {2} ms before retry. Exception: {3}",
                 commandKeyword,
@@ -416,7 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         internal static void CommandFailureIgnore(RetryState retryState, string commandKeyword)
         {
-            Logger.Write(LogLevel.Normal, string.Format(
+            Logger.Write(TraceEventType.Information, string.Format(
                 CultureInfo.InvariantCulture,
                 "{0} retry number {1}. Ignoring failure. Exception: {2}",
                 commandKeyword,

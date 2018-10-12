@@ -1,0 +1,5 @@
+*.sql diff
+*.cs diff
+*.csproj diff
+*.sln diff
+*.resx diff

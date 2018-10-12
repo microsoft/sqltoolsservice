@@ -6,6 +6,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -52,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
             connectedBindingQueue = new ConnectedBindingQueue(false);
             connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL", connectedBindingContext);
+            connectedBindingQueue.BindingContextTasks.Add(connectedBindingContext, Task.Run(() => null));
             mockConnectionOpener = new Mock<SqlConnectionOpener>();
             connectedBindingQueue.SetConnectionOpener(mockConnectionOpener.Object);
             service.ConnectedBindingQueue = connectedBindingQueue;
@@ -271,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void FindNodeCanExpandParentNodes()
         {
             var mockTreeNode = new Mock<TreeNode>();
-            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>() };
+            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken() };
             mockTreeNode.Protected().Setup("PopulateChildren", populateChildrenArguments);
             mockTreeNode.Object.IsAlwaysLeaf = false;
 

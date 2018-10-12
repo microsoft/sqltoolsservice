@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -60,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 return node;
             }
-            var children = expandIfNeeded && !node.IsAlwaysLeaf ? node.Expand() : node.GetChildren();
+            var children = expandIfNeeded && !node.IsAlwaysLeaf ? node.Expand(new CancellationToken()) : node.GetChildren();
             foreach (var child in children)
             {
                 if (filter != null && filter(child))

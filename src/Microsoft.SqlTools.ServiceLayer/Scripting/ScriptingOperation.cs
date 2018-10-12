@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             if (!this.cancellation.IsCancellationRequested)
             {
-                Logger.Write(LogLevel.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
+                Logger.Write(TraceEventType.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
                 this.cancellation.Cancel();
             }
         }

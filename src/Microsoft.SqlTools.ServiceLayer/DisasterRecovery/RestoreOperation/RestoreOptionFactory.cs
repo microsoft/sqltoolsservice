@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
@@ -54,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             else
             {
-                Logger.Write(LogLevel.Warning, $"cannot find restore option builder for {optionKey}");
+                Logger.Write(TraceEventType.Warning, $"cannot find restore option builder for {optionKey}");
                 return null;
             }
         }
@@ -77,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             else
             {
-                Logger.Write(LogLevel.Warning, $"cannot find restore option builder for {optionKey}");
+                Logger.Write(TraceEventType.Warning, $"cannot find restore option builder for {optionKey}");
             }
         }
 
@@ -115,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         {
                             var defaultValue = builder.DefaultValueFunction(restoreDataObject);
                             builder.SetValueFunction(restoreDataObject, defaultValue);
-                            Logger.Write(LogLevel.Warning, $"Failed tp set restore option {optionKey} error:{ex.Message}");
+                            Logger.Write(TraceEventType.Warning, $"Failed tp set restore option {optionKey} error:{ex.Message}");
 
                         }
                     }
@@ -128,13 +129,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                         }
                         catch (Exception)
                         {
-                            Logger.Write(LogLevel.Warning, $"Failed to set restore option  {optionKey} to default value");
+                            Logger.Write(TraceEventType.Warning, $"Failed to set restore option  {optionKey} to default value");
                         }
                     }
                 }
                 else
                 {
-                    Logger.Write(LogLevel.Warning, $"cannot find restore option builder for {optionKey}");
+                    Logger.Write(TraceEventType.Warning, $"cannot find restore option builder for {optionKey}");
                 }
             }
         }
@@ -171,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             else
             {
                 errorMessage = $"cannot find restore option builder for {optionKey}";
-                Logger.Write(LogLevel.Warning, errorMessage);
+                Logger.Write(TraceEventType.Warning, errorMessage);
             }
 
             return errorMessage;

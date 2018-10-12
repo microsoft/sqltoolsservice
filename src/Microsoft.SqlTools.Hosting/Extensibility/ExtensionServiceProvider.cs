@@ -19,6 +19,13 @@ namespace Microsoft.SqlTools.Extensibility
 {
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
+        private static readonly string[] defaultInclusionList = 
+        {
+            "microsofsqltoolscredentials.dll",
+            "microsoft.sqltools.hosting.dll",
+            "microsoftsqltoolsservicelayer.dll"
+        };
+
         private Func<ConventionBuilder, ContainerConfiguration> config;
 
         public ExtensionServiceProvider(Func<ConventionBuilder, ContainerConfiguration> config)
@@ -27,18 +34,11 @@ namespace Microsoft.SqlTools.Extensibility
             this.config = config;
         }
 
-        public static ExtensionServiceProvider CreateDefaultServiceProvider()
+        public static ExtensionServiceProvider CreateDefaultServiceProvider(string[] inclusionList = null)
         {
             // only allow loading MEF dependencies from our assemblies until we can 
-            // better seperate out framework assemblies and extension assemblies
-            string[] inclusionList = 
-            {
-                "microsofsqltoolscredentials.dll",
-                "microsoft.sqltools.hosting.dll",
-                "microsoftsqltoolsservicelayer.dll"
-            };
-
-            return CreateFromAssembliesInDirectory(inclusionList);
+            // better seperate out framework assemblies and extension assemblies                        
+            return CreateFromAssembliesInDirectory(inclusionList ?? defaultInclusionList);
         }
 
         /// <summary>
@@ -230,8 +230,11 @@ namespace Microsoft.SqlTools.Extensibility
                 var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
                 if (File.Exists(apiApplicationFileInfo.FullName))
                 {
-                    var asl = new AssemblyLoader(apiApplicationFileInfo.DirectoryName);
-                    return asl.LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
+                    // Creating a new AssemblyContext instance for the same folder puts us at risk 
+                    // of loading the same DLL in multiple contexts, which leads to some unpredictable
+                    // behavior in the loader. See https://github.com/dotnet/coreclr/issues/19632
+
+                    return LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
                 }
             }
             return Assembly.Load(assemblyName);

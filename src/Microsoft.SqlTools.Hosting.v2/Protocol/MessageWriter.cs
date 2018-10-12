@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             // Log the JSON representation of the message
             string logMessage = string.Format("Sending message of type[{0}] and method[{1}]",
                 messageToWrite.MessageType, messageToWrite.Method);
-            Logger.Instance.Write(LogLevel.Verbose, logMessage);
+            Logger.Write(TraceEventType.Verbose, logMessage);
 
             string serializedMessage = messageToWrite.Serialize();
             // TODO: Allow encoding to be passed in

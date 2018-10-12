@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -59,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
             Logger.Write(
-                LogLevel.Verbose,
+                TraceEventType.Verbose,
                 string.Format(
                     "Loaded SMO object type count {0}, types: {1}",
                     objectTypes.Count(),
@@ -70,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 IEnumerable<KeyValuePair<string, string>> databaseObjectsOfType = publishModel.EnumChildrenForDatabaseObjectType(objectType);
 
                 Logger.Write(
-                    LogLevel.Verbose,
+                    TraceEventType.Verbose,
                     string.Format(
                         "Loaded SMO urn object count {0} for type {1}, urns: {2}",
                         objectType,
@@ -102,10 +103,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string urn = string.Format(
                 "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
                 server.ToUpper(),
-                database,
+                Urn.EscapeString(database),
                 scriptingObject.Type,
-                scriptingObject.Name,
-                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", scriptingObject.Schema) : string.Empty);
+                Urn.EscapeString(scriptingObject.Name),
+                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema)) : string.Empty);
 
             return new Urn(urn);
         }

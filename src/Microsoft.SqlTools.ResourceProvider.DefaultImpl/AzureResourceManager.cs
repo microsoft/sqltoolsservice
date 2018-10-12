@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Error, string.Format(CultureInfo.CurrentCulture, "Failed to get databases {0}", ex));
+                Logger.Write(TraceEventType.Error, string.Format(CultureInfo.CurrentCulture, "Failed to get databases {0}", ex));
                 throw;
             }
         }
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             }
             catch (Exception ex)
             {
-                Logger.Write(LogLevel.Error, string.Format(CultureInfo.CurrentCulture, "Failed to get databases {0}", ex.Message));
+                Logger.Write(TraceEventType.Error, string.Format(CultureInfo.CurrentCulture, "Failed to get databases {0}", ex.Message));
                 throw;
             }
 

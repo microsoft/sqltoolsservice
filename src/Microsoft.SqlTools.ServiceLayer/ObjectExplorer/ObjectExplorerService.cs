@@ -26,6 +26,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -119,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Error, ex.Message);
+                Logger.Write(TraceEventType.Error, ex.Message);
             }
         }
 
@@ -129,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <param name="serviceHost">The service host instance to register with</param>
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(LogLevel.Verbose, "ObjectExplorer service initialized");
+            Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
             this.serviceHost = serviceHost;
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
@@ -172,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             try
             {
-                Logger.Write(LogLevel.Verbose, "HandleCreateSessionRequest");
+                Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
                 Func<Task<CreateSessionResponse>> doCreateSession = async () =>
                 {
                     Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
@@ -200,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
         {
-            Logger.Write(LogLevel.Verbose, "HandleExpandRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleExpandRequest");
 
             Func<Task<bool>> expandNode = async () =>
             {
@@ -211,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 if (!sessionMap.TryGetValue(uri, out session))
                 {
-                    Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = expandParams.SessionId,
@@ -233,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             try
             {
-                Logger.Write(LogLevel.Verbose, "HandleRefreshRequest");
+                Logger.Write(TraceEventType.Verbose, "HandleRefreshRequest");
                 Validate.IsNotNull(nameof(refreshParams), refreshParams);
                 Validate.IsNotNull(nameof(context), context);
 
@@ -241,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 if (!sessionMap.TryGetValue(uri, out session))
                 {
-                    Logger.Write(LogLevel.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = refreshParams.SessionId,
@@ -264,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
         {
 
-            Logger.Write(LogLevel.Verbose, "HandleCloseSessionRequest");
+            Logger.Write(TraceEventType.Verbose, "HandleCloseSessionRequest");
             Func<Task<CloseSessionResponse>> closeSession = () =>
             {
                 Validate.IsNotNull(nameof(closeSessionParams), closeSessionParams);
@@ -276,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     bool success = false;
                     if (!sessionMap.TryGetValue(uri, out session))
                     {
-                        Logger.Write(LogLevel.Verbose, $"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
+                        Logger.Write(TraceEventType.Verbose, $"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
                     }
 
                     if (session != null)
@@ -326,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
-            Logger.Write(LogLevel.Normal, "Creating OE session");
+            Logger.Write(TraceEventType.Information, "Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {
@@ -417,11 +418,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            {
                                if (forceRefresh)
                                {
-                                   nodes = node.Refresh().Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
-                                   nodes = node.Expand().Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Expand(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
@@ -435,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                }
                                catch(Exception ex)
                                {
-                                   Logger.Write(LogLevel.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
+                                   Logger.Write(TraceEventType.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
                                    // We should just try to change the connection. If it fails, there's not much we can do
                                }
                                return response;
@@ -541,7 +542,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async Task SendSessionFailedNotification(string uri, string errorMessage)
         {
-            Logger.Write(LogLevel.Warning, $"Failed To create OE session: {errorMessage}");
+            Logger.Write(TraceEventType.Warning, $"Failed To create OE session: {errorMessage}");
             SessionCreatedParameters result = new SessionCreatedParameters()
             {
                 Success = false,
@@ -604,7 +605,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             response = await ExpandNode(session, expandParams.NodePath, forceRefresh);
             if (cancellationToken.IsCancellationRequested)
             {
-                Logger.Write(LogLevel.Verbose, "OE expand canceled");
+                Logger.Write(TraceEventType.Verbose, "OE expand canceled");
             }
             else
             {

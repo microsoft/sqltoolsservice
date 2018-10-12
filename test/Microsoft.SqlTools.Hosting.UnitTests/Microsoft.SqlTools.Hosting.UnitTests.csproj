@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>false</IsPackable>
+	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
@@ -12,6 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.SqlTools.DataProtocol.Contracts\Microsoft.SqlTools.DataProtocol.Contracts.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.SqlTools.Hosting.Contracts\Microsoft.SqlTools.Hosting.Contracts.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.v2.csproj" />
   </ItemGroup>
 </Project>

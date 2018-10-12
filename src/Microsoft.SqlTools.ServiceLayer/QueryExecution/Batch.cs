@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
 using System.Collections.ObjectModel;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -251,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await BatchStart(this);
             }
 
-            // Register the message listener to *this instance* of the batch
+            // Register the message Listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
             ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
             if (sqlConn != null)
@@ -364,6 +365,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // so add a newline to the end of the query. See https://github.com/Microsoft/sqlopsstudio/issues/1424
                     dbCommand.CommandText += Environment.NewLine;
 
+                    ConnectionService.EnsureConnectionIsOpen(conn);
+
                     // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
                     // key columns in the result set, even if they weren't part of the select statement.
                     // Extra key columns get added to the end, so just correlate via Column Ordinal.
@@ -379,6 +382,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                     }
                 }
+
+                ConnectionService.EnsureConnectionIsOpen(conn);
 
                 // Execute the command to get back a reader
                 using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
@@ -460,7 +465,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private DbCommand CreateCommand(DbConnection conn)
         {
-            // Register the message listener to *this instance* of the batch
+            // Register the message Listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
             ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
             DbCommand dbCommand;

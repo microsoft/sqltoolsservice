@@ -141,7 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void QueueWithUnhandledExceptionTest()
         {
             InitializeTestSettings();
-            ManualResetEvent mre = new ManualResetEvent(false);
             bool isExceptionHandled = false;
             object defaultReturnObject = new object();
             var queueItem = this.bindingQueue.QueueBindingOperation(
@@ -150,11 +149,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 timeoutOperation: TestTimeoutOperation,
                 errorHandler: (exception) => {
                     isExceptionHandled = true;
-                    mre.Set();
                     return defaultReturnObject;
                 });
 
-            mre.WaitOne(10000);
+            queueItem.ItemProcessed.WaitOne(10000);
             
             this.bindingQueue.StopQueueProcessor(15000);
 
@@ -212,6 +210,59 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Equal(0, this.bindCallCount);
             Assert.Equal(1, this.timeoutCallCount);
             Assert.True(this.isCancelationRequested);
+        }
+
+        /// <summary>
+        /// Queue an task with a long operation causing a timeout and make sure subsequent tasks still execute
+        /// </summary>
+        [Fact]
+        public void QueueWithTimeoutRunsNextTask()
+        {
+            string operationKey = "testkey";
+            ManualResetEvent firstEventExecuted = new ManualResetEvent(false);
+            ManualResetEvent secondEventExecuted = new ManualResetEvent(false);
+            bool firstOperationCanceled = false;
+            bool secondOperationExecuted = false;
+            InitializeTestSettings();
+
+            this.bindCallbackDelay = 1000;
+            var totalTimeout = (this.bindCallbackDelay + this.bindingContext.BindingTimeout) * 2;
+
+            this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                bindingTimeout: bindCallbackDelay / 2,
+                bindOperation: (bindingContext, cancellationToken) =>
+                {
+                    secondEventExecuted.WaitOne();
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        firstOperationCanceled = true;
+                    }
+                    firstEventExecuted.Set();
+                    return null;
+                },
+                timeoutOperation: TestTimeoutOperation);
+
+            this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                bindingTimeout: bindCallbackDelay,
+                bindOperation: (bindingContext, cancellationToken) =>
+                {
+                    secondOperationExecuted = true;
+                    secondEventExecuted.Set();
+                    return null;
+                },
+                waitForLockTimeout: totalTimeout
+            );
+
+            var result = firstEventExecuted.WaitOne(totalTimeout);
+            Assert.True(result);
+
+            this.bindingQueue.StopQueueProcessor(15000);
+
+            Assert.Equal(1, this.timeoutCallCount);
+            Assert.True(firstOperationCanceled);
+            Assert.True(secondOperationExecuted);
         }
     }
 }

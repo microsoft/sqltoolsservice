@@ -229,10 +229,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         if (count > 0)
                         {
                             var job = dt.Rows[0];
-                            string jobName = Convert.ToString(job[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
                             Guid jobId = (Guid)job[AgentUtilities.UrnJobId];
                             int runStatus = Convert.ToInt32(job[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-                            var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
+                            var t = new LogSourceJobHistory(parameters.JobName, sqlConnInfo, null, runStatus, jobId, null);
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;

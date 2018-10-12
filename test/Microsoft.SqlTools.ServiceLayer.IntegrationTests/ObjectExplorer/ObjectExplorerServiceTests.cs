@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
@@ -303,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             if (serverNode)
             {
                 Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
-                var children = session.Root.Expand();
+                var children = session.Root.Expand(new CancellationToken());
 
                 //All server children should be folder nodes
                 foreach (var item in children)

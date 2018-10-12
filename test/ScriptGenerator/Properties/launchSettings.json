@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ScriptGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "-vm 59  -spm 8 -tm 15 -ndb 200"
+    }
+  }
+}

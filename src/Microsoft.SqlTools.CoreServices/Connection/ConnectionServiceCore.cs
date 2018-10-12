@@ -24,6 +24,7 @@ using Microsoft.SqlTools.CoreServices.LanguageServices.Contracts;
 using ConnectionType = Microsoft.SqlTools.DataProtocol.Contracts.Connection.ConnectionType;
 using Microsoft.SqlTools.Hosting.Extensibility;
 using System.Composition;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.CoreServices.Connection
 {
@@ -317,7 +318,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection
             }
             catch (Exception ex)
             {
-                Logger.Instance.Write(LogLevel.Normal, "Failed to close temporary connections. error: " + ex.Message);
+                Logger.Write(TraceEventType.Information, "Failed to close temporary connections. error: " + ex.Message);
             }
         }
 
@@ -1175,8 +1176,8 @@ namespace Microsoft.SqlTools.CoreServices.Connection
                 }
                 catch (Exception e)
                 {
-                    Logger.Instance.Write(
-                        LogLevel.Error,
+                    Logger.Write(
+                        TraceEventType.Error,
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
                             newDatabaseName, 
@@ -1255,7 +1256,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Write(LogLevel.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                    Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
                 }
 
             });
@@ -1301,7 +1302,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection
                 string error = string.Format(CultureInfo.InvariantCulture, 
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Instance.Write(LogLevel.Error, error);
+                Logger.Write(TraceEventType.Error, error);
             }
             
             return null;

@@ -441,7 +441,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             }
             catch (SqlException exception)
             {
-                Logger.Instance.Write(LogLevel.Error, Resources.UnableToRetrieveAzureSessionId + exception.ToString());
+                Logger.Write(TraceEventType.Error, Resources.UnableToRetrieveAzureSessionId + exception.ToString());
             }
         }
 

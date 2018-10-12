@@ -7,6 +7,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.Utility;
 using System;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -66,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
             catch (DatabaseFullAccessException databaseFullAccessException)
             {
-                Logger.Write(LogLevel.Warning, $"Failed to gain access to database. server|database:{ServerName}|{DatabaseName}");
+                Logger.Write(TraceEventType.Warning, $"Failed to gain access to database. server|database:{ServerName}|{DatabaseName}");
                 throw databaseFullAccessException;
             }
             catch

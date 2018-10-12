@@ -4,8 +4,11 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -18,6 +21,81 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
             return SmoColumnCustomNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                return new List<NodeSmoProperty>
+                {
+                    new NodeSmoProperty
+                    {
+                        Name = "Computed",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "IsColumnSet",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "Nullable",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "DataType",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "InPrimaryKey",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "IsForeignKey",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "SystemType",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "Length",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "NumericPrecision",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "NumericScale",
+                        ValidFor = ValidForFlag.All
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "XmlSchemaNamespaceSchema",
+                        ValidFor = ValidForFlag.NotSqlDw
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "XmlSchemaNamespace",
+                        ValidFor = ValidForFlag.NotSqlDw
+                    },
+                    new NodeSmoProperty
+                    {
+                        Name = "XmlDocumentConstraint",
+                        ValidFor = ValidForFlag.NotSqlDw
+                    }
+                };
+            }
         }
     }
 
@@ -73,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch(Exception ex)
             {
-                Logger.Write(LogLevel.Error, $"Failed to get customized column name. error:{ex.Message}");
+                Logger.Write(TraceEventType.Error, $"Failed to get customized column name. error:{ex.Message}");
             }
             return string.Empty;
         }

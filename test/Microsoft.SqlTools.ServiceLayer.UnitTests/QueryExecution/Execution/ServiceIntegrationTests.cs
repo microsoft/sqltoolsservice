@@ -416,6 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
+                .AddStandardQueryCompleteValidator(1)
                 .Complete();
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
@@ -441,6 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
+                .AddStandardQueryCompleteValidator(1)
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);

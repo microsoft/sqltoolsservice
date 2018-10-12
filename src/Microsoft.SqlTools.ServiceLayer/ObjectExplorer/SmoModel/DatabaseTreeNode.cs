@@ -5,7 +5,9 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
 
@@ -39,12 +41,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        protected override void PopulateChildren(bool refresh, string name = null)
+        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
             SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
             if (IsAccessible(context))
             {
-                base.PopulateChildren(refresh, name);
+                base.PopulateChildren(refresh, name, cancellationToken);
             }
             else
             {
@@ -70,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(LogLevel.Error, error);
+                Logger.Write(TraceEventType.Error, error);
                 ErrorMessage = ex.Message;
                 return false;
             }
