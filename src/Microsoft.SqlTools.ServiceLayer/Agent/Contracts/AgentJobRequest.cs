@@ -135,6 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string OwnerUri { get; set; }
 
         public string JobId { get; set; }
+        public string JobName { get; set; }
     }
 
     /// <summary>
@@ -142,7 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentJobHistoryResult : ResultStatus
     {
-        public AgentJobHistoryInfo[] Jobs { get; set; }
+        public AgentJobHistoryInfo[] Histories { get; set; }
+        public AgentJobStepInfo[] Steps { get; set; }
+        public AgentScheduleInfo[] Schedules { get; set; }
+        public AgentAlertInfo[] Alerts { get; set ;}
     }
 
     /// <summary>

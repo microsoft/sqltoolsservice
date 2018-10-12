@@ -34,14 +34,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public const string UrnServer = "Server";
         internal const string UrnServerTime = "CurrentDate";
     
-        public static AgentJobInfo ConvertToAgentJobInfo(JobProperties job)
+            public static AgentJobInfo ConvertToAgentJobInfo(JobProperties job)
         {
             return new AgentJobInfo
             {
                 Name = job.Name,
                 Description = job.Description,
-                CurrentExecutionStatus = job.CurrentExecutionStatus,
-                LastRunOutcome = job.LastRunOutcome,
+                CurrentExecutionStatus = (Contracts.JobExecutionStatus) job.CurrentExecutionStatus,
+                LastRunOutcome = (Contracts.CompletionResult) job.LastRunOutcome,
                 CurrentExecutionStep = job.CurrentExecutionStep,
                 Enabled = job.Enabled,
                 HasTarget = job.HasTarget,
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
-        internal static AgentJobStep ConvertToAgentJobStepInfo(JobStep step, LogSourceJobHistory.LogEntryJobHistory logEntry, string jobId)
+        internal static AgentJobStep ConvertToAgentJobStep(JobStep step, LogSourceJobHistory.LogEntryJobHistory logEntry, string jobId)
         {
             AgentJobStepInfo stepInfo = new AgentJobStepInfo();
             stepInfo.JobId = jobId;
@@ -88,6 +88,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return jobStep;
         }
 
+        internal static AgentJobStepInfo ConvertToAgentJobStepInfo(JobStep step, string jobId, string jobName)
+        {
+            AgentJobStepInfo stepInfo = new AgentJobStepInfo();
+            stepInfo.JobId = jobId;
+            stepInfo.JobName = jobName;
+            stepInfo.StepName = step.Name;
+            stepInfo.SubSystem = step.SubSystem.ToString();
+            stepInfo.Id = step.ID;
+            stepInfo.FailureAction = step.OnFailAction.ToString();
+            stepInfo.SuccessAction = step.OnSuccessAction.ToString();
+            stepInfo.FailStepId = step.OnFailStep;
+            stepInfo.SuccessStepId = step.OnSuccessStep;
+            stepInfo.Command = step.Command;
+            stepInfo.CommandExecutionSuccessCode = step.CommandExecutionSuccessCode;
+            stepInfo.DatabaseName = step.DatabaseName;
+            stepInfo.DatabaseUserName = step.DatabaseUserName;
+            stepInfo.Server = step.Server;
+            stepInfo.OutputFileName = step.OutputFileName;
+            stepInfo.RetryAttempts = step.RetryAttempts;
+            stepInfo.RetryInterval = step.RetryInterval;
+            stepInfo.ProxyName = step.ProxyName;
+            return stepInfo;
+        }
+
         internal static AgentScheduleInfo ConvertToAgentScheduleInfo(JobSchedule schedule)
         {
             AgentScheduleInfo scheduleInfo = new AgentScheduleInfo();
@@ -113,37 +137,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return scheduleInfo;
         }
 
-        internal static AgentAlertInfo ConvertToAgentAlertInfo(Alert alert)
+        internal static AgentAlertInfo[] ConvertToAgentAlertInfo(List<Alert> alerts)
         {
-            AgentAlertInfo alertInfo = new AgentAlertInfo();
-            alertInfo.Id = alert.ID;
-            alertInfo.Name = alert.Name;
-            alertInfo.DelayBetweenResponses = alert.DelayBetweenResponses;
-            alertInfo.EventDescriptionKeyword = alert.EventDescriptionKeyword;
-            alertInfo.EventSource = alert.EventSource;
-            alertInfo.HasNotification = alert.HasNotification;
-            alertInfo.IncludeEventDescription = (Contracts.NotifyMethods) alert.IncludeEventDescription;
-            alertInfo.IsEnabled = alert.IsEnabled;
-            alertInfo.JobId = alert.JobID.ToString();
-            alertInfo.JobName = alert.JobName;
-            alertInfo.LastOccurrenceDate = alert.LastOccurrenceDate.ToString();
-            alertInfo.LastResponseDate = alert.LastResponseDate.ToString();
-            alertInfo.MessageId = alert.MessageID;
-            alertInfo.NotificationMessage = alert.NotificationMessage;
-            alertInfo.OccurrenceCount = alert.OccurrenceCount;
-            alertInfo.PerformanceCondition = alert.PerformanceCondition;
-            alertInfo.Severity = alert.Severity;
-            alertInfo.DatabaseName = alert.DatabaseName;
-            alertInfo.CountResetDate = alert.CountResetDate.ToString();
-            alertInfo.CategoryName = alert.CategoryName;
-            alertInfo.AlertType = (Contracts.AlertType) alert.AlertType;
-            alertInfo.WmiEventNamespace = alert.WmiEventNamespace;
-            alertInfo.WmiEventQuery = alert.WmiEventQuery;
-            return alertInfo;
+            var result = new List<AgentAlertInfo>();
+            foreach(Alert alert in alerts)
+            {
+                AgentAlertInfo alertInfo = new AgentAlertInfo();
+                alertInfo.Id = alert.ID;
+                alertInfo.Name = alert.Name;
+                alertInfo.DelayBetweenResponses = alert.DelayBetweenResponses;
+                alertInfo.EventDescriptionKeyword = alert.EventDescriptionKeyword;
+                alertInfo.EventSource = alert.EventSource;
+                alertInfo.HasNotification = alert.HasNotification;
+                alertInfo.IncludeEventDescription = (Contracts.NotifyMethods) alert.IncludeEventDescription;
+                alertInfo.IsEnabled = alert.IsEnabled;
+                alertInfo.JobId = alert.JobID.ToString();
+                alertInfo.JobName = alert.JobName;
+                alertInfo.LastOccurrenceDate = alert.LastOccurrenceDate.ToString();
+                alertInfo.LastResponseDate = alert.LastResponseDate.ToString();
+                alertInfo.MessageId = alert.MessageID;
+                alertInfo.NotificationMessage = alert.NotificationMessage;
+                alertInfo.OccurrenceCount = alert.OccurrenceCount;
+                alertInfo.PerformanceCondition = alert.PerformanceCondition;
+                alertInfo.Severity = alert.Severity;
+                alertInfo.DatabaseName = alert.DatabaseName;
+                alertInfo.CountResetDate = alert.CountResetDate.ToString();
+                alertInfo.CategoryName = alert.CategoryName;
+                alertInfo.AlertType = (Contracts.AlertType) alert.AlertType;
+                alertInfo.WmiEventNamespace = alert.WmiEventNamespace;
+                alertInfo.WmiEventQuery = alert.WmiEventQuery;
+                result.Add(alertInfo);
+            }
+            return result.ToArray();
         }
 
-        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, 
-        DataRow jobRow, JobStepCollection steps, JobScheduleCollection schedules, List<Alert> alerts) 
+        public static List<AgentJobHistoryInfo> ConvertToAgentJobHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow, JobStepCollection steps) 
         {
             List<AgentJobHistoryInfo> jobs = new List<AgentJobHistoryInfo>();
             // get all the values for a job history
@@ -174,26 +202,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 foreach (JobStep step in steps)
                 {
                     var jobId = jobRow[UrnJobId].ToString();
-                    jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, logEntry, jobId));
+                    jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(step, logEntry, jobId));
                 }
 
                 jobHistoryInfo.Steps = jobSteps.ToArray();
-
-                // Add schedules to the job if any
-                var jobSchedules = new List<AgentScheduleInfo>();
-                foreach (JobSchedule schedule in schedules)
-                {
-                    jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
-                }
-                jobHistoryInfo.Schedules = jobSchedules.ToArray();
-                
-                // Add alerts to the job if any
-                var jobAlerts = new List<AgentAlertInfo>();
-                foreach (Alert alert in alerts)
-                {   
-                    jobAlerts.Add(AgentUtilities.ConvertToAgentAlertInfo(alert));
-                }
-                jobHistoryInfo.Alerts = jobAlerts.ToArray();
                 jobs.Add(jobHistoryInfo);
             }
             return jobs;

@@ -379,15 +379,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     "HasSchedule",
                     "HasStep",
                     "HasServer",
-                    "LastRunDate",
-                    "NextRunDate",
                     "LastRunOutcome",
                     "JobID",
-                    "Description"
+                    "Description",
+                    "LastRunDate",
+                    "NextRunDate",
+                    "OperatorToEmail",
+                    "OperatorToNetSend",
+                    "OperatorToPage",
+                    "OwnerLoginName",
+                    "PageLevel",
+                    "StartStepID",
+                    "NetSendLevel",
+                    "EventLogLevel",
+                    "EmailLevel",
+                    "DeleteLevel"
                 };
 
             DataTable dt = enumerator.Process(connection, request);
-
             int numJobs = dt.Rows.Count;
             if (numJobs == 0)
             {
@@ -395,7 +404,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             Dictionary<Guid, JobProperties> foundJobs = new Dictionary<Guid, JobProperties>(numJobs);
-
             for (int i = 0; i < numJobs; ++i)
             {
                 JobProperties jobProperties = new JobProperties(dt.Rows[i]);

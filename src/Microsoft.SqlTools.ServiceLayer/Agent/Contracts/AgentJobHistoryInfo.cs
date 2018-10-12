@@ -34,8 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string RetriesAttempted { get; set; }
         public string Server { get; set; }
         public AgentJobStep[] Steps { get; set; }
-        public AgentScheduleInfo[] Schedules { get; set; }
-        public AgentAlertInfo[] Alerts { get; set; }
     }
 
     public enum CompletionResult
