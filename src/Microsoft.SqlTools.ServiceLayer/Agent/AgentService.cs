@@ -27,7 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     public class AgentService
     {
-        private Dictionary<Guid, JobProperties> jobs = null;
         private ConnectionService connectionService = null;
         private static readonly Lazy<AgentService> instance = new Lazy<AgentService>(() => new AgentService());
 
@@ -148,11 +147,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var serverConnection = new ServerConnection(sqlConnection);
                         var fetcher = new JobFetcher(serverConnection);
                         var filter = new JobActivityFilter();
-                        this.jobs = fetcher.FetchJobs(filter);
+                        var jobs = fetcher.FetchJobs(filter);
                         var agentJobs = new List<AgentJobInfo>();
-                        if (this.jobs != null)
+                        if (jobs != null)
                         {
-                            foreach (var job in this.jobs.Values)
+                            foreach (var job in jobs.Values)
                             {
                                 agentJobs.Add(AgentUtilities.ConvertToAgentJobInfo(job));
                             }
@@ -186,42 +185,63 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         out connInfo);
                     if (connInfo != null)
                     {
-                        ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                         CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                         var jobs = dataContainer.Server.JobServer.Jobs;
                         Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
                         ServerConnection connection = tuple.Item3;
+                        
+                        // Send Steps, Alerts and Schedules with job history in background
+                        // Add steps to the job if any
+                        JobStepCollection steps = jobs[parameters.JobName].JobSteps;
+                        var jobSteps = new List<AgentJobStepInfo>();
+                        foreach (JobStep step in steps)
+                        {
+                            jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, parameters.JobId, parameters.JobName));
+                        }
+                        result.Steps = jobSteps.ToArray();
+
+                        // Add schedules to the job if any
+                        JobScheduleCollection schedules = jobs[parameters.JobName].JobSchedules;
+                        var jobSchedules = new List<AgentScheduleInfo>();
+                        foreach (JobSchedule schedule in schedules)
+                        {
+                            jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
+                        }
+                        result.Schedules = jobSchedules.ToArray();
+
+                        // Alerts
+                        AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
+                        var jobAlerts = new List<Alert>();
+                        foreach (Alert alert in alerts)
+                        {
+                            if (alert.JobName == parameters.JobName)
+                            {
+                                jobAlerts.Add(alert);
+                            }
+                        }
+                        result.Alerts = AgentUtilities.ConvertToAgentAlertInfo(jobAlerts);
+
+                        // Add histories
                         int count = dt.Rows.Count;
                         List<AgentJobHistoryInfo> jobHistories = new List<AgentJobHistoryInfo>();
                         if (count > 0)
                         {
                             var job = dt.Rows[0];
-                            string jobName = Convert.ToString(job[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                            Guid jobId = (Guid) job[AgentUtilities.UrnJobId];
+                            Guid jobId = (Guid)job[AgentUtilities.UrnJobId];
                             int runStatus = Convert.ToInt32(job[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-                            var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
+                            var t = new LogSourceJobHistory(parameters.JobName, sqlConnInfo, null, runStatus, jobId, null);
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
 
-                            // Send Steps, Alerts and Schedules with job history in background
-                            JobStepCollection steps = jobs[jobName].JobSteps;
-                            JobScheduleCollection schedules = jobs[jobName].JobSchedules;
-                            List<Alert> alerts = new List<Alert>();
-                            foreach (Alert alert in dataContainer.Server.JobServer.Alerts)
-                            {
-                                if (alert.JobID == jobId && alert.JobName == jobName)
-                                {
-                                    alerts.Add(alert);
-                                }
-                            }
-                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps, schedules, alerts);
+                            // Finally add the job histories
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps);
+                            result.Histories = jobHistories.ToArray();
+                            result.Success = true;
                             tlog.CloseReader();
                         }
-                        result.Jobs = jobHistories.ToArray();
-                        result.Success = true;
                         connection.Disconnect();
                         await requestContext.SendResult(result);
                     }
@@ -320,12 +340,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<ResultStatus> requestContext)
         {
-             var result = await ConfigureAgentJob(
-                parameters.OwnerUri,
-                parameters.Job.Name,
-                parameters.Job,
-                ConfigAction.Drop,
-                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+            var result = await ConfigureAgentJob(
+               parameters.OwnerUri,
+               parameters.Job.Name,
+               parameters.Job,
+               ConfigAction.Drop,
+               ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
             await requestContext.SendResult(new ResultStatus()
             {
@@ -418,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion // "Jobs Handlers"
 
-		#region "Alert Handlers"
+        #region "Alert Handlers"
 
         /// <summary>
         /// Handle request to get the alerts list
@@ -1059,12 +1079,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
             dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-             
+
             XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(), jobName);
             dataContainer.Init(jobDoc.InnerXml);
-            
+
             STParameters param = new STParameters(dataContainer.Document);
-            string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;            
+            string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;
             param.SetParam("job",  configAction == ConfigAction.Update ? jobName : string.Empty);
             param.SetParam("jobid", string.Empty);
 

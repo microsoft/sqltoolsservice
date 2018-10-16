@@ -43,10 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             return new AgentJobInfo()
             {
                 Name = TestJobName,
-                Owner = "sa",
                 Description = "Test job description",
-                CurrentExecutionStatus = 1,
-                LastRunOutcome = 1,
+                CurrentExecutionStatus = JobExecutionStatus.Executing,
+                LastRunOutcome = CompletionResult.InProgress,
                 CurrentExecutionStep = "Step 1",
                 Enabled = false,
                 HasTarget = false,
