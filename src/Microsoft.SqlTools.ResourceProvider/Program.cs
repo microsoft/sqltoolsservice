@@ -35,11 +35,7 @@ namespace Microsoft.SqlTools.ResourceProvider
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
-                    logFilePath = "SqlToolsResourceProviderService";
-                }
-                if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
-                {
-                    logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
+                    logFilePath = Logger.GenerateLogFilePath("SqlToolsResourceProviderService");
                 }
 
                 // turn on Verbose logging during early development
