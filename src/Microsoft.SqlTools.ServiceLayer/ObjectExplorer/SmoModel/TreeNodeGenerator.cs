@@ -180,34 +180,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Databases" }; }
 
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
-                });
-                return filters;
-           }
-        }
 
-        public override IEnumerable<NodeSmoProperty> SmoProperties
+        private readonly Lazy<List<NodeFilter>> filtersLazy = new Lazy<List<NodeFilter>>(() => new List<NodeFilter>
         {
-           get
-           {
-                var properties = new List<NodeSmoProperty>();
-                properties.Add(new NodeSmoProperty
-                {
-                   Name = "Status",
-                   ValidFor = ValidForFlag.All
-                });
-                return properties;
-           }
-        }
+            new NodeFilter
+            {
+                Property = "IsSystemObject",
+                Type = typeof(bool),
+                Values = new List<object> { 0 },
+            }
+        });
+        
+        private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
+        {
+            new NodeSmoProperty
+            {
+                Name = "Status",
+                ValidFor = ValidForFlag.All
+            }
+        });
+
+        public override IEnumerable<NodeFilter> Filters => filtersLazy.Value;
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties => smoPropertiesLazy.Value;
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -753,60 +748,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Tables" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        private readonly Lazy<List<NodeFilter>> filtersLazy = new Lazy<List<NodeFilter>>(() => new List<NodeFilter>
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            new NodeFilter
+            {
+                Property = "IsSystemObject",
+                Type = typeof(bool),
+                Values = new List<object> { 0 },
+            },
+            new NodeFilter
+            {
+                Property = "TemporalType",
+                Type = typeof(Enum),
+                ValidFor = ValidForFlag.Sql2016 | ValidForFlag.Sql2017 | ValidForFlag.AzureV12,
+                Values = new List<object>
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
-                });
-                filters.Add(new NodeFilter
-                {
-                   Property = "TemporalType",
-                   Type = typeof(Enum),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { TableTemporalType.None },
-                      { TableTemporalType.SystemVersioned }
-                   }
-                });
-                return filters;
-           }
-        }
+                    { TableTemporalType.None },
+                    { TableTemporalType.SystemVersioned }
+                }
+            }
+        });
 
-        public override IEnumerable<NodeSmoProperty> SmoProperties
+        private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
         {
-           get
-           {
-                var properties = new List<NodeSmoProperty>();
-                properties.Add(new NodeSmoProperty
-                {
-                   Name = "IsFileTable",
-                   ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017
-                });
-                properties.Add(new NodeSmoProperty
-                {
-                   Name = "IsSystemVersioned",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
-                });
-                properties.Add(new NodeSmoProperty
-                {
-                   Name = "TemporalType",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
-                });
-                properties.Add(new NodeSmoProperty
-                {
-                   Name = "IsExternal",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
-                });
-                return properties;
-           }
-        }
+            new NodeSmoProperty
+            {
+                Name = "IsFileTable",
+                ValidFor = ValidForFlag.Sql2012 | ValidForFlag.Sql2014 | ValidForFlag.Sql2016 | ValidForFlag.Sql2017
+            },
+            new NodeSmoProperty
+            {
+                Name = "IsSystemVersioned",
+                ValidFor = ValidForFlag.Sql2016 | ValidForFlag.Sql2017 | ValidForFlag.AzureV12
+            },
+            new NodeSmoProperty
+            {
+                Name = "TemporalType",
+                ValidFor = ValidForFlag.Sql2016 | ValidForFlag.Sql2017 | ValidForFlag.AzureV12
+            },
+            new NodeSmoProperty
+            {
+                Name = "IsExternal",
+                ValidFor = ValidForFlag.Sql2016 | ValidForFlag.Sql2017 | ValidForFlag.AzureV12
+            }
+        });
+
+        public override IEnumerable<NodeFilter> Filters => filtersLazy.Value;
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties => smoPropertiesLazy.Value;
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {

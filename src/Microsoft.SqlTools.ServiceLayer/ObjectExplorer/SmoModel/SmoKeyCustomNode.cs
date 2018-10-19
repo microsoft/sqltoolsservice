@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -25,30 +26,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class IndexesChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<NodeSmoProperty> SmoProperties
+        private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
         {
-            get
+            new NodeSmoProperty
             {
-                return new List<NodeSmoProperty>
-                {
-                    new NodeSmoProperty 
-                    {
-                        Name = "IsUnique",
-                        ValidFor = ValidForFlag.All
-                    },
-                    new NodeSmoProperty 
-                    {
-                        Name = "IsClustered",
-                        ValidFor = ValidForFlag.All
-                    },
-                    new NodeSmoProperty 
-                    {
-                        Name = "IndexKeyType",
-                        ValidFor = ValidForFlag.All
-                    }
-                };
+                Name = "IsUnique",
+                ValidFor = ValidForFlag.All
+            },
+            new NodeSmoProperty
+            {
+                Name = "IsClustered",
+                ValidFor = ValidForFlag.All
+            },
+            new NodeSmoProperty
+            {
+                Name = "IndexKeyType",
+                ValidFor = ValidForFlag.All
             }
-        }
+        });
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties => smoPropertiesLazy.Value;
 
         public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {

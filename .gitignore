@@ -16,6 +16,7 @@ project.lock.json
 *.sln.docstates
 *.exe
 scratch.txt
+launchSettings.json
 
 # mergetool conflict files
 *.orig
