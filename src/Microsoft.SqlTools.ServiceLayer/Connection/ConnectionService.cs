@@ -523,7 +523,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -909,7 +909,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Connect to master and query sys.databases
             connectionDetails.DatabaseName = "master";
-            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
+            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken);
             connection.Open();
             
             List<string> results = new List<string>();
@@ -1150,6 +1150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case "SqlLogin":
+                    case "AzureMFA":
                         break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
@@ -1387,7 +1388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                 // create a sql connection instance
-                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
+                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
