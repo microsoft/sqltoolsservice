@@ -420,6 +420,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 long dtTicks = BitConverter.ToInt64(buffer, 0);
                 long dtOffset = BitConverter.ToInt64(buffer, 8);
                 return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset));
+            }, null, dt =>
+            {
+                string formatString = $"{DateFormatString} {TimeFormatString}.fffffff zzz";
+
+                return dt.ToString(formatString);
             });
         }
 
