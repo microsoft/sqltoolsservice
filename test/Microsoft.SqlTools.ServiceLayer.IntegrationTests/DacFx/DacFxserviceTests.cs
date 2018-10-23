@@ -24,8 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var requestContext = new Mock<RequestContext<DacFxExportResult>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<DacFxExportResult>())).Returns(Task.FromResult(new object()));
 
-            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, "dacfxexporttestdb");
-
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
             var scriptingParams = new DacFxExportParams
             {
                 ConnectionString = testdb.ConnectionString
