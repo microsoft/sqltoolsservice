@@ -1,4 +1,5 @@
 ﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters returned from a DacFx request.
     /// </summary>
-    public class DacFxExportResult
+    public class DacFxExportResult : ResultStatus
     {
         public string OperationId { get; set; }
     }

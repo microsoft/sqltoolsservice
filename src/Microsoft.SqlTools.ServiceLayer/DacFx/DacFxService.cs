@@ -13,8 +13,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     class DacFxService
     {
 
+        private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
+
+        /// <summary>
+        /// Gets the singleton instance object
+        /// </summary>
+        public static DacFxService Instance
+        {
+            get { return instance.Value; }
+        }
 
         /// <summary>
         /// Initializes the service instance
@@ -55,6 +64,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         DacFxOperation temp;
                         this.ActiveOperations.TryRemove(operation.OperationId, out temp);
                     }
+                });
+
+                await requestContext.SendResult(new DacFxExportResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = ""
                 });
             }
             catch (Exception e)
