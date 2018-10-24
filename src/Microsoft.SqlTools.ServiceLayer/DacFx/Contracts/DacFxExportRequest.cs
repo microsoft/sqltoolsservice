@@ -12,10 +12,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets connection string of the target database the scripting operation will run against.
         /// </summary>
         public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// Gets or sets package file name for exported bacpac
+        /// </summary>
+        public string PackageFileName { get; set; }
     }
 
     /// <summary>
-    /// Parameters returned from a DacFx request.
+    /// Parameters returned from a DacFx export request.
     /// </summary>
     public class DacFxExportResult : ResultStatus
     {

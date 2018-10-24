@@ -34,8 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 DacServices ds = new DacServices(this.Parameters.ConnectionString);
-                string filepath = string.Format("C:\\Users\\kisantia\\bacpac\\{0}{1}.bacpac", builder.InitialCatalog, Guid.NewGuid());
-                ds.ExportBacpac(filepath, builder.InitialCatalog, null, null);
+                ds.ExportBacpac(this.Parameters.PackageFileName, builder.InitialCatalog, null, null);
             }
             catch (Exception e)
             {

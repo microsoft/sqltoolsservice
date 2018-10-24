@@ -4,6 +4,8 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
+using System;
+using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -25,9 +27,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             requestContext.Setup(x => x.SendResult(It.IsAny<DacFxExportResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
             var scriptingParams = new DacFxExportParams
             {
-                ConnectionString = testdb.ConnectionString
+                ConnectionString = testdb.ConnectionString,
+                PackageFileName = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
             DacFxService service = new DacFxService();
