@@ -882,7 +882,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ConfigAction configAction,
             RunType runType)
         {
-            return await Task<Tuple<bool, string>>.Run(() =>
+            return await Task<Tuple<bool, string>>.Run(async () =>
             {
                 try
                 {
@@ -893,6 +893,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     using (JobActions actions = new JobActions(dataContainer, jobData, configAction))
                     {
                         ExecuteAction(actions, runType);
+                    }
+
+                    // Execute step actions if they exist
+                    if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
+                    {
+                        foreach (AgentJobStepInfo step in jobInfo.JobSteps)
+                        {
+                            await ConfigureAgentJobStep(ownerUri, step, configAction, runType);
+                        }
+                    }
+
+                    // Execute schedule actions if they exist
+                    if (jobInfo.JobSchedules != null && jobInfo.JobSchedules.Length > 0)
+                    {
+                        foreach (AgentScheduleInfo schedule in jobInfo.JobSchedules)
+                        {
+                            await ConfigureAgentSchedule(ownerUri, schedule, configAction, runType);
+                        }
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
