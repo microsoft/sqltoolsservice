@@ -1151,6 +1151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         break;
                     case "SqlLogin":
                     case "AzureMFA":
+                        connectionBuilder.UserID = "";
                         break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
@@ -1516,6 +1517,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
+
+                // Fill in Azure authentication token if needed
+                if (connInfo.ConnectionDetails.AzureAccountToken != null)
+                {
+                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                }
+
                 sqlConn.Open();
                 return sqlConn;
             }

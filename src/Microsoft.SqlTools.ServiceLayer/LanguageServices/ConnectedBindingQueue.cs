@@ -202,6 +202,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = new ServerConnection(sqlConn);
+                    if (sqlConn.AccessToken != null)
+                    {
+                        bindingContext.ServerConnection.AccessToken = new AzureAccessToken(sqlConn.AccessToken);
+                        bindingContext.ServerConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
+                    }
 
                     if (this.needsMetadata)
                     {
@@ -227,6 +232,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return connectionKey;
+        }
+    }
+
+    public class AzureAccessToken : IRenewableToken
+    {
+        public DateTimeOffset TokenExpiry { get; private set; }
+        public string Resource { get; private set; }
+        public string Tenant { get; private set; }
+        public string UserId { get; private set; }
+
+        private string accessToken;
+
+        public AzureAccessToken(string accessToken)
+        {
+            this.accessToken = accessToken;
+            // this.UserId = "mairvine@microsoft.com";
+            // this.Resource = "https://database.windows.net";
+            // this.Tenant = "azurePublicCloud";
+        }
+
+        public string GetAccessToken() {
+            return this.accessToken;
         }
     }
 }
