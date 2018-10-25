@@ -86,13 +86,15 @@ namespace Microsoft.SqlTools.Utility
             get => tracingLevel;
             set
             {
-                // configures the source level filter. This alone is not enough for tracing that is done via "Trace" object instead of "TraceSource" object
+                // configures the source level filter. This alone is not enough for tracing that is done via "Trace" class instead of "TraceSource" object
                 TraceSource.Switch = new SourceSwitch(TraceSource.Name, value.ToString());
                 // configure the listener level filter
                 tracingLevel = value;
                 Listener.Filter = new EventTypeFilter(tracingLevel);
             }
         }
+
+        public static bool AutoFlush { get; set; } = false;
 
         /// <summary>
         /// Initializes the Logger for the current process.
@@ -108,9 +110,11 @@ namespace Microsoft.SqlTools.Utility
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
             string logFilePath = null,
-            string traceSource = defaultTraceSource)
+            string traceSource = defaultTraceSource,
+            bool autoFlush = false)
         {
             Logger.tracingLevel = tracingLevel;
+            Logger.AutoFlush = autoFlush;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
             if (string.IsNullOrWhiteSpace(logFilePath))
             {
@@ -118,7 +122,7 @@ namespace Microsoft.SqlTools.Utility
             }
 
             LogFileFullPath = logFilePath;
-            Write(TraceEventType.Information, $"Initialized the {traceSource} logger");
+            Write(TraceEventType.Information, $"Initialized the {traceSource} logger. Log file is: {LogFileFullPath}");
         }
 
         /// <summary>
@@ -185,7 +189,7 @@ namespace Microsoft.SqlTools.Utility
             }
 
             // make the log path unique
-            return $"{logFilePrefix}_{DateTime.Now.Year,4:D4}{DateTime.Now.Month,2:D2}{DateTime.Now.Day,2:D2}{DateTime.Now.Hour,2:D2}{DateTime.Now.Minute,2:D2}{DateTime.Now.Second,2:D2}{uniqueId}.log";
+            return $"{logFilePrefix}_{DateTime.Now.Year,4:D4}{DateTime.Now.Month,2:D2}{DateTime.Now.Day,2:D2}{DateTime.Now.Hour,2:D2}{DateTime.Now.Minute,2:D2}{DateTime.Now.Second,2:D2}_{uniqueId}.log";
         }
 
         private static void ConfigureListener()
@@ -289,6 +293,10 @@ namespace Microsoft.SqlTools.Utility
                         Trace.TraceInformation(logMessage);
                         break;
                 }
+            }
+            if (AutoFlush)
+            {
+                Flush();
             }
         }
     }
@@ -431,7 +439,7 @@ namespace Microsoft.SqlTools.Utility
                 return message;
             }
 
-            return $"{(IsEnabled(TraceOptions.DateTime) ? string.Format(CultureInfo.InvariantCulture, "{0} ", eventCache.DateTime.ToLocalTime().ToString("u", CultureInfo.InvariantCulture)) : string.Empty)}"
+            return $"{(IsEnabled(TraceOptions.DateTime) ? string.Format(CultureInfo.InvariantCulture, "{0} ", eventCache.DateTime.ToLocalTime().ToString("yy-MM-dd H:mm:ss.fffffff", CultureInfo.InvariantCulture)) : string.Empty)}"
                  + $"{(IsEnabled(TraceOptions.ProcessId) ? string.Format(CultureInfo.InvariantCulture, "pid:{0} ", eventCache.ProcessId.ToString(CultureInfo.InvariantCulture)) : string.Empty)}"
                  + $"{(IsEnabled(TraceOptions.ThreadId) ? string.Format(CultureInfo.InvariantCulture, "tid:{0} ", eventCache.ThreadId.ToString(CultureInfo.InvariantCulture)) : string.Empty)}"
                  + message;

@@ -9,11 +9,11 @@
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "netcoreapp2.1"
+      "netcoreapp2.2"
    ]
   },
   "Frameworks": [  
-    "netcoreapp2.1"
+    "netcoreapp2.2"
   ],
   "MainProjects": [     
     "Microsoft.SqlTools.ServiceLayer",

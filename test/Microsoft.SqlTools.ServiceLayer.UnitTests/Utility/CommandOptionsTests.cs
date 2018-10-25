@@ -47,33 +47,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
                 VerifyCommandOptions(options, testNo++);
             }
-            // Test 2: All defaults, -logDir as  null 
+            // Test 2: All defaults, -autoflush-log as  null 
             {
-                var args = new string[] { "--log-dir", null };
+                var args = new string[] { "--autoflush-log", null };
                 ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-                VerifyCommandOptions(options, testNo++);
+                VerifyCommandOptions(options, testNo++, autoFlushLog: true);
             }
-            // Test 3: All defaults, -logDir as  empty string 
+            // Test 3: All defaults, -autoflush-log as  empty string 
             {
-                var args = new string[] { "--log-dir", string.Empty };
+                var args = new string[] { "--autoflush-log", string.Empty };
                 ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-                VerifyCommandOptions(options, testNo++);
+                VerifyCommandOptions(options, testNo++, autoFlushLog: true);
             }
-            // Test 4: All defaults, -log-file as  null 
+            // Test 4: All defaults, -tracing-level as  empty string 
             {
-                var args = new string[] { "--log-file", null };
+                var args = new string[] { "--tracing-level", string.Empty };
                 ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-                VerifyCommandOptions(options, testNo++, logFilePath: null);
+                VerifyCommandOptions(options, testNo++, tracingLevel: string.Empty);
             }
-            // Test 5: All defaults, -log-file as  empty string 
+            // Test 5: All defaults, -tracing-level as  null 
+            {
+                var args = new string[] { "--tracing-level", null };
+                ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
+                VerifyCommandOptions(options, testNo++, tracingLevel: null);
+            }
+            // Test 6: All defaults, -log-file as  empty string 
             {
                 var args = new string[] { "--log-file", string.Empty };
                 ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
                 VerifyCommandOptions(options, testNo++, logFilePath: string.Empty);
             }
+            // Test 6: All defaults, -log-file as null 
+            {
+                var args = new string[] { "--log-file", null };
+                ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
+                VerifyCommandOptions(options, testNo++, logFilePath: null);
+            }
         }
 
-        private static void VerifyCommandOptions(ServiceLayerCommandOptions options, int? testNo = null, string errorMessage = "", string tracingLevel = null, string logFilePath = null, bool shouldExit = false, string locale = "", string logDirectory = null)
+        private static void VerifyCommandOptions(ServiceLayerCommandOptions options, int? testNo = null, string errorMessage = "", string tracingLevel = null, string logFilePath = null, bool shouldExit = false, string locale = "", bool autoFlushLog = false)
         {
             Assert.NotNull(options);
             string MsgPrefix = testNo != null ? $"TestNo:{testNo} ::" : string.Empty;
@@ -81,12 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.True(tracingLevel == options.TracingLevel, $"{MsgPrefix} options:{nameof(tracingLevel)} should be '{tracingLevel}'");
             Assert.True(logFilePath == options.LogFilePath, $"{MsgPrefix} options:{nameof(logFilePath)} should be '{logFilePath}'");
             Assert.True(shouldExit == options.ShouldExit, $"{MsgPrefix} options:{nameof(shouldExit)} should be '{shouldExit}'");
-            Assert.False(string.IsNullOrWhiteSpace(options.LoggingDirectory));
-            if (string.IsNullOrWhiteSpace(logDirectory))
-            {
-                logDirectory = Path.Combine(options.DefaultLogRoot, options.ServiceName);
-            }
-            Assert.True(logDirectory == options.LoggingDirectory, $"{MsgPrefix} options:{nameof(logDirectory)} should be '{logDirectory}'");
+            Assert.True(autoFlushLog == options.AutoFlushLog, $"{MsgPrefix} options:{nameof(autoFlushLog)} should be '{autoFlushLog}'");
             Assert.True(options.Locale == locale, $"{MsgPrefix} options:{nameof(locale)} should be '{locale}'");
         }
 
@@ -128,24 +135,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.Equal(options.Locale, string.Empty);
         }
 
-        [Fact]
-        public void LoggingDirectorySet()
-        {
-            string logDir = Directory.GetCurrentDirectory();
-            var args = new string[] { "--log-dir", logDir };
-            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-
-            // Asserting all options were properly set 
-            Assert.NotNull(options);
-            Assert.False(options.ShouldExit);
-            Assert.Equal(options.LoggingDirectory, logDir);
-        }
-
 
         [Fact]
         public void TracingLevelSet()
         {
-            string expectedLevel = "Critical";
+            string expectedLevel = "Information";
             var args = new string[] { "--tracing-level", expectedLevel };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
 
@@ -155,11 +149,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.Equal(options.TracingLevel, expectedLevel);
         }
 
+        [Fact]
+        public void AutoFlushLogSet()
+        {
+            bool expectedAutoFlush = true;
+            var args = new string[] { "--autoflush-log"};
+            ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.AutoFlushLog, expectedAutoFlush);
+        }
 
         [Fact]
         public void LogFilePathSet()
         {
-            string expectedFilePath = Path.GetRandomFileName();
+            string expectedFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             var args = new string[] { "--log-file", expectedFilePath };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
 

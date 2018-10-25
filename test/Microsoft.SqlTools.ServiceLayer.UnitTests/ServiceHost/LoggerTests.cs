@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.Utility;
 using Xunit;
@@ -331,6 +332,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 DoNotUseTraceSource = true,
             };
             TestTracingLevelChangeFromWarningToError(test);
+        }
+
+        /// <summary>
+        /// Tests out AutoFlush funcitonality. The verification is two fold.
+        /// 1st is to verify that the setting is persistent. 
+        /// 2nd that after a lot of log entries are written with AutoFlush on, explicitly flushing and closing the Tracing does not increase the file size
+        ///     thereby verifying that there was no leftover log entries being left behind to be flushed.
+        /// </summary>
+        [Fact]
+        public void LoggerAutolFlush()
+        {
+            // setup the test object
+            TestLogger test = new TestLogger()
+            {
+                TraceSource = MethodInfo.GetCurrentMethod().Name,
+                AutoFlush = true,
+                TracingLevel = SourceLevels.All
+            };
+            test.Initialize();
+            // Write 10000 lines of log
+            Parallel.For(0, 100, (i) => test.Write($"Message Number:{i}, Message:{test.LogMessage}"));
+            long logContentsSizeBeforeExplicitFlush = (new FileInfo(test.LogFileName)).Length;
+            // Please note that Logger.Close() first flushes the logs before closing them out.
+            Logger.Flush();
+            long logContentsSizeAfterExplicitFlush = (new FileInfo(test.LogFileName)).Length;
+            Assert.True(logContentsSizeBeforeExplicitFlush == logContentsSizeAfterExplicitFlush, "The length of log file with autoflush before and after explicit flush must be same");
+            test.Cleanup();
         }
 
         /// <summary>
