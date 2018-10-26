@@ -111,6 +111,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
+        /// Represents a test Database that was created in a test
+        /// </summary>
+        public static SqlTestDb CreateFromExisting(
+            string dbName,
+            TestServerType serverType = TestServerType.OnPrem,
+            bool doNotCleanupDb = false)
+        {
+            SqlTestDb testDb = new SqlTestDb();
+
+            if (string.IsNullOrEmpty(dbName))
+            {
+                throw new ArgumentOutOfRangeException("dbName");
+            }
+
+            testDb.DatabaseName = dbName;
+            testDb.ServerType = serverType;
+
+            return testDb;
+        }
+
+        /// <summary>
         /// Returns a mangled name that unique based on Prefix + Machine + Process
         /// </summary>
         /// <param name="namePrefix"></param>

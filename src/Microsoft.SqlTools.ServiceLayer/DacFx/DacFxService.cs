@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         internal ConcurrentDictionary<string, DacFxOperation> ActiveOperations => operations.Value;
 
         /// <summary>
-        /// Handles request to export a database
+        /// Handles request to export a bacpac
         /// </summary>
         /// <returns></returns>
         public async Task HandleExportRequest(DacFxExportParams parameters, RequestContext<DacFxExportResult> requestContext)
@@ -67,6 +67,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 });
 
                 await requestContext.SendResult(new DacFxExportResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = ""
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to import a bacpac
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleImportRequest(DacFxImportParams parameters, RequestContext<DacFxImportResult> requestContext)
+        {
+            try
+            {
+                DacFxImportOperation operation = new DacFxImportOperation(parameters);
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        this.ActiveOperations[operation.OperationId] = operation;
+                        operation.Execute();
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendError(e);
+                    }
+                    finally
+                    {
+                        DacFxOperation temp;
+                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+                    }
+                });
+
+                await requestContext.SendResult(new DacFxImportResult()
                 {
                     OperationId = operation.OperationId,
                     Success = true,

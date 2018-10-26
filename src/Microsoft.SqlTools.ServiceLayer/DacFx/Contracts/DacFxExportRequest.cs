@@ -9,7 +9,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DacFxExportParams
     {
         /// <summary>
-        /// Gets or sets connection string of the target database the scripting operation will run against.
+        /// Gets or sets connection string of the target database the export operation will run against.
         /// </summary>
         public string ConnectionString { get; set; }
 
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Defines the DacFx request type
+    /// Defines the DacFx export request type
     /// </summary>
     class DacFxExportRequest
     {
