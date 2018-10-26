@@ -26,8 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private int eventSequenceNumber = 1;
 
-        public ScriptingScriptOperation(ScriptingParams parameters): base(parameters)
+        private string azureAccessToken;
+
+        public ScriptingScriptOperation(ScriptingParams parameters, string azureAccessToken): base(parameters)
         {
+            this.azureAccessToken = azureAccessToken;
         }
 
         public override void Execute()
@@ -136,6 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private SqlScriptPublishModel BuildPublishModel()
         {
+            // TODO: investigate for account token. might be unreachable?
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
 
             // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
@@ -200,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
 
-            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString);
+            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString, this.azureAccessToken);
             string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
 
             foreach (ScriptingObject scriptingObject in selectedObjects)

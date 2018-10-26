@@ -143,8 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     if (connInfo != null)
                     {
-                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        var serverConnection = new ServerConnection(sqlConnection);
+                        var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                         var fetcher = new JobFetcher(serverConnection);
                         var filter = new JobActivityFilter();
                         var jobs = fetcher.FetchJobs(filter);
@@ -158,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         }
                         result.Success = true;
                         result.Jobs = agentJobs.ToArray();
-                        sqlConnection.Close();
+                        serverConnection.SqlConnectionObject.Close();
                     }
                     await requestContext.SendResult(result);
                 }
@@ -269,8 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         out connInfo);
                     if (connInfo != null)
                     {
-                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        var serverConnection = new ServerConnection(sqlConnection);
+                        var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                         var jobHelper = new JobHelper(serverConnection);
                         jobHelper.JobName = parameters.JobName;
                         switch(parameters.Action)
@@ -1125,8 +1123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
         {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            var serverConnection = new ServerConnection(sqlConnection);
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo);
             var server = new Server(serverConnection);
             var filter = new JobHistoryFilter();
             filter.JobID = new Guid(jobId);

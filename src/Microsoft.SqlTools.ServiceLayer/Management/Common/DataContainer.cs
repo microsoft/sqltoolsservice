@@ -1280,15 +1280,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             // var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             // connectionInfoWithConnection.ServerConnection = serverConnection;
 
-            var sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DataContainer");
+            /// BELOW CODE WORKS
+            // var sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DataContainer");
             
-            // populate the binding context to work with the SMO metadata provider
-            var serverConnection = new ServerConnection(sqlConn);
-            if (sqlConn.AccessToken != null)
-            {
-                serverConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(sqlConn.AccessToken);
-                serverConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
-            }
+            // // populate the binding context to work with the SMO metadata provider
+            // var serverConnection = new ServerConnection(sqlConn);
+            // if (sqlConn.AccessToken != null)
+            // {
+            //     serverConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(sqlConn.AccessToken);
+            //     serverConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
+            // }
+
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
 
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;

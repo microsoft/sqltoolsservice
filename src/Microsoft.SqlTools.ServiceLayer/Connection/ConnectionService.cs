@@ -1538,6 +1538,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return null;
         }
 
+        /// <summary>
+        /// Create and open a new ServerConnection from a ConnectionInfo object
+        /// This calls ConnectionService.OpenSqlConnection and then creates a
+        /// ServerConnection from it, since it was a common pattern in our code
+        /// </summary>
+        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
+            ServerConnection serverConnection;
+            if (connInfo.ConnectionDetails.AzureAccountToken != null)
+            {
+                // TODO: Move the AzureAccessToken class here
+                serverConnection = new ServerConnection(sqlConnection, new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
+            }
+            else
+            {
+                serverConnection = new ServerConnection(sqlConnection);
+            }
+
+            return serverConnection;
+        }
+
         public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
         {
             // verify that the connection is open

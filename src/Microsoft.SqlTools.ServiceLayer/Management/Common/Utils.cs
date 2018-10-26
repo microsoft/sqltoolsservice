@@ -348,6 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 SqlConnectionInfo sqlCi = ci as SqlConnectionInfo;
                 if (sqlCi != null)
                 {
+                    // TODO: Investigate for AccessToken (though SqlConnectionInfo should have it already)
                     server = new SMO.Server(new ServerConnection(sqlCi));
                 }
             }

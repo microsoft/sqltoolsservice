@@ -42,10 +42,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ServerConnection = serverConnection;
         }
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters) : base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
+            if (azureAccountToken != null)
+            {
+                sqlConnection.AccessToken = azureAccountToken;
+            }
+
             ServerConnection = new ServerConnection(sqlConnection);
+            if (azureAccountToken != null)
+            {
+                ServerConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(azureAccountToken);
+            }
+
             disconnectAtDispose = true;
         }
 

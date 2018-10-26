@@ -56,7 +56,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Connect with SMO and get the metadata for the table
-            Server server = new Server(new ServerConnection(sqlConn));
+            ServerConnection serverConnection;
+            if (sqlConn.AccessToken == null)
+            {
+                serverConnection = new ServerConnection(sqlConn);
+            }
+            else
+            {
+                serverConnection = new ServerConnection(sqlConn, new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(sqlConn.AccessToken));
+            }
+            Server server = new Server(serverConnection);
             Database db = new Database(server, sqlConn.Database);
 
             TableViewTableTypeBase smoResult;

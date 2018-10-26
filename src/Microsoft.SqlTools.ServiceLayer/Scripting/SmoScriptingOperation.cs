@@ -71,17 +71,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             parameters.OperationId = this.OperationId;
         }
 
-        protected string GetServerNameFromLiveInstance(string connectionString)
+        protected string GetServerNameFromLiveInstance(string connectionString, string azureAccessToken)
         {
             string serverName = null;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
+                if (azureAccessToken != null)
+                {
+                    connection.AccessToken = azureAccessToken;
+                }
                 connection.Open();
 
                 try
                 {
-
-                    ServerConnection serverConnection = new ServerConnection(connection);
+                    ServerConnection serverConnection;
+                    if (azureAccessToken == null)
+                    {
+                        serverConnection = new ServerConnection(connection);
+                    }
+                    else
+                    {
+                        serverConnection = new ServerConnection(connection, new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(azureAccessToken));
+                    }
                     serverName = serverConnection.TrueName;
                 }
                 catch (SqlException e)

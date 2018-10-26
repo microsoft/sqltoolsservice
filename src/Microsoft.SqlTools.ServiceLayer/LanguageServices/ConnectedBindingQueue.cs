@@ -37,9 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Virtual method used to support mocking and testing
         /// </summary>
-        public virtual SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName)
+        public virtual ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName)
         {
-            return ConnectionService.OpenSqlConnection(connInfo, featureName);
+            return ConnectionService.OpenServerConnection(connInfo, featureName);
         }
     }
 
@@ -198,15 +198,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                    SqlConnection sqlConn = connectionOpener.OpenSqlConnection(connInfo, featureName);
                    
                     // populate the binding context to work with the SMO metadata provider
-                    bindingContext.ServerConnection = new ServerConnection(sqlConn);
-                    if (sqlConn.AccessToken != null)
-                    {
-                        bindingContext.ServerConnection.AccessToken = new AzureAccessToken(sqlConn.AccessToken);
-                        bindingContext.ServerConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
-                    }
+                    bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
+                    // if (sqlConn.AccessToken != null)
+                    // {
+                    //     bindingContext.ServerConnection.AccessToken = new AzureAccessToken(sqlConn.AccessToken);
+                    //     bindingContext.ServerConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
+                    // }
 
                     if (this.needsMetadata)
                     {
