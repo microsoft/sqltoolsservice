@@ -913,6 +913,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         }
                     }
 
+                    // Execute alert actions if they exist
+                    if (jobInfo.Alerts != null && jobInfo.Alerts.Length > 0)
+                    {
+                        foreach (AgentAlertInfo alert in jobInfo.Alerts)
+                        {
+                            alert.JobId = jobData.Job.JobID.ToString();
+                            await ConfigureAgentAlert(ownerUri, alert.Name, alert, configAction, runType);
+                        }
+                    }
+
                     return new Tuple<bool, string>(true, string.Empty);
                 }
                 catch (Exception ex)
@@ -967,15 +977,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 try
                 {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    CDataContainer dataContainer;
+                    JobData jobData = null;
+                    // If the alert is being created outside of a job
+                    if (string.IsNullOrWhiteSpace(alert.JobName))
+                    {
+                        ConnectionInfo connInfo;
+                        ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                        dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    } else {
+                        // If the alert is being created inside a job
+                        CreateJobData(ownerUri, alert.JobName, out dataContainer, out jobData);
+                    }
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("alert", alertName);
-
                     if (alert != null)
                     {
-                        using (AgentAlertActions actions = new AgentAlertActions(dataContainer, alertName, alert, configAction))
+                        using (AgentAlertActions actions = new AgentAlertActions(dataContainer, alertName, alert, configAction, jobData))
                         {
                             ExecuteAction(actions, runType);
                         }
