@@ -1044,18 +1044,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             tempCI.DatabaseName = databaseName;
 
-            // if (azureAccountToken != null)
-            // {
-            //     tempCI.UseIntegratedSecurity = false;
-            //     ConnectionService.OpenSqlConnection(tempCI, "DataContainer");
-            //     tempCI.UserName = "";
-            //     tempCI.SecurePassword = new SecureString();
-            //     var serverConnection = new ServerConnection(tempCI);
-            //     serverConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
-            //     serverConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(azureAccountToken);
-            //     tempCI.ServerConnection = serverConnection;
-            // }
-
             return tempCI;
         }
 
@@ -1082,7 +1070,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             // cache the cast value. It is OK that it is null for non SQL types
             this.sqlCiWithConnection = ci as SqlConnectionInfoWithConnection;
-            // this.sqlCiWithConnection.ServerConnection = new ServerConnection(ci as SqlConnectionInfo);
 
             if (this.sqlCiWithConnection != null)
             {               

@@ -1150,6 +1150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case "SqlLogin":
+                        break;
                     case "AzureMFA":
                         connectionBuilder.UserID = "";
                         break;

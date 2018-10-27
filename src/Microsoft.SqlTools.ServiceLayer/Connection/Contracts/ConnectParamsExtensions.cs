@@ -36,10 +36,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             else if (string.IsNullOrEmpty(parameters.Connection.AuthenticationType) || parameters.Connection.AuthenticationType == "SqlLogin")
             {
                 // For SqlLogin, username cannot be empty
-                // if (string.IsNullOrEmpty(parameters.Connection.UserName))
-                // {
-                //     errorMessage = SR.ConnectionParamsValidateNullSqlAuth("UserName");
-                // }
+                if (string.IsNullOrEmpty(parameters.Connection.UserName))
+                {
+                    errorMessage = SR.ConnectionParamsValidateNullSqlAuth("UserName");
+                }
             }
 
             return string.IsNullOrEmpty(errorMessage);

@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
@@ -539,14 +537,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             return true;
         }
     }
-
-    // class AzureAccountToken
-    // {
-    //     public string Token;
-    //     public DateTime ExpiresOn;
-
-    //     public string Resource;
-
-    //     public string TokenType;
-    // }
 }
