@@ -31,14 +31,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
 
-            var scriptingParams = new DacFxExportParams
+            var exportParams = new DacFxExportParams
             {
                 ConnectionString = testdb.ConnectionString,
                 PackageFileName = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
             DacFxService service = new DacFxService();
-            await service.HandleExportRequest(scriptingParams, requestContext.Object);
+            await service.HandleExportRequest(exportParams, requestContext.Object);
 
             testdb.Cleanup();
 
@@ -86,6 +86,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return importRequestContext;
         }
 
+        private async Task<Mock<RequestContext<DacFxExtractResult>>> SendAndValidateDacFxExtractRequest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var requestContext = new Mock<RequestContext<DacFxExtractResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxExtractResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new DacFxExtractParams
+            {
+                ConnectionString = testdb.ConnectionString,
+                PackageFileName = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = new Version(1, 0)
+            };
+
+            DacFxService service = new DacFxService();
+            await service.HandleExtractRequest(extractParams, requestContext.Object);
+
+            testdb.Cleanup();
+
+            return requestContext;
+        }
+
         /// <summary>
         /// Verify the DacFx export request
         /// </summary>
@@ -102,6 +128,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         public async void DacFxImport()
         {
             Assert.NotNull(await SendAndValidateDacFxImportRequest());
+        }
+
+        /// <summary>
+        /// Verify the DacFx extract request
+        /// </summary>
+        [Fact]
+        public async void DacFxExtract()
+        {
+            Assert.NotNull(await SendAndValidateDacFxExtractRequest());
         }
 
     }

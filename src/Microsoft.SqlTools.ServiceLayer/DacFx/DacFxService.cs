@@ -32,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(DacFxExportRequest.Type, this.HandleExportRequest);
+            serviceHost.SetRequestHandler(DacFxImportRequest.Type, this.HandleImportRequest);
+            serviceHost.SetRequestHandler(DacFxExtractRequest.Type, this.HandleExtractRequest);
         }
 
         /// <summary>
@@ -107,6 +109,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 });
 
                 await requestContext.SendResult(new DacFxImportResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = ""
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to extract a dacpac
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleExtractRequest(DacFxExtractParams parameters, RequestContext<DacFxExtractResult> requestContext)
+        {
+            try
+            {
+                DacFxExtractOperation operation = new DacFxExtractOperation(parameters);
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        this.ActiveOperations[operation.OperationId] = operation;
+                        operation.Execute();
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendError(e);
+                    }
+                    finally
+                    {
+                        DacFxOperation temp;
+                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+                    }
+                });
+
+                await requestContext.SendResult(new DacFxExtractResult()
                 {
                     OperationId = operation.OperationId,
                     Success = true,

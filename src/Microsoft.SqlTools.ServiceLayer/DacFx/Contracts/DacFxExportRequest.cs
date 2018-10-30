@@ -4,7 +4,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Parameters for a DacFx request.
+    /// Parameters for a DacFx export request.
     /// </summary>
     public class DacFxExportParams
     {
