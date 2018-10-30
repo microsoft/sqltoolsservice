@@ -43,22 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Gets the singleton service instance
         /// </summary>
-        public static ConnectionService Instance
-        {
-            get
-            {
-                return instance.Value;
-            }
-        }
-        
+        public static ConnectionService Instance => instance.Value;
+
         /// <summary>
         /// The SQL connection factory object
         /// </summary>
         private ISqlConnectionFactory connectionFactory;
 
         private DatabaseLocksManager lockedDatabaseManager;
-
-        private readonly Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair. 
@@ -75,13 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap
-        {
-            get
-            {
-                return this.ownerToConnectionMap;
-            }
-        }
+        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -106,11 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
-        {
-            get;
-            set;
-        }
+        internal IProtocolEndpoint ServiceHost { get; set;}
 
         /// <summary>
         /// Gets the connection queue
@@ -211,21 +193,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             internal set { this.connectionFactory = value; }
         }
-       
+
         /// <summary>
         /// Test constructor that injects dependency interfaces
         /// </summary>
         /// <param name="testFactory"></param>
-        public ConnectionService(ISqlConnectionFactory testFactory)
-        {
-            this.connectionFactory = testFactory;
-        }
+        public ConnectionService(ISqlConnectionFactory testFactory) => this.connectionFactory = testFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
-        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo)
-        {
-            return this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
-        }
+        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
         /// Validates the given ConnectParams object. 
@@ -275,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
             bool connectionChanged = false;
-            if (!ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
+            if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
             {
                 connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
@@ -301,10 +277,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // If this is the first connection for this URI, add the ConnectionInfo to the map
-            bool addToMap = connectionChanged || !ownerToConnectionMap.ContainsKey(connectionParams.OwnerUri);
+            bool addToMap = connectionChanged || !OwnerToConnectionMap.ContainsKey(connectionParams.OwnerUri);
             if (addToMap)
             {
-                ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
+                OwnerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
             }
 
             // Return information about the connected SQL Server instance
@@ -609,7 +585,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Try to get the ConnectionInfo, if it exists
             ConnectionInfo connectionInfo;
-            if (!ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
+            if (!OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(SR.ConnectionServiceListDbErrorNotConnected(ownerUri));
             }
@@ -772,7 +748,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Lookup the ConnectionInfo owned by the URI
             ConnectionInfo info;
-            if (!ownerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
+            if (!OwnerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
             {
                 return false;
             }
@@ -797,7 +773,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // If the ConnectionInfo has no more connections, remove the ConnectionInfo
             if (info.CountConnections == 0)
             {
-                ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                OwnerToConnectionMap.Remove(disconnectParams.OwnerUri);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection

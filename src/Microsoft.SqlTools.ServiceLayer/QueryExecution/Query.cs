@@ -190,6 +190,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetCompleted;
 
+        /// <summary>
+        /// Event that will be called when the resultSet first becomes available. This is as soon as we start reading the results.
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetAvailable;
+
+        /// <summary>
+        /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
         #endregion
 
         #region Properties
@@ -399,6 +408,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.BatchCompletion += BatchCompleted;
                     b.BatchMessageSent += BatchMessageSent;
                     b.ResultSetCompletion += ResultSetCompleted;
+                    b.ResultSetAvailable += ResultSetAvailable;
+                    b.ResultSetUpdated += ResultSetUpdated;
                     await b.Execute(queryConnection, cancellationSource.Token);
                 }
 

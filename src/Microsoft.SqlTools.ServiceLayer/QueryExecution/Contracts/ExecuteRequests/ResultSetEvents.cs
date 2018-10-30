@@ -22,4 +22,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
             EventType<ResultSetEventParams> Type =
             EventType<ResultSetEventParams>.Create("query/resultSetComplete");
     }
+
+    public class ResultSetAvailableEvent
+    {
+        public static readonly
+            EventType<ResultSetEventParams> Type =
+            EventType<ResultSetEventParams>.Create("query/resultSetAvailable");
+    }
+
+    public class ResultSetUpdatedEvent
+    {
+        public static readonly
+            EventType<ResultSetEventParams> Type =
+            EventType<ResultSetEventParams>.Create("query/resultSetUpdated");
+    }
+
 }

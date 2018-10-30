@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             flags |= action.flags;
         }
-        
+        public override string ToString() => $"ActionFLag:'{flags}', ExpectYukonXMLShowPlan:'{ExpectYukonXMLShowPlan}'";
         #endregion
     };
 }

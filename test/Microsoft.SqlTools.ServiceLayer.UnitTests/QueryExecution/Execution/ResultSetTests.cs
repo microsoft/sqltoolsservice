@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -53,12 +54,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Fact]
         public async Task ReadToEndSuccess()
         {
-            // Setup: Create a callback for resultset completion
-            ResultSetSummary resultSummaryFromCallback = null;
-            ResultSet.ResultSetAsyncEventHandler callback = r =>
+            // Setup: Create a results Available callback for resultset
+            ResultSetSummary resultSummaryFromAvailableCallback = null;
+            ResultSet.ResultSetAsyncEventHandler availableCallback = r =>
             {
-                resultSummaryFromCallback = r.Summary;
-                return Task.FromResult(0);
+                resultSummaryFromAvailableCallback = r.Summary;
+                return Task.CompletedTask;
+            };
+
+            // Setup: Create a results updated callback for resultset
+            List<ResultSetSummary> resultSummarriesFromUpdatedCallback = new List<ResultSetSummary>();
+            ResultSet.ResultSetAsyncEventHandler updatedCallback = r =>
+            {
+                resultSummarriesFromUpdatedCallback.Add(r.Summary);
+                return Task.CompletedTask;
+            };
+
+            // Setup: Create a  resuls complete callback for resultset
+            ResultSetSummary resultSummaryFromCompleteCallback = null;
+            ResultSet.ResultSetAsyncEventHandler completeCallback = r =>
+            {
+                resultSummaryFromCompleteCallback = r.Summary;
+                return Task.CompletedTask;
             };
 
             // If:
@@ -67,7 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-            resultSet.ResultCompletion += callback;
+            resultSet.ResultAvailable += availableCallback;
+            resultSet.ResultUpdated += updatedCallback;
+            resultSet.ResultCompletion += completeCallback;
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
             // Then:
@@ -82,8 +101,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
             Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
 
-            // ... The callback for result set completion should have been fired
-            Assert.NotNull(resultSummaryFromCallback);
+            // ... The callback for result set available, update and completion callbacks should have been fired.
+            Assert.NotNull(resultSummaryFromAvailableCallback);
+            Assert.NotNull(resultSummaryFromCompleteCallback);
+            Assert.NotEmpty(resultSummarriesFromUpdatedCallback);
+
+            // ... The no of rows in available resultset should be non-zero
+            Assert.NotEqual(0, resultSummaryFromAvailableCallback.RowCount);
+            // ... The no of rows in the final updateResultSet should be equal to that in the Complete Result Set. 
+            Assert.Equal(resultSummaryFromCompleteCallback.RowCount, resultSummarriesFromUpdatedCallback.Last().RowCount);
+            // ... The final updateResultSet must have 'Complete' flag set to true.
+            Assert.True(resultSummarriesFromUpdatedCallback.Last().Complete);
+            // ... RowCount should be in increasing order in updateResultSet callbacks
+            Parallel.ForEach(Partitioner.Create(0, resultSummarriesFromUpdatedCallback.Count), (range) =>
+            {
+                int start = range.Item1 == 0 ? 1 : range.Item1;
+                for (int i = start; i < range.Item2; i++)
+                {
+                   Assert.True(resultSummarriesFromUpdatedCallback[i].RowCount >= resultSummarriesFromUpdatedCallback[i-1].RowCount);
+                }
+            });
         }
 
         [Theory]
@@ -125,12 +162,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             object[][] rows = Enumerable.Repeat(new object[] {"test data"}, Common.StandardRows).ToArray();
             TestResultSet[] dataSets = {new TestResultSet(columns, rows) };
 
-            // ... Create a callback for resultset completion
-            ResultSetSummary resultSummary = null;
-            ResultSet.ResultSetAsyncEventHandler callback = r =>
+            // Setup: Create a results Available callback for resultset
+            ResultSetSummary resultSummaryFromAvailableCallback = null;
+            ResultSet.ResultSetAsyncEventHandler availableCallback = r =>
             {
-                resultSummary = r.Summary;
-                return Task.FromResult(0);
+                resultSummaryFromAvailableCallback = r.Summary;
+                return Task.CompletedTask;
+            };
+
+            // Setup: Create a results updated callback for resultset
+            List<ResultSetSummary> resultSummarriesFromUpdatedCallback = new List<ResultSetSummary>();
+            ResultSet.ResultSetAsyncEventHandler updatedCallback = r =>
+            {
+                resultSummarriesFromUpdatedCallback.Add(r.Summary);
+                return Task.CompletedTask;
+            };
+
+            // Setup: Create a  resuls complete callback for resultset
+            ResultSetSummary resultSummaryFromCompleteCallback = null;
+            ResultSet.ResultSetAsyncEventHandler completeCallback = r =>
+            {
+                resultSummaryFromCompleteCallback = r.Summary;
+                return Task.CompletedTask;
             };
 
             // If:
@@ -139,7 +192,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             DbDataReader mockReader = GetReader(dataSets, false, Constants.StandardQuery);
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-            resultSet.ResultCompletion += callback;
+            resultSet.ResultAvailable += availableCallback;
+            resultSet.ResultUpdated += updatedCallback;
+            resultSet.ResultCompletion += completeCallback;
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
             // Then:
@@ -149,8 +204,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, resultSet.Columns.Length);
             Assert.Equal(1, resultSet.RowCount);
 
-            // ... The callback should have been called
-            Assert.NotNull(resultSummary);
+            // ... The callback for result set available, update and completion callbacks should have been fired.
+            Assert.NotNull(resultSummaryFromAvailableCallback);
+            Assert.NotNull(resultSummaryFromCompleteCallback);
+            Assert.NotEmpty(resultSummarriesFromUpdatedCallback);
+
+            // ... The no of rows in available resultset should be non-zero
+            Assert.NotEqual(0, resultSummaryFromAvailableCallback.RowCount);
+            // ... The no of rows in the final updateResultSet should be equal to that in the Complete Result Set. 
+            Assert.Equal(resultSummaryFromCompleteCallback.RowCount, resultSummarriesFromUpdatedCallback.Last().RowCount);
+            // ... The final updateResultSet must have 'Complete' flag set to true.
+            Assert.True(resultSummarriesFromUpdatedCallback.Last().Complete);
+            // ... RowCount should be in increasing order in updateResultSet callbacks
+            Parallel.ForEach(Partitioner.Create(0, resultSummarriesFromUpdatedCallback.Count), (range) =>
+            {
+                int start = range.Item1 == 0 ? 1 : range.Item1;
+                for (int i = start; i < range.Item2; i++)
+                {
+                    Assert.True(resultSummarriesFromUpdatedCallback[i].RowCount >= resultSummarriesFromUpdatedCallback[i - 1].RowCount);
+                }
+            });
 
             // If:
             // ... I attempt to read back the results

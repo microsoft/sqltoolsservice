@@ -49,5 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The special action of the batch 
         /// </summary>
         public SpecialAction SpecialAction { get; set; }
+
+        public override string ToString() => $"Batch Id:'{Id}', Elapsed:'{ExecutionElapsed}', HasError:'{HasError}'";
     }
 }
