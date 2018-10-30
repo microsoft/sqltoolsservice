@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var exportRequestContext = new Mock<RequestContext<DacFxExportResult>>();
             exportRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxExportResult>())).Returns(Task.FromResult(new object()));
 
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxImportTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
 
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var requestContext = new Mock<RequestContext<DacFxExtractResult>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<DacFxExtractResult>())).Returns(Task.FromResult(new object()));
 
-            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExtractTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
 
@@ -110,6 +110,49 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             testdb.Cleanup();
 
             return requestContext;
+        }
+
+        private async Task<Mock<RequestContext<DacFxDeployResult>>> SendAndValidateDacFxDeployRequest()
+        {
+            // first extract a db to have a dacpac to import later
+            var extractRequestContext = new Mock<RequestContext<DacFxExtractResult>>();
+            extractRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxExtractResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxDeployTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new DacFxExtractParams
+            {
+                ConnectionString = sourceDb.ConnectionString,
+                PackageFileName = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = new Version(1, 0)
+            };
+
+            DacFxService service = new DacFxService();
+            await service.HandleExtractRequest(extractParams, extractRequestContext.Object);
+
+            var result = GetLiveAutoCompleteTestObjects();
+            var deployRequestContext = new Mock<RequestContext<DacFxDeployResult>>();
+            deployRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxDeployResult>())).Returns(Task.FromResult(new object()));
+
+
+            var deployParams = new DacFxDeployParams
+            {
+                ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails),
+                PackageFilePath = extractParams.PackageFileName,
+                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deploy")
+            };
+
+            await service.HandleDeployRequest(deployParams, deployRequestContext.Object);
+            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.TargetDatabaseName);
+
+            // cleanup both created dbs
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return deployRequestContext;
         }
 
         /// <summary>
@@ -137,6 +180,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         public async void DacFxExtract()
         {
             Assert.NotNull(await SendAndValidateDacFxExtractRequest());
+        }
+
+        /// <summary>
+        /// Verify the DacFx deploy request
+        /// </summary>
+        [Fact]
+        public async void DacFxDeploy()
+        {
+            Assert.NotNull(await SendAndValidateDacFxDeployRequest());
         }
 
     }

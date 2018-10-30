@@ -34,6 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(DacFxExportRequest.Type, this.HandleExportRequest);
             serviceHost.SetRequestHandler(DacFxImportRequest.Type, this.HandleImportRequest);
             serviceHost.SetRequestHandler(DacFxExtractRequest.Type, this.HandleExtractRequest);
+            serviceHost.SetRequestHandler(DacFxDeployRequest.Type, this.HandleDeployRequest);
         }
 
         /// <summary>
@@ -149,6 +150,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 });
 
                 await requestContext.SendResult(new DacFxExtractResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = ""
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to deploy a dacpac
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleDeployRequest(DacFxDeployParams parameters, RequestContext<DacFxDeployResult> requestContext)
+        {
+            try
+            {
+                DacFxDeployOperation operation = new DacFxDeployOperation(parameters);
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        this.ActiveOperations[operation.OperationId] = operation;
+                        operation.Execute();
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendError(e);
+                    }
+                    finally
+                    {
+                        DacFxOperation temp;
+                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+                    }
+                });
+
+                await requestContext.SendResult(new DacFxDeployResult()
                 {
                     OperationId = operation.OperationId,
                     Success = true,
