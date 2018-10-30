@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
+            var efv = new EventFlowValidator<ExecuteRequestResult>(MockBehavior.Loose)
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
@@ -297,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = Common.GetPrimedExecutionService(dataset, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
+            var efv = new EventFlowValidator<ExecuteRequestResult>(MockBehavior.Loose)
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
+            var efv = new EventFlowValidator<ExecuteRequestResult>(MockBehavior.Loose)
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()

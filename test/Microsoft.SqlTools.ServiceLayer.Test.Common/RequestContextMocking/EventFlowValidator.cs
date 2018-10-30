@@ -21,9 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         private readonly Mock<RequestContext<TRequestContext>> requestContext;
         private bool completed;
 
-        public EventFlowValidator()
+        public EventFlowValidator(MockBehavior behavior = MockBehavior.Strict)
         {
-            requestContext = new Mock<RequestContext<TRequestContext>>(MockBehavior.Strict);
+            requestContext = new Mock<RequestContext<TRequestContext>>(behavior);
         }
 
         public RequestContext<TRequestContext> Object => requestContext.Object;
