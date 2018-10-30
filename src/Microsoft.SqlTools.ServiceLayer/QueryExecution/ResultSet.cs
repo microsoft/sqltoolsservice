@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task SaveAsFailureAsyncEventHandler(SaveResultsRequestParams parameters, string message);
 
         /// <summary>
-        /// Asynchronous handler for when a resultset is availabled/updated/completed
+        /// Asynchronous handler for when a resultset is available/updated/completed
         /// </summary>
         /// <param name="resultSet">The result set that completed</param>
         public delegate Task ResultSetAsyncEventHandler(ResultSet resultSet);
