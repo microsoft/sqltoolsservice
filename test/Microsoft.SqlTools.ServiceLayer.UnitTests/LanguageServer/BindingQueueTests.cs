@@ -213,10 +213,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         /// <summary>
-        /// Queue an task with a long operation causing a timeout and make sure subsequent tasks still execute
+        /// Queue a task with a long operation causing a timeout 
+        /// and make sure subsequent tasks don't execute while task is completing
         /// </summary>
         [Fact]
-        public void QueueWithTimeoutRunsNextTask()
+        public void QueueWithTimeoutDoesNotRunNextTask()
         {
             string operationKey = "testkey";
             ManualResetEvent firstEventExecuted = new ManualResetEvent(false);
@@ -256,13 +257,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             );
 
             var result = firstEventExecuted.WaitOne(totalTimeout);
-            Assert.True(result);
+            Assert.False(result);
 
             this.bindingQueue.StopQueueProcessor(15000);
 
             Assert.Equal(1, this.timeoutCallCount);
-            Assert.True(firstOperationCanceled);
-            Assert.True(secondOperationExecuted);
+            Assert.False(firstOperationCanceled);
+            Assert.False(secondOperationExecuted);
         }
     }
 }
