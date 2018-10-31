@@ -25,18 +25,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private string originalAlertName = null;
 
+        private JobData jobData = null;
+
         /// <summary>
         /// Default constructor that will be used to create dialog
         /// </summary>
         /// <param name="dataContainer"></param>
         public AgentAlertActions(
             CDataContainer dataContainer, string originalAlertName, 
-            AgentAlertInfo alertInfo, ConfigAction configAction)
+            AgentAlertInfo alertInfo, ConfigAction configAction,
+            JobData jobData = null)
         {
             this.originalAlertName = originalAlertName;
             this.alertInfo = alertInfo;
             this.DataContainer = dataContainer;
             this.configAction = configAction;
+            if (jobData != null)
+            {
+                this.jobData = jobData;
+            }
         }
 
         private static string GetAlertName(CDataContainer container)
@@ -92,6 +99,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (alert != null)
                     {
                         alert.DropIfExists();
+                        if (this.jobData != null)
+                        {
+                            JobAlertData alertData = new JobAlertData(alert);
+                            this.jobData.JobAlerts.DeleteAlert(alertData);
+                        }
                     }
                 }
             }
@@ -130,6 +142,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 if (createNewAlert)
                 {
                     alert.Create();
+                    if (this.jobData != null)
+                    {
+                        JobAlertData alertData = new JobAlertData(alert);
+                        this.jobData.JobAlerts.AddAlert(alertData);
+                    }
                 }
                 else
                 {
@@ -168,6 +185,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (alert == null)
             {
                 throw new ArgumentNullException("alert");
+            }
+            if (this.alertInfo.JobId != null)
+            {
+                alert.JobID = new Guid(this.alertInfo.JobId);
             }
 
             alert.DatabaseName = !string.IsNullOrWhiteSpace(this.alertInfo.DatabaseName)
