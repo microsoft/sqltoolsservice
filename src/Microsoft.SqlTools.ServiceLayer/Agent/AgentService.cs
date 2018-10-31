@@ -985,7 +985,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ConnectionInfo connInfo;
                         ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                         dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    } else {
+                    } 
+                    else 
+                    {
                         // If the alert is being created inside a job
                         CreateJobData(ownerUri, alert.JobName, out dataContainer, out jobData);
                     }
