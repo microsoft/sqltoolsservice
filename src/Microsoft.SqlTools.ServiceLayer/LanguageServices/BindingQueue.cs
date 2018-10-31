@@ -377,8 +377,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                             bindTask.ContinueWithOnFaulted(t => Logger.Write(TraceEventType.Error, "Binding queue threw exception " + t.Exception.ToString()));
 
-                                            // Give the task a chance to cancel before moving on to the next operation
-                                            Task.WaitAny(bindTask, Task.Delay(bindingContext.BindingTimeout));
+                                            // Give the task a chance to complete before moving on to the next operation
+                                            bindTask.Wait();
                                         }
                                     }
                                     catch (Exception ex)
