@@ -22,13 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEvent" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEventEnum" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScoped" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.XEventDBScopedEnum" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.Management.SqlScriptPublishModel" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.SqlParser" Version="$(SmoPackageVersion)" />  
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
