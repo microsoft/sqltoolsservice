@@ -38,8 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            await service.HandleExportRequest(exportParams, requestContext.Object);
+            DacFxExportOperation operation = new DacFxExportOperation(exportParams);
+            service.PerformOperation(operation);
 
+            // cleanup
+            VerifyAndCleanup(exportParams.PackageFileName);
             testdb.Cleanup();
 
             return requestContext;
@@ -47,7 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
         private async Task<Mock<RequestContext<DacFxImportResult>>> SendAndValidateDacFxImportRequest()
         {
-            // first export a db to have a bacpac to import later
+            // first export a bacpac
+            var result = GetLiveAutoCompleteTestObjects();
             var exportRequestContext = new Mock<RequestContext<DacFxExportResult>>();
             exportRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxExportResult>())).Returns(Task.FromResult(new object()));
 
@@ -62,24 +66,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            await service.HandleExportRequest(exportParams, exportRequestContext.Object);
+            DacFxExportOperation exportOperation = new DacFxExportOperation(exportParams);
+            service.PerformOperation(exportOperation);
 
-            var result = GetLiveAutoCompleteTestObjects();
+            // import the created bacpac
             var importRequestContext = new Mock<RequestContext<DacFxImportResult>>();
             importRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxImportResult>())).Returns(Task.FromResult(new object()));
-
 
             var importParams = new DacFxImportParams
             {
                 ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails),
                 PackageFilePath = exportParams.PackageFileName,
-                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-import")
+                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
             };
 
-            await service.HandleImportRequest(importParams, importRequestContext.Object);
+            DacFxImportOperation importOperation = new DacFxImportOperation(importParams);
+            service.PerformOperation(importOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.TargetDatabaseName);
 
-            // cleanup both created dbs
+            // cleanup
+            VerifyAndCleanup(exportParams.PackageFileName);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 
@@ -105,8 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            await service.HandleExtractRequest(extractParams, requestContext.Object);
+            DacFxExtractOperation operation = new DacFxExtractOperation(extractParams);
+            service.PerformOperation(operation);
 
+            // cleanup
+            VerifyAndCleanup(extractParams.PackageFileName);
             testdb.Cleanup();
 
             return requestContext;
@@ -131,8 +140,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            await service.HandleExtractRequest(extractParams, extractRequestContext.Object);
+            DacFxExtractOperation extractOperation = new DacFxExtractOperation(extractParams);
+            service.PerformOperation(extractOperation);
 
+            // deploy the created dacpac
             var result = GetLiveAutoCompleteTestObjects();
             var deployRequestContext = new Mock<RequestContext<DacFxDeployResult>>();
             deployRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxDeployResult>())).Returns(Task.FromResult(new object()));
@@ -142,13 +153,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             {
                 ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails),
                 PackageFilePath = extractParams.PackageFileName,
-                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deploy")
+                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed")
             };
 
-            await service.HandleDeployRequest(deployParams, deployRequestContext.Object);
-            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.TargetDatabaseName);
+            DacFxDeployOperation deployOperation = new DacFxDeployOperation(deployParams);
+            service.PerformOperation(deployOperation); SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.TargetDatabaseName);
 
-            // cleanup both created dbs
+            // cleanup
+            VerifyAndCleanup(extractParams.PackageFileName);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 
@@ -191,5 +203,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             Assert.NotNull(await SendAndValidateDacFxDeployRequest());
         }
 
+        private void VerifyAndCleanup(string filePath)
+        {
+            // Verify it was created
+            Assert.True(File.Exists(filePath));
+
+            // Remove the file
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
     }
 }

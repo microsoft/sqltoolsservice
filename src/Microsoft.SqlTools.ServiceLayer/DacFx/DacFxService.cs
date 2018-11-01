@@ -1,6 +1,9 @@
 ﻿using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -12,7 +15,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// </summary>
     class DacFxService
     {
-
+        private static ConnectionService connectionService = null;
+        private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
@@ -51,23 +55,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacFxExportOperation operation = new DacFxExportOperation(parameters);
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        this.ActiveOperations[operation.OperationId] = operation;
-                        operation.Execute();
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendError(e);
-                    }
-                    finally
-                    {
-                        DacFxOperation temp;
-                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-                    }
-                });
+                SqlTask sqlTask = null;
+
+                // create task metadata
+                TaskMetadata metadata = TaskMetadata.Create(parameters, "Export bacpac", operation, ConnectionServiceInstance);
+
+                // put appropriate database name since connection passed was to master
+                String[] split = parameters.ConnectionString.Split(';');
+                string dbName = split[Array.IndexOf(split, Array.Find(split, s => s.StartsWith("Initial Catalog")))];
+                metadata.DatabaseName = dbName.Substring("Initial Catalog:".Length);
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new DacFxExportResult()
                 {
@@ -91,23 +89,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacFxImportOperation operation = new DacFxImportOperation(parameters);
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        this.ActiveOperations[operation.OperationId] = operation;
-                        operation.Execute();
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendError(e);
-                    }
-                    finally
-                    {
-                        DacFxOperation temp;
-                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-                    }
-                });
+                SqlTask sqlTask = null;
+
+                // create task metadata
+                TaskMetadata metadata = TaskMetadata.Create(parameters, "Import bacpac", operation, ConnectionServiceInstance);
+
+                // put appropriate database name so that it shows imported database's name rather than master
+                String[] split = parameters.ConnectionString.Split(';');
+                string dbName = split[Array.IndexOf(split, Array.Find(split, s => s.StartsWith("Initial Catalog")))];
+                metadata.DatabaseName = dbName.Substring("Initial Catalog:".Length);
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new DacFxImportResult()
                 {
@@ -131,23 +123,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacFxExtractOperation operation = new DacFxExtractOperation(parameters);
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        this.ActiveOperations[operation.OperationId] = operation;
-                        operation.Execute();
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendError(e);
-                    }
-                    finally
-                    {
-                        DacFxOperation temp;
-                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-                    }
-                });
+                SqlTask sqlTask = null;
+
+                // create task metadata
+                TaskMetadata metadata = TaskMetadata.Create(parameters, "Extract dacpac", operation, ConnectionServiceInstance);
+                // put appropriate database name since connection passed was to master
+                String[] split = parameters.ConnectionString.Split(';');
+                string dbName = split[Array.IndexOf(split, Array.Find(split, s => s.StartsWith("Initial Catalog")))];
+                metadata.DatabaseName = dbName.Substring("Initial Catalog:".Length);
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new DacFxExtractResult()
                 {
@@ -171,23 +156,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacFxDeployOperation operation = new DacFxDeployOperation(parameters);
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        this.ActiveOperations[operation.OperationId] = operation;
-                        operation.Execute();
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendError(e);
-                    }
-                    finally
-                    {
-                        DacFxOperation temp;
-                        this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-                    }
-                });
+                SqlTask sqlTask = null;
+
+                // create task metadata
+                TaskMetadata metadata = TaskMetadata.Create(parameters, "Deploy dacpac", operation, ConnectionServiceInstance);
+
+                // put appropriate database name so that it shows deployed database's name rather than master
+                String[] split = parameters.ConnectionString.Split(';');
+                string dbName = split[Array.IndexOf(split, Array.Find(split, s => s.StartsWith("Initial Catalog")))];
+                metadata.DatabaseName = dbName.Substring("Initial Catalog:".Length);
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new DacFxDeployResult()
                 {
@@ -200,6 +179,50 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 await requestContext.SendError(e);
             }
+        }
+
+        private SqlTaskManager SqlTaskManagerInstance
+        {
+            get
+            {
+                if (sqlTaskManagerInstance == null)
+                {
+                    sqlTaskManagerInstance = SqlTaskManager.Instance;
+                }
+                return sqlTaskManagerInstance;
+            }
+            set
+            {
+                sqlTaskManagerInstance = value;
+            }
+        }
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal static ConnectionService ConnectionServiceInstance
+        {
+            get
+            {
+                if (connectionService == null)
+                {
+                    connectionService = ConnectionService.Instance;
+                }
+                return connectionService;
+            }
+            set
+            {
+                connectionService = value;
+            }
+        }
+
+        /// <summary>
+        /// For testing purpose only
+        /// </summary>
+        /// <param name="operation"></param>
+        internal void PerformOperation(DacFxOperation operation)
+        {
+            operation.Execute(TaskExecutionMode.Execute);
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.Utility;
+using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -6,9 +9,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// <summary>
     /// Base class for DacFx operations
     /// </summary>
-    abstract class DacFxOperation : IDisposable
+    abstract class DacFxOperation : ITaskOperation
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
+        private bool disposed = false;
+
+        /// <summary>
+        /// Gets the unique id associated with this instance.
+        /// </summary>
+        public string OperationId { get; private set; }
+
+        public SqlTask SqlTask { get; set; }
 
         protected DacFxOperation()
         {
@@ -18,22 +29,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
         /// <summary>
-        /// Gets the unique id associated with this instance.
+        /// The error occurred during operation
         /// </summary>
-        public string OperationId { get; private set; }
+        public string ErrorMessage
+        {
+            get
+            {
+                return string.Empty;
+            }
+        }
 
         /// <summary>
-        /// Excecutes the DacFx operation.
+        /// Cancel operation
         /// </summary>
-        public abstract void Execute();
-
-        /// <summary>
-        /// Cancels the scripting operation.
-        /// </summary>
-        public virtual void Cancel()
+        public void Cancel()
         {
             if (!this.cancellation.IsCancellationRequested)
             {
+                Logger.Write(TraceEventType.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
                 this.cancellation.Cancel();
             }
         }
@@ -41,6 +54,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <summary>
         /// Disposes the operation.
         /// </summary>
-        public abstract void Dispose();
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                this.Cancel();
+                disposed = true;
+            }
+        }
+
+        public abstract void Execute(TaskExecutionMode mode);
     }
 }

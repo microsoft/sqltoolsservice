@@ -1,4 +1,5 @@
 ﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
@@ -6,7 +7,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx export request.
     /// </summary>
-    public class DacFxExportParams
+    public class DacFxExportParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets connection string of the target database the export operation will run against.
@@ -17,6 +18,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets package file name for exported bacpac
         /// </summary>
         public string PackageFileName { get; set; }
+
+        /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Executation mode for the operation. Default is execution
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>

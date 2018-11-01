@@ -1,4 +1,5 @@
 ﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System;
 
@@ -7,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx extract request.
     /// </summary>
-    public class DacFxExtractParams
+    public class DacFxExtractParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets connection string of the target database the extract operation will run against.
@@ -28,6 +29,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the version of the DAC application
         /// </summary>
         public Version ApplicationVersion { get; set; }
+
+        /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Executation mode for the operation. Default is execution
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>

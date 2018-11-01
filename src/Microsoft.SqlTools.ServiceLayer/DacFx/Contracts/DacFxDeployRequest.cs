@@ -1,4 +1,5 @@
 ﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
@@ -6,7 +7,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx deploy request.
     /// </summary>
-    public class DacFxDeployParams
+    public class DacFxDeployParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets connection string of the target database the deploy operation will run against.
@@ -22,6 +23,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets name for deployed database
         /// </summary>
         public string TargetDatabaseName { get; set; }
+
+        /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Executation mode for the operation. Default is execution
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             this.Parameters = parameters;
         }
 
-        public override void Execute()
+        public override void Execute(TaskExecutionMode mode)
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -34,20 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 DacServices ds = new DacServices(this.Parameters.ConnectionString);
-                ds.ExportBacpac(this.Parameters.PackageFileName, builder.InitialCatalog, null, null);
+                ds.ExportBacpac(this.Parameters.PackageFileName, builder.InitialCatalog, null, this.CancellationToken);
             }
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, string.Format("DacFx export operation {0} failed with exception {1}", this.OperationId, e));
-            }
-        }
-
-        public override void Dispose()
-        {
-            if (!disposed)
-            {
-                this.Cancel();
-                disposed = true;
             }
         }
     }
