@@ -34,11 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 DacServices ds = new DacServices(this.Parameters.ConnectionString);
                 DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-                ds.Deploy(dacpac, this.Parameters.TargetDatabaseName);
+                ds.Deploy(dacpac, this.Parameters.TargetDatabaseName, false, null, this.CancellationToken);
             }
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, string.Format("DacFx deploy operation {0} failed with exception {1}", this.OperationId, e));
+                throw;
             }
         }
     }

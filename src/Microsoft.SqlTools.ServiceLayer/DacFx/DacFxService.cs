@@ -95,9 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 TaskMetadata metadata = TaskMetadata.Create(parameters, "Import bacpac", operation, ConnectionServiceInstance);
 
                 // put appropriate database name so that it shows imported database's name rather than master
-                String[] split = parameters.ConnectionString.Split(';');
-                string dbName = split[Array.IndexOf(split, Array.Find(split, s => s.StartsWith("Initial Catalog")))];
-                metadata.DatabaseName = dbName.Substring("Initial Catalog:".Length);
+                metadata.DatabaseName = parameters.TargetDatabaseName;
 
                 sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 

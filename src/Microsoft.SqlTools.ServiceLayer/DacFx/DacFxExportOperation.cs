@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, string.Format("DacFx export operation {0} failed with exception {1}", this.OperationId, e));
+                throw;
             }
         }
     }

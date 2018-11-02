@@ -34,11 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 DacServices ds = new DacServices(this.Parameters.ConnectionString);
                 BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
-                ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, null);
+                ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
             }
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, string.Format("DacFx import operation {0} failed with exception {1}", this.OperationId, e));
+                throw;
             }
         }
     }
