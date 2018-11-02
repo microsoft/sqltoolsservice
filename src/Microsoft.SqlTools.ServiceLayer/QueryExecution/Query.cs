@@ -452,7 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (b.HasError)
                     {
-                        ConnectionService.EnsureConnectionIsOpen(sqlConn, forceReopen: true);
+                        ConnectionService.EnsureConnectionIsOpen(sqlConn);
                         break;
                     }
                 }

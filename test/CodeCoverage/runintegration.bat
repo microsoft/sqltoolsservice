@@ -1,4 +1,4 @@
 set DOTNETCONFIG=-c Integration
 
 cmd /c npm install
-gulp
+node ./node_modules/gulp/bin/gulp.js

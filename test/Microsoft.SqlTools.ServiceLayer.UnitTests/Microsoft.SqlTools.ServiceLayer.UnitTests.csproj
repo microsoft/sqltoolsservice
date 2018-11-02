@@ -2,7 +2,7 @@
   <Import Project="../../Common.props" />
   <PropertyGroup Label="Configuration">
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <IsPackable>false</IsPackable>
@@ -14,8 +14,8 @@
     <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.5.0-preview2-26406-04" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview2-26406-04" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
@@ -37,7 +37,7 @@
     <ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="obj\Debug\netcoreapp2.1\" />
+    <Folder Include="obj\Debug\netcoreapp2.2\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
