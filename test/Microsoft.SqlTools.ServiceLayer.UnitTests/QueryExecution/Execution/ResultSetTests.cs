@@ -101,26 +101,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
             Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
 
-            // ... The callback for result set available, update and completion callbacks should have been fired.
-            Assert.NotNull(resultSummaryFromAvailableCallback);
-            Assert.NotNull(resultSummaryFromCompleteCallback);
-            Assert.NotEmpty(resultSummarriesFromUpdatedCallback);
-
-            // ... The no of rows in available resultset should be non-zero
-            Assert.NotEqual(0, resultSummaryFromAvailableCallback.RowCount);
-            // ... The no of rows in the final updateResultSet should be equal to that in the Complete Result Set. 
-            Assert.Equal(resultSummaryFromCompleteCallback.RowCount, resultSummarriesFromUpdatedCallback.Last().RowCount);
-            // ... The final updateResultSet must have 'Complete' flag set to true.
-            Assert.True(resultSummarriesFromUpdatedCallback.Last().Complete);
-            // ... RowCount should be in increasing order in updateResultSet callbacks
-            Parallel.ForEach(Partitioner.Create(0, resultSummarriesFromUpdatedCallback.Count), (range) =>
-            {
-                int start = range.Item1 == 0 ? 1 : range.Item1;
-                for (int i = start; i < range.Item2; i++)
-                {
-                   Assert.True(resultSummarriesFromUpdatedCallback[i].RowCount >= resultSummarriesFromUpdatedCallback[i-1].RowCount);
-                }
-            });
+            // and:
+            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback,
+                resultSummarriesFromUpdatedCallback);
         }
 
         [Theory]
@@ -148,6 +131,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 yield return new object[] {new Action<ResultSet>(rs => rs.RemoveRow(0))};
                 yield return new object[] {new Action<ResultSet>(rs => rs.GetRow(0))};
                 yield return new object[] {new Action<ResultSet>(rs => rs.GetExecutionPlan().Wait())};
+            }
+        }
+
+        void VerifyReadResultToEnd(ResultSet resultSet, ResultSetSummary resultSummaryFromAvailableCallback, ResultSetSummary resultSummaryFromCompleteCallback, List<ResultSetSummary> resultSummarriesFromUpdatedCallback)
+        {
+            // ... The callback for result set available, update and completion callbacks should have been fired.
+            Assert.NotNull(resultSummaryFromAvailableCallback);
+            Assert.NotNull(resultSummaryFromCompleteCallback);
+
+            // ... The no of rows in available resultset should be non-zero
+            Assert.NotEqual(0, resultSummaryFromAvailableCallback.RowCount);
+
+            // ... The final updateResultSet must have 'Complete' flag set to true or the avaialbleCallback.Complete should be true
+            Assert.True(resultSummaryFromAvailableCallback.Complete || resultSummarriesFromUpdatedCallback.Last().Complete);
+
+            // ... The no of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set. 
+            if (resultSummaryFromAvailableCallback.Complete)
+            {
+                Assert.Equal(resultSummaryFromCompleteCallback.RowCount, resultSummaryFromAvailableCallback.RowCount);
+            }
+            else
+            {
+                Assert.NotEmpty(resultSummarriesFromUpdatedCallback);
+                Assert.Equal(resultSummaryFromCompleteCallback.RowCount, resultSummarriesFromUpdatedCallback.Last().RowCount);
+                // ... RowCount should be in increasing order in updateResultSet callbacks
+                Parallel.ForEach(Partitioner.Create(0, resultSummarriesFromUpdatedCallback.Count), (range) =>
+                {
+                    int start = range.Item1 == 0 ? 1 : range.Item1;
+                    for (int i = start; i < range.Item2; i++)
+                    {
+                        Assert.True(resultSummarriesFromUpdatedCallback[i].RowCount >= resultSummarriesFromUpdatedCallback[i - 1].RowCount);
+                    }
+                });
             }
         }
            
@@ -200,30 +216,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Then:
             // ... There should only be one column
             // ... There should only be one row
-            // ... The result should be marked as complete
             Assert.Equal(1, resultSet.Columns.Length);
             Assert.Equal(1, resultSet.RowCount);
 
-            // ... The callback for result set available, update and completion callbacks should have been fired.
-            Assert.NotNull(resultSummaryFromAvailableCallback);
-            Assert.NotNull(resultSummaryFromCompleteCallback);
-            Assert.NotEmpty(resultSummarriesFromUpdatedCallback);
-
-            // ... The no of rows in available resultset should be non-zero
-            Assert.NotEqual(0, resultSummaryFromAvailableCallback.RowCount);
-            // ... The no of rows in the final updateResultSet should be equal to that in the Complete Result Set. 
-            Assert.Equal(resultSummaryFromCompleteCallback.RowCount, resultSummarriesFromUpdatedCallback.Last().RowCount);
-            // ... The final updateResultSet must have 'Complete' flag set to true.
-            Assert.True(resultSummarriesFromUpdatedCallback.Last().Complete);
-            // ... RowCount should be in increasing order in updateResultSet callbacks
-            Parallel.ForEach(Partitioner.Create(0, resultSummarriesFromUpdatedCallback.Count), (range) =>
-            {
-                int start = range.Item1 == 0 ? 1 : range.Item1;
-                for (int i = start; i < range.Item2; i++)
-                {
-                    Assert.True(resultSummarriesFromUpdatedCallback[i].RowCount >= resultSummarriesFromUpdatedCallback[i - 1].RowCount);
-                }
-            });
+            // and 
+            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback,
+                resultSummarriesFromUpdatedCallback);
 
             // If:
             // ... I attempt to read back the results
