@@ -167,6 +167,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return deployRequestContext;
         }
 
+        private async Task<Mock<RequestContext<DacFxExportResult>>> ValidateDacFxExportCancellation()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var requestContext = new Mock<RequestContext<DacFxExportResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxExportResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var exportParams = new DacFxExportParams
+            {
+                ConnectionString = testdb.ConnectionString,
+                PackageFileName = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
+            };
+
+            DacFxService service = new DacFxService();
+            DacFxExportOperation operation = new DacFxExportOperation(exportParams);
+
+            // set cancellation token to cancel
+            operation.Cancel();
+            OperationCanceledException expectedException = null;
+
+            try
+            {
+                service.PerformOperation(operation);
+            }
+            catch(OperationCanceledException canceledException)
+            {
+                expectedException = canceledException;
+            }
+
+            Assert.NotNull(expectedException);
+
+            // cleanup
+            testdb.Cleanup();
+
+            return requestContext;
+        }
+
         /// <summary>
         /// Verify the DacFx export request
         /// </summary>
@@ -174,6 +214,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         public async void DacFxExport()
         {
             Assert.NotNull(await SendAndValidateDacFxExportRequest());
+        }
+
+        /// <summary>
+        /// Verify the DacFx export request being cancelled
+        /// </summary>
+        [Fact]
+        public async void DacFxExportCancellationTest()
+        {
+            Assert.NotNull(await ValidateDacFxExportCancellation());
         }
 
         /// <summary>
