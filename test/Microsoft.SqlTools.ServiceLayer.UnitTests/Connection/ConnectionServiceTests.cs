@@ -1486,9 +1486,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Fact]
-        public async void ConnectingWithAzureAccountTokenUsesToken()
+        public async void ConnectingWithAzureAccountUsesToken()
         {
-             // Setup mock connection factory
+             // Set up mock connection factory
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new TestSqlConnection(null));

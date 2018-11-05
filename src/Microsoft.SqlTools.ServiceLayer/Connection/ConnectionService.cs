@@ -1153,6 +1153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         break;
                     case "AzureMFA":
                         connectionBuilder.UserID = "";
+                        connectionBuilder.Password = "";
                         break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));

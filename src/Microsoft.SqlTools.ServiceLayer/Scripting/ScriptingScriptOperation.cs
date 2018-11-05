@@ -139,7 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private SqlScriptPublishModel BuildPublishModel()
         {
-            // TODO: investigate for account token. might be unreachable?
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
 
             // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
