@@ -1222,67 +1222,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 containerDoc = CreateDataContainerDocument(connInfo, databaseExists);
             }
 
-            CDataContainer dataContainer;
-
-             // add alternate port to server name property if provided
-            var connectionDetails = connInfo.ConnectionDetails;
-            // string serverName = !connectionDetails.Port.HasValue
-            //     ? connectionDetails.ServerName
-            //     : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
-
-            // // check if the connection is using SQL Auth or Integrated Auth
-            // // TODO: ConnectionQueue try to get an existing connection (ConnectionQueue)
-            // if (string.Equals(connectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
-            // {
-            //     var passwordSecureString = BuildSecureStringFromPassword(connectionDetails.Password);
-            //     dataContainer = new CDataContainer(
-            //         CDataContainer.ServerType.SQL,
-            //         serverName,
-            //         false,
-            //         connectionDetails.UserName,
-            //         passwordSecureString,
-            //         connectionDetails.DatabaseName,
-            //         containerDoc.InnerXml);
-            // }
-            // else
-            // {
-            //     dataContainer = new CDataContainer(
-            //         CDataContainer.ServerType.SQL,
-            //         serverName,
-            //         true,
-            //         null,
-            //         null,
-            //         connectionDetails.DatabaseName,
-            //         containerDoc.InnerXml,
-            //         connectionDetails.AzureAccountToken);
-            // }
-
-            // var connectionString = ConnectionService.BuildConnectionString(connectionDetails);
-            // var serverConnection = new ServerConnection(connectionString);
-            // if (connectionDetails.AzureAccountToken != null)
-            // {
-            //     serverConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
-            //     serverConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(connectionDetails.AzureAccountToken); 
-            // }
-            // var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
-            // connectionInfoWithConnection.ServerConnection = serverConnection;
-
-            /// BELOW CODE WORKS
-            // var sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DataContainer");
-            
-            // // populate the binding context to work with the SMO metadata provider
-            // var serverConnection = new ServerConnection(sqlConn);
-            // if (sqlConn.AccessToken != null)
-            // {
-            //     serverConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(sqlConn.AccessToken);
-            //     serverConnection.Authentication = SqlConnectionInfo.AuthenticationMethod.ActiveDirectoryInteractive;
-            // }
-
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
 
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
-            dataContainer = new CDataContainer(ServerType.SQL, connectionInfoWithConnection, true);
+            CDataContainer dataContainer = new CDataContainer(ServerType.SQL, connectionInfoWithConnection, true);
             dataContainer.Init(containerDoc);
 
             return dataContainer;

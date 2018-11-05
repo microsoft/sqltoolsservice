@@ -1540,9 +1540,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Create and open a new ServerConnection from a ConnectionInfo object
+        /// Create and open a new ServerConnection from a ConnectionInfo object.
         /// This calls ConnectionService.OpenSqlConnection and then creates a
-        /// ServerConnection from it, since it was a common pattern in our code
+        /// ServerConnection from it.
         /// </summary>
         internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
         {
@@ -1550,8 +1550,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ServerConnection serverConnection;
             if (connInfo.ConnectionDetails.AzureAccountToken != null)
             {
-                // TODO: Move the AzureAccessToken class here
-                serverConnection = new ServerConnection(sqlConnection, new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
+                serverConnection = new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
             }
             else
             {
@@ -1582,6 +1581,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     conn.Open();
                 }
             }
+        }
+    }
+
+    public class AzureAccessToken : IRenewableToken
+    {
+        public DateTimeOffset TokenExpiry { get; set; }
+        public string Resource { get; set; }
+        public string Tenant { get; set; }
+        public string UserId { get; set; }
+
+        private string accessToken;
+
+        public AzureAccessToken(string accessToken)
+        {
+            this.accessToken = accessToken;
+        }
+
+        public string GetAccessToken() {
+            return this.accessToken;
         }
     }
 }

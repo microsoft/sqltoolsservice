@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 
@@ -67,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
             else
             {
-                serverConnection = new ServerConnection(sqlConn, new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(sqlConn.AccessToken));
+                serverConnection = new ServerConnection(sqlConn, new AzureAccessToken(sqlConn.AccessToken));
             }
             Server server = new Server(serverConnection);
             Database database = server.Databases[sqlConn.Database];

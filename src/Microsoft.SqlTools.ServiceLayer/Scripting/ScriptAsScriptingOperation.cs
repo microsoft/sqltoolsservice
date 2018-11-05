@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ServerConnection = new ServerConnection(sqlConnection);
             if (azureAccountToken != null)
             {
-                ServerConnection.AccessToken = new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(azureAccountToken);
+                ServerConnection.AccessToken = new AzureAccessToken(azureAccountToken);
             }
 
             disconnectAtDispose = true;

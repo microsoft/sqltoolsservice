@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
@@ -91,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     }
                     else
                     {
-                        serverConnection = new ServerConnection(connection, new Microsoft.SqlTools.ServiceLayer.LanguageServices.AzureAccessToken(azureAccessToken));
+                        serverConnection = new ServerConnection(connection, new AzureAccessToken(azureAccessToken));
                     }
                     serverName = serverConnection.TrueName;
                 }
