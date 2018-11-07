@@ -681,6 +681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 var result = LiveConnectionHelper.InitLiveConnectionInfo(null, queryTempFile.FilePath);
                 ConnectionInfo connInfo = result.ConnectionInfo;
                 DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
+                connection.Open();
 
                 Assert.True(connection.State == ConnectionState.Open, "Connection should be open.");
                 Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connection));
