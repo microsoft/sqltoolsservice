@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 DacServices ds = new DacServices(this.Parameters.ConnectionString);
-                ds.ExportBacpac(this.Parameters.PackageFileName, builder.InitialCatalog, null, this.CancellationToken);
+                ds.ExportBacpac(this.Parameters.PackageFilePath, builder.InitialCatalog, null, this.CancellationToken);
             }
             catch (Exception e)
             {

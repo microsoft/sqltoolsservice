@@ -15,9 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets package file name for exported bacpac
+        /// Gets or sets package file path for exported bacpac
         /// </summary>
-        public string PackageFileName { get; set; }
+        public string PackageFilePath { get; set; }
 
         /// <summary>
         /// Connection uri

@@ -16,9 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets package file name for extracted dacpac
+        /// Gets or sets package file path for extracted dacpac
         /// </summary>
-        public string PackageFileName { get; set; }
+        public string PackageFilePath { get; set; }
 
         /// <summary>
         /// Gets or sets the string identifier for the DAC application

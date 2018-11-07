@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var exportParams = new DacFxExportParams
             {
                 ConnectionString = testdb.ConnectionString,
-                PackageFileName = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
             DacFxService service = new DacFxService();
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             service.PerformOperation(operation);
 
             // cleanup
-            VerifyAndCleanup(exportParams.PackageFileName);
+            VerifyAndCleanup(exportParams.PackageFilePath);
             testdb.Cleanup();
 
             return requestContext;
@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var exportParams = new DacFxExportParams
             {
                 ConnectionString = sourceDb.ConnectionString,
-                PackageFileName = Path.Combine(folderPath, string.Format("{0}.bacpac", sourceDb.DatabaseName))
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", sourceDb.DatabaseName))
             };
 
             DacFxService service = new DacFxService();
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var importParams = new DacFxImportParams
             {
                 ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails),
-                PackageFilePath = exportParams.PackageFileName,
+                PackageFilePath = exportParams.PackageFilePath,
                 TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
             };
 
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.TargetDatabaseName);
 
             // cleanup
-            VerifyAndCleanup(exportParams.PackageFileName);
+            VerifyAndCleanup(exportParams.PackageFilePath);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var extractParams = new DacFxExtractParams
             {
                 ConnectionString = testdb.ConnectionString,
-                PackageFileName = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
                 ApplicationName = "test",
                 ApplicationVersion = new Version(1, 0)
             };
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             service.PerformOperation(operation);
 
             // cleanup
-            VerifyAndCleanup(extractParams.PackageFileName);
+            VerifyAndCleanup(extractParams.PackageFilePath);
             testdb.Cleanup();
 
             return requestContext;
@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var extractParams = new DacFxExtractParams
             {
                 ConnectionString = sourceDb.ConnectionString,
-                PackageFileName = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
                 ApplicationVersion = new Version(1, 0)
             };
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var deployParams = new DacFxDeployParams
             {
                 ConnectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails),
-                PackageFilePath = extractParams.PackageFileName,
+                PackageFilePath = extractParams.PackageFilePath,
                 TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed")
             };
 
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             service.PerformOperation(deployOperation); SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.TargetDatabaseName);
 
             // cleanup
-            VerifyAndCleanup(extractParams.PackageFileName);
+            VerifyAndCleanup(extractParams.PackageFilePath);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var exportParams = new DacFxExportParams
             {
                 ConnectionString = testdb.ConnectionString,
-                PackageFileName = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
             DacFxService service = new DacFxService();
