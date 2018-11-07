@@ -552,6 +552,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
         }
 
+        internal async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
+        {
+            Logger.Write(TraceEventType.Information, $"OE session disconnected: {errorMessage}");
+            SessionDisconnectedParameters result = new SessionDisconnectedParameters()
+            {
+                Success = success,
+                ErrorMessage = errorMessage,
+                SessionId = uri
+            };
+            await serviceHost.SendEvent(SessionDisconnectedNotification.Type, result);
+        }
+
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
