@@ -75,6 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
         }
 
+        private void OnUnhandledException(Exception ex)
+        {
+            //RetryPolicyUtils.RaiseSchemaAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.ConnectionRetry, _azureSessionId); 
+        }
+
         /// <summary>
         /// Internal for testing only
         /// </summary>
@@ -448,8 +453,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         response = queueItem.GetResultAsT<ExpandResponse>();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    if (ex is SocketException || (ex.InnerException != null && ex.InnerException is SocketException))
+                    {
+                        Logger.Write(TraceEventType.Warning, $"Unhandled socket exception");
+                    }
                 }
                 finally
                 {

@@ -5,12 +5,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Utility;
-using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Diagnostics;
+using Microsoft.SqlTools.Utility;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {    
@@ -32,6 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private object bindingContextLock = new object();
 
         private Task queueProcessorTask;
+
+        internal delegate void UnhandledExceptionDelegate(Exception ex);
+
+        public event UnhandledExceptionDelegate OnUnhandledException;
 
         /// <summary>
         /// Map from context keys to binding context instances
@@ -353,6 +358,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         {
                                             result = queueItem.ErrorHandler(ex);
                                         }
+
+                                        ex
+
                                     }
                                 });
     
