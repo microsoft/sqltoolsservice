@@ -205,8 +205,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 if (session != null)
                 {
-                    session.XEventSession.Stop();
-                    await requestContext.SendResult(new StopProfilingResult{});
+                    // Occasionally we might see the InvalidOperationException due to a read is 
+                    // in progress, add the following retry logic will solve the problem.
+                    int remainingAttampts = 3;
+                    while (true)
+                    {
+                        try
+                        {
+                            session.XEventSession.Stop();
+                            await requestContext.SendResult(new StopProfilingResult { });
+                            break;
+                        }
+                        catch(InvalidOperationException)
+                        {
+                            remainingAttampts--;
+                            if (remainingAttampts == 0)
+                            {
+                                throw;
+                            }
+                            Thread.Sleep(500);
+                        }
+                    }
                 }
                 else
                 {
