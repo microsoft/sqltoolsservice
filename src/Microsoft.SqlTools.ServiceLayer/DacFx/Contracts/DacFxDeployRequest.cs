@@ -10,11 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DacFxDeployParams : IScriptableRequestParams
     {
         /// <summary>
-        /// Gets or sets connection string of the target database the deploy operation will run against.
-        /// </summary>
-        public string ConnectionString { get; set; }
-
-        /// <summary>
         /// Gets or sets dacpac package filepath
         /// </summary>
         public string PackageFilePath { get; set; }

@@ -14,12 +14,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     class DacFxImportOperation : DacFxOperation
     {
         public DacFxImportParams Parameters { get; }
+        private SqlConnection sqlConnection { get; set; }
 
-        public DacFxImportOperation(DacFxImportParams parameters)
+        public DacFxImportOperation(DacFxImportParams parameters, SqlConnection sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-
+            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
+            this.sqlConnection = sqlConnection;
         }
 
         public override void Execute(TaskExecutionMode mode)
@@ -31,8 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-                DacServices ds = new DacServices(this.Parameters.ConnectionString);
+                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
                 BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
                 ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
             }

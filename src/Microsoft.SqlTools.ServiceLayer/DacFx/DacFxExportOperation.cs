@@ -13,15 +13,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// </summary>
     class DacFxExportOperation : DacFxOperation
     {
-        private bool disposed = false;
-
         public DacFxExportParams Parameters { get; }
 
-        public DacFxExportOperation(DacFxExportParams parameters)
+        private SqlConnection sqlConnection{ get; set; }
+
+        public DacFxExportOperation(DacFxExportParams parameters, SqlConnection sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-
+            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
+            this.sqlConnection = sqlConnection;
         }
 
         public override void Execute(TaskExecutionMode mode)
@@ -33,9 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-                DacServices ds = new DacServices(this.Parameters.ConnectionString);
-                ds.ExportBacpac(this.Parameters.PackageFilePath, builder.InitialCatalog, null, this.CancellationToken);
+                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
+                ds.ExportBacpac(this.Parameters.PackageFilePath, "importtest", null, this.CancellationToken);
             }
             catch (Exception e)
             {

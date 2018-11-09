@@ -10,11 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DacFxImportParams : IScriptableRequestParams
     {
         /// <summary>
-        /// Gets or sets connection string of the target database the import operation will run against.
-        /// </summary>
-        public string ConnectionString { get; set; }
-
-        /// <summary>
         /// Gets or sets bacpac package filepath
         /// </summary>
         public string PackageFilePath { get; set; }

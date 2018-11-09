@@ -13,15 +13,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// </summary>
     class DacFxExtractOperation : DacFxOperation
     {
-        private bool disposed = false;
-
         public DacFxExtractParams Parameters { get; }
+        private SqlConnection sqlConnection { get; set; }
 
-        public DacFxExtractOperation(DacFxExtractParams parameters)
+        public DacFxExtractOperation(DacFxExtractParams parameters, SqlConnection sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-
+            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
+            this.sqlConnection = sqlConnection;
         }
 
         public override void Execute(TaskExecutionMode mode)
@@ -33,9 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-                DacServices ds = new DacServices(this.Parameters.ConnectionString);
-                ds.Extract(this.Parameters.PackageFilePath, builder.InitialCatalog, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
+                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
+                ds.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
             }
             catch (Exception e)
             {

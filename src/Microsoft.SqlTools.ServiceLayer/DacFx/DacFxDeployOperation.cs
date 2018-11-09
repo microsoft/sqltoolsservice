@@ -14,12 +14,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     class DacFxDeployOperation : DacFxOperation
     {
         public DacFxDeployParams Parameters { get; }
+        private SqlConnection sqlConnection { get; set; }
 
-        public DacFxDeployOperation(DacFxDeployParams parameters)
+        public DacFxDeployOperation(DacFxDeployParams parameters, SqlConnection sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-
+            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
+            this.sqlConnection = sqlConnection;
         }
 
         public override void Execute(TaskExecutionMode mode)
@@ -31,8 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                var builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-                DacServices ds = new DacServices(this.Parameters.ConnectionString);
+                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
                 DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
                 ds.Deploy(dacpac, this.Parameters.TargetDatabaseName, false, null, this.CancellationToken);
             }
