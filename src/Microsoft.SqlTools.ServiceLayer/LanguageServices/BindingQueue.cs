@@ -5,8 +5,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -34,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private Task queueProcessorTask;
 
-        internal delegate void UnhandledExceptionDelegate(Exception ex);
+        public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
 
         public event UnhandledExceptionDelegate OnUnhandledException;
 
@@ -359,11 +361,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                             result = queueItem.ErrorHandler(ex);
                                         }
 
-                                        ex
+                                        if (IsExceptionOfType(ex, typeof(SqlException)) || IsExceptionOfType(ex, typeof(SocketException)))
+                                        {
+                                            if (this.OnUnhandledException != null)
+                                            {
+                                                this.OnUnhandledException(queueItem.Key, ex);
+                                            }
 
+                                            RemoveBindingContext(queueItem.Key);
+                                        }    
                                     }
                                 });
-    
+
                                 Task.Run(() => 
                                 {
                                     try
@@ -379,7 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                             // if the task didn't complete then call the timeout callback
                                             if (queueItem.TimeoutOperation != null)
-                                            {                                    
+                                            {
                                                 queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                             }
 
@@ -476,6 +485,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
+        }
+        
+        private bool IsExceptionOfType(Exception ex, Type t)
+        {
+            return ex.GetType() == t || (ex.InnerException != null && ex.InnerException.GetType() == t);
         }
     }
 }
