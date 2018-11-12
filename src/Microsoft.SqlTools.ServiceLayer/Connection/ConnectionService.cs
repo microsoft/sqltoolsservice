@@ -1599,7 +1599,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.accessToken = accessToken;
         }
 
-        public string GetAccessToken() {
+        public string GetAccessToken()
+        {
             return this.accessToken;
         }
     }
