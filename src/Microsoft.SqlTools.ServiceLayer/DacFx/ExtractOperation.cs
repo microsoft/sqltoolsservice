@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlServer.Dac;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -9,15 +13,14 @@ using System.Diagnostics;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent an in-progress export operation
+    /// Class to represent an in-progress extract operation
     /// </summary>
-    class DacFxExportOperation : DacFxOperation
+    class ExtractOperation : DacFxOperation
     {
-        public DacFxExportParams Parameters { get; }
+        public ExtractParams Parameters { get; }
+        private SqlConnection sqlConnection { get; set; }
 
-        private SqlConnection sqlConnection{ get; set; }
-
-        public DacFxExportOperation(DacFxExportParams parameters, SqlConnection sqlConnection)
+        public ExtractOperation(ExtractParams parameters, SqlConnection sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
             Validate.IsNotNull("sqlConnection", sqlConnection);
@@ -35,11 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                ds.ExportBacpac(this.Parameters.PackageFilePath, "importtest", null, this.CancellationToken);
+                ds.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx export operation {0} failed with exception {1}", this.OperationId, e));
+                Logger.Write(TraceEventType.Error, string.Format("DacFx extract operation {0} failed with exception {1}", this.OperationId, e));
                 throw;
             }
         }

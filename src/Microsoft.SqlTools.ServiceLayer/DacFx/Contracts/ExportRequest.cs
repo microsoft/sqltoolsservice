@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -7,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx export request.
     /// </summary>
-    public class DacFxExportParams : IScriptableRequestParams
+    public class ExportParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets the target database name the export operation will run against.
@@ -33,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters returned from a DacFx export request.
     /// </summary>
-    public class DacFxExportResult : ResultStatus
+    public class ExportResult : ResultStatus
     {
         public string OperationId { get; set; }
     }
@@ -41,9 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Defines the DacFx export request type
     /// </summary>
-    class DacFxExportRequest
+    class ExportRequest
     {
-        public static readonly RequestType<DacFxExportParams, DacFxExportResult> Type =
-            RequestType<DacFxExportParams, DacFxExportResult>.Create("dacfx/export");
+        public static readonly RequestType<ExportParams, ExportResult> Type =
+            RequestType<ExportParams, ExportResult>.Create("dacfx/export");
     }
 }

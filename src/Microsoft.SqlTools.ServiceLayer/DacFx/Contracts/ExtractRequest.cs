@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System;
@@ -8,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx extract request.
     /// </summary>
-    public class DacFxExtractParams : IScriptableRequestParams
+    public class ExtractParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets the target database name the extract operation will run against.
@@ -44,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters returned from a DacFx extract request.
     /// </summary>
-    public class DacFxExtractResult : ResultStatus
+    public class ExtractResult : ResultStatus
     {
         public string OperationId { get; set; }
     }
@@ -52,9 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Defines the DacFx extract request type
     /// </summary>
-    class DacFxExtractRequest
+    class ExtractRequest
     {
-        public static readonly RequestType<DacFxExtractParams, DacFxExtractResult> Type =
-            RequestType<DacFxExtractParams, DacFxExtractResult>.Create("dacfx/extract");
+        public static readonly RequestType<ExtractParams, ExtractResult> Type =
+            RequestType<ExtractParams, ExtractResult>.Create("dacfx/extract");
     }
 }

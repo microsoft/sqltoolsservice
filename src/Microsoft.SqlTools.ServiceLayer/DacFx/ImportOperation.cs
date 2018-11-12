@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlServer.Dac;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -9,14 +13,14 @@ using System.Diagnostics;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent an in-progress deploy operation
+    /// Class to represent an in-progress import operation
     /// </summary>
-    class DacFxDeployOperation : DacFxOperation
+    class ImportOperation : DacFxOperation
     {
-        public DacFxDeployParams Parameters { get; }
+        public ImportParams Parameters { get; }
         private SqlConnection sqlConnection { get; set; }
 
-        public DacFxDeployOperation(DacFxDeployParams parameters, SqlConnection sqlConnection)
+        public ImportOperation(ImportParams parameters, SqlConnection sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
             Validate.IsNotNull("sqlConnection", sqlConnection);
@@ -34,12 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-                ds.Deploy(dacpac, this.Parameters.TargetDatabaseName, false, null, this.CancellationToken);
+                BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
+                ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx deploy operation {0} failed with exception {1}", this.OperationId, e));
+                Logger.Write(TraceEventType.Error, string.Format("DacFx import operation {0} failed with exception {1}", this.OperationId, e));
                 throw;
             }
         }

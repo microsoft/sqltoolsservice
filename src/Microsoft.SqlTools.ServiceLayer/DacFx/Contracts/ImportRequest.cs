@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -7,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx import request.
     /// </summary>
-    public class DacFxImportParams : IScriptableRequestParams
+    public class ImportParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets bacpac package filepath
@@ -33,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters returned from a DacFx import request.
     /// </summary>
-    public class DacFxImportResult : ResultStatus
+    public class ImportResult : ResultStatus
     {
         public string OperationId { get; set; }
     }
@@ -41,9 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Defines the DacFx import request type
     /// </summary>
-    class DacFxImportRequest
+    class ImportRequest
     {
-        public static readonly RequestType<DacFxImportParams, DacFxImportResult> Type =
-            RequestType<DacFxImportParams, DacFxImportResult>.Create("dacfx/import");
+        public static readonly RequestType<ImportParams, ImportResult> Type =
+            RequestType<ImportParams, ImportResult>.Create("dacfx/import");
     }
 }

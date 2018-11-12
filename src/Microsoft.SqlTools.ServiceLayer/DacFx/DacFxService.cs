@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -36,10 +40,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(DacFxExportRequest.Type, this.HandleExportRequest);
-            serviceHost.SetRequestHandler(DacFxImportRequest.Type, this.HandleImportRequest);
-            serviceHost.SetRequestHandler(DacFxExtractRequest.Type, this.HandleExtractRequest);
-            serviceHost.SetRequestHandler(DacFxDeployRequest.Type, this.HandleDeployRequest);
+            serviceHost.SetRequestHandler(ExportRequest.Type, this.HandleExportRequest);
+            serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest);
+            serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
+            serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
         }
 
         /// <summary>
@@ -51,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to export a bacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleExportRequest(DacFxExportParams parameters, RequestContext<DacFxExportResult> requestContext)
+        public async Task HandleExportRequest(ExportParams parameters, RequestContext<ExportResult> requestContext)
         {
             try
             {
@@ -62,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Export");
-                    DacFxExportOperation operation = new DacFxExportOperation(parameters, sqlConn);
+                    ExportOperation operation = new ExportOperation(parameters, sqlConn);
                     SqlTask sqlTask = null;
 
                     // create task metadata
@@ -73,12 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
-                //else
-                //{
-                //    response.Result = false;
-                //}
-
-                    await requestContext.SendResult(new DacFxExportResult()
+                    await requestContext.SendResult(new ExportResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,
@@ -96,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to import a bacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleImportRequest(DacFxImportParams parameters, RequestContext<DacFxImportResult> requestContext)
+        public async Task HandleImportRequest(ImportParams parameters, RequestContext<ImportResult> requestContext)
         {
             try
             {
@@ -107,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Import");
-                    DacFxImportOperation operation = new DacFxImportOperation(parameters, sqlConn);
+                    ImportOperation operation = new ImportOperation(parameters, sqlConn);
                     SqlTask sqlTask = null;
 
                     // create task metadata
@@ -118,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
-                    await requestContext.SendResult(new DacFxImportResult()
+                    await requestContext.SendResult(new ImportResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,
@@ -136,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to extract a dacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleExtractRequest(DacFxExtractParams parameters, RequestContext<DacFxExtractResult> requestContext)
+        public async Task HandleExtractRequest(ExtractParams parameters, RequestContext<ExtractResult> requestContext)
         {
             try
             {
@@ -147,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Extract");
-                    DacFxExtractOperation operation = new DacFxExtractOperation(parameters, sqlConn);
+                    ExtractOperation operation = new ExtractOperation(parameters, sqlConn);
                     SqlTask sqlTask = null;
 
                     // create task metadata
@@ -157,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
-                    await requestContext.SendResult(new DacFxExtractResult()
+                    await requestContext.SendResult(new ExtractResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,
@@ -175,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to deploy a dacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleDeployRequest(DacFxDeployParams parameters, RequestContext<DacFxDeployResult> requestContext)
+        public async Task HandleDeployRequest(DeployParams parameters, RequestContext<DeployResult> requestContext)
         {
             try
             {
@@ -186,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Deploy");
-                    DacFxDeployOperation operation = new DacFxDeployOperation(parameters, sqlConn);
+                    DeployOperation operation = new DeployOperation(parameters, sqlConn);
                     SqlTask sqlTask = null;
 
                     // create task metadata
@@ -197,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
-                    await requestContext.SendResult(new DacFxDeployResult()
+                    await requestContext.SendResult(new DeployResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,

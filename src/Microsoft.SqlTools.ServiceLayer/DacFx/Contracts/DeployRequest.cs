@@ -1,4 +1,8 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -7,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx deploy request.
     /// </summary>
-    public class DacFxDeployParams : IScriptableRequestParams
+    public class DeployParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets dacpac package filepath
@@ -33,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters returned from a DacFx deploy request.
     /// </summary>
-    public class DacFxDeployResult : ResultStatus
+    public class DeployResult : ResultStatus
     {
         public string OperationId { get; set; }
     }
@@ -41,9 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Defines the DacFx deploy request type
     /// </summary>
-    class DacFxDeployRequest
+    class DeployRequest
     {
-        public static readonly RequestType<DacFxDeployParams, DacFxDeployResult> Type =
-            RequestType<DacFxDeployParams, DacFxDeployResult>.Create("dacfx/deploy");
+        public static readonly RequestType<DeployParams, DeployResult> Type =
+            RequestType<DeployParams, DeployResult>.Create("dacfx/deploy");
     }
 }
