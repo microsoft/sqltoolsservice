@@ -1492,6 +1492,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Note: we need to audit all uses of this method to determine why we're
         /// bypassing normal ConnectionService connection management
         /// </summary>
+        /// <param name="connInfo">The connection info to connect with</param>
+        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
+        /// <returns>A SqlConnection created with the given connection info</returns>
         internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
@@ -1545,6 +1548,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// This calls ConnectionService.OpenSqlConnection and then creates a
         /// ServerConnection from it.
         /// </summary>
+        /// <param name="connInfo">The connection info to connect with</param>
+        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
+        /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
         internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
         {
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
