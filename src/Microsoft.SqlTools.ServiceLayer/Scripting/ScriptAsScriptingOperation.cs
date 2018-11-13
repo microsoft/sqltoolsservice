@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
@@ -42,10 +43,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ServerConnection = serverConnection;
         }
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters) : base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
+            if (azureAccountToken != null)
+            {
+                sqlConnection.AccessToken = azureAccountToken;
+            }
+
             ServerConnection = new ServerConnection(sqlConnection);
+            if (azureAccountToken != null)
+            {
+                ServerConnection.AccessToken = new AzureAccessToken(azureAccountToken);
+            }
+
             disconnectAtDispose = true;
         }
 

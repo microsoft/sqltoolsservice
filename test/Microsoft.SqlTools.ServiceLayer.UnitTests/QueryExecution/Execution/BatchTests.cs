@@ -427,7 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
       
         private static DbConnection GetConnection(ConnectionInfo info)
         {
-            return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
+            return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails), null);
         }
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local")]
