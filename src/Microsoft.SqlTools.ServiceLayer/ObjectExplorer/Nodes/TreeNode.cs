@@ -323,10 +323,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 
             SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
             bool includeSystemObjects = context != null && context.Database != null ? DatabaseUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
-            
 
             if (children.IsPopulating || context == null)
-            return;
+            {
+                return;
+            }
 
             children.Clear();
             BeginChildrenInit();

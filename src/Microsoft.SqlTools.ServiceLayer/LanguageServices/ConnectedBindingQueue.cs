@@ -88,9 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Generate a unique key based on the ConnectionInfo object
         /// </summary>
         /// <param name="connInfo"></param>
-        private string GetConnectionContextKey(ConnectionInfo connInfo)
-        {
-            ConnectionDetails details = connInfo.ConnectionDetails;
+        internal static string GetConnectionContextKey(ConnectionDetails details)
+        {            
             string key = string.Format("{0}_{1}_{2}_{3}",
                 details.ServerName ?? "NULL",
                 details.DatabaseName ?? "NULL",
@@ -108,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 key += "_" + details.GroupId;
             }
 
-            return key;
+            return Uri.EscapeUriString(key);
         }
 
         /// <summary>
@@ -158,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public void RemoveBindigContext(ConnectionInfo connInfo)
         {
-            string connectionKey = GetConnectionContextKey(connInfo);
+            string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
             if (BindingContextExists(connectionKey))
             {
                 RemoveBindingContext(connectionKey);
@@ -178,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // lookup the current binding context
-            string connectionKey = GetConnectionContextKey(connInfo);
+            string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
             if (BindingContextExists(connectionKey))
             {
                 if (overwrite)

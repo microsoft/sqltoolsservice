@@ -5,12 +5,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Utility;
-using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Diagnostics;
+using Microsoft.SqlTools.Utility;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {    
@@ -32,6 +35,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private object bindingContextLock = new object();
 
         private Task queueProcessorTask;
+
+        public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
+
+        public event UnhandledExceptionDelegate OnUnhandledException;
 
         /// <summary>
         /// Map from context keys to binding context instances
@@ -351,11 +358,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         Logger.Write(TraceEventType.Error, "Unexpected exception on the binding queue: " + ex.ToString());
                                         if (queueItem.ErrorHandler != null)
                                         {
-                                            result = queueItem.ErrorHandler(ex);
+                                            try
+                                            {
+                                                result = queueItem.ErrorHandler(ex);
+                                            }
+                                            catch (Exception ex2)
+                                            {
+                                                Logger.Write(TraceEventType.Error, "Unexpected exception in binding queue error handler: " + ex2.ToString());
+                                            }
                                         }
+
+                                        if (IsExceptionOfType(ex, typeof(SqlException)) || IsExceptionOfType(ex, typeof(SocketException)))
+                                        {
+                                            if (this.OnUnhandledException != null)
+                                            {
+                                                this.OnUnhandledException(queueItem.Key, ex);
+                                            }
+
+                                            RemoveBindingContext(queueItem.Key);
+                                        }    
                                     }
                                 });
-    
+
                                 Task.Run(() => 
                                 {
                                     try
@@ -371,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                             // if the task didn't complete then call the timeout callback
                                             if (queueItem.TimeoutOperation != null)
-                                            {                                    
+                                            {
                                                 queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                             }
 
@@ -468,6 +492,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
+        }
+        
+        private bool IsExceptionOfType(Exception ex, Type t)
+        {
+            return ex.GetType() == t || (ex.InnerException != null && ex.InnerException.GetType() == t);
         }
     }
 }
