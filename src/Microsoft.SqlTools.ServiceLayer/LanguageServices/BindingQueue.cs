@@ -358,7 +358,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         Logger.Write(TraceEventType.Error, "Unexpected exception on the binding queue: " + ex.ToString());
                                         if (queueItem.ErrorHandler != null)
                                         {
-                                            result = queueItem.ErrorHandler(ex);
+                                            try
+                                            {
+                                                result = queueItem.ErrorHandler(ex);
+                                            }
+                                            catch (Exception ex2)
+                                            {
+                                                Logger.Write(TraceEventType.Error, "Unexpected exception in binding queue error handler: " + ex2.ToString());
+                                            }
                                         }
 
                                         if (IsExceptionOfType(ex, typeof(SqlException)) || IsExceptionOfType(ex, typeof(SocketException)))
