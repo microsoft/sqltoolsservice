@@ -216,10 +216,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         }
 
         /// <summary>
-        /// Verify the export request
+        /// Verify the export bacpac request
         /// </summary>
         [Fact]
-        public async void Export()
+        public async void ExportBacpac()
         {
             Assert.NotNull(await SendAndValidateExportRequest());
         }
@@ -228,34 +228,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         /// Verify the export request being cancelled
         /// </summary>
         [Fact]
-        public async void ExportCancellationTest()
+        public async void ExportBacpacCancellationTest()
         {
             Assert.NotNull(await ValidateExportCancellation());
         }
 
         /// <summary>
-        /// Verify the import request
+        /// Verify the import bacpac request
         /// </summary>
         [Fact]
-        public async void Import()
+        public async void ImportBacpac()
         {
             Assert.NotNull(await SendAndValidateImportRequest());
         }
 
         /// <summary>
-        /// Verify the extract request
+        /// Verify the extract dacpac request
         /// </summary>
         [Fact]
-        public async void Extract()
+        public async void ExtractDacpac()
         {
             Assert.NotNull(await SendAndValidateExtractRequest());
         }
 
         /// <summary>
-        /// Verify the deploy request
+        /// Verify the deploy dacpac request
         /// </summary>
         [Fact]
-        public async void Deploy()
+        public async void DeployDacpac()
         {
             Assert.NotNull(await SendAndValidateDeployRequest());
         }
