@@ -146,8 +146,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else
                     {
-                        // create a new XEvent session and Profiler session
-                        var xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
+                        IXEventSession xeSession = null;
+                        
+                        // first check whether the session with the given name already exists.
+                        // if so skip the creation part. An exception will be thrown if no session with given name can be found,
+                        // and it can be ignored.
+                        try
+                        {
+                            xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                        }
+                        catch { }
+
+                        if (xeSession == null)
+                        {
+                            // create a new XEvent session and Profiler session
+                            xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
+                        }
+
                         // start monitoring the profiler session
                         monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
