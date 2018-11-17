@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                ds.ExportBacpac(this.Parameters.PackageFilePath, "importtest", null, this.CancellationToken);
+                ds.ExportBacpac(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, null, this.CancellationToken);
             }
             catch (Exception e)
             {

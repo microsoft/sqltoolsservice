@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var exportParams = new ExportParams
             {
-                DatabaseName = testdb.DatabaseName,
+                SourceDatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var exportParams = new ExportParams
             {
-                DatabaseName = sourceDb.DatabaseName,
+                SourceDatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", sourceDb.DatabaseName))
             };
 
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var extractParams = new ExtractParams
             {
-                DatabaseName = testdb.DatabaseName,
+                SourceDatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
                 ApplicationName = "test",
                 ApplicationVersion = new Version(1, 0)
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var extractParams = new ExtractParams
             {
-                DatabaseName = sourceDb.DatabaseName,
+                SourceDatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
                 ApplicationVersion = new Version(1, 0)
@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var exportParams = new ExportParams
             {
-                DatabaseName = testdb.DatabaseName,
+                SourceDatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 

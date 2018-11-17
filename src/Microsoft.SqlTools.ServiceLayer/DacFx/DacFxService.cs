@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     TaskMetadata metadata = TaskMetadata.Create(parameters, "Export bacpac", operation, ConnectionServiceInstance);
 
                     // put appropriate database name since connection passed was to master
-                    metadata.DatabaseName = parameters.DatabaseName;
+                    metadata.DatabaseName = parameters.SourceDatabaseName;
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     // create task metadata
                     TaskMetadata metadata = TaskMetadata.Create(parameters, "Extract dacpac", operation, ConnectionServiceInstance);
                     // put appropriate database name since connection passed was to master
-                    metadata.DatabaseName = parameters.DatabaseName;
+                    metadata.DatabaseName = parameters.SourceDatabaseName;
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 

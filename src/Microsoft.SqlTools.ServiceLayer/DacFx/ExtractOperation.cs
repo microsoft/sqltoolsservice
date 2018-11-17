@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                ds.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
+                ds.Extract(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
             }
             catch (Exception e)
             {

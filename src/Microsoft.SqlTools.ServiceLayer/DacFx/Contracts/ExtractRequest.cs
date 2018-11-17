@@ -15,9 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class ExtractParams : IScriptableRequestParams
     {
         /// <summary>
-        /// Gets or sets the target database name the extract operation will run against.
+        /// Gets or sets the database name the extract operation will run against.
         /// </summary>
-        public string DatabaseName { get; set; }
+        public string SourceDatabaseName { get; set; }
 
         /// <summary>
         /// Gets or sets package file path for extracted dacpac
