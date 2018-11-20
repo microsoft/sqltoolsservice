@@ -18,34 +18,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     class ImportOperation : DacFxOperation
     {
         public ImportParams Parameters { get; }
-        private SqlConnection sqlConnection { get; set; }
 
-        public ImportOperation(ImportParams parameters, SqlConnection sqlConnection)
+        public ImportOperation(ImportParams parameters, SqlConnection sqlConnection): base(sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
-            this.sqlConnection = sqlConnection;
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        public override void Execute(DacServices ds)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
-
-            try
-            {
-                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
-                ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
-            }
-            catch (Exception e)
-            {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx import operation {0} failed with exception {1}", this.OperationId, e));
-                throw;
-            }
+            BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
+            ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
         }
     }
 }

@@ -2,9 +2,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading;
 
@@ -25,8 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public SqlTask SqlTask { get; set; }
 
-        protected DacFxOperation()
+        protected SqlConnection sqlConnection { get; set; }
+
+        protected DacFxOperation(SqlConnection sqlConnection)
         {
+            Validate.IsNotNull("sqlConnection", sqlConnection);
+            this.sqlConnection = sqlConnection;
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -67,6 +73,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public abstract void Execute(TaskExecutionMode mode);
+        public void Execute(TaskExecutionMode mode)
+        {
+            if (this.CancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(this.CancellationToken);
+            }
+
+            try
+            {
+                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
+                Execute(ds);
+            }
+            catch (Exception e)
+            {
+                Logger.Write(TraceEventType.Error, string.Format("DacFx import operation {0} failed with exception {1}", this.OperationId, e));
+                throw;
+            }
+        }
+
+        public abstract void Execute(DacServices ds);
     }
 }

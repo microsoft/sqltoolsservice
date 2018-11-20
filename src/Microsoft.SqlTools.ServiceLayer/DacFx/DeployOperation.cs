@@ -18,34 +18,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     class DeployOperation : DacFxOperation
     {
         public DeployParams Parameters { get; }
-        private SqlConnection sqlConnection { get; set; }
 
-        public DeployOperation(DeployParams parameters, SqlConnection sqlConnection)
+        public DeployOperation(DeployParams parameters, SqlConnection sqlConnection) : base(sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
-            this.sqlConnection = sqlConnection;
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        public override void Execute(DacServices ds)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
-
-            try
-            {
-                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-                ds.Deploy(dacpac, this.Parameters.TargetDatabaseName, false, null, this.CancellationToken);
-            }
-            catch (Exception e)
-            {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx deploy operation {0} failed with exception {1}", this.OperationId, e));
-                throw;
-            }
+            DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
+            ds.Deploy(dacpac, this.Parameters.TargetDatabaseName, false, null, this.CancellationToken);
         }
     }
 }

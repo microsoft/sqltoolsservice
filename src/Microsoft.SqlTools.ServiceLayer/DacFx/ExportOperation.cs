@@ -19,33 +19,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public ExportParams Parameters { get; }
 
-        private SqlConnection sqlConnection{ get; set; }
-
-        public ExportOperation(ExportParams parameters, SqlConnection sqlConnection)
+        public ExportOperation(ExportParams parameters, SqlConnection sqlConnection): base(sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
-            this.sqlConnection = sqlConnection;
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        public override void Execute(DacServices ds)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
-
-            try
-            {
-                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                ds.ExportBacpac(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, null, this.CancellationToken);
-            }
-            catch (Exception e)
-            {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx export operation {0} failed with exception {1}", this.OperationId, e));
-                throw;
-            }
+            ds.ExportBacpac(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, null, this.CancellationToken);
         }
     }
 }

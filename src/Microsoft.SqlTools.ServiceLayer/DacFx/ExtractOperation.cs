@@ -18,33 +18,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     class ExtractOperation : DacFxOperation
     {
         public ExtractParams Parameters { get; }
-        private SqlConnection sqlConnection { get; set; }
 
-        public ExtractOperation(ExtractParams parameters, SqlConnection sqlConnection)
+        public ExtractOperation(ExtractParams parameters, SqlConnection sqlConnection): base(sqlConnection)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("sqlConnection", sqlConnection);
             this.Parameters = parameters;
-            this.sqlConnection = sqlConnection;
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        public override void Execute(DacServices ds)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
-
-            try
-            {
-                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                ds.Extract(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
-            }
-            catch (Exception e)
-            {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx extract operation {0} failed with exception {1}", this.OperationId, e));
-                throw;
-            }
+            ds.Extract(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
         }
     }
 }
