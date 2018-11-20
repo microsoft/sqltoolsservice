@@ -25,10 +25,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             this.Parameters = parameters;
         }
 
-        public override void Execute(DacServices ds)
+        public override void Execute()
         {
             BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
-            ds.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
+            this.dacServices.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
         }
     }
 }

@@ -29,6 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         protected SqlConnection sqlConnection { get; set; }
 
+        protected DacServices dacServices { get; set; }
+
         protected DacFxOperation(SqlConnection sqlConnection)
         {
             Validate.IsNotNull("sqlConnection", sqlConnection);
@@ -82,8 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                DacServices ds = new DacServices(this.sqlConnection.ConnectionString);
-                Execute(ds);
+                this.dacServices = new DacServices(this.sqlConnection.ConnectionString);
+                this.dacServices.ProgressChanged += new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
+                Execute();
             }
             catch (Exception e)
             {
@@ -92,6 +95,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public abstract void Execute(DacServices ds);
+        public abstract void Execute();
+
+        protected void DacProgressUpdates(object obj, DacProgressEventArgs args)
+        {
+            switch (args.Status)
+            {
+                case DacOperationStatus.Cancelled:
+                    this.dacServices.ProgressChanged -= new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
+                    break;
+                case DacOperationStatus.Faulted:
+                    this.dacServices.ProgressChanged -= new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
+                    break;
+                case DacOperationStatus.Pending:
+                case DacOperationStatus.Running:
+                    break;
+                case DacOperationStatus.Completed:
+                    this.dacServices.ProgressChanged -= new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
+                    break;
+                default:
+                    Debug.Fail("Unexpected event status");
+                    break;
+            }
+        }
     }
 }
