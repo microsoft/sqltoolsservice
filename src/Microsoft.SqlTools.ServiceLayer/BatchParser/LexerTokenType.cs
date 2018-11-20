@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    internal enum LexerTokenType
+    public enum LexerTokenType
     {
         None,
         Text,

@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Error totalAffectedRows for a Batch
     /// </summary>
-    internal class BatchErrorEventArgs : EventArgs
+    public class BatchErrorEventArgs : EventArgs
     {
         #region Private Fields
         private string message = string.Empty;
@@ -21,20 +21,20 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private Exception exception;
         private SqlError error;
         #endregion
-        
+
         #region Constructors / Destructor
-                
+
         /// <summary>
         /// Default constructor
         /// </summary>
-        private BatchErrorEventArgs()
+        public BatchErrorEventArgs()
         {
         }
 
         /// <summary>
         /// Constructor with message and no description
         /// </summary>
-        internal BatchErrorEventArgs(string message)
+        public BatchErrorEventArgs(string message)
             : this(message, null)
         {
         }
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with exception and no description
         /// </summary>
-        internal BatchErrorEventArgs(string message, Exception ex)
+        public BatchErrorEventArgs(string message, Exception ex)
             : this(message, string.Empty, ex)
         {
         }
@@ -50,12 +50,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with message and description
         /// </summary>
-        internal BatchErrorEventArgs(string message, string description, Exception ex)
+        public BatchErrorEventArgs(string message, string description, Exception ex)
             : this(message, description, -1, new TextSpan(), ex)
         {
         }
 
-        internal BatchErrorEventArgs(string message, SqlError error, TextSpan textSpan, Exception ex)
+        public BatchErrorEventArgs(string message, SqlError error, TextSpan textSpan, Exception ex)
         {
             string desc = error != null ? error.Message : null;
             if (error.Number == 7202)
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with message, description, textspan and line number
         /// </summary>
-        internal BatchErrorEventArgs(string message, string description, int line, TextSpan textSpan, Exception ex)
+        public BatchErrorEventArgs(string message, string description, int line, TextSpan textSpan, Exception ex)
         {
             Init(message, description, line, textSpan, ex);
         }

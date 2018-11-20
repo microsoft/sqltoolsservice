@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    internal enum OnErrorAction
+    public enum OnErrorAction
     {
         Ignore = 0,
         Exit = 1,

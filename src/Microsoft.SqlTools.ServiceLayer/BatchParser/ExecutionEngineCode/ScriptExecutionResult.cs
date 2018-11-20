@@ -8,7 +8,7 @@ using System;
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     [Flags]
-    internal enum ScriptExecutionResult
+    public enum ScriptExecutionResult
     {
         Success = 0x1,
         Failure = 0x2,  
