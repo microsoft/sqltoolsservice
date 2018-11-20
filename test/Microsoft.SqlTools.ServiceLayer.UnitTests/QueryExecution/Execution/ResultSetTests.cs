@@ -386,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)
         {
             var info = Common.CreateTestConnectionInfo(dataSet, false, throwOnRead);
-            var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
+            var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails), null);
             var command = connection.CreateCommand();
             command.CommandText = query;
             return command.ExecuteReader();

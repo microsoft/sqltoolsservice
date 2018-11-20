@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // Stub out the connection to avoid a 30second timeout while attempting to connect.
             // The tests don't need any connection context anyhow so this doesn't impact the scenario
-            mockConnectionOpener.Setup(b => b.OpenSqlConnection(It.IsAny<ConnectionInfo>(), It.IsAny<string>()))
+            mockConnectionOpener.Setup(b => b.OpenServerConnection(It.IsAny<ConnectionInfo>(), It.IsAny<string>()))
                 .Throws<Exception>();
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));

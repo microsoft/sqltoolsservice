@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <param name="connectionString">The connection string used to open the SQL Azure database.</param>
         /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
-        public ReliableSqlConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy)
+        public ReliableSqlConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
         {
             _underlyingConnection = new SqlConnection(connectionString);
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -68,6 +68,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             _underlyingConnection.StateChange += OnConnectionStateChange;
             _connectionRetryPolicy.RetryOccurred += RetryConnectionCallback;
             _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
+
+            if (azureAccountToken != null)
+            {
+                _underlyingConnection.AccessToken = azureAccountToken;
+            }
         }
 
         /// <summary>

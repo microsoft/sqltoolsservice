@@ -21,10 +21,10 @@
 </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0-preview3-27014-02" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
-    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4240.1-preview" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
+	<PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4240.1-preview" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />

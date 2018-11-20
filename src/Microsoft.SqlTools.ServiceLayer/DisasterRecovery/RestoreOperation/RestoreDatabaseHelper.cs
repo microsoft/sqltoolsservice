@@ -213,8 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (connInfo != null)
             {
-                SqlConnection connection = ConnectionService.OpenSqlConnection(connInfo, "Restore");
-                Server server = new Server(new ServerConnection(connection));
+                Server server = new Server(ConnectionService.OpenServerConnection(connInfo, "Restore"));
 
                 RestoreDatabaseTaskDataObject restoreDataObject = new RestoreDatabaseTaskDataObject(server, targetDatabaseName);
                 return restoreDataObject;

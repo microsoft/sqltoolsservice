@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -273,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestSqlConnectionFactory : ISqlConnectionFactory
     {
-        public DbConnection CreateSqlConnection(string connectionString)
+        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken)
         {
             return new TestSqlConnection(null)
             {

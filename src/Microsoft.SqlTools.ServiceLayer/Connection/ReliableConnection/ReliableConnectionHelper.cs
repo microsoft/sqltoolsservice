@@ -46,10 +46,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Opens the connection and sets the lock/command timeout and pooling=false.
         /// </summary>
         /// <returns>The opened connection</returns>
-        public static IDbConnection OpenConnection(SqlConnectionStringBuilder csb, bool useRetry)
+        public static IDbConnection OpenConnection(SqlConnectionStringBuilder csb, bool useRetry, string azureAccountToken)
         {
             csb.Pooling = false;
-            return OpenConnection(csb.ToString(), useRetry);
+            return OpenConnection(csb.ToString(), useRetry, azureAccountToken);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// will assert if pooling!=false.
         /// </summary>
         /// <returns>The opened connection</returns>
-        public static IDbConnection OpenConnection(string connectionString, bool useRetry)
+        public static IDbConnection OpenConnection(string connectionString, bool useRetry, string azureAccountToken)
         {
 #if DEBUG
             try
@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 connectionRetryPolicy = RetryPolicyFactory.CreateNoRetryPolicy();
             }
 
-            ReliableSqlConnection connection = new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy);
+            ReliableSqlConnection connection = new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
 
             try
             {
@@ -136,7 +136,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             SqlConnectionStringBuilder csb,
             Action<IDbConnection> usingConnection,
             Predicate<Exception> catchException,
-            bool useRetry)
+            bool useRetry,
+            string azureAccountToken)
         {
             Validate.IsNotNull(nameof(csb), csb);
             Validate.IsNotNull(nameof(usingConnection), usingConnection);
@@ -145,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             {
                 // Always disable pooling
                 csb.Pooling = false;
-                using (IDbConnection conn = OpenConnection(csb.ConnectionString, useRetry))
+                using (IDbConnection conn = OpenConnection(csb.ConnectionString, useRetry, azureAccountToken))
                 {
                     usingConnection(conn);
                 }
@@ -228,7 +229,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             string commandText,
             Action<IDbCommand> initializeCommand,
             Predicate<Exception> catchException,
-            bool useRetry)
+            bool useRetry,
+            string azureAccountToken)
         {
             object retObject = null;
             OpenConnection(
@@ -238,7 +240,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     retObject = ExecuteNonQuery(connection, commandText, initializeCommand, catchException);
                 },
                 catchException,
-                useRetry);
+                useRetry,
+                azureAccountToken);
 
             return retObject;
         }
@@ -636,7 +639,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <summary>
         /// Returns true if the database is readonly.  This routine will swallow the exceptions you might expect from SQL using StandardExceptionHandler.
         /// </summary>
-        public static bool IsDatabaseReadonly(SqlConnectionStringBuilder builder)
+        public static bool IsDatabaseReadonly(SqlConnectionStringBuilder builder, string azureAccountToken)
         {
             Validate.IsNotNull(nameof(builder), builder);
 
@@ -670,7 +673,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     Logger.Write(TraceEventType.Error, ex.ToString());
                     return StandardExceptionHandler(ex); // handled
                 },
-                useRetry: true);
+                useRetry: true,
+                azureAccountToken: azureAccountToken);
 
             return isDatabaseReadOnly;
         }
@@ -697,7 +701,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string MachineName;
         }
 
-        public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo)
+        public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
         {
             serverInfo = null;
             if (!TryGetConnectionStringBuilder(connectionString, out SqlConnectionStringBuilder builder))
@@ -705,14 +709,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 return false;
             }
 
-            serverInfo = GetServerVersion(builder);
+            serverInfo = GetServerVersion(builder, azureAccountToken);
             return true;
         }
 
         /// <summary>
         /// Returns the version of the server.  This routine will throw if an exception is encountered.
         /// </summary>
-        public static ServerInfo GetServerVersion(SqlConnectionStringBuilder csb)
+        public static ServerInfo GetServerVersion(SqlConnectionStringBuilder csb, string azureAccountToken)
         {
             Validate.IsNotNull(nameof(csb), csb);
             ServerInfo serverInfo = null;
@@ -724,7 +728,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo = GetServerVersion(connection);
                 },
                 catchException: null, // Always throw
-                useRetry: true);
+                useRetry: true,
+                azureAccountToken: azureAccountToken);
 
             return serverInfo;
         }
@@ -1057,7 +1062,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Returns true if the authenticating database is master, otherwise false.  An example of
         /// false is when the user is a contained user connecting to a contained database.
         /// </summary>
-        public static bool IsAuthenticatingDatabaseMaster(SqlConnectionStringBuilder builder)
+        public static bool IsAuthenticatingDatabaseMaster(SqlConnectionStringBuilder builder, string azureAccountToken)
         {
             bool authIsMaster = true;
             OpenConnection(
@@ -1067,7 +1072,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     authIsMaster = IsAuthenticatingDatabaseMaster(connection);
                 },
                 catchException: StandardExceptionHandler, // Don't throw unless it's an unexpected exception
-                useRetry: true);
+                useRetry: true,
+                azureAccountToken: azureAccountToken);
             return authIsMaster;
         }
 

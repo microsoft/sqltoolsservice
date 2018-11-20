@@ -8,10 +8,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -25,8 +27,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlServer.Management.Common;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 this.bindingQueue = value;
             }
-        }
+        }        
 
         /// <summary>
         /// Internal for testing only
@@ -132,6 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
             this.serviceHost = serviceHost;
+
+            this.ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
+
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
@@ -511,8 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 await SendSessionFailedNotification(uri, ex.Message);
                 return null;
             }
-        }
-        
+        }        
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
@@ -550,6 +552,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 SessionId = uri
             };
             await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
+        }
+
+        internal async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
+        {
+            Logger.Write(TraceEventType.Information, $"OE session disconnected: {errorMessage}");
+            SessionDisconnectedParameters result = new SessionDisconnectedParameters()
+            {
+                Success = success,
+                ErrorMessage = errorMessage,
+                SessionId = uri
+            };
+            await serviceHost.SendEvent(SessionDisconnectedNotification.Type, result);
         }
 
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
@@ -627,24 +641,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <remarks>Internal for testing purposes only</remarks>
         internal static string GenerateUri(ConnectionDetails details)
         {
-            Validate.IsNotNull("details", details);
-            string uri = string.Format(CultureInfo.InvariantCulture, "{0}{1}", uriPrefix, Uri.EscapeUriString(details.ServerName));
-            uri = AppendIfExists(uri, "databaseName", details.DatabaseName);
-            uri = AppendIfExists(uri, "user", details.UserName);
-            uri = AppendIfExists(uri, "groupId", details.GroupId);
-            uri = AppendIfExists(uri, "displayName", details.DatabaseDisplayName);
-            return uri;
-        }
+            return ConnectedBindingQueue.GetConnectionContextKey(details);
+        }      
 
-        private static string AppendIfExists(string uri, string propertyName, string propertyValue)
-        {
-            if (!string.IsNullOrEmpty(propertyValue))
-            {
-                uri += string.Format(CultureInfo.InvariantCulture, ";{0}={1}", propertyName, Uri.EscapeUriString(propertyValue));
-            }
-            return uri;
-        }
-        
         public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
         {
             if (ApplicableNodeChildFactories != null)
@@ -742,8 +741,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (bindingQueue != null)
             {
+                bindingQueue.OnUnhandledException -= OnUnhandledException;
                 bindingQueue.Dispose();
+            }            
+        }
+
+        private async void OnUnhandledException(string queueKey, Exception ex)
+        {
+            string sessionUri = LookupUriFromQueueKey(queueKey);
+            if (!string.IsNullOrWhiteSpace(sessionUri))
+            {
+                await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
             }
+        }
+
+        private string LookupUriFromQueueKey(string queueKey)
+        {
+            foreach (var session in this.sessionMap.Values)
+            {
+                var connInfo = session.ConnectionInfo;
+                if (connInfo != null)
+                {
+                    string currentKey = ConnectedBindingQueue.GetConnectionContextKey(connInfo.ConnectionDetails);
+                    if (queueKey == currentKey)
+                    {
+                        return session.Uri;
+                    }
+                }
+            }
+            return string.Empty;
         }
 
         internal class ObjectExplorerSession
