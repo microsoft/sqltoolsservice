@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     [System.Flags]
-    internal enum ShowPlanType
+    public enum ShowPlanType
     {
         None = 0x0,
         ActualExecutionShowPlan = 0x1,

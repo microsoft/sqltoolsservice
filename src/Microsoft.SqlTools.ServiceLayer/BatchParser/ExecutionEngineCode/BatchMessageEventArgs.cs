@@ -11,25 +11,25 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Event args for notification about non-error message
     /// </summary>
-    internal class BatchMessageEventArgs : EventArgs
+    public class BatchMessageEventArgs : EventArgs
     {
         private readonly string message = string.Empty;
         private readonly string detailedMessage = string.Empty;
         private readonly SqlError error;
-                
-        private BatchMessageEventArgs()
+
+        public BatchMessageEventArgs()
         {
         }
 
-        internal BatchMessageEventArgs(string msg)
+        public BatchMessageEventArgs(string msg)
             : this(string.Empty, msg)
         {            
         }
 
-        internal BatchMessageEventArgs(string detailedMsg, string msg) : this(detailedMsg, msg, null)
+        public BatchMessageEventArgs(string detailedMsg, string msg) : this(detailedMsg, msg, null)
         {
         }
-        internal BatchMessageEventArgs(string detailedMsg, string msg, SqlError error)
+        public BatchMessageEventArgs(string detailedMsg, string msg, SqlError error)
         {
             message = msg;
             detailedMessage = detailedMsg;
