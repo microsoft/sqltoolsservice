@@ -6,7 +6,7 @@
     <Product>Microsoft SQL Server</Product>
   </PropertyGroup>
   <PropertyGroup>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>1.1.2</VersionPrefix>
     <VersionSuffix></VersionSuffix>
   </PropertyGroup>
   <PropertyGroup>
