@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            this.dacServices.Deploy(dacpac, this.Parameters.TargetDatabaseName, false, null, this.CancellationToken);
+            this.dacServices.Deploy(dacpac, this.Parameters.TargetDatabaseName, this.Parameters.UpgradeExisting, null, this.CancellationToken);
         }
     }
 }

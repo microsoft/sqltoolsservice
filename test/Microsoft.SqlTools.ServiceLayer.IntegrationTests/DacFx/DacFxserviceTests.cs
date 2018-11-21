@@ -160,7 +160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var deployParams = new DeployParams
             {
                 PackageFilePath = extractParams.PackageFilePath,
-                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed")
+                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
+                UpgradeExisting = false
             };
 
             DeployOperation deployOperation = new DeployOperation(deployParams, sqlConn);

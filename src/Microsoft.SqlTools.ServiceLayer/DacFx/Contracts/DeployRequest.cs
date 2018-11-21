@@ -24,6 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string TargetDatabaseName { get; set; }
 
         /// <summary>
+        /// Gets or sets if upgrading existing database
+        /// </summary>
+        public bool UpgradeExisting { get; set; }
+
+        /// <summary>
         /// Connection uri
         /// </summary>
         public string OwnerUri { get; set; }
