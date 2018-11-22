@@ -104,9 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             resultSet.ReadResultToEnd(mockReader, CancellationToken.None).Wait();
 
             Thread.Yield();
-            // Wait for threads to finish.
-            //
-            //Thread.Sleep(4000); // DevNote: ArvRan - I am not clear as to why this is needed but I was not able to track it down, so postponing that for now
 
             // Then:
             // ... The columns should be set

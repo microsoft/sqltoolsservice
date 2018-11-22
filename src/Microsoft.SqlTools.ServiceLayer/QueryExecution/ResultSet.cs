@@ -142,12 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task ResultSetAsyncEventHandler(ResultSet resultSet);
 
         /// <summary>
-        /// An empty handler so the corresponds events are always initialized
-        /// </summary>
-        /// <param name="resultSet">The result set that completed</param>
-        //public readonly ResultSetAsyncEventHandler ResultSetEmptycEventHandler = async r => { };
-
-        /// <summary>
         /// Event that will be called when the result set has completed execution
         /// </summary>
         public event ResultSetAsyncEventHandler ResultCompletion;

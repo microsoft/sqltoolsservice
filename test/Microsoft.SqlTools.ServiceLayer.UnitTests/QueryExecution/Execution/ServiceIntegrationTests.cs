@@ -633,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             string GetResultSetKey(ResultSetSummary summary)
             {
-                return $"BatchId:{summary.BatchId}, ResultId:{summary.Id}, Special Action:{summary.SpecialAction}";
+                return $"BatchId:{summary.BatchId}, ResultId:{summary.Id}";
             }
 
             // Separate the result set resultSetEventParamsList by batchid, resultsetid and by resultseteventtype.
@@ -681,13 +681,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             switch (resultSetEventParams.GetType().Name)
             {
                 case nameof(ResultSetAvailableEventParams):
-                    // Verify that the availableEvent is the first and only one of this type in the sequence. Since we set lastResultSetSummary on each available or updatedEvent, we check that there has been no lastResultSetSummary previously set yet.
-                    //
-                    Assert.True(null == lastResultSetSummary,
-                          $"AvailableResultSet was not found to be the first message received for {batchIdResultSetId}"
-                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
-                     );
-
                     // Save the lastResultSetSummary for this event for other verifications.
                     //
                     lastResultSetSummary = resultSetEventParams.ResultSetSummary;
