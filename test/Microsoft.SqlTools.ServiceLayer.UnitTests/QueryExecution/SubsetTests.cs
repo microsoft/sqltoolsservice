@@ -33,12 +33,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a result set and I ask for a subset with valid arguments
             ResultSet rs = b.ResultSets.First();
-            ResultSetSubset subset = rs.GetSubset(startRow, rowCount).Result;
+            var getSubsetTask = rs.GetSubset(startRow, rowCount);
+            getSubsetTask.Wait(); // wait for task to complete
+            ResultSetSubset subset = getSubsetTask.Result;
 
             // Then:
             // ... I should get the requested number of rows back
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
         }
 
         [Theory]
@@ -82,12 +84,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Batch b = Common.GetBasicExecutedBatch();
 
             // ... And I ask for a subset with valid arguments
-            ResultSetSubset subset = b.GetSubset(0, 0, rowCount).Result;
+            var task = b.GetSubset(0, 0, rowCount);
+            task.Wait(); // wait for task to complete
+            ResultSetSubset subset = task.Result;
 
             // Then:
             // I should get the requested number of rows
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
         }
 
         [Theory]

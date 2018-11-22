@@ -7,34 +7,61 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
-    /// Parameters to return when a result set is started or completed
+    /// Base class of parameters to return when a result set is available, updated or completed
     /// </summary>
-    public class ResultSetEventParams
+    public abstract class ResultSetEventParams
     {
         public ResultSetSummary ResultSetSummary { get; set; }
 
         public string OwnerUri { get; set; }
     }
 
-    public class ResultSetCompleteEvent
+    /// <summary>
+    /// Parameters to return when a result set is completed.
+    /// </summary>
+    public class ResultSetCompleteEventParams : ResultSetEventParams
     {
-        public static readonly
-            EventType<ResultSetEventParams> Type =
-            EventType<ResultSetEventParams>.Create("query/resultSetComplete");
     }
 
-    public class ResultSetAvailableEvent
+    /// <summary>
+    /// Parameters to return when a result set is available.
+    /// </summary>
+    public class ResultSetAvailableEventParams : ResultSetEventParams
     {
-        public static readonly
-            EventType<ResultSetEventParams> Type =
-            EventType<ResultSetEventParams>.Create("query/resultSetAvailable");
     }
 
-    public class ResultSetUpdatedEvent
+    /// <summary>
+    /// Parameters to return when a result set is updated
+    /// </summary>
+    public class ResultSetUpdatedEventParams : ResultSetEventParams
     {
+    }
+
+    public class ResultSetCompleteEvent 
+    {
+        public static string MethodName { get; } = "query/resultSetComplete";
+
         public static readonly
-            EventType<ResultSetEventParams> Type =
-            EventType<ResultSetEventParams>.Create("query/resultSetUpdated");
+            EventType<ResultSetCompleteEventParams> Type =
+            EventType<ResultSetCompleteEventParams>.Create(MethodName);
+    }
+
+    public class ResultSetAvailableEvent 
+    {
+        public static string MethodName { get; } = "query/resultSetAvailable";
+
+        public static readonly
+            EventType<ResultSetAvailableEventParams> Type =
+            EventType<ResultSetAvailableEventParams>.Create(MethodName);
+    }
+
+    public class ResultSetUpdatedEvent 
+    {
+        public static string MethodName { get; } = "query/resultSetUpdated";
+
+        public static readonly
+            EventType<ResultSetUpdatedEventParams> Type =
+            EventType<ResultSetUpdatedEventParams>.Create(MethodName);
     }
 
 }

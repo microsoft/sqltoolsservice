@@ -1,4 +1,5 @@
 ﻿// 
+// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -77,12 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Row count to use in special scenarios where we want to override the number of rows.
         /// </summary>
-        private long? rowCountOverride;
-
-        /// <summary>
-        /// Row count to reported as available
-        /// </summary>
-        private long? rowCountReported = 0;
+        private long? rowCountOverride=null;
 
         /// <summary>
         /// The special action which applied to this result set
@@ -97,9 +93,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         internal readonly Timer resultsTimer;
 
-
-        // Set as internal in order to await completion in unit tests.
-        internal Task ResultsTask;
         #endregion
 
         /// <summary>
@@ -124,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             hasStartedRead = false;
             hasCompletedRead = false;
             SaveTasks = new ConcurrentDictionary<string, Task>();
-            resultsTimer = new Timer(new TimerCallback(SendResultAvailableOrUpdated), this, MinResultTimerPulseMilliseconds, Timeout.Infinite);
+            resultsTimer = new Timer(SendResultAvailableOrUpdated);
         }
 
         #region Eventing
@@ -192,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The number of rows for this result set
         /// </summary>
-        public long RowCount => rowCountOverride ?? fileOffsets.Count;
+        public long RowCount => rowCountOverride != null ? Math.Min(rowCountOverride.Value, fileOffsets.Count) : fileOffsets.Count;
 
         /// <summary>
         /// All save tasks currently saving this ResultSet
@@ -323,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
-            // Process the action just incase is hasn't been yet 
+            // Process the action just in case it hasn't been yet 
             ProcessSpecialAction();
 
             // Sanity check to make sure that results read has started
@@ -370,6 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we got a reader
+            //
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
 
             try
@@ -380,35 +374,54 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 StorageDataReader dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
+                //
                 var fileWriter = fileStreamFactory.GetWriter(outputFileName);
                 using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
+                    //
                     if (!dataReader.DbDataReader.CanGetColumnSchema())
                     {
                         throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                     }
                     Columns = dataReader.Columns;
+                    // Check if result set is 'for xml/json'. If it is, set isJson/isXml value in column metadata
+                    //
+                    SingleColumnXmlJsonResultSet();
+
                     // Mark that read of result has started
+                    //
                     hasStartedRead = true;
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
+
+                        //  If we have never triggered the timer to start sending the results available/updated notification 
+                        //   then:  Trigger the timer to start sending results update notification
+                        //
+                        if (LastUpdatedSummary == null)
+                        {
+                            // Invoke the timer to send available/update result set notification immediately
+                            //
+                            resultsTimer.Change(0, Timeout.Infinite);
+                        }
                     }
+                    CheckForIsJson();
                 }
-                // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
-                SingleColumnXmlJsonResultSet();
-                CheckForIsJson();
             }
             finally
             {
                 hasCompletedRead = true; // set the flag to indicate that we are done reading
-                // Make a final call to ResultUpdated and send ResultCompletion concurrently and then wait for those both to complete
-                await Task.WhenAll(
-                    Task.Run(() => SendResultAvailableOrUpdated()),
-                    ResultCompletion?.Invoke(this) ?? Task.CompletedTask
-                );
+
+                // Make a final call to ResultUpdated by invoking the timer to send update result set notification immediately
+                //
+                resultsTimer.Change(0, Timeout.Infinite);
+
+                // and finally:
+                // Make a call to send ResultCompletion and await for it to Complete
+                //
+                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
             }
         }
 
@@ -608,86 +621,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="stateInfo"></param>
         private async void SendResultAvailableOrUpdated (object stateInfo = null)
         {
-            if (ResultsTask == null)
+            ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+            if (LastUpdatedSummary == null)   // We need to send results available message.
             {
-                if (RowCount > 0)
+                // Fire off results Available task and await for it complete
+                //
+                await (ResultAvailable?.Invoke(currentResultSetSnapshot) ?? Task.CompletedTask);
+                ResultAvailable = null; // set this to null as we need to call ResultAvailable only once
+            }
+            else  // We need to send results updated message.
+            {
+                // Previously reported rows should be less than or equal to current number of row about to be reported
+                //
+                    Debug.Assert(LastUpdatedSummary.RowCount <= currentResultSetSnapshot.RowCount, $"Already reported rows should not be greater than total RowCount, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
+
+                // If there has been no change in rowCount since last update and we are not done yet then log and increase the timer duration
+                //
+                if (!currentResultSetSnapshot.hasCompletedRead && LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)
                 {
-                    // Fire off results Available after 1st row processed asynchronously without waiting for it complete
-                    rowCountReported = RowCount;
-                    ResultsTask = ResultAvailable?.Invoke(this) ?? Task.CompletedTask;
-                }
-                else
-                {
-                    Logger.Write(TraceEventType.Warning, $"The result set:{Summary} has not fetched any rows in last {ResultTimerInterval} milliseconds!");
+                    Logger.Write(TraceEventType.Warning, $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of resultset is not completed yet!");
                     ResultsIntervalMultiplier++;
-                    resultsTimer.Change(ResultTimerInterval, Timeout.Infinite);
                 }
+
+                // Fire off results updated task and await for it complete
+                //
+                await (ResultUpdated?.Invoke(currentResultSetSnapshot) ?? Task.CompletedTask);
+
             }
-            else if (ResultsTask.IsCompleted)
-            {
-                // We can send results updated message.
-                Debug.Assert(rowCountReported <= RowCount, "Already reported rows should not be greater than total RowCount");
-                if (rowCountReported < RowCount)
-                {
-                    // Fire off results updated task asynchronously without waiting for it complete
-                    rowCountReported = RowCount;
-                    ResultsTask = ResultUpdated?.Invoke(this) ?? Task.CompletedTask;
-                }
-                else // This implies rowCountReported = RowCount
-                {
-                    if (!hasCompletedRead)
-                    {
-                        Logger.Write(TraceEventType.Warning, $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of resultset is not completed yet!");
-                        ResultsIntervalMultiplier++;
-                    }
-                }
-            }
-            else
-            {
-                Logger.Write(TraceEventType.Warning, $"Timer to update result fired when previous task results available has not yet completed.");
-                await ResultsTask; //wait for the previous task to complete instead of firing a new one.
-                ResultsIntervalMultiplier++;
-            }
+
+            // Update the LastUpdatedSummary to be the value captured in current snapshot
+            //
+            LastUpdatedSummary = currentResultSetSnapshot.Summary;
 
             // Setup timer for the next callback
-            if (hasCompletedRead)
+            if (currentResultSetSnapshot.hasCompletedRead)
             {
                 //If we have already completed reading then we are done and we do not need to send any more updates. Switch off timer.
-                resultsTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-            else
-            {
-                resultsTimer.Change(ResultTimerInterval, Timeout.Infinite);
-            }
-        }
-
-        private async void SendResultUpdated()
-        {
-            if (ResultsTask?.IsCompleted ?? false)
-            {
-                Debug.Assert(rowCountReported <= RowCount, "Already reported rows should not be greater than total RowCount");
-                if (rowCountReported < RowCount)
-                {
-                    await (ResultUpdated?.Invoke(this) ?? Task.CompletedTask);
-                }
-                else // This implies rowCountReported = RowCount
-                {
-                    if (!hasCompletedRead)
-                    {
-                        Logger.Write(TraceEventType.Warning, $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of resultset is not completed yet!");
-                    }
-
-                }
-                rowCountReported = RowCount;
-            }
-            else
-            {
-                Logger.Write(TraceEventType.Warning, $"Timer to update result fired when results available has not yet completed.");
-                ResultsIntervalMultiplier++;
-            }
-            if (hasCompletedRead)
-            {
-                //If we have already completed reading then we are done and we do not need to send any more updates. Switch off timer.
+                //
                 resultsTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
             else
@@ -700,6 +670,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         internal uint ResultTimerInterval => Math.Max(Math.Min(MaxResultsTimerPulseMilliseconds, (uint)RowCount / 500 /* 1 millisec per 500 rows*/), MinResultTimerPulseMilliseconds * ResultsIntervalMultiplier);
 
+        internal ResultSetSummary LastUpdatedSummary { get; set; } = null;
+
         /// <summary>
         /// If the result set represented by this class corresponds to a single XML
         /// column that contains results of "for xml" query, set isXml = true 
@@ -709,7 +681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void SingleColumnXmlJsonResultSet()
         {
 
-            if (Columns?.Length == 1 && RowCount != 0)
+            if (Columns?.Length == 1)
             {
                 if (Columns[0].ColumnName.Equals(NameOfForXmlColumn, StringComparison.Ordinal))
                 {

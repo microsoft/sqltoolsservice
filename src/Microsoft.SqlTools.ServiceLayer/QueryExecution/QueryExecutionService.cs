@@ -183,9 +183,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup actions to perform upon successful start and on failure to start
             Func<Query, Task<bool>> queryCreateSuccessAction = async q => {
                 await requestContext.SendResult(new ExecuteRequestResult());
+                Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
                 return true;
             };
-            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+            Func<string, Task> queryCreateFailureAction = message =>
+            {
+                Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                return requestContext.SendError(message);
+            };
 
             // Use the internal handler to launch the query
             return InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
@@ -321,6 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ResultSubset = subset
                 };
                 await requestContext.SendResult(result);
+                Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
             }
             catch (Exception e)
             {
@@ -719,7 +725,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet available callback
             ResultSet.ResultSetAsyncEventHandler resultAvailableCallback = async r =>
             {
-                ResultSetEventParams eventParams = new ResultSetEventParams
+                ResultSetAvailableEventParams eventParams = new ResultSetAvailableEventParams
                 {
                     ResultSetSummary = r.Summary,
                     OwnerUri = ownerUri
@@ -733,7 +739,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet updated callback
             ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
             {
-                ResultSetEventParams eventParams = new ResultSetEventParams
+                ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
                 {
                     ResultSetSummary = r.Summary,
                     OwnerUri = ownerUri
@@ -747,7 +753,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCompleteCallback = async r =>
             {
-                ResultSetEventParams eventParams = new ResultSetEventParams
+                ResultSetCompleteEventParams eventParams = new ResultSetCompleteEventParams
                 {
                     ResultSetSummary = r.Summary,
                     OwnerUri = ownerUri
