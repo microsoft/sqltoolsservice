@@ -44,7 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 PacketSize = details.PacketSize,
                 TypeSystemVersion = details.TypeSystemVersion,
                 ConnectionString = details.ConnectionString,
-                Port = details.Port
+                Port = details.Port,
+                AzureAccountToken = details.AzureAccountToken
             };
         }
     }

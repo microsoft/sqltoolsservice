@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         private static DbDataReader GetReader(TestResultSet[] dataSet, string query)
         {
             var info = Common.CreateTestConnectionInfo(dataSet, false, false);
-            var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
+            var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails), null);
             var command = connection.CreateCommand();
             command.CommandText = query;
             return command.ExecuteReader();

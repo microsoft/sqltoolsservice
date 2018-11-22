@@ -497,6 +497,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        public string AzureAccountToken
+        {
+            get
+            {
+                return GetOptionValue<string>("azureAccountToken");
+            }
+            set
+            {
+                SetOptionValue("azureAccountToken", value);
+            }
+        }
+
         public bool IsComparableTo(ConnectionDetails other)
         {
             if (other == null)
@@ -506,7 +518,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
             if (ServerName != other.ServerName
                 || AuthenticationType != other.AuthenticationType
-                || UserName != other.UserName)
+                || UserName != other.UserName
+                || AzureAccountToken != other.AzureAccountToken)
             {
                 return false;
             }
