@@ -625,10 +625,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             else  // We need to send results updated message.
             {
-                // Previously reported rows should be less than or equal to current number of row about to be reported
-                //
-                    Debug.Assert(LastUpdatedSummary.RowCount <= currentResultSetSnapshot.RowCount, $"Already reported rows should not be greater than total RowCount, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
-
                 // If there has been no change in rowCount since last update and we are not done yet then log and increase the timer duration
                 //
                 if (!currentResultSetSnapshot.hasCompletedRead && LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)

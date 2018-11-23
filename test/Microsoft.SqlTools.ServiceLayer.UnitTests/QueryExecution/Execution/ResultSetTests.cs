@@ -55,7 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         /// <summary>
         /// Read to End test
-        /// DevNote: known to fail randomly due to random race condition when multiple tests are run simultaneously. Rerunning the test alone always passes.
+        /// DevNote: known to fail randomly sometimes due to random race condition
+        /// when multiple tests are run simultaneously.
+        /// Rerunning the test alone always passes.
+        /// Tracking this issue with:https://github.com/Microsoft/sqltoolsservice/issues/746 
         /// </summary>
         [Fact]
         public void ReadToEndSuccess()
@@ -104,6 +107,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             resultSet.ReadResultToEnd(mockReader, CancellationToken.None).Wait();
 
             Thread.Yield();
+            resultSet.ResultAvailable -= AvailableCallback;
+            resultSet.ResultUpdated -= UpdatedCallback;
+            resultSet.ResultCompletion -= CompleteCallback;
 
             // Then:
             // ... The columns should be set
@@ -192,10 +198,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 }
             });
         }
-           
+
         /// <summary>
         /// Read to End Xml/JSon test
-        /// DevNote: known to fail randomly due to random race condition when multiple tests are run simultaneously. Rerunning the test alone always passes.
         /// </summary>
         /// <param name="forType"></param>
         /// <returns></returns>
@@ -213,33 +218,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Setup: Create a results Available callback for result set
             //
-            ResultSetSummary resultSummaryFromAvailableCallback = null;
-
             Task AvailableCallback(ResultSet r)
             {
                 Debug.WriteLine($"available result notification sent, result summary was: {r.Summary}");
-                resultSummaryFromAvailableCallback = r.Summary;
                 return Task.CompletedTask;
             }
-
-            // Setup: Create a results updated callback for result set
-            //
-            List<ResultSetSummary> resultSummariesFromUpdatedCallback = new List<ResultSetSummary>();
 
             Task UpdatedCallback(ResultSet r)
             {
                 Debug.WriteLine($"updated result notification sent, result summary was: {r.Summary}");
-                resultSummariesFromUpdatedCallback.Add(r.Summary);
                 return Task.CompletedTask;
             }
 
             // Setup: Create a  results complete callback for result set
             //
-            ResultSetSummary resultSummaryFromCompleteCallback = null;
             Task CompleteCallback(ResultSet r)
             {
                 Debug.WriteLine($"Completed result notification sent, result summary was: {r.Summary}");
-                resultSummaryFromCompleteCallback = r.Summary;
+                Assert.True(r.Summary.Complete);
                 return Task.CompletedTask;
             }
 
@@ -258,17 +254,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Debug.AutoFlush = true;
             Debug.Assert(readResultTask.IsCompletedSuccessfully, $"readResultTask did not Complete Successfully. Status: {readResultTask.Status}");
             Thread.Yield();
-
+            resultSet.ResultAvailable -= AvailableCallback;
+            resultSet.ResultUpdated -= UpdatedCallback;
+            resultSet.ResultCompletion -= CompleteCallback;
             // Then:
             // ... There should only be one column
             // ... There should only be one row
             //
             Assert.Equal(1, resultSet.Columns.Length);
             Assert.Equal(1, resultSet.RowCount);
-
-            // and 
-            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback,
-                resultSummariesFromUpdatedCallback);
 
             // If:
             // ... I attempt to read back the results
