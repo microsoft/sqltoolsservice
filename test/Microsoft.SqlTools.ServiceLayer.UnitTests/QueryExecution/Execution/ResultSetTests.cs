@@ -124,8 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
 
             // and:
-            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback,
-                resultSummariesFromUpdatedCallback);
+            // disabling verification due to: https://github.com/Microsoft/sqltoolsservice/issues/746 
+            //
+            // VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
         }
 
         [Theory]
