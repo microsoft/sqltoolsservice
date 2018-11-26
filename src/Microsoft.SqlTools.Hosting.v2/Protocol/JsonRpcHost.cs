@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     catch (Exception e)
                     {
                         // Log the error and send an error event to the client
-                        string message = string.Format("Exception occurred while receiving input message: {0}", e.Message);
+                        string message = $"Exception occurred while receiving input message: {e.Message}";
                         Logger.Write(TraceEventType.Error, message);
 
                         // TODO: Add event to output queue, and unit test it
@@ -296,8 +296,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     }
 
                     // Verbose logging
-                    string logMessage = string.Format("Received message of type[{0}] and method[{1}]",
-                        incomingMessage.MessageType, incomingMessage.Method);
+                    string logMessage =
+                        $"Received message with Id[{incomingMessage.Id}] of type[{incomingMessage.MessageType}] and method[{incomingMessage.Method}]";
                     Logger.Write(TraceEventType.Verbose, logMessage);
 
                     // Process the message
@@ -309,8 +309,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     {
                         // Method could not be handled, if the message was a request, send an error back to the client
                         // TODO: Localize
-                        string mnfLogMessage = string.Format("Failed to find method handler for type[{0}] and method[{1}]",
-                            incomingMessage.MessageType, incomingMessage.Method);
+                        string mnfLogMessage =
+                            $"Failed to find method handler for type[{incomingMessage.MessageType}] and method[{incomingMessage.Method}]";
                         Logger.Write(TraceEventType.Warning, mnfLogMessage);
 
                         if (incomingMessage.MessageType == MessageType.Request)
@@ -324,8 +324,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     catch (Exception e)
                     {
                         // General errors should be logged but not halt the processing loop
-                        string geLogMessage = string.Format("Exception thrown when handling message of type[{0}] and method[{1}]: {2}",
-                            incomingMessage.MessageType, incomingMessage.Method, e);
+                        string geLogMessage =
+                            $"Exception thrown when handling message of type[{incomingMessage.MessageType}] and method[{incomingMessage.Method}]: {e}";
                         Logger.Write(TraceEventType.Error, geLogMessage);
                         // TODO: Should we be returning a response for failing requests?
                     }

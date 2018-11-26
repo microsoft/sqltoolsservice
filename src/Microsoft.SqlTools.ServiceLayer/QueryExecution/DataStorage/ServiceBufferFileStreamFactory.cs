@@ -34,24 +34,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         /// <summary>
         /// Creates a new <see cref="ServiceBufferFileStreamReader"/> for reading values back from
-        /// an SSMS formatted buffer file
+        /// an SSMS formatted buffer file, file share is ReadWrite to allow concurrent reads/writes to the file.
         /// </summary>
         /// <param name="fileName">The file to read values from</param>
         /// <returns>A <see cref="ServiceBufferFileStreamReader"/></returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read), ExecutionSettings);
+            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), ExecutionSettings);
         }
 
         /// <summary>
         /// Creates a new <see cref="ServiceBufferFileStreamWriter"/> for writing values out to an
-        /// SSMS formatted buffer file
+        /// SSMS formatted buffer file, file share is ReadWrite to allow concurrent reads/writes to the file.
         /// </summary>
         /// <param name="fileName">The file to write values to</param>
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), ExecutionSettings);
+            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite), ExecutionSettings);
         }
 
         /// <summary>

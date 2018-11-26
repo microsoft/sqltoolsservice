@@ -922,7 +922,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection
             }
 
             string[] results;
-            var systemDBSet = new HashSet<string>(new[] {"master", "model", "msdb", "tempdb"});
+            var systemDBSet = new HashSet<string>(new[] {"master", "model", "msdb", "tempdb", "DWConfiguration", "DWDiagnostics", "DWQueue"});
             if (includeSystemDBs)
             {
                 // Put system databases at the top of the list

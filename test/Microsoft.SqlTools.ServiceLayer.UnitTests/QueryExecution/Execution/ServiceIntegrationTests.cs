@@ -4,9 +4,13 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -14,7 +18,9 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
+using NUnit.Framework;
 using Xunit;
+using Assert = Xunit.Assert;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
@@ -265,14 +271,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             // If:
             // ... I request to execute a valid query with results
-            var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
+          var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
+            List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
-                .AddStandardResultSetValidator()
+                .AddResultSetValidator(ResultSetAvailableEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
@@ -281,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... All events should have been called as per their flow validator
-            efv.Validate();
+            efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -297,11 +306,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = Common.GetPrimedExecutionService(dataset, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
+            List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
-                .AddStandardResultSetValidator()
-                .AddStandardResultSetValidator()
+                .AddResultSetValidator(ResultSetAvailableEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
@@ -324,14 +335,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
+            List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
-                .AddStandardResultSetValidator()
+                .AddResultSetValidator(ResultSetAvailableEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddStandardResultSetValidator()
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(2)
@@ -448,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
-            // ... Am error should have been sent
+            // ... An error should have been sent
             efv.Validate();
 
             // ... There should not be an active query
@@ -603,15 +616,118 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             });
         }
 
-        public static EventFlowValidator<TRequestContext> AddStandardResultSetValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
+        public static EventFlowValidator<TRequestContext> AddResultSetValidator<TRequestContext, T>(
+            this EventFlowValidator<TRequestContext> efv, EventType<T> expectedEvent, List<ResultSetEventParams> resultSetEventParamList = null) where T : ResultSetEventParams
         {
-            return efv.AddEventValidation(ResultSetCompleteEvent.Type, p =>
+            return efv.SetupCallbackOnMethodSendEvent(expectedEvent, (p) =>
             {
                 // Validate OwnerURI and summary are returned
                 Assert.Equal(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.ResultSetSummary);
+                resultSetEventParamList?.Add(p);
             });
+        }
+
+        public static EventFlowValidator<TRequestContext> ValidateResultSetSummaries<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv, List<ResultSetEventParams> resultSetEventParamList)
+        {
+            string GetResultSetKey(ResultSetSummary summary)
+            {
+                return $"BatchId:{summary.BatchId}, ResultId:{summary.Id}";
+            }
+
+            // Separate the result set resultSetEventParamsList by batchid, resultsetid and by resultseteventtype.
+            ConcurrentDictionary<string, List<ResultSetEventParams>> resultSetDictionary =
+                new ConcurrentDictionary<string, List<ResultSetEventParams>>();
+
+            foreach (var resultSetEventParam in resultSetEventParamList)
+            {
+                resultSetDictionary
+                    .GetOrAdd(GetResultSetKey(resultSetEventParam.ResultSetSummary), (key) => new List<ResultSetEventParams>())
+                    .Add(resultSetEventParam);
+            }
+
+            foreach (var (key, list) in resultSetDictionary)
+            {
+                ResultSetSummary  completeSummary = null, lastResultSetSummary = null;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    VerifyResultSummary(key, i, list, ref completeSummary, ref lastResultSetSummary);
+                }
+
+                // Verify that the completeEvent and lastResultSetSummary has same number of rows 
+                //
+                if (lastResultSetSummary != null && completeSummary != null)
+                {
+                    Assert.True(lastResultSetSummary.RowCount == completeSummary.RowCount, "CompleteSummary and last Update Summary should have same number of rows");
+                }
+            }
+
+
+            return efv;
+        }
+
+        /// <summary>
+        /// Verifies that a ResultSummary at a given position as expected within the list of ResultSummary items
+        /// </summary>
+        /// <param name="batchIdResultSetId">The batchId and ResultSetId for this list of events</param>
+        /// <param name="position">The position with resultSetEventParamsList that we are verifying in this call<</param>
+        /// <param name="resultSetEventParamsList">The list of resultSetParams that we are verifying</param>
+        /// <param name="completeSummary"> This should be null when we start validating the list of ResultSetEventParams</param>
+        /// <param name="lastResultSetSummary"> This should be null when we start validating the list of ResultSetEventParams</param>
+        private static void VerifyResultSummary(string batchIdResultSetId, int position, List<ResultSetEventParams> resultSetEventParamsList, ref ResultSetSummary completeSummary, ref ResultSetSummary lastResultSetSummary)
+        {
+            ResultSetEventParams resultSetEventParams = resultSetEventParamsList[position];
+            switch (resultSetEventParams.GetType().Name)
+            {
+                case nameof(ResultSetAvailableEventParams):
+                    // Save the lastResultSetSummary for this event for other verifications.
+                    //
+                    lastResultSetSummary = resultSetEventParams.ResultSetSummary;
+                    break;
+                case nameof(ResultSetUpdatedEventParams):
+                    // Verify that the updateEvent is not the first in the sequence. Since we set lastResultSetSummary on each available or updatedEvent, we check that there has been no lastResultSetSummary previously set yet.
+                    //
+                    Assert.True(null != lastResultSetSummary,
+                        $"UpdateResultSet was found to be the first message received for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                    );
+
+                    // Verify that the number of rows in the current updatedSummary is >= those in the lastResultSetSummary
+                    //
+                    Assert.True(resultSetEventParams.ResultSetSummary.RowCount >= lastResultSetSummary.RowCount,
+                        $"UpdatedResultSetSummary at position: {position} has less rows than LastUpdatedSummary (or AvailableSummary) received for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                        + $"\r\n\t\t LastUpdatedSummary (or Available):{lastResultSetSummary}"
+                        + $"\r\n\t\t UpdatedResultSetSummary:{resultSetEventParams.ResultSetSummary}");
+
+                    // Save the lastResultSetSummary for this event for other verifications.
+                    //
+                    lastResultSetSummary = resultSetEventParams.ResultSetSummary;
+                    break;
+                case nameof(ResultSetCompleteEventParams):
+                    // Verify that there is only one completeEvent
+                    //
+                    Assert.True(null == completeSummary,
+                          $"CompleteResultSet was received multiple times for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                        );
+
+                    // Save the completeSummary for this event for other verifications.
+                    //
+                    completeSummary = resultSetEventParams.ResultSetSummary;
+                    
+                    // Verify that the complete flag is set
+                    //
+                    Assert.True(completeSummary.Complete,
+                          $"completeSummary.Complete is not true"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                     );
+                    break;
+                default:
+                    throw new AssertionException(
+                        $"Unknown type of ResultSetEventParams, actual type received is: {resultSetEventParams.GetType().Name}");
+            }
         }
 
         public static EventFlowValidator<TRequestContext> AddStandardQueryCompleteValidator<TRequestContext>(

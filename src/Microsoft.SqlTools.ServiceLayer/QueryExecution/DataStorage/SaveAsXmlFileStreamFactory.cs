@@ -39,23 +39,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Returns a new service buffer reader for reading results back in from the temporary buffer files
+        /// Returns a new service buffer reader for reading results back in from the temporary buffer files, file share is ReadWrite to allow concurrent reads/writes to the file.
         /// </summary>
         /// <param name="fileName">Path to the temp buffer file</param>
         /// <returns>Stream reader</returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read), QueryExecutionSettings);
+            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), QueryExecutionSettings);
         }
 
         /// <summary>
-        /// Returns a new XML writer for writing results to a XML file
+        /// Returns a new XML writer for writing results to a XML file, file share is ReadWrite to allow concurrent reads/writes to the file.
         /// </summary>
         /// <param name="fileName">Path to the XML output file</param>
         /// <returns>Stream writer</returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new SaveAsXmlFileStreamWriter(new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite), SaveRequestParams);
+            return new SaveAsXmlFileStreamWriter(new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite), SaveRequestParams);
         }
 
         /// <summary>

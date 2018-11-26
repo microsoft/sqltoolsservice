@@ -123,10 +123,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         /// <summary>
         /// Event that will be called when the resultset has completed execution. It will not be
-        /// called from the Batch but from the ResultSet instance
+        /// called from the Batch but from the ResultSet instance.
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetCompletion;
 
+        /// <summary>
+        /// Event that will be called when the resultSet first becomes available. This is as soon as we start reading the results. It will not be
+        /// called from the Batch but from the ResultSet instance.
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetAvailable;
+
+        /// <summary>
+        /// Event that will be called when additional rows in the result set are available (rowCount available has increased). It will not be
+        /// called from the Batch but from the ResultSet instance.
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
         #endregion
 
         #region Properties
@@ -401,6 +412,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // This resultset has results (i.e. SELECT/etc queries)
                         ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
+                        resultSet.ResultAvailable += ResultSetAvailable;
+                        resultSet.ResultUpdated += ResultSetUpdated;
                         resultSet.ResultCompletion += ResultSetCompletion;
 
                         // Add the result set to the results of the query
