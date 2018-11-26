@@ -11,17 +11,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class associated with setting batch results
     /// </summary>
-    public class BatchResultSetEventArgs : EventArgs
+    internal class BatchResultSetEventArgs : EventArgs
     {
         
         private readonly IDataReader dataReader = null;
         private readonly ShowPlanType expectedShowPlan = ShowPlanType.None;
-
+        
         /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="dataReader"></param>
-        public BatchResultSetEventArgs(IDataReader dataReader, ShowPlanType expectedShowPlan)
+        internal BatchResultSetEventArgs(IDataReader dataReader, ShowPlanType expectedShowPlan)
         {
             this.dataReader = dataReader;
             this.expectedShowPlan = expectedShowPlan;

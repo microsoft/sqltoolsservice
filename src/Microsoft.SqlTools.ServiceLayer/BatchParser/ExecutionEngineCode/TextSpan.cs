@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
-    public struct TextSpan
+    internal struct TextSpan
     {        
         public int iEndIndex;
         public int iEndLine;        

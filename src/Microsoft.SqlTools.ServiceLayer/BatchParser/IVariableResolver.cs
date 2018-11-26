@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public interface IVariableResolver
+    internal interface IVariableResolver
     {
         string GetVariable(PositionStruct pos, string name);
         void SetVariable(PositionStruct pos, string name, string value);

@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class associated with batch parser execution start event
     /// </summary>
-    public class BatchParserExecutionStartEventArgs : EventArgs
+    internal class BatchParserExecutionStartEventArgs : EventArgs
     {
         
         private readonly Batch batch = null;

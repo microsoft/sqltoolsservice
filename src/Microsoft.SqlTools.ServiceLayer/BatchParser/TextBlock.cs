@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public class TextBlock
+    internal class TextBlock
     {
         private readonly Parser parser;
         private readonly IEnumerable<Token> tokens;

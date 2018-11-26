@@ -5,12 +5,12 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public sealed class Token
+    internal sealed class Token
     {
         /// <summary>
         /// Token class used by the lexer in Batch Parser
         /// </summary>
-        public Token(LexerTokenType tokenType, PositionStruct begin, PositionStruct end, string text, string filename)
+        internal Token(LexerTokenType tokenType, PositionStruct begin, PositionStruct end, string text, string filename)
         {
             TokenType = tokenType;
             Begin = begin;

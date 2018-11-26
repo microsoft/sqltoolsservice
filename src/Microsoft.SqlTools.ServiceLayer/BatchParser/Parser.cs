@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     /// <summary>
     /// The Parser class on which the Batch Parser is based on
     /// </summary>
-    public sealed class Parser : IDisposable
+    internal sealed class Parser : IDisposable
     {
         private readonly ICommandHandler commandHandler;
         private Lexer lexer;
