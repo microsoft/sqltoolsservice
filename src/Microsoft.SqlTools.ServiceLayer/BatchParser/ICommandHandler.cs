@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public interface ICommandHandler
+    internal interface ICommandHandler
     {
         BatchParserAction Go(TextBlock batch, int repeatCount);
         BatchParserAction OnError(Token token, OnErrorAction action);

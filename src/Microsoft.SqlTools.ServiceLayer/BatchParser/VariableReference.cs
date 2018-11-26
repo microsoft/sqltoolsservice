@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     /// <summary>
     /// Class for reference of variables used by the lexer
     /// </summary>
-    public sealed class VariableReference
+    internal sealed class VariableReference
     {
         /// <summary>
         /// Constructor method for VariableReference class

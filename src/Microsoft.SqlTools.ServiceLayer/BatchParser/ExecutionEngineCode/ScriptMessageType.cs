@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
-    public enum ScriptMessageType
+    internal enum ScriptMessageType
     {
         FatalError,
         Error,

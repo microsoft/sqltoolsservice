@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class for handling SQL CMD by Batch Parser
     /// </summary>
-    public class BatchParserSqlCmd : BatchParser
+    internal class BatchParserSqlCmd : BatchParser
     {
         /// <summary>
         /// The internal variables that can be used in SqlCommand substitution.

@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public enum BatchParserAction
+    internal enum BatchParserAction
     {
         Continue = 0,
         Abort = 1

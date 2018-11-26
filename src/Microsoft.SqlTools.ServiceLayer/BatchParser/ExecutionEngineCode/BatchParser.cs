@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class that parses queries into batches
     /// </summary>
-    public class BatchParser : 
+    internal class BatchParser : 
         ICommandHandler, 
         IVariableResolver
     {
