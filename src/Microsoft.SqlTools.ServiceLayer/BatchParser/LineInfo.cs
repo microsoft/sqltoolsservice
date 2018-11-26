@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     /// This class gives information about lines being parsed by
     /// the Batch Parser
     /// </summary>
-    class LineInfo
+    public class LineInfo
     {
         private IEnumerable<Token> tokens;
         private IEnumerable<VariableReference> variableRefs;

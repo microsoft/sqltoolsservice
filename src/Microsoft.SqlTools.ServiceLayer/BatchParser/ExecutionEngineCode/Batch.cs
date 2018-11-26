@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Single batch of SQL command
     /// </summary>
-    internal class Batch
+    public class Batch
     {
         #region Private methods
 

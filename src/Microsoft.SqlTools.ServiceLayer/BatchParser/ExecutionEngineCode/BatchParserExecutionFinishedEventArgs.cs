@@ -10,13 +10,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class associated with batch parser execution finished event
     /// </summary>
-    internal class BatchParserExecutionFinishedEventArgs : EventArgs
+    public class BatchParserExecutionFinishedEventArgs : EventArgs
     {
         
         private readonly Batch batch = null;
         private readonly ScriptExecutionResult result;
 
-        private BatchParserExecutionFinishedEventArgs() 
+        public BatchParserExecutionFinishedEventArgs() 
         {
         }
 
