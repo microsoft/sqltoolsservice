@@ -21,9 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public int BatchId { get; set; }
 
         /// <summary>
-        /// The number of rows that was returned with the resultset
+        /// The number of rows that are available for the resultset thus far
         /// </summary>
         public long RowCount { get; set; }
+
+        /// <summary>
+        /// If true it indicates that all rows have been fetched and the RowCount being sent across is final for this ResultSet
+        /// </summary>
+        public bool Complete { get; set; }
 
         /// <summary>
         /// Details about the columns that are provided as solutions
@@ -34,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The special action definition of the result set 
         /// </summary>
         public SpecialAction SpecialAction { get; set; }
+
+        public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}'";
 
     }
 }

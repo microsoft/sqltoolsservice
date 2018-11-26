@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -16,49 +17,59 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 {
     public class EventFlowValidator<TRequestContext>
     {
-        private readonly List<ExpectedEvent> expectedEvents = new List<ExpectedEvent>();
-        private readonly List<ReceivedEvent> receivedEvents = new List<ReceivedEvent>();
-        private readonly Mock<RequestContext<TRequestContext>> requestContext;
-        private bool completed;
+        private List<ExpectedEvent> ExpectedEvents { get; } = new List<ExpectedEvent>();
+        private List<ReceivedEvent> ReceivedUpdateEvents { get; } = new List<ReceivedEvent>();
+        private List<ReceivedEvent> ReceivedEvents { get; } = new List<ReceivedEvent>();
+        private Mock<RequestContext<TRequestContext>> Context { get; }
+        private bool _completed;
 
-        public EventFlowValidator()
+        public EventFlowValidator(MockBehavior behavior = MockBehavior.Strict)
         {
-            requestContext = new Mock<RequestContext<TRequestContext>>(MockBehavior.Strict);
+            Context = new Mock<RequestContext<TRequestContext>>(behavior);
         }
 
-        public RequestContext<TRequestContext> Object => requestContext.Object;
-
-        public EventFlowValidator<TRequestContext> AddEventValidation<TParams>(EventType<TParams> expectedEvent, Action<TParams> paramValidation)
+        public RequestContext<TRequestContext> Object => Context.Object;
+        public EventFlowValidator<TRequestContext> SetupCallbackOnMethodSendEvent<TParams>(EventType<TParams> matchingEvent, Action<TParams> callback)
         {
-            expectedEvents.Add(new ExpectedEvent
+            Context.Setup(rc => rc.SendEvent(matchingEvent, It.IsAny<TParams>()))
+                .Callback<EventType<TParams>, TParams>((et, p) => callback(p))
+                .Returns(Task.FromResult(0));
+            return this;
+        }
+
+
+        public EventFlowValidator<TRequestContext> AddEventValidation<TParams>(EventType<TParams> expectedEvent, Action<TParams> paramValidation, Action<TParams> userCallback = null)
+        {
+            ExpectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Event,
                 ParamType = typeof(TParams),
                 Validator = paramValidation
             });
 
-            requestContext.Setup(rc => rc.SendEvent(expectedEvent, It.IsAny<TParams>()))
+            Context.Setup(rc => rc.SendEvent(expectedEvent, It.IsAny<TParams>()))
                 .Callback<EventType<TParams>, TParams>((et, p) =>
                 {
-                    receivedEvents.Add(new ReceivedEvent
+                    ReceivedEvents.Add(new ReceivedEvent
                     {
                         EventObject = p,
                         EventType = EventTypes.Event
                     });
+                    userCallback?.DynamicInvoke(p);
                 })
                 .Returns(Task.FromResult(0));
 
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddResultValidation(Action<TRequestContext> paramValidation)
+        public EventFlowValidator<TRequestContext> AddResultValidation(Action<TRequestContext> resultValidation)
         {
             // Add the expected event
-            expectedEvents.Add(new ExpectedEvent
+            ExpectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Result,
                 ParamType = typeof(TRequestContext),
-                Validator = paramValidation
+                Validator = resultValidation
             });
 
             return this;
@@ -67,18 +78,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         public EventFlowValidator<TRequestContext> AddSimpleErrorValidation(Action<string, int> paramValidation)
         {
             // Put together a validator that ensures a null data
-            Action<Error> validator = e =>
-            {
-                Assert.NotNull(e);
-                paramValidation(e.Message, e.Code);
-            };
 
             // Add the expected result
-            expectedEvents.Add(new ExpectedEvent
+            ExpectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Error,
                 ParamType = typeof(Error),
-                Validator = validator
+                Validator = (Action<Error>)(e =>
+                {
+                    Assert.NotNull(e);
+                    paramValidation(e.Message, e.Code);
+                })
             });
 
             return this;
@@ -96,8 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         public EventFlowValidator<TRequestContext> Complete()
         {
             // Add general handler for result handling
-            requestContext.Setup(rc => rc.SendResult(It.IsAny<TRequestContext>()))
-                .Callback<TRequestContext>(r => receivedEvents.Add(new ReceivedEvent
+            Context.Setup(rc => rc.SendResult(It.IsAny<TRequestContext>()))
+                .Callback<TRequestContext>(r => ReceivedEvents.Add(new ReceivedEvent
                 {
                     EventObject = r,
                     EventType = EventTypes.Result
@@ -105,53 +115,60 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
                 .Returns(Task.FromResult(0));
 
             // Add general handler for error event
-            requestContext.AddErrorHandling((msg, code) =>
+            Context.AddErrorHandling((msg, code) =>
             {
-                receivedEvents.Add(new ReceivedEvent
+                ReceivedEvents.Add(new ReceivedEvent
                 {
                     EventObject = new Error {Message = msg, Code = code},
                     EventType = EventTypes.Error
                 });
             });
 
-            completed = true;
+            _completed = true;
             return this;
         }
 
         public void Validate()
         {
             // Make sure the handlers have been added
-            if (!completed)
+            if (!_completed)
             {
                 throw new Exception("EventFlowValidator must be completed before it can be validated.");
             }
 
             // Iterate over the two lists in sync to see if they are the same
-            for (int i = 0; i < Math.Max(expectedEvents.Count, receivedEvents.Count); i++)
+            for (int i = 0; i < Math.Max(ExpectedEvents.Count, ReceivedEvents.Count); i++)
             {
                 // Step 0) Make sure both events exist
-                if (i >= expectedEvents.Count)
+                if (i >= ExpectedEvents.Count)
                 {
-                    throw new Exception($"Unexpected event received: [{receivedEvents[i].EventType}] {receivedEvents[i].EventObject}");
+                    throw new Exception($"Unexpected event received: [{ReceivedEvents[i].EventType}] {ReceivedEvents[i].EventObject}");
                 }
-                ExpectedEvent expected = expectedEvents[i];
+                ExpectedEvent expected = ExpectedEvents[i];
 
-                if (i >= receivedEvents.Count)
+                if (i >= ReceivedEvents.Count)
                 {
-                    throw new Exception($"Expected additional events: [{expectedEvents[i].EventType}] {expectedEvents[i].ParamType}");
+                    throw new Exception($"Expected additional events: [{ExpectedEvents[i].EventType}] {ExpectedEvents[i].ParamType}");
                 }
-                ReceivedEvent received = receivedEvents[i];
+                ReceivedEvent received = ReceivedEvents[i];
 
                 // Step 1) Make sure the event type matches
                 Assert.Equal(expected.EventType, received.EventType);
                 
                 // Step 2) Make sure the param type matches
-                Assert.Equal(expected.ParamType, received.EventObject.GetType());
+                Assert.True( expected.ParamType == received.EventObject.GetType()
+                    , $"expected and received event types differ for event Number: {i+1}. Expected EventType: {expected.ParamType}  & Received EventType: {received.EventObject.GetType()}\r\n"
+                    + $"\there is the full list of expected and received events::"
+                    + $"\r\n\t\t expected event types:{string.Join("\r\n\t\t", ExpectedEvents.ConvertAll(evt=>evt.ParamType))}"
+                    + $"\r\n\t\t received event types:{string.Join("\r\n\t\t", ReceivedEvents.ConvertAll(evt=>evt.EventObject.GetType()))}"
+                );
                 
                 // Step 3) Run the validator on the param object
                 Assert.NotNull(received.EventObject);
                 expected.Validator?.DynamicInvoke(received.EventObject);
             }
+
+            // Iterate over updates events if any to ensure that they are conforming
         }
 
         private enum EventTypes

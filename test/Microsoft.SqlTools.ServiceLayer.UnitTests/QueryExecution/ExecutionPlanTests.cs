@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
+            queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasStartedRead = false;
 
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };

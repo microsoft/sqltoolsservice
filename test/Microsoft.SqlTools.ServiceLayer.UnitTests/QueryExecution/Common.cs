@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
@@ -39,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public const int StandardRows = 5;
 
+        public const int MillionRows = 1000000;
+
         public const SelectionData WholeDocument = null;
 
         public static readonly ConnectionDetails StandardConnectionDetails = new ConnectionDetails
@@ -55,7 +58,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public static TestResultSet StandardTestResultSet => new TestResultSet(StandardColumns, StandardRows);
 
-        public static TestResultSet[] StandardTestDataSet => new[] {StandardTestResultSet};
+        private static readonly Lazy<TestResultSet> TestResultSet = new Lazy<TestResultSet>(new TestResultSet(StandardColumns, MillionRows));
+
+        public static TestResultSet MillionRowTestResultSet => TestResultSet.Value;
+
+        private static readonly Lazy<TestResultSet[]> MillionRowResultSet = new Lazy<TestResultSet[]>(new[]{MillionRowTestResultSet});
+
+        public static TestResultSet[] StandardTestDataSet => new [] {StandardTestResultSet};
+
+        public static TestResultSet[] MillionRowTestDataSet => MillionRowResultSet.Value;
 
         public static TestResultSet[] ExecutionPlanTestDataSet
         {

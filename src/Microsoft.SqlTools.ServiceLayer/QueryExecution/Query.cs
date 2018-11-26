@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -190,6 +191,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetCompleted;
 
+        /// <summary>
+        /// Event that will be called when the resultSet first becomes available. This is as soon as we start reading the results.
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetAvailable;
+
+        /// <summary>
+        /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
         #endregion
 
         #region Properties
@@ -298,6 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, long startRow, int rowCount)
         {
+            Logger.Write(TraceEventType.Start, $"Starting GetSubset execution for batchIndex:'{batchIndex}', resultSetIndex:'{resultSetIndex}', startRow:'{startRow}', rowCount:'{rowCount}'");
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
@@ -399,6 +410,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.BatchCompletion += BatchCompleted;
                     b.BatchMessageSent += BatchMessageSent;
                     b.ResultSetCompletion += ResultSetCompleted;
+                    b.ResultSetAvailable += ResultSetAvailable;
+                    b.ResultSetUpdated += ResultSetUpdated;
                     await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
