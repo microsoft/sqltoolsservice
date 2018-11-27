@@ -27,14 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public SqlTask SqlTask { get; set; }
 
-        protected SqlConnection sqlConnection { get; set; }
+        protected SqlConnection SqlConnection { get; set; }
 
-        protected DacServices dacServices { get; set; }
+        protected DacServices DacServices { get; set; }
 
         protected DacFxOperation(SqlConnection sqlConnection)
         {
             Validate.IsNotNull("sqlConnection", sqlConnection);
-            this.sqlConnection = sqlConnection;
+            this.SqlConnection = sqlConnection;
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -43,13 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <summary>
         /// The error occurred during operation
         /// </summary>
-        public string ErrorMessage
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        public string ErrorMessage { get; }
 
         /// <summary>
         /// Cancel operation
@@ -84,8 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                this.dacServices = new DacServices(this.sqlConnection.ConnectionString);
-                this.dacServices.ProgressChanged += new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
+                this.DacServices = new DacServices(this.SqlConnection.ConnectionString);
                 Execute();
             }
             catch (Exception e)
@@ -96,27 +89,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         public abstract void Execute();
-
-        protected void DacProgressUpdates(object obj, DacProgressEventArgs args)
-        {
-            switch (args.Status)
-            {
-                case DacOperationStatus.Cancelled:
-                    this.dacServices.ProgressChanged -= new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
-                    break;
-                case DacOperationStatus.Faulted:
-                    this.dacServices.ProgressChanged -= new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
-                    break;
-                case DacOperationStatus.Pending:
-                case DacOperationStatus.Running:
-                    break;
-                case DacOperationStatus.Completed:
-                    this.dacServices.ProgressChanged -= new EventHandler<DacProgressEventArgs>(this.DacProgressUpdates);
-                    break;
-                default:
-                    Debug.Fail("Unexpected event status");
-                    break;
-            }
-        }
     }
 }
