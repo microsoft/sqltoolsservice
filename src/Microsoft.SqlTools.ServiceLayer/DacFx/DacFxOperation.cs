@@ -27,9 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public SqlTask SqlTask { get; set; }
 
-        protected SqlConnection SqlConnection { get; set; }
+        protected SqlConnection SqlConnection { get; private set; }
 
-        protected DacServices DacServices { get; set; }
+        protected DacServices DacServices { get; private set; }
 
         protected DacFxOperation(SqlConnection sqlConnection)
         {
