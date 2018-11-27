@@ -12,18 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx extract request.
     /// </summary>
-    public class ExtractParams : IDacFxParams
+    public class ExtractParams : DacFxParams
     {
-        /// <summary>
-        /// Gets or sets package filepath
-        /// </summary>
-        public string PackageFilePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets name for database
-        /// </summary>
-        public string DatabaseName { get; set; }
-
         /// <summary>
         /// Gets or sets the string identifier for the DAC application
         /// </summary>
@@ -33,16 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the version of the DAC application
         /// </summary>
         public Version ApplicationVersion { get; set; }
-
-        /// <summary>
-        /// Connection uri
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Executation mode for the operation. Default is execution
-        /// </summary>
-        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>

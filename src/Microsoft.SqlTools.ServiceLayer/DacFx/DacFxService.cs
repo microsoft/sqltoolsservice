@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private async Task ExecuteOperation(DacFxOperation operation, IDacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        private async Task ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
             SqlTask sqlTask = null;
             TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);

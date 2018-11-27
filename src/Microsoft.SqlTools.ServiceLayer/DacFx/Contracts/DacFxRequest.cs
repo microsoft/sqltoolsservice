@@ -11,17 +11,27 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx request.
     /// </summary>
-    public interface IDacFxParams : IScriptableRequestParams
+    public abstract class DacFxParams : IScriptableRequestParams
     {
         /// <summary>
         /// Gets or sets package filepath
         /// </summary>
-        string PackageFilePath { get; set; }
+        public string PackageFilePath { get; set; }
 
         /// <summary>
         /// Gets or sets name for database
         /// </summary>
-        string DatabaseName { get; set; }
+        public string DatabaseName { get; set; }
+
+        /// <summary>
+        /// Connection uri
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Executation mode for the operation. Default is execution
+        /// </summary>
+        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>
