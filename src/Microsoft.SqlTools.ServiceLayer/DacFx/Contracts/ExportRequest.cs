@@ -11,17 +11,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx export request.
     /// </summary>
-    public class ExportParams : IScriptableRequestParams
+    public class ExportParams : IDacFxParams
     {
         /// <summary>
-        /// Gets or sets the database name the export operation will run against.
-        /// </summary>
-        public string SourceDatabaseName { get; set; }
-
-        /// <summary>
-        /// Gets or sets package file path for exported bacpac
+        /// Gets or sets package filepath
         /// </summary>
         public string PackageFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets name for database
+        /// </summary>
+        public string DatabaseName { get; set; }
 
         /// <summary>
         /// Connection uri
@@ -35,19 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Parameters returned from a DacFx export request.
-    /// </summary>
-    public class ExportResult : ResultStatus
-    {
-        public string OperationId { get; set; }
-    }
-
-    /// <summary>
     /// Defines the DacFx export request type
     /// </summary>
     class ExportRequest
     {
-        public static readonly RequestType<ExportParams, ExportResult> Type =
-            RequestType<ExportParams, ExportResult>.Create("dacfx/export");
+        public static readonly RequestType<ExportParams, DacFxResult> Type =
+            RequestType<ExportParams, DacFxResult>.Create("dacfx/export");
     }
 }

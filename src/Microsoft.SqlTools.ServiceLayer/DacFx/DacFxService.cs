@@ -4,7 +4,6 @@
 //
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -55,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to export a bacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleExportRequest(ExportParams parameters, RequestContext<ExportResult> requestContext)
+        public async Task HandleExportRequest(ExportParams parameters, RequestContext<DacFxResult> requestContext)
         {
             try
             {
@@ -67,22 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Export");
                     ExportOperation operation = new ExportOperation(parameters, sqlConn);
-                    SqlTask sqlTask = null;
-
-                    // create task metadata
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Export bacpac", operation, ConnectionServiceInstance);
-
-                    // put appropriate database name since connection passed was to master
-                    metadata.DatabaseName = parameters.SourceDatabaseName;
-
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-                    await requestContext.SendResult(new ExportResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = true,
-                        ErrorMessage = ""
-                    });
+                    await ExecuteOperation(operation, parameters, "Export bacpac", requestContext);
                 }
             }
             catch (Exception e)
@@ -95,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to import a bacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleImportRequest(ImportParams parameters, RequestContext<ImportResult> requestContext)
+        public async Task HandleImportRequest(ImportParams parameters, RequestContext<DacFxResult> requestContext)
         {
             try
             {
@@ -107,22 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Import");
                     ImportOperation operation = new ImportOperation(parameters, sqlConn);
-                    SqlTask sqlTask = null;
-
-                    // create task metadata
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Import bacpac", operation, ConnectionServiceInstance);
-
-                    // put appropriate database name so that it shows imported database's name rather than master
-                    metadata.DatabaseName = parameters.TargetDatabaseName;
-
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-                    await requestContext.SendResult(new ImportResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = true,
-                        ErrorMessage = ""
-                    });
+                    await ExecuteOperation(operation, parameters, "Import bacpac", requestContext);
                 }
             }
             catch (Exception e)
@@ -135,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to extract a dacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleExtractRequest(ExtractParams parameters, RequestContext<ExtractResult> requestContext)
+        public async Task HandleExtractRequest(ExtractParams parameters, RequestContext<DacFxResult> requestContext)
         {
             try
             {
@@ -147,21 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Extract");
                     ExtractOperation operation = new ExtractOperation(parameters, sqlConn);
-                    SqlTask sqlTask = null;
-
-                    // create task metadata
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Extract dacpac", operation, ConnectionServiceInstance);
-                    // put appropriate database name since connection passed was to master
-                    metadata.DatabaseName = parameters.SourceDatabaseName;
-
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-                    await requestContext.SendResult(new ExtractResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = true,
-                        ErrorMessage = ""
-                    });
+                    await ExecuteOperation(operation, parameters, "Extract dacpac", requestContext);
                 }
             }
             catch (Exception e)
@@ -174,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to deploy a dacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleDeployRequest(DeployParams parameters, RequestContext<DeployResult> requestContext)
+        public async Task HandleDeployRequest(DeployParams parameters, RequestContext<DacFxResult> requestContext)
         {
             try
             {
@@ -186,28 +141,31 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Deploy");
                     DeployOperation operation = new DeployOperation(parameters, sqlConn);
-                    SqlTask sqlTask = null;
-
-                    // create task metadata
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Deploy dacpac", operation, ConnectionServiceInstance);
-
-                    // put appropriate database name so that it shows deployed database's name rather than master
-                    metadata.DatabaseName = parameters.TargetDatabaseName;
-
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-                    await requestContext.SendResult(new DeployResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = true,
-                        ErrorMessage = ""
-                    });
+                    await ExecuteOperation(operation, parameters, "Deploy dacpac", requestContext);
                 }
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e);
             }
+        }
+
+        private async Task ExecuteOperation(DacFxOperation operation, IDacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        {
+            SqlTask sqlTask = null;
+            TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);
+
+            // put appropriate database name since connection passed was to master
+            metadata.DatabaseName = parameters.DatabaseName;
+
+            sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+            await requestContext.SendResult(new DacFxResult()
+            {
+                OperationId = operation.OperationId,
+                Success = true,
+                ErrorMessage = ""
+            });
         }
 
         private SqlTaskManager SqlTaskManagerInstance

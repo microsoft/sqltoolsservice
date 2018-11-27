@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
+            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
         }
     }
 }

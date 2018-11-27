@@ -26,11 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return result;
         }
 
-        private async Task<Mock<RequestContext<ExportResult>>> SendAndValidateExportRequest()
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateExportRequest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<ExportResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<ExportResult>())).Returns(Task.FromResult(new object()));
+            var requestContext = new Mock<RequestContext<DacFxResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var exportParams = new ExportParams
             {
-                SourceDatabaseName = testdb.DatabaseName,
+                DatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
@@ -54,12 +54,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return requestContext;
         }
 
-        private async Task<Mock<RequestContext<ImportResult>>> SendAndValidateImportRequest()
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateImportRequest()
         {
             // first export a bacpac
             var result = GetLiveAutoCompleteTestObjects();
-            var exportRequestContext = new Mock<RequestContext<ExportResult>>();
-            exportRequestContext.Setup(x => x.SendResult(It.IsAny<ExportResult>())).Returns(Task.FromResult(new object()));
+            var exportRequestContext = new Mock<RequestContext<DacFxResult>>();
+            exportRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxImportTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var exportParams = new ExportParams
             {
-                SourceDatabaseName = sourceDb.DatabaseName,
+                DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", sourceDb.DatabaseName))
             };
 
@@ -77,18 +77,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             service.PerformOperation(exportOperation);
 
             // import the created bacpac
-            var importRequestContext = new Mock<RequestContext<ImportResult>>();
-            importRequestContext.Setup(x => x.SendResult(It.IsAny<ImportResult>())).Returns(Task.FromResult(new object()));
+            var importRequestContext = new Mock<RequestContext<DacFxResult>>();
+            importRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
             var importParams = new ImportParams
             {
                 PackageFilePath = exportParams.PackageFilePath,
-                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
+                DatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
             };
 
             ImportOperation importOperation = new ImportOperation(importParams, sqlConn);
             service.PerformOperation(importOperation);
-            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.TargetDatabaseName);
+            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.DatabaseName);
 
             // cleanup
             VerifyAndCleanup(exportParams.PackageFilePath);
@@ -98,11 +98,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return importRequestContext;
         }
 
-        private async Task<Mock<RequestContext<ExtractResult>>> SendAndValidateExtractRequest()
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateExtractRequest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<ExtractResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<ExtractResult>())).Returns(Task.FromResult(new object()));
+            var requestContext = new Mock<RequestContext<DacFxResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExtractTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var extractParams = new ExtractParams
             {
-                SourceDatabaseName = testdb.DatabaseName,
+                DatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
                 ApplicationName = "test",
                 ApplicationVersion = new Version(1, 0)
@@ -128,12 +128,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return requestContext;
         }
 
-        private async Task<Mock<RequestContext<DeployResult>>> SendAndValidateDeployRequest()
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateDeployRequest()
         {
             // first extract a db to have a dacpac to import later
             var result = GetLiveAutoCompleteTestObjects();
-            var extractRequestContext = new Mock<RequestContext<ExtractResult>>();
-            extractRequestContext.Setup(x => x.SendResult(It.IsAny<ExtractResult>())).Returns(Task.FromResult(new object()));
+            var extractRequestContext = new Mock<RequestContext<DacFxResult>>();
+            extractRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxDeployTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var extractParams = new ExtractParams
             {
-                SourceDatabaseName = sourceDb.DatabaseName,
+                DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
                 ApplicationVersion = new Version(1, 0)
@@ -153,19 +153,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             service.PerformOperation(extractOperation);
 
             // deploy the created dacpac
-            var deployRequestContext = new Mock<RequestContext<DeployResult>>();
-            deployRequestContext.Setup(x => x.SendResult(It.IsAny<DeployResult>())).Returns(Task.FromResult(new object()));
+            var deployRequestContext = new Mock<RequestContext<DacFxResult>>();
+            deployRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
 
             var deployParams = new DeployParams
             {
                 PackageFilePath = extractParams.PackageFilePath,
-                TargetDatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
+                DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
                 UpgradeExisting = false
             };
 
             DeployOperation deployOperation = new DeployOperation(deployParams, sqlConn);
-            service.PerformOperation(deployOperation); SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.TargetDatabaseName);
+            service.PerformOperation(deployOperation); SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.DatabaseName);
 
             // cleanup
             VerifyAndCleanup(extractParams.PackageFilePath);
@@ -175,11 +175,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return deployRequestContext;
         }
 
-        private async Task<Mock<RequestContext<ExportResult>>> ValidateExportCancellation()
+        private async Task<Mock<RequestContext<DacFxResult>>> ValidateExportCancellation()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<ExportResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<ExportResult>())).Returns(Task.FromResult(new object()));
+            var requestContext = new Mock<RequestContext<DacFxResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             var exportParams = new ExportParams
             {
-                SourceDatabaseName = testdb.DatabaseName,
+                DatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 

@@ -11,17 +11,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx deploy request.
     /// </summary>
-    public class DeployParams : IScriptableRequestParams
+    public class DeployParams : IDacFxParams
     {
         /// <summary>
-        /// Gets or sets dacpac package filepath
+        /// Gets or sets package filepath
         /// </summary>
         public string PackageFilePath { get; set; }
 
         /// <summary>
-        /// Gets or sets name for deployed database
+        /// Gets or sets name for database
         /// </summary>
-        public string TargetDatabaseName { get; set; }
+        public string DatabaseName { get; set; }
 
         /// <summary>
         /// Gets or sets if upgrading existing database
@@ -40,19 +40,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Parameters returned from a DacFx deploy request.
-    /// </summary>
-    public class DeployResult : ResultStatus
-    {
-        public string OperationId { get; set; }
-    }
-
-    /// <summary>
     /// Defines the DacFx deploy request type
     /// </summary>
     class DeployRequest
     {
-        public static readonly RequestType<DeployParams, DeployResult> Type =
-            RequestType<DeployParams, DeployResult>.Create("dacfx/deploy");
+        public static readonly RequestType<DeployParams, DacFxResult> Type =
+            RequestType<DeployParams, DacFxResult>.Create("dacfx/deploy");
     }
 }

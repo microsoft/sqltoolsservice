@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            this.DacServices.ExportBacpac(this.Parameters.PackageFilePath, this.Parameters.SourceDatabaseName, null, this.CancellationToken);
+            this.DacServices.ExportBacpac(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, null, this.CancellationToken);
         }
     }
 }

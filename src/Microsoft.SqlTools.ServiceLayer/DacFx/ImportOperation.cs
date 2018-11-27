@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
-            this.DacServices.ImportBacpac(bacpac, this.Parameters.TargetDatabaseName, this.CancellationToken);
+            this.DacServices.ImportBacpac(bacpac, this.Parameters.DatabaseName, this.CancellationToken);
         }
     }
 }

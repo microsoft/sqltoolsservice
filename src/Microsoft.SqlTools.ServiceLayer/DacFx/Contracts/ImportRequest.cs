@@ -11,17 +11,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters for a DacFx import request.
     /// </summary>
-    public class ImportParams : IScriptableRequestParams
+    public class ImportParams : IDacFxParams
     {
         /// <summary>
-        /// Gets or sets bacpac package filepath
+        /// Gets or sets package filepath
         /// </summary>
         public string PackageFilePath { get; set; }
 
         /// <summary>
-        /// Gets or sets name for imported database
+        /// Gets or sets name for database
         /// </summary>
-        public string TargetDatabaseName { get; set; }
+        public string DatabaseName { get; set; }
 
         /// <summary>
         /// Connection uri
@@ -34,20 +34,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
-    /// <summary>
-    /// Parameters returned from a DacFx import request.
-    /// </summary>
-    public class ImportResult : ResultStatus
-    {
-        public string OperationId { get; set; }
-    }
 
     /// <summary>
     /// Defines the DacFx import request type
     /// </summary>
     class ImportRequest
     {
-        public static readonly RequestType<ImportParams, ImportResult> Type =
-            RequestType<ImportParams, ImportResult>.Create("dacfx/import");
+        public static readonly RequestType<ImportParams, DacFxResult> Type =
+            RequestType<ImportParams, DacFxResult>.Create("dacfx/import");
     }
 }
