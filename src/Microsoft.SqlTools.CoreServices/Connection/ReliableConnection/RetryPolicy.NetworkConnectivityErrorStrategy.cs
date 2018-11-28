@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
         /// Provides the error detection logic for temporary faults that are commonly found in SQL Azure.
         /// The same errors CAN occur on premise also, but they are not seen as often.
         /// </summary>
-        internal sealed class NetworkConnectivityErrorDetectionStrategy : ErrorDetectionStrategyBase, IErrorDetectionStrategy
+        internal sealed class NetworkConnectivityErrorDetectionStrategy : ErrorDetectionStrategyBase
         {
             private static NetworkConnectivityErrorDetectionStrategy instance = new NetworkConnectivityErrorDetectionStrategy();
 
