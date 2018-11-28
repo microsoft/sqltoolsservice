@@ -909,7 +909,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             configAction = ConfigAction.Create;
                             foreach(JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
                             {
-                                if (step.StepName == jobStep.Name && step.Id == jobStep.ID)
+                                // any changes made to step other than name or ordering
+                                if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
+                                    // if the step name was changed
+                                    (step.StepName != jobStep.Name && step.Id == jobStep.ID) ||
+                                    // if the step ordering was changed
+                                    (step.StepName == jobStep.Name && step.Id != jobStep.ID))
                                 {
                                     configAction = ConfigAction.Update;
                                     break;
