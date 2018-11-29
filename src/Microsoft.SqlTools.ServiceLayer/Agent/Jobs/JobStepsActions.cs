@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // load properties from AgentJobStepInfo
             this.data.ID = stepInfo.Id;
             this.data.Name = stepInfo.StepName;
-            this.data.Command = stepInfo.Script;
+            this.data.Command = stepInfo.Command;
         }
 
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)

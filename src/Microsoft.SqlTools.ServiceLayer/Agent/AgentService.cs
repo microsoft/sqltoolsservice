@@ -893,11 +893,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ExecuteAction(actions, runType);
                     }
 
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    if (connInfo != null)
+                    {
+                        dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    }
+
                     // Execute step actions if they exist
                     if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
                     {
                         foreach (AgentJobStepInfo step in jobInfo.JobSteps)
-                        {
+                        {   
+                            configAction = ConfigAction.Create;
+                            foreach(JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
+                            {
+                                // any changes made to step other than name or ordering
+                                if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
+                                    // if the step name was changed
+                                    (step.StepName != jobStep.Name && step.Id == jobStep.ID) ||
+                                    // if the step ordering was changed
+                                    (step.StepName == jobStep.Name && step.Id != jobStep.ID))
+                                {
+                                    configAction = ConfigAction.Update;
+                                    break;
+                                } 
+                            }
                             await ConfigureAgentJobStep(ownerUri, step, configAction, runType);
                         }
                     }
