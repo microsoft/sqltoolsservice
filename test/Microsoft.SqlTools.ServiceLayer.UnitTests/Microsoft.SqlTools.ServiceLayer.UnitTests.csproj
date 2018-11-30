@@ -15,7 +15,7 @@
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0-preview3-27014-02" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
