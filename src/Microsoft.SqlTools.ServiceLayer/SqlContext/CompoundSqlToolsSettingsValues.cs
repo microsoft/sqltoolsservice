@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private T GetSettingOrDefault<T>(Func<ISqlToolsSettingsValues, T> lookup)
             where T : new()
         {
-            T value = priorityList.Select( (settings) => lookup(settings)).Where(val => val != null).FirstOrDefault();
+            T value = priorityList.Select((settings) => lookup(settings)).FirstOrDefault(val => val != null);
             return value != null ? value : new T();
         }
 
