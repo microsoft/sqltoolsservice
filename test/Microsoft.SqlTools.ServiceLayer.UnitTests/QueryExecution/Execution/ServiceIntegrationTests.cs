@@ -266,13 +266,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
-        public async Task QueryExecuteSingleBatchSingleResultTest()
+        public static IEnumerable<object[]> TestResultSetsData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { r }).Take(numTests);
+
+        [Xunit.Theory]
+        [MemberData(nameof(TestResultSetsData), parameters: 5)]
+        public async Task QueryExecuteSingleBatchSingleResultTest(TestResultSet testResultSet)
         {
             // If:
             // ... I request to execute a valid query with results
-          var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
+            var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
+            var testDataSet = new[] { testResultSet };
+            var queryService = Common.GetPrimedExecutionService(testDataSet, true, false, false, workspaceService, sizeFactor: testResultSet.Rows.Count/Common.StandardRows + 1);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
@@ -296,14 +300,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
-        public async Task QueryExecuteSingleBatchMultipleResultTest()
+        [Xunit.Theory]
+        [MemberData(nameof(TestResultSetsData), parameters: 4)]
+        public async Task QueryExecuteSingleBatchMultipleResultTest(TestResultSet testResultSet)
         {
             // If:
             // ... I request to execute a valid query with one batch and multiple result sets
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var dataset = new[] {Common.StandardTestResultSet, Common.StandardTestResultSet};
-            var queryService = Common.GetPrimedExecutionService(dataset, true, false, false, workspaceService);
+            var testDataSet = new[] {testResultSet, testResultSet};
+            var queryService = Common.GetPrimedExecutionService(testDataSet, true, false, false, workspaceService, sizeFactor: testResultSet.Rows.Count / Common.StandardRows + 1);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
 
             List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();

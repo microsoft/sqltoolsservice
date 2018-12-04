@@ -23,6 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Moq.Protected;
 using HostingProtocol = Microsoft.SqlTools.Hosting.Protocol;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
@@ -40,7 +41,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public const int StandardRows = 5;
 
+        public const int ZeroRows = 0;
+
+        public const int HundredRows = 100;
+
+        public const int ThousandRows = 1000;
+
+        public const int HundredKRows = 100000;
+
         public const int MillionRows = 1000000;
+
+        public const int TenMillionRows = 10000000;
+
+        public const int HundredMillionRows = 100000000;
 
         public const SelectionData WholeDocument = null;
 
@@ -55,18 +68,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public static readonly SelectionData SubsectionDocument = new SelectionData(0, 0, 2, 2);
 
         #endregion
+        public static TestResultSet ZeroRowTestResultSet => new TestResultSet(StandardColumns, ZeroRows);
+
+        public static TestResultSet[] ZeroRowTestDataSet => new[] { ZeroRowTestResultSet };
 
         public static TestResultSet StandardTestResultSet => new TestResultSet(StandardColumns, StandardRows);
 
-        private static readonly Lazy<TestResultSet> TestResultSet = new Lazy<TestResultSet>(new TestResultSet(StandardColumns, MillionRows));
+        public static TestResultSet[] StandardTestDataSet => new[] { StandardTestResultSet };
 
-        public static TestResultSet MillionRowTestResultSet => TestResultSet.Value;
 
-        private static readonly Lazy<TestResultSet[]> MillionRowResultSet = new Lazy<TestResultSet[]>(new[]{MillionRowTestResultSet});
+        public static TestResultSet HundredRowTestResultSet => new TestResultSet(StandardColumns, HundredRows);
 
-        public static TestResultSet[] StandardTestDataSet => new [] {StandardTestResultSet};
+        public static TestResultSet[] HundredRowTestDataSet => new[] { HundredRowTestResultSet };
 
-        public static TestResultSet[] MillionRowTestDataSet => MillionRowResultSet.Value;
+
+        public static TestResultSet ThousandRowTestResultSet => new TestResultSet(StandardColumns, ThousandRows);
+
+        public static TestResultSet[] ThousandRowTestDataSet => new[] { ThousandRowTestResultSet };
+
+        private static readonly Lazy<TestResultSet> HundredKRowTestResultSetLazy = new Lazy<TestResultSet>(new TestResultSet(StandardColumns, HundredKRows));
+
+        public static TestResultSet HundredKRowTestResultSet => HundredKRowTestResultSetLazy.Value;
+
+        private static readonly Lazy<TestResultSet[]> HundredKRowTestDataSetLazy = new Lazy<TestResultSet[]>(new[] { HundredKRowTestResultSet });
+
+        public static TestResultSet[] HundredKRowTestDataSet => HundredKRowTestDataSetLazy.Value;
+
+
+        private static readonly Lazy<TestResultSet> MillionRowTestResultSetLazy = new Lazy<TestResultSet>(new TestResultSet(StandardColumns, MillionRows));
+
+        public static TestResultSet MillionRowTestResultSet => MillionRowTestResultSetLazy.Value;
+
+        private static readonly Lazy<TestResultSet[]> MillionRowTestDataSetLazy = new Lazy<TestResultSet[]>(new[]{ MillionRowTestResultSet });
+
+        public static TestResultSet[] MillionRowTestDataSet => MillionRowTestDataSetLazy.Value;
+
+        public static IEnumerable<TestResultSet> TestResultSetsEnumeration
+        {
+            get
+            {
+                yield return StandardTestResultSet;
+                yield return  HundredRowTestResultSet;
+                yield return  ThousandRowTestResultSet;
+                yield return  ZeroRowTestResultSet;
+                yield return  HundredKRowTestResultSet;
+                yield return  MillionRowTestResultSet;
+            }
+        }
 
         public static TestResultSet[] ExecutionPlanTestDataSet
         {
@@ -230,7 +278,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             bool throwOnExecute, 
             bool throwOnRead,
             WorkspaceService<SqlToolsSettings> workspaceService,
-            out ConcurrentDictionary<string, byte[]> storage)
+            out ConcurrentDictionary<string, byte[]> storage, 
+            int sizeFactor=1)
         {
             // Create a place for the temp "files" to be written
             storage = new ConcurrentDictionary<string, byte[]>();
@@ -244,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
                 .Returns(isConnected);
 
-            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage) };
+            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage, sizeFactor) };
         }
 
         public static QueryExecutionService GetPrimedExecutionService(
@@ -252,10 +301,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             bool isConnected, 
             bool throwOnExecute,
             bool throwOnRead,
-            WorkspaceService<SqlToolsSettings> workspaceService)
+            WorkspaceService<SqlToolsSettings> workspaceService,
+            int sizeFactor=1)
         {
             ConcurrentDictionary<string, byte[]> storage;
-            return GetPrimedExecutionService(data, isConnected, throwOnExecute, throwOnRead, workspaceService, out storage);
+            return GetPrimedExecutionService(data, isConnected, throwOnExecute, throwOnRead, workspaceService, out storage, sizeFactor);
         }
 
         public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService(string query)

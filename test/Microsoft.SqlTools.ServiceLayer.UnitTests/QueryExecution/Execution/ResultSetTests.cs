@@ -56,8 +56,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// <summary>
         /// Read to End test
         /// </summary>
-        [Fact]
-        public void ReadToEndSuccess()
+        /// <param name="testDataSet"></param>
+        [Theory]
+        [MemberData(nameof(ReadToEndSuccessData), parameters: 6)]
+        public async Task ReadToEndSuccess(TestResultSet[] testDataSet)
         {
             // Setup: Create a results Available callback for result set
             //
@@ -94,13 +96,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new resultset with a valid db data reader that has data
             // ... and I read it to the end
-            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            DbDataReader mockReader = GetReader(testDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(testDataSet[0].Rows.Count/Common.StandardRows + 1);
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
             resultSet.ResultAvailable += AvailableCallback;
             resultSet.ResultUpdated += UpdatedCallback;
             resultSet.ResultCompletion += CompleteCallback;
-            resultSet.ReadResultToEnd(mockReader, CancellationToken.None).Wait();
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
             Thread.Yield();
             resultSet.ResultAvailable -= AvailableCallback;
@@ -112,17 +114,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... There should be rows to read back
             Assert.NotNull(resultSet.Columns);
             Assert.Equal(Common.StandardColumns, resultSet.Columns.Length);
-            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+            Assert.Equal(testDataSet[0].Rows.Count, resultSet.RowCount);
 
             // ... The summary should have the same info
             Assert.NotNull(resultSet.Summary.ColumnInfo);
             Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
-            Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
+            Assert.Equal(testDataSet[0].Rows.Count, resultSet.Summary.RowCount);
 
             // and:
             //
             VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
         }
+        public static IEnumerable<object[]> ReadToEndSuccessData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(numTests);
 
         [Theory]
         [MemberData(nameof(CallMethodWithoutReadingData))]
