@@ -619,7 +619,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="stateInfo"></param>
         private void SendResultAvailableOrUpdated (object stateInfo = null)
         {
-            // Make the call to send current results and synchronously wait for them to finish
+            // Make the call to send current results and synchronously wait for it to finish
             //
             SendCurrentResults().Wait();
         }
@@ -641,13 +641,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             else if (LastUpdatedSummary.Complete) // If last result summary sent had already set the Complete flag
             {
                 // We do not need to do anything except that make sure that RowCount has not update since last send.
-                Debug.Assert(LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount, $"Already reported rows should be equalt to current RowCount, if had alreaday send completion flag in last message, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
+                Debug.Assert(LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount, $"Already reported rows should be equal to current RowCount, if had already sent completion flag as set in last message, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
             }
             else // We need to send results updated message.
             {
                 // Previously reported rows should be less than or equal to current number of rows about to be reported
                 //
-                Debug.Assert(LastUpdatedSummary.RowCount <= currentResultSetSnapshot.RowCount, $"Already reported rows should not be greater than total RowCount, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
+                Debug.Assert(LastUpdatedSummary.RowCount <= currentResultSetSnapshot.RowCount, $"Already reported rows should less than or equal to current total RowCount, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
 
                 // If there has been no change in rowCount since last update and we have not yet completed read then log and increase the timer duration
                 //
@@ -655,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)
                 {
                     Logger.Write(TraceEventType.Warning,
-                        $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of resultset is not completed yet!");
+                        $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of this result set is not yet complete!");
                     ResultsIntervalMultiplier++;
                 }
 

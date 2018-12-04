@@ -108,11 +108,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             get
             {
                 yield return StandardTestResultSet;
-                yield return  HundredRowTestResultSet;
-                yield return  ThousandRowTestResultSet;
-                yield return  ZeroRowTestResultSet;
-                yield return  HundredKRowTestResultSet;
-                yield return  MillionRowTestResultSet;
+                yield return HundredRowTestResultSet;
+                yield return ThousandRowTestResultSet;
+                yield return ZeroRowTestResultSet;
+                yield return HundredKRowTestResultSet;
+                yield return MillionRowTestResultSet;
             }
         }
 
