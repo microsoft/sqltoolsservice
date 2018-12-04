@@ -320,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... All events should have been called as per their flow validator
-            efv.Validate();
+            efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... All events should have been called as per their flow validator
-            efv.Validate();
+            efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -631,10 +631,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public static EventFlowValidator<TRequestContext> ValidateResultSetSummaries<TRequestContext>(
             this EventFlowValidator<TRequestContext> efv, List<ResultSetEventParams> resultSetEventParamList)
         {
-            string GetResultSetKey(ResultSetSummary summary)
-            {
-                return $"BatchId:{summary.BatchId}, ResultId:{summary.Id}";
-            }
+            string GetResultSetKey(ResultSetSummary summary) => $"BatchId:{summary.BatchId}, ResultId:{summary.Id}";
 
             // Separate the result set resultSetEventParamsList by batchid, resultsetid and by resultseteventtype.
             ConcurrentDictionary<string, List<ResultSetEventParams>> resultSetDictionary =
@@ -681,6 +678,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             switch (resultSetEventParams.GetType().Name)
             {
                 case nameof(ResultSetAvailableEventParams):
+                    // Verify that the availableEvent is the first and only one of this type in the sequence. Since we set lastResultSetSummary on each available or updatedEvent, we check that there has been no lastResultSetSummary previously set yet.
+                    //
+                    Assert.True(null == lastResultSetSummary,
+                        $"AvailableResultSet was not found to be the first message received for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                    );
+
                     // Save the lastResultSetSummary for this event for other verifications.
                     //
                     lastResultSetSummary = resultSetEventParams.ResultSetSummary;
