@@ -55,13 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         /// <summary>
         /// Read to End test
-        /// DevNote: known to fail randomly sometimes due to random race condition
-        /// when multiple tests are run simultaneously.
-        /// Rerunning the test alone always passes.
-        /// Tracking this issue with:https://github.com/Microsoft/sqltoolsservice/issues/746 
         /// </summary>
-        [Fact]
-        public void ReadToEndSuccess()
+        /// <param name="testDataSet"></param>
+        [Theory]
+        [MemberData(nameof(ReadToEndSuccessData), parameters: 6)]
+        public async Task ReadToEndSuccess(TestResultSet[] testDataSet)
         {
             // Setup: Create a results Available callback for result set
             //
@@ -98,13 +96,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new resultset with a valid db data reader that has data
             // ... and I read it to the end
-            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            DbDataReader mockReader = GetReader(testDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(testDataSet[0].Rows.Count/Common.StandardRows + 1);
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
             resultSet.ResultAvailable += AvailableCallback;
             resultSet.ResultUpdated += UpdatedCallback;
             resultSet.ResultCompletion += CompleteCallback;
-            resultSet.ReadResultToEnd(mockReader, CancellationToken.None).Wait();
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
             Thread.Yield();
             resultSet.ResultAvailable -= AvailableCallback;
@@ -116,18 +114,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... There should be rows to read back
             Assert.NotNull(resultSet.Columns);
             Assert.Equal(Common.StandardColumns, resultSet.Columns.Length);
-            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+            Assert.Equal(testDataSet[0].Rows.Count, resultSet.RowCount);
 
             // ... The summary should have the same info
             Assert.NotNull(resultSet.Summary.ColumnInfo);
             Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
-            Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
+            Assert.Equal(testDataSet[0].Rows.Count, resultSet.Summary.RowCount);
 
             // and:
-            // disabling verification due to: https://github.com/Microsoft/sqltoolsservice/issues/746 
             //
-            // VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
+            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
         }
+        public static IEnumerable<object[]> ReadToEndSuccessData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(numTests);
 
         [Theory]
         [MemberData(nameof(CallMethodWithoutReadingData))]
@@ -219,24 +217,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Setup: Create a results Available callback for result set
             //
+            ResultSetSummary resultSummaryFromAvailableCallback = null;
             Task AvailableCallback(ResultSet r)
             {
                 Debug.WriteLine($"available result notification sent, result summary was: {r.Summary}");
+                resultSummaryFromAvailableCallback = r.Summary;
                 return Task.CompletedTask;
             }
+
+
+            // Setup: Create a results updated callback for result set
+            //
+            List<ResultSetSummary> resultSummariesFromUpdatedCallback = new List<ResultSetSummary>();
 
             Task UpdatedCallback(ResultSet r)
             {
                 Debug.WriteLine($"updated result notification sent, result summary was: {r.Summary}");
+                resultSummariesFromUpdatedCallback.Add(r.Summary);
                 return Task.CompletedTask;
             }
 
             // Setup: Create a  results complete callback for result set
             //
+            ResultSetSummary resultSummaryFromCompleteCallback = null;
             Task CompleteCallback(ResultSet r)
             {
                 Debug.WriteLine($"Completed result notification sent, result summary was: {r.Summary}");
                 Assert.True(r.Summary.Complete);
+                resultSummaryFromCompleteCallback = r.Summary;
                 return Task.CompletedTask;
             }
 
@@ -264,6 +272,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             //
             Assert.Equal(1, resultSet.Columns.Length);
             Assert.Equal(1, resultSet.RowCount);
+
+
+            // and:
+            //
+            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
 
             // If:
             // ... I attempt to read back the results
