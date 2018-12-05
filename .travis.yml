@@ -7,7 +7,7 @@ os:
 #  - osx
 
 mono: none
-dotnet: 2.2.100-preview3-009430
+dotnet: 2.2.100
 
 # safelist
 branches:
