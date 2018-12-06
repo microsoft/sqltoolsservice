@@ -53,7 +53,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 CategoryType = job.CategoryType,
                 LastRun = job.LastRun != null ? job.LastRun.ToString() : string.Empty,
                 NextRun = job.NextRun != null ? job.NextRun.ToString() : string.Empty,
-                JobId = job.JobID != null ? job.JobID.ToString() : null
+                JobId = job.JobID != null ? job.JobID.ToString() : null,
+                OperatorToEmail = job.OperatorToEmail,
+                OperatorToPage = job.OperatorToPage,
+                StartStepId = job.StartStepID,
+                EmailLevel = job.EmailLevel,
+                PageLevel = job.PageLevel,
+                EventLogLevel = job.EventLogLevel,
+                DeleteLevel = job.DeleteLevel
             };
         }
 
