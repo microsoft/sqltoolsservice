@@ -167,7 +167,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "GenerateScript");
                     GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, sqlConn);
-                    await ExecuteOperation(operation, parameters, "Generate script", requestContext);
+                    SqlTask sqlTask = null;
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Generate script", operation, ConnectionServiceInstance);
+
+                    // want to show filepath in task history instead of server and database
+                    metadata.ServerName = parameters.ScriptFilePath;
+                    metadata.DatabaseName = "";
+
+                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                    await requestContext.SendResult(new DacFxResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = true,
+                        ErrorMessage = ""
+                    });
                 }
             }
             catch (Exception e)
