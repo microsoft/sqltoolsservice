@@ -43,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest);
             serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
+            serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
         }
 
         /// <summary>
@@ -142,6 +143,31 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Deploy");
                     DeployOperation operation = new DeployOperation(parameters, sqlConn);
                     await ExecuteOperation(operation, parameters, "Deploy dacpac", requestContext);
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to generate deploy script
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGenerateDeployScriptRequest(GenerateDeployScriptParams parameters, RequestContext<DacFxResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                if (connInfo != null)
+                {
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "GenerateScript");
+                    GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, sqlConn);
+                    await ExecuteOperation(operation, parameters, "Generate script", requestContext);
                 }
             }
             catch (Exception e)
