@@ -6,6 +6,7 @@
 using System;
 using System.Data;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -181,6 +182,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 return this.description;
             }
+        }
+
+        public int StartStepID
+        {
+            get { return this.startStepID; }
+        }
+
+        public string OperatorToEmail
+        {
+            get { return this.operatorToEmail; }
+        }
+
+        public string OperatorToPage
+        {
+            get { return this.operatorToPage; }
+        }
+
+        public JobCompletionActionCondition EmailLevel
+        {
+            get { return (JobCompletionActionCondition)this.emailLevel; }
+        }
+
+        public JobCompletionActionCondition PageLevel
+        {
+            get { return (JobCompletionActionCondition)this.pageLevel; }
+        }
+
+        public JobCompletionActionCondition EventLogLevel
+        {
+            get { return (JobCompletionActionCondition)this.eventLogLevel; }
+        }
+
+        public JobCompletionActionCondition DeleteLevel
+        {
+            get { return (JobCompletionActionCondition)this.eventLogLevel; }
         }
     }
 }

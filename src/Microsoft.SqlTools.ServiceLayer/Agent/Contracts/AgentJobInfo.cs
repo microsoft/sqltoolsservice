@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string JobId { get; set; }
         public string OperatorToEmail { get; set; }
         public string OperatorToPage { get; set; }
-        public int StartStepID { get; set; }
+        public int StartStepId { get; set; }
         public JobCompletionActionCondition EmailLevel { get; set; }
         public JobCompletionActionCondition PageLevel { get; set; }
         public JobCompletionActionCondition EventLogLevel { get; set; }
