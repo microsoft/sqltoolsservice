@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class for handling SQL CMD by Batch Parser
     /// </summary>
-    internal class BatchParserSqlCmd : BatchParser
+    public class BatchParserSqlCmd : BatchParser
     {
         /// <summary>
         /// The internal variables that can be used in SqlCommand substitution.
@@ -36,14 +36,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             // nothing
         }
-        
-        internal ConnectionChangedDelegate ConnectionChanged
+
+        public ConnectionChangedDelegate ConnectionChanged
         {
             get { return connectionChangedDelegate; }
             set { connectionChangedDelegate = value; }
         }
 
-        internal ErrorActionChangedDelegate ErrorActionChanged
+        public ErrorActionChangedDelegate ErrorActionChanged
         {
             get { return errorActionChangedDelegate; }
             set { errorActionChangedDelegate = value; }

@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    internal enum ErrorCode
+    public enum ErrorCode
     {
         ErrorCodeBase = 0,
 

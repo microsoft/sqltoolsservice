@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
-    internal class ScriptExecutionFinishedEventArgs : EventArgs
+    public class ScriptExecutionFinishedEventArgs : EventArgs
     {   
         internal ScriptExecutionFinishedEventArgs(ScriptExecutionResult result)
         {

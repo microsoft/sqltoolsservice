@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     /// <summary>
     /// Lexer class for the SMO Batch Parser
     /// </summary>
-    internal sealed class Lexer : IDisposable
+    public sealed class Lexer : IDisposable
     {
         private LexerInput currentInput;
         private bool popInputAtNextConsume;

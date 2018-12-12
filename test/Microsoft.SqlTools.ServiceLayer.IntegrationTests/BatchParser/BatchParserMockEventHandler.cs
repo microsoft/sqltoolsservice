@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 {
-    internal class BatchParserMockEventHandler : IBatchEventsHandler
+    public class BatchParserMockEventHandler : IBatchEventsHandler
     {
         public SqlError Error { get; private set; }
 

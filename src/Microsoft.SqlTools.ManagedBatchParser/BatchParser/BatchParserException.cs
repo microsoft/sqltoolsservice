@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    internal sealed class BatchParserException : Exception
+    public sealed class BatchParserException : Exception
     {
         const string ErrorCodeName = "ErrorCode";
         const string BeginName = "Begin";

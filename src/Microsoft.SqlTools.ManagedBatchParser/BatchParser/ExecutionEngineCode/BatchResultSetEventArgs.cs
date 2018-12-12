@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class associated with setting batch results
     /// </summary>
-    internal class BatchResultSetEventArgs : EventArgs
+    public class BatchResultSetEventArgs : EventArgs
     {
         
         private readonly IDataReader dataReader = null;

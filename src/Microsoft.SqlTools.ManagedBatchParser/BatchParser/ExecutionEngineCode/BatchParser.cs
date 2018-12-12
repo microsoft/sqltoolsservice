@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Class that parses queries into batches
     /// </summary>
-    internal class BatchParser : 
+    public class BatchParser : 
         ICommandHandler, 
         IVariableResolver
     {
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             throw new NotImplementedException("The method or operation is not implemented.");
         }
 
-        internal void DisableVariableSubstitution()
+        public void DisableVariableSubstitution()
         {
             variableSubstitutionDisabled = true;
         }

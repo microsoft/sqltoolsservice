@@ -8,7 +8,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
-    internal class ExecutionEngineConditions
+    public class ExecutionEngineConditions
     {
 
         #region Private fields

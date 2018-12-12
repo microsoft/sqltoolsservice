@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Error totalAffectedRows for a Batch
     /// </summary>
-    internal class BatchErrorEventArgs : EventArgs
+    public class BatchErrorEventArgs : EventArgs
     {
         #region Private Fields
         private string message = string.Empty;

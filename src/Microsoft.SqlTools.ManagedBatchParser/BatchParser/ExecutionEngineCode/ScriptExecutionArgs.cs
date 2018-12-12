@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
-    internal class ScriptExecutionArgs : EventArgs
+    public class ScriptExecutionArgs : EventArgs
     {
         private IDbConnection connection;
         private IBatchEventsHandler batchEventHandlers;

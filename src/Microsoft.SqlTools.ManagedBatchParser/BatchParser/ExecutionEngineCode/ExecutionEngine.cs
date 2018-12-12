@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// <summary>
     /// Execution engine class which executed the parsed batches
     /// </summary>
-    internal class ExecutionEngine : IDisposable
+    public class ExecutionEngine : IDisposable
     {
 
         #region Private fields

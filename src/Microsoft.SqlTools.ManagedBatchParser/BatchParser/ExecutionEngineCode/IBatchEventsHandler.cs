@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
-    internal interface IBatchEventsHandler
+    public interface IBatchEventsHandler
     {
         /// <summary>
         /// fired when there is an error message from the server
