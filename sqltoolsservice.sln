@@ -88,6 +88,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScriptGenerator", "test\Scr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting.v2", "src\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.v2.csproj", "{EF02F89F-417E-4A40-B7E6-B102EE2DF24D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.ManagedBatchParser", "src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj", "{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -209,6 +211,12 @@ Global
 		{EF02F89F-417E-4A40-B7E6-B102EE2DF24D}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{EF02F89F-417E-4A40-B7E6-B102EE2DF24D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF02F89F-417E-4A40-B7E6-B102EE2DF24D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -235,6 +243,7 @@ Global
 		{EFB39C03-F7D2-4E8D-BE51-09121CD71973} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{8EE5B06A-2EB2-4A47-812D-1D5B98D0F49A} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{EF02F89F-417E-4A40-B7E6-B102EE2DF24D} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{F7277E8C-B08D-4E16-9C16-BA9C3C38A13F} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
