@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyName>Microsoft.SqlTools.Common</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

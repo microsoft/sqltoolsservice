@@ -18,7 +18,9 @@
   "MainProjects": [     
     "Microsoft.SqlTools.ServiceLayer",
     "Microsoft.SqlTools.Credentials",
-    "Microsoft.SqlTools.ResourceProvider"
+    "Microsoft.SqlTools.ResourceProvider",
+	"Microsoft.SqlTools.Common",
+	"Microsoft.SqlTools.ManagedBatchParser"
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.CoreServices",

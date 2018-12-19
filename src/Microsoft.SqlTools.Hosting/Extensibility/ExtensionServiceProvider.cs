@@ -23,7 +23,9 @@ namespace Microsoft.SqlTools.Extensibility
         {
             "microsofsqltoolscredentials.dll",
             "microsoft.sqltools.hosting.dll",
-            "microsoftsqltoolsservicelayer.dll"
+            "microsoftsqltoolsservicelayer.dll",
+            "Microsoft.SqlTools.Common.dll",
+            "Microsoft.SqlTools.ManagedBatchParser.dll"
         };
 
         private Func<ConventionBuilder, ContainerConfiguration> config;
@@ -219,25 +221,32 @@ namespace Microsoft.SqlTools.Extensibility
 
         protected override Assembly Load(AssemblyName assemblyName)
         {
-            var deps = DependencyContext.Default;
-            var res = deps.CompileLibraries.Where(d => d.Name.Equals(assemblyName.Name)).ToList();
-            if (res.Count > 0)
+            try
             {
-                return Assembly.Load(new AssemblyName(res.First().Name));
-            }
-            else
-            {
-                var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
-                if (File.Exists(apiApplicationFileInfo.FullName))
+                var deps = DependencyContext.Default;
+                var res = deps.CompileLibraries.Where(d => d.Name.Equals(assemblyName.Name)).ToList();
+                if (res.Count > 0)
                 {
-                    // Creating a new AssemblyContext instance for the same folder puts us at risk 
-                    // of loading the same DLL in multiple contexts, which leads to some unpredictable
-                    // behavior in the loader. See https://github.com/dotnet/coreclr/issues/19632
-
-                    return LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
+                    return Assembly.Load(new AssemblyName(res.First().Name));
                 }
+                else
+                {
+                    var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
+                    if (File.Exists(apiApplicationFileInfo.FullName))
+                    {
+                        // Creating a new AssemblyContext instance for the same folder puts us at risk 
+                        // of loading the same DLL in multiple contexts, which leads to some unpredictable
+                        // behavior in the loader. See https://github.com/dotnet/coreclr/issues/19632
+
+                        return LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
+                    }
+                }
+                return Assembly.Load(assemblyName);
             }
-            return Assembly.Load(assemblyName);
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

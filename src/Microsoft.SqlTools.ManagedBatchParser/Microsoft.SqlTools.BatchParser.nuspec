@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Microsoft.SqlTools.BatchParser</id>
+        <version>1.0.0</version>
+        <authors>v-nidhar</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>This is a private package for Microsoft.SqlTools.BatchParser</description>
+ 
+<references>
+ <reference file="Microsoft.SqlTools.BatchParser.dll" />
+ <reference file="Microsoft.SqlTools.Common.dll" />
+ <reference file="Microsoft.SqlTools.Hosting.dll" />
+</references>
+    </metadata>
+    <files>
+        <file src="bin/Debug/netstandard2.0/Microsoft.SqlTools.BatchParser.dll" target="lib/netstandard2.0" />
+        <file src="bin/Debug/netstandard2.0/Microsoft.SqlTools.Common.dll" target="lib/netstandard2.0" />
+        <file src="bin/Debug/netstandard2.0/Microsoft.SqlTools.Hosting.dll" target="lib/netstandard2.0" />
+    </files>
+</package>

@@ -3,10 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SQLServer.SMO" Version="150.18068.0-xplat" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="150.18040.0-preview" />
   </ItemGroup>
 
   <ItemGroup>

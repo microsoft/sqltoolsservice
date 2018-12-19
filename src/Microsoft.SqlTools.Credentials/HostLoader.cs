@@ -8,7 +8,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
-namespace  Microsoft.SqlTools.Credentials.Utility
+namespace Microsoft.SqlTools.Credentials.Utility
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility
@@ -47,7 +47,10 @@ namespace  Microsoft.SqlTools.Credentials.Utility
             // on directory or assembly list quite easily in the future
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
                 "microsofsqltoolscredentials.dll",
-                "microsoft.sqltools.hosting.dll"
+                "microsoft.sqltools.hosting.dll",
+                "microsoftsqltoolsservicelayer.dll",
+                "Microsoft.SqlTools.Common.dll",
+                "Microsoft.SqlTools.ManagedBatchParser.dll"
             });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);

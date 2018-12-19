@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Globalization;
 using System.Diagnostics;
+using Microsoft.SqlTools.ManagedBatchParser;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {

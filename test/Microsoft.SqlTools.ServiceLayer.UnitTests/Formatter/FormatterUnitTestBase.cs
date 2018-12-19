@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
@@ -27,7 +28,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
             ServiceProvider.RegisterSingleService(LanguageServiceMock.Object);
             HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
-            FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
+            try
+            {
+                FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
 
         protected ExtensionServiceProvider ServiceProvider { get; private set; }
@@ -42,7 +51,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             string inputSql = TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
             string formattedSql = string.Empty;
             formattedSql = FormatterService.Format(inputSql, options, verifyFormat);
-
+            if(formattedSql is null)
+            {
+                throw new NullReferenceException();
+            }
             formattedSql = TestUtilities.NormalizeLineEndings(formattedSql);
 
             string assemblyPath = GetType().GetTypeInfo().Assembly.Location;

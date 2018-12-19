@@ -3,7 +3,7 @@
 // from information in sr.strings
 // DO NOT MODIFY THIS FILE'S CONTENTS, THEY WILL BE OVERWRITTEN
 //
-namespace Microsoft.SqlTools.ManagedBatchParser
+namespace Microsoft.SqlTools.Common
 {
     using System;
     using System.Reflection;
@@ -4767,7 +4767,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ManagedBatchParser.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.Common.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
 

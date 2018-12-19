@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <EnableDefaultItems>false</EnableDefaultItems>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
@@ -21,11 +21,14 @@
   <PackageId>Microsoft.SqlTools.ServiceLayer</PackageId>
   <Authors>Microsoft.SqlTools.ServiceLayer</Authors>
   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  <ApplicationIcon />
+  <StartupObject />
 </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0-preview3-27014-02" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
+	<PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4240.1-preview" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
   </ItemGroup>
   <ItemGroup>
@@ -39,5 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
+	<EmbeddedResource Include="Localization\sr.resx" />
+    <None Include="Localization\sr.strings" />
   </ItemGroup>
 </Project>
