@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <EnableDefaultItems>false</EnableDefaultItems>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
@@ -18,9 +18,6 @@
 
 <PropertyGroup>
   <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-  <PackageId>Microsoft.SqlTools.ServiceLayer</PackageId>
-  <Authors>Microsoft.SqlTools.ServiceLayer</Authors>
-  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   <ApplicationIcon />
   <StartupObject />
 </PropertyGroup>
