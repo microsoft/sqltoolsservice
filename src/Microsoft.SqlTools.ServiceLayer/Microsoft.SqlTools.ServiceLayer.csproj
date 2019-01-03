@@ -21,9 +21,11 @@
 </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0-preview3-27014-02" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+    <PackageReference Include="Microsoft.SqlTools.ManagedBatchParser" Version="1.0.0" />
+
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
@@ -36,13 +38,5 @@
     <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="Connection\ReliableConnection\ReliableSqlConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

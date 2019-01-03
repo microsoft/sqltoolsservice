@@ -1,0 +1,2635 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype=">text/microsoft-resx</resheader>
+    <resheader name="version=">2.0</resheader>
+    <resheader name="reader=">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer=">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1="><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing=">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64=">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64=">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata=">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true=">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded=">
+          <xsd:element name="metadata=">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly=">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data=">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader=">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Connection parameters cannot be null</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri cannot be null or empty</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' does not have existing connection</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>Specified URI '{0}' does not have a default connection</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</value>
+    <comment>.
+ Parameters: 0 - authType (string) </comment>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</value>
+    <comment>.
+ Parameters: 0 - intent (string) </comment>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Connection canceled</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri cannot be null or empty</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>Connection details object cannot be null</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName cannot be null or empty</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>{0} cannot be null or empty when using SqlLogin authentication</value>
+    <comment>.
+ Parameters: 0 - component (string) </comment>
+  </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Azure SQL DB</value>
+    <comment></comment>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Azure SQL Data Warehouse</value>
+    <comment></comment>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>The query has already completed, it cannot be cancelled</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>Query successfully cancelled, failed to dispose query. Owner URI not found.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Query was canceled by user</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>The batch has not completed, yet</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>Batch index cannot be less than 0 or greater than the number of batches</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>Result set index cannot be less than 0 or greater than the number of result sets</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>Maximum number of bytes to return must be greater than zero</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>Maximum number of chars to return must be greater than zero</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>Maximum number of XML bytes to return must be greater than zero</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>Access method cannot be write-only</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>FileStreamWrapper must be initialized before performing operations</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>This FileStreamWrapper cannot be used for writing</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 row affected)</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>({0} rows affected)</value>
+    <comment>.
+ Parameters: 0 - rows (long) </comment>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>Commands completed successfully.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</value>
+    <comment>.
+ Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Query failed: {0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(No column name)</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>The requested query does not exist</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>This editor is not connected to a database</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>Sender for OnInfoMessage event must be a SqlConnection</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>Cannot add row to result buffer, data reader does not contain rows</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>Query has no results to return</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>Result set has too many rows to be safely loaded</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Result cannot be saved until query execution has completed</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Internal error occurred while starting save task</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>A save request to the same path is in progress</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Failed to save {0}: {1}</value>
+    <comment>.
+ Parameters: 0 - fileName (string), 1 - message (string) </comment>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>Cannot read subset unless the results have been read from the server</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>Start row cannot be less than 0 or greater than the number of rows in the result set</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>Row count must be a positive integer</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>Could not retrieve column schema for result set</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>Could not retrieve an execution plan from the result set </value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>An unexpected error occurred during Peek Definition execution: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>No results were found.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>No database object was retrieved.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Please connect to a server.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Operation timed out.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>This object type is currently not supported by this feature.</value>
+    <comment></comment>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Replacement of an empty string by an empty string.</value>
+    <comment></comment>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Position is outside of file line range</value>
+    <comment></comment>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Position is outside of column range for line {0}</value>
+    <comment>.
+ Parameters: 0 - line (int) </comment>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</value>
+    <comment>.
+ Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>Table or view requested for edit could not be found</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>Edit session does not exist.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>Edit session already exists.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>Edit session has not been initialized</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>Edit session has already been initialized</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>Edit session has already been initialized or is in the process of initializing</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>Table metadata does not have extended properties</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>A object name must be provided</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>Explicitly specifying server or database is not supported</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>Result limit cannot be negative</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>Database object {0} cannot be used for editing.</value>
+    <comment>.
+ Parameters: 0 - typeName (string) </comment>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>Query execution failed, see messages for details</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>Query has not completed execution</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>Query did not generate exactly one result set</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>Failed to add new row to update cache</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>Given row ID is outside the range of rows in the edit cache</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>An update is already pending for this row and must be reverted first</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>Given row ID does not have pending update</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>Table or view metadata could not be found</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>Invalid format for column '{0}', column is defined as {1}</value>
+    <comment>.
+ Parameters: 0 - colName (string), 1 - colType (string) </comment>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>Invalid format for binary column</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Allowed values for boolean columns are 0, 1, "true", or "false"</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>The column '{0}' is defined as NOT NULL but was not given a value</value>
+    <comment>.
+ Parameters: 0 - colName (string) </comment>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>A delete is pending for this row, a cell update cannot be applied.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>Column ID must be in the range of columns for the query</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>Column cannot be edited</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>No key columns were found</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>An output filename must be provided</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>A commit task is in progress. Please wait for completion.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;TBD&gt;</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>NULL is not allowed for this column</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Value {0} is too large to fit in column of type {1}</value>
+    <comment>.
+ Parameters: 0 - value (string), 1 - columnType (string) </comment>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>EditData queries targeting multiple tables are not supported</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>EditData queries with aliased columns are not supported</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>EditData queries with aggregate or expression columns are not supported</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>EditData queries with duplicate columns are not supported</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>EditData queries must query the originally targeted table '{0}'</value>
+    <comment>.
+ Parameters: 0 - tableName (string) </comment>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>An error occurred while the batch was being processed. The error message is: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} row(s) affected)</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>The previous execution is not yet complete.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>A scripting error occurred.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Incorrect syntax was encountered while {0} was being parsed.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>A fatal error occurred.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Batch execution completed {0} times...</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>You cancelled the query.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>An error occurred while the batch was being executed.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>An error occurred while the batch was being executed, but the error has been ignored.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Beginning execution loop</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>Command {0} is not supported.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>The variable {0} could not be found.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
+    <value>SQL Execution error: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Batch parser wrapper execution engine batch ResultSet finished.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Canceling batch parser wrapper batch execution.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Scripting warning.</value>
+    <comment></comment>
+  </data>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>For more information about this error, see the troubleshooting topics in the product documentation.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_CircularReference" xml:space="preserve">
+    <value>File '{0}' recursively included.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
+    <value>Missing end comment mark '*/'.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Unclosed quotation mark after the character string.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
+    <value>Incorrect syntax was encountered while parsing '{0}'.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
+    <value>Variable {0} is not defined.</value>
+    <comment></comment>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>test</value>
+    <comment></comment>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Exact numeric column is missing numeric precision or numeric scale</value>
+    <comment></comment>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>Column with length is missing size</value>
+    <comment></comment>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>Scalar column missing scale</value>
+    <comment></comment>
+  </data>
+  <data name="TreeNodeError" xml:space="preserve">
+    <value>Error expanding: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="ServerNodeConnectionError" xml:space="preserve">
+    <value>Error connecting to {0}</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
+    <value>Aggregates</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
+    <value>Server Roles</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
+    <value>Application Roles</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
+    <value>Assemblies</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
+    <value>Assembly Files</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
+    <value>Asymmetric Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
+    <value>Asymmetric Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
+    <value>Data Compression Options</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
+    <value>Certificates</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
+    <value>FileTables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
+    <value>Certificates</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
+    <value>Check Constraints</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Columns" xml:space="preserve">
+    <value>Columns</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
+    <value>Constraints</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
+    <value>Contracts</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
+    <value>Credentials</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
+    <value>Error Messages</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
+    <value>Server Role Membership</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
+    <value>Database Options</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
+    <value>Database Roles</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
+    <value>Role Memberships</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
+    <value>Database Triggers</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
+    <value>Default Constraints</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
+    <value>Defaults</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
+    <value>Sequences</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
+    <value>Endpoints</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
+    <value>Event Notifications</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
+    <value>Server Event Notifications</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
+    <value>Extended Properties</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
+    <value>Filegroups</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
+    <value>Foreign Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
+    <value>Full-Text Catalogs</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
+    <value>Full-Text Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Functions" xml:space="preserve">
+    <value>Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
+    <value>Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
+    <value>Inline Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Keys" xml:space="preserve">
+    <value>Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
+    <value>Linked Servers</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
+    <value>Linked Server Logins</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Logins" xml:space="preserve">
+    <value>Logins</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
+    <value>Master Key</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
+    <value>Master Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
+    <value>Message Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
+    <value>Table-Valued Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
+    <value>Parameters</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
+    <value>Partition Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
+    <value>Partition Schemes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
+    <value>Permissions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
+    <value>Primary Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
+    <value>Programmability</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Queues" xml:space="preserve">
+    <value>Queues</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
+    <value>Remote Service Bindings</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
+    <value>Returned Columns</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Roles" xml:space="preserve">
+    <value>Roles</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Routes" xml:space="preserve">
+    <value>Routes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Rules" xml:space="preserve">
+    <value>Rules</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
+    <value>Schemas</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Security" xml:space="preserve">
+    <value>Security</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
+    <value>Server Objects</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Management" xml:space="preserve">
+    <value>Management</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
+    <value>Triggers</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
+    <value>Service Broker</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Services" xml:space="preserve">
+    <value>Services</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
+    <value>Signatures</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
+    <value>Log Files</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
+    <value>Statistics</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Storage" xml:space="preserve">
+    <value>Storage</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
+    <value>Stored Procedures</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
+    <value>Symmetric Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
+    <value>Synonyms</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Tables" xml:space="preserve">
+    <value>Tables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
+    <value>Triggers</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Types" xml:space="preserve">
+    <value>Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
+    <value>Unique Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
+    <value>User-Defined Data Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
+    <value>User-Defined Types (CLR)</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Users" xml:space="preserve">
+    <value>Users</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Views" xml:space="preserve">
+    <value>Views</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
+    <value>XML Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
+    <value>XML Schema Collections</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
+    <value>User-Defined Table Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
+    <value>Files</value>
+    <comment></comment>
+  </data>
+  <data name="MissingCaption" xml:space="preserve">
+    <value>Missing Caption</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
+    <value>Broker Priorities</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
+    <value>Cryptographic Providers</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
+    <value>Database Audit Specifications</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
+    <value>Database Encryption Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
+    <value>Event Sessions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
+    <value>Full Text Stoplists</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
+    <value>Resource Pools</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
+    <value>Audits</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
+    <value>Server Audit Specifications</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
+    <value>Spatial Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
+    <value>Workload Groups</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
+    <value>SQL Files</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
+    <value>Server Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
+    <value>SQL Type</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
+    <value>Server Options</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
+    <value>Database Diagrams</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
+    <value>System Tables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Databases" xml:space="preserve">
+    <value>Databases</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
+    <value>System Contracts</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
+    <value>System Databases</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
+    <value>System Message Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
+    <value>System Queues</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
+    <value>System Services</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
+    <value>System Stored Procedures</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
+    <value>System Views</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
+    <value>Data-tier Applications</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
+    <value>Extended Stored Procedures</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
+    <value>Aggregate Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
+    <value>Approximate Numerics</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
+    <value>Binary Strings</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
+    <value>Character Strings</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
+    <value>CLR Data Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
+    <value>Configuration Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
+    <value>Cursor Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
+    <value>System Data Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
+    <value>Date and Time</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
+    <value>Date and Time Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
+    <value>Exact Numerics</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
+    <value>System Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
+    <value>Hierarchy Id Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
+    <value>Mathematical Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
+    <value>Metadata Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
+    <value>Other Data Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
+    <value>Other Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
+    <value>Rowset Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
+    <value>Security Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
+    <value>Spatial Data Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
+    <value>String Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
+    <value>System Statistical Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
+    <value>Text and Image Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
+    <value>Unicode Character Strings</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
+    <value>Aggregate Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
+    <value>Scalar-valued Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
+    <value>Table-valued Functions</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
+    <value>System Extended Stored Procedures</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
+    <value>Built-in Types</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
+    <value>Built-in Server Roles</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
+    <value>User with Password</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
+    <value>Search Property List</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
+    <value>Security Policies</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
+    <value>Security Predicates</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
+    <value>Server Role</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
+    <value>Search Property Lists</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
+    <value>Column Store Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
+    <value>Table Type Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>Server</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
+    <value>Selective XML Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
+    <value>XML Namespaces</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
+    <value>XML Typed Promoted Paths</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
+    <value>T-SQL Typed Promoted Paths</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
+    <value>Database Scoped Credentials</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
+    <value>External Data Sources</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
+    <value>External File Formats</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
+    <value>External Resources</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
+    <value>External Tables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
+    <value>Always Encrypted Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
+    <value>Column Master Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
+    <value>Column Encryption Keys</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
+    <value>{0} ({1}, {2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
+    <value>No default</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
+    <value>Input</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
+    <value>Input/Output</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
+    <value>Input/ReadOnly</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
+    <value>Input/Output/ReadOnly</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
+    <value>Default</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
+    <value>null</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
+    <value>not null</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
+    <value>{0} ({1}, {2})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
+    <value>{0} ({1}Computed, {2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1}Computed)</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
+    <value>{0} (Column Set, {1})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
+    <value>{0} (Column Set, {1}{2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
+    <value>{0} (Column Set, {1}, {2}, {3})</value>
+    <comment></comment>
+  </data>
+  <data name="UniqueIndex_LabelPart" xml:space="preserve">
+    <value>Unique</value>
+    <comment></comment>
+  </data>
+  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
+    <value>Non-Unique</value>
+    <comment></comment>
+  </data>
+  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
+    <value>Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
+    <value>Non-Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="History_LabelPart" xml:space="preserve">
+    <value>History</value>
+    <comment></comment>
+  </data>
+  <data name="SystemVersioned_LabelPart" xml:space="preserve">
+    <value>System-Versioned</value>
+    <comment></comment>
+  </data>
+  <data name="External_LabelPart" xml:space="preserve">
+    <value>External</value>
+    <comment></comment>
+  </data>
+  <data name="FileTable_LabelPart" xml:space="preserve">
+    <value>File Table</value>
+    <comment></comment>
+  </data>
+  <data name="DatabaseNotAccessible" xml:space="preserve">
+    <value>The database {0} is not accessible.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Error parsing ScriptingParams.ConnectionString property.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>Invalid directory specified by the ScriptingParams.FilePath property.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
+    <comment></comment>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>An error occurred while scripting the objects.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Scripting as Execute is only supported for Stored Procedures</value>
+    <comment></comment>
+  </data>
+  <data name="unavailable" xml:space="preserve">
+    <value>Unavailable</value>
+    <comment></comment>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Current default filegroup: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>New Filegroup for {0}</value>
+    <comment></comment>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>Default</value>
+    <comment></comment>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Files</value>
+    <comment></comment>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Read-Only</value>
+    <comment></comment>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Autogrowth / Maxsize</value>
+    <comment></comment>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+    <comment></comment>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+    <comment></comment>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Filegroup</value>
+    <comment></comment>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Logical Name</value>
+    <comment></comment>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>File Type</value>
+    <comment></comment>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>Initial Size (MB)</value>
+    <comment></comment>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;new filegroup&gt;</value>
+    <comment></comment>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Path</value>
+    <comment></comment>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>File Name</value>
+    <comment></comment>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;raw device&gt;</value>
+    <comment></comment>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>Bulk-logged</value>
+    <comment></comment>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Full</value>
+    <comment></comment>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Simple</value>
+    <comment></comment>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Select Database Owner</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>By {0} MB, Limited to {1} MB</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>By {0} percent, Limited to {1} MB</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>By {0} MB, Unlimited</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>By {0} percent, Unlimited</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Unlimited</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>Limited to {0} MB</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Automatic</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Collation</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>Cursor</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Miscellaneous</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Recovery</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>State</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL Default</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULLS Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI Padding Enabled </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>ANSI Warnings Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Arithmetic Abort Enabled </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Auto Close</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Auto Create Statistics</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Auto Shrink</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Auto Update Statistics </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>Auto Update Statistics Asynchronously</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>Case Sensitive</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>Close Cursor on Commit Enabled </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Collation</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Concatenate Null Yields Null </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Database Compatibility Level</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Database State </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Default Cursor</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Full-Text Indexing Enabled </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Numeric Round-Abort </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Page Verify </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Quoted Identifiers Enabled </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>Database Read-Only</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Recursive Triggers Enabled </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Restrict Access</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Select Into/Bulk Copy</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Honor Broker Priority</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Service Broker Identifier</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Truncate Log on Checkpoint </value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Cross-database Ownership Chaining Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>Trustworthy</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Date Correlation Optimization Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parameterization</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Forced</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Simple</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>ROWS Data</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>LOG</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM Data</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>Not Applicable</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;default path&gt;</value>
+    <comment></comment>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Open Connections</value>
+    <comment></comment>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>EMERGENCY</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>INACCESSIBLE</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>OFFLINE</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>RECOVERING</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>RECOVERY PENDING</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>RESTORING</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>SHUTDOWN</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>STANDBY</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>SUSPECT</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBAL</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOCAL</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>CHECKSUM</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>NONE</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>VarDecimal Storage Format Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Encryption Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>OFF</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>ON</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>PRIMARY</value>
+    <comment></comment>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
+    <value>SQL Server vNext (140)</value>
+    <comment></comment>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Partial</value>
+    <comment></comment>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>FILESTREAM Files</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>No Applicable Filegroup</value>
+    <comment></comment>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>Never</value>
+    <comment></comment>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Path {0} is not a valid directory </value>
+    <comment></comment>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>For directory {0} a file with name {1} already exists</value>
+    <comment></comment>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>Backup Database</value>
+    <comment></comment>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>Please provide a file path instead of directory path</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value> The provided path is invalid</value>
+    <comment></comment>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>In progress</value>
+    <comment></comment>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>Completed</value>
+    <comment></comment>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>Invalid path for database file: '{0}'</value>
+    <comment></comment>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+    <comment></comment>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>Failed to create restore plan</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>Restore database is not supported</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>Restore Database</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(Copy Only)</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>Component</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>Type</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>Server</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>Database</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>Position</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>First LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>Last LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>Checkpoint LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>Full LSN</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>Start Date</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>Finish Date</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>Size</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>User Name</value>
+    <comment></comment>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>Expiration</value>
+    <comment></comment>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>The last backup taken ({0})</value>
+    <comment></comment>
+  </data>
+  <data name="NoBackupsetsToRestore" xml:space="preserve">
+    <value>No backupset selected to be restored</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>scripting</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>Cannot access the specified path on the server: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>Connection not found</value>
+    <comment></comment>
+  </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Cannot profile Azure system databases</value>
+    <comment></comment>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>Failed to create session: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Failed to start session: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>Failed to pause session: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Failed to stop session: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Cannot find requested XEvent session</value>
+    <comment></comment>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>An XEvent session named {0} already exists</value>
+    <comment>.
+ Parameters: 0 - sessionName (String) </comment>
+  </data>
+  <data name="EnableAlertsTitle" xml:space="preserve">
+    <value>Enable Alerts - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="EnableAlertDescription" xml:space="preserve">
+    <value>Enable Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="EnablingAlert" xml:space="preserve">
+    <value>Enabling Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="EnabledAlert" xml:space="preserve">
+    <value>Enabled Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="DisableAlertsTitle" xml:space="preserve">
+    <value>Disable Alerts - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="DisableAlertDescription" xml:space="preserve">
+    <value>Disable Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="DisablingAlert" xml:space="preserve">
+    <value>Disabling Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="DisabledAlert" xml:space="preserve">
+    <value>Disabled Alert '{0}'</value>
+    <comment>.
+ Parameters: 0 - alertName (String) </comment>
+  </data>
+  <data name="EnableJobsTitle" xml:space="preserve">
+    <value>Enable Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="EnableJobDescription" xml:space="preserve">
+    <value>Enable Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="EnablingJob" xml:space="preserve">
+    <value>Enabling Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="EnabledJob" xml:space="preserve">
+    <value>Enabled Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="DisableJobsTitle" xml:space="preserve">
+    <value>Disable Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="DisableJobDescription" xml:space="preserve">
+    <value>Disable Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="DisablingJob" xml:space="preserve">
+    <value>Disabling Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="DisabledJob" xml:space="preserve">
+    <value>Disabled Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StartJobsTitle" xml:space="preserve">
+    <value>Start Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="StartJobDescription" xml:space="preserve">
+    <value>Start Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="GettingStartStep" xml:space="preserve">
+    <value>Job '{0}' has more than one step. Getting step to start</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="UserCancelledSelectStep" xml:space="preserve">
+    <value>User canceled select step. Job will not be started</value>
+    <comment></comment>
+  </data>
+  <data name="StartingJob" xml:space="preserve">
+    <value>Starting Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StartJobWithStep" xml:space="preserve">
+    <value>Start Job '{0}' with step '{1}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String), 1 - stepName (String) </comment>
+  </data>
+  <data name="RequestPostedToTargetServers" xml:space="preserve">
+    <value>Posted remote job execution request</value>
+    <comment></comment>
+  </data>
+  <data name="ExecuteJob" xml:space="preserve">
+    <value>Execute job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="JobFailed" xml:space="preserve">
+    <value>Execution of job '{0}' failed.  See the history log for details.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Executing</value>
+    <comment></comment>
+  </data>
+  <data name="BetweenRetries" xml:space="preserve">
+    <value>Between retries</value>
+    <comment></comment>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Suspended</value>
+    <comment></comment>
+  </data>
+  <data name="PerformingCompletionAction" xml:space="preserve">
+    <value>Performing completion action</value>
+    <comment></comment>
+  </data>
+  <data name="WaitingForStepToFinish" xml:space="preserve">
+    <value>Waiting for step to finish</value>
+    <comment></comment>
+  </data>
+  <data name="WaitingForWorkerThread" xml:space="preserve">
+    <value>Waiting for worker thread</value>
+    <comment></comment>
+  </data>
+  <data name="StopJobsTitle" xml:space="preserve">
+    <value>Stop Jobs - {0}</value>
+    <comment>.
+ Parameters: 0 - serverName (String) </comment>
+  </data>
+  <data name="StopJobDescription" xml:space="preserve">
+    <value>Stop Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StoppingJob" xml:space="preserve">
+    <value>Stopping Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="StoppedJob" xml:space="preserve">
+    <value>Stopped Job '{0}'</value>
+    <comment>.
+ Parameters: 0 - jobName (String) </comment>
+  </data>
+  <data name="AllDatabases" xml:space="preserve">
+    <value>&lt;all databases&gt;</value>
+    <comment> First item in database name drop down list</comment>
+  </data>
+  <data name="UnknownSeverity" xml:space="preserve">
+    <value>Unknown severity: {0}</value>
+    <comment> Exception thrown when agent alert has unknown severity level.
+ Parameters: 0 - severity (int) </comment>
+  </data>
+  <data name="Severity001" xml:space="preserve">
+    <value>001 - Miscellaneous System Information</value>
+    <comment></comment>
+  </data>
+  <data name="Severity002" xml:space="preserve">
+    <value>002 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity003" xml:space="preserve">
+    <value>003 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity004" xml:space="preserve">
+    <value>004 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity005" xml:space="preserve">
+    <value>005 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity006" xml:space="preserve">
+    <value>006 - Reserved</value>
+    <comment></comment>
+  </data>
+  <data name="Severity007" xml:space="preserve">
+    <value>007 - Notification: Status Information</value>
+    <comment></comment>
+  </data>
+  <data name="Severity008" xml:space="preserve">
+    <value>008 - Notification: User Intervention Required</value>
+    <comment></comment>
+  </data>
+  <data name="Severity009" xml:space="preserve">
+    <value>009 - User Defined</value>
+    <comment></comment>
+  </data>
+  <data name="Severity010" xml:space="preserve">
+    <value>010 - Information</value>
+    <comment></comment>
+  </data>
+  <data name="Severity011" xml:space="preserve">
+    <value>011 - Specified Database Object Not Found</value>
+    <comment></comment>
+  </data>
+  <data name="Severity012" xml:space="preserve">
+    <value>012 - Unused</value>
+    <comment></comment>
+  </data>
+  <data name="Severity013" xml:space="preserve">
+    <value>013 - User Transaction Syntax Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity014" xml:space="preserve">
+    <value>014 - Insufficient Permission</value>
+    <comment></comment>
+  </data>
+  <data name="Severity015" xml:space="preserve">
+    <value>015 - Syntax Error in SQL Statements</value>
+    <comment></comment>
+  </data>
+  <data name="Severity016" xml:space="preserve">
+    <value>016 - Miscellaneous User Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity017" xml:space="preserve">
+    <value>017 - Insufficient Resources</value>
+    <comment></comment>
+  </data>
+  <data name="Severity018" xml:space="preserve">
+    <value>018 - Nonfatal Internal Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity019" xml:space="preserve">
+    <value>019 - Fatal Error in Resource</value>
+    <comment></comment>
+  </data>
+  <data name="Severity020" xml:space="preserve">
+    <value>020 - Fatal Error in Current Process</value>
+    <comment></comment>
+  </data>
+  <data name="Severity021" xml:space="preserve">
+    <value>021 - Fatal Error in Database Processes</value>
+    <comment></comment>
+  </data>
+  <data name="Severity022" xml:space="preserve">
+    <value>022 - Fatal Error: Table Integrity Suspect</value>
+    <comment></comment>
+  </data>
+  <data name="Severity023" xml:space="preserve">
+    <value>023 - Fatal Error: Database Integrity Suspect</value>
+    <comment></comment>
+  </data>
+  <data name="Severity024" xml:space="preserve">
+    <value>024 - Fatal Error: Hardware Error</value>
+    <comment></comment>
+  </data>
+  <data name="Severity025" xml:space="preserve">
+    <value>025 - Fatal Error</value>
+    <comment></comment>
+  </data>
+  <data name="PagerScheduleMonFri" xml:space="preserve">
+    <value>Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?</value>
+    <comment> Message box that displayed if start time is more than end time on Mon-Fri</comment>
+  </data>
+  <data name="PagerScheduleSatSun" xml:space="preserve">
+    <value>Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?</value>
+    <comment> Message box that displayed if start time is more than end time on Sat-Sun</comment>
+  </data>
+  <data name="PagerScheduleWarning" xml:space="preserve">
+    <value>Pager schedule warning</value>
+    <comment> Message box caption</comment>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>General</value>
+    <comment> Tree node name</comment>
+  </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Notifications</value>
+    <comment> Tree node name</comment>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+    <comment> Tree node name</comment>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Day</value>
+    <comment> Pager schedule grid column name</comment>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>Start Time</value>
+    <comment> Pager schedule grid column name</comment>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>End Time</value>
+    <comment> Pager schedule grid column name</comment>
+  </data>
+  <data name="ColumnIndexIsInvalid" xml:space="preserve">
+    <value>Column index is invalid.</value>
+    <comment> Exception thrown when column index is invalid</comment>
+  </data>
+  <data name="RowIndexIsInvalid" xml:space="preserve">
+    <value>Row index is invalid.</value>
+    <comment> Exception thrown when row index is invalid</comment>
+  </data>
+  <data name="NewOperatorProperties" xml:space="preserve">
+    <value>New Operator</value>
+    <comment> Name of the operator dialog in create new operator mode</comment>
+  </data>
+  <data name="OperatorProperties" xml:space="preserve">
+    <value>{0} Properties</value>
+    <comment> Name of the operator dialog in modify operator mode.
+ Parameters: 0 - operatorName (string) </comment>
+  </data>
+  <data name="FailedToCreateInitializeAgentOperatorDialog" xml:space="preserve">
+    <value>Unable to create/initialize Agent Operator dialog.</value>
+    <comment> Exception thrown when dialog cannot be created/intialized.</comment>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>Job server is not available.</value>
+    <comment> Exception thrown when job server is not available</comment>
+  </data>
+  <data name="CannotCreateInitializeGeneralPage" xml:space="preserve">
+    <value>Cannot create/initialize General page.</value>
+    <comment> Exception thrown when we cannot create/initialize agent operators general page</comment>
+  </data>
+  <data name="CannotCreateInitializeNotificationsPage" xml:space="preserve">
+    <value>Cannot create/initialize Notifications page.</value>
+    <comment> Exception thrown when we cannot create/initialize agent operators notifications page</comment>
+  </data>
+  <data name="CannotCreateInitializeHistoryPage" xml:space="preserve">
+    <value>Cannot create/initialize History page.</value>
+    <comment> Exception thrown when we cannot create/initialize agent operators history page</comment>
+  </data>
+  <data name="CannotResetOperator" xml:space="preserve">
+    <value>Cannot reset operator.</value>
+    <comment> Exception throw when dialog cannot refresh operator</comment>
+  </data>
+  <data name="AlertList" xml:space="preserve">
+    <value>Alert list:</value>
+    <comment> Name of label on notifications page</comment>
+  </data>
+  <data name="JobList" xml:space="preserve">
+    <value>Job list:</value>
+    <comment> Name of label on notifications page</comment>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="Pager" xml:space="preserve">
+    <value>Pager</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="AlertName" xml:space="preserve">
+    <value>Alert name</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="JobName" xml:space="preserve">
+    <value>Job name</value>
+    <comment> Name of column on notifications page</comment>
+  </data>
+  <data name="Always" xml:space="preserve">
+    <value>Always</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Never</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="OnFailure" xml:space="preserve">
+    <value>On failure</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="OnSuccess" xml:space="preserve">
+    <value>On success</value>
+    <comment> Completion Action</comment>
+  </data>
+  <data name="CannotModifyAlerts" xml:space="preserve">
+    <value>Cannot modify alerts.</value>
+    <comment> Exception thrown when we cannot modify alerts</comment>
+  </data>
+  <data name="CannotCreateScriptForModifyAlerts" xml:space="preserve">
+    <value>Cannot create script for modify alerts.</value>
+    <comment> Exception thrown when we cannot create script that modify alerts</comment>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Uncategorized (Local)]</value>
+    <comment>job categories</comment>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>Jobs from MSX</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Uncategorized (Multi-Server)]</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Database Maintenance</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Web Assistant</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Full-Text</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-Distribution</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL-Distribution Cleanup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL-History Cleanup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL-Merge</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL-Snapshot</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL-Checkup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL-Subscription Cleanup</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL-Alert Response</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-QueueReader</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Replication</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Uncategorized]</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Log Shipping</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Database Engine Tuning Advisor</value>
+    <comment></comment>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Data Collector</value>
+    <comment></comment>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Unknown size unit {0} </value>
+    <comment>.
+ Parameters: 0 - unit (string) </comment>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Unexpected run type.</value>
+    <comment></comment>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>The object does no longer exist on server.</value>
+    <comment></comment>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Unknown server type '{0}'.</value>
+    <comment>.
+ Parameters: 0 - serverTypeName (string) </comment>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</value>
+    <comment>.
+ Parameters: 0 - ownerName (string) </comment>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>You must specify the Target Servers on which this multi server job will execute.</value>
+    <comment></comment>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>Proxy account '{0}' does not exist on the server.</value>
+    <comment>.
+ Parameters: 0 - proxyName (string) </comment>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>SQL Server Agent Service Account</value>
+    <comment></comment>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>A job named '{0}' already exists.  Enter a unique name for the job.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>The name of the job step cannot be blank.</value>
+    <comment></comment>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>There is already a step named '{0}' for this job. You must specify a different name.</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>The name of the alert cannot be blank.</value>
+    <comment></comment>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Cannot create new alert.</value>
+    <comment></comment>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Cannot alter alert.</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Invalid Schedule</value>
+    <comment> Schedule error message</comment>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Select at least one day to be part of this weekly schedule.</value>
+    <comment></comment>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>The job schedule starting date cannot be greater than the ending date.</value>
+    <comment></comment>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>The job schedule starting time cannot be after the ending time.</value>
+    <comment></comment>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>The job schedule ending time must be after the starting time.</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>Start date must be on or after January 1, 1990.</value>
+    <comment></comment>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>There is already a schedule named '{0}' for this job.  You must specify a different name.</value>
+    <comment>.
+ Parameters: 0 - scheduleName (string) </comment>
+  </data>
+</root>
