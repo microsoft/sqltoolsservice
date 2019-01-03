@@ -183,9 +183,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup actions to perform upon successful start and on failure to start
             Func<Query, Task<bool>> queryCreateSuccessAction = async q => {
                 await requestContext.SendResult(new ExecuteRequestResult());
+                Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
                 return true;
             };
-            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+            Func<string, Task> queryCreateFailureAction = message =>
+            {
+                Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                return requestContext.SendError(message);
+            };
 
             // Use the internal handler to launch the query
             return InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
@@ -321,6 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ResultSubset = subset
                 };
                 await requestContext.SendResult(result);
+                Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
             }
             catch (Exception e)
             {
@@ -612,6 +618,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Attempt to clean out any old query on the owner URI
             Query oldQuery;
+            // DevNote:
+            //    if any oldQuery exists on the executeParams.OwnerUri but it has not yet executed,
+            //    then shouldn't we cancel and clean out that query since we are about to create a new query object on the current OwnerUri.
+            //
             if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
             {
                 oldQuery.Dispose();
@@ -632,6 +642,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceQueryInProgress);
             }
 
+            Logger.Write(TraceEventType.Information, $"Query object for URI:'{executeParams.OwnerUri}' created");
             return newQuery;
         }
 
@@ -650,10 +661,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
+                Logger.Write(TraceEventType.Information, $"Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
-            // Setup the callback to send the complete event
+            // Setup the callback to send the failure event
             Query.QueryAsyncErrorEventHandler failureCallback = async (q, e) =>
             {
                 // Send back the results
@@ -663,6 +675,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
+                Logger.Write(TraceEventType.Error, $"Query:'{ownerUri}' failed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
             query.QueryCompleted += completeCallback;
@@ -682,6 +695,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
+                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
                 await eventSender.SendEvent(BatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
@@ -694,6 +708,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
+                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(BatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;
@@ -705,21 +720,53 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Message = m,
                     OwnerUri = ownerUri
                 };
+
+                Logger.Write(TraceEventType.Information, $"Message generated on Query:'{ownerUri}' :'{m}'");
                 await eventSender.SendEvent(MessageEvent.Type, eventParams);
             };
             query.BatchMessageSent += batchMessageCallback;
 
-            // Setup the ResultSet completion callback
-            ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
+            // Setup the ResultSet available callback
+            ResultSet.ResultSetAsyncEventHandler resultAvailableCallback = async r =>
             {
-                ResultSetEventParams eventParams = new ResultSetEventParams
+                ResultSetAvailableEventParams eventParams = new ResultSetAvailableEventParams
                 {
                     ResultSetSummary = r.Summary,
                     OwnerUri = ownerUri
                 };
+
+                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is available");
+                await eventSender.SendEvent(ResultSetAvailableEvent.Type, eventParams);
+            };
+            query.ResultSetAvailable += resultAvailableCallback;
+
+            // Setup the ResultSet updated callback
+            ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
+            {
+                ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
+                {
+                    ResultSetSummary = r.Summary,
+                    OwnerUri = ownerUri
+                };
+
+                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is updated with additional rows");
+                await eventSender.SendEvent(ResultSetUpdatedEvent.Type, eventParams);
+            };
+            query.ResultSetUpdated += resultUpdatedCallback;
+
+            // Setup the ResultSet completion callback
+            ResultSet.ResultSetAsyncEventHandler resultCompleteCallback = async r =>
+            {
+                ResultSetCompleteEventParams eventParams = new ResultSetCompleteEventParams
+                {
+                    ResultSetSummary = r.Summary,
+                    OwnerUri = ownerUri
+                };
+
+                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is complete");
                 await eventSender.SendEvent(ResultSetCompleteEvent.Type, eventParams);
             };
-            query.ResultSetCompleted += resultCallback;
+            query.ResultSetCompleted += resultCompleteCallback;
 
             // Launch this as an asynchronous task
             query.Execute();

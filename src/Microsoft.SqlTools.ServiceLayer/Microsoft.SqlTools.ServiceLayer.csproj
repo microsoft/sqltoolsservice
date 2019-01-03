@@ -16,13 +16,14 @@
     <RuntimeIdentifiers>win7-x64;win7-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
-<PropertyGroup>
-  <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-</PropertyGroup>
+  <PropertyGroup>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4240.1-preview" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
     <PackageReference Include="Microsoft.SqlTools.ManagedBatchParser" Version="1.0.0" />
 

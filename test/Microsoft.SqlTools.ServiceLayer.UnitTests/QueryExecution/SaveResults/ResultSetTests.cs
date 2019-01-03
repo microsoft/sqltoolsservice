@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... All the rows should have been written successfully
             saveWriter.Verify(
                 w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IList<DbColumnWrapper>>()),
-                Times.Exactly(Common.StandardRows - 2));
+                Times.Exactly((int) (saveParams.RowEndIndex - saveParams.RowStartIndex  + 1)));
         }
 
         private static Mock<IFileStreamWriter> GetMockWriter()

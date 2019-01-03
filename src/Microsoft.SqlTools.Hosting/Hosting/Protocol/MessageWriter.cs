@@ -59,8 +59,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     messageToWrite);
 
             // Log the JSON representation of the message
-            string logMessage = string.Format("Sending message of type[{0}] and method[{1}]",
-                messageToWrite.MessageType, messageToWrite.Method);
+            string logMessage =
+                $"Sending message of id[{messageToWrite.Id}], of type[{messageToWrite.MessageType}] and method[{messageToWrite.Method}]";
             Logger.Write(TraceEventType.Verbose, logMessage);
 
             string serializedMessage =

@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
@@ -109,6 +110,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             SecurityService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SecurityService.Instance);
+
+            DacFxService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(DacFxService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

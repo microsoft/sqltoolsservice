@@ -166,6 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         // other information
         private string script = null;
         private string scriptName = null;
+        private int startStepID = -1;
 
         #endregion
 
@@ -661,6 +662,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 this.owner = jobInfo.Owner;
                 this.description = jobInfo.Description;                
                 this.enabled = jobInfo.Enabled;
+                this.startStepID = jobInfo.StartStepId;
             }
         }
         #endregion
@@ -1184,6 +1186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             else
             {
+                job.StartStepID = this.startStepID != -1 ? this.startStepID : job.StartStepID;
                 job.Alter();
             }
 

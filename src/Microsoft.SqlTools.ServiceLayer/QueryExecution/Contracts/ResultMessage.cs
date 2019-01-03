@@ -51,5 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public ResultMessage()
         {
         }
+        public override string ToString() => $"Message on Batch Id:'{BatchId}', IsError:'{IsError}', Message:'{Message}'";
     }
 }
