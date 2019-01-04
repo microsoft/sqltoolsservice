@@ -61,6 +61,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting.Contracts", "src\Microsoft.SqlTools.Hosting.Contracts\Microsoft.SqlTools.Hosting.Contracts.csproj", "{BE04C532-C9AE-4C32-9283-F6629112228B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj", "{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3F82F298-700A-48DF-8A69-D048DFBA782C} = {3F82F298-700A-48DF-8A69-D048DFBA782C}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting.UnitTests", "test\Microsoft.SqlTools.Hosting.UnitTests\Microsoft.SqlTools.Hosting.UnitTests.csproj", "{BA3C9622-ABFF-45A2-91AA-CC5189083256}"
 EndProject
@@ -90,7 +93,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVFSample", "test\TVFSample\TVFSample.csproj", "{1FC10261-EC0D-416A-9B66-C55F0A34968C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.ManagedBatchParser", "src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj", "{3F82F298-700A-48DF-8A69-D048DFBA782C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ManagedBatchParser", "src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj", "{3F82F298-700A-48DF-8A69-D048DFBA782C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

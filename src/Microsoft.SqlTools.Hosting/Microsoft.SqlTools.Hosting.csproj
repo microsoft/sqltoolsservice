@@ -1,25 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	  <EnableDefaultItems>false</EnableDefaultItems>
-	  <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-	  <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<DebugType>portable</DebugType>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <DebugType>portable</DebugType>
+    <PackageOutputPath>../../bin/nuget</PackageOutputPath>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-	<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
-	<PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-	<PackageReference Include="System.Composition" Version="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="System.Composition" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="**\*.cs" />
+    <Compile Include="**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
