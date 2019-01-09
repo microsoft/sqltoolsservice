@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 NodeValue = serverName
             };
 
-            serverSession = new ObjectExplorerService.ObjectExplorerSession("serverUri", serverRoot, null, null);
+            serverSession = new ObjectExplorerService.ObjectExplorerSession("serverUri", serverRoot, null, null, null);
 
             var databaseRoot = new TreeNode
             {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 Parent = serverRoot
             };
 
-            databaseSession = new ObjectExplorerService.ObjectExplorerSession("databaseUri", databaseRoot, null, null);
+            databaseSession = new ObjectExplorerService.ObjectExplorerSession("databaseUri", databaseRoot, null, null, null);
         }
 
         [Fact]

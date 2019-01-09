@@ -699,6 +699,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string OsVersion;
 
             public string MachineName;
+
+            public List<BigDataClusterEndpoint> BigDataClusterEndpoints;
+ 
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -805,6 +808,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     reader.Read();
                     serverInfo.OsVersion = reader[0].ToString();
                 });
+
+                if (!string.IsNullOrEmpty(serverInfo.OsVersion) && serverInfo.OsVersion.ToLower().Contains("linux"))
+                {
+                    // Also get big data cluster endpoint info
+                    ExecuteReader(
+                    connection,
+                    SqlConnectionHelperScripts.GetBigDataClusterEndpoints,
+                    delegate (IDataReader reader)
+                    {
+                        serverInfo.BigDataClusterEndpoints = new List<BigDataClusterEndpoint>();
+                        while (reader.Read())
+                        {
+                            serverInfo.BigDataClusterEndpoints.Add(new BigDataClusterEndpoint(reader.GetString(0), reader.GetString(1), reader.GetInt32(2)));
+                        }
+                    });
+                }
 
                 return serverInfo;
             };

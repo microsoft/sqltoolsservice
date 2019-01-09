@@ -3,6 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.ReliableConnectionHelper;
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
@@ -64,5 +68,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// The Operating System version string of the machine running the SQL Server instance.
         /// </summary>
         public string MachineName { get; set; }
+
+        public List<BigDataClusterEndpoint> BigDataClusterEndpoints { get; set; }
+    }
+}
+
+public class BigDataClusterEndpoint
+{
+    public string ServiceName;
+    public string IpAddress;
+    public int Port;
+    public BigDataClusterEndpoint(string serviceName, string ipAddress, int port)
+    {
+        ServiceName = serviceName;
+        IpAddress = ipAddress;
+        Port = port;
     }
 }
