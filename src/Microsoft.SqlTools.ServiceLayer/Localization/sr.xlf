@@ -269,151 +269,6 @@
         <note>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
       </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
-        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
-        <target state="new">Msg {0}, Level {1}, State {2}, Line {3}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
-        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
-        <target state="new">Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
-        <source>Msg {0}, Level {1}, State {2}</source>
-        <target state="new">Msg {0}, Level {1}, State {2}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchError_Exception">
-        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
-        <target state="new">An error occurred while the batch was being processed. The error message is: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
-        <source>({0} row(s) affected)</source>
-        <target state="new">({0} row(s) affected)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionNotYetCompleteError">
-        <source>The previous execution is not yet complete.</source>
-        <target state="new">The previous execution is not yet complete.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_Error">
-        <source>A scripting error occurred.</source>
-        <target state="new">A scripting error occurred.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_ParsingSyntax">
-        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
-        <target state="new">Incorrect syntax was encountered while {0} was being parsed.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_FatalError">
-        <source>A fatal error occurred.</source>
-        <target state="new">A fatal error occurred.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Batch execution completed {0} times...</source>
-        <target state="new">Batch execution completed {0} times...</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
-        <source>You cancelled the query.</source>
-        <target state="new">You cancelled the query.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Halting">
-        <source>An error occurred while the batch was being executed.</source>
-        <target state="new">An error occurred while the batch was being executed.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Ignoring">
-        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Beginning execution loop</source>
-        <target state="new">Beginning execution loop</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionError_CommandNotSupported">
-        <source>Command {0} is not supported.</source>
-        <target state="new">Command {0} is not supported.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionError_VariableNotFound">
-        <source>The variable {0} could not be found.</source>
-        <target state="new">The variable {0} could not be found.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineError">
-        <source>SQL Execution error: {0}</source>
-        <target state="new">SQL Execution error: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionError">
-        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
-        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
-        <target state="new">Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
-        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
-        <target state="new">Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
-        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
-        <target state="new">Batch parser wrapper execution engine batch ResultSet finished.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
-        <source>Canceling batch parser wrapper batch execution.</source>
-        <target state="new">Canceling batch parser wrapper batch execution.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_Warning">
-        <source>Scripting warning.</source>
-        <target state="new">Scripting warning.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TroubleshootingAssistanceMessage">
-        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
-        <target state="new">For more information about this error, see the troubleshooting topics in the product documentation.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_CircularReference">
-        <source>File '{0}' recursively included.</source>
-        <target state="new">File '{0}' recursively included.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_CommentNotTerminated">
-        <source>Missing end comment mark '*/'.</source>
-        <target state="new">Missing end comment mark '*/'.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_StringNotTerminated">
-        <source>Unclosed quotation mark after the character string.</source>
-        <target state="new">Unclosed quotation mark after the character string.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_IncorrectSyntax">
-        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
-        <target state="new">Incorrect syntax was encountered while parsing '{0}'.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_VariableNotDefined">
-        <source>Variable {0} is not defined.</source>
-        <target state="new">Variable {0} is not defined.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
         <target state="new">test</target>
@@ -2079,6 +1934,26 @@
       <trans-unit id="Error_ExistingDirectoryName">
         <source>For directory {0} a file with name {1} already exist</source>
         <target state="new">For directory {0} a file with name {1} already exist</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
+        <target state="new">Beginning execution loop</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Batch execution completed {0} times...</source>
+        <target state="new">Batch execution completed {0} times...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
         <note></note>
       </trans-unit>
     </body>
