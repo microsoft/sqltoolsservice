@@ -386,8 +386,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     RootNode = session.Root.ToNodeInfo(),
                     SessionId = uri,
                     ErrorMessage = session.ErrorMessage,
-                    BigDataClusterEndpoints = session.BigDataClusterEndpoints
-
                 };
                 await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                 return response;
@@ -778,13 +776,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             private ConnectionService connectionService;
             private IMultiServiceProvider serviceProvider;
 
-            public List<BigDataClusterEndpoint> BigDataClusterEndpoints;
-
             // TODO decide whether a cache is needed to handle lookups in elements with a large # children
             //private const int Cachesize = 10000;
             //private Cache<string, NodeMapping> cache;
 
-            public ObjectExplorerSession(string uri, TreeNode root, IMultiServiceProvider serviceProvider, ConnectionService connectionService, List<BigDataClusterEndpoint> bigDataClusterEndpoints)
+            public ObjectExplorerSession(string uri, TreeNode root, IMultiServiceProvider serviceProvider, ConnectionService connectionService)
             {
                 Validate.IsNotNullOrEmptyString("uri", uri);
                 Validate.IsNotNull("root", root);
@@ -792,7 +788,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 Root = root;
                 this.serviceProvider = serviceProvider;
                 this.connectionService = connectionService;
-                this.BigDataClusterEndpoints = bigDataClusterEndpoints;
             }
 
             public string Uri { get; private set; }
@@ -805,7 +800,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
             {
                 ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
-                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>(), response.ServerInfo.BigDataClusterEndpoints);
+                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!isDefaultOrSystemDatabase)
                 {
                     // Assuming the databases are in a folder under server node

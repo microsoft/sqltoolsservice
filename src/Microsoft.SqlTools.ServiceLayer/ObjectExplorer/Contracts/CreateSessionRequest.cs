@@ -52,11 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Error message returned from the engine for a object explorer session failure reason, if any.
         /// </summary>
         public string ErrorMessage { get; set; }
-
-        /// <summary>
-        /// Big data cluster endpoints
-        /// </summary>
-         public List<BigDataClusterEndpoint> BigDataClusterEndpoints;
     }
     /// <summary>
     /// Establishes an Object Explorer tree session for a specific connection.

@@ -700,8 +700,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             public string MachineName;
 
-            public List<BigDataClusterEndpoint> BigDataClusterEndpoints;
- 
+            public List<BigDataClusterEndpoint> BigDataClusterEndpoints; 
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
