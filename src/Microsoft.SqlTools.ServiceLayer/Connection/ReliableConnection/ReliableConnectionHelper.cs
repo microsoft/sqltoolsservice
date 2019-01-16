@@ -681,6 +681,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public class ServerInfo
         {
+            internal const string OptionIsBigDataCluster = "isBigDataCluster";
+            internal const string OptionBigDataClusterEndpoints = "bigDataClusterEndpoints";
             public int ServerMajorVersion;
             public int ServerMinorVersion;
             public int ServerReleaseVersion;
@@ -700,7 +702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             public string MachineName;
 
-            public List<BigDataClusterEndpoint> BigDataClusterEndpoints; 
+            public Dictionary<string, object> Options { get; set; }
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -756,6 +758,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 delegate (IDataReader reader)
                 {
                     reader.Read();
+                    serverInfo.Options = new Dictionary<string, object>();
+
                     int engineEditionId = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
 
                     serverInfo.EngineEditionId = engineEditionId;
@@ -770,6 +774,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     {
                         // Detect the presence of SXI
                         serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
+                    }
+                    
+                    if (reader.FieldCount > 6)
+                    {
+                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, reader.GetInt32(6));
                     }
 
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,
@@ -808,19 +817,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo.OsVersion = reader[0].ToString();
                 });
 
-                if (!string.IsNullOrEmpty(serverInfo.OsVersion) && serverInfo.OsVersion.ToLower().Contains("linux"))
+                int? isBigDataCluster = serverInfo.Options[ServerInfo.OptionIsBigDataCluster] as int?;
+                if (isBigDataCluster != null && isBigDataCluster.Value == 1)
                 {
-                    // Also get big data cluster endpoint info
                     ExecuteReader(
                     connection,
                     SqlConnectionHelperScripts.GetBigDataClusterEndpoints,
                     delegate (IDataReader reader)
                     {
-                        serverInfo.BigDataClusterEndpoints = new List<BigDataClusterEndpoint>();
+                        List<BigDataClusterEndpoint> bigDataClusterEndpoints = new List<BigDataClusterEndpoint>();
                         while (reader.Read())
                         {
-                            serverInfo.BigDataClusterEndpoints.Add(new BigDataClusterEndpoint(reader.GetString(0), reader.GetString(1), reader.GetInt32(2)));
+                            bigDataClusterEndpoints.Add(new BigDataClusterEndpoint(reader.GetString(0), reader.GetString(1), reader.GetInt32(2)));
                         }
+                        serverInfo.Options.Add(ServerInfo.OptionBigDataClusterEndpoints, bigDataClusterEndpoints);
                     });
                 }
 

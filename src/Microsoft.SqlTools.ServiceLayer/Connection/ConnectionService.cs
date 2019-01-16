@@ -441,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
                     MachineName = serverInfo.MachineName,
-                    BigDataClusterEndpoints = serverInfo.BigDataClusterEndpoints
+                    Options = serverInfo.Options,
                 };
                 connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;

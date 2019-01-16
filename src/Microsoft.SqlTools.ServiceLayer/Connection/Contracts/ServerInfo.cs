@@ -69,7 +69,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// </summary>
         public string MachineName { get; set; }
 
-        public List<BigDataClusterEndpoint> BigDataClusterEndpoints { get; set; }
+        /// <summary>
+        /// Server options
+        /// </summary>
+        public Dictionary<string, object> Options { get; set; }
     }
 }
 
