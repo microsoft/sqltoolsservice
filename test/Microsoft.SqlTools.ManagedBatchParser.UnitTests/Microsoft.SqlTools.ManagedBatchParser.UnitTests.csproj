@@ -1,14 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Common.props" />
-  <PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DebugType>portable</DebugType>
     <AssemblyName>Microsoft.SqlTools.ManagedBatchParser.UnitTests</AssemblyName>
     <PackageId>Microsoft.SqlTools.ManagedBatchParser.UnitTests</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+    <IsPackable>false</IsPackable>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Net.Http" Version="4.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
       <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
@@ -21,14 +30,5 @@
     </Reference>
     <ProjectReference Include="../../src/Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
-  </ItemGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Integration' ">
-    <DefineConstants>$(DefineConstants);WINDOWS_ONLY_BUILD</DefineConstants>
-  </PropertyGroup>
+
 </Project>
