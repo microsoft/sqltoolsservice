@@ -20,7 +20,6 @@
       <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
     </Reference>
     <ProjectReference Include="../../src/Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.1" />
