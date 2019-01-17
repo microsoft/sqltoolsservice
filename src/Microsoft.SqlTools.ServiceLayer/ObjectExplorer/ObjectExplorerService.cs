@@ -385,7 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     Success = true,
                     RootNode = session.Root.ToNodeInfo(),
                     SessionId = uri,
-                    ErrorMessage = session.ErrorMessage,
+                    ErrorMessage = session.ErrorMessage
                 };
                 await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                 return response;
