@@ -95,7 +95,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVFSample", "test\TVFSample
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ManagedBatchParser", "src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj", "{3F82F298-700A-48DF-8A69-D048DFBA782C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.ManagedBatchParser.LocalizationTests", "test\Microsoft.SqlTools.ManagedBatchParser.LocalizationTests\Microsoft.SqlTools.ManagedBatchParser.LocalizationTests.csproj", "{D88FCA05-F78C-4691-B13A-919CEA533FFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ManagedBatchParser.UnitTests", "test\Microsoft.SqlTools.ManagedBatchParser.UnitTests\Microsoft.SqlTools.ManagedBatchParser.UnitTests.csproj", "{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -230,12 +230,12 @@ Global
 		{3F82F298-700A-48DF-8A69-D048DFBA782C}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{3F82F298-700A-48DF-8A69-D048DFBA782C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F82F298-700A-48DF-8A69-D048DFBA782C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -264,7 +264,7 @@ Global
 		{EF02F89F-417E-4A40-B7E6-B102EE2DF24D} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{1FC10261-EC0D-416A-9B66-C55F0A34968C} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{3F82F298-700A-48DF-8A69-D048DFBA782C} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
-		{D88FCA05-F78C-4691-B13A-919CEA533FFC} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{BCBDF552-2FB9-4C7A-AF3F-0811017B138B} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
