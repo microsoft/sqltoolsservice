@@ -5,6 +5,7 @@ os:
   - linux
 
 mono: none
+
 dotnet: 2.2.100
 
 # safelist
