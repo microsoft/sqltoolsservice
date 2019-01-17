@@ -6,8 +6,6 @@ os:
 
 mono: none
 
-dotnet: 2.2.100
-
 # safelist
 branches:
   only:
