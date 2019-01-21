@@ -25,7 +25,6 @@
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4240.1-preview" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
-    <PackageReference Include="Microsoft.SqlTools.ManagedBatchParser" Version="1.0.0" />
 
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
