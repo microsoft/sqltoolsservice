@@ -47,10 +47,6 @@ SELECT @filepath AS FilePath
 ";
 
     public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' ON ', @@version))";
-    public const string GetBigDataClusterEndpoints = @"
-SELECT [service_name]
-    ,[ip_address]
-    ,[port]
-FROM [master].[dbo].[cluster_endpoint_info]";
+    public const string GetClusterEndpoints = @"SELECT [service_name], [ip_address], [port] FROM [master].[dbo].[cluster_endpoint_info]";
     }
 }

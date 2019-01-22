@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.ReliableConnectionHelper;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
@@ -76,15 +76,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     }
 }
 
-public class BigDataClusterEndpoint
+public class ClusterEndpoint
 {
     public string ServiceName;
     public string IpAddress;
     public int Port;
-    public BigDataClusterEndpoint(string serviceName, string ipAddress, int port)
-    {
-        ServiceName = serviceName;
-        IpAddress = ipAddress;
-        Port = port;
-    }
 }

@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private const string DacFxApplicationName = "DacFx";
 
         private const int SqlDwEngineEditionId = (int)DatabaseEngineEdition.SqlDataWarehouse;
-        
+
         // See MSDN documentation for "SERVERPROPERTY (SQL Azure Database)" for "EngineEdition" property:
         // http://msdn.microsoft.com/en-us/library/ee336261.aspx
         private const int SqlAzureEngineEditionId = 5;
@@ -682,7 +682,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public class ServerInfo
         {
             internal const string OptionIsBigDataCluster = "isBigDataCluster";
-            internal const string OptionBigDataClusterEndpoints = "bigDataClusterEndpoints";
+            internal const string OptionClusterEndpoints = "clusterEndpoints";
             public int ServerMajorVersion;
             public int ServerMinorVersion;
             public int ServerReleaseVersion;
@@ -758,7 +758,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 delegate (IDataReader reader)
                 {
                     reader.Read();
-                    serverInfo.Options = new Dictionary<string, object>();
 
                     int engineEditionId = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
 
@@ -775,9 +774,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         // Detect the presence of SXI
                         serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
                     }
-                    
+
                     if (reader.FieldCount > 6)
                     {
+                        serverInfo.Options = new Dictionary<string, object>();
                         serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, reader.GetInt32(6));
                     }
 
@@ -817,21 +817,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo.OsVersion = reader[0].ToString();
                 });
 
-                int? isBigDataCluster = serverInfo.Options[ServerInfo.OptionIsBigDataCluster] as int?;
-                if (isBigDataCluster != null && isBigDataCluster.Value == 1)
+                if (serverInfo != null && serverInfo.Options != null && serverInfo.Options.ContainsKey(ServerInfo.OptionIsBigDataCluster))
                 {
-                    ExecuteReader(
-                    connection,
-                    SqlConnectionHelperScripts.GetBigDataClusterEndpoints,
-                    delegate (IDataReader reader)
+                    int? isBigDataCluster = serverInfo.Options[ServerInfo.OptionIsBigDataCluster] as int?;
+                    if (isBigDataCluster != null && isBigDataCluster.Value == 1)
                     {
-                        List<BigDataClusterEndpoint> bigDataClusterEndpoints = new List<BigDataClusterEndpoint>();
-                        while (reader.Read())
+                        ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetClusterEndpoints,
+                        delegate (IDataReader reader)
                         {
-                            bigDataClusterEndpoints.Add(new BigDataClusterEndpoint(reader.GetString(0), reader.GetString(1), reader.GetInt32(2)));
-                        }
-                        serverInfo.Options.Add(ServerInfo.OptionBigDataClusterEndpoints, bigDataClusterEndpoints);
-                    });
+                            List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                            while (reader.Read())
+                            {
+                                clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2)});
+                            }
+                            serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                        });
+                    }
                 }
 
                 return serverInfo;
