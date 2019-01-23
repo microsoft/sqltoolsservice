@@ -260,6 +260,36 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return generateScriptRequestContext;
         }
 
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateUpgradePlanRequest()
+        {
+            // first extract a db to have a dacpac to import later
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxDeployTest");
+
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Deploy");
+            DacFxService service = new DacFxService();
+
+            // deploy the created dacpac
+            var upgradePlanRequestContext = new Mock<RequestContext<DacFxResult>>();
+            upgradePlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+
+            var upgradePlanParams = new UpgradePlanParams
+            {
+                PackageFilePath = "C:\\Users\\kisantia\\importtest-2018-11-27-10-54.dacpac",
+                DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
+            };
+
+            UpgradePlanOperation upgradePlanOperation = new UpgradePlanOperation(upgradePlanParams, sqlConn);
+            service.PerformOperation(upgradePlanOperation);
+            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(upgradePlanParams.DatabaseName);
+
+            // cleanup
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return upgradePlanRequestContext;
+        }
         /// <summary>
         /// Verify the export bacpac request
         /// </summary>
@@ -312,6 +342,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         public async void GenerateDeployScript()
         {
             Assert.NotNull(await SendAndValidateGenerateDeployScriptRequest());
+        }
+
+        /// <summary>
+        /// Verify the upgrade plan request
+        /// </summary>
+        [Fact]
+        public async void UpgradePlan()
+        {
+            Assert.NotNull(await SendAndValidateUpgradePlanRequest());
         }
 
         private void VerifyAndCleanup(string filePath)

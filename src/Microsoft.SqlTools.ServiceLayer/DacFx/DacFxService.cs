@@ -185,6 +185,40 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
+        /// <summary>
+        /// Handles request to generate upgrade report
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleUpgradePlanRequest(UpgradePlanParams parameters, RequestContext<DacFxResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                if (connInfo != null)
+                {
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Deploy");
+                    UpgradePlanOperation operation = new UpgradePlanOperation(parameters, sqlConn);
+                    string report = operation.ExecuteGenerateDeployReport();
+
+                    await requestContext.SendResult(new UpgradePlanRequestResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = true,
+                        ErrorMessage = "",
+                        Report = report
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+
         private async Task ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
             SqlTask sqlTask = null;
