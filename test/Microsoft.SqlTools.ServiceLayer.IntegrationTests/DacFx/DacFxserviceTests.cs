@@ -259,6 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             // cleanup
             VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+            VerifyAndCleanup(extractParams.PackageFilePath);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 

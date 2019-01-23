@@ -30,11 +30,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
             PublishOptions publishOptions = new PublishOptions();
+            publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
+            publishOptions.CancelToken = this.CancellationToken;
             publishOptions.DatabaseScriptPath = this.Parameters.ScriptFilePath;
             // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
             publishOptions.MasterDbScriptPath = Path.Combine(Path.GetDirectoryName(this.Parameters.ScriptFilePath), string.Concat("master_", Path.GetFileName(this.Parameters.ScriptFilePath)));
 
             PublishResult result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
+
+            if(this.Parameters.GenerateDeploymentReport && !string.IsNullOrEmpty(this.Parameters.DeploymentReportFilePath))
+            {
+                File.WriteAllText(this.Parameters.DeploymentReportFilePath, result.DeploymentReport);
+            }
         }
     }
 }

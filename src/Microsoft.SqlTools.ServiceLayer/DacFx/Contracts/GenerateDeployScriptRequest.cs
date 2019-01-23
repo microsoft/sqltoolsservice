@@ -17,6 +17,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the filepath where to save the generated script
         /// </summary>
         public string ScriptFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether a Deployment Report should be generated during deploy.
+        /// </summary>
+        public bool GenerateDeploymentReport { get; set; }
+
+        /// <summary>
+        /// Gets or sets the filepath where to save the deployment report
+        /// </summary>
+        public string DeploymentReportFilePath { get; set; }
     }
 
     /// <summary>
