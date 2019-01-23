@@ -25,6 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     class GenerateDeployScriptRequest
     {
         public static readonly RequestType<GenerateDeployScriptParams, DacFxResult> Type =
-            RequestType<GenerateDeployScriptParams, DacFxResult>.Create("dacfx/generateUgradeScript");
+            RequestType<GenerateDeployScriptParams, DacFxResult>.Create("dacfx/generateDeploymentScript");
     }
 }

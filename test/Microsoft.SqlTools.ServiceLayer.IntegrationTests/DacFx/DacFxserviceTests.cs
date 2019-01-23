@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             {
                 PackageFilePath = extractParams.PackageFilePath,
                 DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
-                ScriptFilePath = Path.Combine(folderPath, string.Format(sourceDb.DatabaseName, "_", "UpgradeDACScript"))
+                ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "UpgradeDACScript.sql"))
             };
 
             GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, sqlConn);
