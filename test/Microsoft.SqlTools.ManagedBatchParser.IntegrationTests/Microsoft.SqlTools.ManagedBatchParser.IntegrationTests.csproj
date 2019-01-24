@@ -3,29 +3,23 @@
   <PropertyGroup Label="Configuration">
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <DebugType>Full</DebugType>
     <IsPackable>false</IsPackable>
     <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="Moq" Version="4.10.1" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Moq">
-      <HintPath>../../bin/ref/Moq.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.Core">
-      <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
-    </Reference>
+   
     <ProjectReference Include="..\..\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
