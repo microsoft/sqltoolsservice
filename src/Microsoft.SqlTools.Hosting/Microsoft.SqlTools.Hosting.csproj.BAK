@@ -9,7 +9,7 @@
     <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
