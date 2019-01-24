@@ -407,6 +407,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             TreeNode node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
 
+            // This node was likely returned from a different node provider. Ignore expansion and return an empty array
+            // since we don't need to add any nodes under this section of the tree.
             if (node == null)
             {
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = string.Empty, SessionId = session.Uri, NodePath = nodePath };
