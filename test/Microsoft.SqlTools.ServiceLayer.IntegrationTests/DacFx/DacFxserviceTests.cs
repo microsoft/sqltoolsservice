@@ -42,9 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Export");
             DacFxService service = new DacFxService();
-            ExportOperation operation = new ExportOperation(exportParams, sqlConn);
+            ExportOperation operation = new ExportOperation(exportParams, ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails));
             service.PerformOperation(operation);
 
             // cleanup
@@ -71,9 +70,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", sourceDb.DatabaseName))
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Import");
             DacFxService service = new DacFxService();
-            ExportOperation exportOperation = new ExportOperation(exportParams, sqlConn);
+            string connectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails);
+            ExportOperation exportOperation = new ExportOperation(exportParams, connectionString);
             service.PerformOperation(exportOperation);
 
             // import the created bacpac
@@ -86,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 DatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
             };
 
-            ImportOperation importOperation = new ImportOperation(importParams, sqlConn);
+            ImportOperation importOperation = new ImportOperation(importParams, connectionString);
             service.PerformOperation(importOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.DatabaseName);
 
@@ -116,9 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ApplicationVersion = new Version(1, 0)
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Extract");
             DacFxService service = new DacFxService();
-            ExtractOperation operation = new ExtractOperation(extractParams, sqlConn);
+            ExtractOperation operation = new ExtractOperation(extractParams, ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails));
             service.PerformOperation(operation);
 
             // cleanup
@@ -147,9 +145,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ApplicationVersion = new Version(1, 0)
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Deploy");
             DacFxService service = new DacFxService();
-            ExtractOperation extractOperation = new ExtractOperation(extractParams, sqlConn);
+            string connectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails);
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, connectionString);
             service.PerformOperation(extractOperation);
 
             // deploy the created dacpac
@@ -164,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 UpgradeExisting = false
             };
 
-            DeployOperation deployOperation = new DeployOperation(deployParams, sqlConn);
+            DeployOperation deployOperation = new DeployOperation(deployParams, connectionString);
             service.PerformOperation(deployOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.DatabaseName);
 
@@ -192,9 +190,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Export");
             DacFxService service = new DacFxService();
-            ExportOperation operation = new ExportOperation(exportParams, sqlConn);
+            ExportOperation operation = new ExportOperation(exportParams, ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails));
 
             // set cancellation token to cancel
             operation.Cancel();
@@ -236,9 +233,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ApplicationVersion = new Version(1, 0)
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "GenerateScript");
             DacFxService service = new DacFxService();
-            ExtractOperation extractOperation = new ExtractOperation(extractParams, sqlConn);
+            string connectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails);
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, connectionString);
             service.PerformOperation(extractOperation);
 
             // generate script
@@ -253,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "UpgradeDACScript.sql"))
             };
 
-            GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, sqlConn);
+            GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, connectionString);
             service.PerformOperation(generateScriptOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(generateScriptParams.DatabaseName);
 

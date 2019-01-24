@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public ImportParams Parameters { get; }
 
-        public ImportOperation(ImportParams parameters, SqlConnection sqlConnection): base(sqlConnection)
+        public ImportOperation(ImportParams parameters, string connectionString) : base(connectionString)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;

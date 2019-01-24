@@ -27,14 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public SqlTask SqlTask { get; set; }
 
-        protected SqlConnection SqlConnection { get; private set; }
+        protected string ConnectionString { get; private set; }
 
         protected DacServices DacServices { get; private set; }
 
-        protected DacFxOperation(SqlConnection sqlConnection)
+        protected DacFxOperation(string connectionString)
         {
-            Validate.IsNotNull("sqlConnection", sqlConnection);
-            this.SqlConnection = sqlConnection;
+            Validate.IsNotNull("connectionString", connectionString);
+            this.ConnectionString = connectionString;
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                this.DacServices = new DacServices(this.SqlConnection.ConnectionString);
+                this.DacServices = new DacServices(this.ConnectionString);
                 Execute();
             }
             catch (Exception e)

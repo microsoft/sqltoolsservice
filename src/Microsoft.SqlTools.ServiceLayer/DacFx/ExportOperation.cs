@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public ExportParams Parameters { get; }
 
-        public ExportOperation(ExportParams parameters, SqlConnection sqlConnection): base(sqlConnection)
+        public ExportOperation(ExportParams parameters, string connectionString) : base(connectionString)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;

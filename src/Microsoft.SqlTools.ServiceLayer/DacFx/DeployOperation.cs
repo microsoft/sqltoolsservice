@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public DeployParams Parameters { get; }
 
-        public DeployOperation(DeployParams parameters, SqlConnection sqlConnection) : base(sqlConnection)
+        public DeployOperation(DeployParams parameters, string connectionString) : base(connectionString)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;

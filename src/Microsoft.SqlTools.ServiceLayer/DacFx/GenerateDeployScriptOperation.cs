@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public GenerateDeployScriptParams Parameters { get; }
 
-        public GenerateDeployScriptOperation(GenerateDeployScriptParams parameters, SqlConnection sqlConnection) : base(sqlConnection)
+        public GenerateDeployScriptOperation(GenerateDeployScriptParams parameters, string connectionString) : base(connectionString)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
