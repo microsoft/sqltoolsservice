@@ -405,7 +405,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             NodeInfo[] nodes = null;
             TreeNode node = session.Root.FindNodeByPath(nodePath);
-            ExpandResponse response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
+            ExpandResponse response = null;
+
+            if (node == null)
+            {
+                response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = string.Empty, SessionId = session.Uri, NodePath = nodePath };
+                response.Nodes = new NodeInfo[0];
+                return response;
+            }
+            else
+            {
+                response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
+            }
 
             if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
             {
