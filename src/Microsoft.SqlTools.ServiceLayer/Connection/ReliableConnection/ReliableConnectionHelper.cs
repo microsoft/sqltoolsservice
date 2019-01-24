@@ -821,20 +821,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 if (serverInfo != null && serverInfo.Options != null && serverInfo.Options.ContainsKey(ServerInfo.OptionIsBigDataCluster))
                 {
                     int? isBigDataCluster = serverInfo.Options[ServerInfo.OptionIsBigDataCluster] as int?;
-                    if (isBigDataCluster != null && isBigDataCluster.Value == 1)
+                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                    try
                     {
-                        ExecuteReader(
-                        connection,
-                        SqlConnectionHelperScripts.GetClusterEndpoints,
-                        delegate (IDataReader reader)
+                        if (isBigDataCluster != null && isBigDataCluster.Value == 1)
                         {
-                            List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
-                            while (reader.Read())
+                            ExecuteReader(
+                            connection,
+                            SqlConnectionHelperScripts.GetClusterEndpoints,
+                            delegate (IDataReader reader)
                             {
-                                clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2)});
-                            }
-                            serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
-                        });
+                                while (reader.Read())
+                                {
+                                    clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
+                                }
+                                serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                            });
+                        }
+                    }
+                    catch (SqlException)
+                    {
+                        serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
                     }
                 }
 
