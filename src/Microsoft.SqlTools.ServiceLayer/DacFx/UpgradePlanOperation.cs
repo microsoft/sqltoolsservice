@@ -34,7 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public string ExecuteGenerateDeployReport()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            string report = this.DacServices.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, null, this.CancellationToken);
+            DacServices ds = new DacServices(this.SqlConnection.ConnectionString);
+            string report = ds.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, null, this.CancellationToken);
             return report;
         }
     }

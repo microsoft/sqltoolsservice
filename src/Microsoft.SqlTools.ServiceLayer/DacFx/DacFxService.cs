@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
+            serviceHost.SetRequestHandler(UpgradePlanRequest.Type, this.HandleUpgradePlanRequest);
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to generate upgrade report
         /// </summary>
         /// <returns></returns>
-        public async Task HandleUpgradePlanRequest(UpgradePlanParams parameters, RequestContext<DacFxResult> requestContext)
+        public async Task HandleUpgradePlanRequest(UpgradePlanParams parameters, RequestContext<UpgradePlanRequestResult> requestContext)
         {
             try
             {

@@ -20,10 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     class UpgradePlanRequest
     {
-        public static readonly RequestType<UpgradePlanParams, DacFxResult> Type =
-            RequestType<UpgradePlanParams, DacFxResult>.Create("dacfx/upgradePlan");
+        public static readonly RequestType<UpgradePlanParams, UpgradePlanRequestResult> Type =
+            RequestType<UpgradePlanParams, UpgradePlanRequestResult>.Create("dacfx/upgradePlan");
     }
-
 
     /// <summary>
     /// Parameters returned from a generate deploy script request.
