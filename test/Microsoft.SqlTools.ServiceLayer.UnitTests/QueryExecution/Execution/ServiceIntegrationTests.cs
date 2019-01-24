@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -652,17 +653,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             foreach (var (key, list) in resultSetDictionary)
             {
                 ResultSetSummary completeSummary = null, lastResultSetSummary = null;
+                int completeFlagCount = 0;
                 for (int i = 0; i < list.Count; i++)
                 {
-                    VerifyResultSummary(key, i, list, ref completeSummary, ref lastResultSetSummary);
+                    VerifyResultSummary(key, i, list, ref completeSummary, ref lastResultSetSummary, ref completeFlagCount);
                 }
 
                 // Verify that the completeEvent and lastResultSetSummary has same number of rows 
                 //
                 if (lastResultSetSummary != null && completeSummary != null)
                 {
-                    Assert.True(lastResultSetSummary.RowCount == completeSummary.RowCount, "CompleteSummary and last Update Summary should have same number of rows");
+                    Assert.True(lastResultSetSummary.RowCount == completeSummary.RowCount, $"CompleteSummary and last Update Summary should have same number of rows, updateSummaryRowCount: {lastResultSetSummary.RowCount}, CompleteSummaryRowCount: {completeSummary.RowCount}");
                 }
+
+                // Verify that we got exactly on complete Flag Count.
+                //
+                Assert.True(1 == completeFlagCount, $"Complete flag should be set in exactly once on Update Result Summary Event. Observed Count: {completeFlagCount}, \r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", list.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}" );
+
+                // Verify that the complete event was set on the last updateResultSet event.
+                //
+                Assert.True(list.Last().ResultSetSummary.Complete, $"Complete flag should be set on the last Update Result Summary event, , \r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", list.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}");
             }
 
 
@@ -677,7 +687,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// <param name="resultSetEventParamsList">The list of resultSetParams that we are verifying</param>
         /// <param name="completeSummary"> This should be null when we start validating the list of ResultSetEventParams</param>
         /// <param name="lastResultSetSummary"> This should be null when we start validating the list of ResultSetEventParams</param>
-        private static void VerifyResultSummary(string batchIdResultSetId, int position, List<ResultSetEventParams> resultSetEventParamsList, ref ResultSetSummary completeSummary, ref ResultSetSummary lastResultSetSummary)
+        /// <param name="completeFlagCount">The number of events with complete flag set. Increments input value if current resultSummary has Complete flag set</param>
+        private static void VerifyResultSummary(string batchIdResultSetId, int position, List<ResultSetEventParams> resultSetEventParamsList, ref ResultSetSummary completeSummary, ref ResultSetSummary lastResultSetSummary, ref int completeFlagCount)
         {
             ResultSetEventParams resultSetEventParams = resultSetEventParamsList[position];
             switch (resultSetEventParams.GetType().Name)
@@ -690,9 +701,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                         + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
                     );
 
+                    // Verify that Complete flag is not set on the ResultSetAvailableEventParams
+                    Assert.True(false == resultSetEventParams.ResultSetSummary.Complete,
+                        $"availableResultSummary.Complete is true for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                    );
+
                     // Save the lastResultSetSummary for this event for other verifications.
                     //
                     lastResultSetSummary = resultSetEventParams.ResultSetSummary;
+
                     break;
                 case nameof(ResultSetUpdatedEventParams):
                     // Verify that the updateEvent is not the first in the sequence. Since we set lastResultSetSummary on each available or updatedEvent, we check that there has been no lastResultSetSummary previously set yet.
@@ -713,6 +731,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                     // Save the lastResultSetSummary for this event for other verifications.
                     //
                     lastResultSetSummary = resultSetEventParams.ResultSetSummary;
+
+                    // increment completeFlagCount if complete flag is set.
+                    if (resultSetEventParams.ResultSetSummary.Complete)
+                    {
+                        Interlocked.Increment(ref completeFlagCount);
+                    }
                     break;
                 case nameof(ResultSetCompleteEventParams):
                     // Verify that there is only one completeEvent

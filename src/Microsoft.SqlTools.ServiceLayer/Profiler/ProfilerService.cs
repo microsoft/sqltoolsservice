@@ -115,6 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
+            this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -147,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     else
                     {
                         IXEventSession xeSession = null;
-                        
+
                         // first check whether the session with the given name already exists.
                         // if so skip the creation part. An exception will be thrown if no session with given name can be found,
                         // and it can be ignored.
@@ -312,6 +313,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     await requestContext.SendError(e);
                 }
             });
+        }
+
+        /// <summary>
+        /// Handle request to disconnect a session
+        /// </summary>
+        internal async Task HandleDisconnectSessionRequest(DisconnectSessionParams parameters, RequestContext<DisconnectSessionResult> requestContext)
+        {
+            await Task.Run(async () =>
+                       {
+                           try
+                           {
+                               ProfilerSession session;
+                               monitor.StopMonitoringSession(parameters.OwnerUri, out session);
+                           }
+                           catch (Exception e)
+                           {
+                               await requestContext.SendError(e);
+                           }
+                       });
         }
 
         /// <summary>
