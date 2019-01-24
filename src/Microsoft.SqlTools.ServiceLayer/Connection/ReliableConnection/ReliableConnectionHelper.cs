@@ -817,6 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo.OsVersion = reader[0].ToString();
                 });
 
+                // Get BDC endpoints
                 if (serverInfo != null && serverInfo.Options != null && serverInfo.Options.ContainsKey(ServerInfo.OptionIsBigDataCluster))
                 {
                     int? isBigDataCluster = serverInfo.Options[ServerInfo.OptionIsBigDataCluster] as int?;
