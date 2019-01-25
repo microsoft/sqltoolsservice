@@ -440,7 +440,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
-                    MachineName = serverInfo.MachineName
+                    MachineName = serverInfo.MachineName,
+                    Options = serverInfo.Options,
                 };
                 connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
