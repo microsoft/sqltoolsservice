@@ -298,3 +298,4 @@ docs/metadata
 
 # Designer Files
 *.Designer.cs
+/test/CodeCoverage/codecoverage - Copy.bat
