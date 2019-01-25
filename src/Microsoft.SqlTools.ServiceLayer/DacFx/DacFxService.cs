@@ -65,8 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    ExportOperation operation = new ExportOperation(parameters, connectionString);
+                    ExportOperation operation = new ExportOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Export bacpac", requestContext);
                 }
             }
@@ -90,8 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    ImportOperation operation = new ImportOperation(parameters, connectionString);
+                    ImportOperation operation = new ImportOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Import bacpac", requestContext);
                 }
             }
@@ -115,8 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    ExtractOperation operation = new ExtractOperation(parameters, connectionString);
+                    ExtractOperation operation = new ExtractOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Extract dacpac", requestContext);
                 }
             }
@@ -140,8 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    DeployOperation operation = new DeployOperation(parameters, connectionString);
+                    DeployOperation operation = new DeployOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Deploy dacpac", requestContext);
                 }
             }
@@ -165,8 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connectionString);
+                    GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
                     SqlTask sqlTask = null;
                     TaskMetadata metadata = TaskMetadata.Create(parameters, "Generate script", operation, ConnectionServiceInstance);
 

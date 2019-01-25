@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            ExportOperation operation = new ExportOperation(exportParams, ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails));
+            ExportOperation operation = new ExportOperation(exportParams, result.ConnectionInfo);
             service.PerformOperation(operation);
 
             // cleanup
@@ -71,8 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            string connectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails);
-            ExportOperation exportOperation = new ExportOperation(exportParams, connectionString);
+            ExportOperation exportOperation = new ExportOperation(exportParams, result.ConnectionInfo);
             service.PerformOperation(exportOperation);
 
             // import the created bacpac
@@ -85,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 DatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
             };
 
-            ImportOperation importOperation = new ImportOperation(importParams, connectionString);
+            ImportOperation importOperation = new ImportOperation(importParams, result.ConnectionInfo);
             service.PerformOperation(importOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.DatabaseName);
 
@@ -116,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            ExtractOperation operation = new ExtractOperation(extractParams, ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails));
+            ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
             service.PerformOperation(operation);
 
             // cleanup
@@ -146,8 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            string connectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails);
-            ExtractOperation extractOperation = new ExtractOperation(extractParams, connectionString);
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
             service.PerformOperation(extractOperation);
 
             // deploy the created dacpac
@@ -162,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 UpgradeExisting = false
             };
 
-            DeployOperation deployOperation = new DeployOperation(deployParams, connectionString);
+            DeployOperation deployOperation = new DeployOperation(deployParams, result.ConnectionInfo);
             service.PerformOperation(deployOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.DatabaseName);
 
@@ -191,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            ExportOperation operation = new ExportOperation(exportParams, ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails));
+            ExportOperation operation = new ExportOperation(exportParams, result.ConnectionInfo);
 
             // set cancellation token to cancel
             operation.Cancel();
@@ -234,8 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             };
 
             DacFxService service = new DacFxService();
-            string connectionString = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails);
-            ExtractOperation extractOperation = new ExtractOperation(extractParams, connectionString);
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
             service.PerformOperation(extractOperation);
 
             // generate script
@@ -250,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "UpgradeDACScript.sql"))
             };
 
-            GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, connectionString);
+            GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, result.ConnectionInfo);
             service.PerformOperation(generateScriptOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(generateScriptParams.DatabaseName);
 

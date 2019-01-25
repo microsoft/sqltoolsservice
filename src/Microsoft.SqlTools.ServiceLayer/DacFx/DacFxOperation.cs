@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
@@ -31,10 +32,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         protected DacServices DacServices { get; private set; }
 
-        protected DacFxOperation(string connectionString)
+        protected DacFxOperation(ConnectionInfo connInfo)
         {
-            Validate.IsNotNull("connectionString", connectionString);
-            this.ConnectionString = connectionString;
+            Validate.IsNotNull("connectionInfo", connInfo);
+            this.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             this.OperationId = Guid.NewGuid().ToString();
         }
 
