@@ -200,8 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Deploy");
-                    UpgradePlanOperation operation = new UpgradePlanOperation(parameters, sqlConn);
+                    UpgradePlanOperation operation = new UpgradePlanOperation(parameters, connInfo);
                     string report = operation.ExecuteGenerateDeployReport();
 
                     await requestContext.SendResult(new UpgradePlanRequestResult()

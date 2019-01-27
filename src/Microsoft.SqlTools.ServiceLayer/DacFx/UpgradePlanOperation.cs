@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -19,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public UpgradePlanParams Parameters { get; }
 
-        public UpgradePlanOperation(UpgradePlanParams parameters, SqlConnection sqlConnection): base(sqlConnection)
+        public UpgradePlanOperation(UpgradePlanParams parameters, ConnectionInfo connInfo): base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public string ExecuteGenerateDeployReport()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            DacServices ds = new DacServices(this.SqlConnection.ConnectionString);
+            DacServices ds = new DacServices(this.ConnectionString);
             DacDeployOptions options = GetDefaultDeployOptions();
             options.BlockOnPossibleDataLoss = false;
             options.BlockWhenDriftDetected = false;

@@ -266,7 +266,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxDeployTest");
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Deploy");
             DacFxService service = new DacFxService();
 
             // deploy the created dacpac
@@ -280,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
             };
 
-            UpgradePlanOperation upgradePlanOperation = new UpgradePlanOperation(upgradePlanParams, sqlConn);
+            UpgradePlanOperation upgradePlanOperation = new UpgradePlanOperation(upgradePlanParams, result.ConnectionInfo);
             service.PerformOperation(upgradePlanOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(upgradePlanParams.DatabaseName);
 
@@ -290,6 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
             return upgradePlanRequestContext;
         }
+   
         /// <summary>
         /// Verify the export bacpac request
         /// </summary>
