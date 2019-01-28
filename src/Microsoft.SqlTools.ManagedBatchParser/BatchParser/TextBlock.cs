@@ -16,9 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Constructor for the TextBlock class 
         /// </summary>
-        public TextBlock(Parser parser, Token token) : this(parser, new[] { token })
-        {
-        }
+        //public TextBlock(Parser parser, Token token) : this(parser, new[] { token })
+        //{
+        //} commented by Niranjan as it is not used anywhwere.
 
         /// <summary>
         /// Constructor for the TextBlock class 
