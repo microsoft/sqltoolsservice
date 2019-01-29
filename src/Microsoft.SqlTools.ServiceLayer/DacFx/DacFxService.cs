@@ -218,7 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-
         private async Task ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
             SqlTask sqlTask = null;
@@ -279,6 +278,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         internal void PerformOperation(DacFxOperation operation)
         {
             operation.Execute(TaskExecutionMode.Execute);
+        }
+
+        /// <summary>
+        /// For testing purpose only
+        /// </summary>
+        /// <param name="operation"></param>
+        internal string PerformGenerateDeployPlanOperation(GenerateDeployPlanOperation operation)
+        {
+            return operation.ExecuteGenerateDeployReport();
         }
     }
 }

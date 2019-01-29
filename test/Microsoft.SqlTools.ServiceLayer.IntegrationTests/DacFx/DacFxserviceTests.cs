@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             {
                 service.PerformOperation(operation);
             }
-            catch(OperationCanceledException canceledException)
+            catch (OperationCanceledException canceledException)
             {
                 expectedException = canceledException;
             }
@@ -262,34 +262,71 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 
         private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployPlanRequest()
         {
-            // first extract a db to have a dacpac to import later
             var result = GetLiveAutoCompleteTestObjects();
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxDeployTest");
-
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTest");
+            sourceDb.RunQuery(@"CREATE TABLE [dbo].[table1]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [Date] DATE NOT NULL
+)
+CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL
+)");
             DacFxService service = new DacFxService();
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
 
-            // deploy the created dacpac
-            var upgradePlanRequestContext = new Mock<RequestContext<DacFxResult>>();
-            upgradePlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
-
-            var upgradePlanParams = new GenerateDeployPlanParams
+            var extractParams = new ExtractParams
             {
-                PackageFilePath = "C:\\Users\\kisantia\\importtest-2018-11-27-10-54.dacpac",
-                DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
+                DatabaseName = sourceDb.DatabaseName,
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = new Version(1, 0)
             };
 
-            GenerateDeployPlanOperation upgradePlanOperation = new GenerateDeployPlanOperation(upgradePlanParams, result.ConnectionInfo);
-            service.PerformOperation(upgradePlanOperation);
-            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(upgradePlanParams.DatabaseName);
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
+            service.PerformOperation(extractOperation);
+
+            // generate deploy plan for deploying dacpac to targetDb
+            var generateDeployPlanRequestContext = new Mock<RequestContext<DacFxResult>>();
+            generateDeployPlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTestTarget");
+            targetDb.RunQuery(@"CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL,
+    [col2] NCHAR(10) NULL
+)
+CREATE TABLE [dbo].[table3]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] INT NULL,
+)");
+
+            var generateDeployPlanParams = new GenerateDeployPlanParams
+            {
+                PackageFilePath = extractParams.PackageFilePath,
+                DatabaseName = targetDb.DatabaseName,
+            };
+
+            GenerateDeployPlanOperation generateDeployPlanOperation = new GenerateDeployPlanOperation(generateDeployPlanParams, result.ConnectionInfo);
+            string report = service.PerformGenerateDeployPlanOperation(generateDeployPlanOperation);
+            Assert.NotNull(report);
+            Assert.Contains("Create", report);
+            Assert.Contains("Drop", report);
+            Assert.Contains("Alter", report);
 
             // cleanup
+            VerifyAndCleanup(extractParams.PackageFilePath);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 
-            return upgradePlanRequestContext;
+            return generateDeployPlanRequestContext;
         }
-   
+
         /// <summary>
         /// Verify the export bacpac request
         /// </summary>
