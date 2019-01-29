@@ -89,6 +89,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public abstract void Execute();
+        /// <summary>
+        /// Inheriting classes should override this method if needed
+        /// </summary>
+        public virtual void Execute()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
