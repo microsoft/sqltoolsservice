@@ -20,13 +20,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public GenerateDeployPlanParams Parameters { get; }
 
+        public string DeployReport { get; set; }
+
         public GenerateDeployPlanOperation(GenerateDeployPlanParams parameters, ConnectionInfo connInfo): base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
         }
 
-        public string ExecuteGenerateDeployReport()
+        public override void Execute()
         {
             DacServices ds = new DacServices(this.ConnectionString);
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
@@ -34,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             // this is so that operations with possible data loss will be in the report
             options.BlockOnPossibleDataLoss = false;
 
-            return ds.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
+            DeployReport = ds.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
         }
 
         private DacDeployOptions GetDefaultDeployOptions()

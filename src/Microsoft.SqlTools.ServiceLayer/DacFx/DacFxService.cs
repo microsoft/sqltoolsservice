@@ -201,14 +201,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
-                    string report = operation.ExecuteGenerateDeployReport();
+                    operation.Execute();
 
                     await requestContext.SendResult(new GenerateDeployPlanRequestResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,
                         ErrorMessage = "",
-                        Report = report
+                        Report = operation.DeployReport
                     });
                 }
             }
@@ -286,7 +286,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <param name="operation"></param>
         internal string PerformGenerateDeployPlanOperation(GenerateDeployPlanOperation operation)
         {
-            return operation.ExecuteGenerateDeployReport();
+            operation.Execute();
+            return operation.DeployReport;
         }
     }
 }
