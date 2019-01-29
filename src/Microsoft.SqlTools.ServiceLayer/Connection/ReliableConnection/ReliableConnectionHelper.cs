@@ -775,12 +775,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
                     }
 
-                    if (reader.FieldCount > 6)
-                    {
-                        serverInfo.Options = new Dictionary<string, object>();
-                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, reader.GetInt32(6));
-                    }
-
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,
                     Version serverVersion = new Version(serverInfo.ServerVersion);
 
@@ -818,30 +812,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 });
 
                 // Get BDC endpoints
-                if (serverInfo != null && serverInfo.Options != null && serverInfo.Options.ContainsKey(ServerInfo.OptionIsBigDataCluster))
+                if (!serverInfo.IsCloud)
                 {
-                    int? isBigDataCluster = serverInfo.Options[ServerInfo.OptionIsBigDataCluster] as int?;
+                    serverInfo.Options = new Dictionary<string, object>();
                     List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
                     try
                     {
-                        if (isBigDataCluster != null && isBigDataCluster.Value == 1)
+                        ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetClusterEndpoints,
+                        delegate (IDataReader reader)
                         {
-                            ExecuteReader(
-                            connection,
-                            SqlConnectionHelperScripts.GetClusterEndpoints,
-                            delegate (IDataReader reader)
+                            while (reader.Read())
                             {
-                                while (reader.Read())
-                                {
-                                    clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
-                                }
-                                serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
-                            });
-                        }
+                                clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
+                            }
+                            serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                            serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0 );
+                        });
                     }
                     catch (SqlException)
                     {
                         serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                     }
                 }
 

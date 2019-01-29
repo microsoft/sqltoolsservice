@@ -7,8 +7,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
     static class SqlConnectionHelperScripts
     {
-        public const string EngineEdition = "SELECT SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('productversion'), SERVERPROPERTY ('productlevel'), SERVERPROPERTY ('edition'), SERVERPROPERTY ('MachineName'), (SELECT CASE WHEN EXISTS (SELECT TOP 1 1 from [sys].[all_columns] WITH (NOLOCK) WHERE name = N'xml_index_type' AND OBJECT_ID(N'sys.xml_indexes') = object_id) THEN 1 ELSE 0 END AS SXI_PRESENT), (SELECT CASE WHEN EXISTS (SELECT name FROM model.sys.assemblies WHERE name = 'Microsoft.SqlServer.DataPoolManagement.Assemblies') THEN 1 ELSE 0 END)";
-        public const string EngineEditionWithLock = "SELECT SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('productversion'), SERVERPROPERTY ('productlevel'), SERVERPROPERTY ('edition'), SERVERPROPERTY ('MachineName'), (SELECT CASE WHEN EXISTS (SELECT TOP 1 1 from [sys].[all_columns] WHERE name = N'xml_index_type' AND OBJECT_ID(N'sys.xml_indexes') = object_id) THEN 1 ELSE 0 END AS SXI_PRESENT), (SELECT CASE WHEN EXISTS (SELECT name FROM model.sys.assemblies WHERE name = 'Microsoft.SqlServer.DataPoolManagement.Assemblies') THEN 1 ELSE 0 END)";
+        public const string EngineEdition = "SELECT SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('productversion'), SERVERPROPERTY ('productlevel'), SERVERPROPERTY ('edition'), SERVERPROPERTY ('MachineName'), (SELECT CASE WHEN EXISTS (SELECT TOP 1 1 from [sys].[all_columns] WITH (NOLOCK) WHERE name = N'xml_index_type' AND OBJECT_ID(N'sys.xml_indexes') = object_id) THEN 1 ELSE 0 END AS SXI_PRESENT)";
+        public const string EngineEditionWithLock = "SELECT SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('productversion'), SERVERPROPERTY ('productlevel'), SERVERPROPERTY ('edition'), SERVERPROPERTY ('MachineName'), (SELECT CASE WHEN EXISTS (SELECT TOP 1 1 from [sys].[all_columns] WHERE name = N'xml_index_type' AND OBJECT_ID(N'sys.xml_indexes') = object_id) THEN 1 ELSE 0 END AS SXI_PRESENT)";
 
         public const string CheckDatabaseReadonly = @"EXEC sp_dboption '{0}', 'read only'";
 
@@ -47,6 +47,7 @@ SELECT @filepath AS FilePath
 ";
 
     public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' ON ', @@version))";
-    public const string GetClusterEndpoints = @"SELECT [service_name], [ip_address], [port] FROM [master].[dbo].[cluster_endpoint_info]";
+    public const string GetClusterEndpoints = @"IF OBJECT_ID (N'master.dbo.cluster_endpoint_info') IS NOT NULL
+SELECT [service_name], [ip_address], [port] FROM [master].[dbo].[cluster_endpoint_info];";
     }
 }
