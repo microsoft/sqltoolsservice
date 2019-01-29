@@ -14,13 +14,13 @@ using System.Diagnostics;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent an in-progress upgrade plan operation
+    /// Class to represent an in-progress generate deploy plan operation
     /// </summary>
-    class UpgradePlanOperation : DacFxOperation
+    class GenerateDeployPlanOperation : DacFxOperation
     {
-        public UpgradePlanParams Parameters { get; }
+        public GenerateDeployPlanParams Parameters { get; }
 
-        public UpgradePlanOperation(UpgradePlanParams parameters, ConnectionInfo connInfo): base(connInfo)
+        public GenerateDeployPlanOperation(GenerateDeployPlanParams parameters, ConnectionInfo connInfo): base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
@@ -33,12 +33,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public string ExecuteGenerateDeployReport()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
+
             DacServices ds = new DacServices(this.ConnectionString);
             DacDeployOptions options = GetDefaultDeployOptions();
+            // this is so that possible data loss will be shown
             options.BlockOnPossibleDataLoss = false;
-            options.BlockWhenDriftDetected = false;
-            string report = ds.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
-            return report;
+
+            return ds.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
         }
 
         private static DacDeployOptions GetDefaultDeployOptions()

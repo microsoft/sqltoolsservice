@@ -9,25 +9,25 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Parameters for a DacFx upgrade plan request.
+    /// Parameters for a DacFx generate deploy plan request.
     /// </summary>
-    public class UpgradePlanParams : DacFxParams
+    public class GenerateDeployPlanParams : DacFxParams
     {
     }
 
     /// <summary>
-    /// Defines the DacFx upgrade plan request type
+    /// Defines the DacFx generate deploy plan request type
     /// </summary>
-    class UpgradePlanRequest
+    class GenerateDeployPlanRequest
     {
-        public static readonly RequestType<UpgradePlanParams, UpgradePlanRequestResult> Type =
-            RequestType<UpgradePlanParams, UpgradePlanRequestResult>.Create("dacfx/upgradePlan");
+        public static readonly RequestType<GenerateDeployPlanParams, GenerateDeployPlanRequestResult> Type =
+            RequestType<GenerateDeployPlanParams, GenerateDeployPlanRequestResult>.Create("dacfx/generateDeployPlan");
     }
 
     /// <summary>
     /// Parameters returned from a generate deploy script request.
     /// </summary>
-    public class UpgradePlanRequestResult : DacFxResult
+    public class GenerateDeployPlanRequestResult : DacFxResult
     {
         public string Report { get; set; }
     }

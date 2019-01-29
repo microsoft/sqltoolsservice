@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
-            serviceHost.SetRequestHandler(UpgradePlanRequest.Type, this.HandleUpgradePlanRequest);
+            serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
         }
 
         /// <summary>
@@ -187,10 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Handles request to generate upgrade report
+        /// Handles request to generate deploy plan
         /// </summary>
         /// <returns></returns>
-        public async Task HandleUpgradePlanRequest(UpgradePlanParams parameters, RequestContext<UpgradePlanRequestResult> requestContext)
+        public async Task HandleGenerateDeployPlanRequest(GenerateDeployPlanParams parameters, RequestContext<GenerateDeployPlanRequestResult> requestContext)
         {
             try
             {
@@ -200,10 +200,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    UpgradePlanOperation operation = new UpgradePlanOperation(parameters, connInfo);
+                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
                     string report = operation.ExecuteGenerateDeployReport();
 
-                    await requestContext.SendResult(new UpgradePlanRequestResult()
+                    await requestContext.SendResult(new GenerateDeployPlanRequestResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,
