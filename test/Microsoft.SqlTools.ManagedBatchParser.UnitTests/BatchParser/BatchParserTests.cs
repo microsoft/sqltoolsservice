@@ -73,14 +73,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             batch.Cancel();
         }
 
-        [Fact]
-        public void VerifyOnErrorMethodDealwithErrors()
-        {
-            BatchParserSqlCmd batchParserSqlCmd = new BatchParserSqlCmd();
-            //batchParserSqlCmd.ErrorActionChanged =  new BatchParserSqlCmd.ErrorActionChangedDelegate()
-            //batchParserSqlCmd.OnError()
-        }
-
         private static Stream GenerateStreamFromString(string s)
         {
             MemoryStream stream = new MemoryStream();

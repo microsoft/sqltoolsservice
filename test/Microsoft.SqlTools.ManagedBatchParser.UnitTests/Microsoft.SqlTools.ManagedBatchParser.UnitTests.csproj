@@ -33,7 +33,8 @@
       <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
     </Reference>
     <ProjectReference Include="../../src/Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="obj\Debug\netcoreapp2.2\" />
