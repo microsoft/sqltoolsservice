@@ -26,8 +26,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             this.Parameters = parameters;
         }
 
+        // Can't use the default execute because the deploy report needs to be returned
         public override void Execute()
         {
+            throw new NotImplementedException();
         }
 
         public string ExecuteGenerateDeployReport()

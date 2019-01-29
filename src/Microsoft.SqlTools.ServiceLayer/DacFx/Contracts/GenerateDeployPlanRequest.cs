@@ -29,6 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class GenerateDeployPlanRequestResult : DacFxResult
     {
+        /// <summary>
+        /// An xml string that details the alerts and the operations for deploying the specified dacpac to the database
+        /// </summary>
         public string Report { get; set; }
     }
 }
