@@ -704,7 +704,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             public Dictionary<string, object> Options { get; set; }
         }
-
+        public class ClusterEndpoint
+        {
+            public string ServiceName;
+            public string IpAddress;
+            public int Port;
+        }
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
         {
             serverInfo = null;
