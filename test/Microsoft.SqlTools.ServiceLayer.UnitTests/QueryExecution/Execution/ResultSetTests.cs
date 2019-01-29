@@ -125,6 +125,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             //
             VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
         }
+
+        /// <summary>
+        /// Read to End test
+        /// </summary>
+        /// <param name="testDataSet"></param>
+        [Theory]
+        [MemberData(nameof(ReadToEndSuccessData), parameters: 3)]
+        public async Task ReadToEndSuccessSeveralTimes(TestResultSet[] testDataSet)
+        {
+            const int NumberOfInvocations = 5000;
+            List<Task> allTasks = new List<Task>();
+            Parallel.ForEach(Partitioner.Create(0, NumberOfInvocations), (range) =>
+            {
+                int start = range.Item1 == 0 ? 1 : range.Item1;
+                Task[] tasks = new Task[range.Item2 - start];
+                for (int i = start; i < range.Item2; i++)
+                {
+                    allTasks.Add(ReadToEndSuccess(testDataSet));
+                }
+
+            });
+            await Task.WhenAll(allTasks);
+        }
+
         public static IEnumerable<object[]> ReadToEndSuccessData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(numTests);
 
         [Theory]
@@ -160,7 +184,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... The callback for result set available, update and completion callbacks should have been fired.
             //
             Assert.True(null != resultSummaryFromCompleteCallback, "completeResultSummary is null" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
-            Assert.True(null != resultSummaryFromAvailableCallback, "availableResultSummary is null" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
+            Assert.True(null != resultSummaryFromAvailableCallback, "availableResultSummary is null" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
+
+            // ... resultSetAvailable is not marked Complete
+            //
+            Assert.True(false == resultSummaryFromAvailableCallback.Complete, "availableResultSummary.Complete is true" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
 
             // insert availableResult at the top of the resultSummariesFromUpdatedCallback list as the available result set is the first update in that series.
             //
@@ -175,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.True(resultSummariesFromUpdatedCallback.Last().Complete,
                 $"Complete Check failed.\r\n\t\t resultSummariesFromUpdatedCallback:{string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
 
+
             // ... The no of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set. 
             //
             Assert.True(resultSummaryFromCompleteCallback.RowCount == resultSummariesFromUpdatedCallback.Last().RowCount,
@@ -184,7 +213,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             );
 
             // ... RowCount should be in increasing order in updateResultSet callbacks
+            // ..... and there should be only one resultSummary with Complete flag set to true.
             //
+            int completeFlagCount = 0;
             Parallel.ForEach(Partitioner.Create(0, resultSummariesFromUpdatedCallback.Count), (range) =>
             {
                 int start = range.Item1 == 0 ? 1 : range.Item1;
@@ -194,8 +225,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                         $"Row Count of {i}th updateResultSet was smaller than that of the previous one"
                       + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}"
                     );
+                    if (resultSummariesFromUpdatedCallback[i].Complete)
+                    {
+                        Interlocked.Increment(ref completeFlagCount);
+                    }
                 }
             });
+            Assert.True(completeFlagCount == 1, "Number of update events with complete flag event set should be 1" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
         }
 
         /// <summary>

@@ -47,5 +47,7 @@ SELECT @filepath AS FilePath
 ";
 
     public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' ON ', @@version))";
+    public const string GetClusterEndpoints = @"IF OBJECT_ID (N'master.dbo.cluster_endpoint_info') IS NOT NULL
+SELECT [service_name], [ip_address], [port] FROM [master].[dbo].[cluster_endpoint_info];";
     }
 }

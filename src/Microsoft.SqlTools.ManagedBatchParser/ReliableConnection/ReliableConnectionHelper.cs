@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private const string DacFxApplicationName = "DacFx";
 
         private const int SqlDwEngineEditionId = (int)DatabaseEngineEdition.SqlDataWarehouse;
-        
+
         // See MSDN documentation for "SERVERPROPERTY (SQL Azure Database)" for "EngineEdition" property:
         // http://msdn.microsoft.com/en-us/library/ee336261.aspx
         private const int SqlAzureEngineEditionId = 5;
@@ -681,6 +681,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public class ServerInfo
         {
+            internal const string OptionIsBigDataCluster = "isBigDataCluster";
+            internal const string OptionClusterEndpoints = "clusterEndpoints";
             public int ServerMajorVersion;
             public int ServerMinorVersion;
             public int ServerReleaseVersion;
@@ -699,6 +701,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string OsVersion;
 
             public string MachineName;
+
+            public Dictionary<string, object> Options { get; set; }
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -754,6 +758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 delegate (IDataReader reader)
                 {
                     reader.Read();
+
                     int engineEditionId = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
 
                     serverInfo.EngineEditionId = engineEditionId;
@@ -768,6 +773,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     {
                         // Detect the presence of SXI
                         serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
+                    }
+
+                    if (reader.FieldCount > 6)
+                    {
+                        serverInfo.Options = new Dictionary<string, object>();
+                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, reader.GetInt32(6));
                     }
 
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,
@@ -805,6 +816,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     reader.Read();
                     serverInfo.OsVersion = reader[0].ToString();
                 });
+
+                // Get BDC endpoints
+                if (!serverInfo.IsCloud)
+                {
+                    serverInfo.Options = new Dictionary<string, object>();
+                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                    try
+                    {
+                        ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetClusterEndpoints,
+                        delegate (IDataReader reader)
+                        {
+                            while (reader.Read())
+                            {
+                                clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
+                            }
+                            serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                            serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
+                        });
+                    }
+                    catch (SqlException)
+                    {
+                        serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
+                    }
+                }
 
                 return serverInfo;
             };
