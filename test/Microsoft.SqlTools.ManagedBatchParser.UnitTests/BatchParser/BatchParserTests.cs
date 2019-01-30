@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
-        [Fact]
+        //[Fact]
         public void VerifyExecuteScript()
         {
             string query = "select @@version";
