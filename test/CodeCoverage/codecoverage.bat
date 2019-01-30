@@ -74,9 +74,6 @@ SET SERVICECODECOVERAGE=FALSE
 
 %CODECOVERAGETOOL% -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.UnitTests\Microsoft.SqlTools.ManagedBatchParser.UnitTests.csproj %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* +[MicrosoftSqlToolsServiceLayer*]* +[MicrosoftSqlToolsCredentials*]* +[Microsoft.SqlTools.ManagedBatchParser*]* [Microsoft.SqlTools.*]* -[xunit*]* -[Microsoft.SqlTools.ServiceLayer.Test*]* -[Microsoft.SqlTools.ServiceLayer.*Test*]*  -[MicrosoftSqlToolsServiceLayer]Microsoft.SqlTools.ServiceLayer.Agent.* -[MicrosoftSqlToolsServiceLayer]Microsoft.SqlTools.ServiceLayer.DisasterRecovery.* -[MicrosoftSqlToolsServiceLayer]Microsoft.SqlTools.ServiceLayer.Profiler.* -[MicrosoftSqlToolsServiceLayer]Microsoft.SqlTools.ServiceLayer.Admin.* -[MicrosoftSqlToolsServiceLayer]Microsoft.SqlTools.ServiceLayer.Management.*" -output:coverage.xml -hideskipped:All -searchdirs:%REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.UnitTests\bin\Debug\netcoreapp2.2
 
-
-Pause
-
 REM Generate the report
 "%WORKINGDIR%packages\OpenCoverToCoberturaConverter.0.2.4.0\tools\OpenCoverToCoberturaConverter.exe"  -input:coverage.xml -output:outputCobertura.xml -sources:%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer
 "%WORKINGDIR%packages\ReportGenerator.2.4.5.0\tools\ReportGenerator.exe"  "-reports:coverage.xml" "-targetdir:%WORKINGDIR%\reports"
