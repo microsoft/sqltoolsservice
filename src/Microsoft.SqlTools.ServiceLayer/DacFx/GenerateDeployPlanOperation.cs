@@ -30,13 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            DacServices ds = new DacServices(this.ConnectionString);
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
             DacDeployOptions options = GetDefaultDeployOptions();
             // this is so that operations with possible data loss will be in the report
             options.BlockOnPossibleDataLoss = false;
 
-            DeployReport = ds.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
+            DeployReport = this.DacServices.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
         }
 
         private DacDeployOptions GetDefaultDeployOptions()

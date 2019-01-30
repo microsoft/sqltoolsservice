@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     // want to show filepath in task history instead of server and database
                     metadata.ServerName = parameters.ScriptFilePath;
-                    metadata.DatabaseName = "";
+                    metadata.DatabaseName = string.Empty;
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     {
                         OperationId = operation.OperationId,
                         Success = true,
-                        ErrorMessage = ""
+                        ErrorMessage = string.Empty
                     });
                 }
             }
@@ -201,13 +201,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
-                    operation.Execute();
+                    operation.Execute(parameters.TaskExecutionMode);
 
                     await requestContext.SendResult(new GenerateDeployPlanRequestResult()
                     {
                         OperationId = operation.OperationId,
                         Success = true,
-                        ErrorMessage = "",
+                        ErrorMessage = string.Empty,
                         Report = operation.DeployReport
                     });
                 }
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 OperationId = operation.OperationId,
                 Success = true,
-                ErrorMessage = ""
+                ErrorMessage = string.Empty
             });
         }
 
@@ -278,16 +278,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         internal void PerformOperation(DacFxOperation operation)
         {
             operation.Execute(TaskExecutionMode.Execute);
-        }
-
-        /// <summary>
-        /// For testing purpose only
-        /// </summary>
-        /// <param name="operation"></param>
-        internal string PerformGenerateDeployPlanOperation(GenerateDeployPlanOperation operation)
-        {
-            operation.Execute();
-            return operation.DeployReport;
         }
     }
 }

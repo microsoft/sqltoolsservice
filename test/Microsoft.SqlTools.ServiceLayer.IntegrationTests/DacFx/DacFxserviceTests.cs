@@ -313,7 +313,8 @@ CREATE TABLE [dbo].[table3]
             };
 
             GenerateDeployPlanOperation generateDeployPlanOperation = new GenerateDeployPlanOperation(generateDeployPlanParams, result.ConnectionInfo);
-            string report = service.PerformGenerateDeployPlanOperation(generateDeployPlanOperation);
+            service.PerformOperation(generateDeployPlanOperation);
+            string report = generateDeployPlanOperation.DeployReport;
             Assert.NotNull(report);
             Assert.Contains("Create", report);
             Assert.Contains("Drop", report);
