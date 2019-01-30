@@ -7,6 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using System;
@@ -260,6 +261,128 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return generateScriptRequestContext;
         }
 
+        private Mock<RequestContext<SchemaCompareResult>> SendAndValidateSchemaCompareRequestDacpacDacpac()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+            sourceInfo.EndpointType = SchemaCompareEndpointType.dacpac;
+            sourceInfo.PackageFilePath = "C:\\Users\\kisantia\\nullableComputedColumn-2019-1-25-11-10.dacpac";
+            targetInfo.EndpointType = SchemaCompareEndpointType.dacpac;
+            targetInfo.PackageFilePath = "C:\\Users\\kisantia\\Database1-2019-1-23-21-35.dacpac";
+
+            var schemaCompareParams = new SchemaCompareParams
+            {
+                sourceEndpointInfo = sourceInfo,
+                targetEndpointInfo = targetInfo
+            };
+
+            DacFxService service = new DacFxService();
+            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, null, null);
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+
+            return schemaCompareRequestContext;
+        }
+
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDbDb()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            sourceDb.RunQuery(@"CREATE TABLE [dbo].[table1]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [Date] DATE NOT NULL
+)
+CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL
+)");
+
+            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+            sourceInfo.EndpointType = SchemaCompareEndpointType.database;
+            sourceInfo.DatabaseName = sourceDb.DatabaseName;
+            targetInfo.EndpointType = SchemaCompareEndpointType.database;
+            targetInfo.DatabaseName = targetDb.DatabaseName;
+
+            var schemaCompareParams = new SchemaCompareParams
+            {
+                sourceEndpointInfo = sourceInfo,
+                targetEndpointInfo = targetInfo
+            };
+
+            DacFxService service = new DacFxService();
+            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            // cleanup
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return schemaCompareRequestContext;
+        }
+
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDbDacpac()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareSource");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            sourceDb.RunQuery(@"CREATE TABLE [dbo].[table1]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [Date] DATE NOT NULL
+)
+CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL
+)");
+
+            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+            sourceInfo.EndpointType = SchemaCompareEndpointType.database;
+            sourceInfo.DatabaseName = sourceDb.DatabaseName;
+            targetInfo.EndpointType = SchemaCompareEndpointType.dacpac;
+            targetInfo.PackageFilePath = "C:\\Users\\kisantia\\Database1-2019-1-23-21-35.dacpac";
+
+            var schemaCompareParams = new SchemaCompareParams
+            {
+                sourceEndpointInfo = sourceInfo,
+                targetEndpointInfo = targetInfo
+            };
+
+            DacFxService service = new DacFxService();
+            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, null);
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            // cleanup
+            sourceDb.Cleanup();
+
+            return schemaCompareRequestContext;
+        }
+
         private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployPlanRequest()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -380,6 +503,34 @@ CREATE TABLE [dbo].[table3]
         public async void GenerateDeployScript()
         {
             Assert.NotNull(await SendAndValidateGenerateDeployScriptRequest());
+        }
+
+
+        /// <summary>
+        /// Verify the schema compare request
+        /// </summary>
+        [Fact]
+        public void SchemaCompareDacpac()
+        {
+            Assert.NotNull(SendAndValidateSchemaCompareRequestDacpacDacpac());
+        }
+
+        /// <summary>
+        /// Verify the schema compare request
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareDb()
+        {
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDbDb());
+        }
+
+        /// <summary>
+        /// Verify the schema compare request
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareDbDacpac()
+        {
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDbDacpac());
         }
 
         /// <summary>

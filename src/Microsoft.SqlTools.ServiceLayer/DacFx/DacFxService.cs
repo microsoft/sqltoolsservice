@@ -45,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
+            serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
         }
 
         /// <summary>
@@ -211,6 +212,41 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         Report = operation.DeployReport
                     });
                 }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles schema compare request
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareRequest(SchemaCompareParams parameters, RequestContext<SchemaCompareResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo sourceConnInfo;
+                ConnectionInfo targetConnInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                        parameters.sourceEndpointInfo.OwnerUri,
+                        out sourceConnInfo);
+                ConnectionServiceInstance.TryFindConnection(
+                    parameters.targetEndpointInfo.OwnerUri,
+                    out targetConnInfo);
+
+                SchemaCompareOperation operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
+                operation.Execute(parameters.TaskExecutionMode);
+
+                await requestContext.SendResult(new SchemaCompareResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    AreEqual = operation.ComparisonResult.IsEqual,
+                    Differences = operation.Differences
+                });
             }
             catch (Exception e)
             {
