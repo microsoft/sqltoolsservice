@@ -31,26 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            DacDeployOptions options = GetDefaultDeployPlanOptions();
+            DacDeployOptions options = GetDefaultDeployOptions();
             DeployReport = this.DacServices.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
-        }
-
-        private DacDeployOptions GetDefaultDeployPlanOptions()
-        {
-            DacDeployOptions options = new DacDeployOptions
-            {
-                AllowDropBlockingAssemblies = true,
-                AllowIncompatiblePlatform = true,
-                BlockOnPossibleDataLoss = false,
-                DropObjectsNotInSource = true,
-                DropPermissionsNotInSource = true,
-                DropRoleMembersNotInSource = true,
-                IgnoreKeywordCasing = false,
-                IgnoreSemicolonBetweenStatements = false,
-                IgnoreWhitespace = false,
-            };
-
-            return options;
         }
     }
 }
