@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
@@ -14,14 +14,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private readonly IEnumerable<Token> tokens;
 
         /// <summary>
-        /// Constructor for the TextBlock class 
+        /// Constructor for the TextBlock class
         /// </summary>
-        //public TextBlock(Parser parser, Token token) : this(parser, new[] { token })
-        //{
-        //} commented by Niranjan as it is not used anywhwere.
+        public TextBlock(Parser parser, Token token) : this(parser, new[] { token })
+        {
+        }
 
         /// <summary>
-        /// Constructor for the TextBlock class 
+        /// Constructor for the TextBlock class
         /// </summary>
         public TextBlock(Parser parser, IEnumerable<Token> tokens)
         {
@@ -63,6 +63,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             lineInfo = new LineInfo(tokens, variableRefs);
             text = sb.ToString();
         }
-
     }
 }
