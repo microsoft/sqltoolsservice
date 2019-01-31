@@ -9,7 +9,11 @@
     <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Microsoft.SqlTools.ManagedBatchParser.UnitTests</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Net.Http" Version="4.3.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="xunit" Version="2.2.0" />
@@ -28,13 +32,9 @@
     <Reference Include="Castle.Core">
       <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
     </Reference>
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider/Microsoft.SqlTools.ResourceProvider.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.Core/Microsoft.SqlTools.ResourceProvider.Core.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.DefaultImpl/Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
-    <ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="obj\Debug\netcoreapp2.2\" />
