@@ -2,6 +2,8 @@
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/Microsoft/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/kburtram/sqltoolsservice)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=master)
 
+# Test CI system
+
 # Microsoft SQL Tools Service 
 The SQL Tools Service is an application that provides core functionality for various SQL Server tools.  These features include the following:
 * Connection management
