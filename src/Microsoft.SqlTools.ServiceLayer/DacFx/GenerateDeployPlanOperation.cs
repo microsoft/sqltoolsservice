@@ -14,13 +14,15 @@ using System.Diagnostics;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent an in-progress deploy operation
+    /// Class to represent an in-progress generate deploy plan operation
     /// </summary>
-    class DeployOperation : DacFxOperation
+    class GenerateDeployPlanOperation : DacFxOperation
     {
-        public DeployParams Parameters { get; }
+        public GenerateDeployPlanParams Parameters { get; }
 
-        public DeployOperation(DeployParams parameters, ConnectionInfo connInfo) : base(connInfo)
+        public string DeployReport { get; set; }
+
+        public GenerateDeployPlanOperation(GenerateDeployPlanParams parameters, ConnectionInfo connInfo): base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
@@ -29,8 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            DacDeployOptions options = this.GetDefaultDeployOptions();
-            this.DacServices.Deploy(dacpac, this.Parameters.DatabaseName, this.Parameters.UpgradeExisting, options, this.CancellationToken);
+            DacDeployOptions options = GetDefaultDeployOptions();
+            DeployReport = this.DacServices.GenerateDeployReport(dacpac, this.Parameters.DatabaseName, options, this.CancellationToken);
         }
     }
 }

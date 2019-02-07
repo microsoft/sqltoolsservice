@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
+            serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
         }
 
         /// <summary>
@@ -167,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     // want to show filepath in task history instead of server and database
                     metadata.ServerName = parameters.ScriptFilePath;
-                    metadata.DatabaseName = "";
+                    metadata.DatabaseName = string.Empty;
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
@@ -175,7 +176,39 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     {
                         OperationId = operation.OperationId,
                         Success = true,
-                        ErrorMessage = ""
+                        ErrorMessage = string.Empty
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to generate deploy plan
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGenerateDeployPlanRequest(GenerateDeployPlanParams parameters, RequestContext<GenerateDeployPlanRequestResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                if (connInfo != null)
+                {
+                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
+                    operation.Execute(parameters.TaskExecutionMode);
+
+                    await requestContext.SendResult(new GenerateDeployPlanRequestResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = true,
+                        ErrorMessage = string.Empty,
+                        Report = operation.DeployReport
                     });
                 }
             }
@@ -199,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 OperationId = operation.OperationId,
                 Success = true,
-                ErrorMessage = ""
+                ErrorMessage = string.Empty
             });
         }
 

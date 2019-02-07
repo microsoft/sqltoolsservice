@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             PublishOptions publishOptions = new PublishOptions();
             publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
             publishOptions.CancelToken = this.CancellationToken;
+            publishOptions.DeployOptions = this.GetDefaultDeployOptions();
             publishOptions.DatabaseScriptPath = this.Parameters.ScriptFilePath;
             // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
             publishOptions.MasterDbScriptPath = Path.Combine(Path.GetDirectoryName(this.Parameters.ScriptFilePath), string.Concat("master_", Path.GetFileName(this.Parameters.ScriptFilePath)));

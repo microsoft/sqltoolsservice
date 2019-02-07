@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             {
                 service.PerformOperation(operation);
             }
-            catch(OperationCanceledException canceledException)
+            catch (OperationCanceledException canceledException)
             {
                 expectedException = canceledException;
             }
@@ -260,6 +260,74 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             return generateScriptRequestContext;
         }
 
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployPlanRequest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTest");
+            sourceDb.RunQuery(@"CREATE TABLE [dbo].[table1]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [Date] DATE NOT NULL
+)
+CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL
+)");
+            DacFxService service = new DacFxService();
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new ExtractParams
+            {
+                DatabaseName = sourceDb.DatabaseName,
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = new Version(1, 0)
+            };
+
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
+            service.PerformOperation(extractOperation);
+
+            // generate deploy plan for deploying dacpac to targetDb
+            var generateDeployPlanRequestContext = new Mock<RequestContext<DacFxResult>>();
+            generateDeployPlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTestTarget");
+            targetDb.RunQuery(@"CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL,
+    [col2] NCHAR(10) NULL
+)
+CREATE TABLE [dbo].[table3]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] INT NULL,
+)");
+
+            var generateDeployPlanParams = new GenerateDeployPlanParams
+            {
+                PackageFilePath = extractParams.PackageFilePath,
+                DatabaseName = targetDb.DatabaseName,
+            };
+
+            GenerateDeployPlanOperation generateDeployPlanOperation = new GenerateDeployPlanOperation(generateDeployPlanParams, result.ConnectionInfo);
+            service.PerformOperation(generateDeployPlanOperation);
+            string report = generateDeployPlanOperation.DeployReport;
+            Assert.NotNull(report);
+            Assert.Contains("Create", report);
+            Assert.Contains("Drop", report);
+            Assert.Contains("Alter", report);
+
+            // cleanup
+            VerifyAndCleanup(extractParams.PackageFilePath);
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return generateDeployPlanRequestContext;
+        }
+
         /// <summary>
         /// Verify the export bacpac request
         /// </summary>
@@ -306,12 +374,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         }
 
         /// <summary>
-        /// Verify the gnerate deploy script request
+        /// Verify the generate deploy script request
         /// </summary>
         [Fact]
         public async void GenerateDeployScript()
         {
             Assert.NotNull(await SendAndValidateGenerateDeployScriptRequest());
+        }
+
+        /// <summary>
+        /// Verify the generate deploy plan request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployPlan()
+        {
+            Assert.NotNull(await SendAndValidateGenerateDeployPlanRequest());
         }
 
         private void VerifyAndCleanup(string filePath)

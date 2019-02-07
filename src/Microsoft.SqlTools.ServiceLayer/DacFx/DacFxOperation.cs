@@ -90,5 +90,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         public abstract void Execute();
+
+        protected DacDeployOptions GetDefaultDeployOptions()
+        {
+            DacDeployOptions options = new DacDeployOptions
+            {
+                AllowDropBlockingAssemblies = true,
+                AllowIncompatiblePlatform = true,
+                BlockOnPossibleDataLoss = false,
+                DropObjectsNotInSource = true,
+                DropPermissionsNotInSource = true,
+                DropRoleMembersNotInSource = true,
+                IgnoreKeywordCasing = false,
+                IgnoreSemicolonBetweenStatements = false,
+                IgnoreWhitespace = false,
+            };
+
+            return options;
+        }
     }
 }
