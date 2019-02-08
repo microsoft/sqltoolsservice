@@ -1,0 +1,84 @@
+﻿# String resource file 
+#
+# When processed by the String Resource Tool, this file generates
+# both a .CS and a .RESX file with the same name as the file.
+# The .CS file contains a class which can be used to access these 
+# string resources, including the ability to format in 
+# parameters, which are identified with the .NET {x} format
+# (see String.Format help).  
+#
+# Comments below assume the file name is SR.strings.
+#
+# Lines starting with a semicolon ";" are also treated as comments, but
+# in a future version they will be extracted and made available in LocStudio
+# Put your comments to localizers _before_ the string they apply to.
+#
+# SMO build specific comment
+# after generating the .resx file, run srgen on it and get the .resx file
+# please remember to also check that .resx in, along with the 
+# .strings and .cs files
+
+[strings]
+
+
+############################################################################
+# DacFx Resources
+
+EE_BatchSqlMessageNoProcedureInfo = Msg {0}, Level {1}, State {2}, Line {3}
+
+EE_BatchSqlMessageWithProcedureInfo = Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}
+
+EE_BatchSqlMessageNoLineInfo = Msg {0}, Level {1}, State {2}
+
+EE_BatchError_Exception = An error occurred while the batch was being processed. The error message is: {0}
+
+EE_BatchExecutionInfo_RowsAffected = ({0} row(s) affected)
+
+EE_ExecutionNotYetCompleteError = The previous execution is not yet complete.
+
+EE_ScriptError_Error = A scripting error occurred.
+
+EE_ScriptError_ParsingSyntax = Incorrect syntax was encountered while {0} was being parsed.
+
+EE_ScriptError_FatalError = A fatal error occurred.
+
+EE_ExecutionInfo_FinalizingLoop	= Batch execution completed {0} times...
+
+EE_ExecutionInfo_QueryCancelledbyUser = You cancelled the query.
+
+EE_BatchExecutionError_Halting = An error occurred while the batch was being executed.
+
+EE_BatchExecutionError_Ignoring	= An error occurred while the batch was being executed, but the error has been ignored.
+
+EE_ExecutionInfo_InitializingLoop = Beginning execution loop
+
+EE_ExecutionError_CommandNotSupported = Command {0} is not supported.
+
+EE_ExecutionError_VariableNotFound = The variable {0} could not be found.
+
+BatchParserWrapperExecutionEngineError = SQL Execution error: {0}
+
+BatchParserWrapperExecutionError = Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}
+
+BatchParserWrapperExecutionEngineBatchMessage = Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}
+
+BatchParserWrapperExecutionEngineBatchResultSetProcessing = Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}
+
+BatchParserWrapperExecutionEngineBatchResultSetFinished = Batch parser wrapper execution engine batch ResultSet finished.
+
+BatchParserWrapperExecutionEngineBatchCancelling = Canceling batch parser wrapper batch execution.
+
+EE_ScriptError_Warning = Scripting warning.
+
+TroubleshootingAssistanceMessage = For more information about this error, see the troubleshooting topics in the product documentation.
+
+BatchParser_CircularReference = File '{0}' recursively included.
+
+BatchParser_CommentNotTerminated = Missing end comment mark '*/'.
+
+BatchParser_StringNotTerminated = Unclosed quotation mark after the character string.
+
+BatchParser_IncorrectSyntax = Incorrect syntax was encountered while parsing '{0}'.
+
+BatchParser_VariableNotDefined = Variable {0} is not defined.
+

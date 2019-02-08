@@ -249,63 +249,13 @@ EditDataIncorrectTable(string tableName) = EditData queries must query the origi
 ############################################################################
 # DacFx Resources
 
-EE_BatchSqlMessageNoProcedureInfo = Msg {0}, Level {1}, State {2}, Line {3}
-
-EE_BatchSqlMessageWithProcedureInfo = Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}
-
-EE_BatchSqlMessageNoLineInfo = Msg {0}, Level {1}, State {2}
-
-EE_BatchError_Exception = An error occurred while the batch was being processed. The error message is: {0}
-
-EE_BatchExecutionInfo_RowsAffected = ({0} row(s) affected)
-
-EE_ExecutionNotYetCompleteError = The previous execution is not yet complete.
-
-EE_ScriptError_Error = A scripting error occurred.
-
-EE_ScriptError_ParsingSyntax = Incorrect syntax was encountered while {0} was being parsed.
-
-EE_ScriptError_FatalError = A fatal error occurred.
-
-EE_ExecutionInfo_FinalizingLoop	= Batch execution completed {0} times...
-
-EE_ExecutionInfo_QueryCancelledbyUser = You cancelled the query.
-
-EE_BatchExecutionError_Halting = An error occurred while the batch was being executed.
+EE_ExecutionInfo_InitializingLoop = Beginning execution loop
 
 EE_BatchExecutionError_Ignoring	= An error occurred while the batch was being executed, but the error has been ignored.
 
-EE_ExecutionInfo_InitializingLoop = Beginning execution loop
-
-EE_ExecutionError_CommandNotSupported = Command {0} is not supported.
-
-EE_ExecutionError_VariableNotFound = The variable {0} could not be found.
-
-BatchParserWrapperExecutionEngineError = SQL Execution error: {0}
+EE_ExecutionInfo_FinalizingLoop	= Batch execution completed {0} times...
 
 BatchParserWrapperExecutionError = Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}
-
-BatchParserWrapperExecutionEngineBatchMessage = Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}
-
-BatchParserWrapperExecutionEngineBatchResultSetProcessing = Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}
-
-BatchParserWrapperExecutionEngineBatchResultSetFinished = Batch parser wrapper execution engine batch ResultSet finished.
-
-BatchParserWrapperExecutionEngineBatchCancelling = Canceling batch parser wrapper batch execution.
-
-EE_ScriptError_Warning = Scripting warning.
-
-TroubleshootingAssistanceMessage = For more information about this error, see the troubleshooting topics in the product documentation.
-
-BatchParser_CircularReference = File '{0}' recursively included.
-
-BatchParser_CommentNotTerminated = Missing end comment mark '*/'.
-
-BatchParser_StringNotTerminated = Unclosed quotation mark after the character string.
-
-BatchParser_IncorrectSyntax = Incorrect syntax was encountered while parsing '{0}'.
-
-BatchParser_VariableNotDefined = Variable {0} is not defined.
 
 ############################################################################
 # Workspace Service
@@ -716,125 +666,6 @@ StoredProcedureScriptParameterComment = -- TODO: Set parameter values here.
 ScriptingGeneralError = An error occurred while scripting the objects.
 ScriptingExecuteNotSupportedError = Scripting as Execute is only supported for Stored Procedures
 
-############################################################################
-# Admin Service
-
-unavailable = Unavailable
-filegroup_dialog_defaultFilegroup = Current default filegroup: {0}
-filegroup_dialog_title = New Filegroup for {0}
-filegroups_default = Default
-filegroups_files = Files
-filegroups_name = Name
-filegroups_readonly = Read-Only
-general_autogrowth = Autogrowth / Maxsize
-general_builderText = ...
-general_default = &lt;default&gt;
-general_fileGroup = Filegroup
-general_fileName = Logical Name
-general_fileType = File Type
-general_initialSize = Initial Size (MB)
-general_newFilegroup = &lt;new filegroup&gt;
-general_path = Path
-general_physicalFileName = File Name
-general_rawDevice = &lt;raw device&gt;
-general_recoveryModel_bulkLogged = Bulk-logged
-general_recoveryModel_full = Full
-general_recoveryModel_simple = Simple
-general_titleSearchOwner = Select Database Owner
-
-prototype_autogrowth_disabled = None
-prototype_autogrowth_restrictedGrowthByMB = By {0} MB, Limited to {1} MB
-prototype_autogrowth_restrictedGrowthByPercent = By {0} percent, Limited to {1} MB
-prototype_autogrowth_unrestrictedGrowthByMB = By {0} MB, Unlimited
-prototype_autogrowth_unrestrictedGrowthByPercent = By {0} percent, Unlimited
-prototype_autogrowth_unlimitedfilestream = Unlimited
-prototype_autogrowth_limitedfilestream = Limited to {0} MB
-prototype_db_category_automatic = Automatic
-prototype_db_category_servicebroker = Service Broker
-prototype_db_category_collation = Collation
-prototype_db_category_cursor = Cursor
-prototype_db_category_misc = Miscellaneous
-prototype_db_category_recovery = Recovery
-prototype_db_category_state = State
-prototype_db_prop_ansiNullDefault = ANSI NULL Default
-prototype_db_prop_ansiNulls = ANSI NULLS Enabled
-prototype_db_prop_ansiPadding = ANSI Padding Enabled 
-prototype_db_prop_ansiWarnings = ANSI Warnings Enabled
-prototype_db_prop_arithabort = Arithmetic Abort Enabled 
-prototype_db_prop_autoClose = Auto Close
-prototype_db_prop_autoCreateStatistics = Auto Create Statistics
-prototype_db_prop_autoShrink = Auto Shrink
-prototype_db_prop_autoUpdateStatistics = Auto Update Statistics 
-prototype_db_prop_autoUpdateStatisticsAsync = Auto Update Statistics Asynchronously
-prototype_db_prop_caseSensitive = Case Sensitive
-prototype_db_prop_closeCursorOnCommit = Close Cursor on Commit Enabled 
-prototype_db_prop_collation = Collation
-prototype_db_prop_concatNullYieldsNull = Concatenate Null Yields Null 
-prototype_db_prop_databaseCompatibilityLevel = Database Compatibility Level
-prototype_db_prop_databaseState = Database State 
-prototype_db_prop_defaultCursor = Default Cursor
-prototype_db_prop_fullTextIndexing = Full-Text Indexing Enabled 
-prototype_db_prop_numericRoundAbort = Numeric Round-Abort 
-prototype_db_prop_pageVerify = Page Verify 
-prototype_db_prop_quotedIdentifier = Quoted Identifiers Enabled 
-prototype_db_prop_readOnly = Database Read-Only
-prototype_db_prop_recursiveTriggers = Recursive Triggers Enabled 
-prototype_db_prop_restrictAccess = Restrict Access
-prototype_db_prop_selectIntoBulkCopy = Select Into/Bulk Copy
-prototype_db_prop_honorBrokerPriority = Honor Broker Priority
-prototype_db_prop_serviceBrokerGuid = Service Broker Identifier
-prototype_db_prop_brokerEnabled = Broker Enabled
-prototype_db_prop_truncateLogOnCheckpoint = Truncate Log on Checkpoint 
-prototype_db_prop_dbChaining = Cross-database Ownership Chaining Enabled
-prototype_db_prop_trustworthy = Trustworthy
-prototype_db_prop_dateCorrelationOptimization = Date Correlation Optimization Enabled
-prototype_db_prop_parameterization = Parameterization
-prototype_db_prop_parameterization_value_forced = Forced
-prototype_db_prop_parameterization_value_simple = Simple
-prototype_file_dataFile = ROWS Data
-prototype_file_logFile = LOG
-prototype_file_filestreamFile = FILESTREAM Data
-prototype_file_noFileGroup = Not Applicable
-prototype_file_defaultpathstring = &lt;default path&gt;
-title_openConnectionsMustBeClosed = Open Connections
-warning_openConnectionsMustBeClosed=To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?
-prototype_db_prop_databaseState_value_autoClosed = AUTO_CLOSED
-prototype_db_prop_databaseState_value_emergency = EMERGENCY
-prototype_db_prop_databaseState_value_inaccessible = INACCESSIBLE
-prototype_db_prop_databaseState_value_normal = NORMAL
-prototype_db_prop_databaseState_value_offline = OFFLINE
-prototype_db_prop_databaseState_value_recovering = RECOVERING
-prototype_db_prop_databaseState_value_recoveryPending = RECOVERY PENDING
-prototype_db_prop_databaseState_value_restoring = RESTORING
-prototype_db_prop_databaseState_value_shutdown=SHUTDOWN
-prototype_db_prop_databaseState_value_standby = STANDBY
-prototype_db_prop_databaseState_value_suspect = SUSPECT
-prototype_db_prop_defaultCursor_value_global = GLOBAL
-prototype_db_prop_defaultCursor_value_local = LOCAL
-prototype_db_prop_restrictAccess_value_multiple = MULTI_USER
-prototype_db_prop_restrictAccess_value_restricted = RESTRICTED_USER
-prototype_db_prop_restrictAccess_value_single = SINGLE_USER
-prototype_db_prop_pageVerify_value_checksum = CHECKSUM
-prototype_db_prop_pageVerify_value_none = NONE
-prototype_db_prop_pageVerify_value_tornPageDetection = TORN_PAGE_DETECTION
-prototype_db_prop_varDecimalEnabled = VarDecimal Storage Format Enabled
-compatibilityLevel_katmai = SQL Server 2008 (100)
-prototype_db_prop_encryptionEnabled = Encryption Enabled
-prototype_db_prop_databasescopedconfig_value_off = OFF
-prototype_db_prop_databasescopedconfig_value_on = ON
-prototype_db_prop_databasescopedconfig_value_primary = PRIMARY
-error_db_prop_invalidleadingColumns = For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  
-compatibilityLevel_denali = SQL Server 2012 (110)
-compatibilityLevel_sql14 = SQL Server 2014 (120)
-compatibilityLevel_sql15 = SQL Server 2016 (130)
-compatibilityLevel_sqlvNext = SQL Server vNext (140)
-general_containmentType_None = None
-general_containmentType_Partial = Partial
-filegroups_filestreamFiles = FILESTREAM Files
-prototype_file_noApplicableFileGroup = No Applicable Filegroup
-NeverBackedUp = Never
-Error_InvalidDirectoryName = Path {0} is not a valid directory 
-Error_ExistingDirectoryName = For directory {0} a file with name {1} already exists
 
 ############################################################################
 # Backup Service
@@ -895,146 +726,6 @@ StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
 
-#############################################################################
-# SQL Agent
-EnableAlertsTitle(String serverName) = Enable Alerts - {0}
-EnableAlertDescription(String alertName) = Enable Alert '{0}'
-EnablingAlert(String alertName) = Enabling Alert '{0}'
-EnabledAlert(String alertName) = Enabled Alert '{0}'
-
-DisableAlertsTitle(String serverName) = Disable Alerts - {0}
-DisableAlertDescription(String alertName) = Disable Alert '{0}'
-DisablingAlert(String alertName) = Disabling Alert '{0}'
-DisabledAlert(String alertName) = Disabled Alert '{0}'
-
-EnableJobsTitle(String serverName) = Enable Jobs - {0}
-EnableJobDescription(String jobName) = Enable Job '{0}'
-EnablingJob(String jobName) = Enabling Job '{0}'
-EnabledJob(String jobName) = Enabled Job '{0}'
-
-DisableJobsTitle(String serverName) = Disable Jobs - {0}
-DisableJobDescription(String jobName) = Disable Job '{0}'
-DisablingJob(String jobName) = Disabling Job '{0}'
-DisabledJob(String jobName) = Disabled Job '{0}'
-
-StartJobsTitle(String serverName) = Start Jobs - {0}
-StartJobDescription(String jobName) = Start Job '{0}'
-GettingStartStep(String jobName) = Job '{0}' has more than one step. Getting step to start
-UserCancelledSelectStep = User canceled select step. Job will not be started
-StartingJob(String jobName) = Starting Job '{0}'
-StartJobWithStep(String jobName, String stepName) = Start Job '{0}' with step '{1}'
-RequestPostedToTargetServers = Posted remote job execution request
-
-ExecuteJob(string jobName) = Execute job '{0}'
-JobFailed(string jobName) = Execution of job '{0}' failed.  See the history log for details.
-Executing = Executing
-BetweenRetries = Between retries
-Suspended = Suspended
-PerformingCompletionAction = Performing completion action
-WaitingForStepToFinish = Waiting for step to finish
-WaitingForWorkerThread = Waiting for worker thread
-
-StopJobsTitle(String serverName) = Stop Jobs - {0}
-StopJobDescription(String jobName) = Stop Job '{0}'
-StoppingJob(String jobName) = Stopping Job '{0}'
-StoppedJob(String jobName) = Stopped Job '{0}'
-
-; First item in database name drop down list
-AllDatabases = <all databases>
-; Exception thrown when agent alert has unknown severity level
-UnknownSeverity(int severity) = Unknown severity: {0}
-
-#severity types
-Severity001 = 001 - Miscellaneous System Information
-Severity002 = 002 - Reserved
-Severity003 = 003 - Reserved
-Severity004 = 004 - Reserved
-Severity005 = 005 - Reserved
-Severity006 = 006 - Reserved
-Severity007 = 007 - Notification: Status Information
-Severity008 = 008 - Notification: User Intervention Required
-Severity009 = 009 - User Defined
-Severity010 = 010 - Information
-Severity011 = 011 - Specified Database Object Not Found
-Severity012 = 012 - Unused
-Severity013 = 013 - User Transaction Syntax Error
-Severity014 = 014 - Insufficient Permission
-Severity015 = 015 - Syntax Error in SQL Statements
-Severity016 = 016 - Miscellaneous User Error
-Severity017 = 017 - Insufficient Resources
-Severity018 = 018 - Nonfatal Internal Error
-Severity019 = 019 - Fatal Error in Resource
-Severity020 = 020 - Fatal Error in Current Process
-Severity021 = 021 - Fatal Error in Database Processes
-Severity022 = 022 - Fatal Error: Table Integrity Suspect
-Severity023 = 023 - Fatal Error: Database Integrity Suspect
-Severity024 = 024 - Fatal Error: Hardware Error
-Severity025 = 025 - Fatal Error
-
-; Message box that displayed if start time is more than end time on Mon-Fri
-PagerScheduleMonFri = Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?
-; Message box that displayed if start time is more than end time on Sat-Sun
-PagerScheduleSatSun = Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?
-; Message box caption
-PagerScheduleWarning = Pager schedule warning
-
-; Tree node name
-General = General
-; Tree node name
-Notifications = Notifications
-; Tree node name
-History = History
-; Pager schedule grid column name
-Day = Day
-; Pager schedule grid column name
-StartTime = Start Time
-; Pager schedule grid column name
-EndTime = End Time
-; Exception thrown when column index is invalid
-ColumnIndexIsInvalid = Column index is invalid.
-; Exception thrown when row index is invalid
-RowIndexIsInvalid = Row index is invalid.
-; Name of the operator dialog in create new operator mode
-NewOperatorProperties = New Operator
-; Name of the operator dialog in modify operator mode
-OperatorProperties(string operatorName) = {0} Properties
-; Exception thrown when dialog cannot be created/intialized.
-FailedToCreateInitializeAgentOperatorDialog = Unable to create/initialize Agent Operator dialog.
-; Exception thrown when job server is not available
-JobServerIsNotAvailable = Job server is not available.
-; Exception thrown when we cannot create/initialize agent operators general page
-CannotCreateInitializeGeneralPage = Cannot create/initialize General page.
-; Exception thrown when we cannot create/initialize agent operators notifications page
-CannotCreateInitializeNotificationsPage = Cannot create/initialize Notifications page.
-; Exception thrown when we cannot create/initialize agent operators history page
-CannotCreateInitializeHistoryPage = Cannot create/initialize History page.
-; Exception throw when dialog cannot refresh operator
-CannotResetOperator = Cannot reset operator.
-
-; Name of label on notifications page
-AlertList = Alert list:
-; Name of label on notifications page
-JobList = Job list:
-; Name of column on notifications page
-Email = E-mail
-; Name of column on notifications page
-Pager = Pager
-; Name of column on notifications page
-AlertName = Alert name
-; Name of column on notifications page
-JobName = Job name
-; Completion Action
-Always = Always
-; Completion Action
-Never = Never
-; Completion Action
-OnFailure = On failure
-; Completion Action
-OnSuccess = On success
-; Exception thrown when we cannot modify alerts
-CannotModifyAlerts = Cannot modify alerts.
-; Exception thrown when we cannot create script that modify alerts
-CannotCreateScriptForModifyAlerts = Cannot create script for modify alerts.
 
 ;job categories
 CategoryLocal = [Uncategorized (Local)]
@@ -1082,3 +773,13 @@ StartTimeGreaterThanEndTime = The job schedule starting time cannot be after the
 EndTimeEqualToStartTime = The job schedule ending time must be after the starting time.
 InvalidStartDate = Start date must be on or after January 1, 1990.
 ScheduleNameAlreadyExists(string scheduleName)=There is already a schedule named '{0}' for this job.  You must specify a different name.
+
+; Exception thrown when job server is not available
+JobServerIsNotAvailable = Job server is not available
+
+############################################################################
+# Admin Service
+
+NeverBackedUp = Never
+Error_InvalidDirectoryName = Path {0} is not a valid directory 
+Error_ExistingDirectoryName = For directory {0} a file with name {1} already exist

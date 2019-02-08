@@ -1,9 +1,14 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
+namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     public class BatchParserWrapperTests
     {
@@ -20,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 Assert.Equal(1, batch.StartLine);
                 Assert.Equal(1, batch.StartColumn);
                 Assert.Equal(2, batch.EndLine);
-                Assert.Equal(sqlScript.Length+1, batch.EndColumn);
+                Assert.Equal(sqlScript.Length + 1, batch.EndColumn);
                 Assert.Equal(1, batch.BatchExecutionCount);
             }
         }
@@ -51,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 Assert.Equal(1, batch.StartLine);
                 Assert.Equal(1, batch.StartColumn);
                 Assert.Equal(2, batch.EndLine);
-                Assert.Equal(sqlScript.Length+1, batch.EndColumn);
+                Assert.Equal(sqlScript.Length + 1, batch.EndColumn);
             }
         }
 

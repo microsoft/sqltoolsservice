@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
+namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     internal sealed class TestVariableResolver : IVariableResolver
     {

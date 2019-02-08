@@ -11,10 +11,11 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Xunit;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
+namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     public class BatchParserTests : BaselinedTest
     {
@@ -53,6 +54,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             }
         }
 
+        [Fact]
+        public void VerifyExecuteScript()
+        {
+            string query = "select @@version";
+            ExecutionEngineTest executionEngineTest = new ExecutionEngineTest();
+            executionEngineTest.TestInitialize();
+            using (ExecutionEngine engine = new ExecutionEngine())
+            {
+                engine.ExecuteScript(query);
+            }
+        }
+
+        [Fact]
+        public void CanceltheBatch()
+        {
+            Batch batch = new Batch();
+            batch.Cancel();
+        }
+
         private static Stream GenerateStreamFromString(string s)
         {
             MemoryStream stream = new MemoryStream();
@@ -71,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             var inputStream = GenerateStreamFromString(input);
             using (Lexer lexer = new Lexer(new StreamReader(inputStream), filename))
             {
-                
+
                 string inputText = File.ReadAllText(filename);
                 inputText = inputText.Replace("\r\n", "\n");
                 StringBuilder roundtripTextBuilder = new StringBuilder();
@@ -217,11 +237,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 }
                 string tokenFilename = token.Filename;
                 tokenFilename = GetFilenameOnly(tokenFilename);
-                return string.Format(CultureInfo.CurrentCulture, "[Token {0} at {1}({2}:{3} [{4}] - {5}:{6} [{7}]): '{8}']", 
-                    token.TokenType, 
+                return string.Format(CultureInfo.CurrentCulture, "[Token {0} at {1}({2}:{3} [{4}] - {5}:{6} [{7}]): '{8}']",
+                    token.TokenType,
                     tokenFilename,
                     token.Begin.Line, token.Begin.Column, token.Begin.Offset,
-                    token.End.Line, token.End.Column, token.End.Offset, 
+                    token.End.Line, token.End.Column, token.End.Offset,
                     tokenText);
             }
         }
@@ -230,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
         {
             return fullPath != null ? Path.GetFileName(fullPath) : null;
         }
-        
+
         public override void Run()
         {
             string inputFilename = GetTestscriptFilePath(CurrentTestName);
