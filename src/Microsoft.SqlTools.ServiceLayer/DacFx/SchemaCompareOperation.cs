@@ -9,8 +9,8 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 this.ComparisonResult = comparison.Compare();
 
                 this.Differences = new List<DiffEntry>();
-                foreach(SchemaDifference difference in this.ComparisonResult.Differences)
+                foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
                     DiffEntry diffEntry = CreateDiffEntry(difference, null);
                     this.Differences.Add(diffEntry);
@@ -112,22 +112,47 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
             DiffEntry diffEntry = new DiffEntry();
-            //diffEntry.parent = parent;
             diffEntry.updateAction = difference.UpdateAction;
             diffEntry.differenceType = difference.DifferenceType;
             diffEntry.name = difference.Name;
+
             if (difference.SourceObject != null)
             {
-                diffEntry.sourceValue = difference.SourceObject.Name.ToString();
+                diffEntry.sourceValue = GetName(difference.SourceObject.Name.ToString());
             }
             if (difference.TargetObject != null)
             {
-                diffEntry.targetValue = difference.TargetObject.Name.ToString();
+                diffEntry.targetValue = GetName(difference.TargetObject.Name.ToString());
+            }
+
+            if (difference.DifferenceType == SchemaDifferenceType.Object)
+            {
+                // set source and target scripts
+                if (difference.SourceObject != null)
+                {
+                    string sourceScript;
+                    difference.SourceObject.TryGetScript(out sourceScript);
+                    diffEntry.sourceScript = RemoveExcessWhitespace(sourceScript);
+                    if (parent != null && string.IsNullOrEmpty(diffEntry.sourceScript))
+                    {
+                        diffEntry.parentSourceScript = parent.sourceScript;
+                    }
+                }
+                if (difference.TargetObject != null)
+                {
+                    string targetScript;
+                    difference.TargetObject.TryGetScript(out targetScript);
+                    diffEntry.targetScript = RemoveExcessWhitespace(targetScript);
+                    if (parent != null && string.IsNullOrEmpty(diffEntry.targetScript))
+                    {
+                        diffEntry.parentTargetScript = parent.targetScript;
+                    }
+                }
             }
 
             diffEntry.children = new List<DiffEntry>();
 
-            foreach(SchemaDifference child in difference.Children)
+            foreach (SchemaDifference child in difference.Children)
             {
                 diffEntry.children.Add(CreateDiffEntry(child, diffEntry));
             }
@@ -156,13 +181,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         private string GetConnectionString(ConnectionInfo connInfo, string databaseName)
         {
-            if(connInfo == null)
+            if (connInfo == null)
             {
                 return null;
             }
 
             connInfo.ConnectionDetails.DatabaseName = databaseName;
             return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+        }
+
+        private string RemoveExcessWhitespace(string script)
+        {
+            // replace all multiple spaces with single space
+            return Regex.Replace(script, " {2,}", " ");
+        }
+
+        private string GetName(string name)
+        {
+            // remove brackets from name
+            return Regex.Replace(name, @"[\[\]]", "");
         }
     }
 }

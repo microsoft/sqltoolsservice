@@ -79,6 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string targetValue;
         public DiffEntry parent;
         public List<DiffEntry> children;
+        public string sourceScript;
+        public string targetScript;
+        public string parentSourceScript;
+        public string parentTargetScript;
     }
 
 
