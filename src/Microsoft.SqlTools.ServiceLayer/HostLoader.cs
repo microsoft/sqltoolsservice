@@ -10,6 +10,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
@@ -113,6 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             DacFxService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(DacFxService.Instance);
+
+            CmsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(CmsService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

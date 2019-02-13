@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-    <SmoPackageVersion>150.18040.0-preview</SmoPackageVersion>
+    <SmoPackageVersion>150.16170.21</SmoPackageVersion> <!-- temporary -->
     <HighEntropyVA>true</HighEntropyVA>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
