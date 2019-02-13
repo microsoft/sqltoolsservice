@@ -659,10 +659,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (jobInfo != null)
             {
                 this.currentName = jobInfo.Name;
-                this.owner = jobInfo.Owner;
-                this.description = jobInfo.Description;                
-                this.enabled = jobInfo.Enabled;
+                this.Owner = jobInfo.Owner;
+                this.Description = jobInfo.Description;                
+                this.Enabled = jobInfo.Enabled;
                 this.startStepID = jobInfo.StartStepId;
+                this.Category = ConvertStringToCategory(jobInfo.Category);
             }
         }
         #endregion

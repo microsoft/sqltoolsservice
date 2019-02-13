@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
@@ -33,8 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public const string UrnRetriesAttempted = "RetriesAttempted";
         public const string UrnServer = "Server";
         internal const string UrnServerTime = "CurrentDate";
-    
-            public static AgentJobInfo ConvertToAgentJobInfo(JobProperties job)
+
+        public static AgentJobInfo ConvertToAgentJobInfo(JobProperties job)
         {
             return new AgentJobInfo
             {
@@ -216,6 +217,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 jobs.Add(jobHistoryInfo);
             }
             return jobs;
+        }
+
+        public static AgentSubSystem ConvertToAgentSubSytem(string subSystem)
+        {
+            switch(subSystem)
+            {
+                case ("Transact-SQL script (T-SQL"):
+                    return AgentSubSystem.TransactSql;
+                case ("Operating system (CmdExec)"):
+                    return AgentSubSystem.CmdExec;
+                case ("PowerShell"):
+                    return AgentSubSystem.PowerShell;
+                default:
+                    return AgentSubSystem.TransactSql;
+            }
         }
     }
 }

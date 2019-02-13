@@ -189,6 +189,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// <summary>
+        /// SubSystem
+        /// </summary>
+        public AgentSubSystem Subsystem
+        {
+            get
+            {
+                return this.subSystem;
+            }
+            set
+            {
+                this.subSystem = value;
+            }
+        }
+
+        /// <summary>
         /// indicates whether the job exists on the server
         /// </summary>
         internal bool Created

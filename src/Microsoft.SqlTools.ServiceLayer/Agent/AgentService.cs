@@ -298,7 +298,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 catch (Exception e)
                 {
                     result.Success = false;
-                    result.ErrorMessage = e.Message;
+                    result.ErrorMessage = e.Message + "\r\n\t" + e.InnerException.Message
+                        + "\r\n\t" + e.InnerException.InnerException.Message;
                     await requestContext.SendResult(result);
                 }
             });
@@ -920,7 +921,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                     break;
                                 } 
                             }
-                            await ConfigureAgentJobStep(ownerUri, step, configAction, runType);
+                            await ConfigureAgentJobStep(ownerUri, step, configAction, runType, jobData, dataContainer);
                         }
                     }
 
@@ -929,7 +930,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         foreach (AgentScheduleInfo schedule in jobInfo.JobSchedules)
                         {
-                            await ConfigureAgentSchedule(ownerUri, schedule, configAction, runType);
+                            await ConfigureAgentSchedule(ownerUri, schedule, configAction, runType, jobData, dataContainer);
                         }
                     }
 
@@ -939,7 +940,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         foreach (AgentAlertInfo alert in jobInfo.Alerts)
                         {
                             alert.JobId = jobData.Job.JobID.ToString();
-                            await ConfigureAgentAlert(ownerUri, alert.Name, alert, configAction, runType);
+                            await ConfigureAgentAlert(ownerUri, alert.Name, alert, configAction, runType, jobData, dataContainer);
                         }
                     }
 
@@ -956,7 +957,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string ownerUri,
             AgentJobStepInfo stepInfo,
             ConfigAction configAction,
-            RunType runType)
+            RunType runType,
+            JobData jobData = null,
+            CDataContainer dataContainer = null)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
@@ -967,9 +970,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         return new Tuple<bool, string>(false, "JobName cannot be null");
                     }
 
-                    JobData jobData;
-                    CDataContainer dataContainer;
-                    CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
+                    if (jobData == null)
+                    {
+                        CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
+                    }
 
                     using (var actions = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
                     {
@@ -991,14 +995,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string alertName,
             AgentAlertInfo alert,
             ConfigAction configAction,
-            RunType runType)
+            RunType runType,
+            JobData jobData = null,
+            CDataContainer dataContainer = null)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
                 try
                 {
-                    CDataContainer dataContainer;
-                    JobData jobData = null;
                     // If the alert is being created outside of a job
                     if (string.IsNullOrWhiteSpace(alert.JobName))
                     {
@@ -1007,9 +1011,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                     } 
                     else 
-                    {
-                        // If the alert is being created inside a job
-                        CreateJobData(ownerUri, alert.JobName, out dataContainer, out jobData);
+                    {   
+                        if (jobData == null)
+                        {
+                            // If the alert is being created inside a job
+                            CreateJobData(ownerUri, alert.JobName, out dataContainer, out jobData);
+                        }
                     }
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("alert", alertName);
@@ -1095,15 +1102,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string ownerUri,
             AgentScheduleInfo schedule,
             ConfigAction configAction,
-            RunType runType)
+            RunType runType,
+            JobData jobData = null,
+            CDataContainer dataContainer = null)
         {
             return await Task<bool>.Run(() =>
             {
                 try
                 {
-                    JobData jobData;
-                    CDataContainer dataContainer;
-                    CreateJobData(ownerUri, schedule.JobName, out dataContainer, out jobData);
+                    if (jobData == null)
+                    {
+                        CreateJobData(ownerUri, schedule.JobName, out dataContainer, out jobData);
+                    }
 
                     const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']/Schedule[@Name='{2}']";
                     string serverName = dataContainer.Server.Name.ToUpper();
