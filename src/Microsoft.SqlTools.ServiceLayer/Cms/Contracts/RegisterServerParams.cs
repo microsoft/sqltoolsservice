@@ -29,8 +29,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
         
         public ConnectionDetails RegServerConnectionDetails { get; set; }
 
-        // TODO : only parent connection uri or actual connection??
         public string ParentOwnerUri { get; set; }
+
+        public string[] RelativePath { get; set; }
+    }
+
+    /// <summary>
+    /// Parmaters to Add Server Group to top level CMS
+    /// </summary>
+    public class AddServerGroupParams
+    {
+        public string GroupName { get; set; }
+
+        public string GroupDescription { get; set; }
+
+        public string ParentOwnerUri { get; set; }
+
+        public string[] RelativePath { get; set; }
+    }
+
+    /// <summary>
+    /// Parmaters to Remove Server Group from CMS
+    /// </summary>
+    public class RemoveServerGroupParams
+    {
+        public string GroupName { get; set; }
+        
+        public string ParentOwnerUri { get; set; }
+
+        public string[] RelativePath { get; set; }
     }
 
     /// <summary>
@@ -40,7 +67,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     {
         public string RegisteredServerName { get; set; }
 
-        // TODO : only parent connection uri or actual connection??
         public string ParentOwnerUri { get; set; }
+
+        public string[] RelativePath { get; set; }
+    }
+
+    /// <summary>
+    /// Paramaters to list a Registered Server from CMS tree
+    /// </summary>
+    public class ListRegisteredServerParams
+    {
+        public string ParentOwnerUri { get; set; }
+
+        public string[] RelativePath { get; set; }
     }
 }

@@ -10,20 +10,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
     public class CreateCentralManagementServerRequest
     {
-        public static readonly RequestType<CreateCentralManagementServerParams, RegisteredServersResult> Type =
-            RequestType<CreateCentralManagementServerParams, RegisteredServersResult>.Create("cms/createCms");
+        public static readonly RequestType<CreateCentralManagementServerParams, ListRegisteredServersResult> Type =
+            RequestType<CreateCentralManagementServerParams, ListRegisteredServersResult>.Create("cms/createCms");
     }
 
-    public class GetRegisteredServerRequest
+    public class ListRegisteredServerRequest
     {
-        public static readonly RequestType<ConnectParams, RegisteredServersResult> Type =
-            RequestType<ConnectParams, RegisteredServersResult>.Create("cms/listRegServers");
+        public static readonly RequestType<ListRegisteredServerParams, ListRegisteredServersResult> Type =
+            RequestType<ListRegisteredServerParams, ListRegisteredServersResult>.Create("cms/listRegServers");
     }
 
     public class AddRegisteredServerRequest
     {
         public static readonly RequestType<AddRegisteredServerParams, bool> Type =
             RequestType<AddRegisteredServerParams, bool>.Create("cms/addRegServers");
+    }
+
+    public class AddServerGroupRequest
+    {
+        public static readonly RequestType<AddServerGroupParams, bool> Type =
+            RequestType<AddServerGroupParams, bool>.Create("cms/addCmsServerGroup");
+    }
+
+    public class RemoveServerGroupRequest
+    {
+        public static readonly RequestType<RemoveServerGroupParams, bool> Type =
+            RequestType<RemoveServerGroupParams, bool>.Create("cms/removeCmsServerGroup");
     }
 
     public class RemoveRegisteredServerRequest

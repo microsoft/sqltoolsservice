@@ -7,9 +7,11 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 {
-    public class RegisteredServersResult
+    public class ListRegisteredServersResult
     {
         public List<RegisteredServerResult> RegisteredServersList { get; set; }
+
+        public List<RegisteredServerGroup> RegisteredServerGroups { get; set; }
     }
 
     public class RegisteredServerResult
@@ -21,5 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
         public string Description { get; set; }
 
         public ConnectionDetails connectionDetails { get; set; }
+    }
+
+    public class RegisteredServerGroup
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
     }
 }

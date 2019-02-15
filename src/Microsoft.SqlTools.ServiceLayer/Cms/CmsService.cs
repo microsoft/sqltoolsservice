@@ -36,6 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             get { return instance.Value; }
         }
 
+        #region Public methods
+
         /// <summary>
         /// Initializes the service instance
         /// </summary>
@@ -43,18 +45,84 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(CreateCentralManagementServerRequest.Type, this.HandleCreateCentralManagementServerRequest);
-            serviceHost.SetRequestHandler(GetRegisteredServerRequest.Type, this.HandleListRegisteredServersRequest);
+            serviceHost.SetRequestHandler(ListRegisteredServerRequest.Type, this.HandleListRegisteredServersRequest);
             serviceHost.SetRequestHandler(AddRegisteredServerRequest.Type, this.HandleAddRegisteredServerRequest);
             serviceHost.SetRequestHandler(RemoveRegisteredServerRequest.Type, this.HandleRemoveRegisteredServerRequest);
+            serviceHost.SetRequestHandler(AddServerGroupRequest.Type, this.HandleAddServerGroupRequest);
+            serviceHost.SetRequestHandler(RemoveServerGroupRequest.Type, this.HandleRemoveServerGroupRequest);
         }
 
-        public async Task HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams, RequestContext<RegisteredServersResult> requestContext)
+        public async Task HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleCreateCentralManagementServerRequest");
             try
             {
-                RegisteredServersResult result = await CreateCMSTask(createCmsParams);
+                //Validate params and connect
+                ServerConnection conn = await ValidateAndCreateConnection(createCmsParams.ConnectParams);
+
+                // Get Current Reg Servers
+                RegisteredServersStore store = new RegisteredServersStore(conn);
+                ServerGroup parentGroup = store.DatabaseEngineServerGroup; //TODO Do we need other types like Integrated Service and Analysis Service           
+                ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
                 await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        public async Task HandleAddRegisteredServerRequest(AddRegisteredServerParams cmsCreateParams, RequestContext<bool> requestContext)
+        {
+            Logger.Write(TraceEventType.Verbose, "HandleAddRegisteredServerRequest");
+            try
+            {
+                ServerConnection serverConn = ValidateAndCreateConnection(cmsCreateParams.ParentOwnerUri);
+                if (serverConn != null)
+                {
+                    // Get Current Reg Servers
+                    RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, cmsCreateParams.RelativePath);
+                    RegisteredServerCollection servers = parentGroup.RegisteredServers;
+
+                    // Add the new server (intentionally not cheching existence to reuse the exception message)
+                    RegisteredServer regServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
+                    if (cmsCreateParams.RegServerConnectionDetails != null)
+                    {
+                        regServer.ServerName = cmsCreateParams.RegServerConnectionDetails.ServerName;
+                        regServer.Description = cmsCreateParams.RegisterdServerDescription;
+                        regServer.ConnectionString = ConnectionService.CreateConnectionStringBuilder(cmsCreateParams.RegServerConnectionDetails).ToString();
+                    }
+                    regServer.Description = cmsCreateParams.RegisterdServerDescription;
+                    regServer.Create();
+
+                    await requestContext.SendResult(true);
+                }
+                await requestContext.SendResult(false);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+        
+        public async Task HandleListRegisteredServersRequest(ListRegisteredServerParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
+        {
+            Logger.Write(TraceEventType.Verbose, "HandleListRegisteredServersRequest");
+            try
+            {
+                //Validate and create connection
+                ServerConnection serverConn = ValidateAndCreateConnection(listServerParams.ParentOwnerUri);
+
+                if (serverConn != null)
+                {
+                    // Get registered Servers
+                    RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, listServerParams.RelativePath);
+                    ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
+                    await requestContext.SendResult(result);
+                }
+                await requestContext.SendResult(null);
             }
             catch (Exception e)
             {
@@ -67,159 +135,95 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             Logger.Write(TraceEventType.Verbose, "HandleRemoveServerRequest");
             try
             {
-                bool result = RemoveRegisteredServersTask(removeServerParams);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        /// <summary>
-        /// Handles create servers request
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleAddRegisteredServerRequest(AddRegisteredServerParams cmsCreateParams, RequestContext<bool> requestContext)
-        {
-            Logger.Write(TraceEventType.Verbose, "HandleAddRegisteredServerRequest");
-            try
-            {
-                bool result = AddRegisteredServerTask(cmsCreateParams);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        /// <summary>
-        /// Handles get servers request
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleListRegisteredServersRequest(ConnectParams connectionParams, RequestContext<RegisteredServersResult> requestContext)
-        {
-            Logger.Write(TraceEventType.Verbose, "HandleListRegisteredServersRequest");
-            try
-            {
-                RegisteredServersResult result = ListRegisteredServersTask(connectionParams);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        private async Task<RegisteredServersResult> CreateCMSTask(CreateCentralManagementServerParams cmsCreateParams)
-        {
-            //Validate params and connect
-            ServerConnection conn = await ValidateAndCreateConnection(cmsCreateParams.ConnectParams);
-
-            // Get Current Reg Servers
-            RegisteredServersStore store = new RegisteredServersStore(conn);
-            ServerGroup parentGroup = store.DatabaseEngineServerGroup; //TODO Do we need other types like Integrated Service and Analysis Service
-            RegisteredServerCollection servers = parentGroup.RegisteredServers;
-
-            // Convert to appropriate variables and return
-            var serverResults = new List<RegisteredServerResult>();
-            foreach (var s in servers)
-            {
-                serverResults.Add(new RegisteredServerResult
-                {
-                    Name = s.Name,
-                    ServerName = s.ServerName ?? cmsCreateParams.ConnectParams.Connection.ServerName,
-                    Description = s.Description,
-                    connectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString)
-                });
-            }
-
-            RegisteredServersResult result = new RegisteredServersResult() { RegisteredServersList = serverResults };
-            return result;
-        }
-        
-        private bool AddRegisteredServerTask(AddRegisteredServerParams cmsCreateParams)
-        {
-            try
-            {
-                ServerConnection serverConn = ValidateAndCreateConnection(cmsCreateParams.ParentOwnerUri);
+                // Validate and Connect
+                ServerConnection serverConn = ValidateAndCreateConnection(removeServerParams.ParentOwnerUri);
                 if (serverConn != null)
                 {
-                    // Get Current Reg Servers
+                    // Get list of registered Servers
                     RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                    ServerGroup parentGroup = store.DatabaseEngineServerGroup; //TODO Do we need other types like Integrated Service and Analysis Service
-                    RegisteredServerCollection servers = parentGroup.RegisteredServers;
-
-                    // Add the new server (intentioanlly not cheching existence to reuse the exception message)
-                    RegisteredServer regServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
-                    if (cmsCreateParams.RegServerConnectionDetails != null)
+                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, removeServerParams.RelativePath);
+                    if (parentGroup != null)
                     {
-                        regServer.ServerName = cmsCreateParams.RegServerConnectionDetails.ServerName;
-                        regServer.Description = cmsCreateParams.RegisterdServerDescription;
-                        regServer.ConnectionString = ConnectionService.CreateConnectionStringBuilder(cmsCreateParams.RegServerConnectionDetails).ToString();
+                        RegisteredServer regServ = parentGroup.RegisteredServers.OfType<RegisteredServer>().FirstOrDefault(r => r.Name == removeServerParams.RegisteredServerName); // since duplicates are not allowed
+                        regServ?.Drop();
+                        await requestContext.SendResult(true);
                     }
-                    regServer.Description = cmsCreateParams.RegisterdServerDescription;
-                    regServer.Create();
-
-                    return true;
                 }
-                return false;
+                await requestContext.SendResult(false);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "Could not create Reg Server {0}");
-                throw;
+                await requestContext.SendError(e);
             }
-
         }
 
-        private RegisteredServersResult ListRegisteredServersTask(ConnectParams connectionParams)
+        public async Task HandleAddServerGroupRequest(AddServerGroupParams addServerGroupParams, RequestContext<bool> requestContext)
         {
-            //Validate and create connection
-            ServerConnection serverConn = ValidateAndCreateConnection(connectionParams.OwnerUri);
-           
-            if (serverConn != null)
+            Logger.Write(TraceEventType.Verbose, "HandleAddServerGroupRequest");
+            try
             {
-                // Get registered Servers
+                ServerConnection serverConn = ValidateAndCreateConnection(addServerGroupParams.ParentOwnerUri);
                 RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                ServerGroup parentGroup = store.DatabaseEngineServerGroup;  //TODO Do we need other types like Integrated Service and Analysis Service
-                RegisteredServerCollection servers = parentGroup.RegisteredServers;
 
-                // Convert to appropriate variables and return
-                var serverResults = new List<RegisteredServerResult>();
-                foreach (var s in servers)
+                ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, addServerGroupParams.RelativePath);
+                ServerGroup serverGroup = new ServerGroup(parentGroup, addServerGroupParams.GroupName)
                 {
-                    serverResults.Add(new RegisteredServerResult
-                    {
-                        Name = s.Name,
-                        ServerName = s.ServerName ?? connectionParams.Connection.ServerName,
-                        Description = s.Description,
-                        connectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString)
-                    });
-                }
-                RegisteredServersResult result = new RegisteredServersResult() { RegisteredServersList = serverResults };
-                return result;
+                    Description = addServerGroupParams.GroupDescription
+                };
+                serverGroup.Create();
+                await requestContext.SendResult(true);
             }
-            return null;
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
         }
 
-        private bool RemoveRegisteredServersTask(RemoveRegisteredServerParams removeServerParams)
+        public async Task HandleRemoveServerGroupRequest(RemoveServerGroupParams removeServerGroupParams, RequestContext<bool> requestContext)
         {
-            // Validate and Connect
-            ServerConnection serverConn = ValidateAndCreateConnection(removeServerParams.ParentOwnerUri);
-            if (serverConn != null)
+            Logger.Write(TraceEventType.Verbose, "HandleRemoveServerGroupRequest");
+            try
             {
-                // Get list of registered Servers
-                RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                ServerGroup parentGroup = store.DatabaseEngineServerGroup;  //TODO Do we need other types like Integrated Service and Analysis Service
+                ServerConnection serverConn = ValidateAndCreateConnection(removeServerGroupParams.ParentOwnerUri);
+                if (serverConn != null)
+                {
+                    RegisteredServersStore store = new RegisteredServersStore(serverConn);
 
-                // since duplicates are not allowed
-                RegisteredServer regServ = parentGroup.RegisteredServers.OfType<RegisteredServer>().FirstOrDefault(r => r.Name == removeServerParams.RegisteredServerName);
-                regServ.Drop();
-                return true;
+                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, removeServerGroupParams.RelativePath);
+                    ServerGroup serverGrouptoRemove = parentGroup.ServerGroups.OfType<ServerGroup>().FirstOrDefault(r => r.Name == removeServerGroupParams.GroupName); // since duplicates are not allowed
+                    serverGrouptoRemove?.Drop();
+                    await requestContext.SendResult(true);
+                }
+                await requestContext.SendResult(false);
             }
-            return false;
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private ServerGroup NavigateToServerGroup(ServerGroup parentGroup, string[] relativePath)
+        {
+            if (relativePath != null && relativePath.Count() > 0)
+            {
+                int count = relativePath.Count();
+                for (int i = 0; i < count; i++)
+                {
+                    if (parentGroup != null && parentGroup.ServerGroups != null)
+                    {
+                        parentGroup = parentGroup.ServerGroups.FirstOrDefault(p => p.Name == relativePath[i]);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            return parentGroup;
         }
 
         private async Task<ServerConnection> ValidateAndCreateConnection(ConnectParams connectionParams)
@@ -252,6 +256,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             return serverConn;
         }
 
+        private ListRegisteredServersResult GetChildrenfromParentGroup(ServerGroup parentGroup)
+        {
+            var servers = parentGroup.RegisteredServers;
+            var groups = parentGroup.ServerGroups;
+
+            // Convert to appropriate variables and return
+            var serverResults = new List<RegisteredServerResult>();
+            foreach (var s in servers)
+            {
+                serverResults.Add(new RegisteredServerResult
+                {
+                    Name = s.Name,
+                    ServerName = s.ServerName,
+                    Description = s.Description,
+                    connectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString)
+                });
+            }
+
+            var groupsResults = new List<RegisteredServerGroup>();
+            foreach (var s in groups)
+            {
+                groupsResults.Add(new RegisteredServerGroup
+                {
+                    Name = s.Name,
+                    Description = s.Description
+                });
+            }
+            ListRegisteredServersResult result = new ListRegisteredServersResult() { RegisteredServersList = serverResults, RegisteredServerGroups = groupsResults };
+            return result;
+        }
+
+        #endregion
 
         /// <summary>
         /// Internal for testing purposes only
