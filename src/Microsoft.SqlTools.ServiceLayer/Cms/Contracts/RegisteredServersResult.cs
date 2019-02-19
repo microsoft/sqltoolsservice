@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
         public string Description { get; set; }
 
+        public string RelativePath { get; set; }
+
         public ConnectionDetails connectionDetails { get; set; }
     }
 
@@ -30,5 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public string RelativePath { get; set; }
     }
 }

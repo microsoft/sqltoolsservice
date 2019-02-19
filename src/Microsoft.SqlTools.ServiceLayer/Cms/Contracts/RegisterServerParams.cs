@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
         public string ParentOwnerUri { get; set; }
 
-        public string[] RelativePath { get; set; }
+        public string RelativePath { get; set; }
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
         public string ParentOwnerUri { get; set; }
 
-        public string[] RelativePath { get; set; }
+        public string RelativePath { get; set; }
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
         
         public string ParentOwnerUri { get; set; }
 
-        public string[] RelativePath { get; set; }
+        public string RelativePath { get; set; }
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
         public string ParentOwnerUri { get; set; }
 
-        public string[] RelativePath { get; set; }
+        public string RelativePath { get; set; }
     }
 
     /// <summary>
@@ -79,6 +79,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     {
         public string ParentOwnerUri { get; set; }
 
-        public string[] RelativePath { get; set; }
+        public string RelativePath { get; set; }
     }
 }

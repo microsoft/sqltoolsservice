@@ -4,6 +4,7 @@
 //
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.RegisteredServers;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Cms.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -82,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 {
                     // Get Current Reg Servers
                     RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, cmsCreateParams.RelativePath);
+                    ServerGroup parentGroup = NavigateToServerGroup(store, cmsCreateParams.RelativePath);
                     RegisteredServerCollection servers = parentGroup.RegisteredServers;
 
                     // Add the new server (intentionally not cheching existence to reuse the exception message)
@@ -98,14 +99,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
                     await requestContext.SendResult(true);
                 }
-                await requestContext.SendResult(false);
+                else
+                {
+                    await requestContext.SendResult(false);
+                }
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e);
             }
         }
-        
+
         public async Task HandleListRegisteredServersRequest(ListRegisteredServerParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleListRegisteredServersRequest");
@@ -118,11 +122,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 {
                     // Get registered Servers
                     RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, listServerParams.RelativePath);
+                    ServerGroup parentGroup = NavigateToServerGroup(store, listServerParams.RelativePath);
+
                     ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
                     await requestContext.SendResult(result);
                 }
-                await requestContext.SendResult(null);
+                else
+                {
+                    await requestContext.SendResult(null);
+                }
             }
             catch (Exception e)
             {
@@ -141,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 {
                     // Get list of registered Servers
                     RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, removeServerParams.RelativePath);
+                    ServerGroup parentGroup = NavigateToServerGroup(store, removeServerParams.RelativePath, false);
                     if (parentGroup != null)
                     {
                         RegisteredServer regServ = parentGroup.RegisteredServers.OfType<RegisteredServer>().FirstOrDefault(r => r.Name == removeServerParams.RegisteredServerName); // since duplicates are not allowed
@@ -149,7 +157,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                         await requestContext.SendResult(true);
                     }
                 }
-                await requestContext.SendResult(false);
+                else
+                {
+                    await requestContext.SendResult(false);
+                }
             }
             catch (Exception e)
             {
@@ -164,8 +175,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             {
                 ServerConnection serverConn = ValidateAndCreateConnection(addServerGroupParams.ParentOwnerUri);
                 RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                ServerGroup parentGroup = NavigateToServerGroup(store, addServerGroupParams.RelativePath);
 
-                ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, addServerGroupParams.RelativePath);
+                // Add the new group (intentionally not cheching existence to reuse the exception message)
                 ServerGroup serverGroup = new ServerGroup(parentGroup, addServerGroupParams.GroupName)
                 {
                     Description = addServerGroupParams.GroupDescription
@@ -189,12 +201,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 {
                     RegisteredServersStore store = new RegisteredServersStore(serverConn);
 
-                    ServerGroup parentGroup = NavigateToServerGroup(store.DatabaseEngineServerGroup, removeServerGroupParams.RelativePath);
+                    ServerGroup parentGroup = NavigateToServerGroup(store, removeServerGroupParams.RelativePath, false);
                     ServerGroup serverGrouptoRemove = parentGroup.ServerGroups.OfType<ServerGroup>().FirstOrDefault(r => r.Name == removeServerGroupParams.GroupName); // since duplicates are not allowed
                     serverGrouptoRemove?.Drop();
                     await requestContext.SendResult(true);
                 }
-                await requestContext.SendResult(false);
+                else
+                {
+                    await requestContext.SendResult(false);
+                }
             }
             catch (Exception e)
             {
@@ -206,24 +221,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         #region Private methods
 
-        private ServerGroup NavigateToServerGroup(ServerGroup parentGroup, string[] relativePath)
+        private ServerGroup NavigateToServerGroup(RegisteredServersStore store, string relativePath, bool alreadyParent = true)
         {
-            if (relativePath != null && relativePath.Count() > 0)
+            if(string.IsNullOrEmpty(relativePath))
             {
-                int count = relativePath.Count();
-                for (int i = 0; i < count; i++)
+                return store.DatabaseEngineServerGroup;
+            }
+
+            // Get key chain from URN
+            Urn urn = new Urn(relativePath);
+            SfcKeyChain keyChain = alreadyParent ? new SfcKeyChain(urn, store as ISfcDomain) : new SfcKeyChain(urn, store as ISfcDomain).Parent;
+            
+            ServerGroup parentGroup = GetNodeFromKeyChain(keyChain, store.DatabaseEngineServerGroup);
+            return parentGroup;
+        }
+
+        private ServerGroup GetNodeFromKeyChain(SfcKeyChain keyChain, ServerGroup rootServerGroup)
+        {
+            if (keyChain == rootServerGroup.KeyChain)
+            {
+                return rootServerGroup;
+            }
+            if (keyChain != rootServerGroup.KeyChain)
+            {
+                var parent = GetNodeFromKeyChain(keyChain.Parent, rootServerGroup);
+                if (parent != null && parent is ServerGroup)
                 {
-                    if (parentGroup != null && parentGroup.ServerGroups != null)
-                    {
-                        parentGroup = parentGroup.ServerGroups.FirstOrDefault(p => p.Name == relativePath[i]);
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    var server = (parent as ServerGroup).ServerGroups.FirstOrDefault(x => x.KeyChain == keyChain);
+                    return server;
                 }
             }
-            return parentGroup;
+            return null;
         }
 
         private async Task<ServerConnection> ValidateAndCreateConnection(ConnectParams connectionParams)
@@ -250,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 ConnectionInfo connInfo = null;
                 if (ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo))
                 {
-                    serverConn = ConnectionService.OpenServerConnection(connInfo);                    
+                    serverConn = ConnectionService.OpenServerConnection(connInfo);
                 }
             }
             return serverConn;
@@ -270,7 +298,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                     Name = s.Name,
                     ServerName = s.ServerName,
                     Description = s.Description,
-                    connectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString)
+                    connectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString),
+                    RelativePath = s.KeyChain.Urn.SafeToString()
                 });
             }
 
@@ -280,7 +309,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 groupsResults.Add(new RegisteredServerGroup
                 {
                     Name = s.Name,
-                    Description = s.Description
+                    Description = s.Description,
+                    RelativePath = s.KeyChain.Urn.SafeToString()
                 });
             }
             ListRegisteredServersResult result = new ListRegisteredServersResult() { RegisteredServersList = serverResults, RegisteredServerGroups = groupsResults };
