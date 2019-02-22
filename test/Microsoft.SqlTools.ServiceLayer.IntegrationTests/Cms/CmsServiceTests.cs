@@ -7,14 +7,10 @@ using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Cms.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using System;
-using System.Data.SqlClient;
-using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -79,14 +75,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
 
             // Add Reg Server
             await cmsService.HandleAddRegisteredServerRequest(addRegServerParams, requestContext1.Object);
+            await cmsService.CmsTask;
             requestContext1.VerifyAll();
 
             // List to validate
             await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContext2.Object);
+            await cmsService.CmsTask;
             requestContext2.VerifyAll();
 
             // Clean up 
             await cmsService.HandleRemoveRegisteredServerRequest(removeRegServerParams, requestContext3.Object);
+            await cmsService.CmsTask;
             requestContext3.VerifyAll();
         }
 
@@ -130,12 +129,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             CmsService cmsService = CmsService.Instance;
 
             await cmsService.HandleAddServerGroupRequest(addRegServerParams, requestContext1.Object);
+            await cmsService.CmsTask;
             requestContext1.VerifyAll();
 
             await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContext2.Object);
+            await cmsService.CmsTask;
             requestContext2.VerifyAll();
 
             await cmsService.HandleRemoveServerGroupRequest(removeRegServerParams, requestContext3.Object);
+            await cmsService.CmsTask;
             requestContext3.VerifyAll();
         }
 
@@ -210,26 +212,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
 
             // Add three levels
             await cmsService.HandleAddServerGroupRequest(addRegServerParams1, requestContextAdd.Object);
+            await cmsService.CmsTask;
             requestContextAdd.VerifyAll();
+
             await cmsService.HandleAddServerGroupRequest(addRegServerParams2, requestContextAdd.Object);
+            await cmsService.CmsTask;
             requestContextAdd.VerifyAll();
+
             await cmsService.HandleAddServerGroupRequest(addRegServerParams3, requestContextAdd.Object);
+            await cmsService.CmsTask;
             requestContextAdd.VerifyAll();
 
             // List Level 2 to find level three
             await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContextList1.Object);
+            await cmsService.CmsTask;
             requestContextList1.VerifyAll();
 
             // Remove level 3
             await cmsService.HandleRemoveServerGroupRequest(removeRegServerParams, requestContextRemove.Object);
+            await cmsService.CmsTask;
             requestContextRemove.VerifyAll();
 
             // List Level 2 to validate Level 3 removal
             await cmsService.HandleListRegisteredServersRequest(listServersParams, requestContextList2.Object);
+            await cmsService.CmsTask;
             requestContextList2.VerifyAll();
 
             // Clean up - Remove Level 1
             await cmsService.HandleRemoveServerGroupRequest(removeRegServerParamsCleanup, requestContextRemove.Object);
+            await cmsService.CmsTask;
             requestContextRemove.VerifyAll();
         }
 
