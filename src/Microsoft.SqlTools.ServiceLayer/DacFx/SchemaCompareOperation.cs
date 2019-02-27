@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <summary>
         /// The error occurred during operation
         /// </summary>
-        public string ErrorMessage { get; }
+        public string ErrorMessage { get; set; }
 
         /// <summary>
         /// Cancel operation
@@ -95,6 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
                 this.ComparisonResult = comparison.Compare();
 
+                // try one more time if it didn't work the first time
+                if(!this.ComparisonResult.IsValid)
+                {
+                    this.ComparisonResult = comparison.Compare();
+                }
+
                 this.Differences = new List<DiffEntry>();
                 foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
@@ -133,20 +139,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     string sourceScript;
                     difference.SourceObject.TryGetScript(out sourceScript);
                     diffEntry.sourceScript = RemoveExcessWhitespace(sourceScript);
-                    if (parent != null && string.IsNullOrEmpty(diffEntry.sourceScript))
-                    {
-                        diffEntry.parentSourceScript = parent.sourceScript;
-                    }
                 }
                 if (difference.TargetObject != null)
                 {
                     string targetScript;
                     difference.TargetObject.TryGetScript(out targetScript);
                     diffEntry.targetScript = RemoveExcessWhitespace(targetScript);
-                    if (parent != null && string.IsNullOrEmpty(diffEntry.targetScript))
-                    {
-                        diffEntry.parentTargetScript = parent.targetScript;
-                    }
                 }
             }
 
