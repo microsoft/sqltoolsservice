@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     public enum SchemaCompareEndpointType
     {
@@ -63,8 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Parameters returned from a schema compare request.
     /// </summary>
-    public class SchemaCompareResult : DacFxResult
+    public class SchemaCompareResult : ResultStatus
     {
+        public string OperationId { get; set; }
+
         public bool AreEqual { get; set; }
 
         public List<DiffEntry> Differences { get; set; }
@@ -83,13 +85,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string targetScript;
     }
 
-
     /// <summary>
     /// Defines the Schema Compare request type
     /// </summary>
     class SchemaCompareRequest
     {
         public static readonly RequestType<SchemaCompareParams, SchemaCompareResult> Type =
-            RequestType<SchemaCompareParams, SchemaCompareResult>.Create("dacfx/schemaCompare");
+            RequestType<SchemaCompareParams, SchemaCompareResult>.Create("schemaCompare/compare");
     }
 }

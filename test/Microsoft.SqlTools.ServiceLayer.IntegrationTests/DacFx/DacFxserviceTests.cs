@@ -329,129 +329,6 @@ CREATE TABLE [dbo].[table3]
             return generateDeployPlanRequestContext;
         }
 
-        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpac()
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
-            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
-
-            // create dacpacs from databases
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string sourceDacpacFilePath = CreateDacpac(sourceDb);
-            string targetDacpacFilePath = CreateDacpac(targetDb);
-
-            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
-            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
-
-            sourceInfo.EndpointType = SchemaCompareEndpointType.dacpac;
-            sourceInfo.PackageFilePath = sourceDacpacFilePath;
-            targetInfo.EndpointType = SchemaCompareEndpointType.dacpac;
-            targetInfo.PackageFilePath = targetDacpacFilePath;
-
-            var schemaCompareParams = new SchemaCompareParams
-            {
-                sourceEndpointInfo = sourceInfo,
-                targetEndpointInfo = targetInfo
-            };
-
-            DacFxService service = new DacFxService();
-            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, null, null);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
-
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-
-            // cleanup
-            VerifyAndCleanup(sourceDacpacFilePath);
-            VerifyAndCleanup(targetDacpacFilePath);
-            sourceDb.Cleanup();
-            targetDb.Cleanup();
-
-            return schemaCompareRequestContext;
-        }
-
-        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDatabase()
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
-            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
-
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
-            Directory.CreateDirectory(folderPath);
-
-            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
-            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
-
-            sourceInfo.EndpointType = SchemaCompareEndpointType.database;
-            sourceInfo.DatabaseName = sourceDb.DatabaseName;
-            targetInfo.EndpointType = SchemaCompareEndpointType.database;
-            targetInfo.DatabaseName = targetDb.DatabaseName;
-
-            var schemaCompareParams = new SchemaCompareParams
-            {
-                sourceEndpointInfo = sourceInfo,
-                targetEndpointInfo = targetInfo
-            };
-
-            DacFxService service = new DacFxService();
-            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
-
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-
-            // cleanup
-            sourceDb.Cleanup();
-            targetDb.Cleanup();
-
-            return schemaCompareRequestContext;
-        }
-
-        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDacpac()
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
-            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
-
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string targetDacpacFilePath = CreateDacpac(targetDb);
-
-            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
-            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
-
-            sourceInfo.EndpointType = SchemaCompareEndpointType.database;
-            sourceInfo.DatabaseName = sourceDb.DatabaseName;
-            targetInfo.EndpointType = SchemaCompareEndpointType.dacpac;
-            targetInfo.PackageFilePath = targetDacpacFilePath;
-
-            var schemaCompareParams = new SchemaCompareParams
-            {
-                sourceEndpointInfo = sourceInfo,
-                targetEndpointInfo = targetInfo
-            };
-
-            DacFxService service = new DacFxService();
-            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, null);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
-
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-
-            // cleanup
-            VerifyAndCleanup(targetDacpacFilePath);
-            sourceDb.Cleanup();
-            targetDb.Cleanup();
-
-            return schemaCompareRequestContext;
-        }
-
         /// <summary>
         /// Verify the export bacpac request
         /// </summary>
@@ -506,34 +383,6 @@ CREATE TABLE [dbo].[table3]
             Assert.NotNull(await SendAndValidateGenerateDeployScriptRequest());
         }
 
-
-        /// <summary>
-        /// Verify the schema compare request comparing two dacpacs
-        /// </summary>
-        [Fact]
-        public void SchemaCompareDacpacToDacpac()
-        {
-            Assert.NotNull(SendAndValidateSchemaCompareRequestDacpacToDacpac());
-        }
-
-        /// <summary>
-        /// Verify the schema compare request comparing a two databases
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareDatabaseToDatabase()
-        {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabase());
-        }
-
-        /// <summary>
-        /// Verify the schema compare request comparing a database to a dacpac
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareDatabaseToDacpac()
-        {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDacpac());
-        }
-
         /// <summary>
         /// Verify the generate deploy plan request
         /// </summary>
@@ -553,27 +402,6 @@ CREATE TABLE [dbo].[table3]
             {
                 File.Delete(filePath);
             }
-        }
-
-        private string CreateDacpac(SqlTestDb testdb)
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
-            Directory.CreateDirectory(folderPath);
-
-            var extractParams = new ExtractParams
-            {
-                DatabaseName = testdb.DatabaseName,
-                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
-                ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
-            };
-
-            DacFxService service = new DacFxService();
-            ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
-            service.PerformOperation(operation);
-
-            return extractParams.PackageFilePath;
         }
     }
 }
