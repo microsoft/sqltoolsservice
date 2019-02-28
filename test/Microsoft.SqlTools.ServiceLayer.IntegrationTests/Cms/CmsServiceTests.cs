@@ -18,17 +18,49 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
 {
     public class CmsServiceTests
     {
-        private async Task<ConnectParams> CreateAndConnectWithConnectParams()
+        private ConnectParams CreateConnectParams()
         {
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, "master");
             connectParams.OwnerUri = LiveConnectionHelper.GetTestSqlFile();
             connectParams.Connection.DatabaseName = null;
             connectParams.Connection.DatabaseDisplayName = null;
 
+            return connectParams;
+        }
+
+        private async Task<ConnectParams> CreateAndConnectWithConnectParams()
+        {
+            ConnectParams connectParams = CreateConnectParams();
             ConnectionService connService = ConnectionService.Instance;
             await connService.Connect(connectParams);
 
             return connectParams;
+        }
+
+        [Fact]
+        private async void TestAddCMS()
+        {
+            string name = "TestAddCMS" + DateTime.Now.ToString();
+            ConnectParams connectParams = CreateConnectParams();
+
+            // Prepare for list servers (may or may not have servers but will have listCmsServersResult)
+            var requestContext = new Mock<RequestContext<ListRegisteredServersResult>>();
+            requestContext.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServersList != null))).Returns(Task.FromResult(new object()));
+
+            CreateCentralManagementServerParams connectToCMS = new CreateCentralManagementServerParams
+            {
+                RegisteredServerName = name,
+                RegisteredServerDescription = "My Registered Test Server",
+                ConnectParams = connectParams
+            };
+
+            // Actual test after preparation start here
+            CmsService cmsService = CmsService.Instance;
+
+            // Connect to CMS
+            await cmsService.HandleCreateCentralManagementServerRequest(connectToCMS, requestContext.Object);
+            await cmsService.CmsTask;
+            requestContext.VerifyAll();
         }
 
         [Fact]
@@ -44,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             AddRegisteredServerParams addRegServerParams = new AddRegisteredServerParams
             {
                 RegisteredServerName = name,
-                RegisterdServerDescription = "My Registered Test Server",
+                RegisteredServerDescription = "My Registered Test Server",
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = "RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']" //Top level
             };

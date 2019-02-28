@@ -111,10 +111,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                             if (cmsCreateParams.RegServerConnectionDetails != null)
                             {
                                 regServer.ServerName = cmsCreateParams.RegServerConnectionDetails.ServerName;
-                                regServer.Description = cmsCreateParams.RegisterdServerDescription;
+                                regServer.Description = cmsCreateParams.RegisteredServerDescription;
                                 regServer.ConnectionString = ConnectionService.CreateConnectionStringBuilder(cmsCreateParams.RegServerConnectionDetails).ToString();
                             }
-                            regServer.Description = cmsCreateParams.RegisterdServerDescription;
+                            regServer.Description = cmsCreateParams.RegisteredServerDescription;
                             regServer.Create();
                             await requestContext.SendResult(true);
                         }

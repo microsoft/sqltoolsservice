@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     {
         public string RegisteredServerName { get; set; }
 
-        public string RegisterdServerDescription { get; set; }
+        public string RegisteredServerDescription { get; set; }
 
         public ConnectParams ConnectParams { get; set; }
     }
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     {
         public string RegisteredServerName { get; set; }
 
-        public string RegisterdServerDescription { get; set; }
+        public string RegisteredServerDescription { get; set; }
         
         public ConnectionDetails RegServerConnectionDetails { get; set; }
 
