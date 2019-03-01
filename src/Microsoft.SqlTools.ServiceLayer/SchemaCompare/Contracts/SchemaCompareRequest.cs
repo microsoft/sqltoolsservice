@@ -47,12 +47,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// Gets or sets the source endpoint info
         /// </summary>
-        public SchemaCompareEndpointInfo sourceEndpointInfo { get; set; }
+        public SchemaCompareEndpointInfo SourceEndpointInfo { get; set; }
 
         /// <summary>
         /// Gets or sets the target endpoint info
         /// </summary>
-        public SchemaCompareEndpointInfo targetEndpointInfo { get; set; }
+        public SchemaCompareEndpointInfo TargetEndpointInfo { get; set; }
 
         /// <summary>
         /// Executation mode for the operation. Default is execution
@@ -74,15 +74,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
     public class DiffEntry
     {
-        public SchemaUpdateAction updateAction;
-        public SchemaDifferenceType differenceType;
-        public string name;
-        public string sourceValue;
-        public string targetValue;
-        public DiffEntry parent;
-        public List<DiffEntry> children;
-        public string sourceScript;
-        public string targetScript;
+        public SchemaUpdateAction UpdateAction;
+        public SchemaDifferenceType DifferenceType;
+        public string Name;
+        public string SourceValue;
+        public string TargetValue;
+        public DiffEntry Parent;
+        public List<DiffEntry> Children;
+        public string SourceScript;
+        public string TargetScript;
     }
 
     /// <summary>

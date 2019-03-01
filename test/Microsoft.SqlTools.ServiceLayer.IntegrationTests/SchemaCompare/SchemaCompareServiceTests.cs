@@ -71,8 +71,8 @@ CREATE TABLE [dbo].[table3]
 
             var schemaCompareParams = new SchemaCompareParams
             {
-                sourceEndpointInfo = sourceInfo,
-                targetEndpointInfo = targetInfo
+                SourceEndpointInfo = sourceInfo,
+                TargetEndpointInfo = targetInfo
             };
 
             DacFxService service = new DacFxService();
@@ -113,8 +113,8 @@ CREATE TABLE [dbo].[table3]
 
             var schemaCompareParams = new SchemaCompareParams
             {
-                sourceEndpointInfo = sourceInfo,
-                targetEndpointInfo = targetInfo
+                SourceEndpointInfo = sourceInfo,
+                TargetEndpointInfo = targetInfo
             };
 
             DacFxService service = new DacFxService();
@@ -152,8 +152,8 @@ CREATE TABLE [dbo].[table3]
 
             var schemaCompareParams = new SchemaCompareParams
             {
-                sourceEndpointInfo = sourceInfo,
-                targetEndpointInfo = targetInfo
+                SourceEndpointInfo = sourceInfo,
+                TargetEndpointInfo = targetInfo
             };
 
             DacFxService service = new DacFxService();

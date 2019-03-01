@@ -59,10 +59,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 ConnectionInfo sourceConnInfo;
                 ConnectionInfo targetConnInfo;
                 ConnectionServiceInstance.TryFindConnection(
-                        parameters.sourceEndpointInfo.OwnerUri,
+                        parameters.SourceEndpointInfo.OwnerUri,
                         out sourceConnInfo);
                 ConnectionServiceInstance.TryFindConnection(
-                    parameters.targetEndpointInfo.OwnerUri,
+                    parameters.TargetEndpointInfo.OwnerUri,
                     out targetConnInfo);
 
                 SchemaCompareOperation operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);

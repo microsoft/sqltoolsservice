@@ -44,8 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
-            this.SourceConnectionString = GetConnectionString(sourceConnInfo, parameters.sourceEndpointInfo.DatabaseName);
-            this.TargetConnectionString = GetConnectionString(targetConnInfo, parameters.targetEndpointInfo.DatabaseName);
+            this.SourceConnectionString = GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
+            this.TargetConnectionString = GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -89,8 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(this.Parameters.sourceEndpointInfo, this.SourceConnectionString);
-                SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.targetEndpointInfo, this.TargetConnectionString);
+                SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString);
+                SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
                 this.ComparisonResult = comparison.Compare();
@@ -118,17 +118,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
             DiffEntry diffEntry = new DiffEntry();
-            diffEntry.updateAction = difference.UpdateAction;
-            diffEntry.differenceType = difference.DifferenceType;
-            diffEntry.name = difference.Name;
+            diffEntry.UpdateAction = difference.UpdateAction;
+            diffEntry.DifferenceType = difference.DifferenceType;
+            diffEntry.Name = difference.Name;
 
             if (difference.SourceObject != null)
             {
-                diffEntry.sourceValue = GetName(difference.SourceObject.Name.ToString());
+                diffEntry.SourceValue = GetName(difference.SourceObject.Name.ToString());
             }
             if (difference.TargetObject != null)
             {
-                diffEntry.targetValue = GetName(difference.TargetObject.Name.ToString());
+                diffEntry.TargetValue = GetName(difference.TargetObject.Name.ToString());
             }
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
@@ -138,21 +138,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     string sourceScript;
                     difference.SourceObject.TryGetScript(out sourceScript);
-                    diffEntry.sourceScript = RemoveExcessWhitespace(sourceScript);
+                    diffEntry.SourceScript = RemoveExcessWhitespace(sourceScript);
                 }
                 if (difference.TargetObject != null)
                 {
                     string targetScript;
                     difference.TargetObject.TryGetScript(out targetScript);
-                    diffEntry.targetScript = RemoveExcessWhitespace(targetScript);
+                    diffEntry.TargetScript = RemoveExcessWhitespace(targetScript);
                 }
             }
 
-            diffEntry.children = new List<DiffEntry>();
+            diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
             {
-                diffEntry.children.Add(CreateDiffEntry(child, diffEntry));
+                diffEntry.Children.Add(CreateDiffEntry(child, diffEntry));
             }
 
             return diffEntry;
