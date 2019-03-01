@@ -14,16 +14,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
             RequestType<CreateCentralManagementServerParams, ListRegisteredServersResult>.Create("cms/createCms");
     }
 
-    public class ListRegisteredServerRequest
+    public class ListRegisteredServersRequest
     {
         public static readonly RequestType<ListRegisteredServerParams, ListRegisteredServersResult> Type =
-            RequestType<ListRegisteredServerParams, ListRegisteredServersResult>.Create("cms/listRegServers");
+            RequestType<ListRegisteredServerParams, ListRegisteredServersResult>.Create("cms/listRegisteredServers");
     }
 
     public class AddRegisteredServerRequest
     {
         public static readonly RequestType<AddRegisteredServerParams, bool> Type =
-            RequestType<AddRegisteredServerParams, bool>.Create("cms/addRegServers");
+            RequestType<AddRegisteredServerParams, bool>.Create("cms/addRegisteredServer");
     }
 
     public class AddServerGroupRequest
@@ -41,6 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     public class RemoveRegisteredServerRequest
     {
         public static readonly RequestType<RemoveRegisteredServerParams, bool> Type =
-            RequestType<RemoveRegisteredServerParams, bool>.Create("cms/removeRegServers");
+            RequestType<RemoveRegisteredServerParams, bool>.Create("cms/removeRegisteredServer");
     }
 }

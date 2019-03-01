@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     }
 
     /// <summary>
-    /// Parmaters to Add Registered Server to top level CMS
+    /// Parameters to Add Registered Server to top level CMS
     /// </summary>
     public class AddRegisteredServerParams
     {
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
         public string RegisteredServerDescription { get; set; }
         
-        public ConnectionDetails RegServerConnectionDetails { get; set; }
+        public ConnectionDetails RegisteredServerConnectionDetails { get; set; }
 
         public string ParentOwnerUri { get; set; }
 
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     }
 
     /// <summary>
-    /// Parmaters to Add Server Group to top level CMS
+    /// Parameters to Add Server Group to top level CMS
     /// </summary>
     public class AddServerGroupParams
     {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     }
 
     /// <summary>
-    /// Parmaters to Remove Server Group from CMS
+    /// Parameters to Remove Server Group from CMS
     /// </summary>
     public class RemoveServerGroupParams
     {

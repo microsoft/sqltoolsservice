@@ -20,13 +20,11 @@ using System.Threading.Tasks;
 namespace Microsoft.SqlTools.ServiceLayer.Cms
 {
     /// <summary>
-    /// Main class for DacFx service
+    /// Main class for CmsService
     /// </summary>
     public class CmsService
     {
-        private static object lockObject = new object();
         private static ConnectionService connectionService = null;
-        private static RegisteredServersStore registerdServerStore = null;
         private static readonly Lazy<CmsService> instance = new Lazy<CmsService>(() => new CmsService());
 
         /// <summary>
@@ -46,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(CreateCentralManagementServerRequest.Type, this.HandleCreateCentralManagementServerRequest);
-            serviceHost.SetRequestHandler(ListRegisteredServerRequest.Type, this.HandleListRegisteredServersRequest);
+            serviceHost.SetRequestHandler(ListRegisteredServersRequest.Type, this.HandleListRegisteredServersRequest);
             serviceHost.SetRequestHandler(AddRegisteredServerRequest.Type, this.HandleAddRegisteredServerRequest);
             serviceHost.SetRequestHandler(RemoveRegisteredServerRequest.Type, this.HandleRemoveRegisteredServerRequest);
             serviceHost.SetRequestHandler(AddServerGroupRequest.Type, this.HandleAddServerGroupRequest);
@@ -67,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
                         // Get Current Reg Servers on CMS
                         RegisteredServersStore store = new RegisteredServersStore(conn);
-                        ServerGroup parentGroup = store.DatabaseEngineServerGroup; //TODO Do we need other types like Integrated Service and Analysis Service                    
+                        ServerGroup parentGroup = store.DatabaseEngineServerGroup;                   
                         ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
                         if (result != null)
                         {
@@ -84,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             }
             catch (Exception e)
             {
-                // Exception related to run tak will be captured here
+                // Exception related to run task will be captured here
                 await requestContext.SendError(e);
             }
         }
@@ -107,15 +105,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                             RegisteredServerCollection servers = parentGroup.RegisteredServers;
 
                             // Add the new server (intentionally not cheching existence to reuse the exception message)
-                            RegisteredServer regServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
-                            if (cmsCreateParams.RegServerConnectionDetails != null)
+                            RegisteredServer registeredServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
+                            if (cmsCreateParams.RegisteredServerConnectionDetails != null)
                             {
-                                regServer.ServerName = cmsCreateParams.RegServerConnectionDetails.ServerName;
-                                regServer.Description = cmsCreateParams.RegisteredServerDescription;
-                                regServer.ConnectionString = ConnectionService.CreateConnectionStringBuilder(cmsCreateParams.RegServerConnectionDetails).ToString();
+                                registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
+                                registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
+                                registeredServer.ConnectionString = ConnectionService.CreateConnectionStringBuilder(cmsCreateParams.RegisteredServerConnectionDetails).ToString();
                             }
-                            regServer.Description = cmsCreateParams.RegisteredServerDescription;
-                            regServer.Create();
+                            registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
+                            registeredServer.Create();
                             await requestContext.SendResult(true);
                         }
                         else
@@ -363,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                     Name = s.Name,
                     ServerName = s.ServerName,
                     Description = s.Description,
-                    connectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString),
+                    ConnectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString),
                     RelativePath = s.KeyChain.Urn.SafeToString()
                 });
             }
@@ -400,28 +398,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             set
             {
                 connectionService = value;
-            }
-        }
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static RegisteredServersStore ServerStore
-        {
-            get
-            {
-                if (registerdServerStore == null)
-                {
-                    registerdServerStore = RegisteredServersStore.LocalFileStore;
-                }
-                return registerdServerStore;
-            }
-            set
-            {
-                lock (lockObject)
-                {
-                    registerdServerStore = value;
-                }
             }
         }
 

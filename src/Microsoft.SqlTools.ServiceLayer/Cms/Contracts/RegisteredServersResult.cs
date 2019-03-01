@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
         public string RelativePath { get; set; }
 
-        public ConnectionDetails connectionDetails { get; set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
     }
 
     public class RegisteredServerGroup
