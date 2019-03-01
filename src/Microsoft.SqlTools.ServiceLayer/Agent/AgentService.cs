@@ -298,8 +298,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 catch (Exception e)
                 {
                     result.Success = false;
-                    result.ErrorMessage = e.Message + Environment.NewLine + "\t" + e.InnerException.Message
-                        + Environment.NewLine + "\t" + e.InnerException.InnerException.Message;
+                    result.ErrorMessage = e.Message;
+                    Exception exception = e.InnerException;
+                    while (exception != null)
+                    {
+                        result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
+                        exception = exception.InnerException;
+                    }
                     await requestContext.SendResult(result);
                 }
             });
