@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
             }
         }
 
-        public async Task HandleListRegisteredServersRequest(ListRegisteredServerParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
+        public async Task HandleListRegisteredServersRequest(ListRegisteredServersParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleListRegisteredServersRequest");
             try
