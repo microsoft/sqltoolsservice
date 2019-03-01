@@ -162,11 +162,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             switch (endpointInfo.EndpointType)
             {
-                case SchemaCompareEndpointType.dacpac:
+                case SchemaCompareEndpointType.Dacpac:
                 {
                     return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
                 }
-                case SchemaCompareEndpointType.database:
+                case SchemaCompareEndpointType.Database:
                 {
                     return new SchemaCompareDatabaseEndpoint(connectionString);
                 }

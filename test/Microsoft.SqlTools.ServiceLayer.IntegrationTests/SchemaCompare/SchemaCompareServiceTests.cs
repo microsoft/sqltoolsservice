@@ -64,9 +64,9 @@ CREATE TABLE [dbo].[table3]
             SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
             SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
 
-            sourceInfo.EndpointType = SchemaCompareEndpointType.dacpac;
+            sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
             sourceInfo.PackageFilePath = sourceDacpacFilePath;
-            targetInfo.EndpointType = SchemaCompareEndpointType.dacpac;
+            targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
             targetInfo.PackageFilePath = targetDacpacFilePath;
 
             var schemaCompareParams = new SchemaCompareParams
@@ -106,9 +106,9 @@ CREATE TABLE [dbo].[table3]
             SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
             SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
 
-            sourceInfo.EndpointType = SchemaCompareEndpointType.database;
+            sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
             sourceInfo.DatabaseName = sourceDb.DatabaseName;
-            targetInfo.EndpointType = SchemaCompareEndpointType.database;
+            targetInfo.EndpointType = SchemaCompareEndpointType.Database;
             targetInfo.DatabaseName = targetDb.DatabaseName;
 
             var schemaCompareParams = new SchemaCompareParams
@@ -145,9 +145,9 @@ CREATE TABLE [dbo].[table3]
             SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
             SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
 
-            sourceInfo.EndpointType = SchemaCompareEndpointType.database;
+            sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
             sourceInfo.DatabaseName = sourceDb.DatabaseName;
-            targetInfo.EndpointType = SchemaCompareEndpointType.dacpac;
+            targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
             targetInfo.PackageFilePath = targetDacpacFilePath;
 
             var schemaCompareParams = new SchemaCompareParams

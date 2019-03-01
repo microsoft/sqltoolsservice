@@ -12,8 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     public enum SchemaCompareEndpointType
     {
-        database,
-        dacpac
+        Database,
+        Dacpac
     }
 
     public class SchemaCompareEndpointInfo
