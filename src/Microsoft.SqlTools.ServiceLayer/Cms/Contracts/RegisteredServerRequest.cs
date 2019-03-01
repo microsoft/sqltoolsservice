@@ -16,8 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
 
     public class ListRegisteredServersRequest
     {
-        public static readonly RequestType<ListRegisteredServerParams, ListRegisteredServersResult> Type =
-            RequestType<ListRegisteredServerParams, ListRegisteredServersResult>.Create("cms/listRegisteredServers");
+        public static readonly RequestType<ListRegisteredServersParams, ListRegisteredServersResult> Type =
+            RequestType<ListRegisteredServersParams, ListRegisteredServersResult>.Create("cms/listRegisteredServers");
     }
 
     public class AddRegisteredServerRequest

@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             var requestContext2 = new Mock<RequestContext<ListRegisteredServersResult>>();
             requestContext2.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServersList.Find(p => p.Name.Contains(name)) != null))).Returns(Task.FromResult(new object()));
 
-            ListRegisteredServerParams listServersParams = new ListRegisteredServerParams
+            ListRegisteredServersParams listServersParams = new ListRegisteredServersParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = "RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']"
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             // prepare for Server group list
             var requestContext2 = new Mock<RequestContext<ListRegisteredServersResult>>();
             requestContext2.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServerGroups.Find(p => p.Name.Contains(name)) != null))).Returns(Task.FromResult(new object()));
-            ListRegisteredServerParams listServersParams = new ListRegisteredServerParams
+            ListRegisteredServersParams listServersParams = new ListRegisteredServersParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = null
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             var requestContextList2 = new Mock<RequestContext<ListRegisteredServersResult>>();
             requestContextList2.Setup((RequestContext<ListRegisteredServersResult> x) => x.SendResult(It.Is<ListRegisteredServersResult>((listCmsServersResult) => listCmsServersResult.RegisteredServerGroups.Find(p => p.Name.Contains(name + "_level3")) == null))).Returns(Task.FromResult(new object()));
 
-            ListRegisteredServerParams listServersParams = new ListRegisteredServerParams
+            ListRegisteredServersParams listServersParams = new ListRegisteredServersParams
             {
                 ParentOwnerUri = connectParams.OwnerUri,
                 RelativePath = string.Format("RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']/ServerGroup[@Name='{0}']/ServerGroup[@Name='{1}']", name + "_level1", name + "_level2") // parent URN

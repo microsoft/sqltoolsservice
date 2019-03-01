@@ -73,9 +73,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
     }
 
     /// <summary>
-    /// Paramaters to list a Registered Server from CMS tree
+    /// Paramaters to list a Registered Servers from CMS tree
     /// </summary>
-    public class ListRegisteredServerParams
+    public class ListRegisteredServersParams
     {
         public string ParentOwnerUri { get; set; }
 
