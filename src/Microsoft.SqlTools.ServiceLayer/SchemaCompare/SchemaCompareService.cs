@@ -21,10 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
     class SchemaCompareService
     {
         private static ConnectionService connectionService = null;
-        private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
-        private readonly Lazy<ConcurrentDictionary<string, ITaskOperation>> operations =
-            new Lazy<ConcurrentDictionary<string, ITaskOperation>>(() => new ConcurrentDictionary<string, ITaskOperation>());
 
         /// <summary>
         /// Gets the singleton instance object
@@ -44,11 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         }
 
         /// <summary>
-        /// The collection of active operations
-        /// </summary>
-        internal ConcurrentDictionary<string, ITaskOperation> ActiveOperations => operations.Value;
-
-        /// <summary>
         /// Handles schema compare request
         /// </summary>
         /// <returns></returns>
@@ -65,37 +57,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     parameters.TargetEndpointInfo.OwnerUri,
                     out targetConnInfo);
 
-                SchemaCompareOperation operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
-                operation.Execute(parameters.TaskExecutionMode);
-
-                await requestContext.SendResult(new SchemaCompareResult()
+                Task schemaCompareTask = Task.Run(async () =>
                 {
-                    OperationId = operation.OperationId,
-                    Success = true,
-                    ErrorMessage = operation.ErrorMessage,
-                    AreEqual = operation.ComparisonResult.IsEqual,
-                    Differences = operation.Differences
+                    try
+                    {
+                        SchemaCompareOperation operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
+                        operation.Execute(parameters.TaskExecutionMode);
+
+                        await requestContext.SendResult(new SchemaCompareResult()
+                        {
+                            OperationId = operation.OperationId,
+                            Success = true,
+                            ErrorMessage = operation.ErrorMessage,
+                            AreEqual = operation.ComparisonResult.IsEqual,
+                            Differences = operation.Differences
+                        });
+                    }
+                    catch(Exception e)
+                    {
+                        await requestContext.SendError(e);
+                    }
                 });
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e);
-            }
-        }
-
-        private SqlTaskManager SqlTaskManagerInstance
-        {
-            get
-            {
-                if (sqlTaskManagerInstance == null)
-                {
-                    sqlTaskManagerInstance = SqlTaskManager.Instance;
-                }
-                return sqlTaskManagerInstance;
-            }
-            set
-            {
-                sqlTaskManagerInstance = value;
             }
         }
 
