@@ -3,14 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
@@ -19,6 +18,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
     public class DacFxServiceTests
     {
+        private const string SourceScript = @"CREATE TABLE [dbo].[table1]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [Date] DATE NOT NULL
+)
+CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL
+)";
+
+        private const string TargetScript = @"CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL,
+    [col2] NCHAR(10) NULL
+)
+CREATE TABLE [dbo].[table3]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] INT NULL,
+)";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -263,17 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployPlanRequest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTest");
-            sourceDb.RunQuery(@"CREATE TABLE [dbo].[table1]
-(
-    [ID] INT NOT NULL PRIMARY KEY,
-    [Date] DATE NOT NULL
-)
-CREATE TABLE [dbo].[table2]
-(
-    [ID] INT NOT NULL PRIMARY KEY,
-    [col1] NCHAR(10) NULL
-)");
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateDeployPlanTest");
+
             DacFxService service = new DacFxService();
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
@@ -293,18 +305,7 @@ CREATE TABLE [dbo].[table2]
             var generateDeployPlanRequestContext = new Mock<RequestContext<DacFxResult>>();
             generateDeployPlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTestTarget");
-            targetDb.RunQuery(@"CREATE TABLE [dbo].[table2]
-(
-    [ID] INT NOT NULL PRIMARY KEY,
-    [col1] NCHAR(10) NULL,
-    [col2] NCHAR(10) NULL
-)
-CREATE TABLE [dbo].[table3]
-(
-    [ID] INT NOT NULL PRIMARY KEY,
-    [col1] INT NULL,
-)");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "DacFxGenerateDeployPlanTestTarget");
 
             var generateDeployPlanParams = new GenerateDeployPlanParams
             {
