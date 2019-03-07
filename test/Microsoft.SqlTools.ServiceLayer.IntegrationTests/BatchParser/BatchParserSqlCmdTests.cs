@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
+namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     public class BatchParserSqlCmdTests : IDisposable
     {

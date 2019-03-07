@@ -43,6 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest);
             serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
+            serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
+            serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
         }
 
         /// <summary>
@@ -64,8 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Export");
-                    ExportOperation operation = new ExportOperation(parameters, sqlConn);
+                    ExportOperation operation = new ExportOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Export bacpac", requestContext);
                 }
             }
@@ -89,8 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Import");
-                    ImportOperation operation = new ImportOperation(parameters, sqlConn);
+                    ImportOperation operation = new ImportOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Import bacpac", requestContext);
                 }
             }
@@ -114,8 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Extract");
-                    ExtractOperation operation = new ExtractOperation(parameters, sqlConn);
+                    ExtractOperation operation = new ExtractOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Extract dacpac", requestContext);
                 }
             }
@@ -139,9 +138,78 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Deploy");
-                    DeployOperation operation = new DeployOperation(parameters, sqlConn);
+                    DeployOperation operation = new DeployOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, "Deploy dacpac", requestContext);
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to generate deploy script
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGenerateDeployScriptRequest(GenerateDeployScriptParams parameters, RequestContext<DacFxResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                if (connInfo != null)
+                {
+                    GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
+                    SqlTask sqlTask = null;
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Generate script", operation, ConnectionServiceInstance);
+
+                    // want to show filepath in task history instead of server and database
+                    metadata.ServerName = parameters.ScriptFilePath;
+                    metadata.DatabaseName = string.Empty;
+
+                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                    await requestContext.SendResult(new DacFxResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = true,
+                        ErrorMessage = string.Empty
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to generate deploy plan
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGenerateDeployPlanRequest(GenerateDeployPlanParams parameters, RequestContext<GenerateDeployPlanRequestResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                if (connInfo != null)
+                {
+                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
+                    operation.Execute(parameters.TaskExecutionMode);
+
+                    await requestContext.SendResult(new GenerateDeployPlanRequestResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = true,
+                        ErrorMessage = string.Empty,
+                        Report = operation.DeployReport
+                    });
                 }
             }
             catch (Exception e)
@@ -164,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 OperationId = operation.OperationId,
                 Success = true,
-                ErrorMessage = ""
+                ErrorMessage = string.Empty
             });
         }
 

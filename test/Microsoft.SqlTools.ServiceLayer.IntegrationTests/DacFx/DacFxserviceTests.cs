@@ -42,9 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Export");
             DacFxService service = new DacFxService();
-            ExportOperation operation = new ExportOperation(exportParams, sqlConn);
+            ExportOperation operation = new ExportOperation(exportParams, result.ConnectionInfo);
             service.PerformOperation(operation);
 
             // cleanup
@@ -71,9 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", sourceDb.DatabaseName))
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Import");
             DacFxService service = new DacFxService();
-            ExportOperation exportOperation = new ExportOperation(exportParams, sqlConn);
+            ExportOperation exportOperation = new ExportOperation(exportParams, result.ConnectionInfo);
             service.PerformOperation(exportOperation);
 
             // import the created bacpac
@@ -86,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 DatabaseName = string.Concat(sourceDb.DatabaseName, "-imported")
             };
 
-            ImportOperation importOperation = new ImportOperation(importParams, sqlConn);
+            ImportOperation importOperation = new ImportOperation(importParams, result.ConnectionInfo);
             service.PerformOperation(importOperation);
             SqlTestDb targetDb = SqlTestDb.CreateFromExisting(importParams.DatabaseName);
 
@@ -116,9 +114,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ApplicationVersion = new Version(1, 0)
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Extract");
             DacFxService service = new DacFxService();
-            ExtractOperation operation = new ExtractOperation(extractParams, sqlConn);
+            ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
             service.PerformOperation(operation);
 
             // cleanup
@@ -147,9 +144,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 ApplicationVersion = new Version(1, 0)
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Deploy");
             DacFxService service = new DacFxService();
-            ExtractOperation extractOperation = new ExtractOperation(extractParams, sqlConn);
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
             service.PerformOperation(extractOperation);
 
             // deploy the created dacpac
@@ -164,8 +160,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 UpgradeExisting = false
             };
 
-            DeployOperation deployOperation = new DeployOperation(deployParams, sqlConn);
-            service.PerformOperation(deployOperation); SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.DatabaseName);
+            DeployOperation deployOperation = new DeployOperation(deployParams, result.ConnectionInfo);
+            service.PerformOperation(deployOperation);
+            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(deployParams.DatabaseName);
 
             // cleanup
             VerifyAndCleanup(extractParams.PackageFilePath);
@@ -191,9 +188,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.bacpac", testdb.DatabaseName))
             };
 
-            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo, "Export");
             DacFxService service = new DacFxService();
-            ExportOperation operation = new ExportOperation(exportParams, sqlConn);
+            ExportOperation operation = new ExportOperation(exportParams, result.ConnectionInfo);
 
             // set cancellation token to cancel
             operation.Cancel();
@@ -203,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             {
                 service.PerformOperation(operation);
             }
-            catch(OperationCanceledException canceledException)
+            catch (OperationCanceledException canceledException)
             {
                 expectedException = canceledException;
             }
@@ -214,6 +210,122 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
             testdb.Cleanup();
 
             return requestContext;
+        }
+
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployScriptRequest()
+        {
+            // first extract a dacpac
+            var result = GetLiveAutoCompleteTestObjects();
+            var extractRequestContext = new Mock<RequestContext<DacFxResult>>();
+            extractRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new ExtractParams
+            {
+                DatabaseName = sourceDb.DatabaseName,
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = new Version(1, 0)
+            };
+
+            DacFxService service = new DacFxService();
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
+            service.PerformOperation(extractOperation);
+
+            // generate script
+            var generateScriptRequestContext = new Mock<RequestContext<DacFxResult>>();
+            generateScriptRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+
+            var generateScriptParams = new GenerateDeployScriptParams
+            {
+                PackageFilePath = extractParams.PackageFilePath,
+                DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
+                ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "UpgradeDACScript.sql"))
+            };
+
+            GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, result.ConnectionInfo);
+            service.PerformOperation(generateScriptOperation);
+            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(generateScriptParams.DatabaseName);
+
+            // cleanup
+            VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+            VerifyAndCleanup(extractParams.PackageFilePath);
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return generateScriptRequestContext;
+        }
+
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployPlanRequest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTest");
+            sourceDb.RunQuery(@"CREATE TABLE [dbo].[table1]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [Date] DATE NOT NULL
+)
+CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL
+)");
+            DacFxService service = new DacFxService();
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new ExtractParams
+            {
+                DatabaseName = sourceDb.DatabaseName,
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = new Version(1, 0)
+            };
+
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
+            service.PerformOperation(extractOperation);
+
+            // generate deploy plan for deploying dacpac to targetDb
+            var generateDeployPlanRequestContext = new Mock<RequestContext<DacFxResult>>();
+            generateDeployPlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateDeployPlanTestTarget");
+            targetDb.RunQuery(@"CREATE TABLE [dbo].[table2]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] NCHAR(10) NULL,
+    [col2] NCHAR(10) NULL
+)
+CREATE TABLE [dbo].[table3]
+(
+    [ID] INT NOT NULL PRIMARY KEY,
+    [col1] INT NULL,
+)");
+
+            var generateDeployPlanParams = new GenerateDeployPlanParams
+            {
+                PackageFilePath = extractParams.PackageFilePath,
+                DatabaseName = targetDb.DatabaseName,
+            };
+
+            GenerateDeployPlanOperation generateDeployPlanOperation = new GenerateDeployPlanOperation(generateDeployPlanParams, result.ConnectionInfo);
+            service.PerformOperation(generateDeployPlanOperation);
+            string report = generateDeployPlanOperation.DeployReport;
+            Assert.NotNull(report);
+            Assert.Contains("Create", report);
+            Assert.Contains("Drop", report);
+            Assert.Contains("Alter", report);
+
+            // cleanup
+            VerifyAndCleanup(extractParams.PackageFilePath);
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return generateDeployPlanRequestContext;
         }
 
         /// <summary>
@@ -259,6 +371,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
         public async void DeployDacpac()
         {
             Assert.NotNull(await SendAndValidateDeployRequest());
+        }
+
+        /// <summary>
+        /// Verify the generate deploy script request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployScript()
+        {
+            Assert.NotNull(await SendAndValidateGenerateDeployScriptRequest());
+        }
+
+        /// <summary>
+        /// Verify the generate deploy plan request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployPlan()
+        {
+            Assert.NotNull(await SendAndValidateGenerateDeployPlanRequest());
         }
 
         private void VerifyAndCleanup(string filePath)

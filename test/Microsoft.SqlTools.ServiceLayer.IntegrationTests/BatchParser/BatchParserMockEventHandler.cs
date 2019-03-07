@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
+namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     internal class BatchParserMockEventHandler : IBatchEventsHandler
     {

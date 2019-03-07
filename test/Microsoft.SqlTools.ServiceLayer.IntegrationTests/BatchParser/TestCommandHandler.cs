@@ -9,7 +9,7 @@ using System.Text;
 using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
+namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     internal class TestCommandHandler : ICommandHandler
     {

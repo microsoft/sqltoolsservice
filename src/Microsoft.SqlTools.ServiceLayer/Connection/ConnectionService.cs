@@ -440,7 +440,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
-                    MachineName = serverInfo.MachineName
+                    MachineName = serverInfo.MachineName,
+                    Options = serverInfo.Options,
                 };
                 connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
@@ -1283,7 +1284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     await requestContext.SendResult(ParseConnectionString(connectionString));
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // If theres an error in the parse, it means we just can't parse, so we return undefined
                     // rather than an error.

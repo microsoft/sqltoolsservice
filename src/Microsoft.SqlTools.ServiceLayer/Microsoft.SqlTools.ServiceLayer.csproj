@@ -21,10 +21,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0-preview3-27014-02" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4240.1-preview" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
@@ -32,18 +32,11 @@
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Connection\ReliableConnection\ReliableSqlCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="Connection\ReliableConnection\ReliableSqlConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
 </Project>
