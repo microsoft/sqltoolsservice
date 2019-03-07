@@ -5,6 +5,7 @@
 
 using System;
 using Microsoft.SqlServer.Management.Smo.Agent;
+using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -43,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.data.ID = stepInfo.Id;
             this.data.Name = stepInfo.StepName;
             this.data.Command = stepInfo.Command;
+            this.data.Subsystem = AgentUtilities.ConvertToAgentSubSytem(stepInfo.SubSystem);
         }
 
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
