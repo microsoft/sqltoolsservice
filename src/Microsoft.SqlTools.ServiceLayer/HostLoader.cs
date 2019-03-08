@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.SchemaCopmare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -117,6 +118,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             CmsService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CmsService.Instance);
+
+            SchemaCopmare.SchemaCompareService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SchemaCompareService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
