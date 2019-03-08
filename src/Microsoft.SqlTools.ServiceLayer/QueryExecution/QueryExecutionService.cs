@@ -177,23 +177,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        internal Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
+        internal async Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
             RequestContext<ExecuteRequestResult> requestContext)
         {
-            // Setup actions to perform upon successful start and on failure to start
-            Func<Query, Task<bool>> queryCreateSuccessAction = async q => {
-                await requestContext.SendResult(new ExecuteRequestResult());
-                Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
-                return true;
-            };
-            Func<string, Task> queryCreateFailureAction = message =>
+            try
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
-                return requestContext.SendError(message);
-            };
+                // Setup actions to perform upon successful start and on failure to start
+                Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
+                {
+                    await requestContext.SendResult(new ExecuteRequestResult());
+                    Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
+                    return true;
+                };
+                Func<string, Task> queryCreateFailureAction = message =>
+                {
+                    Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                    return requestContext.SendError(message);
+                };
 
-            // Use the internal handler to launch the query
-            return InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
+                // Use the internal handler to launch the query
+                Task workTask = Task.Run(async () =>
+                {
+                    await InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -622,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             //    if any oldQuery exists on the executeParams.OwnerUri but it has not yet executed,
             //    then shouldn't we cancel and clean out that query since we are about to create a new query object on the current OwnerUri.
             //
-            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
+            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && (oldQuery.HasExecuted || oldQuery.HasCancelled))
             {
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
