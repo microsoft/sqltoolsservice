@@ -110,6 +110,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
 
         /// <summary>
+        /// Internal task for testability
+        /// </summary>
+        internal Task WorkTask { get; private set; }
+
+        /// <summary>
         /// Instance of the connection service, used to get the connection info for a given owner URI
         /// </summary>
         private ConnectionService ConnectionService { get; }
@@ -130,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Holds a map from the simple execute unique GUID and the underlying task that is being ran
         /// </summary>
-        private readonly Lazy<ConcurrentDictionary<string, Task>> simpleExecuteRequests = 
+        private readonly Lazy<ConcurrentDictionary<string, Task>> simpleExecuteRequests =
             new Lazy<ConcurrentDictionary<string, Task>>(() => new ConcurrentDictionary<string, Task>());
 
         /// <summary>
@@ -196,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
 
                 // Use the internal handler to launch the query
-                Task workTask = Task.Run(async () =>
+                WorkTask = Task.Run(async () =>
                 {
                     await InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
                 });
@@ -230,14 +235,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                     return;
                 }
-                
+
                 ConnectParams connectParams = new ConnectParams
                 {
                     OwnerUri = randomUri,
                     Connection = connInfo.ConnectionDetails,
                     Type = ConnectionType.Default
                 };
-                
+
                 Task workTask = Task.Run(async () => {
                     await ConnectionService.Connect(connectParams);
 
@@ -254,26 +259,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         try
                         {
                             // check to make sure any results were recieved
-                            if (query.Batches.Length == 0 
-                                || query.Batches[0].ResultSets.Count == 0) 
+                            if (query.Batches.Length == 0
+                                || query.Batches[0].ResultSets.Count == 0)
                             {
                                 await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
                                 return;
-                            } 
+                            }
 
                             long rowCount = query.Batches[0].ResultSets[0].RowCount;
                             // check to make sure there is a safe amount of rows to load into memory
-                            if (rowCount > Int32.MaxValue) 
+                            if (rowCount > Int32.MaxValue)
                             {
                                 await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
                                 return;
                             }
-                            
+
                             SimpleExecuteResult result = new SimpleExecuteResult
                             {
                                 RowCount = rowCount,
                                 ColumnInfo = query.Batches[0].ResultSets[0].Columns,
-                                Rows = new DbCellValue[0][] 
+                                Rows = new DbCellValue[0][]
                             };
 
                             if (rowCount > 0)
@@ -291,8 +296,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 result.Rows = subset.Rows;
                             }
                             await requestContext.SendResult(result);
-                        } 
-                        finally 
+                        }
+                        finally
                         {
                             Query removedQuery;
                             Task removedTask;
@@ -317,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
@@ -346,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// Handles a request to get an execution plan
         /// </summary>
         internal async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
@@ -513,17 +518,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="queryFailureFunc">
         /// Callback to call when query has completed execution with errors. May be <c>null</c>.
         /// </param>
-        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, 
+        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams,
             ConnectionInfo connInfo,
             IEventSender queryEventSender,
             Func<Query, Task<bool>> queryCreateSuccessFunc,
             Func<string, Task> queryCreateFailFunc,
-            Query.QueryAsyncEventHandler querySuccessFunc, 
+            Query.QueryAsyncEventHandler querySuccessFunc,
             Query.QueryAsyncErrorEventHandler queryFailureFunc)
         {
             Validate.IsNotNull(nameof(executeParams), executeParams);
             Validate.IsNotNull(nameof(queryEventSender), queryEventSender);
-            
+
             Query newQuery;
             try
             {
@@ -826,7 +831,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return GetSqlTextFromSelectionData(docRequest.OwnerUri, docRequest.QuerySelection);
             }
 
-             // If it is a document statement, we'll retrieve the text from the document
+            // If it is a document statement, we'll retrieve the text from the document
             ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
             if (stmtRequest != null)
             {

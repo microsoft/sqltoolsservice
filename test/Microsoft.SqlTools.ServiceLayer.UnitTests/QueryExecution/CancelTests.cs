@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Constants.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
@@ -58,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query

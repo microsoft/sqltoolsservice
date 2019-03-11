@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I dispose of the query
@@ -90,6 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
             var requestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And it sticks around as an active query
