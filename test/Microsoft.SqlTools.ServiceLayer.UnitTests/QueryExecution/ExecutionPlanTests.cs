@@ -152,6 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid execution plan 
@@ -201,6 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasStartedRead = false;
 
@@ -232,6 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for an execution plan from a result set 

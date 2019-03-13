@@ -183,6 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             HostingProtocol.RequestContext<ExecuteRequestResult> requestContext)
         {
             await service.HandleExecuteRequest(qeParams, requestContext);
+            await service.WorkTask;
             if (service.ActiveQueries.ContainsKey(qeParams.OwnerUri) && service.ActiveQueries[qeParams.OwnerUri].ExecutionTask != null)
             {
                 await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
