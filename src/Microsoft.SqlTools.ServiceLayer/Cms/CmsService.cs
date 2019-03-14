@@ -105,15 +105,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                             RegisteredServerCollection servers = parentGroup.RegisteredServers;
 
                             // Add the new server (intentionally not cheching existence to reuse the exception message)
-                            RegisteredServer registeredServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
+                            RegisteredServer registeredServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerConnectionDetails.ServerName);
+                            registeredServer.Create();
                             if (cmsCreateParams.RegisteredServerConnectionDetails != null)
                             {
                                 registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
                                 registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
-                                registeredServer.ConnectionString = ConnectionService.CreateConnectionStringBuilder(cmsCreateParams.RegisteredServerConnectionDetails).ToString();
+                                registeredServer.ConnectionString = ConnectionService.BuildConnectionString(cmsCreateParams.RegisteredServerConnectionDetails);
                             }
                             registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
-                            registeredServer.Create();
                             await requestContext.SendResult(true);
                         }
                         else
