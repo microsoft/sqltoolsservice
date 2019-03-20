@@ -110,7 +110,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare operation {0} failed with exception {1}", this.OperationId, e));
+                ErrorMessage = e.Message;
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
         }

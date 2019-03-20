@@ -75,7 +75,6 @@ CREATE TABLE [dbo].[table3]
                 TargetEndpointInfo = targetInfo
             };
 
-            DacFxService service = new DacFxService();
             SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, null, null);
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
 
@@ -100,7 +99,7 @@ CREATE TABLE [dbo].[table3]
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
             Directory.CreateDirectory(folderPath);
 
             SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
@@ -117,7 +116,6 @@ CREATE TABLE [dbo].[table3]
                 TargetEndpointInfo = targetInfo
             };
 
-            DacFxService service = new DacFxService();
             SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
 
@@ -156,7 +154,6 @@ CREATE TABLE [dbo].[table3]
                 TargetEndpointInfo = targetInfo
             };
 
-            DacFxService service = new DacFxService();
             SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, null);
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
 
@@ -166,6 +163,57 @@ CREATE TABLE [dbo].[table3]
 
             // cleanup
             VerifyAndCleanup(targetDacpacFilePath);
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return schemaCompareRequestContext;
+        }
+
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+            Directory.CreateDirectory(folderPath);
+
+            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+            sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+            sourceInfo.DatabaseName = sourceDb.DatabaseName;
+            targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+            targetInfo.DatabaseName = targetDb.DatabaseName;
+
+            var schemaCompareParams = new SchemaCompareParams
+            {
+                SourceEndpointInfo = sourceInfo,
+                TargetEndpointInfo = targetInfo
+            };
+
+            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+            // generate script
+            var generateScriptParams = new SchemaCompareGenerateScriptParams
+            {
+                TargetDatabaseName = targetDb.DatabaseName,
+                OperationId = schemaCompareOperation.OperationId,
+                ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish.sql"))
+            };
+
+            SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation.Execute(TaskExecutionMode.Execute);
+
+            // cleanup
+            VerifyAndCleanup(generateScriptParams.ScriptFilePath);
             sourceDb.Cleanup();
             targetDb.Cleanup();
 
@@ -199,6 +247,15 @@ CREATE TABLE [dbo].[table3]
             Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDacpac());
         }
 
+        /// <summary>
+        /// Verify the schema compare generate script request comparing a database to a dacpac
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareGenerateScriptDatabaseToDatabase()
+        {
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase());
+        }
+
         private void VerifyAndCleanup(string filePath)
         {
             // Verify it was created
@@ -214,7 +271,7 @@ CREATE TABLE [dbo].[table3]
         private string CreateDacpac(SqlTestDb testdb)
         {
             var result = GetLiveAutoCompleteTestObjects();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
             Directory.CreateDirectory(folderPath);
 
             var extractParams = new ExtractParams

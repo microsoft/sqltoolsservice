@@ -9,9 +9,10 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
 {
@@ -21,7 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
     class SchemaCompareService
     {
         private static ConnectionService connectionService = null;
+        private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
+        private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
+            new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
 
         /// <summary>
         /// Gets the singleton instance object
@@ -38,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
+            serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
         }
 
         /// <summary>
@@ -64,6 +69,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                         SchemaCompareOperation operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
                         operation.Execute(parameters.TaskExecutionMode);
 
+                        // add result to dictionary of results
+                        schemaCompareResults.Value[operation.OperationId] = operation.ComparisonResult;
+
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
                             OperationId = operation.OperationId,
@@ -82,6 +90,54 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request for schema compare generate deploy script
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareGenerateScriptRequest(SchemaCompareGenerateScriptParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                SchemaCompareGenerateScriptOperation operation = new SchemaCompareGenerateScriptOperation(parameters, compareResult);
+                SqlTask sqlTask = null;
+                TaskMetadata metadata = new TaskMetadata();
+                metadata.TaskOperation = operation;
+                // want to show filepath in task history instead of server and database
+                metadata.ServerName = parameters.ScriptFilePath;
+                metadata.DatabaseName = string.Empty;
+                metadata.Name = "Generate Script";
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = true,
+                    ErrorMessage = operation.ErrorMessage
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+                private SqlTaskManager SqlTaskManagerInstance
+        {
+            get
+            {
+                if (sqlTaskManagerInstance == null)
+                {
+                    sqlTaskManagerInstance = SqlTaskManager.Instance;
+                }
+                return sqlTaskManagerInstance;
+            }
+            set
+            {
+                sqlTaskManagerInstance = value;
             }
         }
 
