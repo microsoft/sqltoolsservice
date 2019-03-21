@@ -218,5 +218,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             get { return (JobCompletionActionCondition)this.eventLogLevel; }
         }
+
+        public string Owner 
+        {
+            get { return this.owner; }
+        }
     }
 }

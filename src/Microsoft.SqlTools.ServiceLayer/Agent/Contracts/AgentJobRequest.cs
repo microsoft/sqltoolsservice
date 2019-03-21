@@ -206,6 +206,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
+    /// SQL Agent Login
+    /// </summary>
+    public class AgentJobLogin 
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    /// <summary>
     /// SQL Agent Job Defaults result
     /// </summary>
     public class AgentJobDefaultsResult : ResultStatus
@@ -213,6 +222,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string Owner { get; set; }
 
         public AgentJobCategory[] Categories { get; set; }
+
+        public AgentJobLogin[] Logins { get; set; }
     }
 
     /// <summary>

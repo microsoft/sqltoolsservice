@@ -185,7 +185,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (connInfo != null)
                     {
                         CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                        var jobs = dataContainer.Server.JobServer.Jobs;
+                        var jobServer = dataContainer.Server.JobServer;
+                        var jobs = jobServer.Jobs;
                         Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
@@ -211,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         result.Schedules = jobSchedules.ToArray();
 
                         // Alerts
-                        AlertCollection alerts = dataContainer.Server.JobServer.Alerts;
+                        AlertCollection alerts = jobServer.Alerts;
                         var jobAlerts = new List<Alert>();
                         foreach (Alert alert in alerts)
                         {
@@ -241,7 +242,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             result.Success = true;
                             tlog.CloseReader();
                         }
-                        connection.Disconnect();
                         await requestContext.SendResult(result);
                     }
                 }
@@ -425,6 +425,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         {
                             Id = categories[i].SmoCategory.ID,
                             Name = categories[i].SmoCategory.Name
+                        };
+                    }
+
+                    var logins = dataContainer.Server.Logins;
+                    result.Logins = new AgentJobLogin[logins.Count];
+                    for (int i = 0; i < logins.Count; i++)
+                    {
+                        result.Logins[i] = new AgentJobLogin
+                        {
+                            Id = logins[i].ID,
+                            Name = logins[i].Name
                         };
                     }
 
