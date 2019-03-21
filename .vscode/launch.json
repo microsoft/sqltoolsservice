@@ -24,7 +24,8 @@
             "request": "attach",
             "processId": "${command:pickProcess}",
             "requireExactSource": false,
-            "justMyCode": false
+            "justMyCode": false,
+            "enableStepFiltering": false
         }
     ,]
 }

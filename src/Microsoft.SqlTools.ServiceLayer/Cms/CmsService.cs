@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -96,24 +97,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 {
                     try
                     {
-                        ServerConnection serverConn = ValidateAndCreateConnection(cmsCreateParams.ParentOwnerUri);
+                        ServerConnection serverConn =  ValidateAndCreateConnection(cmsCreateParams.ParentOwnerUri);
                         if (serverConn != null)
                         {
                             // Get Current Reg Servers
                             RegisteredServersStore store = new RegisteredServersStore(serverConn);
                             ServerGroup parentGroup = NavigateToServerGroup(store, cmsCreateParams.RelativePath);
                             RegisteredServerCollection servers = parentGroup.RegisteredServers;
-
                             // Add the new server (intentionally not cheching existence to reuse the exception message)
                             RegisteredServer registeredServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
-                            registeredServer.Create();
-                            if (cmsCreateParams.RegisteredServerConnectionDetails != null)
-                            {
-                                registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
-                                registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
-                                registeredServer.ConnectionString = ConnectionService.BuildConnectionString(cmsCreateParams.RegisteredServerConnectionDetails);
-                            }
                             registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
+                            registeredServer.ConnectionString = serverConn.ConnectionString;
+                            registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
+                            registeredServer.Create();
                             await requestContext.SendResult(true);
                         }
                         else
@@ -221,16 +217,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                     try
                     {
                         ServerConnection serverConn = ValidateAndCreateConnection(addServerGroupParams.ParentOwnerUri);
-                        RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                        ServerGroup parentGroup = NavigateToServerGroup(store, addServerGroupParams.RelativePath);
-
-                        // Add the new group (intentionally not cheching existence to reuse the exception message)
-                        ServerGroup serverGroup = new ServerGroup(parentGroup, addServerGroupParams.GroupName)
+                        if (serverConn != null) 
                         {
-                            Description = addServerGroupParams.GroupDescription
-                        };
-                        serverGroup.Create();
-                        await requestContext.SendResult(true);
+                            ServerGroup parentGroup;
+                            RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                            // It's a CMS server
+                            if (string.IsNullOrEmpty(addServerGroupParams.RelativePath))
+                            {
+                                parentGroup = store.DatabaseEngineServerGroup;    
+                            }
+                            else
+                            {
+                                parentGroup = NavigateToServerGroup(store, addServerGroupParams.RelativePath);
+                            }
+                            // Add the new group (intentionally not cheching existence to reuse the exception message)
+                            ServerGroup serverGroup = new ServerGroup(parentGroup, addServerGroupParams.GroupName)
+                            {
+                                Description = addServerGroupParams.GroupDescription
+                            };
+                            serverGroup.Create();
+                            await requestContext.SendResult(true);
+                        }
+                        else
+                        {
+                            await requestContext.SendResult(false);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -359,7 +370,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
                 serverResults.Add(new RegisteredServerResult
                 {
                     Name = s.Name,
-                    ServerName = s.ServerName,
+                    ServerName = string.IsNullOrEmpty(s.ServerName) ? s.Name : s.ServerName,
                     Description = s.Description,
                     ConnectionDetails = ConnectionServiceInstance.ParseConnectionString(s.ConnectionString),
                     RelativePath = s.KeyChain.Urn.SafeToString()
