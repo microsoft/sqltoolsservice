@@ -61,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set and get it to throw because of invalid column selection
@@ -106,6 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set from a query
@@ -173,6 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set and get it to throw because of invalid column selection
@@ -216,6 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set from a query
@@ -282,6 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set and get it to throw because of invalid column selection
@@ -325,6 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set from a query
@@ -393,6 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set and get it to throw because of invalid column selection
@@ -436,6 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
             await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // If: I attempt to save a result set from a query
