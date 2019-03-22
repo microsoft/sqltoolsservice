@@ -31,13 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public string ScriptFilePath { get; set; }
 
         /// <summary>
-        /// Executation mode for the operation. Default is execution
+        /// Execution mode for the operation. Default is execution
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>
-    /// Defines the Schema Compare request type
+    /// Defines the Schema Compare generate script request type
     /// </summary>
     class SchemaCompareGenerateScriptRequest
     {

@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                             Differences = operation.Differences
                         });
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         await requestContext.SendError(e);
                     }
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
         }
 
-                private SqlTaskManager SqlTaskManagerInstance
+        private SqlTaskManager SqlTaskManagerInstance
         {
             get
             {

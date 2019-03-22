@@ -220,6 +220,59 @@ CREATE TABLE [dbo].[table3]
             return schemaCompareRequestContext;
         }
 
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+            Directory.CreateDirectory(folderPath);
+            string sourceDacpacFilePath = CreateDacpac(sourceDb);
+
+            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+            sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+            sourceInfo.PackageFilePath = sourceDacpacFilePath;
+            targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+            targetInfo.DatabaseName = targetDb.DatabaseName;
+
+            var schemaCompareParams = new SchemaCompareParams
+            {
+                SourceEndpointInfo = sourceInfo,
+                TargetEndpointInfo = targetInfo
+            };
+
+            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+            // generate script
+            var generateScriptParams = new SchemaCompareGenerateScriptParams
+            {
+                TargetDatabaseName = targetDb.DatabaseName,
+                OperationId = schemaCompareOperation.OperationId,
+                ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish.sql"))
+            };
+
+            SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation.Execute(TaskExecutionMode.Execute);
+
+            // cleanup
+            VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+            VerifyAndCleanup(sourceDacpacFilePath);
+            sourceDb.Cleanup();
+            targetDb.Cleanup();
+
+            return schemaCompareRequestContext;
+        }
+
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs
         /// </summary>
@@ -248,12 +301,21 @@ CREATE TABLE [dbo].[table3]
         }
 
         /// <summary>
-        /// Verify the schema compare generate script request comparing a database to a dacpac
+        /// Verify the schema compare generate script request comparing a database to a database
         /// </summary>
         [Fact]
         public async void SchemaCompareGenerateScriptDatabaseToDatabase()
         {
             Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase());
+        }
+
+        /// <summary>
+        /// Verify the schema compare generate script request comparing a dacpac to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareGenerateScriptDacpacToDatabase()
+        {
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase());
         }
 
         private void VerifyAndCleanup(string filePath)
