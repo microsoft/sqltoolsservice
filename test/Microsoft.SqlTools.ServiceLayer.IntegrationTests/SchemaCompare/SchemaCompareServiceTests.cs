@@ -222,7 +222,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();

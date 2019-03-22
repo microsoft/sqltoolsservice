@@ -10,6 +10,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -28,7 +29,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, this.Parameters.ApplicationVersion, null, null, null, this.CancellationToken);
+            // try to get version
+            Version version = new Version();
+            try
+            {
+                version = new Version(this.Parameters.ApplicationVersion);
+            }
+            catch
+            {
+                Logger.Write(TraceEventType.Warning, string.Format(CultureInfo.InvariantCulture, "Invalid version {0} passed", this.Parameters.ApplicationVersion));
+            }
+
+            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, null, this.CancellationToken);
         }
     }
 }

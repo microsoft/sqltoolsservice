@@ -132,7 +132,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();
@@ -162,7 +162,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();
@@ -233,6 +233,35 @@ CREATE TABLE [dbo].[table3]
             return requestContext;
         }
 
+        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateExtractInvalidVersionRequest()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var requestContext = new Mock<RequestContext<DacFxResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExtractInvalidVersionTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new ExtractParams
+            {
+                DatabaseName = testdb.DatabaseName,
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = "invalidVersion"
+            };
+
+            DacFxService service = new DacFxService();
+            ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
+            service.PerformOperation(operation);
+
+            // cleanup
+            VerifyAndCleanup(extractParams.PackageFilePath);
+            testdb.Cleanup();
+
+            return requestContext;
+        }
+
         private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployScriptRequest()
         {
             // first extract a dacpac
@@ -249,7 +278,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();
@@ -295,7 +324,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
@@ -363,6 +392,16 @@ CREATE TABLE [dbo].[table3]
         public async void ExtractDacpac()
         {
             Assert.NotNull(await SendAndValidateExtractRequest());
+        }
+
+
+        /// <summary>
+        /// Verify the extract dacpac request still succeeds when version is invalid
+        /// </summary>
+        [Fact]
+        public async void ExtractDacpacInvalidVersion()
+        {
+            Assert.NotNull(await SendAndValidateExtractInvalidVersionRequest());
         }
 
         /// <summary>
