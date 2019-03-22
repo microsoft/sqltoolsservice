@@ -74,6 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
+        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
         }

@@ -56,16 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// </summary>
         public string ErrorMessage { get; set; }
 
-        /// <summary>
-        /// Cancel operation
-        /// </summary>
+        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
-            if (!this.cancellation.IsCancellationRequested)
-            {
-                Logger.Write(TraceEventType.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
-                this.cancellation.Cancel();
-            }
         }
 
         /// <summary>
