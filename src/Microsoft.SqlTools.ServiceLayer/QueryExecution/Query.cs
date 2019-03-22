@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                if (!HasExecuted)
+                if (!HasExecuted && !HasCancelled)
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
@@ -260,6 +260,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// if the query has been cancelled (before execution started)
+        /// </summary>
+        public bool HasCancelled { get; private set; }
+
+        /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; }
@@ -280,6 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Issue the cancellation token for the query
+            this.HasCancelled = true;
             cancellationSource.Cancel();
         }
 
@@ -368,9 +374,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ReliableSqlConnection sqlConn = null;
             try
             {
+                // check for cancellation token before actually making connection
+                cancellationSource.Token.ThrowIfCancellationRequested();
+
                 // Mark that we've internally executed
                 hasExecuteBeenCalled = true;
-    
+                
                 // Don't actually execute if there aren't any batches to execute
                 if (Batches.Length == 0)
                 {
@@ -429,6 +438,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (Exception e)
             {
+                if (e is OperationCanceledException)
+                {
+                    await BatchMessageSent(new ResultMessage(SR.QueryServiceQueryCancelled, false, null));
+                }
                 // Call the query failure callback
                 if (QueryFailed != null)
                 {

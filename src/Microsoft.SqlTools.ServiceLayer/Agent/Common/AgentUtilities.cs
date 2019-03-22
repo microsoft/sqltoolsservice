@@ -61,7 +61,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 EmailLevel = job.EmailLevel,
                 PageLevel = job.PageLevel,
                 EventLogLevel = job.EventLogLevel,
-                DeleteLevel = job.DeleteLevel
+                DeleteLevel = job.DeleteLevel,
+                Owner = job.Owner
             };
         }
 
