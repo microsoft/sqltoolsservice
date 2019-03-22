@@ -415,13 +415,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
                     
-                    if (definitionResult != null)
+                    if (definitionResult != null && !definitionResult.IsErrorResult)
                     {
-                        if (!definitionResult.IsErrorResult)
-                        {
-                            await requestContext.SendResult(definitionResult.Locations);
-                            succeeded = true;
-                        }
+                        await requestContext.SendResult(definitionResult.Locations);
+                        succeeded = true;
                     }
                     else
                     {
