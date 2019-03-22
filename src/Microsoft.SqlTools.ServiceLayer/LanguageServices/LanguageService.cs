@@ -417,11 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     
                     if (definitionResult != null)
                     {
-                        if (definitionResult.IsErrorResult)
-                        {
-                            await requestContext.SendError(definitionResult.Message);
-                        }
-                        else
+                        if (!definitionResult.IsErrorResult)
                         {
                             await requestContext.SendResult(definitionResult.Locations);
                             succeeded = true;
