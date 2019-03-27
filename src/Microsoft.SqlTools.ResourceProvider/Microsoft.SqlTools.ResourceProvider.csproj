@@ -20,6 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
     <!-- Note: must reference the resource provider projects in order for them to be bundled into the app. Otherwise will not have any of the required DLLs and
       dependencies included when the project is shipped. If adding new DLLs, add them here or find another solution to keep them bundled
