@@ -1,3 +1,9 @@
+**My Badges**
+[![Travis CI](https://travis-ci.org/dhruvanmurthy/sqltoolsservice.svg?branch=master)](https://travis-ci.org/dhruvanmurthy/sqltoolsservice)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/dhruvanmurthy/sqltoolsservice?svg=true&retina=true&branch=master)](https://ci.appveyor.com/project/dhruvanmurthy/sqltoolsservice)
+[![Coverage Status](https://coveralls.io/repos/github/dhruvanmurthy/sqltoolsservice/badge.svg?branch=master)](https://coveralls.io/github/dhruvanmurthy/sqltoolsservice?branch=master)
+
+**MS Badges**
 [![Travis CI](https://travis-ci.org/Microsoft/sqltoolsservice.svg?branch=dev)](https://travis-ci.org/Microsoft/sqltoolsservice)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/Microsoft/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/kburtram/sqltoolsservice)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=master)
