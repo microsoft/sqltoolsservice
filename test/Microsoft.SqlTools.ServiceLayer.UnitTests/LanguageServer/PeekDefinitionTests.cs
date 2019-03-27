@@ -46,9 +46,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // request definition
             var definitionTask = await Task.WhenAny(langService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
             await definitionTask;
-            // verify that send result was not called and send error was called
-            requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
-            requestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once());
+            // verify that send result was called once and send error was not called
+            requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Once());
+            requestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never());
         }
 
         /// <summary>

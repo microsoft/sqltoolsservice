@@ -53,6 +53,8 @@ namespace Microsoft.SqlTools.Hosting.Utility
                             case "-locale":
                                 SetLocale(args[++i]);
                                 break;
+                            case "-enable-logging":
+                                break;
                             case "h":
                             case "-help":
                                 ShouldExit = true;
