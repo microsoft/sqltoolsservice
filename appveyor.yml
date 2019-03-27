@@ -1,33 +1,79 @@
-# Note: This file isn't used in current setup. Instead its parts have been
-# set directly in the AppVeyor project settings - Environment, General, Build, Test sections.
-# This allows us to get Coveralls to run on PRs, but is more work than just using this file.
-# Preserving this here so that it's easy to replicate for others
-environment:
-    COVERALLS_REPO_TOKEN:  
-       secure: KjiClJjgj/eB1zo52GBz/CHCmdxj6ut+q6+LD5G3sYhy9Hi4kEF6CWi8vOQPH1oy
-
-# safelist
+version: 1.0.{build}
 branches:
   only:
-    - master
-    - dev
+  - dev
+configuration: Debug
+init:
+- cmd: >-
+    echo { > %USERPROFILE%\settings.json
 
+    echo "mssql.connections": [ >> %USERPROFILE%\settings.json
+
+    echo        { >> %USERPROFILE%\settings.json
+
+    echo		"server": "localhost", >> %USERPROFILE%\settings.json
+
+    echo		"authenticationType": "SqlLogin", >> %USERPROFILE%\settings.json
+
+    echo		"user": "sa", >> %USERPROFILE%\settings.json
+
+    echo		"password": "<Insert Password Here>", >> %USERPROFILE%\settings.json
+
+    echo		"serverType": "OnPrem" >> %USERPROFILE%\settings.json
+
+    echo		} >> %USERPROFILE%\settings.json
+
+    echo		] >> %USERPROFILE%\settings.json
+
+    echo } >> %USERPROFILE%\settings.json
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: <Insert your secure token here>
+  SettingsFileName: '%USERPROFILE%\settings.json'
+  ProjectPath: C:\projects\sqltoolsservice
+services: mssql2016
+cache: '%USERPROFILE%\.nuget\packages'
 before_build:
-- appveyor-retry dotnet restore -v Minimal
+- ps: >-
+    Write-Host 'Install .Net Core 2.2'
 
-build_script:
-  - dotnet build src/Microsoft.SqlTools.ServiceLayer
-  - dotnet build src/Microsoft.SqlTools.CoreServices
+    $urlCurrent = "https://download.visualstudio.microsoft.com/download/pr/249a5f2b-d529-4c5e-9ac5-26e2ea635774/148355c93492da427dc7160774c3cd35/dotnet-sdk-2.2.100-preview3-009430-win-x64.zip"
 
+    $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
+
+    mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+
+    $tempFileCurrent = [System.IO.Path]::GetTempFileName()
+
+    (New-Object System.Net.WebClient).DownloadFile($urlCurrent, $tempFileCurrent)
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFileCurrent, $env:DOTNET_INSTALL_DIR)
+
+    $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
+
+    appveyor-retry dotnet restore sqltoolsservice.sln -v Minimal
+build:
+  project: sqltoolsservice.sln
+  verbosity: minimal
 test_script:
-  - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
-  - dotnet test test/Microsoft.SqlTools.Hosting.UnitTests
+- ps: >-
+    dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
-after_test:
-  - cd test/CodeCoverage
-  - npm install -g gulp-cli
-  - runintegration.bat
-  - cmd: packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
+    $result = $LASTEXITCODE
 
-cache:
-- '%USERPROFILE%\.nuget\packages'
+
+    if($result -ne 0){
+     exit $result
+    }
+
+
+    cd .\test\CodeCoverage
+
+    npm install -g gulp-cli
+
+    & .\runintegration.bat
+
+    & .\packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
+artifacts:
+- path: test\Microsoft.SqlTools.ServiceLayer.UnitTest\bin\debug\netcoreapp2.2\FormatterTests\*.out
+  name: FormatterTestResults

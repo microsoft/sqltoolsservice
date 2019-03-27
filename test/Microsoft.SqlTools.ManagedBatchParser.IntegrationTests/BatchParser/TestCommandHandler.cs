@@ -4,9 +4,9 @@
 //
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             batch.GetText(true, out textWithVariablesResolved, out lineInfoVarsResolved);
             batch.GetText(false, out textWithVariablesUnresolved, out lineInfoVarsUnresolved);
             outputString.AppendFormat(CultureInfo.InvariantCulture, "*** Execute batch ({0})\n", repeatCount);
-            
+
             if (string.Compare(textWithVariablesUnresolved, textWithVariablesResolved, StringComparison.Ordinal) != 0)
             {
                 outputString.AppendLine("Text with variables not resolved:");
@@ -49,10 +49,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 {
                     PositionStruct pos = lineInfoVarsResolved.GetStreamPositionForOffset(i);
                     string character = i < textWithVariablesResolved.Length ? ("" + textWithVariablesResolved[i]).Replace("\n", @"\n").Replace("\r", @"\r") : "EOF";
-                    outputString.AppendFormat(CultureInfo.InvariantCulture, "Pos [{0}] {1}:{2} \"{3}\"", 
-                        i, 
-                        BatchParserTests.GetFilenameOnly(pos.Filename), 
-                        pos.Offset, 
+                    outputString.AppendFormat(CultureInfo.InvariantCulture, "Pos [{0}] {1}:{2} \"{3}\"",
+                        i,
+                        BatchParserTests.GetFilenameOnly(pos.Filename),
+                        pos.Offset,
                         character);
                     outputString.AppendLine();
                     i++;
