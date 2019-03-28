@@ -222,8 +222,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string Owner { get; set; }
 
         public AgentJobCategory[] Categories { get; set; }
-
-        public AgentJobLogin[] Logins { get; set; }
     }
 
     /// <summary>
