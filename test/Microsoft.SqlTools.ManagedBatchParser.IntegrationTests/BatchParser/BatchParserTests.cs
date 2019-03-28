@@ -7,13 +7,13 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine;
+using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Xunit;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
@@ -91,7 +91,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             var inputStream = GenerateStreamFromString(input);
             using (Lexer lexer = new Lexer(new StreamReader(inputStream), filename))
             {
-
                 string inputText = File.ReadAllText(filename);
                 inputText = inputText.Replace("\r\n", "\n");
                 StringBuilder roundtripTextBuilder = new StringBuilder();
@@ -137,12 +136,16 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 case LexerTokenType.Text:
                     return "T";
+
                 case LexerTokenType.Whitespace:
                     return "WS";
+
                 case LexerTokenType.NewLine:
                     return "NL";
+
                 case LexerTokenType.Comment:
                     return "C";
+
                 default:
                     return lexerTokenType.ToString();
             }

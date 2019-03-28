@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     internal sealed class TestVariableResolver : IVariableResolver
     {
-        Dictionary<string, string> variables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> variables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private StringBuilder outputString;
 
         public TestVariableResolver(StringBuilder outputString)

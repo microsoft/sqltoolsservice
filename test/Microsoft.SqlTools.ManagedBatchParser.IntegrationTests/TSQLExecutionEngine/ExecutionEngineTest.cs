@@ -3,26 +3,24 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
 using Xunit;
-using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
+namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
     /// <summary>
     ///This is a test class for Microsoft.Data.Tools.Schema.Common.ExecutionEngine.ExecutionEngine and is intended
     ///to contain all Microsoft.Data.Tools.Schema.Common.ExecutionEngine.ExecutionEngine Unit Tests
     ///</summary>
-   
+
     public class ExecutionEngineTest : IDisposable
     {
         private SqlConnection connection;
@@ -73,11 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             //Task.Run(() => SqlTestDb.DropDatabase(connection.Database));
             CloseConnection(connection);
             connection = null;
-        }        
+        }
 
-        #endregion
+        #endregion Test Initialize And Cleanup
 
         #region Valid scripts
+
         /// <summary>
         ///A test for a simple SQL script
         ///</summary>
@@ -91,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             conditions.IsParseOnly = false;
             conditions.IsHaltOnError = false;
 
-            TestExecutor  executor = new TestExecutor(sqlStatement, connection, conditions);
+            TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions);
             executor.Run();
 
             //Get the expected values
@@ -171,9 +170,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
-        #endregion
+
+        #endregion Valid scripts
 
         #region Invalid Scripts
+
         /// <summary>
         /// Test with a invalid query using the default execution condition
         /// </summary>
@@ -191,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal( ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
+            Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
@@ -235,10 +236,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             conditions.IsTransactionWrapped = true;
             conditions.IsParseOnly = false;
             conditions.IsHaltOnError = false;
-            
+
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions);
             executor.Run();
-            
+
             //Get the expected values
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
@@ -306,11 +307,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         {
             ExecutionEngine engine = new ExecutionEngine();
             Assert.True(ConnectionDiscardWrapper(engine));
-            
         }
-        #endregion
+
+        #endregion Invalid Scripts
 
         #region Different execution conditions
+
         /// <summary>
         /// Test HaltOnError execution condition
         /// </summary>
@@ -334,7 +336,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
             Assert.True(executor.ResultCountQueue.Count == 0);
-
         }
 
         /// <summary>
@@ -361,7 +362,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
             Assert.True(executor.ResultCountQueue.Count == 0);
             Assert.Equal(0, executor.BatchFinshedEventCounter);
-
         }
 
         /// <summary>
@@ -462,9 +462,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions);
             executor.Run();
 
-            // Note: this used to also return Halted at some point in the distant past. 
+            // Note: this used to also return Halted at some point in the distant past.
             // However since that gets mapped to Failure anyhow, consider "Failure" as acceptable here
-            Assert.True(executor.ExecutionResult.HasFlag(ScriptExecutionResult.Failure), "Expected failure when invalid connection is present" );
+            Assert.True(executor.ExecutionResult.HasFlag(ScriptExecutionResult.Failure), "Expected failure when invalid connection is present");
         }
 
         /// <summary>
@@ -489,16 +489,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
-        #endregion
+
+        #endregion Different execution conditions
 
         #region SQL Commands
+
         /// <summary>
         /// Test with SQL commands
         /// </summary>
         [Fact]
         public void ExecutionEngineTest_SQLCmds()
         {
-            string[] sqlStatements = { 
+            string[] sqlStatements = {
                 "select $(INVALIDVAR) from sysobjects",
                 ":help",
                 "exit",
@@ -517,7 +519,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 ":perftrace STDOUT",
                 "exit (Select count(*) from sysobjects)"
             };
-            
+
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
 
             foreach (string stmt in sqlStatements)
@@ -526,11 +528,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 executor.Run();
                 Assert.True(executor.ResultCountQueue.Count == 0);
             }
-
         }
-        #endregion
+
+        #endregion SQL Commands
 
         #region Threading
+
         /// <summary>
         /// Test synchronous cancel
         /// </summary>
@@ -547,11 +550,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, true);
             executor.CancelTimeOut = 3000;
             executor.Run();
-            
+
             Assert.NotNull(executor.ScriptExecuteThread);
             Assert.Equal(ScriptExecutionResult.Cancel, executor.ExecutionResult);
             Assert.True(executor.CancelEventFired);
-
         }
 
         /// <summary>
@@ -582,13 +584,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// <summary>
         /// Test sync cancel when the execution is done
         /// </summary>
-        /// 
-        /// Disabled test, has race condition where Sql statement will finish 
+        ///
+        /// Disabled test, has race condition where Sql statement will finish
         /// before harness has an opportunity to cancel.
         //TEST_DOESNOTWORK[TestMethod()]
         public void ExecutionEngineTest_SyncCancelAfterExecutionDone()
         {
-            string sqlStatement = "select 1" ;
+            string sqlStatement = "select 1";
 
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
             conditions.IsTransactionWrapped = true;
@@ -603,7 +605,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             if (executor.ScriptExecuteThread != null)
                 Assert.True(!executor.ScriptExecuteThread.IsAlive);
             Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Cancel, executor.ExecutionResult);
-
         }
 
         /// <summary>
@@ -612,7 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         [Fact]
         public void ExecutionEngineTest_ASyncCancelAfterExecutionDone()
         {
-            string sqlStatement ="select 1";
+            string sqlStatement = "select 1";
 
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
             conditions.IsTransactionWrapped = true;
@@ -688,7 +689,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             await SqlTestDb.DropDatabase(connection3.Database);
         }
 
-        #endregion
+        #endregion Threading
 
         #region Get/Set Methods
 
@@ -751,9 +752,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             Assert.Equal(conditions.BatchSeparator, "GO");
         }
 
-        #endregion
+        #endregion Get/Set Methods
 
         #region Private methods
+
         /// <summary>
         /// Connection to a database
         /// </summary>
@@ -774,7 +776,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         {
             foreach (string script in sqlBatch)
             {
-                ExecuteSqlCommand(script, connection);                
+                ExecuteSqlCommand(script, connection);
             }
         }
 
@@ -788,7 +790,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             SqlCommand cmd = new SqlCommand(sqlCmdTxt, connection);
             SqlTransaction transaction = connection.BeginTransaction();
             cmd.Transaction = transaction;
-            
+
             try
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -806,7 +808,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 transaction.Commit();
             }
             catch (Exception e)
-            {               
+            {
                 Console.WriteLine("Executing command throws exception: " + e.Message);
                 expErrorMessage.Add(e.Message);
                 try
@@ -830,7 +832,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         private bool CompareTwoStringLists(List<string> l1, List<string> l2)
         {
             bool isSame = true;
-            if(l1.Count != l2.Count)
+            if (l1.Count != l2.Count)
             {
                 isSame = false;
                 Console.WriteLine("The count of elements in two lists are not the same");
@@ -893,6 +895,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             engine.Close(false, true, true);
             return true;
         }
-        #endregion
+
+        #endregion Private methods
     }
 }

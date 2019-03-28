@@ -5,22 +5,22 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
-
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
+namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
-    internal class BatchEventHandler: IBatchEventsHandler
+    internal class BatchEventHandler : IBatchEventsHandler
     {
-        List<int> resultCounts = new List<int>();
-        List<string> sqlMessages = new List<string>();
-        List<string> errorMessage = new List<string>();
-        int batchfinishedEventCounter = 0;
-        SqlDataReader dr = null;
-        bool cancelEventFired = false;
+        private List<int> resultCounts = new List<int>();
+        private List<string> sqlMessages = new List<string>();
+        private List<string> errorMessage = new List<string>();
+        private int batchfinishedEventCounter = 0;
+        private SqlDataReader dr = null;
+        private bool cancelEventFired = false;
 
         #region Public properties
+
         public List<int> ResultCounts
         {
             get
@@ -52,6 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 return batchfinishedEventCounter;
             }
         }
+
         public bool CancelFired
         {
             get
@@ -59,9 +60,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 return cancelEventFired;
             }
         }
-        #endregion
+
+        #endregion Public properties
 
         #region IBatchEventHandlers Members
+
         public void OnBatchCancelling(object sender, EventArgs args)
         {
             Console.WriteLine("\tOnBatchCancelling:");
@@ -103,9 +106,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         }
 
         public void OnBatchResultSetProcessing(object sender, BatchResultSetEventArgs args)
-        {                 
+        {
             lock (this)
-            { 
+            {
                 Console.WriteLine("\tOnBatchResultProcessing...");
                 dr = args.DataReader as SqlDataReader;
                 int count = 0;
@@ -118,6 +121,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             }
         }
 
-        #endregion
+        #endregion IBatchEventHandlers Members
     }
 }
