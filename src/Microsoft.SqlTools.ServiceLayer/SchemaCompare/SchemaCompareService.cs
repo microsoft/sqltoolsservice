@@ -64,9 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
 
                 Task schemaCompareTask = Task.Run(async () =>
                 {
+                    SchemaCompareOperation operation = null;
+
                     try
                     {
-                        SchemaCompareOperation operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
+                        operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
                         operation.Execute(parameters.TaskExecutionMode);
 
                         // add result to dictionary of results
@@ -83,7 +85,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     }
                     catch (Exception e)
                     {
-                        await requestContext.SendError(e);
+                        await requestContext.SendResult(new SchemaCompareResult()
+                        {
+                            OperationId = operation.OperationId,
+                            Success = false,
+                            ErrorMessage = operation.ErrorMessage,
+                        });
                     }
                 });
             }
@@ -99,10 +106,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         /// <returns></returns>
         public async Task HandleSchemaCompareGenerateScriptRequest(SchemaCompareGenerateScriptParams parameters, RequestContext<ResultStatus> requestContext)
         {
+            SchemaCompareGenerateScriptOperation operation = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                SchemaCompareGenerateScriptOperation operation = new SchemaCompareGenerateScriptOperation(parameters, compareResult);
+                operation = new SchemaCompareGenerateScriptOperation(parameters, compareResult);
                 SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
@@ -121,7 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e);
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = operation.ErrorMessage
+                });
             }
         }
 
