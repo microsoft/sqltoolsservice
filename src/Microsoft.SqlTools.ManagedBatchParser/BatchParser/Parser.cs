@@ -238,17 +238,20 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (LookaheadTokenType == LexerTokenType.Text)
             {
                 string text = ResolveVariables(LookaheadToken, 0, null);
+                // This satement originally placed after the for loop, But it moved here, the reason is: 
+                // When passing the long number like 999999999999999999999999, insted of throwing error
+                // it accept and iterate the loop
+                bool result = Int32.TryParse(text, out repeatCount);
+                if (result == false)
+                {
+                    RaiseError(ErrorCode.InvalidNumber);
+                }
                 for (int i = 0; i < text.Length; i++)
                 {
                     if (Char.IsDigit(text[i]) == false)
                     {
                         RaiseError(ErrorCode.InvalidNumber);
                     }
-                }
-                bool result = Int32.TryParse(text, out repeatCount);
-                if (result == false)
-                {
-                    RaiseError(ErrorCode.InvalidNumber);
                 }
                 Accept(LexerTokenType.Text);
                 AcceptWhitespaceOrComment();

@@ -40,4 +40,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
 [assembly: InternalsVisibleTo("MicrosoftSqlToolsServiceLayer")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ManagedBatchParser.UnitTests")]
+[assembly: InternalsVisibleTo("Microsoft.SqlTools.ManagedBatchParser.IntegrationTests")]
