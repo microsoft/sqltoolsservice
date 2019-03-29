@@ -83,11 +83,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                             Differences = operation.Differences
                         });
                     }
-                    catch (Exception e)
+                    catch
                     {
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
-                            OperationId = operation.OperationId,
+                            OperationId = operation != null ? operation.OperationId : null,
                             Success = false,
                             ErrorMessage = operation.ErrorMessage,
                         });
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     ErrorMessage = operation.ErrorMessage
                 });
             }
-            catch (Exception e)
+            catch
             {
                 await requestContext.SendResult(new ResultStatus()
                 {
