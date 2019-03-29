@@ -8,6 +8,11 @@
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/Microsoft/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/kburtram/sqltoolsservice)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=master)
 
+**NJN Badges**
+[![Travis CI](https://travis-ci.org/dhruvanmurthy/sqltoolsservice.svg?branch=Niranjan_Development)](https://travis-ci.org/dhruvanmurthy/sqltoolsservice)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/dhruvanmurthy/sqltoolsservice?svg=true&retina=true&branch=Niranjan_Development)](https://ci.appveyor.com/project/dhruvanmurthy/sqltoolsservice)
+[![Coverage Status](https://coveralls.io/repos/github/dhruvanmurthy/sqltoolsservice/badge.svg?branch=Niranjan_Development)](https://coveralls.io/github/dhruvanmurthy/sqltoolsservice?branch=Niranjan_Development)
+
 # Microsoft SQL Tools Service 
 The SQL Tools Service is an application that provides core functionality for various SQL Server tools.  These features include the following:
 * Connection management
