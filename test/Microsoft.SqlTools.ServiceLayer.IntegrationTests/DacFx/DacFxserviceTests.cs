@@ -253,10 +253,16 @@ CREATE TABLE [dbo].[table3]
 
             DacFxService service = new DacFxService();
             ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
-            service.PerformOperation(operation);
+            try
+            {
+                service.PerformOperation(operation);
+            }
+            catch (Exception e)
+            {
+                Assert.Contains("Invalid version", e.Message);
+            }
 
             // cleanup
-            VerifyAndCleanup(extractParams.PackageFilePath);
             testdb.Cleanup();
 
             return requestContext;
@@ -396,7 +402,7 @@ CREATE TABLE [dbo].[table3]
 
 
         /// <summary>
-        /// Verify the extract dacpac request still succeeds when version is invalid
+        /// Verify the extract dacpac request handles invalid version
         /// </summary>
         [Fact]
         public async void ExtractDacpacInvalidVersion()

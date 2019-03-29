@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch
             {
-                Logger.Write(TraceEventType.Warning, string.Format(CultureInfo.InvariantCulture, "Invalid version {0} passed", this.Parameters.ApplicationVersion));
+                throw new Exception(string.Format("Invalid version {0} passed. Version must be in the format x.x.x.x where x is a number", this.Parameters.ApplicationVersion));
             }
 
             this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, null, this.CancellationToken);
