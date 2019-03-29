@@ -51,6 +51,7 @@ CREATE TABLE [dbo].[table3]
 
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpac()
         {
+
             var result = GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
@@ -58,36 +59,41 @@ CREATE TABLE [dbo].[table3]
             // create dacpacs from databases
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string sourceDacpacFilePath = CreateDacpac(sourceDb);
-            string targetDacpacFilePath = CreateDacpac(targetDb);
-
-            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
-            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
-
-            sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-            sourceInfo.PackageFilePath = sourceDacpacFilePath;
-            targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-            targetInfo.PackageFilePath = targetDacpacFilePath;
-
-            var schemaCompareParams = new SchemaCompareParams
+            try
             {
-                SourceEndpointInfo = sourceInfo,
-                TargetEndpointInfo = targetInfo
-            };
+                string sourceDacpacFilePath = CreateDacpac(sourceDb);
+                string targetDacpacFilePath = CreateDacpac(targetDb);
 
-            DacFxService service = new DacFxService();
-            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, null, null);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
 
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpacFilePath;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                targetInfo.PackageFilePath = targetDacpacFilePath;
 
-            // cleanup
-            VerifyAndCleanup(sourceDacpacFilePath);
-            VerifyAndCleanup(targetDacpacFilePath);
-            sourceDb.Cleanup();
-            targetDb.Cleanup();
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, null, null);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                // cleanup
+                VerifyAndCleanup(sourceDacpacFilePath);
+                VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
 
             return schemaCompareRequestContext;
         }
@@ -100,35 +106,38 @@ CREATE TABLE [dbo].[table3]
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
             Directory.CreateDirectory(folderPath);
 
-            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
-            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
-
-            sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
-            sourceInfo.DatabaseName = sourceDb.DatabaseName;
-            targetInfo.EndpointType = SchemaCompareEndpointType.Database;
-            targetInfo.DatabaseName = targetDb.DatabaseName;
-
-            var schemaCompareParams = new SchemaCompareParams
+            try
             {
-                SourceEndpointInfo = sourceInfo,
-                TargetEndpointInfo = targetInfo
-            };
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
 
-            DacFxService service = new DacFxService();
-            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
 
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
 
-            // cleanup
-            sourceDb.Cleanup();
-            targetDb.Cleanup();
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
 
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+            }
+            finally
+            {
+                // cleanup
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
             return schemaCompareRequestContext;
         }
 
@@ -140,35 +149,155 @@ CREATE TABLE [dbo].[table3]
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string targetDacpacFilePath = CreateDacpac(targetDb);
 
-            SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
-            SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
-
-            sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
-            sourceInfo.DatabaseName = sourceDb.DatabaseName;
-            targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-            targetInfo.PackageFilePath = targetDacpacFilePath;
-
-            var schemaCompareParams = new SchemaCompareParams
+            try
             {
-                SourceEndpointInfo = sourceInfo,
-                TargetEndpointInfo = targetInfo
-            };
+                string targetDacpacFilePath = CreateDacpac(targetDb);
 
-            DacFxService service = new DacFxService();
-            SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, null);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
 
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                targetInfo.PackageFilePath = targetDacpacFilePath;
 
-            // cleanup
-            VerifyAndCleanup(targetDacpacFilePath);
-            sourceDb.Cleanup();
-            targetDb.Cleanup();
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
 
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, null);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                // cleanup
+                VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+            return schemaCompareRequestContext;
+        }
+
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                // generate script
+                var generateScriptParams = new SchemaCompareGenerateScriptParams
+                {
+                    TargetDatabaseName = targetDb.DatabaseName,
+                    OperationId = schemaCompareOperation.OperationId,
+                    ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish.sql"))
+                };
+
+                SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+                generateScriptOperation.Execute(TaskExecutionMode.Execute);
+
+                // cleanup
+                VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+            return schemaCompareRequestContext;
+        }
+
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                string sourceDacpacFilePath = CreateDacpac(sourceDb);
+
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpacFilePath;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                // generate script
+                var generateScriptParams = new SchemaCompareGenerateScriptParams
+                {
+                    TargetDatabaseName = targetDb.DatabaseName,
+                    OperationId = schemaCompareOperation.OperationId,
+                    ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish.sql"))
+                };
+
+                SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+                generateScriptOperation.Execute(TaskExecutionMode.Execute);
+
+                // cleanup
+                VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+                VerifyAndCleanup(sourceDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
             return schemaCompareRequestContext;
         }
 
@@ -199,6 +328,24 @@ CREATE TABLE [dbo].[table3]
             Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDacpac());
         }
 
+        /// <summary>
+        /// Verify the schema compare generate script request comparing a database to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareGenerateScriptDatabaseToDatabase()
+        {
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase());
+        }
+
+        /// <summary>
+        /// Verify the schema compare generate script request comparing a dacpac to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareGenerateScriptDacpacToDatabase()
+        {
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase());
+        }
+
         private void VerifyAndCleanup(string filePath)
         {
             // Verify it was created
@@ -214,7 +361,7 @@ CREATE TABLE [dbo].[table3]
         private string CreateDacpac(SqlTestDb testdb)
         {
             var result = GetLiveAutoCompleteTestObjects();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
             Directory.CreateDirectory(folderPath);
 
             var extractParams = new ExtractParams
