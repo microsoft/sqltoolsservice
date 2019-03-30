@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 Assert.Equal(1, batch.BatchExecutionCount);
             }
         }
+
         [Fact]
         public void CheckSimpleMultipleQLBatchStatement()
         {
@@ -42,7 +43,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                     GO
                     SELECT 'LastLine'";
                 var batches = parserWrapper.GetBatches(sqlScript);
-                // Each select statement is one batch , so we are expecting 4 batches. 
+                // Each select statement is one batch , so we are expecting 4 batches.
                 Assert.Equal(4, batches.Count);
             }
         }

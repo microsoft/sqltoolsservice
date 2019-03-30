@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine;
 using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
@@ -64,11 +63,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         {
             string query = @" Invoke-Sqlcmd -Query ""select `$(calcOne)"" -Variable ""calcOne = 10 + 20"" ";
 
-            //String query = "Select 1+2";
-
-            StringBuilder output = new StringBuilder();
-
-            TestCommandHandler handler = new TestCommandHandler(output);
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
             using (Parser p = new Parser(
                 handler,
@@ -82,15 +77,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
-        // Verify the starting identifier of Both parameter and variable are same. 
+        // Verify the starting identifier of Both parameter and variable are same.
         [Fact]
         public void VerifyVariableResolverIsStartIdentifierChar()
         {
             // instead of using variable calcOne, I purposely used In-variable 0alcOne
             string query = @" Invoke-Sqlcmd -Query ""select `$(0alcOne)"" -Variable ""calcOne1 = 1"" ";
-            StringBuilder output = new StringBuilder();
 
-            TestCommandHandler handler = new TestCommandHandler(output);
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
             using (Parser p = new Parser(
                 handler,
@@ -103,15 +97,15 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 Assert.Throws<BatchParserException>(() => p.Parse());
             }
         }
-        // Verify all the characters inside variable are valid Identifier. 
+
+        // Verify all the characters inside variable are valid Identifier.
         [Fact]
         public void VerifyVariableResolverIsIdentifierChar()
         {
             // instead of using variable calcOne, I purposely used In-variable 0alcOne
             string query = @" Invoke-Sqlcmd -Query ""select `$(ca@lcOne)"" -Variable ""calcOne = 1"" ";
-            StringBuilder output = new StringBuilder();
 
-            TestCommandHandler handler = new TestCommandHandler(output);
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
             using (Parser p = new Parser(
                 handler,
@@ -123,19 +117,17 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 handler.SetParser(p);
                 Assert.Throws<BatchParserException>(() => p.Parse());
             }
-        } 
+        }
 
-        // Verify the execution by passing long value with AbortOnError, Pipeline execution will stop and except a exception.  
+        // Verify the execution by passing long value with AbortOnError, Pipeline execution will stop and except a exception.
         [Fact]
         public void VerifyInvalidNumberWithAbortOnError()
         {
             string query = @"Invoke-Sqlcmd -Query ""select 1+1
                            Go 999999999999999999999999999999999999999
-                           "" -AbortOnError";  
+                           "" -AbortOnError";
 
-            StringBuilder output = new StringBuilder();
-
-            TestCommandHandler handler = new TestCommandHandler(output);
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
             using (Parser p = new Parser(
                 handler,
@@ -148,16 +140,15 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 Assert.Throws<BatchParserException>(() => p.Parse());
             }
         }
-        // Verify the execution by passing long value , Except a exception.  
+
+        // Verify the execution by passing long value , Except a exception.
         [Fact]
         public void VerifyInvalidNumber()
         {
             string query = @"Invoke-Sqlcmd -Query ""select 1+1
-            Go -2
-            """;
-            StringBuilder output = new StringBuilder();
+                Go -2""";
 
-            TestCommandHandler handler = new TestCommandHandler(output);
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
             using (Parser p = new Parser(
                 handler,
@@ -171,9 +162,9 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
-        // Verify the Batch execution is executed successfully. 
+        // Verify the Batch execution is executed successfully.
         [Fact]
-        public void verifyExecute()
+        public void VerifyExecute()
         {
             Batch batch = new Batch(sqlText: "select 1+1", isResultExpected: true, execTimeout: 15);
             using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
@@ -187,9 +178,9 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, ScriptExecutionResult.Success);
         }
 
-        // Verify the exeception is handled by passing invalid keyword. 
+        // Verify the exeception is handled by passing invalid keyword.
         [Fact]
-        public void verifyHandleExceptionMessage()
+        public void VerifyHandleExceptionMessage()
         {
             Batch batch = new Batch(sqlText: "sel@ect 1+1", isResultExpected: true, execTimeout: 15);
             using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
@@ -204,9 +195,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
             Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
         }
-        // Verify the passing query has valid text. 
+
+        // Verify the passing query has valid text.
         [Fact]
-        public void verifyHasValidText()
+        public void VerifyHasValidText()
         {
             Batch batch = new Batch(sqlText: null, isResultExpected: true, execTimeout: 15);
             ScriptExecutionResult finalResult = ScriptExecutionResult.All;
@@ -222,9 +214,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
             Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
         }
-        // Verify the cancel functionality is working fine. 
+
+        // Verify the cancel functionality is working fine.
         [Fact]
-        public void verifyCancel()
+        public void VerifyCancel()
         {
             ScriptExecutionResult result = ScriptExecutionResult.All;
             Batch batch = new Batch(sqlText: "select 1+1", isResultExpected: true, execTimeout: 15);
@@ -238,7 +231,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 }
             }
             Assert.Equal<ScriptExecutionResult>(result, ScriptExecutionResult.Cancel);
-
         }
 
         //[Fact]
@@ -250,10 +242,11 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 lexer.ConsumeToken();
             }
-        } 
+        }
+
         // Verify the custom exception functionality by raising user defined error.
         [Fact]
-        public void verifyCustomBatchParserException()
+        public void VerifyCustomBatchParserException()
         {
             string message = "This is userDefined Error";
 
@@ -266,13 +259,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
             catch (Exception ex)
             {
-
                 Assert.Equal(batchParserException.ErrorCode.ToString(), ErrorCode.VariableNotDefined.ToString());
                 Assert.Equal(message, batchParserException.Text);
                 Assert.Equal(LexerTokenType.Text.ToString(), batchParserException.TokenType.ToString());
                 Assert.IsType<BatchParserException>(ex);
             }
         }
+
         // Verify whether the executionEngine execute script
         [Fact]
         public void VerifyExecuteScript()
@@ -291,7 +284,8 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 }
             }
         }
-        // Verify whether the batchParser execute SqlCmd. 
+
+        // Verify whether the batchParser execute SqlCmd.
         [Fact]
         public void VerifyIsSqlCmd()
         {
@@ -310,6 +304,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 }
             }
         }
+
         // Verify whether the executionEngine execute Batch
         [Fact]
         public void VerifyExecuteBatch()
@@ -328,7 +323,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
- 
         [Fact]
         public void CanceltheBatch()
         {
