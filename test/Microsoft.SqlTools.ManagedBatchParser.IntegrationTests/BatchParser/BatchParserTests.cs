@@ -4,10 +4,10 @@
 //
 
 using System;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine;
 using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
@@ -54,15 +54,272 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
+        /// <summary>
+        /// Variable parameter in powershell: Specifies, as a string array, a sqlcmd scripting variable
+        /// for use in the sqlcmd script, and sets a value for the variable.
+        /// </summary>
+        [Fact]
+        public void VerifyVariableResolverUsingVaribleParameter()
+        {
+            string query = @" Invoke-Sqlcmd -Query ""select `$(calcOne)"" -Variable ""calcOne = 10 + 20"" ";
+
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
+            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
+            using (Parser p = new Parser(
+                handler,
+                resolver,
+                new StringReader(query),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = true;
+                handler.SetParser(p);
+                Assert.Throws<BatchParserException>(() => p.Parse());
+            }
+        }
+
+        // Verify the starting identifier of Both parameter and variable are same.
+        [Fact]
+        public void VerifyVariableResolverIsStartIdentifierChar()
+        {
+            // instead of using variable calcOne, I purposely used In-variable 0alcOne
+            string query = @" Invoke-Sqlcmd -Query ""select `$(0alcOne)"" -Variable ""calcOne1 = 1"" ";
+
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
+            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
+            using (Parser p = new Parser(
+                handler,
+                resolver,
+                new StringReader(query),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = true;
+                handler.SetParser(p);
+                Assert.Throws<BatchParserException>(() => p.Parse());
+            }
+        }
+
+        // Verify all the characters inside variable are valid Identifier.
+        [Fact]
+        public void VerifyVariableResolverIsIdentifierChar()
+        {
+            // instead of using variable calcOne, I purposely used In-variable 0alcOne
+            string query = @" Invoke-Sqlcmd -Query ""select `$(ca@lcOne)"" -Variable ""calcOne = 1"" ";
+
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
+            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
+            using (Parser p = new Parser(
+                handler,
+                resolver,
+                new StringReader(query),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = true;
+                handler.SetParser(p);
+                Assert.Throws<BatchParserException>(() => p.Parse());
+            }
+        }
+
+        // Verify the execution by passing long value with AbortOnError, Pipeline execution will stop and except a exception.
+        [Fact]
+        public void VerifyInvalidNumberWithAbortOnError()
+        {
+            string query = @"Invoke-Sqlcmd -Query ""select 1+1
+                           Go 999999999999999999999999999999999999999
+                           "" -AbortOnError";
+
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
+            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
+            using (Parser p = new Parser(
+                handler,
+                resolver,
+                new StringReader(query),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = true;
+                handler.SetParser(p);
+                Assert.Throws<BatchParserException>(() => p.Parse());
+            }
+        }
+
+        // Verify the execution by passing long value , Except a exception.
+        [Fact]
+        public void VerifyInvalidNumber()
+        {
+            string query = @"Invoke-Sqlcmd -Query ""select 1+1
+                Go -2""";
+
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
+            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
+            using (Parser p = new Parser(
+                handler,
+                resolver,
+                new StringReader(query),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = true;
+                handler.SetParser(p);
+                Assert.Throws<BatchParserException>(() => p.Parse());
+            }
+        }
+
+        // Verify the Batch execution is executed successfully.
+        [Fact]
+        public void VerifyExecute()
+        {
+            Batch batch = new Batch(sqlText: "select 1+1", isResultExpected: true, execTimeout: 15);
+            using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+            {
+                con.Open();
+                if (con.State.ToString().ToLower() == "open")
+                {
+                    ScriptExecutionResult result = batch.Execute(con, ShowPlanType.AllShowPlan);
+                }
+            }
+            Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, ScriptExecutionResult.Success);
+        }
+
+        // Verify the exeception is handled by passing invalid keyword.
+        [Fact]
+        public void VerifyHandleExceptionMessage()
+        {
+            Batch batch = new Batch(sqlText: "sel@ect 1+1", isResultExpected: true, execTimeout: 15);
+            using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+            {
+                con.Open();
+                if (con.State.ToString().ToLower() == "open")
+                {
+                    ScriptExecutionResult result = batch.Execute(con, ShowPlanType.AllShowPlan);
+                }
+            }
+            ScriptExecutionResult finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
+
+            Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
+        }
+
+        // Verify the passing query has valid text.
+        [Fact]
+        public void VerifyHasValidText()
+        {
+            Batch batch = new Batch(sqlText: null, isResultExpected: true, execTimeout: 15);
+            ScriptExecutionResult finalResult = ScriptExecutionResult.All;
+            using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+            {
+                con.Open();
+                if (con.State.ToString().ToLower() == "open")
+                {
+                    ScriptExecutionResult result = batch.Execute(con, ShowPlanType.AllShowPlan);
+                }
+            }
+            finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
+
+            Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
+        }
+
+        // Verify the cancel functionality is working fine.
+        [Fact]
+        public void VerifyCancel()
+        {
+            ScriptExecutionResult result = ScriptExecutionResult.All;
+            Batch batch = new Batch(sqlText: "select 1+1", isResultExpected: true, execTimeout: 15);
+            using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+            {
+                con.Open();
+                if (con.State.ToString().ToLower() == "open")
+                {
+                    batch.Cancel();
+                    result = batch.Execute(con, ShowPlanType.AllShowPlan);
+                }
+            }
+            Assert.Equal<ScriptExecutionResult>(result, ScriptExecutionResult.Cancel);
+        }
+
+        //[Fact]
+        public void VerifyLexerSetState()
+        {
+            string query = ":setvar    a 10";
+            var inputStream = GenerateStreamFromString(query);
+            using (Lexer lexer = new Lexer(new StreamReader(inputStream), "Test.sql"))
+            {
+                lexer.ConsumeToken();
+            }
+        }
+
+        // Verify the custom exception functionality by raising user defined error.
+        [Fact]
+        public void VerifyCustomBatchParserException()
+        {
+            string message = "This is userDefined Error";
+
+            Token token = new Token(LexerTokenType.Text, new PositionStruct(), new PositionStruct(), message, "test");
+
+            BatchParserException batchParserException = new BatchParserException(ErrorCode.VariableNotDefined, token, message);
+            try
+            {
+                throw new BatchParserException(ErrorCode.UnrecognizedToken, token, "test");
+            }
+            catch (Exception ex)
+            {
+                Assert.Equal(batchParserException.ErrorCode.ToString(), ErrorCode.VariableNotDefined.ToString());
+                Assert.Equal(message, batchParserException.Text);
+                Assert.Equal(LexerTokenType.Text.ToString(), batchParserException.TokenType.ToString());
+                Assert.IsType<BatchParserException>(ex);
+            }
+        }
+
+        // Verify whether the executionEngine execute script
         [Fact]
         public void VerifyExecuteScript()
         {
-            string query = "select @@version";
-            ExecutionEngineTest executionEngineTest = new ExecutionEngineTest();
-            executionEngineTest.TestInitialize();
-            using (ExecutionEngine engine = new ExecutionEngine())
+            using (ExecutionEngine executionEngine = new ExecutionEngine())
             {
-                engine.ExecuteScript(query);
+                string query = @"select 1+2;
+                    Go 2";
+                using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+                {
+                    ExecutionEngineConditions exeCond = new ExecutionEngineConditions();
+                    BatchParserMockEventHandler batchParserMockEventHandler = new BatchParserMockEventHandler();
+                    ScriptExecutionArgs scriptExecutionArgs = new ScriptExecutionArgs(query, con, 15, exeCond, batchParserMockEventHandler);
+                    executionEngine.ExecuteScript(scriptExecutionArgs);
+                    Assert.IsType<Exception>(new Exception());
+                }
+            }
+        }
+
+        // Verify whether the batchParser execute SqlCmd.
+        [Fact]
+        public void VerifyIsSqlCmd()
+        {
+            using (ExecutionEngine executionEngine = new ExecutionEngine())
+            {
+                string query = @":SetVar a 10;
+                    Go ";
+                using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+                {
+                    ExecutionEngineConditions exeCond = new ExecutionEngineConditions();
+                    BatchParserMockEventHandler batchParserMockEventHandler = new BatchParserMockEventHandler();
+                    ScriptExecutionArgs scriptExecutionArgs = new ScriptExecutionArgs(query, con, 15, exeCond, batchParserMockEventHandler);
+                    executionEngine.ExecuteScript(scriptExecutionArgs);
+                    executionEngine.CancelCurrentBatch();
+                    Assert.IsType<Exception>(new Exception());
+                }
+            }
+        }
+
+        // Verify whether the executionEngine execute Batch
+        [Fact]
+        public void VerifyExecuteBatch()
+        {
+            using (ExecutionEngine executionEngine = new ExecutionEngine())
+            {
+                string query = "select 1+2";
+                using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True"))
+                {
+                    ExecutionEngineConditions exeCond = new ExecutionEngineConditions();
+                    BatchParserMockEventHandler batchParserMockEventHandler = new BatchParserMockEventHandler();
+                    ScriptExecutionArgs scriptExecutionArgs = new ScriptExecutionArgs(query, con, 15, exeCond, batchParserMockEventHandler);
+                    executionEngine.ExecuteBatch(scriptExecutionArgs);
+                    Assert.IsType<Exception>(new Exception());
+                }
             }
         }
 
