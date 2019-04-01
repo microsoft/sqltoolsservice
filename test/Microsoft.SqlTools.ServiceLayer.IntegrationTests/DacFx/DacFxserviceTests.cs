@@ -259,7 +259,7 @@ CREATE TABLE [dbo].[table3]
             }
             catch (ArgumentException e)
             {
-                Assert.True(e.Message.Contains("Invalid version", StringComparison.InvariantCulture));
+                Assert.Equal(e.Message, string.Format(SR.ExtractInvalidVersion, extractParams.ApplicationVersion));
             }
 
             // cleanup
