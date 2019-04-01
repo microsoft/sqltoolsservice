@@ -2869,6 +2869,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ExtractInvalidVersion
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExtractInvalidVersion);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4180,6 +4188,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string Error_ExistingDirectoryName = "Error_ExistingDirectoryName";
+
+
+            public const string ExtractInvalidVersion = "ExtractInvalidVersion";
 
 
             private Keys()

@@ -1956,6 +1956,11 @@
         <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ExtractInvalidVersion">
+        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number</source>
+        <target state="new">Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

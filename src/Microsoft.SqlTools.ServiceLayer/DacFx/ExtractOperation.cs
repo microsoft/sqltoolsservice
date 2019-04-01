@@ -31,10 +31,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             // try to get version
             Version version;
-            Version.TryParse(this.Parameters.ApplicationVersion, out version);
-            if (version == null)
+            if (!Version.TryParse(this.Parameters.ApplicationVersion, out version))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid version {0} passed. Version must be in the format x.x.x.x where x is a number", this.Parameters.ApplicationVersion));
+                throw new ArgumentException(string.Format(SR.ExtractInvalidVersion, this.Parameters.ApplicationVersion));
             }
             this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, null, this.CancellationToken);
         }
