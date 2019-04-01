@@ -30,16 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             // try to get version
-            Version version = new Version();
-            try
+            Version version;
+            Version.TryParse(this.Parameters.ApplicationVersion, out version);
+            if (version == null)
             {
-                version = new Version(this.Parameters.ApplicationVersion);
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid version {0} passed. Version must be in the format x.x.x.x where x is a number", this.Parameters.ApplicationVersion));
             }
-            catch
-            {
-                throw new Exception(string.Format("Invalid version {0} passed. Version must be in the format x.x.x.x where x is a number", this.Parameters.ApplicationVersion));
-            }
-
             this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, null, this.CancellationToken);
         }
     }

@@ -257,9 +257,9 @@ CREATE TABLE [dbo].[table3]
             {
                 service.PerformOperation(operation);
             }
-            catch (Exception e)
+            catch (ArgumentException e)
             {
-                Assert.Contains("Invalid version", e.Message);
+                Assert.True(e.Message.Contains("Invalid version", StringComparison.InvariantCulture));
             }
 
             // cleanup
