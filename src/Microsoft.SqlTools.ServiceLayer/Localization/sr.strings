@@ -786,4 +786,4 @@ Error_ExistingDirectoryName = For directory {0} a file with name {1} already exi
 
 ############################################################################
 # DacFx
-ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number
+ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.

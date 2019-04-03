@@ -233,40 +233,7 @@ CREATE TABLE [dbo].[table3]
             return requestContext;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateExtractInvalidVersionRequest()
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<DacFxResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
-            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExtractInvalidVersionTest");
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
-            Directory.CreateDirectory(folderPath);
-
-            var extractParams = new ExtractParams
-            {
-                DatabaseName = testdb.DatabaseName,
-                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
-                ApplicationName = "test",
-                ApplicationVersion = "invalidVersion"
-            };
-
-            DacFxService service = new DacFxService();
-            ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
-            try
-            {
-                service.PerformOperation(operation);
-            }
-            catch (ArgumentException e)
-            {
-                Assert.Equal(e.Message, string.Format(SR.ExtractInvalidVersion, extractParams.ApplicationVersion));
-            }
-
-            // cleanup
-            testdb.Cleanup();
-
-            return requestContext;
-        }
 
         private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployScriptRequest()
         {
@@ -398,16 +365,6 @@ CREATE TABLE [dbo].[table3]
         public async void ExtractDacpac()
         {
             Assert.NotNull(await SendAndValidateExtractRequest());
-        }
-
-
-        /// <summary>
-        /// Verify the extract dacpac request handles invalid version
-        /// </summary>
-        [Fact]
-        public async void ExtractDacpacInvalidVersion()
-        {
-            Assert.NotNull(await SendAndValidateExtractInvalidVersionRequest());
         }
 
         /// <summary>

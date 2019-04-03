@@ -29,13 +29,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            // try to get version
-            Version version;
-            if (!Version.TryParse(this.Parameters.ApplicationVersion, out version))
-            {
-                throw new ArgumentException(string.Format(SR.ExtractInvalidVersion, this.Parameters.ApplicationVersion));
-            }
+            Version version = ParseVersion(this.Parameters.ApplicationVersion);
             this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, null, this.CancellationToken);
+        }
+
+        public static Version ParseVersion(string incomingVersion)
+        {
+            Version parsedVersion;
+            if (!Version.TryParse(incomingVersion, out parsedVersion))
+            {
+                throw new ArgumentException(string.Format(SR.ExtractInvalidVersion, incomingVersion));
+            }
+
+            return parsedVersion;
         }
     }
 }

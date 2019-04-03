@@ -1688,7 +1688,7 @@
     <comment></comment>
   </data>
   <data name="ExtractInvalidVersion" xml:space="preserve">
-    <value>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number</value>
+    <value>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</value>
     <comment></comment>
   </data>
 </root>
