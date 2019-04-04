@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// Gets or sets the version of the DAC application
         /// </summary>
-        public Version ApplicationVersion { get; set; }
+        public string ApplicationVersion { get; set; }
     }
 
     /// <summary>

@@ -80,7 +80,6 @@ REM Generate the report
 "%WORKINGDIR%packages\ReportGenerator.2.4.5.0\tools\ReportGenerator.exe" "-reports:coverage.xml" "-targetdir:%WORKINGDIR%\reports"
 
 REM restore original project.json
-
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj
 DEL %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK 
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj

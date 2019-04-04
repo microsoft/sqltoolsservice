@@ -428,17 +428,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         };
                     }
 
-                    var logins = dataContainer.Server.Logins;
-                    result.Logins = new AgentJobLogin[logins.Count];
-                    for (int i = 0; i < logins.Count; i++)
-                    {
-                        result.Logins[i] = new AgentJobLogin
-                        {
-                            Id = logins[i].ID,
-                            Name = logins[i].Name
-                        };
-                    }
-
                     result.Success = true;
                 }
                 catch (Exception ex)
