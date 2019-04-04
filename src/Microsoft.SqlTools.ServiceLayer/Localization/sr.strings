@@ -783,3 +783,7 @@ JobServerIsNotAvailable = Job server is not available
 NeverBackedUp = Never
 Error_InvalidDirectoryName = Path {0} is not a valid directory 
 Error_ExistingDirectoryName = For directory {0} a file with name {1} already exist
+
+############################################################################
+# DacFx
+ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.
