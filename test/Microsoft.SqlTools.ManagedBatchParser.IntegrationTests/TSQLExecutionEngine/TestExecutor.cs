@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         #region private methods
 
         /// <summary>
-        /// Execut the script
+        /// Execute the script
         /// </summary>
         /// <param name="exec">Execution Engine</param>
         /// <param name="connection">SQL connection</param>
