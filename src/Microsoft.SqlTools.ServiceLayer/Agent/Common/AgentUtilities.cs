@@ -208,12 +208,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                foreach (JobStep step in steps)
+                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries)
                 {
-                    var jobId = jobRow[UrnJobId].ToString();
-                    jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(step, logEntry, jobId));
+                    if (steps.Contains(subEntry.StepName))
+                    {                                              
+                        var jobId = jobRow[UrnJobId].ToString();
+                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(steps.ItemById(Convert.ToInt32(subEntry.StepID)), logEntry, jobId));
+                    }
                 }
-
                 jobHistoryInfo.Steps = jobSteps.ToArray();
                 jobs.Add(jobHistoryInfo);
             }

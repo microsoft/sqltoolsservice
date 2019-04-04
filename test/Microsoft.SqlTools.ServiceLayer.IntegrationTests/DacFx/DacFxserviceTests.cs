@@ -132,7 +132,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = testdb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();
@@ -162,7 +162,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();
@@ -233,6 +233,8 @@ CREATE TABLE [dbo].[table3]
             return requestContext;
         }
 
+
+
         private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployScriptRequest()
         {
             // first extract a dacpac
@@ -249,7 +251,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             DacFxService service = new DacFxService();
@@ -295,7 +297,7 @@ CREATE TABLE [dbo].[table3]
                 DatabaseName = sourceDb.DatabaseName,
                 PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
                 ApplicationName = "test",
-                ApplicationVersion = new Version(1, 0)
+                ApplicationVersion = "1.0.0.0"
             };
 
             ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
