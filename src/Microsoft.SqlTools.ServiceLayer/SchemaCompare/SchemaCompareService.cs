@@ -43,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         {
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
+            serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
         }
 
         /// <summary>
@@ -117,7 +118,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 // want to show filepath in task history instead of server and database
                 metadata.ServerName = parameters.ScriptFilePath;
                 metadata.DatabaseName = string.Empty;
-                metadata.Name = "Generate Script";
+                metadata.Name = SR.GenerateScriptTaskName;
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = true,
+                    ErrorMessage = operation.ErrorMessage
+                });
+            }
+            catch
+            {
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = operation.ErrorMessage
+                });
+            }
+        }
+
+        /// <summary>
+        /// Handles request for schema compare publish changes script
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaComparePublishChangesRequest(SchemaComparePublishChangesParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            SchemaComparePublishChangesOperation operation = null;
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                operation = new SchemaComparePublishChangesOperation(parameters, compareResult);
+                SqlTask sqlTask = null;
+                TaskMetadata metadata = new TaskMetadata();
+                metadata.TaskOperation = operation;
+                metadata.ServerName = parameters.TargetServerName;
+                metadata.DatabaseName = parameters.TargetDatabaseName;
+                metadata.Name = SR.PublishChangesTaskName;
 
                 sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
