@@ -3601,7 +3601,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
-            child.NodeType = "SecurityPolicie";
+            child.NodeType = "SecurityPolicy";
             InitializeChild(parent, child, context);
             return child;
         }
