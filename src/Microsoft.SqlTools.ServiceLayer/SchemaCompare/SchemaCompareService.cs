@@ -84,13 +84,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                             Differences = operation.Differences
                         });
                     }
-                    catch
+                    catch(Exception e)
                     {
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
                             OperationId = operation != null ? operation.OperationId : null,
                             Success = false,
-                            ErrorMessage = operation.ErrorMessage,
+                            ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
                         });
                     }
                 });
@@ -128,12 +128,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     ErrorMessage = operation.ErrorMessage
                 });
             }
-            catch
+            catch (Exception e)
             {
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
-                    ErrorMessage = operation.ErrorMessage
+                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
                 });
             }
         }
@@ -164,12 +164,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     ErrorMessage = operation.ErrorMessage
                 });
             }
-            catch
+            catch (Exception e)
             {
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
-                    ErrorMessage = operation.ErrorMessage
+                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
                 });
             }
         }
