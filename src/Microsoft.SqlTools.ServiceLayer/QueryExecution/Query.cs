@@ -448,11 +448,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await BatchMessageSent(new ResultMessage(SR.QueryServiceQueryCancelled, false, null));
                 }
-                else
-                {
-                    // Sending the error message here because Queryfailed does not return any overall message
-                    await BatchMessageSent(new ResultMessage(SR.QueryServiceQueryFailed(e.Message), true, null));
-                }
                 // Call the query failure callback
                 if (QueryFailed != null)
                 {
