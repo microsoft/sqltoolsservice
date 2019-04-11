@@ -638,7 +638,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             //    if any oldQuery exists on the executeParams.OwnerUri but it has not yet executed,
             //    then shouldn't we cancel and clean out that query since we are about to create a new query object on the current OwnerUri.
             //
-            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && (oldQuery.HasExecuted || oldQuery.HasCancelled))
+            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && (oldQuery.HasExecuted || oldQuery.HasCancelled || oldQuery.HasErrored))
             {
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
