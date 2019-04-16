@@ -71,6 +71,44 @@ BEGIN
 	RETURN
 END
 ";
+        private SchemaCompareOptions GetIgnoreColumnOptions()
+        {
+            var options = new SchemaCompareOptions();
+            options.IgnoreColumnOrder = true;
+            return options;
+        }
+
+        private SchemaCompareOptions GetExcludeTableValuedFucntionOptions()
+        {
+            var options = new SchemaCompareOptions();
+            options.ExcludeObjectTypes = new ObjectType[]{
+                ObjectType.ServerTriggers,
+                ObjectType.Routes,
+                ObjectType.LinkedServerLogins,
+                ObjectType.Endpoints,
+                ObjectType.ErrorMessages,
+                ObjectType.Filegroups,
+                ObjectType.Logins,
+                ObjectType.LinkedServers,
+                ObjectType.Credentials,
+                ObjectType.DatabaseScopedCredentials,
+                ObjectType.DatabaseEncryptionKeys,
+                ObjectType.MasterKeys,
+                ObjectType.DatabaseAuditSpecifications,
+                ObjectType.Audits,
+                ObjectType.ServerAuditSpecifications,
+                ObjectType.CryptographicProviders,
+                ObjectType.ServerRoles,
+                ObjectType.EventSessions,
+                ObjectType.DatabaseOptions,
+                ObjectType.EventNotifications,
+                ObjectType.ServerRoleMembership,
+                ObjectType.AssemblyFiles,
+                ObjectType.TableValuedFunctions, //added Functions to excluded types
+            };
+            return options;
+        }
+
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(string sourceScript, string targetScript, SchemaCompareOptions nodiffOption, SchemaCompareOptions shouldDiffOption)
         {
 
@@ -280,124 +318,58 @@ END
             return schemaCompareRequestContext;
         }
 
+        /// <summary>
+        /// Verify the schema compare request comparing two dacpacs with and without ignore column option
+        /// </summary>
         [Fact]
         public async void SchemaCompareDacpacToDacpacOptions()
         {
-            var options = new SchemaCompareOptions();
-            options.IgnoreColumnOrder = true;
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, options, new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new SchemaCompareOptions()));
         }
 
+        /// <summary>
+        /// Verify the schema compare request comparing two dacpacs with and excluding table valued functions
+        /// </summary>
         [Fact]
         public async void SchemaCompareDacpacToDacpacObjectTypes()
         {
-            var options = new SchemaCompareOptions();
-            options.ExcludeObjectTypes = new ObjectType[]{
-                ObjectType.ServerTriggers,
-                ObjectType.Routes,
-                ObjectType.LinkedServerLogins,
-                ObjectType.Endpoints,
-                ObjectType.ErrorMessages,
-                ObjectType.Filegroups,
-                ObjectType.Logins,
-                ObjectType.LinkedServers,
-                ObjectType.Credentials,
-                ObjectType.DatabaseScopedCredentials,
-                ObjectType.DatabaseEncryptionKeys,
-                ObjectType.MasterKeys,
-                ObjectType.DatabaseAuditSpecifications,
-                ObjectType.Audits,
-                ObjectType.ServerAuditSpecifications,
-                ObjectType.CryptographicProviders,
-                ObjectType.ServerRoles,
-                ObjectType.EventSessions,
-                ObjectType.DatabaseOptions,
-                ObjectType.EventNotifications,
-                ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles,
-                ObjectType.TableValuedFunctions, //added Functions to excluded types
-        };
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, options, new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFucntionOptions(), new SchemaCompareOptions()));
         }
 
+        /// <summary>
+        /// Verify the schema compare request comparing two databases with and without ignore column option
+        /// </summary>
         [Fact]
         public async void SchemaCompareDatabaseToDatabaseOptions()
         {
-            var options = new SchemaCompareOptions();
-            options.IgnoreColumnOrder = true;
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, options, new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new SchemaCompareOptions()));
         }
 
+        /// <summary>
+        /// Verify the schema compare request comparing two databases with and excluding table valued functions
+        /// </summary>
         [Fact]
         public async void SchemaCompareDatabaseToDatabaseObjectTypes()
         {
-            var options = new SchemaCompareOptions();
-            options.ExcludeObjectTypes = new ObjectType[]{
-                ObjectType.ServerTriggers,
-                ObjectType.Routes,
-                ObjectType.LinkedServerLogins,
-                ObjectType.Endpoints,
-                ObjectType.ErrorMessages,
-                ObjectType.Filegroups,
-                ObjectType.Logins,
-                ObjectType.LinkedServers,
-                ObjectType.Credentials,
-                ObjectType.DatabaseScopedCredentials,
-                ObjectType.DatabaseEncryptionKeys,
-                ObjectType.MasterKeys,
-                ObjectType.DatabaseAuditSpecifications,
-                ObjectType.Audits,
-                ObjectType.ServerAuditSpecifications,
-                ObjectType.CryptographicProviders,
-                ObjectType.ServerRoles,
-                ObjectType.EventSessions,
-                ObjectType.DatabaseOptions,
-                ObjectType.EventNotifications,
-                ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles,
-                ObjectType.TableValuedFunctions, //added Functions to excluded types
-        };
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, options, new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFucntionOptions(), new SchemaCompareOptions()));
         }
 
+        /// <summary>
+        /// Verify the schema compare script generation comparing dacpac and db with and without ignore column option
+        /// </summary>
         [Fact]
         public async void SchemaCompareGenerateScriptDacpacToDatabaseOptions()
         {
-            var options = new SchemaCompareOptions();
-            options.IgnoreColumnOrder = true;
-            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, options, new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new SchemaCompareOptions()));
         }
 
+        /// <summary>
+        /// Verify the schema compare script generation comparing dacpac and db with and excluding table valued function
+        /// </summary>
         [Fact]
         public async void SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
         {
-            var options = new SchemaCompareOptions();
-            options.ExcludeObjectTypes = new ObjectType[]{
-                ObjectType.ServerTriggers,
-                ObjectType.Routes,
-                ObjectType.LinkedServerLogins,
-                ObjectType.Endpoints,
-                ObjectType.ErrorMessages,
-                ObjectType.Filegroups,
-                ObjectType.Logins,
-                ObjectType.LinkedServers,
-                ObjectType.Credentials,
-                ObjectType.DatabaseScopedCredentials,
-                ObjectType.DatabaseEncryptionKeys,
-                ObjectType.MasterKeys,
-                ObjectType.DatabaseAuditSpecifications,
-                ObjectType.Audits,
-                ObjectType.ServerAuditSpecifications,
-                ObjectType.CryptographicProviders,
-                ObjectType.ServerRoles,
-                ObjectType.EventSessions,
-                ObjectType.DatabaseOptions,
-                ObjectType.EventNotifications,
-                ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles,
-                ObjectType.TableValuedFunctions, //added Functions to excluded types
-        };
-            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, options, new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFucntionOptions(), new SchemaCompareOptions()));
         }
 
     }
