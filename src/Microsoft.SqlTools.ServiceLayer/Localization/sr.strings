@@ -786,4 +786,13 @@ Error_ExistingDirectoryName = For directory {0} a file with name {1} already exi
 
 ############################################################################
 # DacFx
+ExportBacpacTaskName = Export bacpac
+ImportBacpacTaskName = Import bacpac
+ExtractDacpacTaskName = Extract dacpac
+DeployDacpacTaskName = Deploy dacpac
+GenerateScriptTaskName = Generate script
 ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.
+
+############################################################################
+# Schema Compare
+PublishChangesTaskName = Apply schema compare changes

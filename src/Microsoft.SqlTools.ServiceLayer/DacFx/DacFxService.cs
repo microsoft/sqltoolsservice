@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ExportOperation operation = new ExportOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, "Export bacpac", requestContext);
+                    await ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ImportOperation operation = new ImportOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, "Import bacpac", requestContext);
+                    await ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, "Extract dacpac", requestContext);
+                    await ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     DeployOperation operation = new DeployOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, "Deploy dacpac", requestContext);
+                    await ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
                     SqlTask sqlTask = null;
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, "Generate script", operation, ConnectionServiceInstance);
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, SR.GenerateScriptTaskName, operation, ConnectionServiceInstance);
 
                     // want to show filepath in task history instead of server and database
                     metadata.ServerName = parameters.ScriptFilePath;

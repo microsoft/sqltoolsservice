@@ -13,27 +13,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// <summary>
     /// Parameters for a schema compare generate script request.
     /// </summary>
-    public class SchemaCompareGenerateScriptParams
+    public class SchemaCompareGenerateScriptParams : SchemaComparePublishChangesParams
     {
-        /// <summary>
-        /// Operation id of the schema compare operation
-        /// </summary>
-        public string OperationId { get; set; }
-
-        /// <summary>
-        /// Name of target database
-        /// </summary>
-        public string TargetDatabaseName { get; set; }
-
         /// <summary>
         /// Gets or sets the filepath where to save the generated script
         /// </summary>
         public string ScriptFilePath { get; set; }
-
-        /// <summary>
-        /// Execution mode for the operation. Default is execution
-        /// </summary>
-        public TaskExecutionMode TaskExecutionMode { get; set; }
     }
 
     /// <summary>
