@@ -43,16 +43,10 @@ CREATE TABLE [dbo].[table3]
     [col1] INT NULL,
 )";
 
-        private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
-        {
-            var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            return result;
-        }
-
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpac()
         {
 
-            var result = GetLiveAutoCompleteTestObjects();
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
@@ -61,8 +55,8 @@ CREATE TABLE [dbo].[table3]
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
             try
             {
-                string sourceDacpacFilePath = CreateDacpac(sourceDb);
-                string targetDacpacFilePath = CreateDacpac(targetDb);
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+                string targetDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(targetDb);
 
                 SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
                 SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
@@ -84,10 +78,10 @@ CREATE TABLE [dbo].[table3]
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-
+                
                 // cleanup
-                VerifyAndCleanup(sourceDacpacFilePath);
-                VerifyAndCleanup(targetDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
             }
             finally
             {
@@ -97,10 +91,10 @@ CREATE TABLE [dbo].[table3]
 
             return schemaCompareRequestContext;
         }
-
+        
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDatabase()
         {
-            var result = GetLiveAutoCompleteTestObjects();
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
@@ -143,7 +137,7 @@ CREATE TABLE [dbo].[table3]
 
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDacpac()
         {
-            var result = GetLiveAutoCompleteTestObjects();
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
@@ -152,7 +146,7 @@ CREATE TABLE [dbo].[table3]
 
             try
             {
-                string targetDacpacFilePath = CreateDacpac(targetDb);
+                string targetDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(targetDb);
 
                 SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
                 SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
@@ -176,7 +170,7 @@ CREATE TABLE [dbo].[table3]
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
 
                 // cleanup
-                VerifyAndCleanup(targetDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
             }
             finally
             {
@@ -188,7 +182,7 @@ CREATE TABLE [dbo].[table3]
 
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase()
         {
-            var result = GetLiveAutoCompleteTestObjects();
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
@@ -232,7 +226,7 @@ CREATE TABLE [dbo].[table3]
                 generateScriptOperation.Execute(TaskExecutionMode.Execute);
 
                 // cleanup
-                VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(generateScriptParams.ScriptFilePath);
             }
             finally
             {
@@ -244,7 +238,7 @@ CREATE TABLE [dbo].[table3]
 
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase()
         {
-            var result = GetLiveAutoCompleteTestObjects();
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
@@ -255,7 +249,7 @@ CREATE TABLE [dbo].[table3]
 
             try
             {
-                string sourceDacpacFilePath = CreateDacpac(sourceDb);
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
 
                 SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
                 SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
@@ -290,8 +284,8 @@ CREATE TABLE [dbo].[table3]
                 generateScriptOperation.Execute(TaskExecutionMode.Execute);
 
                 // cleanup
-                VerifyAndCleanup(generateScriptParams.ScriptFilePath);
-                VerifyAndCleanup(sourceDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(generateScriptParams.ScriptFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
             }
             finally
             {
@@ -305,9 +299,9 @@ CREATE TABLE [dbo].[table3]
         /// Verify the schema compare request comparing two dacpacs
         /// </summary>
         [Fact]
-        public void SchemaCompareDacpacToDacpac()
+        public async void SchemaCompareDacpacToDacpac()
         {
-            Assert.NotNull(SendAndValidateSchemaCompareRequestDacpacToDacpac());
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpac());
         }
 
         /// <summary>
@@ -344,39 +338,6 @@ CREATE TABLE [dbo].[table3]
         public async void SchemaCompareGenerateScriptDacpacToDatabase()
         {
             Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase());
-        }
-
-        private void VerifyAndCleanup(string filePath)
-        {
-            // Verify it was created
-            Assert.True(File.Exists(filePath));
-
-            // Remove the file
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-        }
-
-        private string CreateDacpac(SqlTestDb testdb)
-        {
-            var result = GetLiveAutoCompleteTestObjects();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
-            Directory.CreateDirectory(folderPath);
-
-            var extractParams = new ExtractParams
-            {
-                DatabaseName = testdb.DatabaseName,
-                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", testdb.DatabaseName)),
-                ApplicationName = "test",
-                ApplicationVersion = "1.0.0.0"
-            };
-
-            DacFxService service = new DacFxService();
-            ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
-            service.PerformOperation(operation);
-
-            return extractParams.PackageFilePath;
         }
     }
 }

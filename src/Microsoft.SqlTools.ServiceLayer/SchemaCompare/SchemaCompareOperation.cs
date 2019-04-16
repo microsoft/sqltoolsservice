@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -39,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         public SchemaComparisonResult ComparisonResult { get; set; }
 
         public List<DiffEntry> Differences;
+
+        public DacDeployOptions DefaultOptions;
 
         public SchemaCompareOperation(SchemaCompareParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
         {
@@ -84,8 +87,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString);
                 SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
-
+                
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
+
+                if(this.Parameters.SchemaCompareOptions != null)
+                {
+                    comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.SchemaCompareOptions);
+                }
+
                 this.ComparisonResult = comparison.Compare();
 
                 // try one more time if it didn't work the first time
@@ -107,6 +116,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 Logger.Write(TraceEventType.Error, string.Format("Schema compare operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
+        }
+
+        private DacDeployOptions CreateSchemaCompareOptions(SchemaCompareOptions schemaCompareOptions)
+        {
+            System.Reflection.PropertyInfo[] scProperties = schemaCompareOptions.GetType().GetProperties();
+            
+            DacDeployOptions options = new DacDeployOptions();
+            foreach (var scProp in scProperties)
+            {
+                var prop = options.GetType().GetProperty(scProp.Name);
+                if (prop != null)
+                {
+                    prop.SetValue(options, scProp.GetValue(schemaCompareOptions));
+                }
+            }
+            return options;
         }
 
         private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
