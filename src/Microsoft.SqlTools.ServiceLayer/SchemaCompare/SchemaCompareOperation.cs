@@ -87,10 +87,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString);
                 SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
-                
+
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 
-                if(this.Parameters.SchemaCompareOptions != null)
+                if (this.Parameters.SchemaCompareOptions != null)
                 {
                     comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.SchemaCompareOptions);
                 }
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 this.ComparisonResult = comparison.Compare();
 
                 // try one more time if it didn't work the first time
-                if(!this.ComparisonResult.IsValid)
+                if (!this.ComparisonResult.IsValid)
                 {
                     this.ComparisonResult = comparison.Compare();
                 }
@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private DacDeployOptions CreateSchemaCompareOptions(SchemaCompareOptions schemaCompareOptions)
         {
             System.Reflection.PropertyInfo[] scProperties = schemaCompareOptions.GetType().GetProperties();
-            
+
             DacDeployOptions options = new DacDeployOptions();
             foreach (var scProp in scProperties)
             {
@@ -167,6 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
             }
 
+            diffEntry.Parent = parent;
             diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
@@ -182,17 +183,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             switch (endpointInfo.EndpointType)
             {
                 case SchemaCompareEndpointType.Dacpac:
-                {
-                    return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
-                }
+                    {
+                        return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
+                    }
                 case SchemaCompareEndpointType.Database:
-                {
-                    return new SchemaCompareDatabaseEndpoint(connectionString);
-                }
+                    {
+                        return new SchemaCompareDatabaseEndpoint(connectionString);
+                    }
                 default:
-                {
-                    return null;
-                }
+                    {
+                        return null;
+                    }
             }
         }
 

@@ -78,7 +78,7 @@ END
             return options;
         }
 
-        private SchemaCompareOptions GetExcludeTableValuedFucntionOptions()
+        private SchemaCompareOptions GetExcludeTableValuedFunctionOptions()
         {
             var options = new SchemaCompareOptions();
             options.ExcludeObjectTypes = new ObjectType[]{
@@ -333,7 +333,7 @@ END
         [Fact]
         public async void SchemaCompareDacpacToDacpacObjectTypes()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFucntionOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new SchemaCompareOptions()));
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ END
         [Fact]
         public async void SchemaCompareDatabaseToDatabaseObjectTypes()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFucntionOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new SchemaCompareOptions()));
         }
 
         /// <summary>
@@ -369,7 +369,31 @@ END
         [Fact]
         public async void SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFucntionOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new SchemaCompareOptions()));
+        }
+
+        /// <summary>
+        /// Verify the schema compare script generation comparing dacpac and db with and excluding table valued function
+        /// </summary>
+        [Fact]
+        public void ValidateSchemaCompareOptionsDefault()
+        {
+            SchemaCompareOptions scOptions = new SchemaCompareOptions();
+            DacDeployOptions ddOptions = new DacDeployOptions();
+
+            System.Reflection.PropertyInfo[] scProperties = scOptions.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] ddProperties = ddOptions.GetType().GetProperties();
+            
+            foreach (var scProp in scProperties)
+            {
+                var ddProp = ddOptions.GetType().GetProperty(scProp.Name);
+                Assert.True(ddProp != null, $"DacDeploy property not present for {scProp.Name}");
+
+                var scValue = scProp.GetValue(scOptions);
+                var ddValue = ddProp.GetValue(ddOptions);
+                
+                Assert.True((scValue == null && ddValue == null) || scValue.Equals(ddValue), $"DacDeploy property not equal to SchemaCompare for { scProp.Name}, SchemaCompareOptions value: {scValue} and DacDeployOptions value: {ddValue} ");
+            }
         }
 
     }

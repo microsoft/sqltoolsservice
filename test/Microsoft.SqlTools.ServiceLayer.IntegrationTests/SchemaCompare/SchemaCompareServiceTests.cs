@@ -78,7 +78,7 @@ CREATE TABLE [dbo].[table3]
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-                
+
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
                 SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
@@ -91,7 +91,7 @@ CREATE TABLE [dbo].[table3]
 
             return schemaCompareRequestContext;
         }
-        
+
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
@@ -482,6 +482,15 @@ CREATE TABLE [dbo].[table3]
         public async void SchemaComparePublishChangesDacpacToDatabase()
         {
             Assert.NotNull(await SendAndValidateSchemaComparePublishChangesRequestDacpacToDatabase());
-        }        
+        }
+
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a database to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaComparePublishChangesDatabaseToDatabase()
+        {
+            Assert.NotNull(await SendAndValidateSchemaComparePublishChangesRequestDatabaseToDatabase());
+        }
     }
 }
