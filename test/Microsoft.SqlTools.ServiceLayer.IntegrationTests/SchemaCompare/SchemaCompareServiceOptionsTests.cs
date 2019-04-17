@@ -71,16 +71,16 @@ BEGIN
 	RETURN
 END
 ";
-        private SchemaCompareOptions GetIgnoreColumnOptions()
+        private DeploymentOptions GetIgnoreColumnOptions()
         {
-            var options = new SchemaCompareOptions();
+            var options = new DeploymentOptions();
             options.IgnoreColumnOrder = true;
             return options;
         }
 
-        private SchemaCompareOptions GetExcludeTableValuedFunctionOptions()
+        private DeploymentOptions GetExcludeTableValuedFunctionOptions()
         {
-            var options = new SchemaCompareOptions();
+            var options = new DeploymentOptions();
             options.ExcludeObjectTypes = new ObjectType[]{
                 ObjectType.ServerTriggers,
                 ObjectType.Routes,
@@ -109,7 +109,7 @@ END
             return options;
         }
 
-        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(string sourceScript, string targetScript, SchemaCompareOptions nodiffOption, SchemaCompareOptions shouldDiffOption)
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
 
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
@@ -136,7 +136,7 @@ END
                 {
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
-                    SchemaCompareOptions = nodiffOption
+                    DeploymentOptions = nodiffOption
                 };
 
                 SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, null, null);
@@ -147,7 +147,7 @@ END
                 {
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
-                    SchemaCompareOptions = shouldDiffOption,
+                    DeploymentOptions = shouldDiffOption,
                 };
 
                 SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, null, null);
@@ -168,7 +168,7 @@ END
             return schemaCompareRequestContext;
         }
 
-        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(string sourceScript, string targetScript, SchemaCompareOptions nodiffOption, SchemaCompareOptions shouldDiffOption)
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
@@ -193,7 +193,7 @@ END
                 {
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
-                    SchemaCompareOptions = nodiffOption
+                    DeploymentOptions = nodiffOption
                 };
 
                 SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, result.ConnectionInfo, result.ConnectionInfo);
@@ -207,7 +207,7 @@ END
                 {
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
-                    SchemaCompareOptions = shouldDiffOption,
+                    DeploymentOptions = shouldDiffOption,
                 };
 
                 SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, result.ConnectionInfo, result.ConnectionInfo);
@@ -224,7 +224,7 @@ END
             return schemaCompareRequestContext;
         }
 
-        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(string sourceScript, string targetScript, SchemaCompareOptions nodiffOption, SchemaCompareOptions shouldDiffOption)
+        private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
@@ -251,7 +251,7 @@ END
                 {
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
-                    SchemaCompareOptions = nodiffOption,
+                    DeploymentOptions = nodiffOption,
                 };
 
                 SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, result.ConnectionInfo, result.ConnectionInfo);
@@ -280,7 +280,7 @@ END
                 {
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
-                    SchemaCompareOptions = shouldDiffOption,
+                    DeploymentOptions = shouldDiffOption,
                 };
 
                 SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, result.ConnectionInfo, result.ConnectionInfo);
@@ -324,7 +324,7 @@ END
         [Fact]
         public async void SchemaCompareDacpacToDacpacOptions()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions()));
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ END
         [Fact]
         public async void SchemaCompareDacpacToDacpacObjectTypes()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions()));
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ END
         [Fact]
         public async void SchemaCompareDatabaseToDatabaseOptions()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions()));
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ END
         [Fact]
         public async void SchemaCompareDatabaseToDatabaseObjectTypes()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions()));
         }
 
         /// <summary>
@@ -360,7 +360,7 @@ END
         [Fact]
         public async void SchemaCompareGenerateScriptDacpacToDatabaseOptions()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions()));
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ END
         [Fact]
         public async void SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
         {
-            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new SchemaCompareOptions()));
+            Assert.NotNull(await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions()));
         }
 
         /// <summary>
@@ -378,21 +378,21 @@ END
         [Fact]
         public void ValidateSchemaCompareOptionsDefault()
         {
-            SchemaCompareOptions scOptions = new SchemaCompareOptions();
-            DacDeployOptions ddOptions = new DacDeployOptions();
+            DeploymentOptions deployOptions = new DeploymentOptions();
+            DacDeployOptions dacOptions = new DacDeployOptions();
 
-            System.Reflection.PropertyInfo[] scProperties = scOptions.GetType().GetProperties();
-            System.Reflection.PropertyInfo[] ddProperties = ddOptions.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deployOptions.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] ddProperties = dacOptions.GetType().GetProperties();
             
-            foreach (var scProp in scProperties)
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
-                var ddProp = ddOptions.GetType().GetProperty(scProp.Name);
-                Assert.True(ddProp != null, $"DacDeploy property not present for {scProp.Name}");
+                var dacProp = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
+                Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
 
-                var scValue = scProp.GetValue(scOptions);
-                var ddValue = ddProp.GetValue(ddOptions);
+                var deployOptionsValue = deployOptionsProp.GetValue(deployOptions);
+                var dacValue = dacProp.GetValue(dacOptions);
                 
-                Assert.True((scValue == null && ddValue == null) || scValue.Equals(ddValue), $"DacDeploy property not equal to SchemaCompare for { scProp.Name}, SchemaCompareOptions value: {scValue} and DacDeployOptions value: {ddValue} ");
+                Assert.True((deployOptionsValue == null && dacValue == null) || deployOptionsValue.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
             }
         }
 

@@ -90,9 +90,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 
-                if (this.Parameters.SchemaCompareOptions != null)
+                if (this.Parameters.DeploymentOptions != null)
                 {
-                    comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.SchemaCompareOptions);
+                    comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
                 }
 
                 this.ComparisonResult = comparison.Compare();
@@ -118,20 +118,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private DacDeployOptions CreateSchemaCompareOptions(SchemaCompareOptions schemaCompareOptions)
+        private DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
-            System.Reflection.PropertyInfo[] scProperties = schemaCompareOptions.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
-            DacDeployOptions options = new DacDeployOptions();
-            foreach (var scProp in scProperties)
+            DacDeployOptions dacOptions = new DacDeployOptions();
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
-                var prop = options.GetType().GetProperty(scProp.Name);
+                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
                 if (prop != null)
                 {
-                    prop.SetValue(options, scProp.GetValue(schemaCompareOptions));
+                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
                 }
             }
-            return options;
+            return dacOptions;
         }
 
         private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)

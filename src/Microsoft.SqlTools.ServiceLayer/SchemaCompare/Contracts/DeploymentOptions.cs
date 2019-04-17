@@ -12,11 +12,11 @@ using System.Text;
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
-    /// Class to define schema compare and publish options. 
+    /// Class to define deployment options. 
     /// Keeping the order and defaults same as DacFx
     /// The default values here should also match the default values in ADS UX
     /// </summary>
-    public class SchemaCompareOptions
+    public class DeploymentOptions
     {
         public bool IgnoreTableOptions { get; set; }
 
@@ -204,17 +204,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 ObjectType.AssemblyFiles,
         };
 
-        public SchemaCompareOptions()
+        public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
-            System.Reflection.PropertyInfo[] scProperties = this.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             
-            foreach (var scProp in scProperties)
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
-                var prop = options.GetType().GetProperty(scProp.Name);
+                var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                 if (prop != null)
                 {
-                    scProp.SetValue(this, prop.GetValue(options));
+                    deployOptionsProp.SetValue(this, prop.GetValue(options));
                 }
             }
         }

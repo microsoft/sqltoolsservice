@@ -60,9 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public TaskExecutionMode TaskExecutionMode { get; set; }
 
         /// <summary>
-        /// gets or sets the options for schema compare
+        /// gets or sets the deployment options for schema compare
         /// </summary>
-        public SchemaCompareOptions SchemaCompareOptions { get; set; }
+        public DeploymentOptions DeploymentOptions { get; set; }
     }
 
     /// <summary>
