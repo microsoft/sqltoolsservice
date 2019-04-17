@@ -166,8 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     diffEntry.TargetScript = RemoveExcessWhitespace(targetScript);
                 }
             }
-
-            diffEntry.Parent = parent;
+            
             diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
