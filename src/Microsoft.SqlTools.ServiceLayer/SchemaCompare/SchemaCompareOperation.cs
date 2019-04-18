@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -39,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         public SchemaComparisonResult ComparisonResult { get; set; }
 
         public List<DiffEntry> Differences;
+
+        public DacDeployOptions DefaultOptions;
 
         public SchemaCompareOperation(SchemaCompareParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
         {
@@ -86,10 +89,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
+
+                if (this.Parameters.DeploymentOptions != null)
+                {
+                    comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
+                }
+
                 this.ComparisonResult = comparison.Compare();
 
                 // try one more time if it didn't work the first time
-                if(!this.ComparisonResult.IsValid)
+                if (!this.ComparisonResult.IsValid)
                 {
                     this.ComparisonResult = comparison.Compare();
                 }
@@ -107,6 +116,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 Logger.Write(TraceEventType.Error, string.Format("Schema compare operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
+        }
+
+        private DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
+        {
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
+
+            DacDeployOptions dacOptions = new DacDeployOptions();
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            {
+                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
+                if (prop != null)
+                {
+                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
+                }
+            }
+            return dacOptions;
         }
 
         private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
@@ -141,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     diffEntry.TargetScript = RemoveExcessWhitespace(targetScript);
                 }
             }
-
+            
             diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
@@ -157,17 +182,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             switch (endpointInfo.EndpointType)
             {
                 case SchemaCompareEndpointType.Dacpac:
-                {
-                    return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
-                }
+                    {
+                        return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
+                    }
                 case SchemaCompareEndpointType.Database:
-                {
-                    return new SchemaCompareDatabaseEndpoint(connectionString);
-                }
+                    {
+                        return new SchemaCompareDatabaseEndpoint(connectionString);
+                    }
                 default:
-                {
-                    return null;
-                }
+                    {
+                        return null;
+                    }
             }
         }
 

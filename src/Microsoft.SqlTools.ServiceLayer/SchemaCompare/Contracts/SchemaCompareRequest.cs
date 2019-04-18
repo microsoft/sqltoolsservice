@@ -58,6 +58,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// Executation mode for the operation. Default is execution
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
+
+        /// <summary>
+        /// gets or sets the deployment options for schema compare
+        /// </summary>
+        public DeploymentOptions DeploymentOptions { get; set; }
     }
 
     /// <summary>
