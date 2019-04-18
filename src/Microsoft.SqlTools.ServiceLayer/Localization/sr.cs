@@ -2925,6 +2925,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string IncludeNodeTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.IncludeNodeTaskName);
+            }
+        }
+
+        public static string ExcludeNodeTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExcludeNodeTaskName);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4257,6 +4273,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";
+            
+
+            public const string IncludeNodeTaskName = "IncludeNodeTaskName";
+
+
+            public const string ExcludeNodeTaskName = "ExcludeNodeTaskName";
 
 
             private Keys()

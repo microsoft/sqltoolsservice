@@ -41,8 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public List<DiffEntry> Differences;
 
-        public DacDeployOptions DefaultOptions;
-
         public SchemaCompareOperation(SchemaCompareParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
         {
             Validate.IsNotNull("parameters", parameters);

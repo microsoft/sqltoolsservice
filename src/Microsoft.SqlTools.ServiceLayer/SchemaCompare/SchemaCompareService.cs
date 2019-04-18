@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
+            serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
         }
 
         /// <summary>
@@ -155,6 +156,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 metadata.ServerName = parameters.TargetServerName;
                 metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.PublishChangesTaskName;
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = true,
+                    ErrorMessage = operation.ErrorMessage
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                });
+            }
+        }
+
+        public async Task HandleSchemaCompareIncludeExcludeNodeRequest(SchemaCompareNodeParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            SchemaCompareIncludeExcludeNodeOperation operation = null;
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                operation = new SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
+                SqlTask sqlTask = null;
+                TaskMetadata metadata = new TaskMetadata();
+                metadata.TaskOperation = operation;
+                metadata.Name = parameters.IncludeRequest ? SR.IncludeNodeTaskName : SR.ExcludeNodeTaskName;
 
                 sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
