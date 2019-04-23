@@ -58,6 +58,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry);
+                if (node == null)
+                {
+                    ErrorMessage = "Could not find the node in Model";
+                    return;
+                }
+
                 if (this.Parameters.IncludeRequest)
                 {
                     Success = this.ComparisonResult.Include(node);
@@ -98,14 +104,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         // TODO Add more comparisions
         private bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
         {
-            string differenceSourceName = Regex.Replace(difference.SourceObject.Name.ToString(), @"[\[\]]", "");
-            string differenceTargetName = Regex.Replace(difference.TargetObject.Name.ToString(), @"[\[\]]", "");
+            bool result = true;
+            //create a diff entry from difference and check if it matches the diffentr passed
+            DiffEntry entryFromDifference = SchemaCompareOperation.CreateDiffEntry(difference, null);
 
-            return (string.Compare(diffEntry.Name, difference.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
-                string.Compare(diffEntry.SourceValue, differenceSourceName, StringComparison.OrdinalIgnoreCase) == 0 &&
-                string.Compare(diffEntry.TargetValue, differenceTargetName, StringComparison.OrdinalIgnoreCase) == 0 &&
-                diffEntry.UpdateAction == difference.UpdateAction &&
-                diffEntry.DifferenceType == difference.DifferenceType);
+            System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                result = result && ((prop.GetValue(diffEntry) == null && prop.GetValue(entryFromDifference) == null) || prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+            }
+
+            return result;
+
+            //if (difference == null && diffEntry == null)
+            //{
+            //    return true;
+            //}
+            //if (difference != null && diffEntry == null || difference == null && diffEntry != null)
+            //{
+            //    return false;
+            //}
+            //if (difference.SourceObject == null && diffEntry.SourceValue == null)
+            //{
+            //    move forward
+            //}
+            //if (difference.SourceObject == null && diffEntry.SourceValue == null)
+            //{
+            //    move forward
+            //}
+
+            //string differenceSourceName = Regex.Replace(difference.SourceObject.Name.ToString(), @"[\[\]]", "");
+            //string differenceTargetName = Regex.Replace(difference.TargetObject.Name.ToString(), @"[\[\]]", "");
+
+            //return (string.Compare(diffEntry.Name, difference.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
+            //    string.Compare(diffEntry.SourceValue, differenceSourceName, StringComparison.OrdinalIgnoreCase) == 0 &&
+            //    string.Compare(diffEntry.TargetValue, differenceTargetName, StringComparison.OrdinalIgnoreCase) == 0 &&
+            //    diffEntry.UpdateAction == difference.UpdateAction &&
+            //    diffEntry.DifferenceType == difference.DifferenceType);
         }
 
         // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled

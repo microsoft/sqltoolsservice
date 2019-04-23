@@ -132,8 +132,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return dacOptions;
         }
 
-        private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
+        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
+            if(difference == null)
+            {
+                return null;
+            }
+
             DiffEntry diffEntry = new DiffEntry();
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
@@ -205,13 +210,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
         }
 
-        private string RemoveExcessWhitespace(string script)
+        private static string RemoveExcessWhitespace(string script)
         {
             // replace all multiple spaces with single space
             return Regex.Replace(script, " {2,}", " ");
         }
 
-        private string GetName(string name)
+        private static string GetName(string name)
         {
             // remove brackets from name
             return Regex.Replace(name, @"[\[\]]", "");

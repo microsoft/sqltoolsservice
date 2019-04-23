@@ -45,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
+            serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
         }
 
         /// <summary>
@@ -201,6 +202,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                });
+            }
+        }
+
+        public async Task HandleSchemaCompareGetDefaultOptionsRequest(SchemaCompareGetOptionsParams parameters, RequestContext<SchemaCompareOptionsResult> requestContext)
+        {
+            try
+            {
+                // this does not need to be an async operation since this only creates and resturn the default opbject
+                DeploymentOptions options = new DeploymentOptions();
+
+                await requestContext.SendResult(new SchemaCompareOptionsResult()
+                {
+                    DefaultDeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new SchemaCompareOptionsResult()
+                {
+                    DefaultDeploymentOptions = null,
+                    Success = false,
+                    ErrorMessage = e.Message
                 });
             }
         }

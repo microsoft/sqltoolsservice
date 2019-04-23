@@ -3,9 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -16,6 +13,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.SchemaCopmare;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -111,7 +109,6 @@ END
 
         private async Task<Mock<RequestContext<SchemaCompareResult>>> SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
-
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
@@ -373,17 +370,21 @@ END
         }
 
         /// <summary>
-        /// Verify the schema compare script generation comparing dacpac and db with and excluding table valued function
+        /// Verify the schema compare default creation test
         /// </summary>
         [Fact]
-        public void ValidateSchemaCompareOptionsDefault()
+        public void ValidateSchemaCompareOptionsDefaultAgainstDacFx()
         {
             DeploymentOptions deployOptions = new DeploymentOptions();
             DacDeployOptions dacOptions = new DacDeployOptions();
 
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = deployOptions.GetType().GetProperties();
             System.Reflection.PropertyInfo[] ddProperties = dacOptions.GetType().GetProperties();
-            
+
+            // Note that DatabaseSpecification and sql cmd variables list is not present in Sqltools service - its not settable and is not used by ADS options.
+            // TODO : update this test if the above options are added later
+            Assert.True(deploymentOptionsProperties.Length == ddProperties.Length - 2 , $"Number of properties is not same Deployment options : {deploymentOptionsProperties.Length} DacFx options : {ddProperties.Length}");
+
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
                 var dacProp = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
@@ -391,10 +392,49 @@ END
 
                 var deployOptionsValue = deployOptionsProp.GetValue(deployOptions);
                 var dacValue = dacProp.GetValue(dacOptions);
-                
-                Assert.True((deployOptionsValue == null && dacValue == null) || deployOptionsValue.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
+
+                if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                {
+                    Assert.True((deployOptionsValue == null && dacValue == null) || deployOptionsValue.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
+                }
             }
         }
 
+        /// <summary>
+        /// Verify the schema compare default creation test
+        /// </summary>
+        [Fact]
+        public async void ValidateSchemaCompareGetDefaultOptionsCallFromService()
+        {
+            DeploymentOptions deployOptions = new DeploymentOptions();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>())).Returns(Task.FromResult(new object()));
+            schemaCompareRequestContext.Setup((RequestContext<SchemaCompareOptionsResult> x) => x.SendResult(It.Is<SchemaCompareOptionsResult>((options) => this.OptionsEqualsDefault(options) == true))).Returns(Task.FromResult(new object()));
+            
+            SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
+            await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
+        }
+
+        private bool OptionsEqualsDefault(SchemaCompareOptionsResult options)
+        {
+            DeploymentOptions defaultOpt = new DeploymentOptions();
+            DeploymentOptions actualOpt = options.DefaultDeploymentOptions;
+
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
+            foreach(var v in deploymentOptionsProperties)
+            {
+                var defaultP = v.GetValue(defaultOpt);
+                var actualP = v.GetValue(actualOpt);
+                if (v.Name == "ExcludeObjectTypes")
+                {
+                    Assert.True((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultP as ObjectType[]).Length} actual: {(actualP as ObjectType[]).Length}");
+                }
+                else
+                {
+                    Assert.True((defaultP == null && actualP == null) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                }
+            }
+            return true;
+        }
     }
 }
