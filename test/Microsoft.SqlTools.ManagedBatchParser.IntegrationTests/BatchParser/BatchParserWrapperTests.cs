@@ -31,6 +31,24 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         [Fact]
+        public void CheckSimpleMultipleQLBatchStatement()
+        {
+            using (BatchParserWrapper parserWrapper = new BatchParserWrapper())
+            {
+                string sqlScript = @"SELECT 'FirstLine';
+                    GO
+                    SELECT 'MiddleLine_1';
+                    GO
+                    SELECT 'MiddleLine_1'
+                    GO
+                    SELECT 'LastLine'";
+                var batches = parserWrapper.GetBatches(sqlScript);
+                // Each select statement is one batch , so we are expecting 4 batches.
+                Assert.Equal(4, batches.Count);
+            }
+        }
+
+        [Fact]
         public void CheckSQLBatchStatementWithRepeatExecution()
         {
             using (BatchParserWrapper parserWrapper = new BatchParserWrapper())

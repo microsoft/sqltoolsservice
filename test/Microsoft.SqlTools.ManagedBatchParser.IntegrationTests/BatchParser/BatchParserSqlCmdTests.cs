@@ -7,7 +7,6 @@ using System;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
-using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
@@ -16,6 +15,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
     {
         private BatchParserSqlCmd bpcmd;
         private PositionStruct testPOS;
+
         public BatchParserSqlCmdTests()
         {
             bpcmd = new BatchParserSqlCmd();
@@ -85,7 +85,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             string outString = "out";
             var result = bpcmd.Include(null, out textReader, out outString);
             Assert.Equal(result, BatchParserAction.Abort);
-
         }
 
         [Fact]
@@ -113,6 +112,5 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             var result = bpcmd.GetVariable(testPOS, "variable1");
             Assert.Null(result);
         }
-
     }
 }
