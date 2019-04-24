@@ -51,15 +51,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         [Fact]
         public async void VerifyServerLogins()
         {
-            var query = string.Format(@"If Exists (select loginname from master.dbo.syslogins
+            var query = $@"If Exists (select loginname from master.dbo.syslogins
                             where name = 'OEServerLogin')
                         Begin
                             Drop Login  [OEServerLogin]
                         End
 
-                        CREATE LOGIN OEServerLogin WITH PASSWORD = '{0}'
+                        CREATE LOGIN OEServerLogin WITH PASSWORD = '{Guid.NewGuid()}'
                         GO
-                        ALTER LOGIN OEServerLogin DISABLE; ", Guid.NewGuid());
+                        ALTER LOGIN OEServerLogin DISABLE; ";
             string databaseName = "tempdb";
             await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
             {
