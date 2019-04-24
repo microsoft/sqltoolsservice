@@ -25,19 +25,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
     {
         private static readonly StoreConfig Config = new StoreConfig
         {
-            CredentialFolder = ".testsecrets", 
-            CredentialFile = "sqltestsecrets.json", 
+            CredentialFolder = ".testsecrets",
+            CredentialFile = "sqltestsecrets.json",
             IsRelativeToUserHomeDir = true
         };
 
         private const string CredentialId = "Microsoft_SqlToolsTest_TestId";
-        private const string Password1 = "P@ssw0rd1";
-        private const string Password2 = "2Pass2Furious";
+        private readonly string Password1 = Guid.NewGuid().ToString();
+        private readonly string Password2 = Guid.NewGuid().ToString();
 
         private const string OtherCredId = CredentialId + "2345";
         private const string OtherPassword = CredentialId + "2345";
 
-        // Test-owned credential store used to clean up before/after tests to ensure code works as expected 
+        // Test-owned credential store used to clean up before/after tests to ensure code works as expected
         // even if previous runs stopped midway through
         private readonly ICredentialStore credStore;
         private readonly CredentialService service;
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             service = new CredentialService(credStore, Config);
             DeleteDefaultCreds();
         }
-        
+
         public void Dispose()
         {
             DeleteDefaultCreds();
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         {
             string errorResponse = null;
             var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
-            
+
             await service.HandleSaveCredentialRequest(new Credential(CredentialId), contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
             Assert.True(errorResponse.Contains("ArgumentException") || errorResponse.Contains("ArgumentNullException"));
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             TestUtils.VerifyErrorSent(contextMock);
             Assert.Contains("ArgumentNullException", errorResponse);
         }
-        
+
         [Fact]
         public async Task ReadCredentialThrowsIfIdMissing()
         {
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                     Assert.Null(actual.Password);
                 }));
         }
-        
+
         [Fact]
         public async Task DeleteCredentialThrowsIfIdMissing()
         {

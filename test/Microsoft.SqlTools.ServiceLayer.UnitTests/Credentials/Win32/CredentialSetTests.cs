@@ -1,6 +1,6 @@
 ﻿//
-// Code originally from http://credentialmanagement.codeplex.com/, 
-// Licensed under the Apache License 2.0 
+// Code originally from http://credentialmanagement.codeplex.com/,
+// Licensed under the Apache License 2.0
 //
 
 using System;
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
         [Fact]
         public void CredentialSetCreate()
         {
-            RunIfWrapper.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() =>
             {
                 Assert.NotNull(new CredentialSet());
             });
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
         [Fact]
         public void CredentialSetCreateWithTarget()
         {
-            RunIfWrapper.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() =>
             {
                 Assert.NotNull(new CredentialSet("target"));
             });
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
         [Fact]
         public void CredentialSetShouldBeIDisposable()
         {
-            RunIfWrapper.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() =>
             {
                 Assert.True(new CredentialSet() is IDisposable, "CredentialSet needs to implement IDisposable Interface.");
             });
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
         [Fact]
         public void CredentialSetLoad()
         {
-            RunIfWrapper.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() =>
             {
                 Win32Credential credential = new Win32Credential
                                             {
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
         [Fact]
         public void CredentialSetLoadShouldReturnSelf()
         {
-            RunIfWrapper.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() =>
             {
                 CredentialSet set = new CredentialSet();
                 Assert.IsType<CredentialSet>(set.Load());
@@ -79,12 +79,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
         [Fact]
         public void CredentialSetLoadWithTargetFilter()
         {
-            RunIfWrapper.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() =>
             {
                 Win32Credential credential = new Win32Credential
                                             {
                                                 Username = "filteruser",
-                                                Password = "filterpassword",
+                                                Password = Guid.NewGuid().ToString(),
                                                 Target = "filtertarget"
                                             };
                 credential.Save();
