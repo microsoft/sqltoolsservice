@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             CancellationToken token;
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
-                .Callback<CancellationToken>(t => 
+                .Callback<CancellationToken>(t =>
                 {
                     // Pass the token to the return handler and signal the main thread to cancel
                     token = t;
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Wait for the connection task to finish
             connectTask.Wait();
-            
+
             // Verify that the connection was cancelled (no connection was created)
             Assert.Null(connectTask.Result.ConnectionId);
 
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             CancellationToken token;
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
-                .Callback<CancellationToken>(t => 
+                .Callback<CancellationToken>(t =>
                 {
                     // Pass the token to the return handler and signal the main thread to cancel
                     token = t;
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     }
                     return Task.FromResult(true);
                 });
-            
+
             // Given a second connection that succeeds
             var mockConnection2 = new Mock<DbConnection> { CallBase = true };
             mockConnection2.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Wait for the first connection task to finish
             connectTask.Wait();
-            
+
             // Verify that the first connection was cancelled (no connection was created)
             Assert.Null(connectTask.Result.ConnectionId);
 
@@ -193,13 +193,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             CancellationToken token;
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
-                .Callback<CancellationToken>(t => 
+                .Callback<CancellationToken>(t =>
                 {
                     // Pass the token to the return handler and signal the main thread to cancel
                     token = t;
                     ready = true;
                 })
-                .Returns(() => 
+                .Returns(() =>
                 {
                     if (TestUtils.WaitFor(() => token.IsCancellationRequested))
                     {
@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Wait for the first connection task to finish
             connectTask.Wait();
-            
+
             // Verify that the first connection was cancelled (no connection was created)
             Assert.Null(connectTask.Result.ConnectionId);
 
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     OwnerUri = "file:///my/test/file.sql",
                     Connection = connectionDetails
                 });
-            
+
             // check that a connection was created
             Assert.NotEmpty(connectionResult.ConnectionId);
         }
@@ -319,10 +319,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             const string otherDbName = "other";
             // Given a connection that returns the database name
             var dummySqlConnection = new TestSqlConnection(null);
-            
+
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) => 
+            .Returns((string connString, string azureAccountToken) =>
             {
                 dummySqlConnection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -388,7 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 ServerName = testConnectionDetails.ServerName,
                 DatabaseName = testConnectionDetails.DatabaseName,
                 UserName = "invalidUsername",
-                Password = "invalidPassword"
+                Password = Guid.NewGuid().ToString()
             };
             // triggers exception when opening mock connection
 
@@ -438,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                         AuthenticationType = authType
                     }
                 });
-            
+
             // check that an error was caught
             Assert.NotNull(connectionResult.Messages);
             Assert.NotEqual(String.Empty, connectionResult.Messages);
@@ -472,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                         AuthenticationType = "Integrated"
                     }
                 });
-            
+
             // check that the connection was successful
             Assert.NotEmpty(connectionResult.ConnectionId);
         }
@@ -487,7 +487,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connectionResult = await
                 TestObjects.GetTestConnectionService()
                 .Connect(null);
-            
+
             // check that an error was caught
             Assert.NotNull(connectionResult.Messages);
             Assert.NotEqual(String.Empty, connectionResult.Messages);
@@ -595,7 +595,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public async Task ConnectToDatabaseTest()
         {
-            // connect to a database instance 
+            // connect to a database instance
             string ownerUri = "file://my/sample/file.sql";
             var connectionResult = await
                 TestObjects.GetTestConnectionService()
@@ -663,7 +663,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // register disconnect callback
             connectionService.RegisterOnDisconnectTask(
-                (result, uri) => { 
+                (result, uri) => {
                     callbackInvoked = true;
                     Assert.True(uri.Equals(ownerUri));
                     return Task.FromResult(true);
@@ -779,7 +779,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .Returns(CreateMockDbConnection(new[] {data}));
             var connectionService = new ConnectionService(mockFactory.Object);
 
-            // connect to a database instance 
+            // connect to a database instance
             string ownerUri = "file://my/sample/file.sql";
             var connectionResult = await
                 connectionService
@@ -816,13 +816,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // setup connection service with callback
             var connectionService = TestObjects.GetTestConnectionService();
             connectionService.RegisterOnConnectionTask(
-                (sqlConnection) => { 
+                (sqlConnection) => {
                     callbackInvoked = true;
-                    return Task.FromResult(true); 
+                    return Task.FromResult(true);
                 }
             );
-            
-            // connect to a database instance 
+
+            // connect to a database instance
             await connectionService.Connect(TestObjects.GetTestConnectionParams());
 
             // verify that a valid connection id was returned
@@ -830,7 +830,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Test ConnectionSummaryComparer 
+        /// Test ConnectionSummaryComparer
         /// </summary>
         [Fact]
         public void TestConnectionSummaryComparer()
@@ -869,14 +869,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var service = TestObjects.GetTestConnectionService();
             var connectParams = TestObjects.GetTestConnectionParams();
 
-            // connect to a database instance 
+            // connect to a database instance
             var connectionResult = await service.Connect(connectParams);
 
             // verify that a valid connection id was returned
             Assert.NotNull(connectionResult.ConnectionId);
             Assert.NotEqual(string.Empty, connectionResult.ConnectionId);
             Assert.NotNull(new Guid(connectionResult.ConnectionId));
-            
+
             // verify that the (URI -> connection) mapping was created
             ConnectionInfo info;
             Assert.True(service.TryFindConnection(connectParams.OwnerUri, out info));
@@ -892,8 +892,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public void TestThatLinuxAndOsxSqlExceptionHasNoErrorCode()
         {
-            RunIfWrapper.RunIfLinuxOrOSX(() => 
-            {    
+            RunIfWrapper.RunIfLinuxOrOSX(() =>
+            {
                 try
                 {
                     SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
@@ -931,7 +931,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void TestListDatabasesInvalidParams()
         {
             var service = TestObjects.GetTestConnectionService();
-            var listParams = new ListDatabasesParams();            
+            var listParams = new ListDatabasesParams();
             Assert.Throws<ArgumentException>(() => service.ListDatabases(listParams));
             listParams.OwnerUri = "file://notmyfile.sql";
             Assert.Throws<Exception>(() => service.ListDatabases(listParams));
@@ -973,7 +973,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 };
             }
             ConnectionSummaryComparer comparer = new ConnectionSummaryComparer();
-            
+
             // If I compute a hash code
             int hashCode = comparer.GetHashCode(summary);
             if (summary == null || (serverName == null && databaseName == null && userName == null))
@@ -1086,7 +1086,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             await service.Connect(connectParamsDefault);
             await service.Connect(connectParamsQuery);
 
-            // We should have one ConnectionInfo and 2 DbConnections 
+            // We should have one ConnectionInfo and 2 DbConnections
             ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
             Assert.Equal(2, connectionInfo.CountConnections);
             Assert.Equal(1, service.OwnerToConnectionMap.Count);
@@ -1111,7 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 });
             connectionInfo.ConnectionTypeToConnectionMap[ConnectionType.Query] = mockQueryConnection.Object;
 
-            // If we disconnect all open connections with the same URI as used above 
+            // If we disconnect all open connections with the same URI as used above
             service.Disconnect(disconnectParams);
 
             // Close() should have gotten called for both DbConnections
@@ -1210,7 +1210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => service.GetOrOpenConnection(TestObjects.ScriptUri, ConnectionType.Query));
         }
-        
+
         [Fact]
         public async Task GetOrOpenAdminDefaultConnection()
         {
@@ -1238,7 +1238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // Connect
             ConnectionService service = TestObjects.GetTestConnectionService();
             var connectionResult = await service.Connect(connectionParameters);
-            
+
             // Verify you can get the connection for default
             DbConnection defaultConn = await service.GetOrOpenConnection(connectionParameters.OwnerUri, ConnectionType.Default);
             ConnectionInfo connInfo = service.OwnerToConnectionMap[connectionParameters.OwnerUri];
@@ -1322,10 +1322,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             const string otherDbName = "other";
             // Given a connection that returns the database name
             var connection = new TestSqlConnection(null);
-            
+
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) => 
+            .Returns((string connString, string azureAccountToken) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1370,12 +1370,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             mockConnection.SetupGet(conn => conn.State).Returns(ConnectionState.Open);
             mockConnection.Setup(conn => conn.Close());
             mockConnection.Setup(conn => conn.Open());
-            
+
             var connection = mockConnection.Object;
-            
+
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) => 
+            .Returns((string connString, string azureAccountToken) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1395,7 +1395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     OwnerUri = ownerUri,
                     Connection = TestObjects.GetTestConnectionDetails()
                 });
-            
+
             ConnectionInfo testInfo;
             connectionService.TryFindConnection(ownerUri, out testInfo);
 
@@ -1423,12 +1423,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             mockConnection.SetupGet(conn => conn.State).Returns(ConnectionState.Open);
             mockConnection.Setup(conn => conn.Close());
             mockConnection.Setup(conn => conn.Open());
-            
+
             var connection = mockConnection.Object;
-            
+
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string connString, string azureAccountToken) => 
+            .Returns((string connString, string azureAccountToken) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1448,7 +1448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     OwnerUri = ownerUri,
                     Connection = TestObjects.GetTestConnectionDetails()
                 });
-            
+
             ConnectionInfo testInfo;
             connectionService.TryFindConnection(ownerUri, out testInfo);
 
@@ -1467,9 +1467,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public void ParseConnectionStringTest()
         {
-            // If we make a connection to a live database 
+            // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
-            
+
             var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 
             var details = service.ParseConnectionString(connectionString);

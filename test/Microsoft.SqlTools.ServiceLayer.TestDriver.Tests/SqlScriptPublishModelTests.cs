@@ -90,9 +90,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ScriptTable()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
-            {  
+            {
                 ScriptingParams requestParams = new ScriptingParams
-                {                    
+                {
                     ScriptDestination = "ToEditor",
                     ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
@@ -269,8 +269,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
-                    FilePath = "This path doesn't event exist",
-                    ConnectionString = "Server=Temp;Database=Temp;User Id=Temp;Password=Temp",
+                    FilePath = "This path doesn't even exist",
+                    ConnectionString = "Server=Temp;Database=Temp;User Id=Temp;",
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     ScriptOptions = new ScriptOptions
                     {
                     },
-                    ScriptingObjects = new List<ScriptingObject> 
+                    ScriptingObjects = new List<ScriptingObject>
                     {
                         new ScriptingObject
                         {
