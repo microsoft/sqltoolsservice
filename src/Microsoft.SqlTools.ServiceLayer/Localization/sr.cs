@@ -2941,6 +2941,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaCompareExcludeIncludeNodeNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaCompareExcludeIncludeNodeNotFound);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4279,6 +4287,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ExcludeNodeTaskName = "ExcludeNodeTaskName";
+
+
+            public const string SchemaCompareExcludeIncludeNodeNotFound = "SchemaCompareExcludeIncludeNodeNotFound";
 
 
             private Keys()
