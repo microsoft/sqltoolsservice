@@ -50,17 +50,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public void Execute(TaskExecutionMode mode)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
+            this.CancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry);
                 if (node == null)
                 {
-                    throw new ArgumentException(SR.SchemaCompareExcludeIncludeNodeNotFound);
+                    throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
                 }
 
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
@@ -96,13 +93,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
         {
             bool result = true;
-            //create a diff entry from difference and check if it matches the diffentr passed
+            // Create a diff entry from difference and check if it matches the diff entry passed
             DiffEntry entryFromDifference = SchemaCompareOperation.CreateDiffEntry(difference, null);
 
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
             {
-                result = result && ((prop.GetValue(diffEntry) == null && prop.GetValue(entryFromDifference) == null) || prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+                result = result &&
+                    ((prop.GetValue(diffEntry) == null &&
+                    prop.GetValue(entryFromDifference) == null) ||
+                    prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
             }
 
             return result;
