@@ -45,6 +45,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private const bool DefaultDisplayBitAsNumber = true;
 
+        /// <summary>
+        /// .
+        /// </summary>
+        private const int DefaultRowCount = 0;
+
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultNoCount = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const string DefaultTransactionIsolationLevel = "READ UNCOMMITTED";
+        
+
         #endregion
 
         #region Member Variables
@@ -58,6 +75,52 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private ExecutionPlanOptions? executionPlanOptions;
 
         private bool? displayBitAsNumber;
+
+        private int? rowCount;
+
+        private int? textSize;
+
+        private int? executionTimeout;
+
+        private bool? noCount;
+
+        private bool? noExec;
+
+        private bool? parseOnly;
+
+        private bool? arithAbort;
+
+        private bool? showplanText;
+
+        private bool? statisticsTime;
+
+        private bool? statisticsIO;
+
+        private bool? xactAbortOn;
+
+        private string transactionIsolationLevel;
+
+        private string deadlockPriority;
+
+        private int? lockTimeout;
+
+        private int? queryGovernorCostLimit;
+
+        private bool? ansiDefaults;
+
+        private bool? quotedIdentifier;
+
+        private bool? ansiNullDefaultOn;
+
+        private bool? implicitTransactions;
+
+        private bool? cursorCloseOnCommit;
+
+        private bool? ansiPadding;
+
+        private bool? ansiWarnings;
+
+        private bool? ansiNulls;
 
         #endregion
 
@@ -111,6 +174,139 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             get { return displayBitAsNumber ?? DefaultDisplayBitAsNumber; }
             set { displayBitAsNumber = value; }
         }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public int RowCount
+        {
+            get { return rowCount ?? DefaultMaxCharsToStore; }
+            set { rowCount = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public int TextSize
+        {
+            get { return textSize ?? DefaultMaxCharsToStore; }
+            set { textSize = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public int ExecutionTimeout
+        {
+            get { return executionTimeout ?? DefaultMaxCharsToStore; }
+            set { executionTimeout = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool NoCount
+        {
+            get { return noCount ?? DefaultNoCount; }
+            set { noCount = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool NoExec
+        {
+            get { return noExec ?? DefaultNoCount; }
+            set { noExec = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool ParseOnly
+        {
+            get { return parseOnly ?? DefaultNoCount; }
+            set { parseOnly = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool ArithAbort
+        {
+            get { return arithAbort ?? DefaultNoCount; }
+            set { arithAbort = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool ShowplanText
+        {
+            get { return showplanText ?? DefaultNoCount; }
+            set { showplanText = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool StatisticsTime
+        {
+            get { return statisticsTime ?? DefaultNoCount; }
+            set { statisticsTime = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool StatisticsIO
+        {
+            get { return statisticsIO ?? DefaultNoCount; }
+            set { statisticsIO = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public string TransactionIsolationLevel
+        {
+            get { return transactionIsolationLevel ?? DefaultTransactionIsolationLevel; }
+            set { transactionIsolationLevel = value; }
+        }
+
+        // private bool? ;
+
+        // private bool? ;
+
+        // private bool? ;
+
+        // private string ;
+
+        // private string deadlockPriority;
+
+        // private int? lockTimeout;
+
+        // private int? queryGovernorCostLimit;
+
+        // private bool? ansiDefaults;
+
+        // private bool? quotedIdentifier;
+
+        // private bool? ansiNullDefaultOn;
+
+        // private bool? implicitTransactions;
+
+        // private bool? cursorCloseOnCommit;
+
+        // private bool? ansiPadding;
+
+        // private bool? ansiWarnings;
+
+        // private bool? ansiNulls;
+
+
+
+
 
         #endregion
 
