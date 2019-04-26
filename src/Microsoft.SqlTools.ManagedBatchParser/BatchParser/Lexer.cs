@@ -43,8 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// </summary>
         public Token CurrentToken
         {
-            get {
-                return currentToken; 
+            get
+            {
+                return currentToken;
             }
         }
 
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 if (CurrentTokenType == LexerTokenType.Eof)
                 {
                     popInputAtNextConsume = true;
-                    if(inputStack.Count > 0)
+                    if (inputStack.Count > 0)
                     {
                         // report as empty NewLine token
                         currentToken = new Token(
@@ -115,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
         }
 
-        static string GetCircularReferenceErrorMessage(string filename)
+        private static string GetCircularReferenceErrorMessage(string filename)
         {
             return string.Format(CultureInfo.CurrentCulture, SR.BatchParser_CircularReference, filename);
         }
@@ -144,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             inputStack.Push(currentInput);
             currentInput = new LexerInput(reader, name);
             SetState(RuleLine);
-            // We don't want to close the input, in that case the current file would be taken out of the 
+            // We don't want to close the input, in that case the current file would be taken out of the
             // input stack and cycle detection won't work.
             popInputAtNextConsume = false;
             ConsumeToken();
@@ -327,15 +328,19 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 case LexerTokenType.Setvar:
                     SetState(RuleSetvar);
                     break;
+
                 case LexerTokenType.Go:
                     SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment);
                     break;
+
                 case LexerTokenType.Include:
                     SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeDoubleQuotedString);
                     break;
+
                 case LexerTokenType.OnError:
                     SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment);
                     break;
+
                 default:
                     SetTextState(TextRuleFlags.ReportWhitespace);
                     break;
@@ -396,10 +401,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 case '\t':
                     AcceptWhitespace();
                     return true;
+
                 case '\r':
                 case '\n':
                     AcceptNewLine();
                     return true;
+
                 case ':':
                     if (RecognizeSqlCmdSyntax && TryAcceptBatchCommandAndSetToken())
                     {
@@ -407,9 +414,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         return true;
                     }
                     break;
+
                 case 'g':
                 case 'G':
-                    if (TryAccept("go", true))
+                    if (TryAccept(text: "go", wordBoundary: true))
                     {
                         SetToken(LexerTokenType.Go);
                         ChangeStateToBatchCommand(currentToken);
@@ -439,10 +447,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     AcceptNewLine();
                     SetState(RuleLine);
                     return true;
+
                 case ' ':
                 case '\t':
                     AcceptWhitespace();
                     return true;
+
                 default:
                     if (IsStartIdentifierChar(ch.Value))
                     {
@@ -473,7 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 SetToken(LexerTokenType.Eof);
                 return true;
             }
-            
+
             if (ch.HasValue)
             {
                 if (IsNewLineChar(ch.Value))
@@ -516,10 +526,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             return true;
                         }
                         break;
+
                     case '\r':
                     case '\n':
                         SetToken(LexerTokenType.Text);
                         return true;
+
                     case '"':
                         if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeDoubleQuotedString))
                         {
@@ -527,6 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             consumed = true;
                         }
                         break;
+
                     case '\'':
                         if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeSingleQuotedString))
                         {
@@ -534,6 +547,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             consumed = true;
                         }
                         break;
+
                     case '[':
                         if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeBrace))
                         {
@@ -541,6 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             consumed = true;
                         }
                         break;
+
                     case '-':
                         if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment))
                         {
@@ -552,6 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             }
                         }
                         break;
+
                     case '/':
                         if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment))
                         {
@@ -563,6 +579,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             }
                         }
                         break;
+
                     default:
                         break;
                 }
@@ -600,10 +617,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             string text = currentInput.FlushBufferedText();
 
             currentToken = new Token(
-                lexerTokenType, 
-                tokenBeginPosition, 
+                lexerTokenType,
+                tokenBeginPosition,
                 new PositionStruct(currentInput.CurrentLine, currentInput.CurrentColumn, currentInput.CurrentOffset, currentInput.Filename),
-                text, 
+                text,
                 currentInput.Filename);
         }
 
@@ -625,7 +642,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (wordBoundary)
             {
                 char? ch = Lookahead(text.Length);
-                if (ch != null && IsWhitespaceChar(ch.Value) == false && IsNewLineChar(ch.Value) == false 
+                if (ch != null && IsWhitespaceChar(ch.Value) == false && IsNewLineChar(ch.Value) == false
                     && ch != '$' && ch != '/' && ch != '-' && ch != '\'' && ch != '"' && ch != '(' && ch != '[' && ch != '!')
                 {
                     return false;
@@ -645,87 +662,87 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         {
             Consume(); // colon
 
-            if (TryAccept("reset", true))
+            if (TryAccept(text: "reset", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Reset);
                 return true;
             }
-            else if (TryAccept("ed", true))
+            else if (TryAccept(text: "ed", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Ed);
                 return true;
             }
-            else if (TryAccept("!!", true))
+            else if (TryAccept(text: "!!", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Execute);
                 return true;
             }
-            else if (TryAccept("quit", true))
+            else if (TryAccept(text: "quit", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Quit);
                 return true;
             }
-            else if (TryAccept("exit", true))
+            else if (TryAccept(text: "exit", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Exit);
                 return true;
             }
-            else if (TryAccept("r", true))
+            else if (TryAccept(text: "r", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Include);
                 return true;
             }
-            else if (TryAccept("serverlist", true))
+            else if (TryAccept(text: "serverlist", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Serverlist);
                 return true;
             }
-            else if (TryAccept("setvar", true))
+            else if (TryAccept(text: "setvar", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Setvar);
                 return true;
             }
-            else if (TryAccept("list", true))
+            else if (TryAccept(text: "list", wordBoundary: true))
             {
                 SetToken(LexerTokenType.List);
                 return true;
             }
-            else if (TryAccept("error", true))
+            else if (TryAccept(text: "error", wordBoundary: true))
             {
                 SetToken(LexerTokenType.ErrorCommand);
                 return true;
             }
-            else if (TryAccept("out", true))
+            else if (TryAccept(text: "out", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Out);
                 return true;
             }
-            else if (TryAccept("perftrace", true))
+            else if (TryAccept(text: "perftrace", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Perftrace);
                 return true;
             }
-            else if (TryAccept("connect", true))
+            else if (TryAccept(text: "connect", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Connect);
                 return true;
             }
-            else if (TryAccept("on error", true))
+            else if (TryAccept(text: "on error", wordBoundary: true))
             {
                 SetToken(LexerTokenType.OnError);
                 return true;
             }
-            else if (TryAccept("help", true))
+            else if (TryAccept(text: "help", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Help);
                 return true;
             }
-            else if (TryAccept("xml", true))
+            else if (TryAccept(text: "xml", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Xml);
                 return true;
             }
-            else if (TryAccept("listvar", true))
+            else if (TryAccept(text: "listvar", wordBoundary: true))
             {
                 SetToken(LexerTokenType.ListVar);
                 return true;
@@ -733,6 +750,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
             return false;
         }
+
         internal static bool IsIdentifierChar(char ch)
         {
             return IsLetter(ch) || IsDigit(ch) || ch == '_' || ch == '-';
