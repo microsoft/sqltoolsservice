@@ -44,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
+            serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
+            serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
         }
 
         /// <summary>
@@ -170,6 +172,61 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                });
+            }
+        }
+
+        public async Task HandleSchemaCompareIncludeExcludeNodeRequest(SchemaCompareNodeParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            SchemaCompareIncludeExcludeNodeOperation operation = null;
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                operation = new SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
+                SqlTask sqlTask = null;
+                TaskMetadata metadata = new TaskMetadata();
+                metadata.TaskOperation = operation;
+                metadata.Name = parameters.IncludeRequest ? SR.IncludeNodeTaskName : SR.ExcludeNodeTaskName;
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = true,
+                    ErrorMessage = operation.ErrorMessage
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                });
+            }
+        }
+
+        public async Task HandleSchemaCompareGetDefaultOptionsRequest(SchemaCompareGetOptionsParams parameters, RequestContext<SchemaCompareOptionsResult> requestContext)
+        {
+            try
+            {
+                // this does not need to be an async operation since this only creates and resturn the default opbject
+                DeploymentOptions options = new DeploymentOptions();
+
+                await requestContext.SendResult(new SchemaCompareOptionsResult()
+                {
+                    DefaultDeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new SchemaCompareOptionsResult()
+                {
+                    DefaultDeploymentOptions = null,
+                    Success = false,
+                    ErrorMessage = e.Message
                 });
             }
         }
