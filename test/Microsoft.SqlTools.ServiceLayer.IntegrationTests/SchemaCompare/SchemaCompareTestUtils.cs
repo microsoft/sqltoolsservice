@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using System;
 using System.IO;
+using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -50,7 +51,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
         internal static LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
-            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            // Adding retry for reliability - otherwise it caused test to fail in lab
+            TestConnectionResult result = null;
+            int retry = 3;
+
+            while (retry > 0)
+            {
+                result = LiveConnectionHelper.InitLiveConnectionInfo();
+                if (result != null && result.ConnectionInfo != null)
+                {
+                    return result;
+                }
+                System.Threading.Thread.Sleep(1000);
+                retry--;
+            }
+
             return result;
         }
     }

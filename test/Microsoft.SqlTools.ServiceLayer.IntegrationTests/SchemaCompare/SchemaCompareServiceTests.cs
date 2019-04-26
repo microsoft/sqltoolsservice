@@ -446,8 +446,7 @@ CREATE TABLE [dbo].[table3]
 
             Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including, before:{initial}, now {afterInclude}");
         }
-
-        // Call this only after first schema compare and generate script is done
+        
         private void ValidateSchemaCompareScriptGenerationWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation, SchemaCompareGenerateScriptParams generateScriptParams)
         {
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
@@ -505,7 +504,7 @@ CREATE TABLE [dbo].[table3]
             string afterIncludeScript = File.ReadAllText(generateScriptParams.ScriptFilePath);
             Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
         }
-
+        
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs
         /// </summary>
