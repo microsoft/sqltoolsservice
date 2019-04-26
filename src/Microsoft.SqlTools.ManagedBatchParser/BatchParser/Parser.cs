@@ -582,15 +582,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     offset: reference.Start - offset,
                     filename: inputToken.Filename);
                 string value = variableResolver.GetVariable(variablePos.Value, reference.VariableName);
-                if (value == null)
+                if (value == null || ThrowOnUnresolvedVariable == true /* Undefined variable */)
                 {
-                    // Undefined variable
-                    if (ThrowOnUnresolvedVariable == true)
-                    {
-                        RaiseError(ErrorCode.VariableNotDefined, inputToken,
-                            string.Format(CultureInfo.CurrentCulture, SR.BatchParser_VariableNotDefined, reference.VariableName));
-                    }
-                    continue;
+                    RaiseError(ErrorCode.VariableNotDefined, inputToken,
+                        string.Format(CultureInfo.CurrentCulture, SR.BatchParser_VariableNotDefined, reference.VariableName));
                 }
 
                 reference.VariableValue = value;
