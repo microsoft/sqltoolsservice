@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private void CheckVariableReferences(Token token)
         {
-            // AddVariableReferences will raise error if reference is not constructed correctly 
+            // AddVariableReferences will raise error if reference is not constructed correctly
             AddVariableReferences(token, 0, null);
         }
 
@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 if (state == 0 && ch == '$')
                 {
                     state = 1;
-                } 
+                }
                 else if (state == 1)
                 {
                     if (ch == '(')
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (LookaheadTokenType == LexerTokenType.Text)
             {
                 string text = ResolveVariables(LookaheadToken, 0, null);
-                // This statement originally placed after the for loop, But it moved here, the reason is: 
+                // This statement originally placed after the for loop, But it moved here, the reason is:
                 // When passing the long number like 999999999999999999999999, instead of throwing error
                 // it accept and iterate the loop
                 bool result = Int32.TryParse(text, out repeatCount);
@@ -292,8 +292,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (tokenText.IndexOf('"') != -1)
             {
                 tokens = SplitQuotedTextToken(token);
-            } 
-            else 
+            }
+            else
             {
                 tokens = new[] { token };
             }
@@ -339,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 }
                 if (closingQuotePos + 1 < tokenText.Length && tokenText[closingQuotePos + 1] == '"')
                 {
-                    // two consequtive " characters: report one of them
+                    // two consecutive " characters: report one of them
                     tokens.Add(GetSubToken(token, quotePos + 1, closingQuotePos + 1, LexerTokenType.TextVerbatim));
                 }
                 else
@@ -348,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     tokens.Add(GetSubToken(token, quotePos + 1, closingQuotePos, LexerTokenType.TextVerbatim));
                 }
                 offset = closingQuotePos + 1;
-                
+
                 quotePos = tokenText.IndexOf('"', offset);
             }
             if (offset != tokenText.Length)
@@ -376,22 +376,26 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         Accept();
                         ParseOnErrorCommand(onErrorToken);
                         break;
+
                     case LexerTokenType.Eof:
                         if (tokenBuffer.Count > 0)
                         {
                             ExecuteBatch(1);
                         }
                         return;
+
                     case LexerTokenType.Go:
                         RemoveLastWhitespaceToken();
                         Accept();
                         ParseGo();
                         break;
+
                     case LexerTokenType.Include:
                         RemoveLastWhitespaceToken();
                         Accept();
                         ParseInclude();
                         break;
+
                     case LexerTokenType.Comment:
                     case LexerTokenType.NewLine:
                     case LexerTokenType.Text:
@@ -399,12 +403,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         AddTokenToStringBuffer();
                         Accept();
                         break;
+
                     case LexerTokenType.Setvar:
                         Token setvarToken = LookaheadToken;
                         RemoveLastWhitespaceToken();
                         Accept();
                         ParseSetvar(setvarToken);
                         break;
+
                     case LexerTokenType.Connect:
                     case LexerTokenType.Ed:
                     case LexerTokenType.ErrorCommand:
@@ -422,6 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         RaiseError(ErrorCode.UnsupportedCommand,
                             string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionError_CommandNotSupported, tokenType));
                         break;
+
                     default:
                         RaiseError(ErrorCode.UnrecognizedToken);
                         break;
@@ -510,10 +517,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         Accept();
                     }
                     break;
+
                 case LexerTokenType.NewLine:
                 case LexerTokenType.Eof:
                     Accept();
                     break;
+
                 default:
                     RaiseError(ErrorCode.UnrecognizedToken);
                     break;
@@ -558,8 +567,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
                 if (variablePos != null)
                 {
-                    LineInfo.CalculateLineColumnForOffset(inputToken.Text, reference.Start - offset, 
-                        variablePos.Value.Offset, variablePos.Value.Line, variablePos.Value.Column, 
+                    LineInfo.CalculateLineColumnForOffset(inputToken.Text, reference.Start - offset,
+                        variablePos.Value.Offset, variablePos.Value.Line, variablePos.Value.Column,
                         out line, out column);
                 }
                 else
@@ -680,7 +689,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         internal void SetBatchDelimiter(string batchSeparator)
         {
-            // Not implemeneted as only GO is supported now
+            // Not implemented as only GO is supported now
         }
 
         public static string TokenTypeToCommandString(LexerTokenType lexerTokenType)
@@ -689,34 +698,49 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             {
                 case LexerTokenType.Connect:
                     return "Connect";
+
                 case LexerTokenType.Ed:
                     return "Ed";
+
                 case LexerTokenType.ErrorCommand:
                     return "Error";
+
                 case LexerTokenType.Execute:
                     return "!!";
+
                 case LexerTokenType.Exit:
                     return "Exit";
+
                 case LexerTokenType.Help:
                     return "Help";
+
                 case LexerTokenType.List:
                     return "List";
+
                 case LexerTokenType.ListVar:
                     return "ListVar";
+
                 case LexerTokenType.OnError:
                     return "On Error";
+
                 case LexerTokenType.Out:
                     return "Out";
+
                 case LexerTokenType.Perftrace:
                     return "PerfTrace";
+
                 case LexerTokenType.Quit:
                     return "Quit";
+
                 case LexerTokenType.Reset:
                     return "Reset";
+
                 case LexerTokenType.Serverlist:
                     return "ServerList";
+
                 case LexerTokenType.Xml:
                     return "Xml";
+
                 default:
                     Debug.Fail("Unknown batch parser command");
                     return lexerTokenType.ToString();
