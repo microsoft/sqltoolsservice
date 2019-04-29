@@ -4281,7 +4281,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";
-            
+
 
             public const string IncludeNodeTaskName = "IncludeNodeTaskName";
 
