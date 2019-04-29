@@ -19,7 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     class SchemaComparePublishChangesOperation : ITaskOperation
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
-        private bool disposed = false;
 
         /// <summary>
         /// Gets the unique id associated with this instance.

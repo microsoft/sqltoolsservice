@@ -78,5 +78,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         public void Cancel()
         {
         }
+
+        /// <summary>
+        /// Disposes the operation.
+        /// </summary>
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                this.Cancel();
+                disposed = true;
+            }
+        }
     }
 }

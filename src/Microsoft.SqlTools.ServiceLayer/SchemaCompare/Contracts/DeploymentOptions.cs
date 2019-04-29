@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool IgnoreLockHintsOnIndexes { get; set; }
 
         public bool IgnoreKeywordCasing { get; set; }
-        
+
         public bool IgnoreIndexPadding { get; set; }
 
         public bool IgnoreIndexOptions { get; set; }
@@ -51,21 +51,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool IgnoreIdentitySeed { get; set; }
 
         public bool IgnoreUserSettingsObjects { get; set; }
-        
+
         public bool IgnoreFullTextCatalogFilePath { get; set; }
-        
+
         public bool IgnoreWhitespace { get; set; }
 
         public bool IgnoreWithNocheckOnForeignKeys { get; set; }
-        
+
         public bool VerifyCollationCompatibility { get; set; }
-        
+
         public bool UnmodifiableObjectWarnings { get; set; }
 
         public bool TreatVerificationErrorsAsWarnings { get; set; }
-        
+
         public bool ScriptRefreshModule { get; set; }
-        
+
         public bool ScriptNewConstraintValidation { get; set; }
 
         public bool ScriptFileSize { get; set; }
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool RunDeploymentPlanExecutors { get; set; }
 
         public bool RegisterDataTierApplication { get; set; }
-        
+
         public bool PopulateFilesOnFileGroups { get; set; }
 
         public bool NoAlterStatementsToChangeClrTypes { get; set; }
@@ -93,17 +93,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool AllowUnsafeRowLevelSecurityDataMovement { get; set; }
 
         public bool IgnoreWithNocheckOnCheckConstraints { get; set; }
-        
+
         public bool IgnoreFillFactor { get; set; }
-        
+
         public bool IgnoreFileSize { get; set; }
-        
+
         public bool IgnoreFilegroupPlacement { get; set; }
-        
+
         public bool DoNotAlterReplicatedObjects { get; set; }
-        
+
         public bool DoNotAlterChangeDataCaptureObjects { get; set; }
-        
+
         public bool DisableAndReenableDdlTriggers { get; set; }
 
         public bool DeployDatabaseInSingleUserMode { get; set; }
@@ -113,11 +113,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool CompareUsingTargetCollation { get; set; }
 
         public bool CommentOutSetVarDeclarations { get; set; }
-        
+
         public int CommandTimeout { get; set; } = 120;
 
         public bool BlockWhenDriftDetected { get; set; }
-        
+
         public bool BlockOnPossibleDataLoss { get; set; }
 
         public bool BackupDatabaseBeforeChanges { get; set; }
@@ -129,15 +129,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public string AdditionalDeploymentContributorArguments { get; set; }
 
         public string AdditionalDeploymentContributors { get; set; }
-        
+
         public bool DropConstraintsNotInSource { get; set; }
-        
+
         public bool DropDmlTriggersNotInSource { get; set; }
-        
+
         public bool DropExtendedPropertiesNotInSource { get; set; }
-        
+
         public bool DropIndexesNotInSource { get; set; }
-        
+
         public bool IgnoreFileAndLogFilePath { get; set; }
 
         public bool IgnoreExtendedProperties { get; set; }
@@ -151,9 +151,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool IgnoreDdlTriggerState { get; set; }
 
         public bool IgnoreDdlTriggerOrder { get; set; }
-        
+
         public bool IgnoreCryptographicProviderFilePath { get; set; }
-        
+
         public bool VerifyDeployment { get; set; }
 
         public bool IgnoreComments { get; set; }
@@ -161,17 +161,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool IgnoreColumnCollation { get; set; }
 
         public bool IgnoreAuthorizer { get; set; }
-        
+
         public bool IgnoreAnsiNulls { get; set; }
 
         public bool GenerateSmartDefaults { get; set; }
-        
+
         public bool DropStatisticsNotInSource { get; set; }
 
         public bool DropRoleMembersNotInSource { get; set; }
 
         public bool DropPermissionsNotInSource { get; set; }
-        
+
         public bool DropObjectsNotInSource { get; set; }
 
         public bool IgnoreColumnOrder { get; set; }
@@ -208,11 +208,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         {
             DacDeployOptions options = new DacDeployOptions();
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
-            
+
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
                 var prop = options.GetType().GetProperty(deployOptionsProp.Name);
-                if (prop != null)
+
+                // Note that we set excluded object types here since dacfx has this value as null;
+                if (prop != null && deployOptionsProp.Name != "ExcludeObjectTypes")
                 {
                     deployOptionsProp.SetValue(this, prop.GetValue(options));
                 }

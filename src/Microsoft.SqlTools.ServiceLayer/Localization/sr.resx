@@ -1715,4 +1715,16 @@
     <value>Apply schema compare changes</value>
     <comment></comment>
   </data>
+  <data name="IncludeNodeTaskName" xml:space="preserve">
+    <value>Include schema compare node</value>
+    <comment></comment>
+  </data>
+  <data name="ExcludeNodeTaskName" xml:space="preserve">
+    <value>Exclude schema compare node</value>
+    <comment></comment>
+  </data>
+  <data name="ExcludeNodeTaskName" xml:space="preserve">
+    <value>Failed to find the specified change in the model</value>
+    <comment></comment>
+  </data>
 </root>
