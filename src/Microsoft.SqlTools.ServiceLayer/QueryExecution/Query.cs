@@ -20,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -94,7 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
-        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory, bool getFullColumnSchema = false)
+        public Query(
+            string queryText, 
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
+            IFileStreamFactory outputFactory,
+            bool getFullColumnSchema = false)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -129,21 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            if (DoesSupportExecutionPlan(connection))
-            {
-                // Checking settings for execution plan options 
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
-                {
-                    // Enable set showplan xml
-                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
-                }
-                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-                {
-                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
-                }
-            }
+            ApplyExecutionSettings(connection, settings, outputFactory);
         }
 
         #region Events
@@ -503,6 +495,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
 
+
+        private void ApplyExecutionSettings(
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
+            IFileStreamFactory outputFactory)
+        {
+            // set query execution plan options
+            if (DoesSupportExecutionPlan(connection))
+            {
+                // Checking settings for execution plan options 
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
+                {
+                    // Enable set showplan xml
+                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
+                }
+                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                {
+                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
+                }
+            }
+
+
+            StringBuilder strBuilder = new StringBuilder(512);
+
+            // //append first part of exec options
+            // strBuilder.AppendFormat("{0} {1} {2}",
+            // settings.SetRowCountString,  settings.SetTextSizeString,
+            //                         settings.SetNoCountString
+            //                         //NOTE: these were excluded from UI exposure with the optiosn dlg redesign
+            //                         //,s.SetNumericAbortString, s.SetFmtOnlyString, s.SetForceplanString
+            //                        );
+
+        }
+
         #endregion
 
         #region IDisposable Implementation
@@ -535,7 +563,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Does this connection support XML Execution plans
         /// </summary>
-        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) {
+        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) 
+        {
             // Determining which execution plan options may be applied (may be added to for pre-yukon support)
             return (!connectionInfo.IsSqlDW && connectionInfo.MajorVersion >= 9);
         }

@@ -625,9 +625,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if (connInfo != null) {
+            if (connInfo != null) 
+            {
                 connectionInfo = connInfo;
-            } else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
+            } 
+            else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
             }

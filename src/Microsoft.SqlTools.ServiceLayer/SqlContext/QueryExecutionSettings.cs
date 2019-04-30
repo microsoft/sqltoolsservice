@@ -50,17 +50,116 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private const int DefaultRowCount = 0;
 
+        /// <summary>
+        /// .
+        /// </summary>
+        private const int DefaultTextSize = 2147483647;
 
         /// <summary>
         /// .
         /// </summary>
-        private const bool DefaultNoCount = true;
+        private const int DefaultExecutionTimeout = 0;
+
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultNoCount = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultNoExec = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultParseOnly = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultArithAbort = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultConcatNullYieldsNull = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultStatisticsTime = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultStatisticsIO = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultXactAbortOn = false;
+    
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultAnsiPadding = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultAnsiWarnings = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultAnsiNulls = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultAnsiDefaults = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultQuotedIdentifier = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultAnsiNullDefaultOn = true;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultImplicitTransactions = false;
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const bool DefaultCursorCloseOnCommit = false;
 
         /// <summary>
         /// .
         /// </summary>
         private const string DefaultTransactionIsolationLevel = "READ UNCOMMITTED";
         
+        /// <summary>
+        /// .
+        /// </summary>
+        private const string DefaultDeadlockPriority = "Normal";
+
+        /// <summary>
+        /// .
+        /// </summary>
+        private const int DefaultLockTimeout = 0;
+        
+        /// <summary>
+        /// .
+        /// </summary>
+        private const int DefaultQueryGovernorCostLimit = 0;
 
         #endregion
 
@@ -89,6 +188,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private bool? parseOnly;
 
         private bool? arithAbort;
+
+        private bool? concatNullYieldsNull;
 
         private bool? showplanText;
 
@@ -121,6 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private bool? ansiWarnings;
 
         private bool? ansiNulls;
+
 
         #endregion
 
@@ -180,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public int RowCount
         {
-            get { return rowCount ?? DefaultMaxCharsToStore; }
+            get { return rowCount ?? DefaultRowCount; }
             set { rowCount = value; }
         }
 
@@ -198,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public int ExecutionTimeout
         {
-            get { return executionTimeout ?? DefaultMaxCharsToStore; }
+            get { return executionTimeout ?? DefaultExecutionTimeout; }
             set { executionTimeout = value; }
         }
 
@@ -216,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public bool NoExec
         {
-            get { return noExec ?? DefaultNoCount; }
+            get { return noExec ?? DefaultNoExec; }
             set { noExec = value; }
         }
 
@@ -225,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public bool ParseOnly
         {
-            get { return parseOnly ?? DefaultNoCount; }
+            get { return parseOnly ?? DefaultParseOnly; }
             set { parseOnly = value; }
         }
 
@@ -234,8 +336,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public bool ArithAbort
         {
-            get { return arithAbort ?? DefaultNoCount; }
+            get { return arithAbort ?? DefaultArithAbort; }
             set { arithAbort = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool ConcatNullYieldsNull
+        {
+            get { return concatNullYieldsNull ?? DefaultConcatNullYieldsNull; }
+            set { concatNullYieldsNull = value; }
         }
 
         /// <summary>
@@ -252,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public bool StatisticsTime
         {
-            get { return statisticsTime ?? DefaultNoCount; }
+            get { return statisticsTime ?? DefaultStatisticsTime; }
             set { statisticsTime = value; }
         }
 
@@ -261,8 +372,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public bool StatisticsIO
         {
-            get { return statisticsIO ?? DefaultNoCount; }
+            get { return statisticsIO ?? DefaultStatisticsIO; }
             set { statisticsIO = value; }
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool XactAbortOn
+        {
+            get { return xactAbortOn ?? DefaultXactAbortOn; }
+            set { xactAbortOn = value; }
         }
 
         /// <summary>
@@ -274,39 +394,104 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set { transactionIsolationLevel = value; }
         }
 
-        // private bool? ;
+        /// <summary>
+        /// .
+        /// </summary>
+        public string DeadlockPriority
+        {
+            get { return deadlockPriority ?? DefaultDeadlockPriority; }
+            set { deadlockPriority = value; }
+        }
 
-        // private bool? ;
+        /// <summary>
+        /// .
+        /// </summary>
+        public int LockTimeout
+        {
+            get { return lockTimeout ?? DefaultLockTimeout; }
+            set { lockTimeout = value; }
+        }
 
-        // private bool? ;
+        /// <summary>
+        /// .
+        /// </summary>
+        public int QueryGovernorCostLimit
+        {
+            get { return queryGovernorCostLimit ?? DefaultQueryGovernorCostLimit; }
+            set { queryGovernorCostLimit = value; }
+        }
 
-        // private string ;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool AnsiDefaults
+        {
+            get { return ansiDefaults ?? DefaultAnsiDefaults; }
+            set { ansiDefaults = value; }
+        }
 
-        // private string deadlockPriority;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool QuotedIdentifier
+        {
+            get { return quotedIdentifier ?? DefaultQuotedIdentifier; }
+            set { quotedIdentifier = value; }
+        }
 
-        // private int? lockTimeout;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool AnsiNullDefaultOn
+        {
+            get { return ansiNullDefaultOn ?? DefaultAnsiNullDefaultOn; }
+            set { ansiNullDefaultOn = value; }
+        }
 
-        // private int? queryGovernorCostLimit;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool ImplicitTransactions
+        {
+            get { return implicitTransactions ?? DefaultImplicitTransactions; }
+            set { implicitTransactions = value; }
+        }
 
-        // private bool? ansiDefaults;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool CursorCloseOnCommit
+        {
+            get { return cursorCloseOnCommit ?? DefaultCursorCloseOnCommit; }
+            set { cursorCloseOnCommit = value; }
+        }
 
-        // private bool? quotedIdentifier;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool AnsiPadding
+        {
+            get { return ansiPadding ?? DefaultAnsiPadding; }
+            set { ansiPadding = value; }
+        }
 
-        // private bool? ansiNullDefaultOn;
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool AnsiWarnings
+        {
+            get { return ansiWarnings ?? DefaultAnsiWarnings; }
+            set { ansiWarnings = value; }
+        }
 
-        // private bool? implicitTransactions;
-
-        // private bool? cursorCloseOnCommit;
-
-        // private bool? ansiPadding;
-
-        // private bool? ansiWarnings;
-
-        // private bool? ansiNulls;
-
-
-
-
+        /// <summary>
+        /// .
+        /// </summary>
+        public bool AnsiNulls
+        {
+            get { return ansiNulls ?? DefaultAnsiNulls; }
+            set { ansiNulls = value; }
+        }
 
         #endregion
 
