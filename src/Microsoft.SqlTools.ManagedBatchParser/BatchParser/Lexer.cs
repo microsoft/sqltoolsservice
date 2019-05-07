@@ -43,8 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// </summary>
         public Token CurrentToken
         {
-            get {
-                return currentToken; 
+            get
+            {
+                return currentToken;
             }
         }
 
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 if (CurrentTokenType == LexerTokenType.Eof)
                 {
                     popInputAtNextConsume = true;
-                    if(inputStack.Count > 0)
+                    if (inputStack.Count > 0)
                     {
                         // report as empty NewLine token
                         currentToken = new Token(
@@ -473,7 +474,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 SetToken(LexerTokenType.Eof);
                 return true;
             }
-            
+
             if (ch.HasValue)
             {
                 if (IsNewLineChar(ch.Value))
@@ -600,10 +601,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             string text = currentInput.FlushBufferedText();
 
             currentToken = new Token(
-                lexerTokenType, 
-                tokenBeginPosition, 
+                lexerTokenType,
+                tokenBeginPosition,
                 new PositionStruct(currentInput.CurrentLine, currentInput.CurrentColumn, currentInput.CurrentOffset, currentInput.Filename),
-                text, 
+                text,
                 currentInput.Filename);
         }
 
@@ -625,7 +626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (wordBoundary)
             {
                 char? ch = Lookahead(text.Length);
-                if (ch != null && IsWhitespaceChar(ch.Value) == false && IsNewLineChar(ch.Value) == false 
+                if (ch != null && IsWhitespaceChar(ch.Value) == false && IsNewLineChar(ch.Value) == false
                     && ch != '$' && ch != '/' && ch != '-' && ch != '\'' && ch != '"' && ch != '(' && ch != '[' && ch != '!')
                 {
                     return false;
@@ -645,89 +646,106 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         {
             Consume(); // colon
 
-            if (TryAccept("reset", true))
-            {
-                SetToken(LexerTokenType.Reset);
-                return true;
-            }
-            else if (TryAccept("ed", true))
-            {
-                SetToken(LexerTokenType.Ed);
-                return true;
-            }
-            else if (TryAccept("!!", true))
+            /*
+              TryAccept(text: "!!", wordBoundary: false)
+              ----------------------
+              Reason: 
+                * The behavior is differ from SqlCmd and current implementation. 
+                * Example: 
+                    * !!Dir (without whitespace)
+                        *  Command: Invoke-Sqlcmd -Query ':!!if exist foo.txt del foo.txt' 
+                        *  Result : Incorrect syntax near ':'.  (InCorrect)
+                        
+                    * !! DIR (with whitespace)
+                        *  Command: Invoke-Sqlcmd -Query ':!! if exist foo.txt del foo.txt' 
+                        *  Result :  Command Execute is not supported. (Correct)
+                        
+                * TryAccept return false , if we pass true to parameter wordBoundary and LexerTokenType will set to Text instead of Execute.
+                * So by passing wordBoundary as false, I will get TryAccept as true and  LexerTokenType will set to Execute.
+             */
+            if (TryAccept(text: "!!", wordBoundary: false))
             {
                 SetToken(LexerTokenType.Execute);
                 return true;
             }
-            else if (TryAccept("quit", true))
-            {
-                SetToken(LexerTokenType.Quit);
-                return true;
-            }
-            else if (TryAccept("exit", true))
-            {
-                SetToken(LexerTokenType.Exit);
-                return true;
-            }
-            else if (TryAccept("r", true))
-            {
-                SetToken(LexerTokenType.Include);
-                return true;
-            }
-            else if (TryAccept("serverlist", true))
-            {
-                SetToken(LexerTokenType.Serverlist);
-                return true;
-            }
-            else if (TryAccept("setvar", true))
-            {
-                SetToken(LexerTokenType.Setvar);
-                return true;
-            }
-            else if (TryAccept("list", true))
-            {
-                SetToken(LexerTokenType.List);
-                return true;
-            }
-            else if (TryAccept("error", true))
-            {
-                SetToken(LexerTokenType.ErrorCommand);
-                return true;
-            }
-            else if (TryAccept("out", true))
-            {
-                SetToken(LexerTokenType.Out);
-                return true;
-            }
-            else if (TryAccept("perftrace", true))
-            {
-                SetToken(LexerTokenType.Perftrace);
-                return true;
-            }
-            else if (TryAccept("connect", true))
+            else if (TryAccept(text: "connect", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Connect);
                 return true;
             }
-            else if (TryAccept("on error", true))
+            else if (TryAccept(text: "ed", wordBoundary: true))
             {
-                SetToken(LexerTokenType.OnError);
+                SetToken(LexerTokenType.Ed);
                 return true;
             }
-            else if (TryAccept("help", true))
+            else if (TryAccept(text: "error", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.ErrorCommand);
+                return true;
+            }
+            else if (TryAccept(text: "exit", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Exit);
+                return true;
+            }
+            else if (TryAccept(text: "help", wordBoundary: true))
             {
                 SetToken(LexerTokenType.Help);
                 return true;
             }
-            else if (TryAccept("xml", true))
+            else if (TryAccept(text: "list", wordBoundary: true))
             {
-                SetToken(LexerTokenType.Xml);
+                SetToken(LexerTokenType.List);
                 return true;
             }
-            else if (TryAccept("listvar", true))
+            else if (TryAccept(text: "listvar", wordBoundary: true))
             {
                 SetToken(LexerTokenType.ListVar);
+                return true;
+            }
+            else if (TryAccept(text: "on error", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.OnError);
+                return true;
+            }
+            else if (TryAccept(text: "out", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Out);
+                return true;
+            }
+            else if (TryAccept(text: "perftrace", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Perftrace);
+                return true;
+            }
+            else if (TryAccept(text: "quit", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Quit);
+                return true;
+            }
+            else if (TryAccept(text: "r", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Include);
+                return true;
+            }
+            else if (TryAccept(text: "reset", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Reset);
+                return true;
+            }
+            else if (TryAccept(text: "serverlist", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Serverlist);
+                return true;
+            }
+            else if (TryAccept(text: "setvar", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Setvar);
+                return true;
+            }
+            else if (TryAccept(text: "xml", wordBoundary: true))
+            {
+                SetToken(LexerTokenType.Xml);
                 return true;
             }
 
