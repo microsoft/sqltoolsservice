@@ -1723,7 +1723,7 @@
     <value>Exclude schema compare node</value>
     <comment></comment>
   </data>
-  <data name="ExcludeNodeTaskName" xml:space="preserve">
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
     <value>Failed to find the specified change in the model</value>
     <comment></comment>
   </data>
