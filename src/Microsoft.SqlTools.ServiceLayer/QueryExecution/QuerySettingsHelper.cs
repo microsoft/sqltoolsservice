@@ -124,5 +124,110 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetLockTimeout, this.settings.LockTimeout);
             }
         }
+
+
+        [XmlIgnore()]
+        public string SetTextSizeString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetTextSize, this.settings.TextSize);
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetQueryGovernorCostString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetQueryGovernorCost, this.settings.QueryGovernorCostLimit);
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetDeadlockPriorityString
+        {
+            get
+            {
+                
+                bool isDeadlockPriorityLow = string.Compare(this.settings.DeadlockPriority, "low", StringComparison.OrdinalIgnoreCase) == 0;
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetDeadlockPriority, (isDeadlockPriorityLow ? s_Low : s_Normal));
+            }
+        }
+
+
+        [XmlIgnore]
+        public string SetTransactionIsolationLevelString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetTranIsolationLevel, this.settings.TransactionIsolationLevel);
+            }
+        }
+
+
+        [XmlIgnore()]
+        public string SetAnsiNullsString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetAnsiNulls, (this.settings.AnsiNulls ? s_On : s_Off));
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetAnsiNullDefaultString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetAnsiNullDefault, (this.settings.AnsiNullDefaultOn ? s_On : s_Off));
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetAnsiPaddingString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetAnsiPadding, (this.settings.AnsiPadding ? s_On : s_Off));
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetAnsiWarningsString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetAnsiWarnings, (this.settings.AnsiWarnings ? s_On : s_Off));
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetCursorCloseOnCommitString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetCursorCloseOnCommit, (this.settings.CursorCloseOnCommit ? s_On : s_Off));
+            }
+        }
+
+        [XmlIgnore()]
+        public string SetImplicitTransactionString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetImplicitTransaction, (this.settings.ImplicitTransactions ? s_On : s_Off));
+            }
+        }
+
+
+        [XmlIgnore()]
+        public string SetQuotedIdentifierString
+        {
+            get
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetQuotedIdentifier, (this.settings.QuotedIdentifier ? s_On : s_Off));
+            }
+        }
     }
 }

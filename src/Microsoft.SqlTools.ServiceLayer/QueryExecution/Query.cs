@@ -495,12 +495,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
 
-
         private void ApplyExecutionSettings(
             ConnectionInfo connection, 
             QueryExecutionSettings settings, 
             IFileStreamFactory outputFactory)
         {
+            QuerySettingsHelper helper = new QuerySettingsHelper(settings);
+
             // set query execution plan options
             if (DoesSupportExecutionPlan(connection))
             {
@@ -518,17 +519,46 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
 
-
             StringBuilder strBuilder = new StringBuilder(512);
 
-            // //append first part of exec options
-            // strBuilder.AppendFormat("{0} {1} {2}",
-            // settings.SetRowCountString,  settings.SetTextSizeString,
-            //                         settings.SetNoCountString
-            //                         //NOTE: these were excluded from UI exposure with the optiosn dlg redesign
-            //                         //,s.SetNumericAbortString, s.SetFmtOnlyString, s.SetForceplanString
-            //                        );
+            // append first part of exec options
+            strBuilder.AppendFormat("{0} {1} {2}", 
+                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
 
+            if (!connection.IsSqlDW)
+            {
+                // append second part of exec options
+                strBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetConcatenationNullString, 
+                                        helper.SetArithAbortString, 
+                                        helper.SetLockTimeoutString, 
+                                        helper.SetQueryGovernorCostString, 
+                                        helper.SetDeadlockPriorityString, 
+                                        helper.SetTransactionIsolationLevelString,
+                                        // We treat XACT_ABORT special in that we don't add anything if the option
+                                        // isn't checked. This is because we don't want to be overwriting the server
+                                        // if it has a default of ON since that's something people would specifically
+                                        // set and having a client change it could be dangerous (the reverse is much
+                                        // less risky)
+ 
+                                        // The full fix would probably be to make the options tri-state instead of 
+                                        // just on/off, where the default is to use the servers default. Until that
+                                        // happens though this is the best solution we came up with. See TFS#7937925
+ 
+                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
+                                        // queries if they do truly want to set it off. We just don't want  to
+                                        // do it silently (since the default is going to be off)
+                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
+
+                // append Ansi options
+                strBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
+                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
+                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
+            }
+
+            // add connection option statements before query execution
+            AddBatch(strBuilder.ToString(), BeforeBatches, outputFactory);
         }
 
         #endregion
