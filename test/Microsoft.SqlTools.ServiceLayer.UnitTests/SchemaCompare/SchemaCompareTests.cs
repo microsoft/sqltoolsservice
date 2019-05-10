@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             string script = "EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';";
             Assert.DoesNotContain("GO", script);
             string result = SchemaCompareOperation.FormatScript(script);
-            Assert.Contains("GO", result);
             Assert.EndsWith("GO", result);
         }
 
@@ -57,10 +56,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         public void RemovesExcessWhitespace()
         {
             // leading whitespace
-            string script1 = "\r\nEXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';";
+            string script1 = "\r\n   EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';";
             string result1 = SchemaCompareOperation.RemoveExcessWhitespace(script1);
             Assert.False(script1.Equals(result1));
             Assert.False(result1.StartsWith("\r"));
+            Assert.True(result1.StartsWith("EXECUTE"));
 
             // trailing whitespace
             string script2 = "EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';  \n";
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             Assert.False(result2.EndsWith("\n"));
             Assert.True(result2.EndsWith(";"));
 
-            // non-leading/trailing whitespace
+            // non-leading/trailing multiple spaces
             string script3 = @"CREATE TABLE [dbo].[AWBuildVersion] (
      [SystemInformationID] TINYINT IDENTITY (1, 1) NOT NULL,
  [Database Version] NVARCHAR (25)     NOT NULL,

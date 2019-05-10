@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             script = RemoveExcessWhitespace(script);
             if(!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
             {
-                script += "\nGO";
+                script += Environment.NewLine + "GO";
             }
             return script;
         }
