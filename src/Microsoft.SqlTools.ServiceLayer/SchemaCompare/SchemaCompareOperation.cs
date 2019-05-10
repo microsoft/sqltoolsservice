@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
-            if(difference == null)
+            if (difference == null)
             {
                 return null;
             }
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     diffEntry.TargetScript = FormatScript(targetScript);
                 }
             }
-            
+
             diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public static string RemoveExcessWhitespace(string script)
         {
-            if(script != null)
+            if (script != null)
             {
                 // remove leading and trailing whitespace
                 script = script.Trim();
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         public static string FormatScript(string script)
         {
             script = RemoveExcessWhitespace(script);
-            if(!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
+            if (!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
             {
                 script += Environment.NewLine + "GO";
             }
