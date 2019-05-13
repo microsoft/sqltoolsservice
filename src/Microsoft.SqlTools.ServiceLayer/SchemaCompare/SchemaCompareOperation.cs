@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
-            if(difference == null)
+            if (difference == null)
             {
                 return null;
             }
@@ -160,16 +160,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     string sourceScript;
                     difference.SourceObject.TryGetScript(out sourceScript);
-                    diffEntry.SourceScript = RemoveExcessWhitespace(sourceScript);
+                    diffEntry.SourceScript = FormatScript(sourceScript);
                 }
                 if (difference.TargetObject != null)
                 {
                     string targetScript;
                     difference.TargetObject.TryGetScript(out targetScript);
-                    diffEntry.TargetScript = RemoveExcessWhitespace(targetScript);
+                    diffEntry.TargetScript = FormatScript(targetScript);
                 }
             }
-            
+
             diffEntry.Children = new List<DiffEntry>();
 
             foreach (SchemaDifference child in difference.Children)
@@ -210,10 +210,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
         }
 
-        private static string RemoveExcessWhitespace(string script)
+        public static string RemoveExcessWhitespace(string script)
         {
-            // replace all multiple spaces with single space
-            return Regex.Replace(script, " {2,}", " ");
+            if (script != null)
+            {
+                // remove leading and trailing whitespace
+                script = script.Trim();
+                // replace all multiple spaces with single space
+                script = Regex.Replace(script, " {2,}", " ");
+            }
+            return script;
+        }
+
+        public static string FormatScript(string script)
+        {
+            script = RemoveExcessWhitespace(script);
+            if (!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
+            {
+                script += Environment.NewLine + "GO";
+            }
+            return script;
         }
 
         private static string GetName(string name)
