@@ -3,17 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Data.SqlClient;
-using System.Globalization;
-using System.IO;
-using System.Text;
 using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine;
 using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
+using System;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.IO;
+using System.Text;
 using Xunit;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
@@ -122,7 +122,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
-
         // Verify the execution by passing long value , Except a exception.
         [Fact]
         public void VerifyInvalidNumber()
@@ -140,8 +139,8 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
-                // This test will fail because we are passing invalid number. 
-                // Exception will be raised from  ParseGo() 
+                // This test will fail because we are passing invalid number.
+                // Exception will be raised from  ParseGo()
                 Assert.Throws<BatchParserException>(() => p.Parse());
             }
         }
@@ -223,7 +222,6 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         {
             try
             {
-
                 string query = ":SETVAR    a 10";
                 var inputStream = GenerateStreamFromString(query);
                 using (Lexer lexer = new Lexer(new StreamReader(inputStream), "Test.sql"))
@@ -232,15 +230,52 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 }
                 executionResult = ScriptExecutionResult.Success;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
                 executionResult = ScriptExecutionResult.Failure;
-
             }
             //  we doesn't expect any exception or testCase failures
             Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, executionResult);
-             
+        }
+
+        // This test case is to verify that, Powershell's Invoke-SqlCmd handles ":!!if" in an inconsistent way
+        // Inconsistent way means, instead of throwing an exception as "Command Execute is not supported." it was throwing "Incorrect syntax near ':'."
+        [Fact]
+        public void VerifySqlCmdExecute()
+        {
+            string query = ":!!if exist foo.txt del foo.txt";
+            var inputStream = GenerateStreamFromString(query);
+            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
+            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
+            using (Parser p = new Parser(
+                handler,
+                resolver,
+                new StringReader(query),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = true;
+                handler.SetParser(p);
+
+                var exception = Assert.Throws<BatchParserException>(() => p.Parse());
+                // Verify the message should be "Command Execute is not supported."
+                Assert.Equal("Command Execute is not supported.", exception.Message);
+            }
+        }
+
+        // This test case is to verify that, Lexer type for :!!If was set to "Text" instead of "Execute"
+        [Fact]
+        public void VerifyLexerTypeOfSqlCmdIFisExecute()
+        {
+            string query = ":!!if exist foo.txt del foo.txt";
+            var inputStream = GenerateStreamFromString(query);
+            LexerTokenType type = LexerTokenType.None;
+            using (Lexer lexer = new Lexer(new StreamReader(inputStream), "Test.sql"))
+            {
+                lexer.ConsumeToken();
+                type = lexer.CurrentTokenType;
+            }
+            // we are expecting the lexer type should to be Execute.
+            Assert.Equal("Execute", type.ToString());
         }
 
         // Verify the custom exception functionality by raising user defined error.
@@ -271,7 +306,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
             {
-                string query = @"SELECT 1+2 
+                string query = @"SELECT 1+2
                                 Go 2";
                 using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
                 {
@@ -287,7 +322,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         // Verify whether the batchParser execute SqlCmd.
-        //[Fact]   //  This Testcase should execute and pass, But it is failing now. 
+        //[Fact]   //  This Testcase should execute and pass, But it is failing now.
         public void VerifyIsSqlCmd()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -299,11 +334,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                     TestExecutor testExecutor = new TestExecutor(query, con, new ExecutionEngineConditions());
                     testExecutor.Run();
                     Assert.True(testExecutor.ResultCountQueue.Count >= 1);
-
                 }
             }
         }
-     
+
         // Verify whether the executionEngine execute Batch
         [Fact]
         public void VerifyExecuteBatch()
@@ -318,11 +352,11 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                     executionEngine.BatchParserExecutionFinished += OnBatchParserExecutionFinished;
                     executionEngine.ExecuteBatch(new ScriptExecutionArgs(query, con, 15, new ExecutionEngineConditions(), new BatchParserMockEventHandler()));
                     Assert.Equal(ScriptExecutionResult.Success, executionResult);
-
                 }
             }
         }
-        // Capture the event once batch finish execution. 
+
+        // Capture the event once batch finish execution.
         private void OnBatchParserExecutionFinished(object sender, BatchParserExecutionFinishedEventArgs e)
         {
             executionResult = e.ExecutionResult;
