@@ -71,7 +71,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Create simple backup test
         /// </summary>
-        //[Fact]
+        [Fact]
         public void CreateBackupTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -96,7 +96,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             testDb.Cleanup();
         }
 
-        //[Fact]
+        [Fact]
         public void ScriptBackupTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -129,7 +129,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
-        //[Fact]
+        [Fact]
         public void CreateBackupWithAdvancedOptionsTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -181,7 +181,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
-        //[Fact]
+        [Fact]
         public void ScriptBackupWithAdvancedOptionsTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -227,6 +227,44 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             Console.WriteLine("Remove certificate and master key..");
             testDb.RunQuery(cleanupCertificateQuery);
 
+            // Clean up the database
+            Console.WriteLine("Clean up database..");
+            testDb.Cleanup();
+        }
+
+        /// <summary>
+        /// Test the correct script generation for different backup action types
+        /// </summary>
+        [Fact]
+        public void ScriptBackupWithDifferentActionTypesTest()
+        {
+            string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
+            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
+            
+            // Create Full backup script
+            string script = GenerateScriptForBackupType(BackupType.Full, databaseName);
+
+            // Validate Full backup script 
+            Assert.Contains("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
+            
+            // Create log backup script
+            script = GenerateScriptForBackupType(BackupType.TransactionLog, databaseName);
+            
+            // Validate Log backup script 
+            Assert.Contains("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
+
+            // Create differential backup script
+            script = GenerateScriptForBackupType(BackupType.Differential, databaseName);
+
+            // Validate differential backup script 
+            Assert.Contains("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("WITH  DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
+            
             // Clean up the database
             Console.WriteLine("Clean up database..");
             testDb.Cleanup();
@@ -392,6 +430,36 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 }
             }
             return false;
+        }
+
+        private string GenerateScriptForBackupType(BackupType backupType, string databaseName)
+        {
+            DisasterRecoveryService service = new DisasterRecoveryService();
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
+            SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
+            string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
+
+            BackupInfo backupInfoLog = CreateDefaultBackupInfo(databaseName,
+                backupType,
+                new List<string>() { backupPath },
+                new Dictionary<string, int>() { { backupPath, (int)DeviceType.File } });
+            backupInfoLog.FormatMedia = true;
+            backupInfoLog.SkipTapeHeader = true;
+            backupInfoLog.Initialize = true;
+            backupInfoLog.MediaName = "backup test media";
+            backupInfoLog.MediaDescription = "backup test";
+            BackupOperation backupOperation = CreateBackupOperation(service, liveConnection.ConnectionInfo.OwnerUri, backupInfoLog, helper.DataContainer, sqlConn);
+
+            // Generate Script
+            Console.WriteLine("Generate script for backup operation..");
+            service.ScriptBackup(backupOperation);
+            string script = backupOperation.ScriptContent;
+
+            // There shouldnt be any backup file created
+            Assert.True(!File.Exists(backupPath));
+
+            return script;
         }
         #endregion
     }
