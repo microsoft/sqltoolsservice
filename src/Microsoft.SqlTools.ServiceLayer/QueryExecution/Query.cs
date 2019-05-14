@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                if (!HasExecuted && !HasCancelled)
+                if (!HasExecuted && !HasCancelled && !HasErrored)
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
@@ -263,6 +263,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// if the query has been cancelled (before execution started)
         /// </summary>
         public bool HasCancelled { get; private set; }
+
+        /// <summary>
+        /// if the query has errored out (before batch execution started)
+        /// </summary>
+        public bool HasErrored { get; private set; }
 
         /// <summary>
         /// The text of the query to execute
@@ -393,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     return;
                 }
-    
+                
                 // Locate and setup the connection
                 DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
                 sqlConn = queryConnection as ReliableSqlConnection;
@@ -438,6 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (Exception e)
             {
+                HasErrored = true;
                 if (e is OperationCanceledException)
                 {
                     await BatchMessageSent(new ResultMessage(SR.QueryServiceQueryCancelled, false, null));
