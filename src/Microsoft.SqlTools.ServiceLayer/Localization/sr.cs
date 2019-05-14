@@ -2869,11 +2869,83 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ExportBacpacTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExportBacpacTaskName);
+            }
+        }
+
+        public static string ImportBacpacTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ImportBacpacTaskName);
+            }
+        }
+
+        public static string ExtractDacpacTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExtractDacpacTaskName);
+            }
+        }
+
+        public static string DeployDacpacTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.DeployDacpacTaskName);
+            }
+        }
+
+        public static string GenerateScriptTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.GenerateScriptTaskName);
+            }
+        }
+
         public static string ExtractInvalidVersion
         {
             get
             {
                 return Keys.GetString(Keys.ExtractInvalidVersion);
+            }
+        }
+
+        public static string PublishChangesTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.PublishChangesTaskName);
+            }
+        }
+
+        public static string IncludeNodeTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.IncludeNodeTaskName);
+            }
+        }
+
+        public static string ExcludeNodeTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExcludeNodeTaskName);
+            }
+        }
+
+        public static string SchemaCompareExcludeIncludeNodeNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaCompareExcludeIncludeNodeNotFound);
             }
         }
 
@@ -4190,7 +4262,34 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string Error_ExistingDirectoryName = "Error_ExistingDirectoryName";
 
 
+            public const string ExportBacpacTaskName = "ExportBacpacTaskName";
+
+
+            public const string ImportBacpacTaskName = "ImportBacpacTaskName";
+
+
+            public const string ExtractDacpacTaskName = "ExtractDacpacTaskName";
+
+
+            public const string DeployDacpacTaskName = "DeployDacpacTaskName";
+
+
+            public const string GenerateScriptTaskName = "GenerateScriptTaskName";
+
+
             public const string ExtractInvalidVersion = "ExtractInvalidVersion";
+
+
+            public const string PublishChangesTaskName = "PublishChangesTaskName";
+
+
+            public const string IncludeNodeTaskName = "IncludeNodeTaskName";
+
+
+            public const string ExcludeNodeTaskName = "ExcludeNodeTaskName";
+
+
+            public const string SchemaCompareExcludeIncludeNodeNotFound = "SchemaCompareExcludeIncludeNodeNotFound";
 
 
             private Keys()

@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using Xunit;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
 
@@ -50,13 +51,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         [Fact]
         public async void VerifyServerLogins()
         {
-            var query = @"If Exists (select loginname from master.dbo.syslogins 
+            var query = $@"If Exists (select loginname from master.dbo.syslogins
                             where name = 'OEServerLogin')
                         Begin
                             Drop Login  [OEServerLogin]
                         End
 
-                        CREATE LOGIN OEServerLogin WITH PASSWORD = 'SuperSecret52&&'
+                        CREATE LOGIN OEServerLogin WITH PASSWORD = '{Guid.NewGuid()}'
                         GO
                         ALTER LOGIN OEServerLogin DISABLE; ";
             string databaseName = "tempdb";
@@ -69,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var loginsChildren = (await _service.ExpandNode(session, loginsNode.NodePath)).Nodes;
                 var login = loginsChildren.FirstOrDefault(x => x.Label == "OEServerLogin");
                 Assert.NotNull(login);
-               
+
                 Assert.True(login.NodeStatus == "Disabled");
                 await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, testDbName, "Drop Login  OEServerLogin");
 
@@ -80,19 +81,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void VerifyServerTriggers()
         {
             var query = @"IF EXISTS (SELECT * FROM sys.server_triggers  WHERE name = 'OE_ddl_trig_database')
-                           
+
                         Begin
                             DROP TRIGGER OE_ddl_trig_database  ON ALL SERVER
-                        
+
                         ENd
                         GO
 
-                        CREATE TRIGGER OE_ddl_trig_database   
-                        ON ALL SERVER   
-                        FOR CREATE_DATABASE   
-                        AS   
-                            PRINT 'Database Created.'  
-                        GO  
+                        CREATE TRIGGER OE_ddl_trig_database
+                        ON ALL SERVER
+                        FOR CREATE_DATABASE
+                        AS
+                            PRINT 'Database Created.'
+                        GO
                         GO
                         Disable TRIGGER OE_ddl_trig_database ON ALL SERVER ;";
             string databaseName = "tempdb";
@@ -152,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             var query = "ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE";
             string databaseName = "master";
-            
+
             await RunTest(databaseName, query, "OfflineDb", async (testDbName, session) =>
             {
                 var databaseNode = await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
@@ -191,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 //Tables still includes t1
                 Assert.True(tableChildren.Nodes.Any(t => t.Label == "dbo.t1"));
 
-                //Verify the tables cache has items 
+                //Verify the tables cache has items
 
                 var rootChildrenCache = session.Root.GetChildren();
                 var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
@@ -264,8 +265,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message} {ex.StackTrace}");
-                Assert.False(true, ex.Message);
+                string msg = ex.BuildRecursiveErrorMessage();
+                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
+                Assert.False(true, msg);
             }
             finally
             {
@@ -298,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
             Assert.Equal(nodeInfo.IsLeaf, false);
-           
+
             NodeInfo databaseNode = null;
 
             if (serverNode)
@@ -460,7 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     BaselinedTest.CompareActualWithBaseline(actual, baseline);
                 }
             });
-           
+
             return true;
         }
 

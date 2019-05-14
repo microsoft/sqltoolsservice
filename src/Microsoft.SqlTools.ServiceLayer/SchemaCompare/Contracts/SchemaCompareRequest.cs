@@ -58,6 +58,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// Executation mode for the operation. Default is execution
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
+
+        /// <summary>
+        /// gets or sets the deployment options for schema compare
+        /// </summary>
+        public DeploymentOptions DeploymentOptions { get; set; }
     }
 
     /// <summary>
@@ -74,15 +79,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
     public class DiffEntry
     {
-        public SchemaUpdateAction UpdateAction;
-        public SchemaDifferenceType DifferenceType;
-        public string Name;
-        public string SourceValue;
-        public string TargetValue;
-        public DiffEntry Parent;
-        public List<DiffEntry> Children;
-        public string SourceScript;
-        public string TargetScript;
+        public SchemaUpdateAction UpdateAction { get; set; }
+        public SchemaDifferenceType DifferenceType { get; set; }
+        public string Name { get; set; }
+        public string SourceValue { get; set; }
+        public string TargetValue { get; set; }
+        public DiffEntry Parent { get; set; }
+        public List<DiffEntry> Children { get; set; }
+        public string SourceScript { get; set; }
+        public string TargetScript { get; set; }
     }
 
     /// <summary>

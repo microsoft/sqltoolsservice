@@ -1687,8 +1687,44 @@
     <value>For directory {0} a file with name {1} already exist</value>
     <comment></comment>
   </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>Export bacpac</value>
+    <comment></comment>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>Import bacpac</value>
+    <comment></comment>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>Extract dacpac</value>
+    <comment></comment>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>Deploy dacpac</value>
+    <comment></comment>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>Generate script</value>
+    <comment></comment>
+  </data>
   <data name="ExtractInvalidVersion" xml:space="preserve">
     <value>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</value>
+    <comment></comment>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>Apply schema compare changes</value>
+    <comment></comment>
+  </data>
+  <data name="IncludeNodeTaskName" xml:space="preserve">
+    <value>Include schema compare node</value>
+    <comment></comment>
+  </data>
+  <data name="ExcludeNodeTaskName" xml:space="preserve">
+    <value>Exclude schema compare node</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>Failed to find the specified change in the model</value>
     <comment></comment>
   </data>
 </root>

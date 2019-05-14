@@ -10,36 +10,40 @@ using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
+namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
-    class TestExecutor : IDisposable
+    internal class TestExecutor : IDisposable
     {
         #region Private variables
-        string sqlStatement;
-        ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-        BatchEventHandler eventHandler = new BatchEventHandler();
-        SqlConnection connection = null;
-        static Thread _executionThread;
-        bool _syncCancel = true;
-        bool _isFinished = false;
-        bool _cancel = false;
-        int _cancelTimeout = 500;
-        int exeTimeOut = 0;
+
+        private string sqlStatement;
+        private ExecutionEngineConditions conditions = new ExecutionEngineConditions();
+        private BatchEventHandler eventHandler = new BatchEventHandler();
+        private SqlConnection connection = null;
+        private static Thread _executionThread;
+        private bool _syncCancel = true;
+        private bool _isFinished = false;
+        private bool _cancel = false;
+        private int _cancelTimeout = 500;
+        private int exeTimeOut = 0;
 
         //For verification
-        List<int> resultCounts = new List<int>();
-        List<string> sqlMessages = new List<string>();
-        List<string> errorMessage = new List<string>();
-        List<bool> batchFinished = new List<bool>();
-        static ScriptExecutionResult execResult = ScriptExecutionResult.All;
-        static List<string> batchScripts = new List<string>();
-        static Thread exeThread = null;
-        static bool parserExecutionError = false;
-        #endregion
+        private List<int> resultCounts = new List<int>();
+
+        private List<string> sqlMessages = new List<string>();
+        private List<string> errorMessage = new List<string>();
+        private List<bool> batchFinished = new List<bool>();
+        private static ScriptExecutionResult execResult = ScriptExecutionResult.All;
+        private static List<string> batchScripts = new List<string>();
+        private static Thread exeThread = null;
+        private static bool parserExecutionError = false;
+
+        #endregion Private variables
 
         #region private methods
+
         /// <summary>
-        /// Execut the script
+        /// Execute the script
         /// </summary>
         /// <param name="exec">Execution Engine</param>
         /// <param name="connection">SQL connection</param>
@@ -47,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// <param name="conditions">Execution condition</param>
         /// <param name="batchHandler">Batch event handler</param>
         /// <param name="timeout">time out value</param>
-        static void ExecuteScript(ExecutionEngine exec, SqlConnection connection, string script, ExecutionEngineConditions conditions, IBatchEventsHandler batchHandler, int timeout)
+        private static void ExecuteScript(ExecutionEngine exec, SqlConnection connection, string script, ExecutionEngineConditions conditions, IBatchEventsHandler batchHandler, int timeout)
         {
             Validate.IsNotNull(nameof(exec), exec);
             Validate.IsNotNull(nameof(connection), connection);
@@ -70,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// <param name="exec">Execution Engine</param>
         /// <param name="isSynchronous">Cancel the execution synchronously or not</param>
         /// <param name="timeout">sycn canceo timeout</param>
-        static void Cancel(ExecutionEngine exec, bool isSynchronous, int millisecondsTimeOut)
+        private static void Cancel(ExecutionEngine exec, bool isSynchronous, int millisecondsTimeOut)
         {
             //exec.BeginCancellingExecution(isSynchronous, timeout);
 
@@ -109,9 +113,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             }
             Thread.Sleep(5000);
         }
-        #endregion
+
+        #endregion private methods
 
         #region Public properties
+
         public bool SyncCancel
         {
             get
@@ -207,10 +213,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 return parserExecutionError;
             }
         }
-        #endregion
+
+        #endregion Public properties
 
         #region Constructors
-        public TestExecutor(string batch, SqlConnection conn, ExecutionEngineConditions exeCondition): this(batch, conn, exeCondition, false)
+
+        public TestExecutor(string batch, SqlConnection conn, ExecutionEngineConditions exeCondition) : this(batch, conn, exeCondition, false)
         {
         }
 
@@ -232,16 +240,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             batchScripts = new List<string>();
             exeThread = null;
             parserExecutionError = false;
-
         }
+
         public TestExecutor(string batch, SqlConnection conn, ExecutionEngineConditions exeCondition, int timeOut)
             : this(batch, conn, exeCondition, false)
         {
             exeTimeOut = timeOut;
         }
-        #endregion
+
+        #endregion Constructors
 
         #region public methods
+
         /// <summary>
         /// Execute the test engine
         /// </summary>
@@ -282,15 +292,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
                 }
             }
         }
-        #endregion
+
+        #endregion public methods
 
         #region ParserEvent
+
         /// <summary>
         /// Called when batch is called
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        static void OnBatchParserExecutionStart(object sender, BatchParserExecutionStartEventArgs e)
+        private static void OnBatchParserExecutionStart(object sender, BatchParserExecutionStartEventArgs e)
         {
             Console.WriteLine("****************");
             Console.WriteLine(e.Batch.Text);
@@ -306,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        static void OnBatchParserExecutionFinished(object sender, BatchParserExecutionFinishedEventArgs e)
+        private static void OnBatchParserExecutionFinished(object sender, BatchParserExecutionFinishedEventArgs e)
         {
             Console.WriteLine("ON_BATCH_PARSER_EXECUTION_FINISHED : Done executing batch \n\t{0}\n\t with result... {1} ", e.Batch.Text, e.ExecutionResult);
             if (execResult == ScriptExecutionResult.All)
@@ -320,12 +332,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        static void OnBatchParserExecutionError(object sender, BatchParserExecutionErrorEventArgs e)
-        {            
+        private static void OnBatchParserExecutionError(object sender, BatchParserExecutionErrorEventArgs e)
+        {
             Console.WriteLine("ON_BATCH_PARSER_EXECUTION_ERROR : {0} found... at line {1}: {2}", e.MessageType.ToString(), e.Line.ToString(), e.Message);
             Console.WriteLine("\t Error Description: " + e.Description);
             parserExecutionError = true;
-            
         }
 
         /// <summary>
@@ -341,18 +352,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             if (execResult == ScriptExecutionResult.All)
                 execResult = e.ExecutionResult;
             else
-                execResult = execResult|e.ExecutionResult;
+                execResult = execResult | e.ExecutionResult;
 
             resultCounts = eventHandler.ResultCounts;
             sqlMessages = eventHandler.SqlMessages;
             errorMessage = eventHandler.ErrorMessages;
         }
-        #endregion
+
+        #endregion ParserEvent
 
         #region IDisposable Members
+
         public void Dispose()
         {
         }
-        #endregion
+
+        #endregion IDisposable Members
     }
 }

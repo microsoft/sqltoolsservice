@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Localization\transXliff\" />

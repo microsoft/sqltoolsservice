@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -86,10 +87,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
+
+                if (this.Parameters.DeploymentOptions != null)
+                {
+                    comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
+                }
+
                 this.ComparisonResult = comparison.Compare();
 
                 // try one more time if it didn't work the first time
-                if(!this.ComparisonResult.IsValid)
+                if (!this.ComparisonResult.IsValid)
                 {
                     this.ComparisonResult = comparison.Compare();
                 }
@@ -109,8 +116,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
+        private DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
+
+            DacDeployOptions dacOptions = new DacDeployOptions();
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            {
+                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
+                if (prop != null)
+                {
+                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
+                }
+            }
+            return dacOptions;
+        }
+
+        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
+        {
+            if (difference == null)
+            {
+                return null;
+            }
+
             DiffEntry diffEntry = new DiffEntry();
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
@@ -132,13 +160,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     string sourceScript;
                     difference.SourceObject.TryGetScript(out sourceScript);
-                    diffEntry.SourceScript = RemoveExcessWhitespace(sourceScript);
+                    diffEntry.SourceScript = FormatScript(sourceScript);
                 }
                 if (difference.TargetObject != null)
                 {
                     string targetScript;
                     difference.TargetObject.TryGetScript(out targetScript);
-                    diffEntry.TargetScript = RemoveExcessWhitespace(targetScript);
+                    diffEntry.TargetScript = FormatScript(targetScript);
                 }
             }
 
@@ -157,17 +185,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             switch (endpointInfo.EndpointType)
             {
                 case SchemaCompareEndpointType.Dacpac:
-                {
-                    return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
-                }
+                    {
+                        return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
+                    }
                 case SchemaCompareEndpointType.Database:
-                {
-                    return new SchemaCompareDatabaseEndpoint(connectionString);
-                }
+                    {
+                        return new SchemaCompareDatabaseEndpoint(connectionString);
+                    }
                 default:
-                {
-                    return null;
-                }
+                    {
+                        return null;
+                    }
             }
         }
 
@@ -182,13 +210,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
         }
 
-        private string RemoveExcessWhitespace(string script)
+        public static string RemoveExcessWhitespace(string script)
         {
-            // replace all multiple spaces with single space
-            return Regex.Replace(script, " {2,}", " ");
+            if (script != null)
+            {
+                // remove leading and trailing whitespace
+                script = script.Trim();
+                // replace all multiple spaces with single space
+                script = Regex.Replace(script, " {2,}", " ");
+            }
+            return script;
         }
 
-        private string GetName(string name)
+        public static string FormatScript(string script)
+        {
+            script = RemoveExcessWhitespace(script);
+            if (!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
+            {
+                script += Environment.NewLine + "GO";
+            }
+            return script;
+        }
+
+        private static string GetName(string name)
         {
             // remove brackets from name
             return Regex.Replace(name, @"[\[\]]", "");

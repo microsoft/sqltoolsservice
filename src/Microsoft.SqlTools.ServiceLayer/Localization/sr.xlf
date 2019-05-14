@@ -1961,6 +1961,51 @@
         <target state="new">Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ExportBacpacTaskName">
+        <source>Export bacpac</source>
+        <target state="new">Export bacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ImportBacpacTaskName">
+        <source>Import bacpac</source>
+        <target state="new">Import bacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExtractDacpacTaskName">
+        <source>Extract dacpac</source>
+        <target state="new">Extract dacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DeployDacpacTaskName">
+        <source>Deploy dacpac</source>
+        <target state="new">Deploy dacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GenerateScriptTaskName">
+        <source>Generate script</source>
+        <target state="new">Generate script</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PublishChangesTaskName">
+        <source>Apply schema compare changes</source>
+        <target state="new">Apply schema compare changes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IncludeNodeTaskName">
+        <source>Include schema compare node</source>
+        <target state="new">Include schema compare node</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExcludeNodeTaskName">
+        <source>Exclude schema compare node</source>
+        <target state="new">Exclude schema compare node</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
+        <source>Failed to find the specified change in the model</source>
+        <target state="new">Failed to find the specified change in the model</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

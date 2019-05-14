@@ -2,9 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -16,19 +14,18 @@ using System.Threading;
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare generate script operation
+    /// Class to represent an in-progress schema compare publish changes operation
     /// </summary>
-    class SchemaCompareGenerateScriptOperation : ITaskOperation
+    class SchemaComparePublishChangesOperation : ITaskOperation
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
-        private bool disposed = false;
 
         /// <summary>
         /// Gets the unique id associated with this instance.
         /// </summary>
         public string OperationId { get; private set; }
 
-        public SchemaCompareGenerateScriptParams Parameters { get; }
+        public SchemaComparePublishChangesParams Parameters { get; }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
@@ -38,10 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 
-        public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult)
+        public SchemaComparePublishResult PublishResult { get; set; }
+
+        public SchemaComparePublishChangesOperation(SchemaComparePublishChangesParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("scriptFilePath", parameters.ScriptFilePath);
             this.Parameters = parameters;
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
@@ -56,20 +54,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareScriptGenerationResult result = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName);
-                File.WriteAllText(this.Parameters.ScriptFilePath, result.Script);
-
-                if (!string.IsNullOrEmpty(result.MasterScript))
-                {
-                    // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-                    string masterScriptPath = Path.Combine(Path.GetDirectoryName(this.Parameters.ScriptFilePath), string.Concat("master_", Path.GetFileName(this.Parameters.ScriptFilePath)));
-                    File.WriteAllText(masterScriptPath, result.MasterScript);
-                }
+                this.PublishResult = this.ComparisonResult.PublishChangesToTarget();
             }
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare generate script operation {0} failed with exception {1}", this.OperationId, e.Message));
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare publish changes operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
         }
@@ -77,18 +67,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
-        }
-
-        /// <summary>
-        /// Disposes the operation.
-        /// </summary>
-        public void Dispose()
-        {
-            if (!disposed)
-            {
-                this.Cancel();
-                disposed = true;
-            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestObjects
     {
-        
+
         public const string ScriptUri = "file://some/file.sql";
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public static ConnectParams GetTestConnectionParams(bool useConnectionString = false)
         {
-            return new ConnectParams() 
+            return new ConnectParams()
             {
                 OwnerUri = ScriptUri,
                 Connection = GetTestConnectionDetails(useConnectionString)
@@ -88,14 +88,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             {
                 return new ConnectionDetails()
                 {
-                    ConnectionString = "User ID=user;PWD=password;Database=databaseName;Server=serverName"
+                    ConnectionString = $"User ID=user;PWD={Guid.NewGuid().ToString()};Database=databaseName;Server=serverName"
                 };
             }
 
             return new ConnectionDetails()
             {
                 UserName = "user",
-                Password = "password",
+                Password = Guid.NewGuid().ToString(),
                 DatabaseName = "databaseName",
                 ServerName = "serverName"
             };
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         private string _database;
         private ConnectionState _state;
 
-        public TestSqlConnection() 
+        public TestSqlConnection()
         {
 
         }
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             Data = data;
         }
-        
+
         internal TestResultSet[] Data { get; set; }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
@@ -233,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override string ConnectionString { get; set; }
         public override string Database
-        { 
+        {
             get { return _database; }
         }
 

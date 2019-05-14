@@ -46,6 +46,6 @@ IF (@filepath IS NULL)
 SELECT @filepath AS FilePath
 ";
 
-    public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' ON ', @@version))";
+    public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' on ', LOWER(@@version)))";
     }
 }
