@@ -4,13 +4,14 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
     /// <summary>
     /// Collection of settings related to the execution of queries
     /// </summary>
-    public class QueryExecutionSettings
+    public class QueryExecutionSettings : GeneralRequestDetails
     {
         #region Constants
 
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Default selection of returning an actual XML showplan with all batches
         /// Do not return any execution plan by default
         /// </summary>
-        private static readonly ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions
+        private static ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions
         { 
             IncludeActualExecutionPlanXml = false,
             IncludeEstimatedExecutionPlanXml = false
@@ -46,118 +47,118 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private const bool DefaultDisplayBitAsNumber = true;
 
         /// <summary>
-        /// .
+        /// default row count
         /// </summary>
         private const int DefaultRowCount = 0;
 
         /// <summary>
-        /// .
+        /// default text size
         /// </summary>
         private const int DefaultTextSize = 2147483647;
 
         /// <summary>
-        /// .
+        /// default execution timeout
         /// </summary>
         private const int DefaultExecutionTimeout = 0;
 
 
         /// <summary>
-        /// .
+        /// default no count
         /// </summary>
         private const bool DefaultNoCount = false;
 
         /// <summary>
-        /// .
+        /// default no exec
         /// </summary>
         private const bool DefaultNoExec = false;
 
         /// <summary>
-        /// .
+        /// default parse only
         /// </summary>
         private const bool DefaultParseOnly = false;
 
         /// <summary>
-        /// .
+        /// default arith abort
         /// </summary>
         private const bool DefaultArithAbort = false;
 
         /// <summary>
-        /// .
+        /// default concat null yields null
         /// </summary>
         private const bool DefaultConcatNullYieldsNull = true;
 
         /// <summary>
-        /// .
+        /// default statistics time
         /// </summary>
         private const bool DefaultStatisticsTime = false;
 
         /// <summary>
-        /// .
+        /// default statistics IO
         /// </summary>
         private const bool DefaultStatisticsIO = false;
 
         /// <summary>
-        /// .
+        /// default transaction abort ON
         /// </summary>
         private const bool DefaultXactAbortOn = false;
     
         /// <summary>
-        /// .
+        /// default ANSI padding
         /// </summary>
         private const bool DefaultAnsiPadding = true;
 
         /// <summary>
-        /// .
+        /// default ANSI warnings
         /// </summary>
         private const bool DefaultAnsiWarnings = true;
 
         /// <summary>
-        /// .
+        /// default ANSI Nulls
         /// </summary>
         private const bool DefaultAnsiNulls = true;
 
         /// <summary>
-        /// .
+        /// default use ANSI defaults
         /// </summary>
         private const bool DefaultAnsiDefaults = false;
 
         /// <summary>
-        /// .
+        /// default quoted identifier
         /// </summary>
         private const bool DefaultQuotedIdentifier = true;
 
         /// <summary>
-        /// .
+        /// default ANSI NULL default ON
         /// </summary>
         private const bool DefaultAnsiNullDefaultOn = true;
 
         /// <summary>
-        /// .
+        /// default implicit transactions
         /// </summary>
         private const bool DefaultImplicitTransactions = false;
 
         /// <summary>
-        /// .
+        /// default cursor close on commit
         /// </summary>
         private const bool DefaultCursorCloseOnCommit = false;
 
         /// <summary>
-        /// .
+        /// default transaction isolation level
         /// </summary>
         private const string DefaultTransactionIsolationLevel = "READ UNCOMMITTED";
         
         /// <summary>
-        /// .
+        /// default deadlock priority
         /// </summary>
         private const string DefaultDeadlockPriority = "Normal";
 
         /// <summary>
-        /// .
+        /// default lock timeout
         /// </summary>
         private const int DefaultLockTimeout = 0;
         
         /// <summary>
-        /// .
+        /// default query governor cost limit
         /// </summary>
         private const int DefaultQueryGovernorCostLimit = 0;
 
@@ -165,64 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 
         #region Member Variables
 
-        private string batchSeparator;
-
-        private int? maxCharsToStore;
-
-        private int? maxXmlCharsToStore;
-
         private ExecutionPlanOptions? executionPlanOptions;
-
-        private bool? displayBitAsNumber;
-
-        private int? rowCount;
-
-        private int? textSize;
-
-        private int? executionTimeout;
-
-        private bool? noCount;
-
-        private bool? noExec;
-
-        private bool? parseOnly;
-
-        private bool? arithAbort;
-
-        private bool? concatNullYieldsNull;
-
-        private bool? showplanText;
-
-        private bool? statisticsTime;
-
-        private bool? statisticsIO;
-
-        private bool? xactAbortOn;
-
-        private string transactionIsolationLevel;
-
-        private string deadlockPriority;
-
-        private int? lockTimeout;
-
-        private int? queryGovernorCostLimit;
-
-        private bool? ansiDefaults;
-
-        private bool? quotedIdentifier;
-
-        private bool? ansiNullDefaultOn;
-
-        private bool? implicitTransactions;
-
-        private bool? cursorCloseOnCommit;
-
-        private bool? ansiPadding;
-
-        private bool? ansiWarnings;
-
-        private bool? ansiNulls;
-
 
         #endregion
 
@@ -233,8 +177,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public string BatchSeparator
         {
-            get { return batchSeparator ?? DefaultBatchSeparator; }
-            set { batchSeparator = value; }
+            get
+            {
+                return GetOptionValue<string>("batchSeparator", DefaultBatchSeparator);
+            }
+            set
+            {
+                SetOptionValue("batchSeparator", value);
+            }
         }
 
         /// <summary>
@@ -243,8 +193,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public int MaxCharsToStore
         {
-            get { return maxCharsToStore ?? DefaultMaxCharsToStore; }
-            set { maxCharsToStore = value; }
+            get
+            {
+                return GetOptionValue<int>("maxCharsToStore", DefaultMaxCharsToStore);
+            }
+            set
+            {
+                SetOptionValue("maxCharsToStore", value);
+            }
         }
 
         /// <summary>
@@ -253,8 +209,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public int MaxXmlCharsToStore
         {
-            get { return maxXmlCharsToStore ?? DefaultMaxXmlCharsToStore; }
-            set { maxXmlCharsToStore = value; }
+            get
+            {
+                return GetOptionValue<int>("maxXmlCharsToStore", DefaultMaxXmlCharsToStore);
+            }
+            set
+            {
+                SetOptionValue("maxXmlCharsToStore", value);
+            }
         }
 
         /// <summary>
@@ -273,224 +235,389 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public bool DisplayBitAsNumber
         {
-            get { return displayBitAsNumber ?? DefaultDisplayBitAsNumber; }
-            set { displayBitAsNumber = value; }
+            get
+            {
+                return GetOptionValue<bool>("displayBitAsNumber", DefaultDisplayBitAsNumber);
+            }
+            set
+            {
+                SetOptionValue("displayBitAsNumber", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set row count
         /// </summary>
         public int RowCount
         {
-            get { return rowCount ?? DefaultRowCount; }
-            set { rowCount = value; }
+            get
+            {
+                return GetOptionValue<int>("rowCount", DefaultRowCount);
+            }
+            set
+            {
+                SetOptionValue("rowCount", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set text size
         /// </summary>
         public int TextSize
         {
-            get { return textSize ?? DefaultMaxCharsToStore; }
-            set { textSize = value; }
+            get
+            {
+                return GetOptionValue<int>("textSize", DefaultTextSize);
+            }
+            set
+            {
+                SetOptionValue("textSize", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set execution timeout
         /// </summary>
         public int ExecutionTimeout
         {
-            get { return executionTimeout ?? DefaultExecutionTimeout; }
-            set { executionTimeout = value; }
+            get
+            {
+                return GetOptionValue<int>("executionTimeout", DefaultExecutionTimeout);
+            }
+            set
+            {
+                SetOptionValue("executionTimeout", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set no count
         /// </summary>
         public bool NoCount
         {
-            get { return noCount ?? DefaultNoCount; }
-            set { noCount = value; }
+            get
+            {
+                return GetOptionValue<bool>("noCount", DefaultNoCount);
+            }
+            set
+            {
+                SetOptionValue("noCount", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set no exec
         /// </summary>
         public bool NoExec
         {
-            get { return noExec ?? DefaultNoExec; }
-            set { noExec = value; }
+            get
+            {
+                return GetOptionValue<bool>("noExec", DefaultNoExec);
+            }
+            set
+            {
+                SetOptionValue("noExec", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set parse only
         /// </summary>
         public bool ParseOnly
         {
-            get { return parseOnly ?? DefaultParseOnly; }
-            set { parseOnly = value; }
+            get
+            {
+                return GetOptionValue<bool>("parseOnly", DefaultParseOnly);
+            }
+            set
+            {
+                SetOptionValue("parseOnly", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set arith abort
         /// </summary>
         public bool ArithAbort
         {
-            get { return arithAbort ?? DefaultArithAbort; }
-            set { arithAbort = value; }
+            get
+            {
+                return GetOptionValue<bool>("arithAbort", DefaultArithAbort);
+            }
+            set
+            {
+                SetOptionValue("arithAbort", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set concat null yields null
         /// </summary>
         public bool ConcatNullYieldsNull
         {
-            get { return concatNullYieldsNull ?? DefaultConcatNullYieldsNull; }
-            set { concatNullYieldsNull = value; }
+            get
+            {
+                return GetOptionValue<bool>("concatNullYieldsNull", DefaultConcatNullYieldsNull);
+            }
+            set
+            {
+                SetOptionValue("concatNullYieldsNull", value);
+            }
         }
 
         /// <summary>
-        /// .
-        /// </summary>
-        public bool ShowplanText
-        {
-            get { return showplanText ?? DefaultNoCount; }
-            set { showplanText = value; }
-        }
-
-        /// <summary>
-        /// .
+        /// Set statistics time
         /// </summary>
         public bool StatisticsTime
         {
-            get { return statisticsTime ?? DefaultStatisticsTime; }
-            set { statisticsTime = value; }
+            get
+            {
+                return GetOptionValue<bool>("statisticsTime", DefaultStatisticsTime);
+            }
+            set
+            {
+                SetOptionValue("statisticsTime", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set statistics I\O
         /// </summary>
         public bool StatisticsIO
         {
-            get { return statisticsIO ?? DefaultStatisticsIO; }
-            set { statisticsIO = value; }
+            get
+            {
+                return GetOptionValue<bool>("statisticsIO", DefaultStatisticsIO);
+            }
+            set
+            {
+                SetOptionValue("statisticsIO", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set transaction abort ON
         /// </summary>
         public bool XactAbortOn
         {
-            get { return xactAbortOn ?? DefaultXactAbortOn; }
-            set { xactAbortOn = value; }
+            get
+            {
+                return GetOptionValue<bool>("xactAbortOn", DefaultXactAbortOn);
+            }
+            set
+            {
+                SetOptionValue("xactAbortOn", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set transaction isolation level
         /// </summary>
         public string TransactionIsolationLevel
         {
-            get { return transactionIsolationLevel ?? DefaultTransactionIsolationLevel; }
-            set { transactionIsolationLevel = value; }
+            get
+            {
+                return GetOptionValue<string>("transactionIsolationLevel");
+            }
+            set
+            {
+                SetOptionValue("transactionIsolationLevel", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set deadlock priority
         /// </summary>
         public string DeadlockPriority
         {
-            get { return deadlockPriority ?? DefaultDeadlockPriority; }
-            set { deadlockPriority = value; }
+            get
+            {
+                return GetOptionValue<string>("deadlockPriority", DefaultDeadlockPriority);
+            }
+            set
+            {
+                SetOptionValue("deadlockPriority", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set lock timeout
         /// </summary>
         public int LockTimeout
         {
-            get { return lockTimeout ?? DefaultLockTimeout; }
-            set { lockTimeout = value; }
+            get
+            {
+                return GetOptionValue<int>("lockTimeout", DefaultLockTimeout);
+            }
+            set
+            {
+                SetOptionValue("lockTimeout", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set query governor cost limit
         /// </summary>
         public int QueryGovernorCostLimit
         {
-            get { return queryGovernorCostLimit ?? DefaultQueryGovernorCostLimit; }
-            set { queryGovernorCostLimit = value; }
+            get
+            {
+                return GetOptionValue<int>("queryGovernorCostLimit", DefaultQueryGovernorCostLimit);
+            }
+            set
+            {
+                SetOptionValue("queryGovernorCostLimit", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set ANSI defaults ON
         /// </summary>
         public bool AnsiDefaults
         {
-            get { return ansiDefaults ?? DefaultAnsiDefaults; }
-            set { ansiDefaults = value; }
+            get
+            {
+                return GetOptionValue<bool>("ansiDefaults", DefaultAnsiDefaults);
+            }
+            set
+            {
+                SetOptionValue("ansiDefaults", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set quoted identifier
         /// </summary>
         public bool QuotedIdentifier
         {
-            get { return quotedIdentifier ?? DefaultQuotedIdentifier; }
-            set { quotedIdentifier = value; }
+            get
+            {
+                return GetOptionValue<bool>("quotedIdentifier", DefaultQuotedIdentifier);
+            }
+            set
+            {
+                SetOptionValue("quotedIdentifier", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set ANSI null default on
         /// </summary>
         public bool AnsiNullDefaultOn
         {
-            get { return ansiNullDefaultOn ?? DefaultAnsiNullDefaultOn; }
-            set { ansiNullDefaultOn = value; }
+            get
+            {
+                return GetOptionValue<bool>("ansiNullDefaultOn", DefaultAnsiNullDefaultOn);
+            }
+            set
+            {
+                SetOptionValue("ansiNullDefaultOn", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set implicit transactions
         /// </summary>
         public bool ImplicitTransactions
         {
-            get { return implicitTransactions ?? DefaultImplicitTransactions; }
-            set { implicitTransactions = value; }
+            get
+            {
+                return GetOptionValue<bool>("implicitTransactions", DefaultImplicitTransactions);
+            }
+            set
+            {
+                SetOptionValue("implicitTransactions", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set cursor close on commit
         /// </summary>
         public bool CursorCloseOnCommit
         {
-            get { return cursorCloseOnCommit ?? DefaultCursorCloseOnCommit; }
-            set { cursorCloseOnCommit = value; }
+            get
+            {
+                return GetOptionValue<bool>("cursorCloseOnCommit", DefaultCursorCloseOnCommit);
+            }
+            set
+            {
+                SetOptionValue("cursorCloseOnCommit", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set ANSI padding
         /// </summary>
         public bool AnsiPadding
         {
-            get { return ansiPadding ?? DefaultAnsiPadding; }
-            set { ansiPadding = value; }
+            get
+            {
+                return GetOptionValue<bool>("ansiPadding", DefaultAnsiPadding);
+            }
+            set
+            {
+                SetOptionValue("ansiPadding", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set ANSI warnings
         /// </summary>
         public bool AnsiWarnings
         {
-            get { return ansiWarnings ?? DefaultAnsiWarnings; }
-            set { ansiWarnings = value; }
+            get
+            {
+                return GetOptionValue<bool>("ansiWarnings", DefaultAnsiWarnings);
+            }
+            set
+            {
+                SetOptionValue("ansiWarnings", value);
+            }
         }
 
         /// <summary>
-        /// .
+        /// Set ANSI nulls
         /// </summary>
         public bool AnsiNulls
         {
-            get { return ansiNulls ?? DefaultAnsiNulls; }
-            set { ansiNulls = value; }
+            get
+            {
+                return GetOptionValue<bool>("ansiNulls", DefaultAnsiNulls);
+            }
+            set
+            {
+                SetOptionValue("ansiNulls", value);
+            }
+        }
+
+        /// <summary>
+        /// Setting to return the actual execution plan as XML
+        /// </summary>
+        public bool IncludeActualExecutionPlanXml
+        {
+            get
+            {
+                return GetOptionValue<bool>("includeActualExecutionPlanXml");
+            }
+            set
+            {
+                SetOptionValue("includeActualExecutionPlanXml", value);
+            }
+        }
+
+        /// <summary>
+        /// Setting to return the estimated execution plan as XML
+        /// </summary>
+        public bool IncludeEstimatedExecutionPlanXml
+        {
+            get
+            {
+                return GetOptionValue<bool>("includeEstimatedExecutionPlanXml");
+            }
+            set
+            {
+                SetOptionValue("includeEstimatedExecutionPlanXml", value);
+            }
         }
 
         #endregion

@@ -33,14 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private static string s_Off = "OFF";
         private static string s_Low = "LOW";
         private static string s_Normal = "NORMAL";
-        //private static string s_ReadCommited = "READ COMMITTED";
         private static string s_SetNoCount = "SET NOCOUNT {0}";
         private static string s_SetConcatenationNull = "SET CONCAT_NULL_YIELDS_NULL {0}";
         private static string s_SetNumericAbort = "SET NUMERIC_ROUNDABORT {0}";
         private static string s_SetXACTAbort = "SET XACT_ABORT {0}";
         private static string s_SetArithAbort = "SET ARITHABORT {0}";
         private static string s_SetFmtOnly = "SET FMTONLY {0}";
-        private static string s_SetForceplan = "SET FORCEPLAN {0}";
         private static string s_SetRowCount = "SET ROWCOUNT {0}";
         private static string s_SetLockTimeout = "SET LOCK_TIMEOUT {0}";
         private static string s_SetTextSize = "SET TEXTSIZE {0}";

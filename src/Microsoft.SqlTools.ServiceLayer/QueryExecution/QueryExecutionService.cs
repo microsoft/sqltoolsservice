@@ -110,6 +110,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
 
         /// <summary>
+        /// The collection of query execution options
+        /// </summary>
+        internal ConcurrentDictionary<string, QueryExecutionSettings> ActiveQueryExecutionSettings => queryExecutionSettings.Value;
+
+        /// <summary>
         /// Internal task for testability
         /// </summary>
         internal Task WorkTask { get; private set; }
@@ -126,6 +131,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
             new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
+
+        /// <summary>
+        /// Internal storage of active query settings
+        /// </summary>
+        private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> queryExecutionSettings =
+            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());            
 
         /// <summary>
         /// Settings that will be used to execute queries. Internal for unit testing
@@ -165,6 +176,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
+            serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest);
+
+            // Register the file open update handler
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -349,6 +364,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // This was unexpected, so send back as error
                 await requestContext.SendError(e.Message);
             }
+        }
+
+        
+        /// <summary>
+        /// Handles a request to set query execution options
+        /// </summary>
+        internal async Task HandleQueryExecutionOptionsRequest(QueryExecutionOptionsParams queryExecutionOptionsParams,
+            RequestContext<bool> requestContext)
+        {
+            try
+            {
+                string uri = queryExecutionOptionsParams.OwnerUri; 
+                if (ActiveQueryExecutionSettings.ContainsKey(uri))
+                {
+                    QueryExecutionSettings settings;
+                    ActiveQueryExecutionSettings.TryRemove(uri, out settings);
+                }
+
+                ActiveQueryExecutionSettings.TryAdd(uri, queryExecutionOptionsParams.Options);
+
+                await requestContext.SendResult(true);
+            }
+            catch (Exception e)
+            {
+                // This was unexpected, so send back as error
+                await requestContext.SendError(e.Message);
+            }        
         }
 
         /// <summary>
@@ -615,11 +657,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 subsetParams.RowsStartIndex, subsetParams.RowsCount);
         }
 
+        /// <summary>
+        /// Handle the file open notification
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidCloseTextDocumentNotification(
+            string uri,
+            ScriptFile scriptFile,
+            EventContext eventContext)
+        {
+            try
+            {
+                // remove any query execution settings when an editor is closed
+                if (this.ActiveQueryExecutionSettings.ContainsKey(uri))
+                {
+                    QueryExecutionSettings settings;
+                    this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
+                }                
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+            }
+            await Task.FromResult(true);
+        }        
+
         #endregion
 
         #region Private Helpers
-
-
 
         private Query CreateQuery(ExecuteRequestParamsBase executeParams, ConnectionInfo connInfo)
         {
@@ -645,12 +712,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
             }
-
-            // Retrieve the current settings for executing the query with
-            QueryExecutionSettings settings = Settings.QueryExecutionSettings;
-
-            // Apply execution parameter settings 
-            settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+            
+            // check if there are active query execution settings for the editor, otherwise, use the global settings
+            QueryExecutionSettings settings;            
+            if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
+            {                
+                // special-case handling for query plan options to maintain compat with query execution API parameters
+                // the logic is that if either the query execute API parameters or the active query setttings 
+                // request a plan then enable the query option
+                ExecutionPlanOptions executionPlanOptions = executeParams.ExecutionPlanOptions;
+                if (settings.IncludeActualExecutionPlanXml)
+                {
+                    executionPlanOptions.IncludeActualExecutionPlanXml = settings.IncludeActualExecutionPlanXml;
+                }
+                if (settings.IncludeEstimatedExecutionPlanXml)
+                {
+                    executionPlanOptions.IncludeEstimatedExecutionPlanXml = settings.IncludeEstimatedExecutionPlanXml;
+                }
+                settings.ExecutionPlanOptions = executionPlanOptions;
+            }
+            else
+            {     
+                settings = Settings.QueryExecutionSettings;
+                settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+            }
 
             // If we can't add the query now, it's assumed the query is in progress
             Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory, executeParams.GetFullColumnSchema);

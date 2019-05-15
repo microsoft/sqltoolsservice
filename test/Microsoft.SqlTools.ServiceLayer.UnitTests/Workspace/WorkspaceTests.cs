@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // ... And there is a callback registered for the file closed event
             ScriptFile closedFile = null;
-            workspaceService.RegisterTextDocCloseCallback((f, c) =>
+            workspaceService.RegisterTextDocCloseCallback((u, f, c) =>
             {
                 closedFile = f;
                 return Task.FromResult(true);
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // ... And there is a callback registered for the file closed event
             bool callbackCalled = false;
-            workspaceService.RegisterTextDocCloseCallback((f, c) =>
+            workspaceService.RegisterTextDocCloseCallback((u, f, c) =>
             {
                 callbackCalled = true;
                 return Task.FromResult(true);

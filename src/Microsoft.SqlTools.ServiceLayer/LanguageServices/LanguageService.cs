@@ -549,6 +549,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         /// <returns></returns>
         public async Task HandleDidOpenTextDocumentNotification(
+            string uri,
             ScriptFile scriptFile,
             EventContext eventContext)
         {
