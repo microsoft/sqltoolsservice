@@ -172,11 +172,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// </summary>
         public override void Execute()
         {
+            // set the operation properties before using them to create backup obejct
+            this.SetBackupProps();
             this.backup = new Backup();
             this.backup.Database = this.backupInfo.DatabaseName;
             this.backup.Action = this.backupActionType;
             this.backup.Incremental = this.isBackupIncremental;
-            this.SetBackupProps();
 
             try
             {
