@@ -17,9 +17,9 @@ namespace Microsoft.SqlTools.Utility
             Options = new Dictionary<string, object>();
         }
 
-        public T GetOptionValue<T>(string name)
+        public T GetOptionValue<T>(string name, T defaultValue = default(T))
         {
-            T result = default(T);
+            T result = defaultValue;
             if (Options != null && Options.ContainsKey(name))
             {
                 object value = Options[name];
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Utility
                 }
                 catch
                 {
-                    result = default(T);
+                    result = defaultValue;
                     Logger.Write(TraceEventType.Warning, string.Format(CultureInfo.InvariantCulture,
                         "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
                 }

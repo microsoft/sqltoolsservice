@@ -83,16 +83,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Delegate for callbacks that occur when a text document is opened
         /// </summary>
+        /// <param name="uri">Request uri</param>
         /// <param name="openFile">File that was opened</param>
         /// <param name="eventContext">Context of the event raised for the changed files</param>
-        public delegate Task TextDocOpenCallback(ScriptFile openFile, EventContext eventContext);
+        public delegate Task TextDocOpenCallback(string uri, ScriptFile openFile, EventContext eventContext);
 
         /// <summary>
         /// Delegate for callbacks that occur when a text document is closed
         /// </summary>
+        /// <param name="uri">Request uri</param>
         /// <param name="closedFile">File that was closed</param>
         /// <param name="eventContext">Context of the event raised for changed files</param>
-        public delegate Task TextDocCloseCallback(ScriptFile closedFile, EventContext eventContext);
+        public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile, EventContext eventContext);
 
         /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
@@ -263,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 }
                 // Propagate the changes to the event handlers
                 var textDocOpenTasks = TextDocOpenCallbacks.Select(
-                    t => t(openedFile, eventContext));
+                    t => t(openParams.TextDocument.Uri, openedFile, eventContext));
 
                 await Task.WhenAll(textDocOpenTasks);
             }
@@ -300,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 Workspace.CloseFile(closedFile);
 
                 // Send out a notification to other services that have subscribed to this event
-                var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closedFile, eventContext));
+                var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closeParams.TextDocument.Uri, closedFile, eventContext));
                 await Task.WhenAll(textDocClosedTasks);
             }
             catch (Exception ex)

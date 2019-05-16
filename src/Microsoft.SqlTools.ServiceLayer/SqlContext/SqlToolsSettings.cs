@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
-        /// Query excution settings forwarding property
+        /// Query execution settings forwarding property
         /// </summary>
         public QueryExecutionSettings QueryExecutionSettings 
         { 

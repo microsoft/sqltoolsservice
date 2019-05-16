@@ -20,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -94,7 +95,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
-        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory, bool getFullColumnSchema = false)
+        public Query(
+            string queryText, 
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
+            IFileStreamFactory outputFactory,
+            bool getFullColumnSchema = false,
+            bool applyExecutionSettings = false)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -129,20 +136,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            if (DoesSupportExecutionPlan(connection))
+            if (applyExecutionSettings)
             {
-                // Checking settings for execution plan options 
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
-                {
-                    // Enable set showplan xml
-                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
-                }
-                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-                {
-                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
-                }
+                ApplyExecutionSettings(connection, settings, outputFactory);
             }
         }
 
@@ -509,6 +505,118 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
 
+        private void ApplyExecutionSettings(
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
+            IFileStreamFactory outputFactory)
+        {
+            QuerySettingsHelper helper = new QuerySettingsHelper(settings);
+
+            // set query execution plan options
+            if (DoesSupportExecutionPlan(connection))
+            {
+                // Checking settings for execution plan options 
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
+                {
+                    // Enable set showplan xml
+                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
+                }
+                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                {
+                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
+                }
+            }
+
+            StringBuilder builderBefore = new StringBuilder(512);
+            StringBuilder builderAfter = new StringBuilder(512);
+
+            if (!connection.IsSqlDW)
+            {
+                // "set noexec off" should be the very first command, cause everything after 
+                // corresponding "set noexec on" is not executed until "set noexec off"
+                // is encounted
+                if (!settings.NoExec)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
+
+                if (settings.StatisticsIO)
+                {                 
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
+                }
+
+                if (settings.StatisticsTime)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
+                }
+            }
+
+            if (settings.ParseOnly)
+            {               
+                builderBefore.AppendFormat("{0} ", helper.GetSetParseOnlyString(true));
+                builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
+            }
+
+            // append first part of exec options
+            builderBefore.AppendFormat("{0} {1} {2}", 
+                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
+
+            if (!connection.IsSqlDW)
+            {
+                // append second part of exec options
+                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetConcatenationNullString, 
+                                        helper.SetArithAbortString, 
+                                        helper.SetLockTimeoutString, 
+                                        helper.SetQueryGovernorCostString, 
+                                        helper.SetDeadlockPriorityString, 
+                                        helper.SetTransactionIsolationLevelString,
+                                        // We treat XACT_ABORT special in that we don't add anything if the option
+                                        // isn't checked. This is because we don't want to be overwriting the server
+                                        // if it has a default of ON since that's something people would specifically
+                                        // set and having a client change it could be dangerous (the reverse is much
+                                        // less risky)
+ 
+                                        // The full fix would probably be to make the options tri-state instead of 
+                                        // just on/off, where the default is to use the servers default. Until that
+                                        // happens though this is the best solution we came up with. See TFS#7937925
+ 
+                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
+                                        // queries if they do truly want to set it off. We just don't want  to
+                                        // do it silently (since the default is going to be off)
+                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
+
+                // append Ansi options
+                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
+                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
+                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
+
+                // "set noexec on" should be the very last command, cause everything after it is not
+                // being executed unitl "set noexec off" is encounered
+                if (settings.NoExec)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
+            }
+
+            // add connection option statements before query execution
+            if (builderBefore.Length > 0)
+            {
+                AddBatch(builderBefore.ToString(), BeforeBatches, outputFactory);
+            }
+
+            // add connection option statements after query execution
+            if (builderAfter.Length > 0)
+            {
+                AddBatch(builderAfter.ToString(), AfterBatches, outputFactory);
+            }
+        }
+
         #endregion
 
         #region IDisposable Implementation
@@ -541,7 +649,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Does this connection support XML Execution plans
         /// </summary>
-        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) {
+        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) 
+        {
             // Determining which execution plan options may be applied (may be added to for pre-yukon support)
             return (!connectionInfo.IsSqlDW && connectionInfo.MajorVersion >= 9);
         }
