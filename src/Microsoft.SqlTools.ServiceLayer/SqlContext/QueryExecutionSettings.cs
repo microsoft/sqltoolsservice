@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// default arith abort
         /// </summary>
-        private const bool DefaultArithAbort = false;
+        private const bool DefaultArithAbort = true;
 
         /// <summary>
         /// default concat null yields null
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// default lock timeout
         /// </summary>
-        private const int DefaultLockTimeout = 0;
+        private const int DefaultLockTimeout = -1;
         
         /// <summary>
         /// default query governor cost limit
@@ -417,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             get
             {
-                return GetOptionValue<string>("transactionIsolationLevel");
+                return GetOptionValue<string>("transactionIsolationLevel", DefaultTransactionIsolationLevel);
             }
             set
             {

@@ -4,22 +4,7 @@
 //
 
 using System;
-using System.IO;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
-using System.Xml.Serialization;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -29,29 +14,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     public class QuerySettingsHelper
     {
         //strings for various "SET <option> ON/OFF" statements
-        private static string s_On = "ON";
-        private static string s_Off = "OFF";
-        private static string s_Low = "LOW";
-        private static string s_Normal = "NORMAL";
-        private static string s_SetNoCount = "SET NOCOUNT {0}";
-        private static string s_SetConcatenationNull = "SET CONCAT_NULL_YIELDS_NULL {0}";
-        private static string s_SetNumericAbort = "SET NUMERIC_ROUNDABORT {0}";
-        private static string s_SetXACTAbort = "SET XACT_ABORT {0}";
-        private static string s_SetArithAbort = "SET ARITHABORT {0}";
-        private static string s_SetFmtOnly = "SET FMTONLY {0}";
-        private static string s_SetRowCount = "SET ROWCOUNT {0}";
-        private static string s_SetLockTimeout = "SET LOCK_TIMEOUT {0}";
-        private static string s_SetTextSize = "SET TEXTSIZE {0}";
-        private static string s_SetQueryGovernorCost = "SET QUERY_GOVERNOR_COST_LIMIT {0}";
-        private static string s_SetDeadlockPriority = "SET DEADLOCK_PRIORITY {0}";
-        private static string s_SetTranIsolationLevel = "SET TRANSACTION ISOLATION LEVEL {0}";
-        private static string s_SetAnsiNulls = "SET ANSI_NULLS {0}";
-        private static string s_SetAnsiNullDefault = "SET ANSI_NULL_DFLT_ON {0}";
-        private static string s_SetAnsiPadding = "SET ANSI_PADDING {0}";
-        private static string s_SetAnsiWarnings = "SET ANSI_WARNINGS {0}";
-        private static string s_SetCursorCloseOnCommit = "SET CURSOR_CLOSE_ON_COMMIT {0}";
-        private static string s_SetImplicitTransaction = "SET IMPLICIT_TRANSACTIONS {0}";
-        private static string s_SetQuotedIdentifier = "SET QUOTED_IDENTIFIER {0}";
+        private static readonly string s_On = "ON";
+        private static readonly string s_Off = "OFF";
+        private static readonly string s_Low = "LOW";
+        private static readonly string s_Normal = "NORMAL";
+        private static readonly string s_SetNoCount = "SET NOCOUNT {0}";
+        private static readonly string s_SetConcatenationNull = "SET CONCAT_NULL_YIELDS_NULL {0}";
+        private static readonly string s_SetNumericAbort = "SET NUMERIC_ROUNDABORT {0}";
+        private static readonly string s_SetXACTAbort = "SET XACT_ABORT {0}";
+        private static readonly string s_SetArithAbort = "SET ARITHABORT {0}";
+        private static readonly string s_SetRowCount = "SET ROWCOUNT {0}";
+        private static readonly string s_SetLockTimeout = "SET LOCK_TIMEOUT {0}";
+        private static readonly string s_SetTextSize = "SET TEXTSIZE {0}";
+        private static readonly string s_SetQueryGovernorCost = "SET QUERY_GOVERNOR_COST_LIMIT {0}";
+        private static readonly string s_SetDeadlockPriority = "SET DEADLOCK_PRIORITY {0}";
+        private static readonly string s_SetTranIsolationLevel = "SET TRANSACTION ISOLATION LEVEL {0}";
+        private static readonly string s_SetAnsiNulls = "SET ANSI_NULLS {0}";
+        private static readonly string s_SetAnsiNullDefault = "SET ANSI_NULL_DFLT_ON {0}";
+        private static readonly string s_SetAnsiPadding = "SET ANSI_PADDING {0}";
+        private static readonly string s_SetAnsiWarnings = "SET ANSI_WARNINGS {0}";
+        private static readonly string s_SetCursorCloseOnCommit = "SET CURSOR_CLOSE_ON_COMMIT {0}";
+        private static readonly string s_SetImplicitTransaction = "SET IMPLICIT_TRANSACTIONS {0}";
+        private static readonly string s_SetQuotedIdentifier = "SET QUOTED_IDENTIFIER {0}";
 
         private QueryExecutionSettings settings;
 
@@ -60,7 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             this.settings = settings;
         }
 
-        [XmlIgnore]
         public string SetNoCountString
         {
             get
@@ -69,7 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetConcatenationNullString
         {
             get
@@ -78,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-         [XmlIgnore()]
         public string SetNumericAbortString
         {
             get
@@ -87,7 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore]
         public string SetXactAbortString
         {
             get
@@ -96,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetArithAbortString
         {
             get
@@ -105,7 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetRowCountString
         {
             get
@@ -114,7 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-         [XmlIgnore()]
         public string SetLockTimeoutString
         {
             get
@@ -123,8 +100,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-
-        [XmlIgnore()]
         public string SetTextSizeString
         {
             get
@@ -133,7 +108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetQueryGovernorCostString
         {
             get
@@ -142,7 +116,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetDeadlockPriorityString
         {
             get
@@ -153,8 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-
-        [XmlIgnore]
         public string SetTransactionIsolationLevelString
         {
             get
@@ -163,8 +134,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-
-        [XmlIgnore()]
         public string SetAnsiNullsString
         {
             get
@@ -173,7 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetAnsiNullDefaultString
         {
             get
@@ -182,7 +150,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetAnsiPaddingString
         {
             get
@@ -191,7 +158,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetAnsiWarningsString
         {
             get
@@ -200,7 +166,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetCursorCloseOnCommitString
         {
             get
@@ -209,7 +174,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        [XmlIgnore()]
         public string SetImplicitTransactionString
         {
             get
@@ -218,8 +182,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-
-        [XmlIgnore()]
         public string SetQuotedIdentifierString
         {
             get

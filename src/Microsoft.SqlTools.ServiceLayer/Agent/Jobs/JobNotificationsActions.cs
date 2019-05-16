@@ -21,7 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     internal class JobNotificationsActions : ManagementActionBase
     {
         private JobData data;
-        private bool loading = false;
 
         public JobNotificationsActions(CDataContainer dataContainer, JobData data)
         {

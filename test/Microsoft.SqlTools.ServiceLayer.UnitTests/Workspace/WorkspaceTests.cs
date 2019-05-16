@@ -32,8 +32,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // ... And there is a callback registered for the file closed event
             ScriptFile closedFile = null;
+            string closedUri = null;
             workspaceService.RegisterTextDocCloseCallback((u, f, c) =>
             {
+                closedUri = u;
                 closedFile = f;
                 return Task.FromResult(true);
             });
@@ -55,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
             // ... The provided script file should be the one we created
             Assert.NotNull(closedFile);
             Assert.Equal(openedFile, closedFile);
+            Assert.Equal(TestObjects.ScriptUri, closedUri);
         }
 
         [Fact]
