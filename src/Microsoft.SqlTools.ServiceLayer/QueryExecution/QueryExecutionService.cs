@@ -218,7 +218,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Use the internal handler to launch the query
                 WorkTask = Task.Run(async () =>
                 {
-                    await InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
+                    await InterServiceExecuteQuery(
+                        executeParams, 
+                        null, 
+                        requestContext, 
+                        queryCreateSuccessAction, 
+                        queryCreateFailureAction, 
+                        null, 
+                        null,
+                        isQueryEditor(executeParams.OwnerUri));
                 });
             }
             catch (Exception ex)
@@ -566,7 +574,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Func<Query, Task<bool>> queryCreateSuccessFunc,
             Func<string, Task> queryCreateFailFunc,
             Query.QueryAsyncEventHandler querySuccessFunc,
-            Query.QueryAsyncErrorEventHandler queryFailureFunc)
+            Query.QueryAsyncErrorEventHandler queryFailureFunc,
+            bool applyExecutionSettings = false)
         {
             Validate.IsNotNull(nameof(executeParams), executeParams);
             Validate.IsNotNull(nameof(queryEventSender), queryEventSender);
@@ -575,7 +584,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 // Get a new active query
-                newQuery = CreateQuery(executeParams, connInfo);
+                newQuery = CreateQuery(executeParams, connInfo, applyExecutionSettings);
                 if (queryCreateSuccessFunc != null && !await queryCreateSuccessFunc(newQuery))
                 {
                     // The callback doesn't want us to continue, for some reason
@@ -688,7 +697,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private Query CreateQuery(ExecuteRequestParamsBase executeParams, ConnectionInfo connInfo)
+        private Query CreateQuery(
+            ExecuteRequestParamsBase executeParams, 
+            ConnectionInfo connInfo, 
+            bool applyExecutionSettings)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
@@ -738,7 +750,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // If we can't add the query now, it's assumed the query is in progress
-            Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory, executeParams.GetFullColumnSchema);
+            Query newQuery = new Query(
+                GetSqlText(executeParams), 
+                connectionInfo, 
+                settings, 
+                BufferFileFactory, 
+                executeParams.GetFullColumnSchema,
+                applyExecutionSettings);
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {
                 newQuery.Dispose();
@@ -1034,6 +1052,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
+        }
+
+        /// <summary>
+        /// Verify if the URI maps to a query editor document
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        private bool isQueryEditor(string uri)
+        {
+            return (!string.IsNullOrWhiteSpace(uri)
+                && (uri.StartsWith("untitled:")
+                || uri.StartsWith("file:")));
         }
 
         ~QueryExecutionService()

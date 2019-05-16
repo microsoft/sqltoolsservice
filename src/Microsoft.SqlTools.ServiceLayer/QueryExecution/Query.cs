@@ -100,7 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ConnectionInfo connection, 
             QueryExecutionSettings settings, 
             IFileStreamFactory outputFactory,
-            bool getFullColumnSchema = false)
+            bool getFullColumnSchema = false,
+            bool applyExecutionSettings = false)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -135,7 +136,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            ApplyExecutionSettings(connection, settings, outputFactory);
+            if (applyExecutionSettings)
+            {
+                ApplyExecutionSettings(connection, settings, outputFactory);
+            }
         }
 
         #region Events
@@ -519,16 +523,46 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
 
-            StringBuilder strBuilder = new StringBuilder(512);
+            StringBuilder builderBefore = new StringBuilder(512);
+            StringBuilder builderAfter = new StringBuilder(512);
+
+            if (!connection.IsSqlDW)
+            {
+                // "set noexec off" should be the very first command, cause everything after 
+                // corresponding "set noexec on" is not executed until "set noexec off"
+                // is encounted
+                if (!settings.NoExec)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
+
+                if (settings.StatisticsIO)
+                {                 
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
+                }
+
+                if (settings.StatisticsTime)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
+                }
+            }
+
+            if (settings.ParseOnly)
+            {               
+                builderBefore.AppendFormat("{0} ", helper.GetSetParseOnlyString(true));
+                builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
+            }
 
             // append first part of exec options
-            strBuilder.AppendFormat("{0} {1} {2}", 
+            builderBefore.AppendFormat("{0} {1} {2}", 
                 helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
 
             if (!connection.IsSqlDW)
             {
                 // append second part of exec options
-                strBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
                                         helper.SetConcatenationNullString, 
                                         helper.SetArithAbortString, 
                                         helper.SetLockTimeoutString, 
@@ -551,14 +585,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                         settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
 
                 // append Ansi options
-                strBuilder.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
                                         helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
                                         helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
                                         helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
+
+                // "set noexec on" should be the very last command, cause everything after it is not
+                // being executed unitl "set noexec off" is encounered
+                if (settings.NoExec)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
             }
 
             // add connection option statements before query execution
-            AddBatch(strBuilder.ToString(), BeforeBatches, outputFactory);
+            if (builderBefore.Length > 0)
+            {
+                AddBatch(builderBefore.ToString(), BeforeBatches, outputFactory);
+            }
+
+            // add connection option statements after query execution
+            if (builderAfter.Length > 0)
+            {
+                AddBatch(builderAfter.ToString(), AfterBatches, outputFactory);
+            }
         }
 
         #endregion
