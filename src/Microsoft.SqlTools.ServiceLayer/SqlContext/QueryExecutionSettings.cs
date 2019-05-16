@@ -635,6 +635,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             MaxXmlCharsToStore = newSettings.MaxXmlCharsToStore;
             ExecutionPlanOptions = newSettings.ExecutionPlanOptions;
             DisplayBitAsNumber = newSettings.DisplayBitAsNumber;
+            RowCount = newSettings.RowCount;
+            TextSize = newSettings.TextSize;
+            ExecutionTimeout = newSettings.ExecutionTimeout;
+            NoCount = newSettings.NoCount;
+            NoExec = newSettings.NoExec;
+            ParseOnly = newSettings.ParseOnly;
+            ArithAbort = newSettings.ArithAbort;
+            StatisticsTime = newSettings.StatisticsTime;
+            StatisticsIO = newSettings.StatisticsIO;
+            XactAbortOn = newSettings.XactAbortOn;
+            TransactionIsolationLevel = newSettings.TransactionIsolationLevel;
+            DeadlockPriority = newSettings.DeadlockPriority;
+            LockTimeout = newSettings.LockTimeout;
+            QueryGovernorCostLimit = newSettings.QueryGovernorCostLimit;
+            AnsiDefaults = newSettings.AnsiDefaults;
+            QuotedIdentifier = newSettings.QuotedIdentifier;
+            AnsiNullDefaultOn = newSettings.AnsiNullDefaultOn;
+            ImplicitTransactions = newSettings.ImplicitTransactions;
+            CursorCloseOnCommit = newSettings.CursorCloseOnCommit;
+            AnsiPadding = newSettings.AnsiPadding;
+            AnsiWarnings = newSettings.AnsiWarnings;
+            AnsiNulls = newSettings.AnsiNulls;
         }
 
         #endregion
