@@ -174,8 +174,6 @@ CREATE TABLE [dbo].[table3]
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
-            Directory.CreateDirectory(folderPath);
 
             try
             {
@@ -200,13 +198,9 @@ CREATE TABLE [dbo].[table3]
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation.OperationId,
-                    ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish.sql"))
                 };
 
                 ValidateSchemaCompareScriptGenerationWithExcludeIncludeResults(schemaCompareOperation, generateScriptParams);
-
-                // cleanup
-                SchemaCompareTestUtils.VerifyAndCleanup(generateScriptParams.ScriptFilePath);
             }
             finally
             {
@@ -252,13 +246,11 @@ CREATE TABLE [dbo].[table3]
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation.OperationId,
-                    ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish.sql"))
                 };
 
                 ValidateSchemaCompareScriptGenerationWithExcludeIncludeResults(schemaCompareOperation, generateScriptParams);
                 
                 // cleanup
-                SchemaCompareTestUtils.VerifyAndCleanup(generateScriptParams.ScriptFilePath);
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
             }
             finally
@@ -456,9 +448,10 @@ CREATE TABLE [dbo].[table3]
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
 
             SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute(TaskExecutionMode.Execute);
+            generateScriptOperation.Execute();
 
-            string initialScript = File.ReadAllText(generateScriptParams.ScriptFilePath);
+            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
+            string initialScript = generateScriptOperation.ScriptGenerationResult.Script;
 
             // create Diff Entry from on Difference
             DiffEntry diff = SchemaCompareOperation.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
@@ -479,9 +472,10 @@ CREATE TABLE [dbo].[table3]
             Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
 
             generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute(TaskExecutionMode.Execute);
+            generateScriptOperation.Execute();
 
-            string afterExcludeScript = File.ReadAllText(generateScriptParams.ScriptFilePath);
+            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
+            string afterExcludeScript = generateScriptOperation.ScriptGenerationResult.Script;
             Assert.True(initialScript.Length > afterExcludeScript.Length, $"Script should be affected (less statements) exclude operation, before {initialScript}, now {afterExcludeScript}");
 
             SchemaCompareNodeParams schemaCompareincludeNodeParams = new SchemaCompareNodeParams()
@@ -499,9 +493,10 @@ CREATE TABLE [dbo].[table3]
             Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including:{initial}, now {afterInclude}");
 
             generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute(TaskExecutionMode.Execute);
+            generateScriptOperation.Execute();
 
-            string afterIncludeScript = File.ReadAllText(generateScriptParams.ScriptFilePath);
+            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
+            string afterIncludeScript = generateScriptOperation.ScriptGenerationResult.Script;
             Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
         }
         

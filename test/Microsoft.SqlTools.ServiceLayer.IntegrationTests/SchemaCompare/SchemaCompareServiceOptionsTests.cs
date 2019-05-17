@@ -263,15 +263,13 @@ END
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation1.OperationId,
-                    ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish1.sql"))
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation1 = new SchemaCompareGenerateScriptOperation(generateScriptParams1, schemaCompareOperation1.ComparisonResult);
-                generateScriptOperation1.Execute(TaskExecutionMode.Execute);
+                generateScriptOperation1.Execute();
 
-                // validate script
-                var filePath1 = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish1.sql"));
-                Assert.True(File.Exists(filePath1) && string.IsNullOrEmpty(File.ReadAllText(filePath1)), "Should not be any differences");
+                // validate script generation failed because there were no differences
+                Assert.False(generateScriptOperation1.ScriptGenerationResult.Success);
 
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
@@ -292,19 +290,15 @@ END
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation1.OperationId,
-                    ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish2.sql"))
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation2 = new SchemaCompareGenerateScriptOperation(generateScriptParams2, schemaCompareOperation2.ComparisonResult);
-                generateScriptOperation2.Execute(TaskExecutionMode.Execute);
+                generateScriptOperation2.Execute();
 
-                // validate script
-                var filePath2 = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "Update.publish2.sql"));
-                Assert.True(File.Exists(filePath2) && !string.IsNullOrEmpty(File.ReadAllText(filePath2)), "Should have differences differences");
+                // validate script generation succeeded
+                Assert.True(generateScriptOperation2.ScriptGenerationResult.Success);
 
                 // cleanup
-                SchemaCompareTestUtils.VerifyAndCleanup(generateScriptParams1.ScriptFilePath);
-                SchemaCompareTestUtils.VerifyAndCleanup(generateScriptParams2.ScriptFilePath);
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
             }
             finally

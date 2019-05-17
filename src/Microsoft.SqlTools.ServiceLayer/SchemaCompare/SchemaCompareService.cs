@@ -117,9 +117,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
+                metadata.TaskExecutionMode = TaskExecutionMode.Script;
                 // want to show filepath in task history instead of server and database
-                metadata.ServerName = parameters.ScriptFilePath;
-                metadata.DatabaseName = string.Empty;
+                metadata.ServerName = parameters.TargetServerName;
+                metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.GenerateScriptTaskName;
 
                 sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
