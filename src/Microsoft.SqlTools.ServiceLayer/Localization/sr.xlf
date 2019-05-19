@@ -1991,16 +1991,6 @@
         <target state="new">Apply schema compare changes</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="IncludeNodeTaskName">
-        <source>Include schema compare node</source>
-        <target state="new">Include schema compare node</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ExcludeNodeTaskName">
-        <source>Exclude schema compare node</source>
-        <target state="new">Exclude schema compare node</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
         <source>Failed to find the specified change in the model</source>
         <target state="new">Failed to find the specified change in the model</target>

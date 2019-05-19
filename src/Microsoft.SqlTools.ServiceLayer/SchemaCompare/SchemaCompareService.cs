@@ -183,13 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
                 operation = new SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
-                SqlTask sqlTask = null;
-                TaskMetadata metadata = new TaskMetadata();
-                metadata.TaskOperation = operation;
-                metadata.Name = parameters.IncludeRequest ? SR.IncludeNodeTaskName : SR.ExcludeNodeTaskName;
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
+                operation.Execute(parameters.TaskExecutionMode);
+                
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
