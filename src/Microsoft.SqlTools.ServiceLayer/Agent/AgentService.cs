@@ -690,9 +690,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var proxy = dataContainer.Server.JobServer.ProxyAccounts[i];
                         proxies[i] = new AgentProxyInfo
                         {
+                            Id = proxy.ID,
                             AccountName = proxy.Name,
                             Description = proxy.Description,
-                            CredentialName = proxy.CredentialName
+                            CredentialName = proxy.CredentialName,
+                            CredentialIdentity = proxy.CredentialIdentity,
+                            CredentialId = proxy.CredentialID,
+                            IsEnabled = proxy.IsEnabled
                         };
                     }
                     result.Proxies = proxies;
