@@ -297,7 +297,7 @@ END
 
                 // validate script generation succeeded
                 Assert.True(generateScriptOperation2.ScriptGenerationResult.Success);
-
+                Assert.True(!string.IsNullOrEmpty(generateScriptOperation2.ScriptGenerationResult.Script), "Should have differences");
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
             }
