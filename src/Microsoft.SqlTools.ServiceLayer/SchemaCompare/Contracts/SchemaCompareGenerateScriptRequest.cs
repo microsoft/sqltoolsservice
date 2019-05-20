@@ -15,10 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     public class SchemaCompareGenerateScriptParams : SchemaComparePublishChangesParams
     {
-        /// <summary>
-        /// Gets or sets the filepath where to save the generated script
-        /// </summary>
-        public string ScriptFilePath { get; set; }
     }
 
     /// <summary>

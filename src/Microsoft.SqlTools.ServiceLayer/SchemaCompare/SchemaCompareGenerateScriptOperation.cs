@@ -38,16 +38,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 
+        public SchemaCompareScriptGenerationResult ScriptGenerationResult { get; set; }
+
         public SchemaCompareGenerateScriptOperation(SchemaCompareGenerateScriptParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("scriptFilePath", parameters.ScriptFilePath);
             this.Parameters = parameters;
             Validate.IsNotNull("comparisonResult", comparisonResult);
             this.ComparisonResult = comparisonResult;
         }
 
         public void Execute(TaskExecutionMode mode)
+        {
+            Execute();
+            AddScriptToTask();
+        }
+
+        public void Execute()
         {
             if (this.CancellationToken.IsCancellationRequested)
             {
@@ -56,21 +63,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareScriptGenerationResult result = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName);
-                File.WriteAllText(this.Parameters.ScriptFilePath, result.Script);
-
-                if (!string.IsNullOrEmpty(result.MasterScript))
-                {
-                    // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-                    string masterScriptPath = Path.Combine(Path.GetDirectoryName(this.Parameters.ScriptFilePath), string.Concat("master_", Path.GetFileName(this.Parameters.ScriptFilePath)));
-                    File.WriteAllText(masterScriptPath, result.MasterScript);
-                }
+                this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName);
             }
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
                 Logger.Write(TraceEventType.Error, string.Format("Schema compare generate script operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
+            }
+        }
+
+        // Separated from Execute() since tests don't create SqlTasks
+        public void AddScriptToTask()
+        {
+            this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.ScriptGenerationResult.Script);
+            if (!string.IsNullOrEmpty(this.ScriptGenerationResult.MasterScript))
+            {
+                // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
+                this.SqlTask.AddScript(SqlTaskStatus.Succeeded, ScriptGenerationResult.MasterScript);
             }
         }
 
