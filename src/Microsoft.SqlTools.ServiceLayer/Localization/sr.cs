@@ -2925,22 +2925,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string IncludeNodeTaskName
-        {
-            get
-            {
-                return Keys.GetString(Keys.IncludeNodeTaskName);
-            }
-        }
-
-        public static string ExcludeNodeTaskName
-        {
-            get
-            {
-                return Keys.GetString(Keys.ExcludeNodeTaskName);
-            }
-        }
-
         public static string SchemaCompareExcludeIncludeNodeNotFound
         {
             get
@@ -4281,12 +4265,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";
-
-
-            public const string IncludeNodeTaskName = "IncludeNodeTaskName";
-
-
-            public const string ExcludeNodeTaskName = "ExcludeNodeTaskName";
 
 
             public const string SchemaCompareExcludeIncludeNodeNotFound = "SchemaCompareExcludeIncludeNodeNotFound";

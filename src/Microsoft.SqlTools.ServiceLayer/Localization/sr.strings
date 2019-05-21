@@ -796,6 +796,4 @@ ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the for
 ############################################################################
 # Schema Compare
 PublishChangesTaskName = Apply schema compare changes
-IncludeNodeTaskName = Include schema compare node
-ExcludeNodeTaskName = Exclude schema compare node
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
