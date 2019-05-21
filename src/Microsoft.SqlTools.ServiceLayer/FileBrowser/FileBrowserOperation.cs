@@ -160,7 +160,19 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                         {
                             this.fileTree.SelectedNode = lastNode;
                         }
-                        throw new FileBrowserException(string.Format(SR.InvalidPathError, this.expandPath));
+
+                        // If root folders returned from sys.dm_os_enumerate_filesystem don't match the folders present, expandPath might not be found
+                        // Bug: https://github.com/microsoft/azuredatastudio/issues/4767
+                        // Workaround : scope file browser tree to expandPath explicitly 
+                        try
+                        {
+                            this.ScopeFileTreeToPath(expandPath);
+                            return;
+                        }
+                        catch
+                        {
+                            throw new FileBrowserException(string.Format(SR.InvalidPathError, this.expandPath));
+                        }
                     }
                 }
 
@@ -204,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
         }
 
         public List<FileTreeNode> GetChildren(string filePath)
-        { 
+        {
             List<FileTreeNode> children = new List<FileTreeNode>();
             foreach (var file in EnumerateFilesInFolder(Enumerator, connection, filePath))
             {
@@ -246,6 +258,26 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Creates file tree for a scoped path
+        /// Removes the top level file tree so only use this if you intend to do that
+        /// </summary>
+        /// <param name="expandPath">path to consider at top level node for tree</param>
+        private void ScopeFileTreeToPath(string expandPath)
+        {
+            this.fileTree = new FileTree();
+            FileTreeNode node = new FileTreeNode()
+            {
+                Name = expandPath,
+                FullPath = expandPath,
+                IsExpanded = true
+            };
+
+            this.fileTree.RootNode.AddChildNode(node);
+            node.Children = node.Children = this.GetChildren(node.FullPath);
+            this.fileTree.SelectedNode = node;
         }
 
         /// <summary>
