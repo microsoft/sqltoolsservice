@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             };
 
             this.fileTree.RootNode.AddChildNode(node);
-            node.Children = node.Children = this.GetChildren(node.FullPath);
+            node.Children = this.GetChildren(node.FullPath);
             this.fileTree.SelectedNode = node;
         }
 
