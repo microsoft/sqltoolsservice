@@ -207,6 +207,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
+
+            // Adding these defaults to ensure behavior similarity with other tools.
+            // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
+            options.AllowDropBlockingAssemblies = true;
+            options.AllowIncompatiblePlatform = true;
+            options.DropObjectsNotInSource = true;
+            options.DropPermissionsNotInSource = true;
+            options.DropRoleMembersNotInSource = true;
+            options.IgnoreKeywordCasing = false;
+            options.IgnoreSemicolonBetweenStatements = false;
+            options.IgnoreWhitespace = false;
+
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
 
             foreach (var deployOptionsProp in deploymentOptionsProperties)
