@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         {
             DacDeployOptions options = new DacDeployOptions();
 
-            // Adding these defaults to ensure behavior similarity with other tools.
+            // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
             options.AllowDropBlockingAssemblies = true;
             options.AllowIncompatiblePlatform = true;
