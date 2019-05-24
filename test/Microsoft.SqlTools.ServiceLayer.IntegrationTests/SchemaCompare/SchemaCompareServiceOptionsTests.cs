@@ -372,6 +372,16 @@ END
             DeploymentOptions deployOptions = new DeploymentOptions();
             DacDeployOptions dacOptions = new DacDeployOptions();
 
+            // Changes to match new defaults
+            dacOptions.AllowDropBlockingAssemblies = true;
+            dacOptions.AllowIncompatiblePlatform = true;
+            dacOptions.DropObjectsNotInSource = true;
+            dacOptions.DropPermissionsNotInSource = true;
+            dacOptions.DropRoleMembersNotInSource = true;
+            dacOptions.IgnoreKeywordCasing = false;
+            dacOptions.IgnoreSemicolonBetweenStatements = false;
+            dacOptions.IgnoreWhitespace = false;
+
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = deployOptions.GetType().GetProperties();
             System.Reflection.PropertyInfo[] ddProperties = dacOptions.GetType().GetProperties();
 
