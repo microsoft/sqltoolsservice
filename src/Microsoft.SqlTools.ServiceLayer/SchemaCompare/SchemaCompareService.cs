@@ -122,7 +122,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.GenerateScriptTaskName;
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                // Till we dont have real cancel, the task should be explicitly non-cancellable
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata, TaskOperationHelper.ExecuteTaskAsync, null);
 
                 await requestContext.SendResult(new ResultStatus()
                 {
@@ -158,7 +159,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.PublishChangesTaskName;
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                // Till we dont have real cancel, the task should be explicitly non-cancellable
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata, TaskOperationHelper.ExecuteTaskAsync, null);
 
                 await requestContext.SendResult(new ResultStatus()
                 {
