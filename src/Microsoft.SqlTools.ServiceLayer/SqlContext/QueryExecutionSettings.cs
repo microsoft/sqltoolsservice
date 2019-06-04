@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -421,7 +422,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             }
             set
             {
-                SetOptionValue("transactionIsolationLevel", value);
+                if (string.Equals("READ UNCOMMITTED", value, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals("READ COMMITTED", value, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals("REPEATABLE READ", value, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals("SNAPSHOT", value, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals("SERIALIZABLE", value, StringComparison.OrdinalIgnoreCase)) 
+                {
+                    SetOptionValue("transactionIsolationLevel", value);
+                }
             }
         }
 
@@ -436,7 +444,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             }
             set
             {
-                SetOptionValue("deadlockPriority", value);
+                 if (string.Equals("LOW", value, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals("NORMAL", value, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals("HIGH", value, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetOptionValue("deadlockPriority", value);
+                }
             }
         }
 
