@@ -448,7 +448,7 @@ CREATE TABLE [dbo].[table3]
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
 
             SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute();
+            generateScriptOperation.Execute(TaskExecutionMode.Script);
 
             Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
             string initialScript = generateScriptOperation.ScriptGenerationResult.Script;
@@ -472,7 +472,7 @@ CREATE TABLE [dbo].[table3]
             Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
 
             generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute();
+            generateScriptOperation.Execute(TaskExecutionMode.Script);
 
             Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
             string afterExcludeScript = generateScriptOperation.ScriptGenerationResult.Script;
@@ -493,7 +493,7 @@ CREATE TABLE [dbo].[table3]
             Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including:{initial}, now {afterInclude}");
 
             generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute();
+            generateScriptOperation.Execute(TaskExecutionMode.Script);
 
             Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
             string afterIncludeScript = generateScriptOperation.ScriptGenerationResult.Script;

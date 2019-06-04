@@ -242,7 +242,9 @@ CREATE TABLE [dbo].[table3]
             var extractRequestContext = new Mock<RequestContext<DacFxResult>>();
             extractRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
 
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateScriptTest");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");
+
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
 
@@ -266,20 +268,21 @@ CREATE TABLE [dbo].[table3]
             var generateScriptParams = new GenerateDeployScriptParams
             {
                 PackageFilePath = extractParams.PackageFilePath,
-                DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
-                ScriptFilePath = Path.Combine(folderPath, string.Concat(sourceDb.DatabaseName, "_", "UpgradeDACScript.sql"))
+                DatabaseName = targetDb.DatabaseName
             };
 
+            // Generate script for deploying source dacpac to target db
             GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, result.ConnectionInfo);
             service.PerformOperation(generateScriptOperation);
-            SqlTestDb targetDb = SqlTestDb.CreateFromExisting(generateScriptParams.DatabaseName);
+
+            // Verify script was generated
+            Assert.NotEmpty(generateScriptOperation.Result.DatabaseScript);
+            Assert.Contains("CREATE TABLE", generateScriptOperation.Result.DatabaseScript);
 
             // cleanup
-            VerifyAndCleanup(generateScriptParams.ScriptFilePath);
             VerifyAndCleanup(extractParams.PackageFilePath);
             sourceDb.Cleanup();
             targetDb.Cleanup();
-
             return generateScriptRequestContext;
         }
 
