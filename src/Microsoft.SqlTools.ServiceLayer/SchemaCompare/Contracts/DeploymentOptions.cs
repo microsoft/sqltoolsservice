@@ -232,5 +232,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 }
             }
         }
+
+        public DeploymentOptions(DacDeployOptions options)
+        {
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
+
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            {
+                var prop = options.GetType().GetProperty(deployOptionsProp.Name);
+
+                // Note that we set excluded object types here since dacfx has this value as null;
+                if (prop != null && deployOptionsProp.Name != "ExcludeObjectTypes")
+                {
+                    deployOptionsProp.SetValue(this, prop.GetValue(options));
+                }
+            }
+        }
     }
 }

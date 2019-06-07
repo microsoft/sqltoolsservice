@@ -495,5 +495,27 @@ CREATE TABLE [dbo].[table3]
             string afterIncludeScript = generateScriptOperation.ScriptGenerationResult.Script;
             Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
         }
+
+        private SchemaCompareLoadScmpResult SendAndValidateSchemaCompareLoadScmpRequest()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            string filePath = "C:\\Users\\kisantia\\SqlSchemaCompare1.scmp";
+            try
+            {
+                var schemaCompareLoadScmpParams = new SchemaCompareLoadScmpParams
+                {
+                    filePath = filePath
+                };
+
+                SchemaCompareLoadScmpOperation schemaCompareLoadScmpOperation = new SchemaCompareLoadScmpOperation(schemaCompareLoadScmpParams);
+                schemaCompareLoadScmpOperation.Execute(TaskExecutionMode.Execute);
+                return schemaCompareLoadScmpOperation.Result;
+            }
+            finally
+            {
+
+            }
+        }
     }
 }
