@@ -276,9 +276,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// For testing purpose only
         /// </summary>
         /// <param name="operation"></param>
-        internal void PerformOperation(DacFxOperation operation)
+        internal void PerformOperation(DacFxOperation operation, TaskExecutionMode taskExecutionMode)
         {
-            operation.Execute(TaskExecutionMode.Execute);
+            operation.Execute(taskExecutionMode);
         }
     }
 }
