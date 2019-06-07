@@ -9,8 +9,6 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -94,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             bool result = true;
             // Create a diff entry from difference and check if it matches the diff entry passed
-            DiffEntry entryFromDifference = SchemaCompareOperation.CreateDiffEntry(difference, null);
+            DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null);
 
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)

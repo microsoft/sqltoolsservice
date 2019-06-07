@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         {
             string script = "EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';";
             Assert.DoesNotContain("GO", script);
-            string result = SchemaCompareOperation.FormatScript(script);
+            string result = SchemaCompareUtils.FormatScript(script);
             Assert.EndsWith("GO", result);
         }
 
@@ -24,12 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         public void FormatScriptDoesNotAddGoForNullScripts()
         {
             string script1 = null;
-            string result1 = SchemaCompareOperation.FormatScript(script1);
+            string result1 = SchemaCompareUtils.FormatScript(script1);
             Assert.DoesNotContain("GO", result1);
             Assert.Equal(null, result1);
 
             string script2 = "null";
-            string result2 = SchemaCompareOperation.FormatScript(script2);
+            string result2 = SchemaCompareUtils.FormatScript(script2);
             Assert.DoesNotContain("GO", result2);
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         public void FormatScriptDoesNotAddGoForEmptyStringScripts()
         {
             string script = string.Empty;
-            string result = SchemaCompareOperation.FormatScript(script);
+            string result = SchemaCompareUtils.FormatScript(script);
             Assert.DoesNotContain("GO", result);
             Assert.Equal(string.Empty, result);
         }
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         {
             string script = "    \t\n";
             Assert.True(string.IsNullOrWhiteSpace(script));
-            string result = SchemaCompareOperation.FormatScript(script);
+            string result = SchemaCompareUtils.FormatScript(script);
             Assert.DoesNotContain("GO", result);
             Assert.Equal(string.Empty, result);
         }
@@ -57,14 +57,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         {
             // leading whitespace
             string script1 = "\r\n   EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';";
-            string result1 = SchemaCompareOperation.RemoveExcessWhitespace(script1);
+            string result1 = SchemaCompareUtils.RemoveExcessWhitespace(script1);
             Assert.False(script1.Equals(result1));
             Assert.False(result1.StartsWith("\r"));
             Assert.True(result1.StartsWith("EXECUTE"));
 
             // trailing whitespace
             string script2 = "EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';  \n";
-            string result2 = SchemaCompareOperation.RemoveExcessWhitespace(script2);
+            string result2 = SchemaCompareUtils.RemoveExcessWhitespace(script2);
             Assert.False(script2.Equals(result2));
             Assert.False(result2.EndsWith("\n"));
             Assert.True(result2.EndsWith(";"));
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
  [VersionDate] DATETIME NOT NULL,
  [ModifiedDate] DATETIME NOT NULL
 );";
-            string result3 = SchemaCompareOperation.RemoveExcessWhitespace(script3);
+            string result3 = SchemaCompareUtils.RemoveExcessWhitespace(script3);
             Assert.True(expected3.Equals(result3));
         }
     }

@@ -27,6 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
             new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
 
+        // For testability
+        internal Task CurrentSchemaCompareTask;
+
         /// <summary>
         /// Gets the singleton instance object
         /// </summary>
@@ -46,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
             serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
+            serviceHost.SetRequestHandler(SchemaCompareSaveScmpRequest.Type, this.HandleSchemaCompareSaveScmpRequest);
         }
 
         /// <summary>
@@ -65,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     parameters.TargetEndpointInfo.OwnerUri,
                     out targetConnInfo);
 
-                Task schemaCompareTask = Task.Run(async () =>
+                CurrentSchemaCompareTask = Task.Run(async () =>
                 {
                     SchemaCompareOperation operation = null;
 
@@ -224,6 +228,47 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     Success = false,
                     ErrorMessage = e.Message
                 });
+            }
+        }
+
+        public async Task HandleSchemaCompareSaveScmpRequest(SchemaCompareSaveScmpParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            try
+            {
+                ConnectionInfo sourceConnInfo;
+                ConnectionInfo targetConnInfo;
+                ConnectionServiceInstance.TryFindConnection(parameters.SourceEndpointInfo.OwnerUri, out sourceConnInfo);
+                ConnectionServiceInstance.TryFindConnection(parameters.TargetEndpointInfo.OwnerUri, out targetConnInfo);
+
+                CurrentSchemaCompareTask = Task.Run(async () =>
+                {
+                    SchemaCompareSaveScmpOperation operation = null;
+
+                    try
+                    {
+                        operation = new SchemaCompareSaveScmpOperation(parameters, sourceConnInfo, targetConnInfo);
+                        operation.Execute(parameters.TaskExecutionMode);
+                        
+                        await requestContext.SendResult(new ResultStatus()
+                        {
+                            Success = true,
+                            ErrorMessage = operation.ErrorMessage,
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendResult(new SchemaCompareResult()
+                        {
+                            OperationId = operation != null ? operation.OperationId : null,
+                            Success = false,
+                            ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                        });
+                    }
+                });                
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
             }
         }
 
