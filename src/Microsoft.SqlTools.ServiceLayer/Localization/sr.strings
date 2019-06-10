@@ -797,3 +797,4 @@ ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the for
 # Schema Compare
 PublishChangesTaskName = Apply schema compare changes
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
+SchemaCompareSessionNotFound =  Could not find the schema compare session to cancel

@@ -1719,4 +1719,7 @@
     <value>Failed to find the specified change in the model</value>
     <comment></comment>
   </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>Could not find the schema compare session to cancel</value>
+  </data>
 </root>

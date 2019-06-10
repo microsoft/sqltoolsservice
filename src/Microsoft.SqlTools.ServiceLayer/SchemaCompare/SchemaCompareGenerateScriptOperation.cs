@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName);
+                this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName, this.CancellationToken);
 
                 // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
                 if (this.SqlTask != null)
@@ -81,6 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
+            this.cancellation.Cancel();
         }
 
         /// <summary>

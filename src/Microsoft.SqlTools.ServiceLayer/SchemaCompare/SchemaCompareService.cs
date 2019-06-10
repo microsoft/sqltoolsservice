@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
 {
@@ -26,6 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         private static readonly Lazy<SchemaCompareService> instance = new Lazy<SchemaCompareService>(() => new SchemaCompareService());
         private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
             new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
+        private Lazy<ConcurrentDictionary<string, Action>> currentComparisonCancellationAction =
+            new Lazy<ConcurrentDictionary<string, Action>>(() => new ConcurrentDictionary<string, Action>());
+
 
         /// <summary>
         /// Gets the singleton instance object
@@ -42,6 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
+            serviceHost.SetRequestHandler(SchemaCompareCancellationRequest.Type, this.HandleSchemaCompareCancelRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
@@ -72,6 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     try
                     {
                         operation = new SchemaCompareOperation(parameters, sourceConnInfo, targetConnInfo);
+                        currentComparisonCancellationAction.Value[operation.OperationId] = operation.Cancel;
                         operation.Execute(parameters.TaskExecutionMode);
 
                         // add result to dictionary of results
@@ -96,6 +102,40 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                         });
                     }
                 });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles schema compare cancel request
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareCancelRequest(SchemaCompareCancelParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            try
+            {
+                Action cancelAction = null;
+                if (currentComparisonCancellationAction.Value.TryRemove(parameters.OperationId, out cancelAction))
+                {
+                    if(cancelAction != null)
+                    {
+                        cancelAction.Invoke();
+                        await requestContext.SendResult(new ResultStatus()
+                        {
+                            Success = true,
+                            ErrorMessage = null
+                        });
+                    }
+                }
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = SR.SchemaCompareSessionNotFound
+                });
+
             }
             catch (Exception e)
             {
