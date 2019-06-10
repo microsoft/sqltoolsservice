@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public GenerateDeployScriptParams Parameters { get; }
 
+        public PublishResult Result { get; set; }
+
         public GenerateDeployScriptOperation(GenerateDeployScriptParams parameters, ConnectionInfo connInfo) : base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -34,15 +36,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
             publishOptions.CancelToken = this.CancellationToken;
             publishOptions.DeployOptions = this.GetDefaultDeployOptions();
-            publishOptions.DatabaseScriptPath = this.Parameters.ScriptFilePath;
-            // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-            publishOptions.MasterDbScriptPath = Path.Combine(Path.GetDirectoryName(this.Parameters.ScriptFilePath), string.Concat("master_", Path.GetFileName(this.Parameters.ScriptFilePath)));
 
-            PublishResult result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
+            this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
 
-            if(this.Parameters.GenerateDeploymentReport && !string.IsNullOrEmpty(this.Parameters.DeploymentReportFilePath))
+            // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
+            if (this.SqlTask != null)
             {
-                File.WriteAllText(this.Parameters.DeploymentReportFilePath, result.DeploymentReport);
+                this.SqlTask.AddScript(SqlTaskStatus.Succeeded, Result.DatabaseScript);
+                if (!string.IsNullOrEmpty(this.Result.MasterDbScript))
+                {
+                    // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
+                    this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.Result.MasterDbScript);
+                }
+            }
+
+            if (this.Parameters.GenerateDeploymentReport && !string.IsNullOrEmpty(this.Parameters.DeploymentReportFilePath))
+            {
+                File.WriteAllText(this.Parameters.DeploymentReportFilePath, this.Result.DeploymentReport);
             }
         }
     }

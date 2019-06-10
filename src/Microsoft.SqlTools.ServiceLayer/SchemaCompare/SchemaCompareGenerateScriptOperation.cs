@@ -50,12 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public void Execute(TaskExecutionMode mode)
         {
-            Execute();
-            AddScriptToTask();
-        }
-
-        public void Execute()
-        {
             if (this.CancellationToken.IsCancellationRequested)
             {
                 throw new OperationCanceledException(this.CancellationToken);
@@ -64,23 +58,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 this.ScriptGenerationResult = this.ComparisonResult.GenerateScript(this.Parameters.TargetDatabaseName);
+
+                // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
+                if (this.SqlTask != null)
+                {
+                    this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.ScriptGenerationResult.Script);
+                    if (!string.IsNullOrEmpty(this.ScriptGenerationResult.MasterScript))
+                    {
+                        // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
+                        this.SqlTask.AddScript(SqlTaskStatus.Succeeded, ScriptGenerationResult.MasterScript);
+                    }
+                }
             }
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
                 Logger.Write(TraceEventType.Error, string.Format("Schema compare generate script operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
-            }
-        }
-
-        // Separated from Execute() since tests don't create SqlTasks
-        public void AddScriptToTask()
-        {
-            this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.ScriptGenerationResult.Script);
-            if (!string.IsNullOrEmpty(this.ScriptGenerationResult.MasterScript))
-            {
-                // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-                this.SqlTask.AddScript(SqlTaskStatus.Succeeded, ScriptGenerationResult.MasterScript);
             }
         }
 

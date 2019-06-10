@@ -266,7 +266,7 @@ END
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation1 = new SchemaCompareGenerateScriptOperation(generateScriptParams1, schemaCompareOperation1.ComparisonResult);
-                generateScriptOperation1.Execute();
+                generateScriptOperation1.Execute(TaskExecutionMode.Script);
 
                 // validate script generation failed because there were no differences
                 Assert.False(generateScriptOperation1.ScriptGenerationResult.Success);
@@ -293,7 +293,7 @@ END
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation2 = new SchemaCompareGenerateScriptOperation(generateScriptParams2, schemaCompareOperation2.ComparisonResult);
-                generateScriptOperation2.Execute();
+                generateScriptOperation2.Execute(TaskExecutionMode.Script);
 
                 // validate script generation succeeded
                 Assert.True(generateScriptOperation2.ScriptGenerationResult.Success);

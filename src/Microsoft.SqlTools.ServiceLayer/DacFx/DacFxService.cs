@@ -164,11 +164,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
                     SqlTask sqlTask = null;
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, SR.GenerateScriptTaskName, operation, ConnectionServiceInstance);
-
-                    // want to show filepath in task history instead of server and database
-                    metadata.ServerName = parameters.ScriptFilePath;
-                    metadata.DatabaseName = string.Empty;
+                    TaskMetadata metadata = new TaskMetadata();
+                    metadata.TaskOperation = operation;
+                    metadata.TaskExecutionMode = parameters.TaskExecutionMode;
+                    metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                    metadata.DatabaseName = parameters.DatabaseName;
+                    metadata.Name = SR.GenerateScriptTaskName;
 
                     sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
@@ -275,9 +276,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// For testing purpose only
         /// </summary>
         /// <param name="operation"></param>
-        internal void PerformOperation(DacFxOperation operation)
+        internal void PerformOperation(DacFxOperation operation, TaskExecutionMode taskExecutionMode)
         {
-            operation.Execute(TaskExecutionMode.Execute);
+            operation.Execute(taskExecutionMode);
         }
     }
 }
