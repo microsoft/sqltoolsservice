@@ -47,12 +47,13 @@ CREATE TABLE [dbo].[table3]
             return result;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateExportRequest()
+        /// <summary>
+        /// Verify the export bacpac request
+        /// </summary>
+        [Fact]
+        public async void ExportBacpac()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<DacFxResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
@@ -75,17 +76,16 @@ CREATE TABLE [dbo].[table3]
             {
                 testdb.Cleanup();
             }
-
-            return requestContext;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateImportRequest()
+        /// <summary>
+        /// Verify the import bacpac request
+        /// </summary>
+        [Fact]
+        public async void ImportBacpac()
         {
             // first export a bacpac
             var result = GetLiveAutoCompleteTestObjects();
-            var importRequestContext = new Mock<RequestContext<DacFxResult>>();
-            importRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxImportTest");
             SqlTestDb targetDb = null;
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -124,15 +124,15 @@ CREATE TABLE [dbo].[table3]
                     targetDb.Cleanup();
                 }
             }
-            return importRequestContext;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateExtractRequest()
+        /// <summary>
+        /// Verify the extract dacpac request
+        /// </summary>
+        [Fact]
+        public async void ExtractDacpac()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<DacFxResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExtractTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
@@ -157,16 +157,16 @@ CREATE TABLE [dbo].[table3]
             {
                 testdb.Cleanup();
             }
-            return requestContext;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateDeployRequest()
+        /// <summary>
+        /// Verify the deploy dacpac request
+        /// </summary>
+        [Fact]
+        public async void DeployDacpac()
         {
             // first extract a db to have a dacpac to import later
             var result = GetLiveAutoCompleteTestObjects();
-            var deployRequestContext = new Mock<RequestContext<DacFxResult>>();
-            deployRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxDeployTest");
             SqlTestDb targetDb = null;
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
@@ -208,15 +208,15 @@ CREATE TABLE [dbo].[table3]
                     targetDb.Cleanup();
                 }
             }
-            return deployRequestContext;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> ValidateExportCancellation()
+        /// <summary>
+        /// Verify the export request being cancelled
+        /// </summary>
+        [Fact]
+        public async void ExportBacpacCancellationTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<DacFxResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
@@ -251,21 +251,18 @@ CREATE TABLE [dbo].[table3]
             {
                 testdb.Cleanup();
             }
-            return requestContext;
         }
 
-
-
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployScriptRequest()
+        /// <summary>
+        /// Verify the generate deploy script request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployScript()
         {
             // first extract a dacpac
             var result = GetLiveAutoCompleteTestObjects();
-            var generateScriptRequestContext = new Mock<RequestContext<DacFxResult>>();
-            generateScriptRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateScriptTest");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");
-
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
 
@@ -305,15 +302,15 @@ CREATE TABLE [dbo].[table3]
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
-            return generateScriptRequestContext;
         }
 
-        private async Task<Mock<RequestContext<DacFxResult>>> SendAndValidateGenerateDeployPlanRequest()
+        /// <summary>
+        /// Verify the generate deploy plan request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployPlan()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var generateDeployPlanRequestContext = new Mock<RequestContext<DacFxResult>>();
-            generateDeployPlanRequestContext.Setup(x => x.SendResult(It.IsAny<DacFxResult>())).Returns(Task.FromResult(new object()));
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateDeployPlanTest");
             SqlTestDb targetDb = null;
             DacFxService service = new DacFxService();
@@ -360,70 +357,6 @@ CREATE TABLE [dbo].[table3]
                     targetDb.Cleanup();
                 }
             }
-            return generateDeployPlanRequestContext;
-        }
-
-        /// <summary>
-        /// Verify the export bacpac request
-        /// </summary>
-        [Fact]
-        public async void ExportBacpac()
-        {
-            Assert.NotNull(await SendAndValidateExportRequest());
-        }
-
-        /// <summary>
-        /// Verify the export request being cancelled
-        /// </summary>
-        [Fact]
-        public async void ExportBacpacCancellationTest()
-        {
-            Assert.NotNull(await ValidateExportCancellation());
-        }
-
-        /// <summary>
-        /// Verify the import bacpac request
-        /// </summary>
-        [Fact]
-        public async void ImportBacpac()
-        {
-            Assert.NotNull(await SendAndValidateImportRequest());
-        }
-
-        /// <summary>
-        /// Verify the extract dacpac request
-        /// </summary>
-        [Fact]
-        public async void ExtractDacpac()
-        {
-            Assert.NotNull(await SendAndValidateExtractRequest());
-        }
-
-        /// <summary>
-        /// Verify the deploy dacpac request
-        /// </summary>
-        [Fact]
-        public async void DeployDacpac()
-        {
-            Assert.NotNull(await SendAndValidateDeployRequest());
-        }
-
-        /// <summary>
-        /// Verify the generate deploy script request
-        /// </summary>
-        [Fact]
-        public async void GenerateDeployScript()
-        {
-            Assert.NotNull(await SendAndValidateGenerateDeployScriptRequest());
-        }
-
-        /// <summary>
-        /// Verify the generate deploy plan request
-        /// </summary>
-        [Fact]
-        public async void GenerateDeployPlan()
-        {
-            Assert.NotNull(await SendAndValidateGenerateDeployPlanRequest());
         }
 
         private void VerifyAndCleanup(string filePath)
