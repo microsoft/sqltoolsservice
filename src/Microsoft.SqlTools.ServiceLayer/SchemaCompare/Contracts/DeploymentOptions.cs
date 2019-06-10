@@ -241,8 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
             {
                 var prop = options.GetType().GetProperty(deployOptionsProp.Name);
 
-                // Note that we set excluded object types here since dacfx has this value as null;
-                if (prop != null && deployOptionsProp.Name != "ExcludeObjectTypes")
+                if (prop != null)
                 {
                     deployOptionsProp.SetValue(this, prop.GetValue(options));
                 }

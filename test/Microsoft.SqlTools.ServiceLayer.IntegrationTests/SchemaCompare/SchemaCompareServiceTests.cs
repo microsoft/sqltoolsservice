@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -496,24 +497,160 @@ CREATE TABLE [dbo].[table3]
             Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
         }
 
-        private SchemaCompareLoadScmpResult SendAndValidateSchemaCompareLoadScmpRequest()
+        /// <summary>
+        /// Verify opening an scmp comparing two databases
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareOpenScmpDatabaseToDatabaseRequest()
         {
-            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareOpenScmpSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareOpenScmpTarget");
 
-            string filePath = "C:\\Users\\kisantia\\SqlSchemaCompare1.scmp";
             try
             {
-                var schemaCompareLoadScmpParams = new SchemaCompareLoadScmpParams
+                // create schema compare scmp file that should be opened
+                SchemaCompareDatabaseEndpoint sourceEndpoint = new SchemaCompareDatabaseEndpoint(sourceDb.ConnectionString);
+                SchemaCompareDatabaseEndpoint targetEndpoint = new SchemaCompareDatabaseEndpoint(targetDb.ConnectionString);
+                SchemaComparison compare = new SchemaComparison(sourceEndpoint, targetEndpoint);
+                string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+                Directory.CreateDirectory(folderPath);
+                string filePath = Path.Combine(folderPath, string.Format("SchemaCompareOpenScmpTest{0}.scmp", DateTime.Now.ToFileTime()));
+                compare.SaveToFile(filePath);
+                Assert.True(File.Exists(filePath));
+
+                var schemaCompareOpenScmpParams = new SchemaCompareOpenScmpParams
                 {
                     filePath = filePath
                 };
 
-                SchemaCompareLoadScmpOperation schemaCompareLoadScmpOperation = new SchemaCompareLoadScmpOperation(schemaCompareLoadScmpParams);
-                schemaCompareLoadScmpOperation.Execute(TaskExecutionMode.Execute);
-                return schemaCompareLoadScmpOperation.Result;
+                SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams);
+                schemaCompareOpenScmpOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.NotNull(schemaCompareOpenScmpOperation.Result);
+                Assert.True(schemaCompareOpenScmpOperation.Result.Success);
+                Assert.Equal(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                Assert.Equal(sourceDb.DatabaseName, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.DatabaseName);
+                Assert.Equal(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.DatabaseName);
+                Assert.Equal(SchemaCompareEndpointType.Database, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.EndpointType);
+                Assert.Equal(SchemaCompareEndpointType.Database, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.EndpointType);
+                Assert.Empty(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements);
+                Assert.Empty(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(filePath);
             }
             finally
             {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify opening an scmp comparing a dacpac and database
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareOpenScmpDacpacToDatabaseRequest()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareOpenScmpSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareOpenScmpTarget");
+
+            try
+            {
+                // create schema compare scmp file that should be opened
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+                SchemaCompareDacpacEndpoint sourceEndpoint = new SchemaCompareDacpacEndpoint(sourceDacpacFilePath);
+                SchemaCompareDatabaseEndpoint targetEndpoint = new SchemaCompareDatabaseEndpoint(targetDb.ConnectionString);
+
+                SchemaComparison compare = new SchemaComparison(sourceEndpoint, targetEndpoint);
+                string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+                Directory.CreateDirectory(folderPath);
+                string filePath = Path.Combine(folderPath, string.Format("SchemaCompareOpenScmpTest{0}.scmp", DateTime.Now.ToFileTime()));
+                compare.SaveToFile(filePath);
+                Assert.True(File.Exists(filePath));
+
+                var schemaCompareOpenScmpParams = new SchemaCompareOpenScmpParams
+                {
+                    filePath = filePath
+                };
+
+                SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams);
+                schemaCompareOpenScmpOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.NotNull(schemaCompareOpenScmpOperation.Result);
+                Assert.True(schemaCompareOpenScmpOperation.Result.Success);
+                Assert.Equal(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                Assert.Equal(sourceDacpacFilePath, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.PackageFilePath);
+                Assert.Equal(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.DatabaseName);
+                Assert.Equal(SchemaCompareEndpointType.Dacpac, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.EndpointType);
+                Assert.Equal(SchemaCompareEndpointType.Database, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.EndpointType);
+                Assert.Empty(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements);
+                Assert.Empty(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(filePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify opening an scmp comparing two dacpacs
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareOpenScmpDacpacToDacpacRequest()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareOpenScmpSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareOpenScmpTarget");
+
+            try
+            {
+                // create schema compare scmp file that should be opened
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+                string targetDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(targetDb);
+                SchemaCompareDacpacEndpoint sourceEndpoint = new SchemaCompareDacpacEndpoint(sourceDacpacFilePath);
+                SchemaCompareDacpacEndpoint targetEndpoint = new SchemaCompareDacpacEndpoint(targetDacpacFilePath);
+
+                SchemaComparison compare = new SchemaComparison(sourceEndpoint, targetEndpoint);
+                string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+                Directory.CreateDirectory(folderPath);
+                string filePath = Path.Combine(folderPath, string.Format("SchemaCompareOpenScmpTest{0}.scmp", DateTime.Now.ToFileTime()));
+                compare.SaveToFile(filePath);
+                Assert.True(File.Exists(filePath));
+
+                var schemaCompareOpenScmpParams = new SchemaCompareOpenScmpParams
+                {
+                    filePath = filePath
+                };
+
+                SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams);
+                schemaCompareOpenScmpOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.NotNull(schemaCompareOpenScmpOperation.Result);
+                Assert.True(schemaCompareOpenScmpOperation.Result.Success);
+                Assert.Equal(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                Assert.Equal(sourceDacpacFilePath, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.PackageFilePath);
+                Assert.Equal(targetDacpacFilePath, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.PackageFilePath);
+                Assert.Equal(SchemaCompareEndpointType.Dacpac, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.EndpointType);
+                Assert.Equal(SchemaCompareEndpointType.Dacpac, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.EndpointType);
+                Assert.Empty(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements);
+                Assert.Empty(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(filePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
 
             }
         }

@@ -40,48 +40,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(SchemaCompareLoadScmpRequest.Type, this.HandleSchemaCompareLoadScmpRequest);
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
             serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
+            serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest);
         }
 
-        /// <summary>
-        /// Handles schema compare request
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleSchemaCompareLoadScmpRequest(SchemaCompareLoadScmpParams parameters, RequestContext<SchemaCompareLoadScmpResult> requestContext)
-        {
-            try
-            {
-                Task schemaCompareTask = Task.Run(async () =>
-                {
-                    SchemaCompareLoadScmpOperation operation = null;
 
-                    try
-                    {
-                        operation = new SchemaCompareLoadScmpOperation(parameters);
-                        operation.Execute(TaskExecutionMode.Execute);
-
-                        await requestContext.SendResult(operation.Result);
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendResult(new SchemaCompareLoadScmpResult()
-                        {
-                            Success = false,
-                            ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
-                        });
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
 
         /// <summary>
         /// Handles schema compare request
@@ -259,6 +226,41 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     Success = false,
                     ErrorMessage = e.Message
                 });
+            }
+        }
+
+        /// <summary>
+        /// Handles schema compare open SCMP request
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareOpenScmpRequest(SchemaCompareOpenScmpParams parameters, RequestContext<SchemaCompareOpenScmpResult> requestContext)
+        {
+            try
+            {
+                Task schemaCompareTask = Task.Run(async () =>
+                {
+                    SchemaCompareOpenScmpOperation operation = null;
+
+                    try
+                    {
+                        operation = new SchemaCompareOpenScmpOperation(parameters);
+                        operation.Execute(TaskExecutionMode.Execute);
+
+                        await requestContext.SendResult(operation.Result);
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendResult(new SchemaCompareOpenScmpResult()
+                        {
+                            Success = false,
+                            ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                        });
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
             }
         }
 
