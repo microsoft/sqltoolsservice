@@ -559,7 +559,7 @@ CREATE TABLE [dbo].[table3]
                     PopulateFilesOnFileGroups = false,
                     VerifyDeployment = false,
                 },
-                FilePath = filePath
+                scmpFilePath = filePath
             };
 
             SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
@@ -681,7 +681,7 @@ CREATE TABLE [dbo].[table3]
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
                     DeploymentOptions = new DeploymentOptions(),
-                    FilePath = scmpFilePath
+                    scmpFilePath = scmpFilePath
                 };
 
                 await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams, publishRequestContext.Object);

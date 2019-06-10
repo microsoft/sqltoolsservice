@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         public SchemaCompareSaveScmpOperation(SchemaCompareSaveScmpParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
         {
             Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("parameters.FilePath", parameters.FilePath);
+            Validate.IsNotNull("parameters.scmpFilePath", parameters.scmpFilePath);
             this.Parameters = parameters;
             this.SourceConnectionString = SchemaCompareUtils.GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
             this.TargetConnectionString = SchemaCompareUtils.GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     comparison.Options = SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
                 }
 
-                comparison.SaveToFile(this.Parameters.FilePath, true);
+                comparison.SaveToFile(this.Parameters.scmpFilePath, true);
                 
             }
             catch (Exception e)

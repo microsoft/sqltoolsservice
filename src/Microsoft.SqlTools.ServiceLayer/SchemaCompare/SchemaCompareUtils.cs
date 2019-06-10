@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
 
-        public static string RemoveExcessWhitespace(string script)
+        internal static string RemoveExcessWhitespace(string script)
         {
             if (script != null)
             {
@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return script;
         }
 
-        public static string FormatScript(string script)
+        internal static string FormatScript(string script)
         {
             script = RemoveExcessWhitespace(script);
             if (!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
