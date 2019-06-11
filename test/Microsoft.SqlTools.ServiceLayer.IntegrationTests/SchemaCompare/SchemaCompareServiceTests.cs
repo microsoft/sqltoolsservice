@@ -629,19 +629,7 @@ CREATE TABLE [dbo].[table3]
             Assert.NotNull(schemaCompareOpenScmpOperation.Result);
             Assert.True(schemaCompareOpenScmpOperation.Result.Success);
 
-                // cleanup
-                SchemaCompareTestUtils.VerifyAndCleanup(filePath);
-                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
-                SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
-            }
-            finally
-            {
-                sourceDb.Cleanup();
-                targetDb.Cleanup();
-            }
-        }
-
-            }
+            return schemaCompareOpenScmpOperation.Result;
         }
     }
 }

@@ -82,8 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     DeploymentOptions = new DeploymentOptions(compare.Options),
                     Success = true,
-                    SourceEndpointInfo = this.GetEndpointInfo(true),
-                    TargetEndpointInfo = this.GetEndpointInfo(false),
+                    SourceEndpointInfo = this.GetEndpointInfo(true, compare.Source),
+                    TargetEndpointInfo = this.GetEndpointInfo(false, compare.Target),
                     OriginalTargetName = this.GetOriginalTargetName(),
                     OriginalTargetConnectionString = this.GetOriginalTargetConnectionString(),
                     ExcludedSourceElements = this.GetExcludedElements(true),
@@ -98,31 +98,32 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        private SchemaCompareEndpointInfo GetEndpointInfo(bool source)
+        private SchemaCompareEndpointInfo GetEndpointInfo(bool source, SchemaCompareEndpoint endpoint)
         {
-            XmlNodeList connectionBasedModelProviderNodes = this.scmpInfo.DocumentElement.SelectNodes("descendant::ConnectionBasedModelProvider");
-            XmlNodeList fileBasedModelProviderNodes = this.scmpInfo.DocumentElement.SelectNodes("descendant::FileBasedModelProvider");
-
             SchemaCompareEndpointInfo endpointInfo = new SchemaCompareEndpointInfo();
-            string searchingFor = source ? "Source" : "Target";
 
-            foreach (XmlNode node in fileBasedModelProviderNodes)
+            // if the endpoint is a dacpac we don't need to parse the xml
+            SchemaCompareDacpacEndpoint dacpacEndpoint = endpoint as SchemaCompareDacpacEndpoint;
+            if (dacpacEndpoint != null)
             {
-                if (node.ParentNode.Name.Contains(searchingFor))
-                {
-                    endpointInfo.PackageFilePath = node.InnerText;
-                    endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-                }
+                endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                endpointInfo.PackageFilePath = dacpacEndpoint.FilePath;
             }
-
-            foreach (XmlNode node in connectionBasedModelProviderNodes)
+            else
             {
-                if (node.ParentNode.Name.Contains(searchingFor))
+                // need to parse xml to get connection string of database
+                XmlNodeList connectionBasedModelProviderNodes = this.scmpInfo.DocumentElement.SelectNodes("descendant::ConnectionBasedModelProvider");
+                string searchingFor = source ? "Source" : "Target";
+
+                foreach (XmlNode node in connectionBasedModelProviderNodes)
                 {
-                    endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.InnerText);
-                    endpointInfo.ConnectionDetails.ConnectionString = node.InnerText;
-                    endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
-                    endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+                    if (node.ParentNode.Name.Contains(searchingFor))
+                    {
+                        endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.InnerText);
+                        endpointInfo.ConnectionDetails.ConnectionString = node.InnerText;
+                        endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
+                        endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+                    }
                 }
             }
 
