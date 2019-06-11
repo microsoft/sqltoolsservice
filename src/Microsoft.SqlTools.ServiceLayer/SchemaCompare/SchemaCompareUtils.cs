@@ -4,6 +4,7 @@
 //
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using System;
@@ -49,10 +50,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             if (difference.SourceObject != null)
             {
                 diffEntry.SourceValue = GetName(difference.SourceObject.Name.ToString());
+                var sourceType = new SchemaComparisonExcludedObjectId(difference.SourceObject.ObjectType, difference.SourceObject.Name);
+                diffEntry.SourceObjectType = sourceType.TypeName;
+
             }
             if (difference.TargetObject != null)
             {
                 diffEntry.TargetValue = GetName(difference.TargetObject.Name.ToString());
+                var targetType = new SchemaComparisonExcludedObjectId(difference.TargetObject.ObjectType, difference.TargetObject.Name);
+                diffEntry.TargetObjectType = targetType.TypeName;
             }
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)

@@ -540,10 +540,18 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isEnpointTypeDatabase)
+        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isEndpointTypeDatabase)
         {
             string filePath = SchemaCompareTestUtils.CreateScmpPath();
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            SchemaCompareObjectId[] schemaCompareObjectIds = new SchemaCompareObjectId[]{
+                new SchemaCompareObjectId()
+                {
+                    Name = "dbo.table1",
+                    SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable",
+                }
+            };
 
             var schemaCompareParams = new SchemaCompareSaveScmpParams
             {
@@ -559,7 +567,9 @@ CREATE TABLE [dbo].[table3]
                     PopulateFilesOnFileGroups = false,
                     VerifyDeployment = false,
                 },
-                scmpFilePath = filePath
+                ScmpFilePath = filePath,
+                ExcludedSourceObjects = schemaCompareObjectIds,
+                ExcludedTargetObjects = null,
             };
 
             SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
@@ -573,7 +583,7 @@ CREATE TABLE [dbo].[table3]
             // Validate with DacFx SchemaComparison object
             SchemaComparison sc = new SchemaComparison(filePath);
 
-            if (isEnpointTypeDatabase)
+            if (isEndpointTypeDatabase)
             {
                 Assert.True(sc.Source is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
                 Assert.True((sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName == sourceInfo.DatabaseName, $"Source Database {(sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {sourceInfo.DatabaseName}");
@@ -591,6 +601,8 @@ CREATE TABLE [dbo].[table3]
                 SchemaCompareTestUtils.VerifyAndCleanup(targetInfo.PackageFilePath);
             }
 
+            Assert.True(!sc.ExcludedTargetObjects.Any(), "Target Excluded Objects are expected to be Empty");
+            Assert.True(sc.ExcludedSourceObjects.Count == 1, $"Exactly {1} Source Excluded Object Should be present but {sc.ExcludedSourceObjects.Count} found");
             SchemaCompareTestUtils.CompareOptions(schemaCompareParams.DeploymentOptions, sc.Options);
             SchemaCompareTestUtils.VerifyAndCleanup(filePath);
         }
@@ -681,7 +693,7 @@ CREATE TABLE [dbo].[table3]
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
                     DeploymentOptions = new DeploymentOptions(),
-                    scmpFilePath = scmpFilePath
+                    ScmpFilePath = scmpFilePath
                 };
 
                 await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams, publishRequestContext.Object);

@@ -86,12 +86,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         internal static void CompareOptions(DeploymentOptions deploymentOptions, DacDeployOptions dacDeployOptions)
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
-            System.Reflection.PropertyInfo[] ddProperties = dacDeployOptions.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] dacDeployProperties = dacDeployOptions.GetType().GetProperties();
 
             // Note that DatabaseSpecification and sql cmd variables list is not present in Sqltools service - its not settable and is not used by ADS options.
             // They are not present in SSDT as well
             // TODO : update this test if the above options are added later
-            Assert.True(deploymentOptionsProperties.Length == ddProperties.Length - 2, $"Number of properties is not same Deployment options : {deploymentOptionsProperties.Length} DacFx options : {ddProperties.Length}");
+            Assert.True(deploymentOptionsProperties.Length == dacDeployProperties.Length - 2, $"Number of properties is not same Deployment options : {deploymentOptionsProperties.Length} DacFx options : {dacDeployProperties.Length}");
 
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {

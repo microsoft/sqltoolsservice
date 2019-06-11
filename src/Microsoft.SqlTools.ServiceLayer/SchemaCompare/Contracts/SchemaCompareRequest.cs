@@ -88,6 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public List<DiffEntry> Children { get; set; }
         public string SourceScript { get; set; }
         public string TargetScript { get; set; }
+        public string SourceObjectType { get; set; }
+        public string TargetObjectType { get; set; }
     }
 
     /// <summary>
