@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -629,6 +630,9 @@ CREATE TABLE [dbo].[table3]
             // create Diff Entry from on Difference
             DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
 
+            //Validate Diff Entry creation for object type
+            ValidateDiffEntryCreation(diff, schemaCompareOperation.ComparisonResult.Differences.First());
+
             int initial = schemaCompareOperation.ComparisonResult.Differences.Count();
             SchemaCompareNodeParams schemaCompareExcludeNodeParams = new SchemaCompareNodeParams()
             {
@@ -673,7 +677,34 @@ CREATE TABLE [dbo].[table3]
             Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
         }
 
+        private void ValidateDiffEntryCreation(DiffEntry diff, SchemaDifference schemaDifference)
+        {
+            if(schemaDifference.SourceObject != null)
+            {
+                ValidateDiffEntryObjects(diff.SourceValue, diff.SourceObjectType, schemaDifference.SourceObject);
+            }
+            if(schemaDifference.TargetObject != null)
+            {
+                ValidateDiffEntryObjects(diff.TargetValue, diff.TargetObjectType, schemaDifference.TargetObject);
 
+            }
+        }
+
+        private void ValidateDiffEntryObjects(string diffObjectName, string diffObjectTypeType, TSqlObject dacfxObject)
+        {
+
+            string dacFxName = string.Join(".", dacfxObject.Name.Parts);
+            Assert.Equal(dacFxName, diffObjectName);
+
+            var dacFxExcludedObject = new SchemaComparisonExcludedObjectId(dacfxObject.ObjectType, dacfxObject.Name);
+            var excludedObject = new SchemaComparisonExcludedObjectId(diffObjectTypeType, new ObjectIdentifier(diffObjectName.Split(".")));
+
+            Assert.Equal(dacFxExcludedObject.Identifier.ToString(), excludedObject.Identifier.ToString());
+            Assert.Equal(dacFxExcludedObject.TypeName, excludedObject.TypeName);
+
+            string dacFxType = dacFxExcludedObject.TypeName;
+            Assert.Equal(dacFxType, diffObjectTypeType);
+        }
 
         private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isEndpointTypeDatabase)
         {

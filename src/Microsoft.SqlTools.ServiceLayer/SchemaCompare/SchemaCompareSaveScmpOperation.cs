@@ -61,21 +61,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
-                foreach (var sourceObj in this.Parameters.ExcludedSourceObjects)
+
+                if (Parameters.ExcludedSourceObjects != null)
                 {
-                    SchemaComparisonExcludedObjectId excludedObjId = CreateExcludedObject(sourceObj);
-                    if (excludedObjId != null)
+                    foreach (var sourceObj in this.Parameters.ExcludedSourceObjects)
                     {
-                        comparison.ExcludedSourceObjects.Add(excludedObjId);
+                        SchemaComparisonExcludedObjectId excludedObjId = CreateExcludedObject(sourceObj);
+                        if (excludedObjId != null)
+                        {
+                            comparison.ExcludedSourceObjects.Add(excludedObjId);
+                        }
                     }
                 }
 
-                foreach (var targetObj in this.Parameters.ExcludedTargetObjects)
+                if (Parameters.ExcludedTargetObjects != null)
                 {
-                    SchemaComparisonExcludedObjectId excludedObjId = CreateExcludedObject(targetObj);
-                    if (excludedObjId != null)
+                    foreach (var targetObj in this.Parameters.ExcludedTargetObjects)
                     {
-                        comparison.ExcludedSourceObjects.Add(excludedObjId);
+                        SchemaComparisonExcludedObjectId excludedObjId = CreateExcludedObject(targetObj);
+                        if (excludedObjId != null)
+                        {
+                            comparison.ExcludedTargetObjects.Add(excludedObjId);
+                        }
                     }
                 }
 
