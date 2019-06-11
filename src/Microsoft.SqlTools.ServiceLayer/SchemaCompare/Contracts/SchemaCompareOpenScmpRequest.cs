@@ -9,6 +9,19 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
+    public class SchemaCompareObjectId
+    {
+        /// <summary>
+        /// Name to create object identifier
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// sql object type
+        /// </summary>
+        public string SqlObjectType;
+    }
+
     /// <summary>
     /// Parameters for a schema compare open scmp file request.
     /// </summary>
@@ -55,12 +68,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// Gets or sets the excluded source elements. This is based on the initial source, not necessarily the same as SourceEndpointInfo if they were swapped
         /// </summary>
-        public List<string> ExcludedSourceElements { get; set; }
+        public List<SchemaCompareObjectId> ExcludedSourceElements { get; set; }
 
         /// <summary>
         /// Gets or sets the excluded target elements. This is based on the initial target, not necessarily the same as TargetEndpointInfo if they were swapped
         /// </summary>
-        public List<string> ExcludedTargetElements { get; set; }
+        public List<SchemaCompareObjectId> ExcludedTargetElements { get; set; }
     }
 
     /// <summary>

@@ -26,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         private Lazy<ConcurrentDictionary<string, SchemaComparisonResult>> schemaCompareResults =
             new Lazy<ConcurrentDictionary<string, SchemaComparisonResult>>(() => new ConcurrentDictionary<string, SchemaComparisonResult>());
 
+        // For testability
+        internal Task CurrentSchemaCompareTask;
+
         /// <summary>
         /// Gets the singleton instance object
         /// </summary>
@@ -237,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             try
             {
-                Task schemaCompareTask = Task.Run(async () =>
+                CurrentSchemaCompareTask = Task.Run(async () =>
                 {
                     SchemaCompareOpenScmpOperation operation = null;
 

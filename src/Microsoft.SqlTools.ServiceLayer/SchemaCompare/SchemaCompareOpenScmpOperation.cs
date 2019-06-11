@@ -86,14 +86,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     TargetEndpointInfo = this.GetEndpointInfo(false, compare.Target),
                     OriginalTargetName = this.GetOriginalTargetName(),
                     OriginalTargetConnectionString = this.GetOriginalTargetConnectionString(),
-                    ExcludedSourceElements = this.GetExcludedElements(true),
-                    ExcludedTargetElements = this.GetExcludedElements(false)
+                    ExcludedSourceElements = this.GetExcludedElements(compare.ExcludedSourceObjects),
+                    ExcludedTargetElements = this.GetExcludedElements(compare.ExcludedTargetObjects)
                 };
             }
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare load scmp operation failed with exception {0}", e.Message));
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed with exception {0}", e.Message));
                 throw;
             }
         }
@@ -115,44 +115,49 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 XmlNodeList connectionBasedModelProviderNodes = this.scmpInfo.DocumentElement.SelectNodes("descendant::ConnectionBasedModelProvider");
                 string searchingFor = source ? "Source" : "Target";
 
-                foreach (XmlNode node in connectionBasedModelProviderNodes)
+                try
                 {
-                    if (node.ParentNode.Name.Contains(searchingFor))
+                    if (connectionBasedModelProviderNodes != null)
                     {
-                        endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.InnerText);
-                        endpointInfo.ConnectionDetails.ConnectionString = node.InnerText;
-                        endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
-                        endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+                        foreach (XmlNode node in connectionBasedModelProviderNodes)
+                        {
+                            if (node.ParentNode.Name.Contains(searchingFor))
+                            {
+                                endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.InnerText);
+                                endpointInfo.ConnectionDetails.ConnectionString = node.InnerText;
+                                endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
+                                endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+                            }
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName,e.Message);
+                    Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
+                    throw;
                 }
             }
 
             return endpointInfo;
         }
 
-        private List<string> GetExcludedElements(bool source)
+        private List<SchemaCompareObjectId> GetExcludedElements(IList<SchemaComparisonExcludedObjectId> excludedObjects)
         {
-            XmlNodeList excludedNodes = source ? this.scmpInfo.DocumentElement.SelectNodes("descendant::ExcludedSourceElements/SelectedItem") : this.scmpInfo.DocumentElement.SelectNodes("descendant::ExcludedTargetElements/SelectedItem");
-            List<string> excludedElements = new List<string>();
+            List<SchemaCompareObjectId> excludedElements = new List<SchemaCompareObjectId>();
 
-            foreach (XmlNode node in excludedNodes)
+            foreach (SchemaComparisonExcludedObjectId entry in excludedObjects)
             {
-                excludedElements.Add(GetConcatenatedElementName(node));
+                excludedElements.Add(new SchemaCompareObjectId()
+                {
+                    Name = SchemaCompareOperation.GetName(entry.Identifier.ToString()),
+                    SqlObjectType = entry.TypeName
+                });
             }
 
             return excludedElements;
         }
 
-        private string GetConcatenatedElementName(XmlNode node)
-        {
-            List<string> results = new List<string>();
-            foreach (XmlNode n in node.ChildNodes)
-            {
-                results.Add(n.InnerText);
-            }
-
-            return string.Join(".", results);
-        }
 
         // The original target name is used to determine whether to use ExcludedSourceElements or ExcludedTargetElements if source and target were swapped
         private string GetOriginalTargetName()
