@@ -7,6 +7,7 @@ using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
             DacFxService service = new DacFxService();
             ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
-            service.PerformOperation(operation);
+            service.PerformOperation(operation, TaskExecutionMode.Execute);
 
             return extractParams.PackageFilePath;
         }

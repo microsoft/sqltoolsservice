@@ -45,7 +45,11 @@ CREATE TABLE [dbo].[table3]
     [col1] INT NULL,
 )";
 
-        private async Task SendAndValidateSchemaCompareRequestDacpacToDacpac()
+        /// <summary>
+        /// Verify the schema compare request comparing two dacpacs
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareDacpacToDacpac()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
 
@@ -85,10 +89,13 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private async Task SendAndValidateSchemaCompareRequestDatabaseToDatabase()
+        /// <summary>
+        /// Verify the schema compare request comparing a two databases
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareDatabaseToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
@@ -119,13 +126,15 @@ CREATE TABLE [dbo].[table3]
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
-
         }
 
-        private async Task SendAndValidateSchemaCompareRequestDatabaseToDacpac()
+        /// <summary>
+        /// Verify the schema compare request comparing a database to a dacpac
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareDatabaseToDacpac()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
 
@@ -160,9 +169,15 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private async Task SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase()
+        /// <summary>
+        /// Verify the schema compare generate script request comparing a database to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareGenerateScriptDatabaseToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
+            schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareResult>())).Returns(Task.FromResult(new object()));
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
@@ -201,10 +216,13 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private async Task SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase()
+        /// <summary>
+        /// Verify the schema compare generate script request comparing a dacpac to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareGenerateScriptDacpacToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
@@ -249,10 +267,13 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private async Task SendAndValidateSchemaComparePublishChangesRequestDacpacToDatabase()
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a dacpac to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaComparePublishChangesDacpacToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
@@ -315,13 +336,15 @@ CREATE TABLE [dbo].[table3]
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
-
         }
 
-        private async Task SendAndValidateSchemaComparePublishChangesRequestDatabaseToDatabase()
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a database to a database
+        /// </summary>
+        [Fact]
+        public async void SchemaComparePublishChangesDatabaseToDatabase()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
 
@@ -377,115 +400,13 @@ CREATE TABLE [dbo].[table3]
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
-
         }
 
-        private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
-        {
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
-
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-
-            // create Diff Entry from Difference
-
-            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
-
-            int initial = schemaCompareOperation.ComparisonResult.Differences.Count();
-            SchemaCompareNodeParams schemaCompareExcludeNodeParams = new SchemaCompareNodeParams()
-            {
-                OperationId = schemaCompareOperation.OperationId,
-                DiffEntry = diff,
-                IncludeRequest = false,
-                TaskExecutionMode = TaskExecutionMode.Execute
-            };
-            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareExcludeNodeParams, schemaCompareOperation.ComparisonResult);
-            nodeExcludeOperation.Execute(TaskExecutionMode.Execute);
-
-            int afterExclude = schemaCompareOperation.ComparisonResult.Differences.Count();
-
-            Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
-
-            SchemaCompareNodeParams schemaCompareincludeNodeParams = new SchemaCompareNodeParams()
-            {
-                OperationId = schemaCompareOperation.OperationId,
-                DiffEntry = diff,
-                IncludeRequest = true,
-                TaskExecutionMode = TaskExecutionMode.Execute
-            };
-
-            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareincludeNodeParams, schemaCompareOperation.ComparisonResult);
-            nodeIncludeOperation.Execute(TaskExecutionMode.Execute);
-            int afterInclude = schemaCompareOperation.ComparisonResult.Differences.Count();
-
-
-            Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including, before:{initial}, now {afterInclude}");
-        }
-
-        private void ValidateSchemaCompareScriptGenerationWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation, SchemaCompareGenerateScriptParams generateScriptParams)
-        {
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
-
-            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
-            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
-            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-
-            SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute();
-
-            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
-            string initialScript = generateScriptOperation.ScriptGenerationResult.Script;
-
-            // create Diff Entry from on Difference
-            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
-
-            int initial = schemaCompareOperation.ComparisonResult.Differences.Count();
-            SchemaCompareNodeParams schemaCompareExcludeNodeParams = new SchemaCompareNodeParams()
-            {
-                OperationId = schemaCompareOperation.OperationId,
-                DiffEntry = diff,
-                IncludeRequest = false,
-                TaskExecutionMode = TaskExecutionMode.Execute
-            };
-            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareExcludeNodeParams, schemaCompareOperation.ComparisonResult);
-            nodeExcludeOperation.Execute(TaskExecutionMode.Execute);
-
-            int afterExclude = schemaCompareOperation.ComparisonResult.Differences.Count();
-
-            Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
-
-            generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute();
-
-            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
-            string afterExcludeScript = generateScriptOperation.ScriptGenerationResult.Script;
-            Assert.True(initialScript.Length > afterExcludeScript.Length, $"Script should be affected (less statements) exclude operation, before {initialScript}, now {afterExcludeScript}");
-
-            SchemaCompareNodeParams schemaCompareincludeNodeParams = new SchemaCompareNodeParams()
-            {
-                OperationId = schemaCompareOperation.OperationId,
-                DiffEntry = diff,
-                IncludeRequest = true,
-                TaskExecutionMode = TaskExecutionMode.Execute
-            };
-
-            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareincludeNodeParams, schemaCompareOperation.ComparisonResult);
-            nodeIncludeOperation.Execute(TaskExecutionMode.Execute);
-            int afterInclude = schemaCompareOperation.ComparisonResult.Differences.Count();
-
-            Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including:{initial}, now {afterInclude}");
-
-            generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
-            generateScriptOperation.Execute();
-
-            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
-            string afterIncludeScript = generateScriptOperation.ScriptGenerationResult.Script;
-            Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
-        }
-
-
-        private async Task SaveAndValidateSchemaCompareScmpFileForDatabases()
+        /// <summary>
+        /// Verify the schema compare Scmp File Save for database endpoints
+        /// </summary>
+        [Fact]
+        public async void SaveAndValidateSchemaCompareScmpFileForDatabases()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
 
@@ -511,7 +432,11 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private async Task SaveAndValidateSchemaCompareScmpFileForDacpacs()
+        /// <summary>
+        /// Verify the schema compare Scmp File Save for dacpac endpoints
+        /// </summary>
+        [Fact]
+        public async void SaveAndValidateSchemaCompareScmpFileForDacpacs()
         {
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
@@ -540,74 +465,11 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isEndpointTypeDatabase)
-        {
-            string filePath = SchemaCompareTestUtils.CreateScmpPath();
-            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
-            SchemaCompareObjectId[] schemaCompareObjectIds = new SchemaCompareObjectId[]{
-                new SchemaCompareObjectId()
-                {
-                    Name = "dbo.table1",
-                    SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable",
-                }
-            };
-
-            var schemaCompareParams = new SchemaCompareSaveScmpParams
-            {
-                SourceEndpointInfo = sourceInfo,
-                TargetEndpointInfo = targetInfo,
-                DeploymentOptions = new DeploymentOptions()
-                {
-                    // change some random ones explicitly
-                    AllowDropBlockingAssemblies = true,
-                    DropConstraintsNotInSource = true,
-                    IgnoreAnsiNulls = true,
-                    NoAlterStatementsToChangeClrTypes = false,
-                    PopulateFilesOnFileGroups = false,
-                    VerifyDeployment = false,
-                },
-                ScmpFilePath = filePath,
-                ExcludedSourceObjects = schemaCompareObjectIds,
-                ExcludedTargetObjects = null,
-            };
-
-            SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
-            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
-
-            Assert.True(File.Exists(filePath), "SCMP file should be present");
-
-            string text = File.ReadAllText(filePath);
-            Assert.True(!string.IsNullOrEmpty(text), "SCMP File should not be empty");
-
-            // Validate with DacFx SchemaComparison object
-            SchemaComparison sc = new SchemaComparison(filePath);
-
-            if (isEndpointTypeDatabase)
-            {
-                Assert.True(sc.Source is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
-                Assert.True((sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName == sourceInfo.DatabaseName, $"Source Database {(sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {sourceInfo.DatabaseName}");
-                Assert.True(sc.Target is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
-                Assert.True((sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName == targetInfo.DatabaseName, $"Source Database {(sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {targetInfo.DatabaseName}");
-            }
-            else
-            {
-                Assert.True(sc.Source is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
-                Assert.True((sc.Source as SchemaCompareDacpacEndpoint).FilePath == sourceInfo.PackageFilePath, $"Source dacpac {(sc.Source as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {sourceInfo.PackageFilePath}");
-                Assert.True(sc.Target is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
-                Assert.True((sc.Target as SchemaCompareDacpacEndpoint).FilePath == targetInfo.PackageFilePath, $"Source dacpac {(sc.Target as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {targetInfo.PackageFilePath}");
-
-                SchemaCompareTestUtils.VerifyAndCleanup(sourceInfo.PackageFilePath);
-                SchemaCompareTestUtils.VerifyAndCleanup(targetInfo.PackageFilePath);
-            }
-
-            Assert.True(!sc.ExcludedTargetObjects.Any(), "Target Excluded Objects are expected to be Empty");
-            Assert.True(sc.ExcludedSourceObjects.Count == 1, $"Exactly {1} Source Excluded Object Should be present but {sc.ExcludedSourceObjects.Count} found");
-            SchemaCompareTestUtils.CompareOptions(schemaCompareParams.DeploymentOptions, sc.Options);
-            SchemaCompareTestUtils.VerifyAndCleanup(filePath);
-        }
-
-        private async Task VerifySchemaCompareServiceCalls()
+        /// <summary>
+        /// Verify the schema compare Service Calls ends to end
+        /// </summary>
+        [Fact]
+        public async Task VerifySchemaCompareServiceCalls()
         {
             string operationId = null;
             DiffEntry diffEntry = null;
@@ -708,6 +570,178 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
+        private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
+        {
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+            // create Diff Entry from Difference
+            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
+
+            int initial = schemaCompareOperation.ComparisonResult.Differences.Count();
+            SchemaCompareNodeParams schemaCompareExcludeNodeParams = new SchemaCompareNodeParams()
+            {
+                OperationId = schemaCompareOperation.OperationId,
+                DiffEntry = diff,
+                IncludeRequest = false,
+                TaskExecutionMode = TaskExecutionMode.Execute
+            };
+            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareExcludeNodeParams, schemaCompareOperation.ComparisonResult);
+            nodeExcludeOperation.Execute(TaskExecutionMode.Execute);
+
+            int afterExclude = schemaCompareOperation.ComparisonResult.Differences.Count();
+
+            Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
+
+            SchemaCompareNodeParams schemaCompareincludeNodeParams = new SchemaCompareNodeParams()
+            {
+                OperationId = schemaCompareOperation.OperationId,
+                DiffEntry = diff,
+                IncludeRequest = true,
+                TaskExecutionMode = TaskExecutionMode.Execute
+            };
+
+            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareincludeNodeParams, schemaCompareOperation.ComparisonResult);
+            nodeIncludeOperation.Execute(TaskExecutionMode.Execute);
+            int afterInclude = schemaCompareOperation.ComparisonResult.Differences.Count();
+
+
+            Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including, before:{initial}, now {afterInclude}");
+        }
+
+        private void ValidateSchemaCompareScriptGenerationWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation, SchemaCompareGenerateScriptParams generateScriptParams)
+        {
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+            Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+            Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+            SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation.Execute(TaskExecutionMode.Script);
+
+            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
+            string initialScript = generateScriptOperation.ScriptGenerationResult.Script;
+
+            // create Diff Entry from on Difference
+            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
+
+            int initial = schemaCompareOperation.ComparisonResult.Differences.Count();
+            SchemaCompareNodeParams schemaCompareExcludeNodeParams = new SchemaCompareNodeParams()
+            {
+                OperationId = schemaCompareOperation.OperationId,
+                DiffEntry = diff,
+                IncludeRequest = false,
+                TaskExecutionMode = TaskExecutionMode.Execute
+            };
+            SchemaCompareIncludeExcludeNodeOperation nodeExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareExcludeNodeParams, schemaCompareOperation.ComparisonResult);
+            nodeExcludeOperation.Execute(TaskExecutionMode.Execute);
+
+            int afterExclude = schemaCompareOperation.ComparisonResult.Differences.Count();
+
+            Assert.True(initial == afterExclude, $"Changes should be same again after excluding/including, before {initial}, now {afterExclude}");
+
+            generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation.Execute(TaskExecutionMode.Script);
+
+            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
+            string afterExcludeScript = generateScriptOperation.ScriptGenerationResult.Script;
+            Assert.True(initialScript.Length > afterExcludeScript.Length, $"Script should be affected (less statements) exclude operation, before {initialScript}, now {afterExcludeScript}");
+
+            SchemaCompareNodeParams schemaCompareincludeNodeParams = new SchemaCompareNodeParams()
+            {
+                OperationId = schemaCompareOperation.OperationId,
+                DiffEntry = diff,
+                IncludeRequest = true,
+                TaskExecutionMode = TaskExecutionMode.Execute
+            };
+
+            SchemaCompareIncludeExcludeNodeOperation nodeIncludeOperation = new SchemaCompareIncludeExcludeNodeOperation(schemaCompareincludeNodeParams, schemaCompareOperation.ComparisonResult);
+            nodeIncludeOperation.Execute(TaskExecutionMode.Execute);
+            int afterInclude = schemaCompareOperation.ComparisonResult.Differences.Count();
+
+            Assert.True(initial == afterInclude, $"Changes should be same again after excluding/including:{initial}, now {afterInclude}");
+
+            generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
+            generateScriptOperation.Execute(TaskExecutionMode.Script);
+
+            Assert.True(generateScriptOperation.ScriptGenerationResult.Success);
+            string afterIncludeScript = generateScriptOperation.ScriptGenerationResult.Script;
+            Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
+        }
+
+
+
+        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isEndpointTypeDatabase)
+        {
+            string filePath = SchemaCompareTestUtils.CreateScmpPath();
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            SchemaCompareObjectId[] schemaCompareObjectIds = new SchemaCompareObjectId[]{
+                new SchemaCompareObjectId()
+                {
+                    Name = "dbo.table1",
+                    SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable",
+                }
+            };
+
+            var schemaCompareParams = new SchemaCompareSaveScmpParams
+            {
+                SourceEndpointInfo = sourceInfo,
+                TargetEndpointInfo = targetInfo,
+                DeploymentOptions = new DeploymentOptions()
+                {
+                    // change some random ones explicitly
+                    AllowDropBlockingAssemblies = true,
+                    DropConstraintsNotInSource = true,
+                    IgnoreAnsiNulls = true,
+                    NoAlterStatementsToChangeClrTypes = false,
+                    PopulateFilesOnFileGroups = false,
+                    VerifyDeployment = false,
+                },
+                ScmpFilePath = filePath,
+                ExcludedSourceObjects = schemaCompareObjectIds,
+                ExcludedTargetObjects = null,
+            };
+
+            SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+            schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.True(File.Exists(filePath), "SCMP file should be present");
+
+            string text = File.ReadAllText(filePath);
+            Assert.True(!string.IsNullOrEmpty(text), "SCMP File should not be empty");
+
+            // Validate with DacFx SchemaComparison object
+            SchemaComparison sc = new SchemaComparison(filePath);
+
+            if (isEndpointTypeDatabase)
+            {
+                Assert.True(sc.Source is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
+                Assert.True((sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName == sourceInfo.DatabaseName, $"Source Database {(sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {sourceInfo.DatabaseName}");
+                Assert.True(sc.Target is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
+                Assert.True((sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName == targetInfo.DatabaseName, $"Source Database {(sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {targetInfo.DatabaseName}");
+            }
+            else
+            {
+                Assert.True(sc.Source is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
+                Assert.True((sc.Source as SchemaCompareDacpacEndpoint).FilePath == sourceInfo.PackageFilePath, $"Source dacpac {(sc.Source as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {sourceInfo.PackageFilePath}");
+                Assert.True(sc.Target is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
+                Assert.True((sc.Target as SchemaCompareDacpacEndpoint).FilePath == targetInfo.PackageFilePath, $"Source dacpac {(sc.Target as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {targetInfo.PackageFilePath}");
+
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceInfo.PackageFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetInfo.PackageFilePath);
+            }
+
+            Assert.True(!sc.ExcludedTargetObjects.Any(), "Target Excluded Objects are expected to be Empty");
+            Assert.True(sc.ExcludedSourceObjects.Count == 1, $"Exactly {1} Source Excluded Object Should be present but {sc.ExcludedSourceObjects.Count} found");
+            SchemaCompareTestUtils.CompareOptions(schemaCompareParams.DeploymentOptions, sc.Options);
+            SchemaCompareTestUtils.VerifyAndCleanup(filePath);
+        }       
+
         private bool ValidateScResult(SchemaCompareResult diffResult, ref DiffEntry diffEntry, ref string operationId)
         {
             try
@@ -722,94 +756,5 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
-        /// <summary>
-        /// Verify the schema compare request comparing two dacpacs
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareDacpacToDacpac()
-        {
-            await SendAndValidateSchemaCompareRequestDacpacToDacpac();
-        }
-
-        /// <summary>
-        /// Verify the schema compare request comparing a two databases
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareDatabaseToDatabase()
-        {
-            await SendAndValidateSchemaCompareRequestDatabaseToDatabase();
-        }
-
-        /// <summary>
-        /// Verify the schema compare request comparing a database to a dacpac
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareDatabaseToDacpac()
-        {
-            await SendAndValidateSchemaCompareRequestDatabaseToDacpac();
-        }
-
-        /// <summary>
-        /// Verify the schema compare generate script request comparing a database to a database
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareGenerateScriptDatabaseToDatabase()
-        {
-            await SendAndValidateSchemaCompareGenerateScriptRequestDatabaseToDatabase();
-        }
-
-        /// <summary>
-        /// Verify the schema compare generate script request comparing a dacpac to a database
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareGenerateScriptDacpacToDatabase()
-        {
-            await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabase();
-        }
-
-        /// <summary>
-        /// Verify the schema compare publish changes request comparing a dacpac to a database
-        /// </summary>
-        [Fact]
-        public async void SchemaComparePublishChangesDacpacToDatabase()
-        {
-            await SendAndValidateSchemaComparePublishChangesRequestDacpacToDatabase();
-        }
-
-        /// <summary>
-        /// Verify the schema compare publish changes request comparing a database to a database
-        /// </summary>
-        [Fact]
-        public async void SchemaComparePublishChangesDatabaseToDatabase()
-        {
-            await SendAndValidateSchemaComparePublishChangesRequestDatabaseToDatabase();
-        }
-
-        /// <summary>
-        /// Verify saving of scmp files for database enpoints
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareSaveScmpFilesForDatabaseEndpoints()
-        {
-            await SaveAndValidateSchemaCompareScmpFileForDatabases();
-        }
-
-        /// <summary>
-        /// Verify saving of scmp files for dacpac enpoints
-        /// </summary>
-        [Fact]
-        public async void SchemaCompareSaveScmpFilesForDacPacEndpoints()
-        {
-            await SaveAndValidateSchemaCompareScmpFileForDacpacs();
-        }
-
-        /// <summary>
-        /// Verify E2E schema compare service calls
-        /// </summary>
-        [Fact]
-        public async void ValidateE2ESchemaCompareServiceCalls()
-        {
-            await VerifySchemaCompareServiceCalls();
-        }
     }
 }

@@ -137,7 +137,7 @@ END
                 SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, null, null);
                 schemaCompareOperation1.Execute(TaskExecutionMode.Execute);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
-                
+
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
                     SourceEndpointInfo = sourceInfo,
@@ -164,7 +164,6 @@ END
         private async Task SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, sourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, targetScript, "SchemaCompareTarget");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
@@ -204,7 +203,7 @@ END
                 SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, result.ConnectionInfo, result.ConnectionInfo);
                 schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
-                Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);                
+                Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
             }
             finally
             {
@@ -217,7 +216,6 @@ END
         private async Task SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
-
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, sourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, targetScript, "SchemaCompareTarget");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
@@ -257,7 +255,7 @@ END
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation1 = new SchemaCompareGenerateScriptOperation(generateScriptParams1, schemaCompareOperation1.ComparisonResult);
-                generateScriptOperation1.Execute();
+                generateScriptOperation1.Execute(TaskExecutionMode.Script);
 
                 // validate script generation failed because there were no differences
                 Assert.False(generateScriptOperation1.ScriptGenerationResult.Success);
@@ -284,7 +282,7 @@ END
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation2 = new SchemaCompareGenerateScriptOperation(generateScriptParams2, schemaCompareOperation2.ComparisonResult);
-                generateScriptOperation2.Execute();
+                generateScriptOperation2.Execute(TaskExecutionMode.Script);
 
                 // validate script generation succeeded
                 Assert.True(generateScriptOperation2.ScriptGenerationResult.Success);
