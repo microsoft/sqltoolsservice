@@ -424,7 +424,7 @@ CREATE TABLE [dbo].[table3]
                 targetInfo.EndpointType = SchemaCompareEndpointType.Database;
                 targetInfo.DatabaseName = targetDb.DatabaseName;
 
-                CreateAndValidateScmpFile(sourceInfo, targetInfo, true);
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, true, true);
             }
             finally
             {
@@ -456,8 +456,38 @@ CREATE TABLE [dbo].[table3]
                 targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
                 targetInfo.PackageFilePath = targetDacpac;
 
-                CreateAndValidateScmpFile(sourceInfo, targetInfo, false);
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, false, false);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
 
+        /// <summary>
+        /// Verify the schema compare Scmp File Save for dacpac and db endpoints combination
+        /// </summary>
+        [Fact]
+        public async void SaveAndValidateSchemaCompareScmpFileForDacpacToDB()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string sourceDacpac = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+                string filePath = SchemaCompareTestUtils.CreateScmpPath();
+
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpac;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, false, true);
             }
             finally
             {
@@ -561,7 +591,6 @@ CREATE TABLE [dbo].[table3]
 
                 await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams, publishRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
-
                 SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
             }
             finally
@@ -679,25 +708,26 @@ CREATE TABLE [dbo].[table3]
 
         private void ValidateDiffEntryCreation(DiffEntry diff, SchemaDifference schemaDifference)
         {
-            if(schemaDifference.SourceObject != null)
+            if (schemaDifference.SourceObject != null)
             {
                 ValidateDiffEntryObjects(diff.SourceValue, diff.SourceObjectType, schemaDifference.SourceObject);
             }
-            if(schemaDifference.TargetObject != null)
+            if (schemaDifference.TargetObject != null)
             {
                 ValidateDiffEntryObjects(diff.TargetValue, diff.TargetObjectType, schemaDifference.TargetObject);
-
             }
         }
 
-        private void ValidateDiffEntryObjects(string diffObjectName, string diffObjectTypeType, TSqlObject dacfxObject)
+        private void ValidateDiffEntryObjects(string[] diffObjectName, string diffObjectTypeType, TSqlObject dacfxObject)
         {
-
-            string dacFxName = string.Join(".", dacfxObject.Name.Parts);
-            Assert.Equal(dacFxName, diffObjectName);
+            Assert.Equal(dacfxObject.Name.Parts.Count, diffObjectName.Length);
+            for (int i = 0; i < diffObjectName.Length; i++)
+            {
+                Assert.Equal(dacfxObject.Name.Parts[i], diffObjectName[i]);
+            }
 
             var dacFxExcludedObject = new SchemaComparisonExcludedObjectId(dacfxObject.ObjectType, dacfxObject.Name);
-            var excludedObject = new SchemaComparisonExcludedObjectId(diffObjectTypeType, new ObjectIdentifier(diffObjectName.Split(".")));
+            var excludedObject = new SchemaComparisonExcludedObjectId(diffObjectTypeType, new ObjectIdentifier(diffObjectName));
 
             Assert.Equal(dacFxExcludedObject.Identifier.ToString(), excludedObject.Identifier.ToString());
             Assert.Equal(dacFxExcludedObject.TypeName, excludedObject.TypeName);
@@ -706,7 +736,7 @@ CREATE TABLE [dbo].[table3]
             Assert.Equal(dacFxType, diffObjectTypeType);
         }
 
-        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isEndpointTypeDatabase)
+        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isSourceDb, bool isTargetDb)
         {
             string filePath = SchemaCompareTestUtils.CreateScmpPath();
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
@@ -714,7 +744,7 @@ CREATE TABLE [dbo].[table3]
             SchemaCompareObjectId[] schemaCompareObjectIds = new SchemaCompareObjectId[]{
                 new SchemaCompareObjectId()
                 {
-                    Name = "dbo.table1",
+                    NameParts = new string[] {"dbo", "Table1" },
                     SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable",
                 }
             };
@@ -749,21 +779,27 @@ CREATE TABLE [dbo].[table3]
             // Validate with DacFx SchemaComparison object
             SchemaComparison sc = new SchemaComparison(filePath);
 
-            if (isEndpointTypeDatabase)
+            if (isSourceDb)
             {
                 Assert.True(sc.Source is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
                 Assert.True((sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName == sourceInfo.DatabaseName, $"Source Database {(sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {sourceInfo.DatabaseName}");
-                Assert.True(sc.Target is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
-                Assert.True((sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName == targetInfo.DatabaseName, $"Source Database {(sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {targetInfo.DatabaseName}");
             }
             else
             {
                 Assert.True(sc.Source is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
                 Assert.True((sc.Source as SchemaCompareDacpacEndpoint).FilePath == sourceInfo.PackageFilePath, $"Source dacpac {(sc.Source as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {sourceInfo.PackageFilePath}");
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceInfo.PackageFilePath);
+            }
+
+            if (isTargetDb)
+            {
+                Assert.True(sc.Target is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
+                Assert.True((sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName == targetInfo.DatabaseName, $"Source Database {(sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {targetInfo.DatabaseName}");
+            }
+            else
+            {
                 Assert.True(sc.Target is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
                 Assert.True((sc.Target as SchemaCompareDacpacEndpoint).FilePath == targetInfo.PackageFilePath, $"Source dacpac {(sc.Target as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {targetInfo.PackageFilePath}");
-
-                SchemaCompareTestUtils.VerifyAndCleanup(sourceInfo.PackageFilePath);
                 SchemaCompareTestUtils.VerifyAndCleanup(targetInfo.PackageFilePath);
             }
 
@@ -771,7 +807,7 @@ CREATE TABLE [dbo].[table3]
             Assert.True(sc.ExcludedSourceObjects.Count == 1, $"Exactly {1} Source Excluded Object Should be present but {sc.ExcludedSourceObjects.Count} found");
             SchemaCompareTestUtils.CompareOptions(schemaCompareParams.DeploymentOptions, sc.Options);
             SchemaCompareTestUtils.VerifyAndCleanup(filePath);
-        }       
+        }
 
         private bool ValidateScResult(SchemaCompareResult diffResult, ref DiffEntry diffEntry, ref string operationId)
         {
@@ -786,6 +822,5 @@ CREATE TABLE [dbo].[table3]
                 return false;
             }
         }
-
     }
 }

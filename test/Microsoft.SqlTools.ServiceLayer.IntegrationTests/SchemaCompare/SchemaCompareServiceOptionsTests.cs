@@ -18,7 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.SchemaCopmare;
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
     /// <summary>
-    /// Group of tests to test non-default options and included items for schema comapre
+    /// Group of tests to test non-default options and included items for schema compare
     /// Note - adding it to new class for easy findability
     /// </summary>
     public class SchemaCompareServiceOptionsTests

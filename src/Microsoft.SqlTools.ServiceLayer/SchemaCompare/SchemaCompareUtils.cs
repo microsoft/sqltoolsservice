@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -49,14 +50,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             if (difference.SourceObject != null)
             {
-                diffEntry.SourceValue = GetName(difference.SourceObject.Name.ToString());
+                diffEntry.SourceValue = difference.SourceObject.Name.Parts.ToArray();
                 var sourceType = new SchemaComparisonExcludedObjectId(difference.SourceObject.ObjectType, difference.SourceObject.Name);
                 diffEntry.SourceObjectType = sourceType.TypeName;
 
             }
             if (difference.TargetObject != null)
             {
-                diffEntry.TargetValue = GetName(difference.TargetObject.Name.ToString());
+                diffEntry.TargetValue = difference.TargetObject.Name.Parts.ToArray();
                 var targetType = new SchemaComparisonExcludedObjectId(difference.TargetObject.ObjectType, difference.TargetObject.Name);
                 diffEntry.TargetObjectType = targetType.TypeName;
             }
@@ -88,6 +89,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return diffEntry;
         }
 
+        internal static SchemaComparisonExcludedObjectId CreateExcludedObject(SchemaCompareObjectId sourceObj)
+        {
+            try
+            {
+                if (sourceObj == null || sourceObj.NameParts == null || string.IsNullOrEmpty(sourceObj.SqlObjectType))
+                {
+                    return null;
+                }
+                ObjectIdentifier id = new ObjectIdentifier(sourceObj.NameParts);
+                SchemaComparisonExcludedObjectId excludedObjId = new SchemaComparisonExcludedObjectId(sourceObj.SqlObjectType, id);
+                return excludedObjId;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
         internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, string connectionString)
         {
             switch (endpointInfo.EndpointType)
@@ -102,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 default:
                     {
-                        return null;
+                        throw new NotSupportedException($"Endpoint Type {endpointInfo.EndpointType} is not supported");
                     }
             }
         }
@@ -116,13 +135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             connInfo.ConnectionDetails.DatabaseName = databaseName;
             return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-        }
-
-
-        private static string GetName(string name)
-        {
-            // remove brackets from name
-            return Regex.Replace(name, @"[\[\]]", "");
         }
 
 

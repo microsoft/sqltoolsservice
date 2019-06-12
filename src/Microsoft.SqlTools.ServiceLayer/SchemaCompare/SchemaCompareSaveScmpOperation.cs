@@ -36,7 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public string TargetConnectionString { get; set; }
 
-
         public SchemaCompareSaveScmpOperation(SchemaCompareSaveScmpParams parameters, ConnectionInfo sourceConnInfo, ConnectionInfo targetConnInfo)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -46,7 +45,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.TargetConnectionString = SchemaCompareUtils.GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
             this.OperationId = Guid.NewGuid().ToString();
         }
-
 
         public void Execute(TaskExecutionMode mode = TaskExecutionMode.Execute)
         {
@@ -66,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     foreach (var sourceObj in this.Parameters.ExcludedSourceObjects)
                     {
-                        SchemaComparisonExcludedObjectId excludedObjId = CreateExcludedObject(sourceObj);
+                        SchemaComparisonExcludedObjectId excludedObjId = SchemaCompareUtils.CreateExcludedObject(sourceObj);
                         if (excludedObjId != null)
                         {
                             comparison.ExcludedSourceObjects.Add(excludedObjId);
@@ -78,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     foreach (var targetObj in this.Parameters.ExcludedTargetObjects)
                     {
-                        SchemaComparisonExcludedObjectId excludedObjId = CreateExcludedObject(targetObj);
+                        SchemaComparisonExcludedObjectId excludedObjId = SchemaCompareUtils.CreateExcludedObject(targetObj);
                         if (excludedObjId != null)
                         {
                             comparison.ExcludedTargetObjects.Add(excludedObjId);
@@ -97,27 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare save settings operation {0} failed with exception {1}", this.OperationId, e.Message));
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare save settings operation {0} failed with exception {1}", this.OperationId, e));
                 throw;
             }
         }
 
-        private SchemaComparisonExcludedObjectId CreateExcludedObject(SchemaCompareObjectId sourceObj)
-        {
-            try
-            {
-                ObjectIdentifier id = new ObjectIdentifier(sourceObj.Name.Split("."));
-                SchemaComparisonExcludedObjectId excludedObjId = new SchemaComparisonExcludedObjectId(sourceObj.SqlObjectType, id);
-
-                return excludedObjId;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
+        // The schema compare public api doesn't currently take a cancellation token for scmp save so the operation can't be cancelled
         public void Cancel()
         {
         }

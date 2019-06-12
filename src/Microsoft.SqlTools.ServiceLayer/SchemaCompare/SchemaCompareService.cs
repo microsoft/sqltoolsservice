@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
 {
@@ -92,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     }
                     catch(Exception e)
                     {
+                        Logger.Write(TraceEventType.Error, "Failed to compare schema. Error: " + e);
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
                             OperationId = operation != null ? operation.OperationId : null,
@@ -136,11 +139,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
             catch (Exception e)
             {
+                Logger.Write(TraceEventType.Error, "Failed to generate schema compare script. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
-                });
+                });                
             }
         }
 
@@ -172,6 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
             catch (Exception e)
             {
+                Logger.Write(TraceEventType.Error, "Failed to publish schema compare changes. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -198,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
             catch (Exception e)
             {
+                Logger.Write(TraceEventType.Error, "Failed to select compare schema result node. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -257,6 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     }
                     catch (Exception e)
                     {
+                        Logger.Write(TraceEventType.Error, "Failed to save scmp file. Error: " + e);
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
                             OperationId = operation != null ? operation.OperationId : null,

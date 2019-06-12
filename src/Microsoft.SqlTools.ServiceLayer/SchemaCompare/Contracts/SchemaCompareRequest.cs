@@ -82,8 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public SchemaUpdateAction UpdateAction { get; set; }
         public SchemaDifferenceType DifferenceType { get; set; }
         public string Name { get; set; }
-        public string SourceValue { get; set; }
-        public string TargetValue { get; set; }
+        public string[] SourceValue { get; set; }
+        public string[] TargetValue { get; set; }
         public DiffEntry Parent { get; set; }
         public List<DiffEntry> Children { get; set; }
         public string SourceScript { get; set; }

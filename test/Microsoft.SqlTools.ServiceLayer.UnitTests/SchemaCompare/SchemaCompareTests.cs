@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
@@ -84,6 +84,47 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
 );";
             string result3 = SchemaCompareUtils.RemoveExcessWhitespace(script3);
             Assert.True(expected3.Equals(result3));
+        }
+
+        [Fact]
+        public void CreateExcludedObjects()
+        {
+            //successful creation
+            SchemaCompareObjectId validObject = new SchemaCompareObjectId
+            {
+                NameParts = new string[] { "dbo", "Table1" },
+                SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable"
+            };
+
+            var validResult = SchemaCompareUtils.CreateExcludedObject(validObject);
+
+            Assert.NotNull(validResult);
+            Assert.Equal(validObject.SqlObjectType, validResult.TypeName);
+            Assert.Equal(validObject.NameParts.Length, validResult.Identifier.Parts.Count);
+            for (int i = 0; i < validObject.NameParts.Length; i++)
+            {
+                Assert.Equal(validObject.NameParts[i], validResult.Identifier.Parts[i]);
+            }
+
+            //null creation
+            SchemaCompareObjectId object1 = new SchemaCompareObjectId
+            {
+                NameParts = null, //null caused by this value
+                SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable"
+            };
+
+            var nullResult1 = SchemaCompareUtils.CreateExcludedObject(object1);
+            Assert.Null(nullResult1);
+
+            //null creation due to argumentException
+            SchemaCompareObjectId object2 = new SchemaCompareObjectId
+            {
+                NameParts = new string[] { "dbo", "Table1" },
+                SqlObjectType = "SqlTable" // unll caused by this value
+            };
+
+            var nullResult2 = SchemaCompareUtils.CreateExcludedObject(object2);
+            Assert.Null(nullResult2);
         }
     }
 }
