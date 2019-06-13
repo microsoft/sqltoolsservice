@@ -232,5 +232,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 }
             }
         }
+
+        public DeploymentOptions(DacDeployOptions options)
+        {
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
+
+            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            {
+                var prop = options.GetType().GetProperty(deployOptionsProp.Name);
+
+                if (prop != null)
+                {
+                    deployOptionsProp.SetValue(this, prop.GetValue(options));
+                }
+            }
+        }
     }
 }

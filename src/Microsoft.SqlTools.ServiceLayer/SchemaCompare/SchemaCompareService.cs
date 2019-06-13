@@ -10,13 +10,12 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
+namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
     /// <summary>
     /// Main class for SchemaCompare service
@@ -51,6 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
             serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
+            serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest);
             serviceHost.SetRequestHandler(SchemaCompareSaveScmpRequest.Type, this.HandleSchemaCompareSaveScmpRequest);
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                             Differences = operation.Differences
                         });
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Logger.Write(TraceEventType.Error, "Failed to compare schema. Error: " + e);
                         await requestContext.SendResult(new SchemaCompareResult()
@@ -185,6 +185,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
         }
 
+        /// <summary>
+        /// Handles request for exclude incude node in Schema compare result
+        /// </summary>
+        /// <returns></returns>
         public async Task HandleSchemaCompareIncludeExcludeNodeRequest(SchemaCompareNodeParams parameters, RequestContext<ResultStatus> requestContext)
         {
             SchemaCompareIncludeExcludeNodeOperation operation = null;
@@ -194,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 operation = new SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
 
                 operation.Execute(parameters.TaskExecutionMode);
-                
+
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
@@ -212,6 +216,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
         }
 
+        /// <summary>
+        /// Handles request to create default deployment options as per DacFx
+        /// </summary>
+        /// <returns></returns>
         public async Task HandleSchemaCompareGetDefaultOptionsRequest(SchemaCompareGetOptionsParams parameters, RequestContext<SchemaCompareOptionsResult> requestContext)
         {
             try
@@ -237,6 +245,45 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             }
         }
 
+        /// <summary>
+        /// Handles schema compare open SCMP request
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareOpenScmpRequest(SchemaCompareOpenScmpParams parameters, RequestContext<SchemaCompareOpenScmpResult> requestContext)
+        {
+            try
+            {
+                CurrentSchemaCompareTask = Task.Run(async () =>
+                {
+                    SchemaCompareOpenScmpOperation operation = null;
+
+                    try
+                    {
+                        operation = new SchemaCompareOpenScmpOperation(parameters);
+                        operation.Execute(TaskExecutionMode.Execute);
+
+                        await requestContext.SendResult(operation.Result);
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendResult(new SchemaCompareOpenScmpResult()
+                        {
+                            Success = false,
+                            ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                        });
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles schema compare save SCMP request
+        /// </summary>
+        /// <returns></returns>
         public async Task HandleSchemaCompareSaveScmpRequest(SchemaCompareSaveScmpParams parameters, RequestContext<ResultStatus> requestContext)
         {
             try

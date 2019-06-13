@@ -8,19 +8,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
-    internal class SchemaCompareObjectId
-    {
-        /// <summary>
-        /// Name to create object identifier
-        /// </summary>
-        public string[] NameParts;
-
-        /// <summary>
-        /// sql object type
-        /// </summary>
-        public string SqlObjectType;
-    }
-
     internal class SchemaCompareSaveScmpParams : SchemaCompareParams
     {
         /// <summary>
