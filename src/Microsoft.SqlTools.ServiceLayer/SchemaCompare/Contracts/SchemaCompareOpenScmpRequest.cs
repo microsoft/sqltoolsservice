@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// Name to create object identifier
         /// </summary>
-        public string Name;
+        public string[] NameParts;
 
         /// <summary>
         /// sql object type

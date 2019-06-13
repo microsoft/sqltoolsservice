@@ -11,9 +11,11 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -31,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaCompareOpenScmpResult Result { get; private set; }
 
-        private XmlDocument scmpInfo { get; set; }
+        private XDocument scmpInfo { get; set; }
 
         public SchemaCompareOpenScmpOperation(SchemaCompareOpenScmpParams parameters)
         {
@@ -75,8 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 SchemaComparison compare = new SchemaComparison(this.Parameters.filePath);
 
                 // load xml file because some parsing still needs to be done
-                this.scmpInfo = new XmlDocument();
-                this.scmpInfo.Load(this.Parameters.filePath);
+                this.scmpInfo = XDocument.Load(this.Parameters.filePath);
 
                 this.Result = new SchemaCompareOpenScmpResult()
                 {
@@ -93,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed with exception {0}", e.Message));
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed with exception {0}", e));
                 throw;
             }
         }
@@ -112,19 +113,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             else
             {
                 // need to parse xml to get connection string of database
-                XmlNodeList connectionBasedModelProviderNodes = this.scmpInfo.DocumentElement.SelectNodes("descendant::ConnectionBasedModelProvider");
+                var result = this.scmpInfo.Descendants("ConnectionBasedModelProvider");
                 string searchingFor = source ? "Source" : "Target";
 
                 try
                 {
-                    if (connectionBasedModelProviderNodes != null)
+                    if (result != null)
                     {
-                        foreach (XmlNode node in connectionBasedModelProviderNodes)
+                        foreach (XElement node in result)
                         {
-                            if (node.ParentNode.Name.Contains(searchingFor))
+                            if (node.Parent.Name.ToString().Contains(searchingFor))
                             {
-                                endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.InnerText);
-                                endpointInfo.ConnectionDetails.ConnectionString = node.InnerText;
+                                endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.Value);
+                                endpointInfo.ConnectionDetails.ConnectionString = node.Value;
                                 endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
                                 endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
                             }
@@ -150,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 excludedElements.Add(new SchemaCompareObjectId()
                 {
-                    Name = SchemaCompareOperation.GetName(entry.Identifier.ToString()),
+                    NameParts = entry.Identifier.Parts.Cast<string>().ToArray(),
                     SqlObjectType = entry.TypeName
                 });
             }
@@ -162,15 +163,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         // The original target name is used to determine whether to use ExcludedSourceElements or ExcludedTargetElements if source and target were swapped
         private string GetOriginalTargetName()
         {
-            XmlNode node = this.scmpInfo.DocumentElement.SelectSingleNode("//PropertyElementName[Name='TargetDatabaseName']");
-            return node != null ? node.LastChild.InnerText : string.Empty;
+            var result = this.scmpInfo.Descendants("PropertyElementName")
+                .Where(x => x.Element("Name").Value == "TargetDatabaseName")
+                .Select(x => x.Element("Value")).FirstOrDefault();
+
+            return result != null ? result.Value : string.Empty;
         }
 
         // The original target connection string is used if comparing a dacpac and db with the same name
         private string GetOriginalTargetConnectionString()
         {
-            XmlNode node = this.scmpInfo.DocumentElement.SelectSingleNode("//PropertyElementName[Name='TargetConnectionString']");
-            return node != null ? node.LastChild.InnerText : string.Empty;
+            var result = this.scmpInfo.Descendants("PropertyElementName")
+              .Where(x => x.Element("Name").Value == "TargetConnectionString")
+              .Select(x => x.Element("Value")).FirstOrDefault();
+
+            return result != null ? result.Value : string.Empty;
         }
     }
 }

@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             return script;
         }
 
-        public static string GetName(string name)
+        private static string GetName(string name)
         {
             // remove brackets from name
             return Regex.Replace(name, @"[\[\]]", "");
