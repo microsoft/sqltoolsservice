@@ -1719,6 +1719,10 @@
     <value>Failed to find the specified change in the model</value>
     <comment></comment>
   </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</value>
+    <comment></comment>
+  </data>
   <data name="SchemaCompareSessionNotFound" xml:space="preserve">
     <value>Could not find the schema compare session to cancel</value>
   </data>

@@ -10,12 +10,11 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
+namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
     /// <summary>
     /// Main class for SchemaCompare service
@@ -30,6 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
         private Lazy<ConcurrentDictionary<string, Action>> currentComparisonCancellationAction =
             new Lazy<ConcurrentDictionary<string, Action>>(() => new ConcurrentDictionary<string, Action>());
 
+
+        // For testability
+        internal Task CurrentSchemaCompareTask;
 
         /// <summary>
         /// Gets the singleton instance object
@@ -51,7 +53,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
             serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
             serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
+            serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest);
         }
+
+
 
         /// <summary>
         /// Handles schema compare request
@@ -92,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                             Differences = operation.Differences
                         });
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
@@ -225,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                 operation = new SchemaCompareIncludeExcludeNodeOperation(parameters, compareResult);
 
                 operation.Execute(parameters.TaskExecutionMode);
-                
+
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
@@ -264,6 +269,41 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCopmare
                     Success = false,
                     ErrorMessage = e.Message
                 });
+            }
+        }
+
+        /// <summary>
+        /// Handles schema compare open SCMP request
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaCompareOpenScmpRequest(SchemaCompareOpenScmpParams parameters, RequestContext<SchemaCompareOpenScmpResult> requestContext)
+        {
+            try
+            {
+                CurrentSchemaCompareTask = Task.Run(async () =>
+                {
+                    SchemaCompareOpenScmpOperation operation = null;
+
+                    try
+                    {
+                        operation = new SchemaCompareOpenScmpOperation(parameters);
+                        operation.Execute(TaskExecutionMode.Execute);
+
+                        await requestContext.SendResult(operation.Result);
+                    }
+                    catch (Exception e)
+                    {
+                        await requestContext.SendResult(new SchemaCompareOpenScmpResult()
+                        {
+                            Success = false,
+                            ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                        });
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
             }
         }
 

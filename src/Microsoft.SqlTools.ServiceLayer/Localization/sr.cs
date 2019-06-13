@@ -2933,6 +2933,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string OpenScmpConnectionBasedModelParsingError
+        {
+            get
+            {
+                return Keys.GetString(Keys.OpenScmpConnectionBasedModelParsingError);
+            }
+        }
+
         public static string SchemaCompareSessionNotFound
         {
             get
@@ -4276,6 +4284,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaCompareExcludeIncludeNodeNotFound = "SchemaCompareExcludeIncludeNodeNotFound";
+
+
+            public const string OpenScmpConnectionBasedModelParsingError = "OpenScmpConnectionBasedModelParsingError";
 
 
             public const string SchemaCompareSessionNotFound = "SchemaCompareSessionNotFound";

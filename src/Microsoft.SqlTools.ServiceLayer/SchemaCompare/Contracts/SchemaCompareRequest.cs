@@ -4,6 +4,7 @@
 //
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Collections.Generic;
@@ -37,6 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// Connection uri
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Connection details
+        /// </summary>
+        public ConnectionDetails ConnectionDetails { get; set; }
     }
 
     /// <summary>
