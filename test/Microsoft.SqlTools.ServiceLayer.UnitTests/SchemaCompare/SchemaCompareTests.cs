@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Xunit;
@@ -90,23 +91,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         public void CreateExcludedObjects()
         {
             //successful creation
-            SchemaCompareObjectId validObject = new SchemaCompareObjectId
-            {
-                NameParts = new string[] { "dbo", "Table1" },
-                SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable"
-            };
+            ValidateTableCreation(new string[] { "dbo", "Table1" }, "dbo.Table1");
+            ValidateTableCreation(new string[] { "[dbo]", "Table.1" }, "[dbo].Table.1");
 
-            var validResult = SchemaCompareUtils.CreateExcludedObject(validObject);
-
-            Assert.NotNull(validResult);
-            Assert.Equal(validObject.SqlObjectType, validResult.TypeName);
-            Assert.Equal(validObject.NameParts.Length, validResult.Identifier.Parts.Count);
-            for (int i = 0; i < validObject.NameParts.Length; i++)
-            {
-                Assert.Equal(validObject.NameParts[i], validResult.Identifier.Parts[i]);
-            }
-
-            //null creation
+            //null creation due to null name
             SchemaCompareObjectId object1 = new SchemaCompareObjectId
             {
                 NameParts = null, //null caused by this value
@@ -120,11 +108,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             SchemaCompareObjectId object2 = new SchemaCompareObjectId
             {
                 NameParts = new string[] { "dbo", "Table1" },
-                SqlObjectType = "SqlTable" // unll caused by this value
+                SqlObjectType = "SqlTable" // null caused by this value
             };
 
             var nullResult2 = SchemaCompareUtils.CreateExcludedObject(object2);
             Assert.Null(nullResult2);
+        }
+
+        private void ValidateTableCreation(string[] nameParts, string validationString)
+        {
+            SchemaCompareObjectId validObject1 = new SchemaCompareObjectId
+            {
+                NameParts = nameParts,
+                SqlObjectType = "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlTable"
+            };
+            var validResult1 = SchemaCompareUtils.CreateExcludedObject(validObject1);
+            Assert.NotNull(validResult1);
+            Assert.Equal(validObject1.SqlObjectType, validResult1.TypeName);
+            Assert.Equal(validObject1.NameParts.Length, validResult1.Identifier.Parts.Count);
+            Assert.Equal(validationString, string.Join(".", validResult1.Identifier.Parts));
+            for (int i = 0; i < validObject1.NameParts.Length; i++)
+            {
+                Assert.Equal(validObject1.NameParts[i], validResult1.Identifier.Parts[i]);
+            }
         }
     }
 }
