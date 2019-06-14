@@ -72,10 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             stepInfo.JobId = jobId;
             stepInfo.JobName = logEntry.JobName;
             stepInfo.StepName = step.Name;
-            stepInfo.SubSystem = step.SubSystem.ToString();
+            stepInfo.SubSystem = step.SubSystem;
             stepInfo.Id = step.ID;
-            stepInfo.FailureAction = step.OnFailAction.ToString();
-            stepInfo.SuccessAction = step.OnSuccessAction.ToString();
+            stepInfo.FailureAction = step.OnFailAction;
+            stepInfo.SuccessAction = step.OnSuccessAction;
             stepInfo.FailStepId = step.OnFailStep;
             stepInfo.SuccessStepId = step.OnSuccessStep;
             stepInfo.Command = step.Command;
@@ -103,10 +103,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             stepInfo.JobId = jobId;
             stepInfo.JobName = jobName;
             stepInfo.StepName = step.Name;
-            stepInfo.SubSystem = step.SubSystem.ToString();
+            stepInfo.SubSystem = step.SubSystem;
             stepInfo.Id = step.ID;
-            stepInfo.FailureAction = step.OnFailAction.ToString();
-            stepInfo.SuccessAction = step.OnSuccessAction.ToString();
+            stepInfo.FailureAction = step.OnFailAction;
+            stepInfo.SuccessAction = step.OnSuccessAction;
             stepInfo.FailStepId = step.OnFailStep;
             stepInfo.SuccessStepId = step.OnSuccessStep;
             stepInfo.Command = step.Command;
@@ -220,21 +220,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 jobs.Add(jobHistoryInfo);
             }
             return jobs;
-        }
-
-        public static AgentSubSystem ConvertToAgentSubSytem(string subSystem)
-        {
-            switch(subSystem)
-            {
-                case ("Transact-SQL script (T-SQL"):
-                    return AgentSubSystem.TransactSql;
-                case ("Operating system (CmdExec)"):
-                    return AgentSubSystem.CmdExec;
-                case ("PowerShell"):
-                    return AgentSubSystem.PowerShell;
-                default:
-                    return AgentSubSystem.TransactSql;
-            }
         }
     }
 }

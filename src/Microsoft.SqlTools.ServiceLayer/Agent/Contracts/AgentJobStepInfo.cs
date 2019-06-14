@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 
         public string StepName { get; set; }
 
-        public string SubSystem { get; set; }
+        public AgentSubSystem SubSystem { get; set; }
 
         /// <summary>
         /// Current step id
@@ -30,12 +31,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 
         /// action to take if the step fails
         /// </summary>
-        public string FailureAction { get; set; }
+        public StepCompletionAction FailureAction { get; set; }
 
         /// <summary>
         /// Action to take if the step succeeds
         /// </summary>
-        public string SuccessAction { get; set; }
+        public StepCompletionAction SuccessAction { get; set; }
 
         // note we will have either the id or step
         // for the steps to go to on failure

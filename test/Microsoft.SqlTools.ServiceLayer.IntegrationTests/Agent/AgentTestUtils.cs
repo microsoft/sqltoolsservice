@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Id = 1,
                 JobName = job.Name,
                 StepName = stepName,
-                SubSystem = "T-SQL",
+                SubSystem = SqlServer.Management.Smo.Agent.AgentSubSystem.TransactSql,
                 Script = "SELECT @@VERSION",
                 DatabaseName = connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName,
                 DatabaseUserName = connectionResult.ConnectionInfo.ConnectionDetails.UserName,
