@@ -17,7 +17,7 @@ using Xunit;
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
     /// <summary>
-    /// Group of tests to test non-default options and included items for schema comapre
+    /// Group of tests to test non-default options and included items for schema compare
     /// Note - adding it to new class for easy findability
     /// </summary>
     public class SchemaCompareServiceOptionsTests
@@ -106,8 +106,10 @@ END
             return options;
         }
 
-        private async void SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
+        private async Task SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
             // create dacpacs from databases
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, sourceScript, "SchemaCompareSource");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, targetScript, "SchemaCompareTarget");
@@ -158,7 +160,7 @@ END
             }
         }
 
-        private async void SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
+        private async Task SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, sourceScript, "SchemaCompareSource");
@@ -210,7 +212,7 @@ END
             }
         }
 
-        private async void SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
+        private async Task SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(string sourceScript, string targetScript, DeploymentOptions nodiffOption, DeploymentOptions shouldDiffOption)
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, sourceScript, "SchemaCompareSource");
@@ -298,54 +300,54 @@ END
         /// Verify the schema compare request comparing two dacpacs with and without ignore column option
         /// </summary>
         [Fact]
-        public void SchemaCompareDacpacToDacpacOptions()
+        public async void SchemaCompareDacpacToDacpacOptions()
         {
-            SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
+            await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
         }
 
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs with and excluding table valued functions
         /// </summary>
         [Fact]
-        public void SchemaCompareDacpacToDacpacObjectTypes()
+        public async void SchemaCompareDacpacToDacpacObjectTypes()
         {
-            SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
+            await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
         }
 
         /// <summary>
         /// Verify the schema compare request comparing two databases with and without ignore column option
         /// </summary>
         [Fact]
-        public void SchemaCompareDatabaseToDatabaseOptions()
+        public async void SchemaCompareDatabaseToDatabaseOptions()
         {
-            SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
+            await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
         }
 
         /// <summary>
         /// Verify the schema compare request comparing two databases with and excluding table valued functions
         /// </summary>
         [Fact]
-        public void SchemaCompareDatabaseToDatabaseObjectTypes()
+        public async void SchemaCompareDatabaseToDatabaseObjectTypes()
         {
-            SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
+            await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
         }
 
         /// <summary>
         /// Verify the schema compare script generation comparing dacpac and db with and without ignore column option
         /// </summary>
         [Fact]
-        public void SchemaCompareGenerateScriptDacpacToDatabaseOptions()
+        public async void SchemaCompareGenerateScriptDacpacToDatabaseOptions()
         {
-            SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
+            await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
         }
 
         /// <summary>
         /// Verify the schema compare script generation comparing dacpac and db with and excluding table valued function
         /// </summary>
         [Fact]
-        public void SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
+        public async void SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
         {
-            SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
+            await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
         }
 
         /// <summary>
@@ -367,26 +369,7 @@ END
             dacOptions.IgnoreSemicolonBetweenStatements = false;
             dacOptions.IgnoreWhitespace = false;
 
-            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deployOptions.GetType().GetProperties();
-            System.Reflection.PropertyInfo[] ddProperties = dacOptions.GetType().GetProperties();
-
-            // Note that DatabaseSpecification and sql cmd variables list is not present in Sqltools service - its not settable and is not used by ADS options.
-            // TODO : update this test if the above options are added later
-            Assert.True(deploymentOptionsProperties.Length == ddProperties.Length - 2, $"Number of properties is not same Deployment options : {deploymentOptionsProperties.Length} DacFx options : {ddProperties.Length}");
-
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
-            {
-                var dacProp = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
-
-                var deployOptionsValue = deployOptionsProp.GetValue(deployOptions);
-                var dacValue = dacProp.GetValue(dacOptions);
-
-                if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
-                {
-                    Assert.True((deployOptionsValue == null && dacValue == null) || deployOptionsValue.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
-                }
-            }
+            SchemaCompareTestUtils.CompareOptions(deployOptions, dacOptions);
         }
 
         /// <summary>
@@ -398,32 +381,10 @@ END
             DeploymentOptions deployOptions = new DeploymentOptions();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>())).Returns(Task.FromResult(new object()));
-            schemaCompareRequestContext.Setup((RequestContext<SchemaCompareOptionsResult> x) => x.SendResult(It.Is<SchemaCompareOptionsResult>((options) => this.OptionsEqualsDefault(options) == true))).Returns(Task.FromResult(new object()));
-
+            schemaCompareRequestContext.Setup((RequestContext<SchemaCompareOptionsResult> x) => x.SendResult(It.Is<SchemaCompareOptionsResult>((options) => SchemaCompareTestUtils.ValidateOptionsEqualsDefault(options) == true))).Returns(Task.FromResult(new object()));
+            
             SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
             await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
-        }
-
-        private bool OptionsEqualsDefault(SchemaCompareOptionsResult options)
-        {
-            DeploymentOptions defaultOpt = new DeploymentOptions();
-            DeploymentOptions actualOpt = options.DefaultDeploymentOptions;
-
-            System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
-            foreach (var v in deploymentOptionsProperties)
-            {
-                var defaultP = v.GetValue(defaultOpt);
-                var actualP = v.GetValue(actualOpt);
-                if (v.Name == "ExcludeObjectTypes")
-                {
-                    Assert.True((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultP as ObjectType[]).Length} actual: {(actualP as ObjectType[]).Length}");
-                }
-                else
-                {
-                    Assert.True((defaultP == null && actualP == null) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
-                }
-            }
-            return true;
         }
     }
 }

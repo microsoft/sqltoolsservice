@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -11,7 +10,6 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -45,8 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
-            this.SourceConnectionString = GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
-            this.TargetConnectionString = GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
+            this.SourceConnectionString = SchemaCompareUtils.GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
+            this.TargetConnectionString = SchemaCompareUtils.GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -83,14 +81,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString);
-                SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
+                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString);
+                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 
                 if (this.Parameters.DeploymentOptions != null)
                 {
-                    comparison.Options = this.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
+                    comparison.Options = SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
                 }
 
                 this.ComparisonResult = comparison.Compare();
@@ -104,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 this.Differences = new List<DiffEntry>();
                 foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
-                    DiffEntry diffEntry = CreateDiffEntry(difference, null);
+                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
                     this.Differences.Add(diffEntry);
                 }
             }
@@ -114,128 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 Logger.Write(TraceEventType.Error, string.Format("Schema compare operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
-        }
-
-        private DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
-        {
-            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
-
-            DacDeployOptions dacOptions = new DacDeployOptions();
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
-            {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
-                if (prop != null)
-                {
-                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
-                }
-            }
-            return dacOptions;
-        }
-
-        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
-        {
-            if (difference == null)
-            {
-                return null;
-            }
-
-            DiffEntry diffEntry = new DiffEntry();
-            diffEntry.UpdateAction = difference.UpdateAction;
-            diffEntry.DifferenceType = difference.DifferenceType;
-            diffEntry.Name = difference.Name;
-
-            if (difference.SourceObject != null)
-            {
-                diffEntry.SourceValue = GetName(difference.SourceObject.Name.ToString());
-            }
-            if (difference.TargetObject != null)
-            {
-                diffEntry.TargetValue = GetName(difference.TargetObject.Name.ToString());
-            }
-
-            if (difference.DifferenceType == SchemaDifferenceType.Object)
-            {
-                // set source and target scripts
-                if (difference.SourceObject != null)
-                {
-                    string sourceScript;
-                    difference.SourceObject.TryGetScript(out sourceScript);
-                    diffEntry.SourceScript = FormatScript(sourceScript);
-                }
-                if (difference.TargetObject != null)
-                {
-                    string targetScript;
-                    difference.TargetObject.TryGetScript(out targetScript);
-                    diffEntry.TargetScript = FormatScript(targetScript);
-                }
-            }
-
-            diffEntry.Children = new List<DiffEntry>();
-
-            foreach (SchemaDifference child in difference.Children)
-            {
-                diffEntry.Children.Add(CreateDiffEntry(child, diffEntry));
-            }
-
-            return diffEntry;
-        }
-
-        private SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, string connectionString)
-        {
-            switch (endpointInfo.EndpointType)
-            {
-                case SchemaCompareEndpointType.Dacpac:
-                    {
-                        return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
-                    }
-                case SchemaCompareEndpointType.Database:
-                    {
-                        return new SchemaCompareDatabaseEndpoint(connectionString);
-                    }
-                default:
-                    {
-                        return null;
-                    }
-            }
-        }
-
-        private string GetConnectionString(ConnectionInfo connInfo, string databaseName)
-        {
-            if (connInfo == null)
-            {
-                return null;
-            }
-
-            connInfo.ConnectionDetails.DatabaseName = databaseName;
-            return ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-        }
-
-        public static string RemoveExcessWhitespace(string script)
-        {
-            if (script != null)
-            {
-                // remove leading and trailing whitespace
-                script = script.Trim();
-                // replace all multiple spaces with single space
-                script = Regex.Replace(script, " {2,}", " ");
-            }
-            return script;
-        }
-
-        public static string FormatScript(string script)
-        {
-            script = RemoveExcessWhitespace(script);
-            if (!string.IsNullOrWhiteSpace(script) && !script.Equals("null"))
-            {
-                script += Environment.NewLine + "GO";
-            }
-            return script;
-        }
-
-        private static string GetName(string name)
-        {
-            // remove brackets from name
-            return Regex.Replace(name, @"[\[\]]", "");
         }
     }
 }
