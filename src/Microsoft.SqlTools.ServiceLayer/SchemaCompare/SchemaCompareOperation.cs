@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
-
+        
         /// <summary>
         /// The error occurred during operation
         /// </summary>
@@ -58,6 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
+            this.cancellation.Cancel();
         }
 
         /// <summary>
@@ -91,19 +92,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     comparison.Options = SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
                 }
 
-                this.ComparisonResult = comparison.Compare();
+                // for testing
+                schemaCompareStarted?.Invoke(this, new EventArgs());
+
+                this.ComparisonResult = comparison.Compare(this.CancellationToken);
 
                 // try one more time if it didn't work the first time
                 if (!this.ComparisonResult.IsValid)
                 {
-                    this.ComparisonResult = comparison.Compare();
+                    this.ComparisonResult = comparison.Compare(this.CancellationToken);
+                }
+
+                // Since DacFx does not throw on schema comparison cancellation, throwing here explicitly to ensure consistency of behavior
+                if (!this.ComparisonResult.IsValid && this.CancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException(this.CancellationToken);
                 }
 
                 this.Differences = new List<DiffEntry>();
-                foreach (SchemaDifference difference in this.ComparisonResult.Differences)
+                if (this.ComparisonResult.Differences != null)
                 {
-                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
-                    this.Differences.Add(diffEntry);
+                    foreach (SchemaDifference difference in this.ComparisonResult.Differences)
+                    {
+                        DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
+                        this.Differences.Add(diffEntry);
+                    }
                 }
             }
             catch (Exception e)
@@ -113,5 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 throw;
             }
         }
+
+        internal event EventHandler<EventArgs> schemaCompareStarted;
     }
 }

@@ -626,6 +626,56 @@ CREATE TABLE [dbo].[table3]
             }
         }
 
+        /// <summary>
+        /// Verify the schema compare cancel 
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareCancelCompareOperation()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.schemaCompareStarted += (sender, e) => { schemaCompareOperation.Cancel(); };
+
+                try
+                {
+                    Task cTask = Task.Factory.StartNew(() => schemaCompareOperation.Execute(TaskExecutionMode.Execute));
+                    cTask.Wait();
+                    Assert.False(cTask.IsCompletedSuccessfully, "schema compare task should not complete after cancel");
+                }
+                catch (Exception ex)
+                {
+                    Assert.NotNull(ex.InnerException);
+                    Assert.True(ex.InnerException is OperationCanceledException, $"Exception is expected to be Operation cancelled but actually is {ex.InnerException}");
+                }
+
+                Assert.Null(schemaCompareOperation.ComparisonResult.Differences);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
         private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
         {
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
@@ -731,7 +781,6 @@ CREATE TABLE [dbo].[table3]
             string afterIncludeScript = generateScriptOperation.ScriptGenerationResult.Script;
             Assert.True(initialScript.Length == afterIncludeScript.Length, $"Changes should be same as inital since we included what we excluded, before {initialScript}, now {afterIncludeScript}");
         }
-
 
         private async Task CreateAndOpenScmp(SchemaCompareEndpointType sourceEndpointType, SchemaCompareEndpointType targetEndpointType)
         {

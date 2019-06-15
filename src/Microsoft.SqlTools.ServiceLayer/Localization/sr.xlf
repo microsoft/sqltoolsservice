@@ -2001,6 +2001,11 @@
         <target state="new">Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaCompareSessionNotFound">
+        <source>Could not find the schema compare session to cancel</source>
+        <target state="new">Could not find the schema compare session to cancel</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

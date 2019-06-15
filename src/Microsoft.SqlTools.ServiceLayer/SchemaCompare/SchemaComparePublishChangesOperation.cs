@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                this.PublishResult = this.ComparisonResult.PublishChangesToTarget();
+                this.PublishResult = this.ComparisonResult.PublishChangesToTarget(this.CancellationToken);
             }
             catch (Exception e)
             {
@@ -67,6 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
+            this.cancellation.Cancel();
         }
     }
 }

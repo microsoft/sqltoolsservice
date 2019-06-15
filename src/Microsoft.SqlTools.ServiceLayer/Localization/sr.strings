@@ -798,3 +798,4 @@ ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the for
 PublishChangesTaskName = Apply schema compare changes
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
 OpenScmpConnectionBasedModelParsingError = Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'
+SchemaCompareSessionNotFound =  Could not find the schema compare session to cancel

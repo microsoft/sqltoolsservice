@@ -2941,6 +2941,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaCompareSessionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaCompareSessionNotFound);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4279,6 +4287,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string OpenScmpConnectionBasedModelParsingError = "OpenScmpConnectionBasedModelParsingError";
+
+
+            public const string SchemaCompareSessionNotFound = "SchemaCompareSessionNotFound";
 
 
             private Keys()
