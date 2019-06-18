@@ -51,6 +51,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     public class SchemaCompareParams
     {
         /// <summary>
+        /// Operation id of the schema compare operation
+        /// </summary>
+        public string OperationId { get; set; }
+
+        /// <summary>
         /// Gets or sets the source endpoint info
         /// </summary>
         public SchemaCompareEndpointInfo SourceEndpointInfo { get; set; }

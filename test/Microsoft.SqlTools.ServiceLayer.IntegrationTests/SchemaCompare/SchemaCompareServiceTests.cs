@@ -528,8 +528,9 @@ CREATE TABLE [dbo].[table3]
         [Fact]
         public async Task VerifySchemaCompareServiceCalls()
         {
-            string operationId = null;
+            string operationId = Guid.NewGuid().ToString();
             DiffEntry diffEntry = null;
+            bool cancelled = false;
             var connectionObject = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
 
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
@@ -550,15 +551,35 @@ CREATE TABLE [dbo].[table3]
                 // Schema compare service call
                 var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
                 schemaCompareRequestContext.Setup((RequestContext<SchemaCompareResult> x) => x.SendResult(It.Is<SchemaCompareResult>((diffResult) =>
-                ValidateScResult(diffResult, ref diffEntry, ref operationId)))).Returns(Task.FromResult(new object()));
+                ValidateScResult(diffResult, out diffEntry, operationId, ref cancelled)))).Returns(Task.FromResult(new object()));
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
+                    OperationId = operationId,
                     SourceEndpointInfo = sourceInfo,
                     TargetEndpointInfo = targetInfo,
                     DeploymentOptions = new DeploymentOptions()
                 };
 
+                await SchemaCompareService.Instance.HandleSchemaCompareRequest(schemaCompareParams, schemaCompareRequestContext.Object);
+
+                // Schema compare Cancel call
+                var schemaCompareCancelRequestContext = new Mock<RequestContext<ResultStatus>>();
+                schemaCompareCancelRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) =>
+                result.Success == true))).Returns(Task.FromResult(new object()));
+
+                var schemaCompareCancelParams = new SchemaCompareCancelParams
+                {
+                    OperationId = operationId
+                };
+
+                cancelled = true;
+                await SchemaCompareService.Instance.HandleSchemaCompareCancelRequest(schemaCompareCancelParams, schemaCompareCancelRequestContext.Object);
+                await SchemaCompareService.Instance.CurrentSchemaCompareTask;
+
+
+                // complete schema compare call for further testing
+                cancelled = false;
                 await SchemaCompareService.Instance.HandleSchemaCompareRequest(schemaCompareParams, schemaCompareRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
 
@@ -615,7 +636,19 @@ CREATE TABLE [dbo].[table3]
                     ScmpFilePath = scmpFilePath
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams, publishRequestContext.Object);
+                await SchemaCompareService.Instance.HandleSchemaCompareSaveScmpRequest(saveScmpParams, saveScmpRequestContext.Object);
+                await SchemaCompareService.Instance.CurrentSchemaCompareTask;
+
+                // Open Scmp service call
+                var openScmpRequestContext = new Mock<RequestContext<SchemaCompareOpenScmpResult>>();
+                openScmpRequestContext.Setup((RequestContext<SchemaCompareOpenScmpResult> x) => x.SendResult(It.Is<SchemaCompareOpenScmpResult>((result) => ValidateScmpRoundtrip(result, sourceDb.DatabaseName, targetDb.DatabaseName)))).Returns(Task.FromResult(new object()));
+
+                var openScmpParams = new SchemaCompareOpenScmpParams
+                {
+                    FilePath = scmpFilePath
+                };
+
+                await SchemaCompareService.Instance.HandleSchemaCompareOpenScmpRequest(openScmpParams, openScmpRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
                 SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
             }
@@ -815,7 +848,7 @@ CREATE TABLE [dbo].[table3]
 
                 var schemaCompareOpenScmpParams = new SchemaCompareOpenScmpParams
                 {
-                    filePath = filePath
+                    FilePath = filePath
                 };
 
                 SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams);
@@ -970,18 +1003,33 @@ CREATE TABLE [dbo].[table3]
             SchemaCompareTestUtils.VerifyAndCleanup(filePath);
         }
 
-        private bool ValidateScResult(SchemaCompareResult diffResult, ref DiffEntry diffEntry, ref string operationId)
+        private bool ValidateScResult(SchemaCompareResult diffResult, out DiffEntry diffEntry, string operationId, ref bool cancelled)
         {
-            try
+            if (cancelled)
             {
-                operationId = diffResult.OperationId;
-                diffEntry = diffResult.Differences.ElementAt(0);
-                return (diffResult.Success == true && diffResult.Differences != null && diffResult.Differences.Count > 0);
+                Assert.True(diffResult.Differences == null, "Differences should be null after cancel");
+                Assert.True(diffResult.Success == false, "Result success forschema compare should be false after cancel");
+                diffEntry = null;
+                return true;
             }
-            catch
-            {
-                return false;
-            }
+
+            diffEntry = diffResult.Differences.ElementAt(0);
+            Assert.True(diffResult.Success == true, "Result success is false for schema compare");
+            Assert.True(diffResult.Differences != null, "Schema comapre Differences should not be null");
+            Assert.True(diffResult.Differences.Count > 0, "Schema compare difference count should be greater than 0");
+            Assert.True(diffResult.OperationId == operationId, $"Expected Operation id {operationId}. Actual {diffResult.OperationId}");
+            return true;
+        }
+
+
+        private bool ValidateScmpRoundtrip(SchemaCompareOpenScmpResult result, string sourceName, string targetName)
+        {
+            Assert.True(true == result.Success, "Result Success is false");
+            Assert.True(SchemaCompareEndpointType.Database == result.SourceEndpointInfo.EndpointType, $"Source Endpoint type does not match. Expected {SchemaCompareEndpointType.Database}. Actual {result.SourceEndpointInfo.EndpointType}");
+            Assert.True(SchemaCompareEndpointType.Database == result.TargetEndpointInfo.EndpointType, $"Target Endpoint type does not match. Expected {SchemaCompareEndpointType.Database}. Actual {result.TargetEndpointInfo.EndpointType}");
+            Assert.True(sourceName == result.SourceEndpointInfo.DatabaseName, $"Source Endpoint name does not match. Expected {sourceName}, Actual {result.SourceEndpointInfo.DatabaseName}");
+            Assert.True(targetName == result.TargetEndpointInfo.DatabaseName, $"Source Endpoint name does not match. Expected {targetName}, Actual {result.TargetEndpointInfo.DatabaseName}");
+            return true;
         }
     }
 }

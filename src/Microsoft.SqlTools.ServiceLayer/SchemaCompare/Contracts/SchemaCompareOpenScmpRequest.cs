@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// filepath of scmp
         /// </summary>
-        public string filePath { get; set; }
+        public string FilePath { get; set; }
     }
 
     /// <summary>

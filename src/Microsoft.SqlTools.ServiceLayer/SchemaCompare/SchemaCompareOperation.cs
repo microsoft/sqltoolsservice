@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.Parameters = parameters;
             this.SourceConnectionString = SchemaCompareUtils.GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
             this.TargetConnectionString = SchemaCompareUtils.GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
-            this.OperationId = Guid.NewGuid().ToString();
+            this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }

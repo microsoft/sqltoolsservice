@@ -74,10 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaComparison compare = new SchemaComparison(this.Parameters.filePath);
+                SchemaComparison compare = new SchemaComparison(this.Parameters.FilePath);
 
                 // load xml file because some parsing still needs to be done
-                this.scmpInfo = XDocument.Load(this.Parameters.filePath);
+                this.scmpInfo = XDocument.Load(this.Parameters.FilePath);
 
                 this.Result = new SchemaCompareOpenScmpResult()
                 {
