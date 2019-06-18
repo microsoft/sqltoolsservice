@@ -1008,14 +1008,14 @@ CREATE TABLE [dbo].[table3]
             if (cancelled)
             {
                 Assert.True(diffResult.Differences == null, "Differences should be null after cancel");
-                Assert.True(diffResult.Success == false, "Result success forschema compare should be false after cancel");
+                Assert.True(diffResult.Success == false, "Result success for schema compare should be false after cancel");
                 diffEntry = null;
                 return true;
             }
 
             diffEntry = diffResult.Differences.ElementAt(0);
             Assert.True(diffResult.Success == true, "Result success is false for schema compare");
-            Assert.True(diffResult.Differences != null, "Schema comapre Differences should not be null");
+            Assert.True(diffResult.Differences != null, "Schema compare Differences should not be null");
             Assert.True(diffResult.Differences.Count > 0, "Schema compare difference count should be greater than 0");
             Assert.True(diffResult.OperationId == operationId, $"Expected Operation id {operationId}. Actual {diffResult.OperationId}");
             return true;
