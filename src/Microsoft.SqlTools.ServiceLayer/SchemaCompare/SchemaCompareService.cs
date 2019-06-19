@@ -96,6 +96,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                             AreEqual = operation.ComparisonResult.IsEqual,
                             Differences = operation.Differences
                         });
+
+                        // clean up cancellation action now that the operation is complete (using try remove to avoid exception)
+                        Action cancelAction = null;
+                        currentComparisonCancellationAction.Value.TryRemove(operation.OperationId, out cancelAction);
                     }
                     catch (Exception e)
                     {
@@ -126,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 Action cancelAction = null;
                 if (currentComparisonCancellationAction.Value.TryRemove(parameters.OperationId, out cancelAction))
                 {
-                    if(cancelAction != null)
+                    if (cancelAction != null)
                     {
                         cancelAction.Invoke();
                         await requestContext.SendResult(new ResultStatus()
@@ -136,11 +140,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         });
                     }
                 }
-                await requestContext.SendResult(new ResultStatus()
+                else
                 {
-                    Success = false,
-                    ErrorMessage = SR.SchemaCompareSessionNotFound
-                });
+                    await requestContext.SendResult(new ResultStatus()
+                    {
+                        Success = false,
+                        ErrorMessage = SR.SchemaCompareSessionNotFound
+                    });
+                }
 
             }
             catch (Exception e)
@@ -183,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     Success = false,
                     ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
-                });                
+                });
             }
         }
 
@@ -340,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     {
                         operation = new SchemaCompareSaveScmpOperation(parameters, sourceConnInfo, targetConnInfo);
                         operation.Execute(parameters.TaskExecutionMode);
-                        
+
                         await requestContext.SendResult(new ResultStatus()
                         {
                             Success = true,
@@ -357,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                             ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
                         });
                     }
-                });                
+                });
             }
             catch (Exception e)
             {
