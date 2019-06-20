@@ -44,7 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.data.ID = stepInfo.Id;
             this.data.Name = stepInfo.StepName;
             this.data.Command = stepInfo.Command;
-            this.data.Subsystem = AgentUtilities.ConvertToAgentSubSytem(stepInfo.SubSystem);
+            this.data.Subsystem = stepInfo.SubSystem;
+            this.data.FailureAction = stepInfo.FailureAction;
+            this.data.SuccessAction = stepInfo.SuccessAction;
         }
 
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)

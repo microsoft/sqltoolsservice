@@ -365,6 +365,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 return this.failureAction;
             }
+            set
+            {
+                if (this.failureAction != value) {
+                    this.failureAction = value;
+                }
+            }
         }
 
         public JobStepData FailStep
@@ -389,6 +395,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return StepCompletionAction.GoToNextStep;
                 }
                 return this.successAction;
+            }
+            set
+            {
+                if (this.successAction != value) {
+                    this.successAction = value;
+                }
             }
         }
 
