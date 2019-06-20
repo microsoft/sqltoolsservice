@@ -55,6 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 this.PublishResult = this.ComparisonResult.PublishChangesToTarget(this.CancellationToken);
+                if (!this.PublishResult.Success)
+                {
+                    ErrorMessage = string.Join(Environment.NewLine, PublishResult.Errors);
+                    throw new Exception(ErrorMessage);
+                }
             }
             catch (Exception e)
             {

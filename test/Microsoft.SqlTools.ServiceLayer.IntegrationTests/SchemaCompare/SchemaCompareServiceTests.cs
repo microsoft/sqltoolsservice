@@ -602,14 +602,14 @@ CREATE TABLE [dbo].[table3]
 
 
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(targetDb.ConnectionString);
-                var publishParams = new SchemaCompareGenerateScriptParams
+                var publishParams = new SchemaComparePublishChangesParams
                 {
                     OperationId = operationId,
                     TargetDatabaseName = targetDb.DatabaseName,
                     TargetServerName = builder.DataSource,
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareGenerateScriptRequest(publishParams, publishRequestContext.Object);
+                await SchemaCompareService.Instance.HandleSchemaComparePublishChangesRequest(publishParams, publishRequestContext.Object);
 
                 // Include/Exclude service call
                 var excludeRequestContext = new Mock<RequestContext<ResultStatus>>();
@@ -651,6 +651,13 @@ CREATE TABLE [dbo].[table3]
                 await SchemaCompareService.Instance.HandleSchemaCompareOpenScmpRequest(openScmpParams, openScmpRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
                 SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
+
+                string[] expectedTasks = { SR.GenerateScriptTaskName, SR.PublishChangesTaskName };
+                Assert.True(TaskService.Instance.TaskManager.Tasks.Count == 2, $"Expected 2 tasks (Publish and Script) but found {TaskService.Instance.TaskManager.Tasks.Count} tasks");
+                foreach (SqlTask sqlTask in TaskService.Instance.TaskManager.Tasks)
+                {
+                    Assert.True(expectedTasks.Contains(sqlTask.TaskMetadata.Name), $"Unexpected Schema compare task name {sqlTask.TaskMetadata.Name}");
+                }
             }
             finally
             {
@@ -1020,7 +1027,6 @@ CREATE TABLE [dbo].[table3]
             Assert.True(diffResult.OperationId == operationId, $"Expected Operation id {operationId}. Actual {diffResult.OperationId}");
             return true;
         }
-
 
         private bool ValidateScmpRoundtrip(SchemaCompareOpenScmpResult result, string sourceName, string targetName)
         {
