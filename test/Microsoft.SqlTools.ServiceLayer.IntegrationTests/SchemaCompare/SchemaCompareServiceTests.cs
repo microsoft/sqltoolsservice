@@ -547,6 +547,7 @@ CREATE TABLE [dbo].[table3]
                 targetInfo.EndpointType = SchemaCompareEndpointType.Database;
                 targetInfo.DatabaseName = targetDb.DatabaseName;
                 targetInfo.OwnerUri = connectionObject.ConnectionInfo.OwnerUri;
+                TaskService.Instance.TaskManager.Reset();
 
                 // Schema compare service call
                 var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
@@ -653,11 +654,29 @@ CREATE TABLE [dbo].[table3]
                 SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
 
                 string[] expectedTasks = { SR.GenerateScriptTaskName, SR.PublishChangesTaskName };
+                int retry = 10;
                 Assert.True(TaskService.Instance.TaskManager.Tasks.Count == 2, $"Expected 2 tasks (Publish and Script) but found {TaskService.Instance.TaskManager.Tasks.Count} tasks");
-                foreach (SqlTask sqlTask in TaskService.Instance.TaskManager.Tasks)
+                while (TaskService.Instance.TaskManager.Tasks.Any() && retry > 0)
                 {
-                    Assert.True(expectedTasks.Contains(sqlTask.TaskMetadata.Name), $"Unexpected Schema compare task name {sqlTask.TaskMetadata.Name}");
+                    if (!TaskService.Instance.TaskManager.HasCompletedTasks())
+                    {
+                        System.Threading.Thread.Sleep(2000);
+                    }
+                    else
+                    {
+                        foreach (SqlTask sqlTask in TaskService.Instance.TaskManager.Tasks)
+                        {
+                            if (sqlTask.IsCompleted)
+                            {
+                                Assert.True(sqlTask.TaskStatus == SqlTaskStatus.Succeeded, $"Task {sqlTask.TaskMetadata.Name} expected to succeed but failed with {sqlTask.TaskStatus.ToString()}");
+                                Assert.True(expectedTasks.Contains(sqlTask.TaskMetadata.Name), $"Unexpected Schema compare task name {sqlTask.TaskMetadata.Name}");
+                                TaskService.Instance.TaskManager.RemoveCompletedTask(sqlTask);
+                            }
+                        }
+                    }
+                    retry--;
                 }
+                Assert.Equal(false, TaskService.Instance.TaskManager.Tasks.Any());
             }
             finally
             {
