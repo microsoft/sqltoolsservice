@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 var initialCompletionItems = langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
-                Assert.True(initialCompletionItems.Length == 0, $"Should not have any completion items initially. Actual : [{string.Join(',', initialCompletionItems.AsEnumerable())}]");
+                Assert.True(initialCompletionItems.Length == 0, $"Should not have any completion items initially. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
 
                 // Now create a table that should show up in the completion list
                 testDb.RunQuery("CREATE TABLE dbo.foo(col1 int)");
@@ -208,8 +208,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 var afterTableCreationCompletionItems = langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
-                Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', initialCompletionItems.AsEnumerable())}]");
-                Assert.True(afterTableCreationCompletionItems[0].InsertText == "foo", $"Expected single completion item 'foo'. Actual : [{string.Join(',', initialCompletionItems.AsEnumerable())}]");
+                Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
+                Assert.True(afterTableCreationCompletionItems[0].InsertText == "foo", $"Expected single completion item 'foo'. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
             }
             finally
             {
