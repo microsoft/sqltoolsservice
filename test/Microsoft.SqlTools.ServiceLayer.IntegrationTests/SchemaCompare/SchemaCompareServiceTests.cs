@@ -547,6 +547,7 @@ CREATE TABLE [dbo].[table3]
                 targetInfo.EndpointType = SchemaCompareEndpointType.Database;
                 targetInfo.DatabaseName = targetDb.DatabaseName;
                 targetInfo.OwnerUri = connectionObject.ConnectionInfo.OwnerUri;
+                TaskService.Instance.TaskManager.Reset();
 
                 // Schema compare service call
                 var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareResult>>();
@@ -595,6 +596,7 @@ CREATE TABLE [dbo].[table3]
                 };
 
                 await SchemaCompareService.Instance.HandleSchemaCompareGenerateScriptRequest(generateScriptParams, generateScriptRequestContext.Object);
+                ValidateTask(SR.GenerateScriptTaskName);
 
                 // Publish service call
                 var publishRequestContext = new Mock<RequestContext<ResultStatus>>();
@@ -602,14 +604,15 @@ CREATE TABLE [dbo].[table3]
 
 
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(targetDb.ConnectionString);
-                var publishParams = new SchemaCompareGenerateScriptParams
+                var publishParams = new SchemaComparePublishChangesParams
                 {
                     OperationId = operationId,
                     TargetDatabaseName = targetDb.DatabaseName,
                     TargetServerName = builder.DataSource,
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaCompareGenerateScriptRequest(publishParams, publishRequestContext.Object);
+                await SchemaCompareService.Instance.HandleSchemaComparePublishChangesRequest(publishParams, publishRequestContext.Object);
+                ValidateTask(SR.PublishChangesTaskName);
 
                 // Include/Exclude service call
                 var excludeRequestContext = new Mock<RequestContext<ResultStatus>>();
@@ -650,7 +653,7 @@ CREATE TABLE [dbo].[table3]
 
                 await SchemaCompareService.Instance.HandleSchemaCompareOpenScmpRequest(openScmpParams, openScmpRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
-                SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);                
             }
             finally
             {
@@ -1021,7 +1024,6 @@ CREATE TABLE [dbo].[table3]
             return true;
         }
 
-
         private bool ValidateScmpRoundtrip(SchemaCompareOpenScmpResult result, string sourceName, string targetName)
         {
             Assert.True(true == result.Success, "Result Success is false");
@@ -1030,6 +1032,34 @@ CREATE TABLE [dbo].[table3]
             Assert.True(sourceName == result.SourceEndpointInfo.DatabaseName, $"Source Endpoint name does not match. Expected {sourceName}, Actual {result.SourceEndpointInfo.DatabaseName}");
             Assert.True(targetName == result.TargetEndpointInfo.DatabaseName, $"Source Endpoint name does not match. Expected {targetName}, Actual {result.TargetEndpointInfo.DatabaseName}");
             return true;
+        }
+
+        private void ValidateTask(string expectedTaskName)
+        {
+            int retry = 5;
+            Assert.True(TaskService.Instance.TaskManager.Tasks.Count == 1, $"Expected 1 task but found {TaskService.Instance.TaskManager.Tasks.Count} tasks");
+            while (TaskService.Instance.TaskManager.Tasks.Any() && retry > 0)
+            {
+                if (!TaskService.Instance.TaskManager.HasCompletedTasks())
+                {
+                    System.Threading.Thread.Sleep(2000);
+                }
+                else
+                {
+                    foreach (SqlTask sqlTask in TaskService.Instance.TaskManager.Tasks)
+                    {
+                        if (sqlTask.IsCompleted)
+                        {
+                            Assert.True(sqlTask.TaskStatus == SqlTaskStatus.Succeeded, $"Task {sqlTask.TaskMetadata.Name} expected to succeed but failed with {sqlTask.TaskStatus.ToString()}");
+                            Assert.True(sqlTask.TaskMetadata.Name.Equals(expectedTaskName), $"Unexpected Schema compare task name. Expected : {expectedTaskName}, Actual : {sqlTask.TaskMetadata.Name}");
+                            TaskService.Instance.TaskManager.RemoveCompletedTask(sqlTask);
+                        }
+                    }
+                }
+                retry--;
+            }
+            Assert.Equal(false, TaskService.Instance.TaskManager.Tasks.Any());
+            TaskService.Instance.TaskManager.Reset();
         }
     }
 }
