@@ -215,8 +215,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 testDb.Cleanup();
             }
-
-
         }
     }
 }
