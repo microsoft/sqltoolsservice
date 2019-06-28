@@ -7,7 +7,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
@@ -31,6 +34,8 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -94,6 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
+
+        private readonly ConcurrentDictionary<string, ICompletionExtension> _completionExtensions = new ConcurrentDictionary<string, ICompletionExtension>();
 
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
@@ -245,8 +252,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
+            serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
-            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
+            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);            
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -282,6 +290,96 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #endregion
 
         #region Request Handlers
+
+        /// <summary>
+        /// Completion extension load request callback
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<CompletionExtensionLoadStatus> requestContext)
+        {
+            var loadStatus = new CompletionExtensionLoadStatus { IsLoaded = false, ErrorMsg = "Failed to create ICompletionExtensionProvider" };
+            try
+            {
+                var cancellationToken = new CancellationTokenSource(1000).Token;
+                var provider = ActivateObject<ICompletionExtensionProvider>(param.Assembly, param.TypeName, null);
+                
+                if (provider == null)
+                {
+                    
+                    await requestContext.SendResult(loadStatus);
+                    return;
+                }
+
+                var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken);
+                if (ext == null)
+                {
+                    
+                    loadStatus.ErrorMsg = "Failed to create ICompletionExtension";
+                    await requestContext.SendResult(loadStatus);
+                    return;
+                }
+
+                string n = null;
+                try
+                {
+                    n = ext.Name;
+                    await ext.Initialize(cancellationToken);
+                }
+                catch (NotImplementedException)
+                {
+                }
+                catch (NotSupportedException)
+                {
+                }
+
+                if (!string.IsNullOrEmpty(n))
+                {
+                    _completionExtensions.AddOrUpdate(n, ext, (_, previous) => {
+                        previous?.Dispose();
+                        return ext;
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                loadStatus.ErrorMsg = ex.Message;
+                await requestContext.SendResult(loadStatus);
+            }
+        }
+
+        private T ActivateObject<T>(string assemblyName, string typeName, Dictionary<string, object> properties)
+        {
+            if (string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(typeName))
+            {
+                return default(T);
+            }
+            try
+            {
+                var assembly = File.Exists(assemblyName)
+                    ? Assembly.LoadFrom(assemblyName)
+                    : Assembly.Load(new AssemblyName(assemblyName));
+
+                var type = assembly.GetType(typeName, true);
+
+                return (T)Activator.CreateInstance(
+                    type,
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    properties == null ? Array.Empty<object>() : new object[] { properties },
+                    CultureInfo.CurrentCulture
+                );
+            }
+            catch (Exception ex)
+            {
+                //_log?.Log(TraceEventType.Warning, ex.ToString());
+            }
+
+            return default;
+        }
+
+
 
         /// <summary>
         /// T-SQL syntax parse request callback
@@ -1506,6 +1604,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
             }
 
+            //invoke the completion extensions
+            if (_completionExtensions.Count() > 0)
+            {
+                foreach(var completionExt in _completionExtensions.Values)
+                {
+                    completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, result, new CancellationTokenSource(100).Token);
+                }
+            }
             return resultCompletionItems;
         }
 

@@ -5,6 +5,7 @@
 
 using System.Diagnostics;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
@@ -21,6 +22,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public static readonly
             RequestType<CompletionItem, CompletionItem> Type =
             RequestType<CompletionItem, CompletionItem>.Create("completionItem/resolve");
+    }
+
+    public class CompletionExtLoadRequest
+    {
+        public static readonly
+            RequestType<CompletionExtensionParams, CompletionExtensionLoadStatus> Type =
+            RequestType<CompletionExtensionParams, CompletionExtensionLoadStatus>.Create("completion/extLoad");
     }
 
     public enum CompletionItemKind
