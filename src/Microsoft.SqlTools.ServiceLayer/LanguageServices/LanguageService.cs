@@ -371,12 +371,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     CultureInfo.CurrentCulture
                 );
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //_log?.Log(TraceEventType.Warning, ex.ToString());
             }
 
-            return default;
+            return default(T);
         }
 
 
