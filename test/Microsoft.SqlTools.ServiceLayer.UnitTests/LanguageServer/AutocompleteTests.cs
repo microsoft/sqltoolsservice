@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             InitializeTestObjects();
             textDocument.TextDocument.Uri = "somethinggoeshere";
-            Assert.True(langService.GetCompletionItems(textDocument, scriptFile.Object, null).Length > 0);
+            Assert.True(langService.GetCompletionItems(textDocument, scriptFile.Object, null).Result.Length > 0);
         }
 
         [Fact]

@@ -27,8 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
     public class CompletionExtLoadRequest
     {
         public static readonly
-            RequestType<CompletionExtensionParams, CompletionExtensionLoadStatus> Type =
-            RequestType<CompletionExtensionParams, CompletionExtensionLoadStatus>.Create("completion/extLoad");
+            RequestType<CompletionExtensionParams, bool> Type =
+            RequestType<CompletionExtensionParams, bool>.Create("completion/extLoad");
     }
 
     public enum CompletionItemKind

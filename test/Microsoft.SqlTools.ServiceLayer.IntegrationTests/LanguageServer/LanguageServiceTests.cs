@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var completions = autoCompleteService.GetCompletionItems(
                 result.TextDocumentPosition,
                 result.ScriptFile,
-                result.ConnectionInfo);
+                result.ConnectionInfo).Result;
 
             Assert.True(completions.Length > 0);
         }

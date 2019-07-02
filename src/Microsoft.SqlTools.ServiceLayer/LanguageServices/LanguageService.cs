@@ -7,10 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
@@ -26,7 +23,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -35,7 +31,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
-
+using Microsoft.SqlTools.Extensibility;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -254,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
-            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);            
+            serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -297,88 +293,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="param"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<CompletionExtensionLoadStatus> requestContext)
+        internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
         {
-            var loadStatus = new CompletionExtensionLoadStatus { IsLoaded = false, ErrorMsg = "Failed to create ICompletionExtensionProvider" };
+            var errorMsg = "Failed to create ICompletionExtensionProvider";
+            
             try
             {
-                var cancellationToken = new CancellationTokenSource(1000).Token;
-                var provider = ActivateObject<ICompletionExtensionProvider>(param.Assembly, param.TypeName, null);
-                
-                if (provider == null)
+                ExtensionServiceProvider.AddAssembly(param.Assembly);
+                foreach (var provider in ServiceHostInstance.ServiceProvider.GetServices<ICompletionExtensionProvider>())
                 {
-                    
-                    await requestContext.SendResult(loadStatus);
-                    return;
-                }
+                    var cancellationToken = new CancellationTokenSource(1000).Token;
+                    var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken);
+                    if (ext == null)
+                    {
+                        errorMsg = "Failed to create ICompletionExtension";
+                        await requestContext.SendError(errorMsg);
+                        return;
+                    }
 
-                var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken);
-                if (ext == null)
-                {
-                    
-                    loadStatus.ErrorMsg = "Failed to create ICompletionExtension";
-                    await requestContext.SendResult(loadStatus);
-                    return;
-                }
+                    string extName = null;
+                    try
+                    {
+                        extName = ext.Name;
+                        await ext.Initialize(cancellationToken);
+                    }
+                    catch (NotImplementedException)
+                    {
+                    }
+                    catch (NotSupportedException)
+                    {
+                    }
 
-                string n = null;
-                try
-                {
-                    n = ext.Name;
-                    await ext.Initialize(cancellationToken);
-                }
-                catch (NotImplementedException)
-                {
-                }
-                catch (NotSupportedException)
-                {
-                }
-
-                if (!string.IsNullOrEmpty(n))
-                {
-                    _completionExtensions.AddOrUpdate(n, ext, (_, previous) => {
-                        previous?.Dispose();
-                        return ext;
-                    });
+                    if (!string.IsNullOrEmpty(extName))
+                    {
+                        _completionExtensions.AddOrUpdate(extName, ext, (_, previous) =>
+                        {
+                            previous?.Dispose();
+                            return ext;
+                        });
+                    }
                 }
             }
             catch (Exception ex)
             {
-                loadStatus.ErrorMsg = ex.Message;
-                await requestContext.SendResult(loadStatus);
+                errorMsg = ex.Message;
+                await requestContext.SendError(errorMsg);
             }
         }
-
-        private T ActivateObject<T>(string assemblyName, string typeName, Dictionary<string, object> properties)
-        {
-            if (string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(typeName))
-            {
-                return default(T);
-            }
-            try
-            {
-                var assembly = File.Exists(assemblyName)
-                    ? Assembly.LoadFrom(assemblyName)
-                    : Assembly.Load(new AssemblyName(assemblyName));
-
-                var type = assembly.GetType(typeName, true);
-
-                return (T)Activator.CreateInstance(
-                    type,
-                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
-                    null,
-                    properties == null ? Array.Empty<object>() : new object[] { properties },
-                    CultureInfo.CurrentCulture
-                );
-            }
-            catch (Exception)
-            {
-                //_log?.Log(TraceEventType.Warning, ex.ToString());
-            }
-
-            return default(T);
-        }
-
 
 
         /// <summary>
@@ -453,7 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     var completionItems = GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
 
-                    await requestContext.SendResult(completionItems);       
+                    await requestContext.SendResult(completionItems.Result);       
                 }
             }
             catch (Exception ex)
@@ -1561,7 +1522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// This method does not await cache builds since it expects to return quickly
         /// </summary>
         /// <param name="textDocumentPosition"></param>
-        public CompletionItem[] GetCompletionItems(
+        public async Task<CompletionItem[]> GetCompletionItems(
             TextDocumentPosition textDocumentPosition,
             ScriptFile scriptFile,
             ConnectionInfo connInfo)
@@ -1604,14 +1565,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
             }
 
-            //invoke the completion extensions
-            if (_completionExtensions.Count() > 0)
+            //invoke the completion extensions            
+            foreach(var completionExt in _completionExtensions.Values)
             {
-                foreach(var completionExt in _completionExtensions.Values)
-                {
-                    completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, result, new CancellationTokenSource(100).Token);
-                }
+                await completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, result, new CancellationTokenSource(100).Token).ConfigureAwait(false);
             }
+            
             return resultCompletionItems;
         }
 

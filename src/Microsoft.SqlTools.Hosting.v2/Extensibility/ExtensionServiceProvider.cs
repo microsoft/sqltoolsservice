@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Composition.Convention;
 using System.Composition.Hosting;
@@ -30,6 +31,8 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
         private readonly Func<ConventionBuilder, ContainerConfiguration> config;
+
+        private static readonly ConcurrentDictionary<string, Assembly> assemblyCache = new ConcurrentDictionary<string, Assembly>();
 
         public ExtensionServiceProvider(Func<ConventionBuilder, ContainerConfiguration> config)
         {
@@ -83,7 +86,22 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
         public static ExtensionServiceProvider Create(IEnumerable<Assembly> assemblies)
         {
             Validate.IsNotNull(nameof(assemblies), assemblies);
+            foreach(var assembly in assemblies)
+            {
+                assemblyCache.AddOrUpdate(assembly.FullName, assembly, (_, previous) => {
+                    return assembly;
+                });
+            }
             return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblies, conventions));
+        }
+        
+        public static ExtensionServiceProvider AddAssembly(string path)
+        {            
+            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+            assemblyCache.AddOrUpdate(assembly.FullName, assembly, (_, previous) => {
+                return assembly;
+            });
+            return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblyCache.Values, conventions));
         }
 
         public static ExtensionServiceProvider Create(IEnumerable<Type> types)
