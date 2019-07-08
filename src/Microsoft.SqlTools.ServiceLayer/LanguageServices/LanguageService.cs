@@ -411,10 +411,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         scriptFile.ClientFilePath,
                         out connInfo);
 
-                    var completionItems = GetCompletionItems(
+                    var completionItems = await GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
 
-                    await requestContext.SendResult(completionItems.Result);       
+                    await requestContext.SendResult(completionItems);
                 }
             }
             catch (Exception ex)
