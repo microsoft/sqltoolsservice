@@ -4,6 +4,8 @@
 //
 
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -29,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Constants.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
@@ -42,8 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
 
             // Then:
-            // ... The query should not have been disposed
+            // ... The query should not have been disposed but should have been cancelled
             Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.Equal(true, queryService.ActiveQueries[Constants.OwnerUri].HasCancelled);
             cancelRequest.Validate();
         }
 
@@ -58,6 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query
@@ -71,8 +76,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
 
             // Then:
-            // ... The query should not have been disposed
+            // ... The query should not have been disposed and cancel should not have excecuted
             Assert.NotEmpty(queryService.ActiveQueries);
+            Assert.Equal(false, queryService.ActiveQueries[Constants.OwnerUri].HasCancelled);
             cancelRequest.Validate();
         }
 
@@ -92,6 +98,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 }).Complete();
             await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
             cancelRequest.Validate();
+        }
+
+        [Fact]
+        public async Task CancelQueryBeforeExecutionStartedTest()
+        {
+            // Setup query settings
+            QueryExecutionSettings querySettings = new QueryExecutionSettings
+            {
+                ExecutionPlanOptions = new ExecutionPlanOptions
+                {
+                    IncludeActualExecutionPlanXml = false,
+                    IncludeEstimatedExecutionPlanXml = true
+                }
+            };
+
+            // Create query with a failure callback function
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
+            ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
+            Query query = new Query(Constants.StandardQuery, ci, querySettings, MemoryFileSystem.GetFileStreamFactory());
+
+            string errorMessage = null;
+            Query.QueryAsyncErrorEventHandler failureCallback = async (q, e) =>
+            {
+                errorMessage = "Error Occured";
+            };
+            query.QueryFailed += failureCallback;
+
+            query.Cancel();
+            query.Execute();
+            await query.ExecutionTask;
+
+            // Validate that query has not been executed but cancelled and query failed called function was called
+            Assert.Equal(true, query.HasCancelled);
+            Assert.Equal(false, query.HasExecuted);
+            Assert.Equal("Error Occured", errorMessage);
         }
     }
 }

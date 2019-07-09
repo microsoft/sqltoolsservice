@@ -33,17 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
-                    logFilePath = "sqltools";
-                }
-                if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
-                {
-                    logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
+                    logFilePath = Logger.GenerateLogFilePath("sqltools");
                 }
 
-                // turn on Verbose logging during early development
-                // we need to switch to Information when preparing for public preview
+                Logger.AutoFlush = commandOptions.AutoFlushLog;
+
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools");
-                Logger.Write(TraceEventType.Information, "Starting SQL Tools Service Layer");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));

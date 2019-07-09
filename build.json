@@ -9,16 +9,16 @@
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "netcoreapp2.1"
+      "netcoreapp2.2"
    ]
   },
   "Frameworks": [  
-    "netcoreapp2.1"
+    "netcoreapp2.2"
   ],
   "MainProjects": [     
-    "Microsoft.SqlTools.ServiceLayer",
     "Microsoft.SqlTools.Credentials",
-    "Microsoft.SqlTools.ResourceProvider"
+    "Microsoft.SqlTools.ResourceProvider",
+    "Microsoft.SqlTools.ServiceLayer"
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.CoreServices",

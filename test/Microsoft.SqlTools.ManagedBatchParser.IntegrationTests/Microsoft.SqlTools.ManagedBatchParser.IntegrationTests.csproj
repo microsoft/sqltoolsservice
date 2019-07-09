@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Common.props" />
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DebugType>portable</DebugType>
+    <AssemblyName>Microsoft.SqlTools.ManagedBatchParser.IntegrationTests</AssemblyName>
+    <PackageId>Microsoft.SqlTools.ManagedBatchParser.IntegrationTests</PackageId>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>../../bin/ref/Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
+    </Reference>
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
+    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.UnitTests/Microsoft.SqlTools.ServiceLayer.UnitTests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Net.Http" Version="4.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="$(SmoPackageVersion)" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4451.1-preview" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Integration' ">
+    <DefineConstants>$(DefineConstants);WINDOWS_ONLY_BUILD</DefineConstants>
+  </PropertyGroup>
+</Project>

@@ -5,14 +5,18 @@
   "main": "gulpfile.js",
   "dependencies": {
     "del": "^2.2.1",
-    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp": "^4.0.0",
+    "gulp-cli": "^2.0.1",
     "gulp-hub": "frankwallis/gulp-hub#registry-init",
     "gulp-install": "^0.6.0",
-    "gulp-util": "^3.0.7",
     "request": "^2.73.0",
     "through2": "^2.0.3"
   },
   "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/sqltoolsservice.git"
+  },
   "author": "Microsoft",
   "license": "MIT"
 }

@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
@@ -56,7 +57,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Connect with SMO and get the metadata for the table
-            Server server = new Server(new ServerConnection(sqlConn));
+            ServerConnection serverConnection;
+            if (sqlConn.AccessToken == null)
+            {
+                serverConnection = new ServerConnection(sqlConn);
+            }
+            else
+            {
+                serverConnection = new ServerConnection(sqlConn, new AzureAccessToken(sqlConn.AccessToken));
+            }
+            Server server = new Server(serverConnection);
             Database db = new Database(server, sqlConn.Database);
 
             TableViewTableTypeBase smoResult;

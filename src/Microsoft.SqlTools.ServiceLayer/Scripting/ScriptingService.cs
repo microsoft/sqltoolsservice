@@ -111,12 +111,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
                 ConnectionInfo connInfo = null;
+                string accessToken = null;
                 if (parameters.ConnectionString == null)
                 {
                     ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
                         parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                        accessToken = connInfo.ConnectionDetails.AzureAccountToken;
                     }
                     else
                     {
@@ -126,11 +128,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters);
+                    operation = new ScriptingScriptOperation(parameters, accessToken);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();

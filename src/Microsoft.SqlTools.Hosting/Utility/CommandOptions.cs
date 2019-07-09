@@ -28,19 +28,12 @@ namespace Microsoft.SqlTools.Hosting.Utility
             ErrorMessage = string.Empty;
             Locale = string.Empty;
 
-            //set default log directory
-            LoggingDirectory = DefaultLogRoot;
-            if (!string.IsNullOrWhiteSpace(ServiceName))
-            {
-                LoggingDirectory = Path.Combine(LoggingDirectory, ServiceName);
-            }
-
             try
             {
                 for (int i = 0; i < args.Length; ++i)
                 {
                     string arg = args[i];
-                    if (arg.StartsWith("--") || arg.StartsWith("-"))
+                    if (arg != null && (arg.StartsWith("--") || arg.StartsWith("-")))
                     {
                         // Extracting arguments and properties
                         arg = arg.Substring(1).ToLowerInvariant();
@@ -48,19 +41,19 @@ namespace Microsoft.SqlTools.Hosting.Utility
 
                         switch (argName)
                         {
-                            case "-enable-logging":
-                                break; //ignore this old option for now for backward compat with older opsstudio code - to be removed in a future checkin
+                            case "-autoflush-log":
+                                AutoFlushLog = true;
+                                break; 
                             case "-tracing-level":
                                 TracingLevel = args[++i];
                                 break;
                             case "-log-file":
                                 LogFilePath = args[++i];
                                 break;
-                            case "-log-dir":
-                                SetLoggingDirectory(args[++i]);
-                                break;
                             case "-locale":
                                 SetLocale(args[++i]);
+                                break;
+                            case "-enable-logging":
                                 break;
                             case "h":
                             case "-help":
@@ -94,11 +87,6 @@ namespace Microsoft.SqlTools.Hosting.Utility
         public string ErrorMessage { get; private set; }
 
         /// <summary>
-        /// Gets the directory where log files are output.
-        /// </summary>
-        public string LoggingDirectory { get; private set; }
-
-        /// <summary>
         /// Whether the program should exit immediately. Set to true when the usage is printed.
         /// </summary>
         public bool ShouldExit { get; private set; }
@@ -123,11 +111,10 @@ namespace Microsoft.SqlTools.Hosting.Utility
                 var str = string.Format("{0}" + Environment.NewLine +
                     ServiceName + " " + Environment.NewLine +
                     "   Options:" + Environment.NewLine +
-                    "        [--enable-logging ] (obsolete - present for backward compat. Logging is always on, except -tracing-level Off has the effect of disabling logging)" + Environment.NewLine +
-                    "        [--tracing-level **] (** can be any of: All, Off, Critical, Error, Warning, Information, Verbose. Default is Critical)" + Environment.NewLine +
-                    "        [--log-file **]" + Environment.NewLine +
-                    "        [--log-dir **] (default: %APPDATA%\\<service name>)" + Environment.NewLine +
+                    "        [--autoflush-log] (If passed in auto flushing of log files is enabled., Verbose. Default is to not auto-flush log files)" + Environment.NewLine +
                     "        [--locale **] (default: 'en')" + Environment.NewLine,
+                    "        [--log-file **]" + Environment.NewLine +
+                    "        [--tracing-level **] (** can be any of: All, Off, Critical, Error, Warning, Information, Verbose. Default is Critical)" + Environment.NewLine +
                     "        [--help]" + Environment.NewLine +
                     ErrorMessage);
                 return str;
@@ -138,15 +125,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
 
         public string LogFilePath { get; private set; }
 
-        private void SetLoggingDirectory(string loggingDirectory)
-        {
-            if (string.IsNullOrWhiteSpace(loggingDirectory))
-            {
-                return;
-            }
-
-            this.LoggingDirectory = Path.GetFullPath(loggingDirectory);
-        }
+        public bool AutoFlushLog { get; private set; } = false;
 
         public virtual void SetLocale(string locale)
         {

@@ -15,6 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        DbConnection CreateSqlConnection(string connectionString);
+        DbConnection CreateSqlConnection(string connectionString, string azureAccountToken);
     }
 }

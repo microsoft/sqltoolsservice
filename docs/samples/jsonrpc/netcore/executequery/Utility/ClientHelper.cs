@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 
 namespace Microsoft.SqlTools.JsonRpc.Utility
 {
@@ -119,9 +120,9 @@ namespace Microsoft.SqlTools.JsonRpc.Utility
         /// <summary>
         /// Request the active SQL script is parsed for errors
         /// </summary>
-        public async Task<QueryExecuteSubsetResult> RequestQueryExecuteSubset(QueryExecuteSubsetParams subsetParams)
+        public async Task<SubsetResult> RequestQueryExecuteSubset(SubsetParams subsetParams)
         {
-            return await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
+            return await Driver.SendRequest(SubsetRequest.Type, subsetParams);
         }
 
         /// <summary>
@@ -171,21 +172,21 @@ namespace Microsoft.SqlTools.JsonRpc.Utility
         /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
-        public async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        public async Task<QueryCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
         {
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
 
-            var queryParams = new QueryExecuteParams
+            var queryParams = new ExecuteDocumentSelectionParams
             {
                 OwnerUri = ownerUri,
                 QuerySelection = null
             };
 
-            var result = await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
-            if (result != null && string.IsNullOrEmpty(result.Messages))
+            var result = await Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
+            if (result != null)
             {
-                var eventResult = await Driver.WaitForEvent(QueryExecuteCompleteEvent.Type, timeoutMilliseconds);
+                var eventResult = await Driver.WaitForEvent(QueryCompleteEvent.Type, timeoutMilliseconds);
                 return eventResult;
             }
             else
@@ -231,16 +232,16 @@ namespace Microsoft.SqlTools.JsonRpc.Utility
         /// <summary>
         /// Request a subset of results from a query
         /// </summary>
-        public async Task<QueryExecuteSubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
+        public async Task<SubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
         {
-            var subsetParams = new QueryExecuteSubsetParams();
+            var subsetParams = new SubsetParams();
             subsetParams.OwnerUri = ownerUri;
             subsetParams.BatchIndex = batchIndex;
             subsetParams.ResultSetIndex = resultSetIndex;
             subsetParams.RowsStartIndex = rowStartIndex;
             subsetParams.RowsCount = rowCount;
 
-            var result = await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
+            var result = await Driver.SendRequest(SubsetRequest.Type, subsetParams);
             return result;
         }
 

@@ -72,9 +72,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public void CombineSpecialAction(SpecialAction action)
         {
-            flags |= action.flags;
+            flags |= ((action?.flags) ?? ActionFlags.None);
         }
-        
+        public override string ToString() => $"ActionFlag:'{flags}', ExpectYukonXMLShowPlan:'{ExpectYukonXMLShowPlan}'";
         #endregion
     };
 }

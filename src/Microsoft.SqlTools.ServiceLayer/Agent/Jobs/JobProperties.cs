@@ -6,6 +6,7 @@
 using System;
 using System.Data;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -16,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     public class JobProperties
     {
         private string name;
-        
         private int currentExecutionStatus;
         private int lastRunOutcome;
         private string currentExecutionStep;
@@ -32,6 +32,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private DateTime nextRun;
         private Guid jobId;
         private string description;
+        private string owner;
+        private string operatorToEmail;
+        private string operatorToPage;
+        private int startStepID;
+        private int emailLevel;
+        private int pageLevel;
+        private int eventLogLevel;
+        private int deleteLevel;
 
         private JobProperties()
         {
@@ -65,6 +73,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.lastRunOutcome          = Convert.ToInt32(row["LastRunOutcome"], CultureInfo.InvariantCulture);
             this.jobId                   = Guid.Parse(row["JobID"].ToString());
             this.description             = row["Description"].ToString();
+            this.owner                   = row["OwnerLoginName"].ToString();
+            this.operatorToEmail         = row["OperatorToEmail"].ToString();
+            this.operatorToPage          = row["OperatorToPage"].ToString();
+            this.startStepID             = Convert.ToInt32(row["StartStepID"], CultureInfo.InvariantCulture);
+            this.emailLevel              = Convert.ToInt32(row["EmailLevel"], CultureInfo.InvariantCulture);
+            this.pageLevel               = Convert.ToInt32(row["PageLevel"], CultureInfo.InvariantCulture);
+            this.eventLogLevel           = Convert.ToInt32(row["EventLogLevel"], CultureInfo.InvariantCulture);
+            this.deleteLevel             = Convert.ToInt32(row["DeleteLevel"], CultureInfo.InvariantCulture);
 
             // for a job to be runnable, it must:
             // 1. have a target server
@@ -166,6 +182,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 return this.description;
             }
+        }
+
+        public int StartStepID
+        {
+            get { return this.startStepID; }
+        }
+
+        public string OperatorToEmail
+        {
+            get { return this.operatorToEmail; }
+        }
+
+        public string OperatorToPage
+        {
+            get { return this.operatorToPage; }
+        }
+
+        public JobCompletionActionCondition EmailLevel
+        {
+            get { return (JobCompletionActionCondition)this.emailLevel; }
+        }
+
+        public JobCompletionActionCondition PageLevel
+        {
+            get { return (JobCompletionActionCondition)this.pageLevel; }
+        }
+
+        public JobCompletionActionCondition EventLogLevel
+        {
+            get { return (JobCompletionActionCondition)this.eventLogLevel; }
+        }
+
+        public JobCompletionActionCondition DeleteLevel
+        {
+            get { return (JobCompletionActionCondition)this.eventLogLevel; }
+        }
+
+        public string Owner 
+        {
+            get { return this.owner; }
         }
     }
 }

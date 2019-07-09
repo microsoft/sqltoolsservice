@@ -290,17 +290,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="requestContext"></param>
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
-        {            
-            await Task.Run(async () => 
+        {
+            await Task.Run(async () =>
             {
                 try
-                {   
+                {
                     ParseResult result = Parser.Parse(param.Query);
                     SyntaxParseResult syntaxResult = new SyntaxParseResult();
                     if (result != null && result.Errors.Count() == 0)
                     {
                         syntaxResult.Parseable = true;
-                    } else 
+                    } else
                     {
                         syntaxResult.Parseable = false;
                         string[] errorMessages = new string[result.Errors.Count()];
@@ -328,9 +328,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal async Task HandleCompletionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
-        {            
+        {
             try
-            {            
+            {
                 // check if Intellisense suggestions are enabled
                 if (ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
                 {
@@ -355,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     var completionItems = GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
 
-                    await requestContext.SendResult(completionItems);       
+                    await requestContext.SendResult(completionItems);
                 }
             }
             catch (Exception ex)
@@ -397,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            try 
+            try
             {
                 DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
@@ -414,18 +414,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
-                    
-                    if (definitionResult != null)
+
+                    if (definitionResult != null && !definitionResult.IsErrorResult)
                     {
-                        if (definitionResult.IsErrorResult)
-                        {
-                            await requestContext.SendError(definitionResult.Message);
-                        }
-                        else
-                        {
-                            await requestContext.SendResult(definitionResult.Locations);
-                            succeeded = true;
-                        }
+                        await requestContext.SendResult(definitionResult.Locations);
+                        succeeded = true;
                     }
                     else
                     {
@@ -552,10 +545,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Handle the file open notification
         /// </summary>
+        /// <param name="uri"></param>
         /// <param name="scriptFile"></param>
         /// <param name="eventContext"></param>
         /// <returns></returns>
         public async Task HandleDidOpenTextDocumentNotification(
+            string uri,
             ScriptFile scriptFile,
             EventContext eventContext)
         {
@@ -633,13 +628,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     await Task.Run(() =>
                     {
+                        // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
                         ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
-                        if (scriptInfo != null && scriptInfo.IsConnected && 
+                        if (scriptInfo != null && scriptInfo.IsConnected &&
                             Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                         {
                             try
                             {
                                 this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
+                                RemoveScriptParseInfo(rebuildParams.OwnerUri);
+                                UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
                             catch (Exception ex)
                             {
@@ -732,7 +730,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="info"></param>
         public async Task HandleDidChangeLanguageFlavorNotification(
             LanguageFlavorChangeParams changeParams,
-            EventContext eventContext) 
+            EventContext eventContext)
         {
             try
             {
@@ -819,7 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                             }, ConnectedBindingQueue.QueueThreadStackSize);
                             parseThread.Start();
-                            parseThread.Join();                        
+                            parseThread.Join();
                     }
                     else
                     {
@@ -1114,7 +1112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItem;
         }
 
-        
+
         /// <summary>
         /// Queue a task to the binding queue
         /// </summary>
@@ -1124,7 +1122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="tokenText"></param>
         /// <returns> Returns the result of the task as a DefinitionResult </returns>
-        private DefinitionResult QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo, 
+        private DefinitionResult QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo,
                                             ConnectionInfo connInfo, ScriptFile scriptFile, string tokenText)
         {
             // Queue the task with the binding queue
@@ -1137,10 +1135,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Script object using SMO
                     Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
                     return scripter.GetScript(
-                        scriptParseInfo.ParseResult, 
-                        textDocumentPosition.Position, 
-                        bindingContext.MetadataDisplayInfoProvider, 
-                        tokenText, 
+                        scriptParseInfo.ParseResult,
+                        textDocumentPosition.Position,
+                        bindingContext.MetadataDisplayInfoProvider,
+                        tokenText,
                         schemaName);
                 },
                 timeoutOperation: (bindingContext) =>
@@ -1163,7 +1161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Locations = null
                     };
                 });
-                           
+
             // wait for the queue item
             queueItem.ItemProcessed.WaitOne();
             var result = queueItem.GetResultAsT<DefinitionResult>();
@@ -1240,7 +1238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get token from selected text
-            Tuple<Stack<Token>, Queue<Token>> selectedToken = ScriptDocumentInfo.GetPeekDefinitionTokens(scriptParseInfo, 
+            Tuple<Stack<Token>, Queue<Token>> selectedToken = ScriptDocumentInfo.GetPeekDefinitionTokens(scriptParseInfo,
                 textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character + 1);
 
             if (selectedToken == null)
@@ -1255,7 +1253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 List<Token> tokenList = childrenTokens.ToList();
                 DefinitionResult childrenResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
 
-                // if the children peak definition returned null then 
+                // if the children peak definition returned null then
                 // try the parents
                 if (childrenResult == null || childrenResult.IsErrorResult)
                 {
@@ -1267,7 +1265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 else
                 {
                     return childrenResult;
-                }    
+                }
             }
             else
             {
@@ -1280,9 +1278,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 };
             }
         }
-   
+
         /// <summary>
-        /// Wrapper around find token method 
+        /// Wrapper around find token method
         /// </summary>
         /// <param name="scriptParseInfo"></param>
         /// <param name="startLine"></param>
@@ -1779,13 +1777,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     bool? lineHasSingleStatement = null;
 
                     // check if the batch matches parameters
-                    if (batch.StartLocation.LineNumber <= parserLine 
+                    if (batch.StartLocation.LineNumber <= parserLine
                         && batch.EndLocation.LineNumber >= parserLine)
                     {
                         foreach (var statement in batch.Statements)
                         {
                             // check if the statement matches parameters
-                            if (statement.StartLocation.LineNumber <= parserLine 
+                            if (statement.StartLocation.LineNumber <= parserLine
                                 && statement.EndLocation.LineNumber >= parserLine)
                             {
                                 if (statement.EndLocation.LineNumber == parserLine && statement.EndLocation.ColumnNumber < parserColumn

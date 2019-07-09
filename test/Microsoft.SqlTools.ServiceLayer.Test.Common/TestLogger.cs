@@ -30,21 +30,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public SourceLevels TracingLevel { get; set; } = SourceLevels.Critical;
         public bool DoNotUseTraceSource { get; set; } = false;
 
+        public bool AutoFlush { get; set; } = false;
+
         private List<Action> pendingVerifications;
         private string testName;
 
         public string CallstackMessage { get => $"Callstack=\\s*{TopFrame}"; }
 
+        public void Close() => Logger.Close();
+
         public string LogFileName { get => logFileName ?? Logger.LogFileFullPath; set => logFileName = value; }
         public void Initialize() =>
-            Logger.Initialize(TracingLevel, LogFilePath, TraceSource); // initialize the logger
+            Logger.Initialize(TracingLevel, LogFilePath, TraceSource, AutoFlush); // initialize the logger
         public string LogContents
         {
             get
             {
                 if (logContents == null)
                 {
-                    Logger.Close();
+                    Close();
                     Assert.True(!string.IsNullOrWhiteSpace(LogFileName));
                     Assert.True(LogFileName.Length > "{TraceSource}_.log".Length);
                     Assert.True(File.Exists(LogFileName));
@@ -70,24 +74,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             set => pendingVerifications = value;
         }
 
-        public void Write()
+        public void Write() => Write(LogMessage);
+
+        public void Write(string logMessage)
         {
             // write test log
             if (DoNotUseTraceSource)
             {
                 TraceSource savedTraceSource = Logger.TraceSource;
                 Logger.TraceSource = null;
-                Logger.Write(EventType, LogMessage);
+                Logger.Write(EventType, logMessage);
                 Logger.TraceSource = savedTraceSource;
             }
             else
-                Logger.Write(EventType, LogMessage);
+            {
+                Logger.Write(EventType, logMessage);
+            }
         }
 
-        public void WriteWithCallstack()
+        public void WriteWithCallstack() => WriteWithCallstack(LogMessage);
+
+        public void WriteWithCallstack(string logMessage)
         {
             // write test log with callstack
-            Logger.WriteWithCallstack(EventType, LogMessage);
+            Logger.WriteWithCallstack(EventType, logMessage);
             ShouldVerifyCallstack = true;
         }
 
@@ -97,7 +107,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public void Verify(TraceEventType eventType, string message, string callstackMessage, bool shouldVerifyCallstack = false, bool expectLogMessage = true)
         {
-            Logger.Flush();
+            if (!AutoFlush)
+            {
+                Logger.Flush();
+            }
             // The Regex uses .* between the severity and the message to allow SMO to vary the content. 140 SMO has nothing there, 150 has a timestamp
             if (expectLogMessage)
             {
@@ -137,7 +150,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 Assert.False(File.Exists(Logger.LogFileFullPath) && Regex.IsMatch(LogContents, $"{message}", RegexOptions.Compiled));
             }
         }
-
 
         public static void VerifyInitialization(SourceLevels expectedTracingLevel, string expectedTraceSource, string logFilePath, bool isLogFileExpectedToExist, int? testNo = null)
         {

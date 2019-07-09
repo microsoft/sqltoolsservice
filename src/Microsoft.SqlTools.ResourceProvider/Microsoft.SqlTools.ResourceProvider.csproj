@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Common.props" />
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <PackageId>SqlToolsResourceProviderService</PackageId>
     <AssemblyName>SqlToolsResourceProviderService</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -19,6 +19,10 @@
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_0;NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- delete reference from project once moving off preview version !-->
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
     <!-- Note: must reference the resource provider projects in order for them to be bundled into the app. Otherwise will not have any of the required DLLs and

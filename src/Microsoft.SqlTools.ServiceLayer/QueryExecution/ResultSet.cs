@@ -1,20 +1,22 @@
 ﻿// 
+// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -30,7 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const string NameOfForXmlColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJsonColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
-
+        private const uint MaxResultsTimerPulseMilliseconds = 1000;
+        private const uint MinResultTimerPulseMilliseconds = 10;
         #endregion
 
         #region Member Variables
@@ -52,9 +55,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         /// <summary>
         /// Whether or not the result set has been read in from the database,
-        /// set as internal in order to fake value in unit tests
+        /// set as internal in order to fake value in unit tests.
+        /// This gets set as soon as we start reading.
         /// </summary>
-        internal bool hasBeenRead;
+        internal bool hasStartedRead = false;
+
+        /// <summary>
+        /// Set when all results have been read for this resultSet from the server
+        /// </summary>
+        private bool hasCompletedRead = false;
 
         /// <summary>
         /// Whether resultSet is a 'for xml' or 'for json' result
@@ -69,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Row count to use in special scenarios where we want to override the number of rows.
         /// </summary>
-        private long? rowCountOverride;
+        private long? rowCountOverride=null;
 
         /// <summary>
         /// The special action which applied to this result set
@@ -81,6 +90,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// scenarios. Internal for unit test validation.
         /// </summary>
         internal long totalBytesWritten;
+
+        private readonly Timer resultsTimer;
+
+        private readonly SemaphoreSlim sendResultsSemphore = new SemaphoreSlim(1);
 
         #endregion
 
@@ -103,8 +116,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Store the factory
             fileStreamFactory = factory;
-            hasBeenRead = false;
+            hasStartedRead = false;
+            hasCompletedRead = false;
             SaveTasks = new ConcurrentDictionary<string, Task>();
+            resultsTimer = new Timer(SendResultAvailableOrUpdated);
         }
 
         #region Eventing
@@ -123,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task SaveAsFailureAsyncEventHandler(SaveResultsRequestParams parameters, string message);
 
         /// <summary>
-        /// Asynchronous handler for when a resultset has completed
+        /// Asynchronous handler for when a resultset is available/updated/completed
         /// </summary>
         /// <param name="resultSet">The result set that completed</param>
         public delegate Task ResultSetAsyncEventHandler(ResultSet resultSet);
@@ -132,6 +147,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Event that will be called when the result set has completed execution
         /// </summary>
         public event ResultSetAsyncEventHandler ResultCompletion;
+
+        /// <summary>
+        /// Event that will be called when the resultSet first becomes available. This is as soon as we start reading the results.
+        /// </summary>
+        public event ResultSetAsyncEventHandler ResultAvailable;
+
+        /// <summary>
+        /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
+        /// </summary>
+        public event ResultSetAsyncEventHandler ResultUpdated;
+
 
         #endregion
 
@@ -155,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The number of rows for this result set
         /// </summary>
-        public long RowCount => rowCountOverride ?? fileOffsets.Count;
+        public long RowCount => rowCountOverride != null ? Math.Min(rowCountOverride.Value, fileOffsets.Count) : fileOffsets.Count;
 
         /// <summary>
         /// All save tasks currently saving this ResultSet
@@ -175,11 +201,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    SpecialAction = hasBeenRead ? ProcessSpecialAction() : null
+                    Complete = hasCompletedRead,
+                    SpecialAction = hasCompletedRead ? ProcessSpecialAction() : null
                 };
             }
         }
-
         #endregion
 
         #region Public Methods
@@ -195,8 +221,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>The requested row</returns>
         public IList<DbCellValue> GetRow(long rowId)
         {
-            // Sanity check to make sure that results have been read beforehand
-            if (!hasBeenRead)
+            // Sanity check to make sure that results read has started
+            if (!hasStartedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
@@ -221,8 +247,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(long startRow, int rowCount)
         {
-            // Sanity check to make sure that the results have been read beforehand
-            if (!hasBeenRead)
+            // Sanity check to make sure that results read has started
+            if (!hasStartedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
@@ -286,11 +312,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
-            // Process the action just incase is hasn't been yet 
+            // Process the action just in case it hasn't been yet 
             ProcessSpecialAction();
 
-            // Sanity check to make sure that the results have been read beforehand
-            if (!hasBeenRead)
+            // Sanity check to make sure that results read has started
+            if (!hasStartedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
@@ -333,45 +359,71 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we got a reader
+            //
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
 
+            Task availableTask = null;
             try
             {
                 // Verify the request hasn't been cancelled
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // Mark that result has been read
-                hasBeenRead = true;
-
                 StorageDataReader dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
+                //
                 var fileWriter = fileStreamFactory.GetWriter(outputFileName);
                 using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
+                    //
                     if (!dataReader.DbDataReader.CanGetColumnSchema())
                     {
                         throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                     }
                     Columns = dataReader.Columns;
+                    // Check if result set is 'for xml/json'. If it is, set isJson/isXml value in column metadata
+                    //
+                    SingleColumnXmlJsonResultSet();
+
+                    // Mark that read of result has started
+                    //
+                    hasStartedRead = true;
+
+                    // Invoke the SendCurrentResults() asynchronously that will send the results available notification
+                    //   and also trigger the timer to send periodic updates.
+                    //
+                    availableTask = SendCurrentResults();
+
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
+                    CheckForIsJson();
                 }
-                // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
-                SingleColumnXmlJsonResultSet();
-                CheckForIsJson();
             }
             finally
             {
-                // Fire off a result set completion event if we have one
-                if (ResultCompletion != null)
-                {
-                    await ResultCompletion(this);
-                }
+
+                // await the completion of available notification in case it is not already done before proceeding
+                //
+                await availableTask;
+
+                // now set the flag to indicate that we are done reading. this equates to Complete flag to be marked 'True' in any future notifications.
+                //
+                hasCompletedRead = true;
+
+
+                // Make a final call to SendCurrentResults() and await its completion. If the previously scheduled task already took care of latest status send then this should be a no-op
+                //
+                await SendCurrentResults();
+
+
+                // and finally:
+                // Make a call to send ResultCompletion and await its completion. This is just for backward compatibility with older protocol
+                //
+                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
             }
         }
 
@@ -381,8 +433,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="internalId">Internal ID of the row</param>
         public void RemoveRow(long internalId)
         {
-            // Make sure that the results have been read
-            if (!hasBeenRead)
+            // Sanity check to make sure that results read has started
+            if (!hasStartedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
@@ -436,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Validate.IsNotNull(nameof(fileFactory), fileFactory);
 
             // Make sure the resultset has finished being read
-            if (!hasBeenRead)
+            if (!hasCompletedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceSaveAsResultSetNotComplete);
             }
@@ -526,6 +578,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public void Dispose()
         {
+            resultsTimer.Dispose();
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -564,7 +617,94 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Private Helper Methods
-        
+        /// <summary>
+        /// Sends the ResultsUpdated message if the number of rows has changed since last send.
+        /// </summary>
+        /// <param name="stateInfo"></param>
+        private void SendResultAvailableOrUpdated (object stateInfo = null)
+        {
+            // Make the call to send current results and synchronously wait for it to finish
+            //
+            SendCurrentResults().Wait();
+        }
+
+        private async Task SendCurrentResults()
+        {
+            try
+            {
+
+                // Wait to acquire the sendResultsSemphore before proceeding, as we want only one instance of this method executing at any given time.
+                //
+                sendResultsSemphore.Wait();
+
+                ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+                if (LastUpdatedSummary == null) // We need to send results available message.
+                {
+                    // Fire off results Available task and await it
+                    //
+                    await (ResultAvailable?.Invoke(currentResultSetSnapshot) ?? Task.CompletedTask);
+                }
+                else if (LastUpdatedSummary.Complete) // If last result summary sent had already set the Complete flag
+                {
+                    // We do not need to do anything except that make sure that RowCount has not update since last send.
+                    Debug.Assert(LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount,
+                        $"Already reported rows should be equal to current RowCount, if had already sent completion flag as set in last message, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
+                }
+                else // We need to send results updated message.
+                {
+                    // Previously reported rows should be less than or equal to current number of rows about to be reported
+                    //
+                    Debug.Assert(LastUpdatedSummary.RowCount <= currentResultSetSnapshot.RowCount,
+                        $"Already reported rows should less than or equal to current total RowCount, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
+
+                    // If there has been no change in rowCount since last update and we have not yet completed read then log and increase the timer duration
+                    //
+                    if (!currentResultSetSnapshot.hasCompletedRead &&
+                        LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)
+                    {
+                        Logger.Write(TraceEventType.Warning,
+                            $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of this result set is not yet complete!");
+                        ResultsIntervalMultiplier++;
+                    }
+
+                    // Fire off results updated task and await it
+                    //
+                    await (ResultUpdated?.Invoke(currentResultSetSnapshot) ?? Task.CompletedTask);
+                }
+
+                // Update the LastUpdatedSummary to be the value captured in current snapshot
+                //
+                LastUpdatedSummary = currentResultSetSnapshot.Summary;
+
+                // Setup timer for the next callback
+                //
+                if (currentResultSetSnapshot.hasCompletedRead)
+                {
+                    // If we have already completed reading then we are done and we do not need to send any more updates. Switch off timer.
+                    //
+                    resultsTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                }
+                else
+                {
+                    // If we have not yet completed reading then set the timer so this method gets called again after ResultTimerInterval milliseconds
+                    //
+                    resultsTimer.Change(ResultTimerInterval, Timeout.Infinite);
+                }
+            }
+            finally
+            { 
+                // Release the sendResultsSemphore so the next invocation gets unblocked
+                //
+                sendResultsSemphore.Release();
+            }
+        }
+
+        private uint ResultsIntervalMultiplier { get; set; } = 1;
+
+        internal uint ResultTimerInterval => Math.Max(Math.Min(MaxResultsTimerPulseMilliseconds, (uint)RowCount / 500 /* 1 millisec per 500 rows*/), MinResultTimerPulseMilliseconds * ResultsIntervalMultiplier);
+
+        internal ResultSetSummary LastUpdatedSummary { get; set; } = null;
+
         /// <summary>
         /// If the result set represented by this class corresponds to a single XML
         /// column that contains results of "for xml" query, set isXml = true 
@@ -574,7 +714,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void SingleColumnXmlJsonResultSet()
         {
 
-            if (Columns?.Length == 1 && RowCount != 0)
+            if (Columns?.Length == 1)
             {
                 if (Columns[0].ColumnName.Equals(NameOfForXmlColumn, StringComparison.Ordinal))
                 {
@@ -636,7 +776,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private async Task<long> AppendRowToBuffer(DbDataReader dbDataReader)
         {
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
-            if (!hasBeenRead)
+            // Sanity check to make sure that results read has started
+            if (!hasStartedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }

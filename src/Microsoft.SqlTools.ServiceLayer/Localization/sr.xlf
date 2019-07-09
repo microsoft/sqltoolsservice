@@ -269,151 +269,6 @@
         <note>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
       </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
-        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
-        <target state="new">Msg {0}, Level {1}, State {2}, Line {3}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
-        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
-        <target state="new">Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
-        <source>Msg {0}, Level {1}, State {2}</source>
-        <target state="new">Msg {0}, Level {1}, State {2}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchError_Exception">
-        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
-        <target state="new">An error occurred while the batch was being processed. The error message is: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
-        <source>({0} row(s) affected)</source>
-        <target state="new">({0} row(s) affected)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionNotYetCompleteError">
-        <source>The previous execution is not yet complete.</source>
-        <target state="new">The previous execution is not yet complete.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_Error">
-        <source>A scripting error occurred.</source>
-        <target state="new">A scripting error occurred.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_ParsingSyntax">
-        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
-        <target state="new">Incorrect syntax was encountered while {0} was being parsed.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_FatalError">
-        <source>A fatal error occurred.</source>
-        <target state="new">A fatal error occurred.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Batch execution completed {0} times...</source>
-        <target state="new">Batch execution completed {0} times...</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
-        <source>You cancelled the query.</source>
-        <target state="new">You cancelled the query.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Halting">
-        <source>An error occurred while the batch was being executed.</source>
-        <target state="new">An error occurred while the batch was being executed.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Ignoring">
-        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Beginning execution loop</source>
-        <target state="new">Beginning execution loop</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionError_CommandNotSupported">
-        <source>Command {0} is not supported.</source>
-        <target state="new">Command {0} is not supported.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionError_VariableNotFound">
-        <source>The variable {0} could not be found.</source>
-        <target state="new">The variable {0} could not be found.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineError">
-        <source>SQL Execution error: {0}</source>
-        <target state="new">SQL Execution error: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionError">
-        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
-        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
-        <target state="new">Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
-        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
-        <target state="new">Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
-        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
-        <target state="new">Batch parser wrapper execution engine batch ResultSet finished.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
-        <source>Canceling batch parser wrapper batch execution.</source>
-        <target state="new">Canceling batch parser wrapper batch execution.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_Warning">
-        <source>Scripting warning.</source>
-        <target state="new">Scripting warning.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TroubleshootingAssistanceMessage">
-        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
-        <target state="new">For more information about this error, see the troubleshooting topics in the product documentation.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_CircularReference">
-        <source>File '{0}' recursively included.</source>
-        <target state="new">File '{0}' recursively included.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_CommentNotTerminated">
-        <source>Missing end comment mark '*/'.</source>
-        <target state="new">Missing end comment mark '*/'.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_StringNotTerminated">
-        <source>Unclosed quotation mark after the character string.</source>
-        <target state="new">Unclosed quotation mark after the character string.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_IncorrectSyntax">
-        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
-        <target state="new">Incorrect syntax was encountered while parsing '{0}'.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BatchParser_VariableNotDefined">
-        <source>Variable {0} is not defined.</source>
-        <target state="new">Variable {0} is not defined.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
         <target state="new">test</target>
@@ -1542,561 +1397,6 @@
         <target state="new">System-Versioned</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="unavailable">
-        <source>Unavailable</source>
-        <target state="new">Unavailable</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroup_dialog_defaultFilegroup">
-        <source>Current default filegroup: {0}</source>
-        <target state="new">Current default filegroup: {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroup_dialog_title">
-        <source>New Filegroup for {0}</source>
-        <target state="new">New Filegroup for {0}</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroups_default">
-        <source>Default</source>
-        <target state="new">Default</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroups_files">
-        <source>Files</source>
-        <target state="new">Files</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroups_name">
-        <source>Name</source>
-        <target state="new">Name</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroups_readonly">
-        <source>Read-Only</source>
-        <target state="new">Read-Only</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_autogrowth">
-        <source>Autogrowth / Maxsize</source>
-        <target state="new">Autogrowth / Maxsize</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_builderText">
-        <source>...</source>
-        <target state="new">...</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_default">
-        <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_fileGroup">
-        <source>Filegroup</source>
-        <target state="new">Filegroup</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_fileName">
-        <source>Logical Name</source>
-        <target state="new">Logical Name</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_fileType">
-        <source>File Type</source>
-        <target state="new">File Type</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_initialSize">
-        <source>Initial Size (MB)</source>
-        <target state="new">Initial Size (MB)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_newFilegroup">
-        <source>&lt;new filegroup&gt;</source>
-        <target state="new">&lt;new filegroup&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_path">
-        <source>Path</source>
-        <target state="new">Path</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_physicalFileName">
-        <source>File Name</source>
-        <target state="new">File Name</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_rawDevice">
-        <source>&lt;raw device&gt;</source>
-        <target state="new">&lt;raw device&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_bulkLogged">
-        <source>Bulk-logged</source>
-        <target state="new">Bulk-logged</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_full">
-        <source>Full</source>
-        <target state="new">Full</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_simple">
-        <source>Simple</source>
-        <target state="new">Simple</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_titleSearchOwner">
-        <source>Select Database Owner</source>
-        <target state="new">Select Database Owner</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_disabled">
-        <source>None</source>
-        <target state="new">None</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_restrictedGrowthByMB">
-        <source>By {0} MB, Limited to {1} MB</source>
-        <target state="new">By {0} MB, Limited to {1} MB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_restrictedGrowthByPercent">
-        <source>By {0} percent, Limited to {1} MB</source>
-        <target state="new">By {0} percent, Limited to {1} MB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByMB">
-        <source>By {0} MB, Unlimited</source>
-        <target state="new">By {0} MB, Unlimited</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByPercent">
-        <source>By {0} percent, Unlimited</source>
-        <target state="new">By {0} percent, Unlimited</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unlimitedfilestream">
-        <source>Unlimited</source>
-        <target state="new">Unlimited</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_limitedfilestream">
-        <source>Limited to {0} MB</source>
-        <target state="new">Limited to {0} MB</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_automatic">
-        <source>Automatic</source>
-        <target state="new">Automatic</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_servicebroker">
-        <source>Service Broker</source>
-        <target state="new">Service Broker</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_collation">
-        <source>Collation</source>
-        <target state="new">Collation</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_cursor">
-        <source>Cursor</source>
-        <target state="new">Cursor</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_misc">
-        <source>Miscellaneous</source>
-        <target state="new">Miscellaneous</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_recovery">
-        <source>Recovery</source>
-        <target state="new">Recovery</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_state">
-        <source>State</source>
-        <target state="new">State</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiNullDefault">
-        <source>ANSI NULL Default</source>
-        <target state="new">ANSI NULL Default</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiNulls">
-        <source>ANSI NULLS Enabled</source>
-        <target state="new">ANSI NULLS Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiPadding">
-        <source>ANSI Padding Enabled </source>
-        <target state="new">ANSI Padding Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiWarnings">
-        <source>ANSI Warnings Enabled</source>
-        <target state="new">ANSI Warnings Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_arithabort">
-        <source>Arithmetic Abort Enabled </source>
-        <target state="new">Arithmetic Abort Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoClose">
-        <source>Auto Close</source>
-        <target state="new">Auto Close</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoCreateStatistics">
-        <source>Auto Create Statistics</source>
-        <target state="new">Auto Create Statistics</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoShrink">
-        <source>Auto Shrink</source>
-        <target state="new">Auto Shrink</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoUpdateStatistics">
-        <source>Auto Update Statistics </source>
-        <target state="new">Auto Update Statistics </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoUpdateStatisticsAsync">
-        <source>Auto Update Statistics Asynchronously</source>
-        <target state="new">Auto Update Statistics Asynchronously</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_caseSensitive">
-        <source>Case Sensitive</source>
-        <target state="new">Case Sensitive</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_closeCursorOnCommit">
-        <source>Close Cursor on Commit Enabled </source>
-        <target state="new">Close Cursor on Commit Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_collation">
-        <source>Collation</source>
-        <target state="new">Collation</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_concatNullYieldsNull">
-        <source>Concatenate Null Yields Null </source>
-        <target state="new">Concatenate Null Yields Null </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseCompatibilityLevel">
-        <source>Database Compatibility Level</source>
-        <target state="new">Database Compatibility Level</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState">
-        <source>Database State </source>
-        <target state="new">Database State </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor">
-        <source>Default Cursor</source>
-        <target state="new">Default Cursor</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_fullTextIndexing">
-        <source>Full-Text Indexing Enabled </source>
-        <target state="new">Full-Text Indexing Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_numericRoundAbort">
-        <source>Numeric Round-Abort </source>
-        <target state="new">Numeric Round-Abort </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify">
-        <source>Page Verify </source>
-        <target state="new">Page Verify </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_quotedIdentifier">
-        <source>Quoted Identifiers Enabled </source>
-        <target state="new">Quoted Identifiers Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_readOnly">
-        <source>Database Read-Only</source>
-        <target state="new">Database Read-Only</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_recursiveTriggers">
-        <source>Recursive Triggers Enabled </source>
-        <target state="new">Recursive Triggers Enabled </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess">
-        <source>Restrict Access</source>
-        <target state="new">Restrict Access</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_selectIntoBulkCopy">
-        <source>Select Into/Bulk Copy</source>
-        <target state="new">Select Into/Bulk Copy</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_honorBrokerPriority">
-        <source>Honor Broker Priority</source>
-        <target state="new">Honor Broker Priority</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_serviceBrokerGuid">
-        <source>Service Broker Identifier</source>
-        <target state="new">Service Broker Identifier</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_brokerEnabled">
-        <source>Broker Enabled</source>
-        <target state="new">Broker Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_truncateLogOnCheckpoint">
-        <source>Truncate Log on Checkpoint </source>
-        <target state="new">Truncate Log on Checkpoint </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_dbChaining">
-        <source>Cross-database Ownership Chaining Enabled</source>
-        <target state="new">Cross-database Ownership Chaining Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_trustworthy">
-        <source>Trustworthy</source>
-        <target state="new">Trustworthy</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
-        <source>Date Correlation Optimization Enabled</source>
-        <target state="new">Date Correlation Optimization Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization_value_forced">
-        <source>Forced</source>
-        <target state="new">Forced</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization_value_simple">
-        <source>Simple</source>
-        <target state="new">Simple</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_dataFile">
-        <source>ROWS Data</source>
-        <target state="new">ROWS Data</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_logFile">
-        <source>LOG</source>
-        <target state="new">LOG</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_filestreamFile">
-        <source>FILESTREAM Data</source>
-        <target state="new">FILESTREAM Data</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_noFileGroup">
-        <source>Not Applicable</source>
-        <target state="new">Not Applicable</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_defaultpathstring">
-        <source>&lt;default path&gt;</source>
-        <target state="new">&lt;default path&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="title_openConnectionsMustBeClosed">
-        <source>Open Connections</source>
-        <target state="new">Open Connections</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="warning_openConnectionsMustBeClosed">
-        <source>To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</source>
-        <target state="new">To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_autoClosed">
-        <source>AUTO_CLOSED</source>
-        <target state="new">AUTO_CLOSED</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_emergency">
-        <source>EMERGENCY</source>
-        <target state="new">EMERGENCY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_inaccessible">
-        <source>INACCESSIBLE</source>
-        <target state="new">INACCESSIBLE</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_normal">
-        <source>NORMAL</source>
-        <target state="new">NORMAL</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_offline">
-        <source>OFFLINE</source>
-        <target state="new">OFFLINE</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_recovering">
-        <source>RECOVERING</source>
-        <target state="new">RECOVERING</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_recoveryPending">
-        <source>RECOVERY PENDING</source>
-        <target state="new">RECOVERY PENDING</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_restoring">
-        <source>RESTORING</source>
-        <target state="new">RESTORING</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_shutdown">
-        <source>SHUTDOWN</source>
-        <target state="new">SHUTDOWN</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_standby">
-        <source>STANDBY</source>
-        <target state="new">STANDBY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_suspect">
-        <source>SUSPECT</source>
-        <target state="new">SUSPECT</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor_value_global">
-        <source>GLOBAL</source>
-        <target state="new">GLOBAL</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor_value_local">
-        <source>LOCAL</source>
-        <target state="new">LOCAL</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_multiple">
-        <source>MULTI_USER</source>
-        <target state="new">MULTI_USER</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_restricted">
-        <source>RESTRICTED_USER</source>
-        <target state="new">RESTRICTED_USER</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_single">
-        <source>SINGLE_USER</source>
-        <target state="new">SINGLE_USER</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_checksum">
-        <source>CHECKSUM</source>
-        <target state="new">CHECKSUM</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_none">
-        <source>NONE</source>
-        <target state="new">NONE</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_tornPageDetection">
-        <source>TORN_PAGE_DETECTION</source>
-        <target state="new">TORN_PAGE_DETECTION</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_varDecimalEnabled">
-        <source>VarDecimal Storage Format Enabled</source>
-        <target state="new">VarDecimal Storage Format Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_katmai">
-        <source>SQL Server 2008 (100)</source>
-        <target state="new">SQL Server 2008 (100)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_encryptionEnabled">
-        <source>Encryption Enabled</source>
-        <target state="new">Encryption Enabled</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_off">
-        <source>OFF</source>
-        <target state="new">OFF</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_on">
-        <source>ON</source>
-        <target state="new">ON</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
-        <source>PRIMARY</source>
-        <target state="new">PRIMARY</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="error_db_prop_invalidleadingColumns">
-        <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </source>
-        <target state="new">For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_denali">
-        <source>SQL Server 2012 (110)</source>
-        <target state="new">SQL Server 2012 (110)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sql14">
-        <source>SQL Server 2014 (120)</source>
-        <target state="new">SQL Server 2014 (120)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sql15">
-        <source>SQL Server 2016 (130)</source>
-        <target state="new">SQL Server 2016 (130)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sqlvNext">
-        <source>SQL Server vNext (140)</source>
-        <target state="new">SQL Server vNext (140)</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_containmentType_None">
-        <source>None</source>
-        <target state="new">None</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="general_containmentType_Partial">
-        <source>Partial</source>
-        <target state="new">Partial</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="filegroups_filestreamFiles">
-        <source>FILESTREAM Files</source>
-        <target state="new">FILESTREAM Files</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="prototype_file_noApplicableFileGroup">
-        <source>No Applicable Filegroup</source>
-        <target state="new">No Applicable Filegroup</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="DatabaseNotAccessible">
         <source>The database {0} is not accessible.</source>
         <target state="new">The database {0} is not accessible.</target>
@@ -2110,11 +1410,6 @@
       <trans-unit id="QueryServiceResultSetTooLarge">
         <source>Result set has too many rows to be safely loaded</source>
         <target state="new">Result set has too many rows to be safely loaded</target>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization">
-        <source>Parameterization</source>
-        <target state="new">Parameterization</target>
-        <note></note>
       </trans-unit>
       <trans-unit id="ConflictWithNoRecovery">
         <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
@@ -2281,11 +1576,6 @@
         <target state="new">No backupset selected to be restored</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="NeverBackedUp">
-        <source>Never</source>
-        <target state="new">Never</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="AzureSqlDbEdition">
         <source>Azure SQL DB</source>
         <target state="new">Azure SQL DB</target>
@@ -2299,16 +1589,6 @@
       <trans-unit id="AzureSqlStretchEdition">
         <source>Azure SQL Stretch Database</source>
         <target state="new">Azure SQL Stretch Database</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Error_InvalidDirectoryName">
-        <source>Path {0} is not a valid directory </source>
-        <target state="new">Path {0} is not a valid directory </target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Error_ExistingDirectoryName">
-        <source>For directory {0} a file with name {1} already exists</source>
-        <target state="new">For directory {0} a file with name {1} already exists</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataValueTooLarge">
@@ -2383,500 +1663,6 @@
         <target state="new">EditData queries must query the originally targeted table '{0}'</target>
         <note>.
  Parameters: 0 - tableName (string) </note>
-      </trans-unit>
-      <trans-unit id="EnableAlertsTitle">
-        <source>Enable Alerts - {0}</source>
-        <target state="new">Enable Alerts - {0}</target>
-        <note>.
- Parameters: 0 - serverName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnableAlertDescription">
-        <source>Enable Alert '{0}'</source>
-        <target state="new">Enable Alert '{0}'</target>
-        <note>.
- Parameters: 0 - alertName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnablingAlert">
-        <source>Enabling Alert '{0}'</source>
-        <target state="new">Enabling Alert '{0}'</target>
-        <note>.
- Parameters: 0 - alertName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnabledAlert">
-        <source>Enabled Alert '{0}'</source>
-        <target state="new">Enabled Alert '{0}'</target>
-        <note>.
- Parameters: 0 - alertName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisableAlertsTitle">
-        <source>Disable Alerts - {0}</source>
-        <target state="new">Disable Alerts - {0}</target>
-        <note>.
- Parameters: 0 - serverName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisableAlertDescription">
-        <source>Disable Alert '{0}'</source>
-        <target state="new">Disable Alert '{0}'</target>
-        <note>.
- Parameters: 0 - alertName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisablingAlert">
-        <source>Disabling Alert '{0}'</source>
-        <target state="new">Disabling Alert '{0}'</target>
-        <note>.
- Parameters: 0 - alertName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisabledAlert">
-        <source>Disabled Alert '{0}'</source>
-        <target state="new">Disabled Alert '{0}'</target>
-        <note>.
- Parameters: 0 - alertName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnableJobsTitle">
-        <source>Enable Jobs - {0}</source>
-        <target state="new">Enable Jobs - {0}</target>
-        <note>.
- Parameters: 0 - serverName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnableJobDescription">
-        <source>Enable Job '{0}'</source>
-        <target state="new">Enable Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnablingJob">
-        <source>Enabling Job '{0}'</source>
-        <target state="new">Enabling Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="EnabledJob">
-        <source>Enabled Job '{0}'</source>
-        <target state="new">Enabled Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisableJobsTitle">
-        <source>Disable Jobs - {0}</source>
-        <target state="new">Disable Jobs - {0}</target>
-        <note>.
- Parameters: 0 - serverName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisableJobDescription">
-        <source>Disable Job '{0}'</source>
-        <target state="new">Disable Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisablingJob">
-        <source>Disabling Job '{0}'</source>
-        <target state="new">Disabling Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="DisabledJob">
-        <source>Disabled Job '{0}'</source>
-        <target state="new">Disabled Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="StartJobsTitle">
-        <source>Start Jobs - {0}</source>
-        <target state="new">Start Jobs - {0}</target>
-        <note>.
- Parameters: 0 - serverName (String) </note>
-      </trans-unit>
-      <trans-unit id="StartJobDescription">
-        <source>Start Job '{0}'</source>
-        <target state="new">Start Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="GettingStartStep">
-        <source>Job '{0}' has more than one step. Getting step to start</source>
-        <target state="new">Job '{0}' has more than one step. Getting step to start</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="UserCancelledSelectStep">
-        <source>User canceled select step. Job will not be started</source>
-        <target state="new">User canceled select step. Job will not be started</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StartingJob">
-        <source>Starting Job '{0}'</source>
-        <target state="new">Starting Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="StartJobWithStep">
-        <source>Start Job '{0}' with step '{1}'</source>
-        <target state="new">Start Job '{0}' with step '{1}'</target>
-        <note>.
- Parameters: 0 - jobName (String), 1 - stepName (String) </note>
-      </trans-unit>
-      <trans-unit id="RequestPostedToTargetServers">
-        <source>Posted remote job execution request</source>
-        <target state="new">Posted remote job execution request</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ExecuteJob">
-        <source>Execute job '{0}'</source>
-        <target state="new">Execute job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (string) </note>
-      </trans-unit>
-      <trans-unit id="JobFailed">
-        <source>Execution of job '{0}' failed.  See the history log for details.</source>
-        <target state="new">Execution of job '{0}' failed.  See the history log for details.</target>
-        <note>.
- Parameters: 0 - jobName (string) </note>
-      </trans-unit>
-      <trans-unit id="Executing">
-        <source>Executing</source>
-        <target state="new">Executing</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="BetweenRetries">
-        <source>Between retries</source>
-        <target state="new">Between retries</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Suspended">
-        <source>Suspended</source>
-        <target state="new">Suspended</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PerformingCompletionAction">
-        <source>Performing completion action</source>
-        <target state="new">Performing completion action</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="WaitingForStepToFinish">
-        <source>Waiting for step to finish</source>
-        <target state="new">Waiting for step to finish</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="WaitingForWorkerThread">
-        <source>Waiting for worker thread</source>
-        <target state="new">Waiting for worker thread</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StopJobsTitle">
-        <source>Stop Jobs - {0}</source>
-        <target state="new">Stop Jobs - {0}</target>
-        <note>.
- Parameters: 0 - serverName (String) </note>
-      </trans-unit>
-      <trans-unit id="StopJobDescription">
-        <source>Stop Job '{0}'</source>
-        <target state="new">Stop Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="StoppingJob">
-        <source>Stopping Job '{0}'</source>
-        <target state="new">Stopping Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="StoppedJob">
-        <source>Stopped Job '{0}'</source>
-        <target state="new">Stopped Job '{0}'</target>
-        <note>.
- Parameters: 0 - jobName (String) </note>
-      </trans-unit>
-      <trans-unit id="AllDatabases">
-        <source>&lt;all databases&gt;</source>
-        <target state="new">&lt;all databases&gt;</target>
-        <note> First item in database name drop down list</note>
-      </trans-unit>
-      <trans-unit id="UnknownSeverity">
-        <source>Unknown severity: {0}</source>
-        <target state="new">Unknown severity: {0}</target>
-        <note> Exception thrown when agent alert has unknown severity level.
- Parameters: 0 - severity (int) </note>
-      </trans-unit>
-      <trans-unit id="Severity001">
-        <source>001 - Miscellaneous System Information</source>
-        <target state="new">001 - Miscellaneous System Information</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity002">
-        <source>002 - Reserved</source>
-        <target state="new">002 - Reserved</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity003">
-        <source>003 - Reserved</source>
-        <target state="new">003 - Reserved</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity004">
-        <source>004 - Reserved</source>
-        <target state="new">004 - Reserved</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity005">
-        <source>005 - Reserved</source>
-        <target state="new">005 - Reserved</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity006">
-        <source>006 - Reserved</source>
-        <target state="new">006 - Reserved</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity007">
-        <source>007 - Notification: Status Information</source>
-        <target state="new">007 - Notification: Status Information</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity008">
-        <source>008 - Notification: User Intervention Required</source>
-        <target state="new">008 - Notification: User Intervention Required</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity009">
-        <source>009 - User Defined</source>
-        <target state="new">009 - User Defined</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity010">
-        <source>010 - Information</source>
-        <target state="new">010 - Information</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity011">
-        <source>011 - Specified Database Object Not Found</source>
-        <target state="new">011 - Specified Database Object Not Found</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity012">
-        <source>012 - Unused</source>
-        <target state="new">012 - Unused</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity013">
-        <source>013 - User Transaction Syntax Error</source>
-        <target state="new">013 - User Transaction Syntax Error</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity014">
-        <source>014 - Insufficient Permission</source>
-        <target state="new">014 - Insufficient Permission</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity015">
-        <source>015 - Syntax Error in SQL Statements</source>
-        <target state="new">015 - Syntax Error in SQL Statements</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity016">
-        <source>016 - Miscellaneous User Error</source>
-        <target state="new">016 - Miscellaneous User Error</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity017">
-        <source>017 - Insufficient Resources</source>
-        <target state="new">017 - Insufficient Resources</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity018">
-        <source>018 - Nonfatal Internal Error</source>
-        <target state="new">018 - Nonfatal Internal Error</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity019">
-        <source>019 - Fatal Error in Resource</source>
-        <target state="new">019 - Fatal Error in Resource</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity020">
-        <source>020 - Fatal Error in Current Process</source>
-        <target state="new">020 - Fatal Error in Current Process</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity021">
-        <source>021 - Fatal Error in Database Processes</source>
-        <target state="new">021 - Fatal Error in Database Processes</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity022">
-        <source>022 - Fatal Error: Table Integrity Suspect</source>
-        <target state="new">022 - Fatal Error: Table Integrity Suspect</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity023">
-        <source>023 - Fatal Error: Database Integrity Suspect</source>
-        <target state="new">023 - Fatal Error: Database Integrity Suspect</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity024">
-        <source>024 - Fatal Error: Hardware Error</source>
-        <target state="new">024 - Fatal Error: Hardware Error</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="Severity025">
-        <source>025 - Fatal Error</source>
-        <target state="new">025 - Fatal Error</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PagerScheduleMonFri">
-        <source>Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?</source>
-        <target state="new">Pager schedule end time is earlier than start time on Mon-Fri. Do you want to continue?</target>
-        <note> Message box that displayed if start time is more than end time on Mon-Fri</note>
-      </trans-unit>
-      <trans-unit id="PagerScheduleSatSun">
-        <source>Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?</source>
-        <target state="new">Pager schedule end time is earlier than start time on Sat-Sun. Do you want to continue?</target>
-        <note> Message box that displayed if start time is more than end time on Sat-Sun</note>
-      </trans-unit>
-      <trans-unit id="PagerScheduleWarning">
-        <source>Pager schedule warning</source>
-        <target state="new">Pager schedule warning</target>
-        <note> Message box caption</note>
-      </trans-unit>
-      <trans-unit id="General">
-        <source>General</source>
-        <target state="new">General</target>
-        <note> Tree node name</note>
-      </trans-unit>
-      <trans-unit id="Notifications">
-        <source>Notifications</source>
-        <target state="new">Notifications</target>
-        <note> Tree node name</note>
-      </trans-unit>
-      <trans-unit id="History">
-        <source>History</source>
-        <target state="new">History</target>
-        <note> Tree node name</note>
-      </trans-unit>
-      <trans-unit id="Day">
-        <source>Day</source>
-        <target state="new">Day</target>
-        <note> Pager schedule grid column name</note>
-      </trans-unit>
-      <trans-unit id="StartTime">
-        <source>Start Time</source>
-        <target state="new">Start Time</target>
-        <note> Pager schedule grid column name</note>
-      </trans-unit>
-      <trans-unit id="EndTime">
-        <source>End Time</source>
-        <target state="new">End Time</target>
-        <note> Pager schedule grid column name</note>
-      </trans-unit>
-      <trans-unit id="ColumnIndexIsInvalid">
-        <source>Column index is invalid.</source>
-        <target state="new">Column index is invalid.</target>
-        <note> Exception thrown when column index is invalid</note>
-      </trans-unit>
-      <trans-unit id="RowIndexIsInvalid">
-        <source>Row index is invalid.</source>
-        <target state="new">Row index is invalid.</target>
-        <note> Exception thrown when row index is invalid</note>
-      </trans-unit>
-      <trans-unit id="NewOperatorProperties">
-        <source>New Operator</source>
-        <target state="new">New Operator</target>
-        <note> Name of the operator dialog in create new operator mode</note>
-      </trans-unit>
-      <trans-unit id="OperatorProperties">
-        <source>{0} Properties</source>
-        <target state="new">{0} Properties</target>
-        <note> Name of the operator dialog in modify operator mode.
- Parameters: 0 - operatorName (string) </note>
-      </trans-unit>
-      <trans-unit id="FailedToCreateInitializeAgentOperatorDialog">
-        <source>Unable to create/initialize Agent Operator dialog.</source>
-        <target state="new">Unable to create/initialize Agent Operator dialog.</target>
-        <note> Exception thrown when dialog cannot be created/intialized.</note>
-      </trans-unit>
-      <trans-unit id="JobServerIsNotAvailable">
-        <source>Job server is not available.</source>
-        <target state="new">Job server is not available.</target>
-        <note> Exception thrown when job server is not available</note>
-      </trans-unit>
-      <trans-unit id="CannotCreateInitializeGeneralPage">
-        <source>Cannot create/initialize General page.</source>
-        <target state="new">Cannot create/initialize General page.</target>
-        <note> Exception thrown when we cannot create/initialize agent operators general page</note>
-      </trans-unit>
-      <trans-unit id="CannotCreateInitializeNotificationsPage">
-        <source>Cannot create/initialize Notifications page.</source>
-        <target state="new">Cannot create/initialize Notifications page.</target>
-        <note> Exception thrown when we cannot create/initialize agent operators notifications page</note>
-      </trans-unit>
-      <trans-unit id="CannotCreateInitializeHistoryPage">
-        <source>Cannot create/initialize History page.</source>
-        <target state="new">Cannot create/initialize History page.</target>
-        <note> Exception thrown when we cannot create/initialize agent operators history page</note>
-      </trans-unit>
-      <trans-unit id="CannotResetOperator">
-        <source>Cannot reset operator.</source>
-        <target state="new">Cannot reset operator.</target>
-        <note> Exception throw when dialog cannot refresh operator</note>
-      </trans-unit>
-      <trans-unit id="AlertList">
-        <source>Alert list:</source>
-        <target state="new">Alert list:</target>
-        <note> Name of label on notifications page</note>
-      </trans-unit>
-      <trans-unit id="JobList">
-        <source>Job list:</source>
-        <target state="new">Job list:</target>
-        <note> Name of label on notifications page</note>
-      </trans-unit>
-      <trans-unit id="Email">
-        <source>E-mail</source>
-        <target state="new">E-mail</target>
-        <note> Name of column on notifications page</note>
-      </trans-unit>
-      <trans-unit id="Pager">
-        <source>Pager</source>
-        <target state="new">Pager</target>
-        <note> Name of column on notifications page</note>
-      </trans-unit>
-      <trans-unit id="AlertName">
-        <source>Alert name</source>
-        <target state="new">Alert name</target>
-        <note> Name of column on notifications page</note>
-      </trans-unit>
-      <trans-unit id="JobName">
-        <source>Job name</source>
-        <target state="new">Job name</target>
-        <note> Name of column on notifications page</note>
-      </trans-unit>
-      <trans-unit id="Always">
-        <source>Always</source>
-        <target state="new">Always</target>
-        <note> Completion Action</note>
-      </trans-unit>
-      <trans-unit id="Never">
-        <source>Never</source>
-        <target state="new">Never</target>
-        <note> Completion Action</note>
-      </trans-unit>
-      <trans-unit id="OnFailure">
-        <source>On failure</source>
-        <target state="new">On failure</target>
-        <note> Completion Action</note>
-      </trans-unit>
-      <trans-unit id="OnSuccess">
-        <source>On success</source>
-        <target state="new">On success</target>
-        <note> Completion Action</note>
-      </trans-unit>
-      <trans-unit id="CannotModifyAlerts">
-        <source>Cannot modify alerts.</source>
-        <target state="new">Cannot modify alerts.</target>
-        <note> Exception thrown when we cannot modify alerts</note>
-      </trans-unit>
-      <trans-unit id="CannotCreateScriptForModifyAlerts">
-        <source>Cannot create script for modify alerts.</source>
-        <target state="new">Cannot create script for modify alerts.</target>
-        <note> Exception thrown when we cannot create script that modify alerts</note>
       </trans-unit>
       <trans-unit id="CategoryLocal">
         <source>[Uncategorized (Local)]</source>
@@ -3015,42 +1801,6 @@
         <target state="new">Cannot alter alert.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="InvalidScheduleTitle">
-        <source>Invalid Schedule</source>
-        <target state="new">Invalid Schedule</target>
-        <note> Schedule error message</note>
-      </trans-unit>
-      <trans-unit id="InvalidWeeklySchedule">
-        <source>Select at least one day to be part of this weekly schedule.</source>
-        <target state="new">Select at least one day to be part of this weekly schedule.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StartDateGreaterThanEndDate">
-        <source>The job schedule starting date cannot be greater than the ending date.</source>
-        <target state="new">The job schedule starting date cannot be greater than the ending date.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="StartTimeGreaterThanEndTime">
-        <source>The job schedule starting time cannot be after the ending time.</source>
-        <target state="new">The job schedule starting time cannot be after the ending time.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="EndTimeEqualToStartTime">
-        <source>The job schedule ending time must be after the starting time.</source>
-        <target state="new">The job schedule ending time must be after the starting time.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="InvalidStartDate">
-        <source>Start date must be on or after January 1, 1990.</source>
-        <target state="new">Start date must be on or after January 1, 1990.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ScheduleNameAlreadyExists">
-        <source>There is already a schedule named '{0}' for this job.  You must specify a different name.</source>
-        <target state="new">There is already a schedule named '{0}' for this job.  You must specify a different name.</target>
-        <note>.
- Parameters: 0 - scheduleName (string) </note>
-      </trans-unit>
       <trans-unit id="SysadminAccount">
         <source>SQL Server Agent Service Account</source>
         <target state="new">SQL Server Agent Service Account</target>
@@ -3129,6 +1879,132 @@
         <target state="new">An XEvent session named {0} already exists</target>
         <note>.
  Parameters: 0 - sessionName (String) </note>
+      </trans-unit>
+      <trans-unit id="InvalidScheduleTitle">
+        <source>Invalid Schedule</source>
+        <target state="new">Invalid Schedule</target>
+        <note> Schedule error message</note>
+      </trans-unit>
+      <trans-unit id="InvalidWeeklySchedule">
+        <source>Select at least one day to be part of this weekly schedule.</source>
+        <target state="new">Select at least one day to be part of this weekly schedule.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StartDateGreaterThanEndDate">
+        <source>The job schedule starting date cannot be greater than the ending date.</source>
+        <target state="new">The job schedule starting date cannot be greater than the ending date.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StartTimeGreaterThanEndTime">
+        <source>The job schedule starting time cannot be after the ending time.</source>
+        <target state="new">The job schedule starting time cannot be after the ending time.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EndTimeEqualToStartTime">
+        <source>The job schedule ending time must be after the starting time.</source>
+        <target state="new">The job schedule ending time must be after the starting time.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidStartDate">
+        <source>Start date must be on or after January 1, 1990.</source>
+        <target state="new">Start date must be on or after January 1, 1990.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScheduleNameAlreadyExists">
+        <source>There is already a schedule named '{0}' for this job.  You must specify a different name.</source>
+        <target state="new">There is already a schedule named '{0}' for this job.  You must specify a different name.</target>
+        <note>.
+ Parameters: 0 - scheduleName (string) </note>
+      </trans-unit>
+      <trans-unit id="JobServerIsNotAvailable">
+        <source>Job server is not available</source>
+        <target state="new">Job server is not available</target>
+        <note> Exception thrown when job server is not available</note>
+      </trans-unit>
+      <trans-unit id="NeverBackedUp">
+        <source>Never</source>
+        <target state="new">Never</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Error_InvalidDirectoryName">
+        <source>Path {0} is not a valid directory </source>
+        <target state="new">Path {0} is not a valid directory </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Error_ExistingDirectoryName">
+        <source>For directory {0} a file with name {1} already exist</source>
+        <target state="new">For directory {0} a file with name {1} already exist</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
+        <target state="new">Beginning execution loop</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Batch execution completed {0} times...</source>
+        <target state="new">Batch execution completed {0} times...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExtractInvalidVersion">
+        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</source>
+        <target state="new">Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExportBacpacTaskName">
+        <source>Export bacpac</source>
+        <target state="new">Export bacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ImportBacpacTaskName">
+        <source>Import bacpac</source>
+        <target state="new">Import bacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExtractDacpacTaskName">
+        <source>Extract dacpac</source>
+        <target state="new">Extract dacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DeployDacpacTaskName">
+        <source>Deploy dacpac</source>
+        <target state="new">Deploy dacpac</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GenerateScriptTaskName">
+        <source>Generate script</source>
+        <target state="new">Generate script</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PublishChangesTaskName">
+        <source>Apply schema compare changes</source>
+        <target state="new">Apply schema compare changes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
+        <source>Failed to find the specified change in the model</source>
+        <target state="new">Failed to find the specified change in the model</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OpenScmpConnectionBasedModelParsingError">
+        <source>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</source>
+        <target state="new">Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareSessionNotFound">
+        <source>Could not find the schema compare session to cancel</source>
+        <target state="new">Could not find the schema compare session to cancel</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

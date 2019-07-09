@@ -27,7 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// </summary>
     public class AgentService
     {
-        private Dictionary<Guid, JobProperties> jobs = null;
         private ConnectionService connectionService = null;
         private static readonly Lazy<AgentService> instance = new Lazy<AgentService>(() => new AgentService());
 
@@ -144,22 +143,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     if (connInfo != null)
                     {
-                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        var serverConnection = new ServerConnection(sqlConnection);
+                        var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                         var fetcher = new JobFetcher(serverConnection);
                         var filter = new JobActivityFilter();
-                        this.jobs = fetcher.FetchJobs(filter);
+                        var jobs = fetcher.FetchJobs(filter);
                         var agentJobs = new List<AgentJobInfo>();
-                        if (this.jobs != null)
+                        if (jobs != null)
                         {
-                            foreach (var job in this.jobs.Values)
+                            foreach (var job in jobs.Values)
                             {
                                 agentJobs.Add(AgentUtilities.ConvertToAgentJobInfo(job));
                             }
                         }
                         result.Success = true;
                         result.Jobs = agentJobs.ToArray();
-                        sqlConnection.Close();
+                        serverConnection.SqlConnectionObject.Close();
                     }
                     await requestContext.SendResult(result);
                 }
@@ -186,43 +184,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         out connInfo);
                     if (connInfo != null)
                     {
-                        ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                         CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                        var jobs = dataContainer.Server.JobServer.Jobs;
+                        var jobServer = dataContainer.Server.JobServer;
+                        var jobs = jobServer.Jobs;
                         Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
                         ServerConnection connection = tuple.Item3;
+                        
+                        // Send Steps, Alerts and Schedules with job history in background
+                        // Add steps to the job if any
+                        JobStepCollection steps = jobs[parameters.JobName].JobSteps;
+                        var jobSteps = new List<AgentJobStepInfo>();
+                        foreach (JobStep step in steps)
+                        {
+                            jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, parameters.JobId, parameters.JobName));
+                        }
+                        result.Steps = jobSteps.ToArray();
+
+                        // Add schedules to the job if any
+                        JobScheduleCollection schedules = jobs[parameters.JobName].JobSchedules;
+                        var jobSchedules = new List<AgentScheduleInfo>();
+                        foreach (JobSchedule schedule in schedules)
+                        {
+                            jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
+                        }
+                        result.Schedules = jobSchedules.ToArray();
+
+                        // Alerts
+                        AlertCollection alerts = jobServer.Alerts;
+                        var jobAlerts = new List<Alert>();
+                        foreach (Alert alert in alerts)
+                        {
+                            if (alert.JobName == parameters.JobName)
+                            {
+                                jobAlerts.Add(alert);
+                            }
+                        }
+                        result.Alerts = AgentUtilities.ConvertToAgentAlertInfo(jobAlerts);
+
+                        // Add histories
                         int count = dt.Rows.Count;
                         List<AgentJobHistoryInfo> jobHistories = new List<AgentJobHistoryInfo>();
                         if (count > 0)
                         {
                             var job = dt.Rows[0];
-                            string jobName = Convert.ToString(job[AgentUtilities.UrnJobName], System.Globalization.CultureInfo.InvariantCulture);
-                            Guid jobId = (Guid) job[AgentUtilities.UrnJobId];
+                            Guid jobId = (Guid)job[AgentUtilities.UrnJobId];
                             int runStatus = Convert.ToInt32(job[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
-                            var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, jobId, null);
+                            var t = new LogSourceJobHistory(parameters.JobName, sqlConnInfo, null, runStatus, jobId, null);
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
 
-                            // Send Steps, Alerts and Schedules with job history in background
-                            JobStepCollection steps = jobs[jobName].JobSteps;
-                            JobScheduleCollection schedules = jobs[jobName].JobSchedules;
-                            List<Alert> alerts = new List<Alert>();
-                            foreach (Alert alert in dataContainer.Server.JobServer.Alerts)
-                            {
-                                if (alert.JobID == jobId && alert.JobName == jobName)
-                                {
-                                    alerts.Add(alert);
-                                }
-                            }
-                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps, schedules, alerts);
+                            // Finally add the job histories
+                            jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps);
+                            result.Histories = jobHistories.ToArray();
+                            result.Success = true;
                             tlog.CloseReader();
                         }
-                        result.Jobs = jobHistories.ToArray();
-                        result.Success = true;
-                        connection.Disconnect();
                         await requestContext.SendResult(result);
                     }
                 }
@@ -249,8 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         out connInfo);
                     if (connInfo != null)
                     {
-                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        var serverConnection = new ServerConnection(sqlConnection);
+                        var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                         var jobHelper = new JobHelper(serverConnection);
                         jobHelper.JobName = parameters.JobName;
                         switch(parameters.Action)
@@ -281,6 +299,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     result.Success = false;
                     result.ErrorMessage = e.Message;
+                    Exception exception = e.InnerException;
+                    while (exception != null)
+                    {
+                        result.ErrorMessage += Environment.NewLine + "\t" + exception.Message;
+                        exception = exception.InnerException;
+                    }
                     await requestContext.SendResult(result);
                 }
             });
@@ -320,12 +344,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         internal async Task HandleDeleteAgentJobRequest(DeleteAgentJobParams parameters, RequestContext<ResultStatus> requestContext)
         {
-             var result = await ConfigureAgentJob(
-                parameters.OwnerUri,
-                parameters.Job.Name,
-                parameters.Job,
-                ConfigAction.Drop,
-                ManagementUtils.asRunType(parameters.TaskExecutionMode));
+            var result = await ConfigureAgentJob(
+               parameters.OwnerUri,
+               parameters.Job.Name,
+               parameters.Job,
+               ConfigAction.Drop,
+               ManagementUtils.asRunType(parameters.TaskExecutionMode));
 
             await requestContext.SendResult(new ResultStatus()
             {
@@ -418,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion // "Jobs Handlers"
 
-		#region "Alert Handlers"
+        #region "Alert Handlers"
 
         /// <summary>
         /// Handle request to get the alerts list
@@ -666,9 +690,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var proxy = dataContainer.Server.JobServer.ProxyAccounts[i];
                         proxies[i] = new AgentProxyInfo
                         {
+                            Id = proxy.ID,
                             AccountName = proxy.Name,
                             Description = proxy.Description,
-                            CredentialName = proxy.CredentialName
+                            CredentialName = proxy.CredentialName,
+                            CredentialIdentity = proxy.CredentialIdentity,
+                            CredentialId = proxy.CredentialID,
+                            IsEnabled = proxy.IsEnabled
                         };
                     }
                     result.Proxies = proxies;
@@ -862,7 +890,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ConfigAction configAction,
             RunType runType)
         {
-            return await Task<Tuple<bool, string>>.Run(() =>
+            return await Task<Tuple<bool, string>>.Run(async () =>
             {
                 try
                 {
@@ -873,6 +901,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     using (JobActions actions = new JobActions(dataContainer, jobData, configAction))
                     {
                         ExecuteAction(actions, runType);
+                    }
+
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    if (connInfo != null)
+                    {
+                        dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    }
+
+                    // Execute step actions if they exist
+                    if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
+                    {
+                        foreach (AgentJobStepInfo step in jobInfo.JobSteps)
+                        {   
+                            configAction = ConfigAction.Create;
+                            foreach(JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
+                            {
+                                // any changes made to step other than name or ordering
+                                if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
+                                    // if the step name was changed
+                                    (step.StepName != jobStep.Name && step.Id == jobStep.ID) ||
+                                    // if the step ordering was changed
+                                    (step.StepName == jobStep.Name && step.Id != jobStep.ID))
+                                {
+                                    configAction = ConfigAction.Update;
+                                    break;
+                                } 
+                            }
+                            await ConfigureAgentJobStep(ownerUri, step, configAction, runType, jobData, dataContainer);
+                        }
+                    }
+
+                    // Execute schedule actions if they exist
+                    if (jobInfo.JobSchedules != null && jobInfo.JobSchedules.Length > 0)
+                    {
+                        foreach (AgentScheduleInfo schedule in jobInfo.JobSchedules)
+                        {
+                            await ConfigureAgentSchedule(ownerUri, schedule, configAction, runType, jobData, dataContainer);
+                        }
+                    }
+
+                    // Execute alert actions if they exist
+                    if (jobInfo.Alerts != null && jobInfo.Alerts.Length > 0)
+                    {
+                        foreach (AgentAlertInfo alert in jobInfo.Alerts)
+                        {
+                            alert.JobId = jobData.Job.JobID.ToString();
+                            await ConfigureAgentAlert(ownerUri, alert.Name, alert, configAction, runType, jobData, dataContainer);
+                        }
                     }
 
                     return new Tuple<bool, string>(true, string.Empty);
@@ -888,7 +966,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string ownerUri,
             AgentJobStepInfo stepInfo,
             ConfigAction configAction,
-            RunType runType)
+            RunType runType,
+            JobData jobData = null,
+            CDataContainer dataContainer = null)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
@@ -899,9 +979,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         return new Tuple<bool, string>(false, "JobName cannot be null");
                     }
 
-                    JobData jobData;
-                    CDataContainer dataContainer;
-                    CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
+                    if (jobData == null)
+                    {
+                        CreateJobData(ownerUri, stepInfo.JobName, out dataContainer, out jobData);
+                    }
 
                     using (var actions = new JobStepsActions(dataContainer, jobData, stepInfo, configAction))
                     {
@@ -923,21 +1004,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string alertName,
             AgentAlertInfo alert,
             ConfigAction configAction,
-            RunType runType)
+            RunType runType,
+            JobData jobData = null,
+            CDataContainer dataContainer = null)
         {
             return await Task<Tuple<bool, string>>.Run(() =>
             {
                 try
                 {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    // If the alert is being created outside of a job
+                    if (string.IsNullOrWhiteSpace(alert.JobName))
+                    {
+                        ConnectionInfo connInfo;
+                        ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                        dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                    } 
+                    else 
+                    {   
+                        if (jobData == null)
+                        {
+                            // If the alert is being created inside a job
+                            CreateJobData(ownerUri, alert.JobName, out dataContainer, out jobData);
+                        }
+                    }
                     STParameters param = new STParameters(dataContainer.Document);
                     param.SetParam("alert", alertName);
-
                     if (alert != null)
                     {
-                        using (AgentAlertActions actions = new AgentAlertActions(dataContainer, alertName, alert, configAction))
+                        using (AgentAlertActions actions = new AgentAlertActions(dataContainer, alertName, alert, configAction, jobData))
                         {
                             ExecuteAction(actions, runType);
                         }
@@ -1017,15 +1111,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string ownerUri,
             AgentScheduleInfo schedule,
             ConfigAction configAction,
-            RunType runType)
+            RunType runType,
+            JobData jobData = null,
+            CDataContainer dataContainer = null)
         {
             return await Task<bool>.Run(() =>
             {
                 try
                 {
-                    JobData jobData;
-                    CDataContainer dataContainer;
-                    CreateJobData(ownerUri, schedule.JobName, out dataContainer, out jobData);
+                    if (jobData == null)
+                    {
+                        CreateJobData(ownerUri, schedule.JobName, out dataContainer, out jobData);
+                    }
 
                     const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']/Schedule[@Name='{2}']";
                     string serverName = dataContainer.Server.Name.ToUpper();
@@ -1059,12 +1156,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
             dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-             
+
             XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(), jobName);
             dataContainer.Init(jobDoc.InnerXml);
-            
+
             STParameters param = new STParameters(dataContainer.Document);
-            string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;            
+            string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;
             param.SetParam("job",  configAction == ConfigAction.Update ? jobName : string.Empty);
             param.SetParam("jobid", string.Empty);
 
@@ -1105,8 +1202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         private Tuple<SqlConnectionInfo, DataTable, ServerConnection> CreateSqlConnection(ConnectionInfo connInfo, String jobId)
         {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-            var serverConnection = new ServerConnection(sqlConnection);
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo);
             var server = new Server(serverConnection);
             var filter = new JobHistoryFilter();
             filter.JobID = new Guid(jobId);

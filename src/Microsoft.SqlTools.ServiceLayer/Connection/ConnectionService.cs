@@ -43,22 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Gets the singleton service instance
         /// </summary>
-        public static ConnectionService Instance
-        {
-            get
-            {
-                return instance.Value;
-            }
-        }
-        
+        public static ConnectionService Instance => instance.Value;
+
         /// <summary>
         /// The SQL connection factory object
         /// </summary>
         private ISqlConnectionFactory connectionFactory;
 
         private DatabaseLocksManager lockedDatabaseManager;
-
-        private readonly Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair. 
@@ -75,13 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap
-        {
-            get
-            {
-                return this.ownerToConnectionMap;
-            }
-        }
+        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -106,11 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
-        {
-            get;
-            set;
-        }
+        internal IProtocolEndpoint ServiceHost { get; set;}
 
         /// <summary>
         /// Gets the connection queue
@@ -211,21 +193,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             internal set { this.connectionFactory = value; }
         }
-       
+
         /// <summary>
         /// Test constructor that injects dependency interfaces
         /// </summary>
         /// <param name="testFactory"></param>
-        public ConnectionService(ISqlConnectionFactory testFactory)
-        {
-            this.connectionFactory = testFactory;
-        }
+        public ConnectionService(ISqlConnectionFactory testFactory) => this.connectionFactory = testFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
-        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo)
-        {
-            return this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
-        }
+        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
         /// Validates the given ConnectParams object. 
@@ -275,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
             bool connectionChanged = false;
-            if (!ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
+            if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
             {
                 connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
@@ -301,10 +277,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // If this is the first connection for this URI, add the ConnectionInfo to the map
-            bool addToMap = connectionChanged || !ownerToConnectionMap.ContainsKey(connectionParams.OwnerUri);
+            bool addToMap = connectionChanged || !OwnerToConnectionMap.ContainsKey(connectionParams.OwnerUri);
             if (addToMap)
             {
-                ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
+                OwnerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
             }
 
             // Return information about the connected SQL Server instance
@@ -464,7 +440,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
-                    MachineName = serverInfo.MachineName
+                    MachineName = serverInfo.MachineName,
+                    Options = serverInfo.Options,
                 };
                 connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
@@ -523,7 +500,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -609,7 +586,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Try to get the ConnectionInfo, if it exists
             ConnectionInfo connectionInfo;
-            if (!ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
+            if (!OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(SR.ConnectionServiceListDbErrorNotConnected(ownerUri));
             }
@@ -772,7 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Lookup the ConnectionInfo owned by the URI
             ConnectionInfo info;
-            if (!ownerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
+            if (!OwnerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
             {
                 return false;
             }
@@ -797,7 +774,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // If the ConnectionInfo has no more connections, remove the ConnectionInfo
             if (info.CountConnections == 0)
             {
-                ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                OwnerToConnectionMap.Remove(disconnectParams.OwnerUri);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection
@@ -909,7 +886,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Connect to master and query sys.databases
             connectionDetails.DatabaseName = "master";
-            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
+            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken);
             connection.Open();
             
             List<string> results = new List<string>();
@@ -1151,6 +1128,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         break;
                     case "SqlLogin":
                         break;
+                    case "AzureMFA":
+                        connectionBuilder.UserID = "";
+                        connectionBuilder.Password = "";
+                        break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }
@@ -1303,7 +1284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     await requestContext.SendResult(ParseConnectionString(connectionString));
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // If theres an error in the parse, it means we just can't parse, so we return undefined
                     // rather than an error.
@@ -1387,7 +1368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                 // create a sql connection instance
-                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString);
+                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -1488,6 +1469,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Note: we need to audit all uses of this method to determine why we're
         /// bypassing normal ConnectionService connection management
         /// </summary>
+        /// <param name="connInfo">The connection info to connect with</param>
+        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
+        /// <returns>A SqlConnection created with the given connection info</returns>
         internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
@@ -1515,6 +1499,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
+
+                // Fill in Azure authentication token if needed
+                if (connInfo.ConnectionDetails.AzureAccountToken != null)
+                {
+                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                }
+
                 sqlConn.Open();
                 return sqlConn;
             }
@@ -1527,6 +1518,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             
             return null;
+        }
+
+        /// <summary>
+        /// Create and open a new ServerConnection from a ConnectionInfo object.
+        /// This calls ConnectionService.OpenSqlConnection and then creates a
+        /// ServerConnection from it.
+        /// </summary>
+        /// <param name="connInfo">The connection info to connect with</param>
+        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
+        /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
+        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
+        {
+            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
+            ServerConnection serverConnection;
+            if (connInfo.ConnectionDetails.AzureAccountToken != null)
+            {
+                serverConnection = new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
+            }
+            else
+            {
+                serverConnection = new ServerConnection(sqlConnection);
+            }
+
+            return serverConnection;
         }
 
         public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
@@ -1550,6 +1565,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     conn.Open();
                 }
             }
+        }
+    }
+
+    public class AzureAccessToken : IRenewableToken
+    {
+        public DateTimeOffset TokenExpiry { get; set; }
+        public string Resource { get; set; }
+        public string Tenant { get; set; }
+        public string UserId { get; set; }
+
+        private string accessToken;
+
+        public AzureAccessToken(string accessToken)
+        {
+            this.accessToken = accessToken;
+        }
+
+        public string GetAccessToken()
+        {
+            return this.accessToken;
         }
     }
 }

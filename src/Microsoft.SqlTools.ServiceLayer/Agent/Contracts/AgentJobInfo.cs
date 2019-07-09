@@ -8,6 +8,25 @@ using Microsoft.SqlTools.ServiceLayer.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
+    public enum JobCompletionActionCondition
+    {
+        Never = 0,
+        OnSuccess = 1,
+        OnFailure = 2,
+        Always = 3
+    }
+
+    public enum JobExecutionStatus
+    {
+        Executing = 1,
+        WaitingForWorkerThread = 2,
+        BetweenRetries = 3,
+        Idle = 4,
+        Suspended = 5,
+        WaitingForStepToFinish = 6,
+        PerformingCompletionAction = 7
+    }
+
     /// <summary>
     /// a class for storing various properties of agent jobs, 
     /// used by the Job Activity Monitor
@@ -17,8 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string Name { get; set; }
         public string Owner { get; set; }
         public string Description { get; set; }
-        public int CurrentExecutionStatus { get; set; }
-        public int LastRunOutcome { get; set; }
+        public JobExecutionStatus CurrentExecutionStatus { get; set; }
+        public CompletionResult LastRunOutcome { get; set; }
         public string CurrentExecutionStep { get; set; }
         public bool Enabled { get; set; }
         public bool HasTarget { get; set; }
@@ -31,5 +50,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string LastRun { get; set; }
         public string NextRun { get; set; }
         public string JobId { get; set; }
+        public string OperatorToEmail { get; set; }
+        public string OperatorToPage { get; set; }
+        public int StartStepId { get; set; }
+        public JobCompletionActionCondition EmailLevel { get; set; }
+        public JobCompletionActionCondition PageLevel { get; set; }
+        public JobCompletionActionCondition EventLogLevel { get; set; }
+        public JobCompletionActionCondition DeleteLevel { get; set; }
+        public AgentJobStepInfo[] JobSteps { get; set; }
+        public AgentScheduleInfo[] JobSchedules { get; set; }
+        public AgentAlertInfo[] Alerts { get; set; }
     }
 }

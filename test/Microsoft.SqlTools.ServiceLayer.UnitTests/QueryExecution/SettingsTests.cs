@@ -73,6 +73,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                         DisplayBitAsNumber = false,
                         MaxXmlCharsToStore = 1,
                         MaxCharsToStore = 1,
+                        RowCount = 0,
+                        TextSize = 1000,
+                        ExecutionTimeout = 5000,
+                        NoCount = true,
+                        NoExec = true,
+                        ParseOnly = true,
+                        ArithAbort = true,
+                        StatisticsTime = true,
+                        StatisticsIO = true,
+                        XactAbortOn = true,
+                        TransactionIsolationLevel = "REPEATABLE READ",
+                        DeadlockPriority = "LOW",
+                        LockTimeout = 5000,
+                        QueryGovernorCostLimit = 2000,
+                        AnsiDefaults = false,
+                        QuotedIdentifier = true,
+                        AnsiNullDefaultOn = true,
+                        ImplicitTransactions = true,
+                        CursorCloseOnCommit = true,
+                        AnsiPadding = true,
+                        AnsiWarnings = true,
+                        AnsiNulls = true,
                         ExecutionPlanOptions = new ExecutionPlanOptions
                         {
                             IncludeActualExecutionPlanXml = true,
@@ -80,8 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                         },
                         BatchSeparator = "YO"
                     }
-                }
-                    
+                }    
             };
             qes.UpdateSettings(settings, null, new EventContext());
 
@@ -92,7 +113,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Assert.Equal(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);
             Assert.Equal(1, qes.Settings.QueryExecutionSettings.MaxXmlCharsToStore);
             Assert.Equal("YO", qes.Settings.QueryExecutionSettings.BatchSeparator);
+            Assert.Equal(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);
+            Assert.Equal(0, qes.Settings.QueryExecutionSettings.RowCount);
+            Assert.Equal(1000, qes.Settings.QueryExecutionSettings.TextSize);
+            Assert.Equal(5000, qes.Settings.QueryExecutionSettings.ExecutionTimeout);
+            Assert.True(qes.Settings.QueryExecutionSettings.NoCount);
+            Assert.True(qes.Settings.QueryExecutionSettings.NoExec);
+            Assert.True(qes.Settings.QueryExecutionSettings.ParseOnly);
+            Assert.True(qes.Settings.QueryExecutionSettings.ArithAbort);
+            Assert.True(qes.Settings.QueryExecutionSettings.StatisticsTime);
+            Assert.True(qes.Settings.QueryExecutionSettings.StatisticsIO);
+            Assert.True(qes.Settings.QueryExecutionSettings.XactAbortOn);
+            Assert.Equal("REPEATABLE READ", qes.Settings.QueryExecutionSettings.TransactionIsolationLevel);
+            Assert.Equal("LOW", qes.Settings.QueryExecutionSettings.DeadlockPriority);
+            Assert.Equal(5000, qes.Settings.QueryExecutionSettings.LockTimeout);
+            Assert.Equal(2000, qes.Settings.QueryExecutionSettings.QueryGovernorCostLimit);
+            Assert.False(qes.Settings.QueryExecutionSettings.AnsiDefaults);
+            Assert.True(qes.Settings.QueryExecutionSettings.QuotedIdentifier);
+            Assert.True(qes.Settings.QueryExecutionSettings.AnsiNullDefaultOn);
+            Assert.True(qes.Settings.QueryExecutionSettings.ImplicitTransactions);
+            Assert.True(qes.Settings.QueryExecutionSettings.CursorCloseOnCommit);
+            Assert.True(qes.Settings.QueryExecutionSettings.AnsiPadding);
+            Assert.True(qes.Settings.QueryExecutionSettings.AnsiWarnings);
+            Assert.True(qes.Settings.QueryExecutionSettings.AnsiNulls);
         }
-
     }
 }

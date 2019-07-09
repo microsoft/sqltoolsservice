@@ -110,6 +110,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
 
         /// <summary>
+        /// The collection of query execution options
+        /// </summary>
+        internal ConcurrentDictionary<string, QueryExecutionSettings> ActiveQueryExecutionSettings => queryExecutionSettings.Value;
+
+        /// <summary>
+        /// Internal task for testability
+        /// </summary>
+        internal Task WorkTask { get; private set; }
+
+        /// <summary>
         /// Instance of the connection service, used to get the connection info for a given owner URI
         /// </summary>
         private ConnectionService ConnectionService { get; }
@@ -123,6 +133,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
 
         /// <summary>
+        /// Internal storage of active query settings
+        /// </summary>
+        private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> queryExecutionSettings =
+            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());            
+
+        /// <summary>
         /// Settings that will be used to execute queries. Internal for unit testing
         /// </summary>
         internal SqlToolsSettings Settings { get; set; }
@@ -130,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Holds a map from the simple execute unique GUID and the underlying task that is being ran
         /// </summary>
-        private readonly Lazy<ConcurrentDictionary<string, Task>> simpleExecuteRequests = 
+        private readonly Lazy<ConcurrentDictionary<string, Task>> simpleExecuteRequests =
             new Lazy<ConcurrentDictionary<string, Task>>(() => new ConcurrentDictionary<string, Task>());
 
         /// <summary>
@@ -160,6 +176,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
+            serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest);
+
+            // Register the file open update handler
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -177,18 +197,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        internal Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
+        internal async Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
             RequestContext<ExecuteRequestResult> requestContext)
         {
-            // Setup actions to perform upon successful start and on failure to start
-            Func<Query, Task<bool>> queryCreateSuccessAction = async q => {
-                await requestContext.SendResult(new ExecuteRequestResult());
-                return true;
-            };
-            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+            try
+            {
+                // Setup actions to perform upon successful start and on failure to start
+                Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
+                {
+                    await requestContext.SendResult(new ExecuteRequestResult());
+                    Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
+                    return true;
+                };
+                Func<string, Task> queryCreateFailureAction = message =>
+                {
+                    Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                    return requestContext.SendError(message);
+                };
 
-            // Use the internal handler to launch the query
-            return InterServiceExecuteQuery(executeParams, null, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
+                // Use the internal handler to launch the query
+                WorkTask = Task.Run(async () =>
+                {
+                    await InterServiceExecuteQuery(
+                        executeParams, 
+                        null, 
+                        requestContext, 
+                        queryCreateSuccessAction, 
+                        queryCreateFailureAction, 
+                        null, 
+                        null,
+                        isQueryEditor(executeParams.OwnerUri));
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -214,14 +258,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                     return;
                 }
-                
+
                 ConnectParams connectParams = new ConnectParams
                 {
                     OwnerUri = randomUri,
                     Connection = connInfo.ConnectionDetails,
                     Type = ConnectionType.Default
                 };
-                
+
                 Task workTask = Task.Run(async () => {
                     await ConnectionService.Connect(connectParams);
 
@@ -238,26 +282,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         try
                         {
                             // check to make sure any results were recieved
-                            if (query.Batches.Length == 0 
-                                || query.Batches[0].ResultSets.Count == 0) 
+                            if (query.Batches.Length == 0
+                                || query.Batches[0].ResultSets.Count == 0)
                             {
                                 await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
                                 return;
-                            } 
+                            }
 
                             long rowCount = query.Batches[0].ResultSets[0].RowCount;
                             // check to make sure there is a safe amount of rows to load into memory
-                            if (rowCount > Int32.MaxValue) 
+                            if (rowCount > Int32.MaxValue)
                             {
                                 await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
                                 return;
                             }
-                            
+
                             SimpleExecuteResult result = new SimpleExecuteResult
                             {
                                 RowCount = rowCount,
                                 ColumnInfo = query.Batches[0].ResultSets[0].Columns,
-                                Rows = new DbCellValue[0][] 
+                                Rows = new DbCellValue[0][]
                             };
 
                             if (rowCount > 0)
@@ -275,8 +319,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 result.Rows = subset.Rows;
                             }
                             await requestContext.SendResult(result);
-                        } 
-                        finally 
+                        }
+                        finally
                         {
                             Query removedQuery;
                             Task removedTask;
@@ -301,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
@@ -321,6 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ResultSubset = subset
                 };
                 await requestContext.SendResult(result);
+                Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
             }
             catch (Exception e)
             {
@@ -329,7 +374,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-         /// <summary>
+        
+        /// <summary>
+        /// Handles a request to set query execution options
+        /// </summary>
+        internal async Task HandleQueryExecutionOptionsRequest(QueryExecutionOptionsParams queryExecutionOptionsParams,
+            RequestContext<bool> requestContext)
+        {
+            try
+            {
+                string uri = queryExecutionOptionsParams.OwnerUri; 
+                if (ActiveQueryExecutionSettings.ContainsKey(uri))
+                {
+                    QueryExecutionSettings settings;
+                    ActiveQueryExecutionSettings.TryRemove(uri, out settings);
+                }
+
+                ActiveQueryExecutionSettings.TryAdd(uri, queryExecutionOptionsParams.Options);
+
+                await requestContext.SendResult(true);
+            }
+            catch (Exception e)
+            {
+                // This was unexpected, so send back as error
+                await requestContext.SendError(e.Message);
+            }        
+        }
+
+        /// <summary>
         /// Handles a request to get an execution plan
         /// </summary>
         internal async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
@@ -496,22 +568,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="queryFailureFunc">
         /// Callback to call when query has completed execution with errors. May be <c>null</c>.
         /// </param>
-        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, 
+        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams,
             ConnectionInfo connInfo,
             IEventSender queryEventSender,
             Func<Query, Task<bool>> queryCreateSuccessFunc,
             Func<string, Task> queryCreateFailFunc,
-            Query.QueryAsyncEventHandler querySuccessFunc, 
-            Query.QueryAsyncErrorEventHandler queryFailureFunc)
+            Query.QueryAsyncEventHandler querySuccessFunc,
+            Query.QueryAsyncErrorEventHandler queryFailureFunc,
+            bool applyExecutionSettings = false)
         {
             Validate.IsNotNull(nameof(executeParams), executeParams);
             Validate.IsNotNull(nameof(queryEventSender), queryEventSender);
-            
+
             Query newQuery;
             try
             {
                 // Get a new active query
-                newQuery = CreateQuery(executeParams, connInfo);
+                newQuery = CreateQuery(executeParams, connInfo, applyExecutionSettings);
                 if (queryCreateSuccessFunc != null && !await queryCreateSuccessFunc(newQuery))
                 {
                     // The callback doesn't want us to continue, for some reason
@@ -593,45 +666,104 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 subsetParams.RowsStartIndex, subsetParams.RowsCount);
         }
 
+        /// <summary>
+        /// Handle the file open notification
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidCloseTextDocumentNotification(
+            string uri,
+            ScriptFile scriptFile,
+            EventContext eventContext)
+        {
+            try
+            {
+                // remove any query execution settings when an editor is closed
+                if (this.ActiveQueryExecutionSettings.ContainsKey(uri))
+                {
+                    QueryExecutionSettings settings;
+                    this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
+                }                
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+            }
+            await Task.FromResult(true);
+        }        
+
         #endregion
 
         #region Private Helpers
 
-
-
-        private Query CreateQuery(ExecuteRequestParamsBase executeParams, ConnectionInfo connInfo)
+        private Query CreateQuery(
+            ExecuteRequestParamsBase executeParams, 
+            ConnectionInfo connInfo, 
+            bool applyExecutionSettings)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if (connInfo != null) {
+            if (connInfo != null) 
+            {
                 connectionInfo = connInfo;
-            } else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
+            } 
+            else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
             }
 
             // Attempt to clean out any old query on the owner URI
             Query oldQuery;
-            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
+            // DevNote:
+            //    if any oldQuery exists on the executeParams.OwnerUri but it has not yet executed,
+            //    then shouldn't we cancel and clean out that query since we are about to create a new query object on the current OwnerUri.
+            //
+            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && (oldQuery.HasExecuted || oldQuery.HasCancelled || oldQuery.HasErrored))
             {
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
             }
-
-            // Retrieve the current settings for executing the query with
-            QueryExecutionSettings settings = Settings.QueryExecutionSettings;
-
-            // Apply execution parameter settings 
-            settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+            
+            // check if there are active query execution settings for the editor, otherwise, use the global settings
+            QueryExecutionSettings settings;            
+            if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
+            {                
+                // special-case handling for query plan options to maintain compat with query execution API parameters
+                // the logic is that if either the query execute API parameters or the active query setttings 
+                // request a plan then enable the query option
+                ExecutionPlanOptions executionPlanOptions = executeParams.ExecutionPlanOptions;
+                if (settings.IncludeActualExecutionPlanXml)
+                {
+                    executionPlanOptions.IncludeActualExecutionPlanXml = settings.IncludeActualExecutionPlanXml;
+                }
+                if (settings.IncludeEstimatedExecutionPlanXml)
+                {
+                    executionPlanOptions.IncludeEstimatedExecutionPlanXml = settings.IncludeEstimatedExecutionPlanXml;
+                }
+                settings.ExecutionPlanOptions = executionPlanOptions;
+            }
+            else
+            {     
+                settings = Settings.QueryExecutionSettings;
+                settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+            }
 
             // If we can't add the query now, it's assumed the query is in progress
-            Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory, executeParams.GetFullColumnSchema);
+            Query newQuery = new Query(
+                GetSqlText(executeParams), 
+                connectionInfo, 
+                settings, 
+                BufferFileFactory, 
+                executeParams.GetFullColumnSchema,
+                applyExecutionSettings);
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {
                 newQuery.Dispose();
                 throw new InvalidOperationException(SR.QueryServiceQueryInProgress);
             }
 
+            Logger.Write(TraceEventType.Information, $"Query object for URI:'{executeParams.OwnerUri}' created");
             return newQuery;
         }
 
@@ -650,10 +782,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
+                Logger.Write(TraceEventType.Information, $"Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
-            // Setup the callback to send the complete event
+            // Setup the callback to send the failure event
             Query.QueryAsyncErrorEventHandler failureCallback = async (q, e) =>
             {
                 // Send back the results
@@ -663,6 +796,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
+                Logger.Write(TraceEventType.Error, $"Query:'{ownerUri}' failed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
             query.QueryCompleted += completeCallback;
@@ -682,6 +816,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
+                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
                 await eventSender.SendEvent(BatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
@@ -694,6 +829,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
+                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(BatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;
@@ -705,21 +841,53 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Message = m,
                     OwnerUri = ownerUri
                 };
+
+                Logger.Write(TraceEventType.Information, $"Message generated on Query:'{ownerUri}' :'{m}'");
                 await eventSender.SendEvent(MessageEvent.Type, eventParams);
             };
             query.BatchMessageSent += batchMessageCallback;
 
-            // Setup the ResultSet completion callback
-            ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
+            // Setup the ResultSet available callback
+            ResultSet.ResultSetAsyncEventHandler resultAvailableCallback = async r =>
             {
-                ResultSetEventParams eventParams = new ResultSetEventParams
+                ResultSetAvailableEventParams eventParams = new ResultSetAvailableEventParams
                 {
                     ResultSetSummary = r.Summary,
                     OwnerUri = ownerUri
                 };
+
+                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is available");
+                await eventSender.SendEvent(ResultSetAvailableEvent.Type, eventParams);
+            };
+            query.ResultSetAvailable += resultAvailableCallback;
+
+            // Setup the ResultSet updated callback
+            ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
+            {
+                ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
+                {
+                    ResultSetSummary = r.Summary,
+                    OwnerUri = ownerUri
+                };
+
+                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is updated with additional rows");
+                await eventSender.SendEvent(ResultSetUpdatedEvent.Type, eventParams);
+            };
+            query.ResultSetUpdated += resultUpdatedCallback;
+
+            // Setup the ResultSet completion callback
+            ResultSet.ResultSetAsyncEventHandler resultCompleteCallback = async r =>
+            {
+                ResultSetCompleteEventParams eventParams = new ResultSetCompleteEventParams
+                {
+                    ResultSetSummary = r.Summary,
+                    OwnerUri = ownerUri
+                };
+
+                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is complete");
                 await eventSender.SendEvent(ResultSetCompleteEvent.Type, eventParams);
             };
-            query.ResultSetCompleted += resultCallback;
+            query.ResultSetCompleted += resultCompleteCallback;
 
             // Launch this as an asynchronous task
             query.Execute();
@@ -768,7 +936,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return GetSqlTextFromSelectionData(docRequest.OwnerUri, docRequest.QuerySelection);
             }
 
-             // If it is a document statement, we'll retrieve the text from the document
+            // If it is a document statement, we'll retrieve the text from the document
             ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
             if (stmtRequest != null)
             {
@@ -884,6 +1052,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
+        }
+
+        /// <summary>
+        /// Verify if the URI maps to a query editor document
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        private bool isQueryEditor(string uri)
+        {
+            return (!string.IsNullOrWhiteSpace(uri)
+                && (uri.StartsWith("untitled:")
+                || uri.StartsWith("file:")));
         }
 
         ~QueryExecutionService()

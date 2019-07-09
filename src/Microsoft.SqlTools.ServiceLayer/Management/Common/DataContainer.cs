@@ -682,7 +682,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="userName">User name for not trusted connections</param>
         /// <param name="password">Password for not trusted connections</param>
         /// <param name="xmlParameters">XML string with parameters</param>
-        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters)
+        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters, string azureAccountToken = null)
         {
             this.serverType = serverType;
             this.serverName = serverName;
@@ -690,7 +690,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (serverType == ServerType.SQL)
             {
                 // does some extra initialization
-                ApplyConnectionInfo(GetTempSqlConnectionInfoWithConnection(serverName, trusted, userName, password, databaseName), true);
+                ApplyConnectionInfo(GetTempSqlConnectionInfoWithConnection(serverName, trusted, userName, password, databaseName, azureAccountToken), true);
 
                 // NOTE: ServerConnection property will constuct the object if needed
                 m_server = new Server(ServerConnection);
@@ -1024,7 +1024,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             bool trusted,
             string userName,
             SecureString password,
-            string databaseName)
+            string databaseName,
+            string azureAccountToken)
         {         
             SqlConnectionInfoWithConnection tempCI = new SqlConnectionInfoWithConnection(serverName);
             tempCI.SingleConnection = false;
@@ -1040,6 +1041,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 tempCI.UserName = userName;
                 tempCI.SecurePassword = password;
             }
+
             tempCI.DatabaseName = databaseName;
 
             return tempCI;
@@ -1220,39 +1222,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 containerDoc = CreateDataContainerDocument(connInfo, databaseExists);
             }
 
-            CDataContainer dataContainer;
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
 
-             // add alternate port to server name property if provided
-            var connectionDetails = connInfo.ConnectionDetails;
-            string serverName = !connectionDetails.Port.HasValue
-                ? connectionDetails.ServerName
-                : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
-
-            // check if the connection is using SQL Auth or Integrated Auth
-            // TODO: ConnectionQueue try to get an existing connection (ConnectionQueue)
-            if (string.Equals(connectionDetails.AuthenticationType, "SqlLogin", StringComparison.OrdinalIgnoreCase))
-            {
-                var passwordSecureString = BuildSecureStringFromPassword(connectionDetails.Password);
-                dataContainer = new CDataContainer(
-                    CDataContainer.ServerType.SQL,
-                    serverName,
-                    false,
-                    connectionDetails.UserName,
-                    passwordSecureString,
-                    connectionDetails.DatabaseName,
-                    containerDoc.InnerXml);
-            }
-            else
-            {
-                dataContainer = new CDataContainer(
-                    CDataContainer.ServerType.SQL,
-                    serverName,
-                    true,
-                    null,
-                    null,
-                    connectionDetails.DatabaseName,
-                    containerDoc.InnerXml);
-            }
+            var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
+            connectionInfoWithConnection.ServerConnection = serverConnection;
+            CDataContainer dataContainer = new CDataContainer(ServerType.SQL, connectionInfoWithConnection, true);
+            dataContainer.Init(containerDoc);
 
             return dataContainer;
         }

@@ -437,8 +437,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
             foreach (DateTimeOffset value in testValues)
             {
-                VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
+                string displayValue = VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
                     (reader, rowId) => reader.ReadDateTimeOffset(0, rowId));
+
+                // Make sure the display value has a time string with 7 milliseconds and a time zone
+                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7} [+-][01][\d]:[\d]{2}$"));
+
             }
         }
 

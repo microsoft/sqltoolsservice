@@ -18,7 +18,9 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -93,7 +95,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
-        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory, bool getFullColumnSchema = false)
+        public Query(
+            string queryText, 
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
+            IFileStreamFactory outputFactory,
+            bool getFullColumnSchema = false,
+            bool applyExecutionSettings = false)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -128,20 +136,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            if (DoesSupportExecutionPlan(connection))
+            if (applyExecutionSettings)
             {
-                // Checking settings for execution plan options 
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
-                {
-                    // Enable set showplan xml
-                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
-                }
-                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-                {
-                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
-                }
+                ApplyExecutionSettings(connection, settings, outputFactory);
             }
         }
 
@@ -190,6 +187,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetCompleted;
 
+        /// <summary>
+        /// Event that will be called when the resultSet first becomes available. This is as soon as we start reading the results.
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetAvailable;
+
+        /// <summary>
+        /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
         #endregion
 
         #region Properties
@@ -216,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                if (!HasExecuted)
+                if (!HasExecuted && !HasCancelled && !HasErrored)
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
@@ -250,6 +256,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// if the query has been cancelled (before execution started)
+        /// </summary>
+        public bool HasCancelled { get; private set; }
+
+        /// <summary>
+        /// if the query has errored out (before batch execution started)
+        /// </summary>
+        public bool HasErrored { get; private set; }
+
+        /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; }
@@ -270,6 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Issue the cancellation token for the query
+            this.HasCancelled = true;
             cancellationSource.Cancel();
         }
 
@@ -298,6 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, long startRow, int rowCount)
         {
+            Logger.Write(TraceEventType.Start, $"Starting GetSubset execution for batchIndex:'{batchIndex}', resultSetIndex:'{resultSetIndex}', startRow:'{startRow}', rowCount:'{rowCount}'");
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
@@ -357,9 +375,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ReliableSqlConnection sqlConn = null;
             try
             {
+                // check for cancellation token before actually making connection
+                cancellationSource.Token.ThrowIfCancellationRequested();
+
                 // Mark that we've internally executed
                 hasExecuteBeenCalled = true;
-    
+                
                 // Don't actually execute if there aren't any batches to execute
                 if (Batches.Length == 0)
                 {
@@ -373,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     return;
                 }
-    
+                
                 // Locate and setup the connection
                 DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
                 sqlConn = queryConnection as ReliableSqlConnection;
@@ -399,6 +420,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.BatchCompletion += BatchCompleted;
                     b.BatchMessageSent += BatchMessageSent;
                     b.ResultSetCompletion += ResultSetCompleted;
+                    b.ResultSetAvailable += ResultSetAvailable;
+                    b.ResultSetUpdated += ResultSetUpdated;
                     await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
@@ -416,6 +439,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (Exception e)
             {
+                HasErrored = true;
+                if (e is OperationCanceledException)
+                {
+                    await BatchMessageSent(new ResultMessage(SR.QueryServiceQueryCancelled, false, null));
+                }
                 // Call the query failure callback
                 if (QueryFailed != null)
                 {
@@ -441,7 +469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (b.HasError)
                     {
-                        ConnectionService.EnsureConnectionIsOpen(sqlConn, forceReopen: true);
+                        ConnectionService.EnsureConnectionIsOpen(sqlConn);
                         break;
                     }
                 }
@@ -477,6 +505,118 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
 
+        private void ApplyExecutionSettings(
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
+            IFileStreamFactory outputFactory)
+        {
+            QuerySettingsHelper helper = new QuerySettingsHelper(settings);
+
+            // set query execution plan options
+            if (DoesSupportExecutionPlan(connection))
+            {
+                // Checking settings for execution plan options 
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
+                {
+                    // Enable set showplan xml
+                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
+                }
+                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                {
+                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
+                }
+            }
+
+            StringBuilder builderBefore = new StringBuilder(512);
+            StringBuilder builderAfter = new StringBuilder(512);
+
+            if (!connection.IsSqlDW)
+            {
+                // "set noexec off" should be the very first command, cause everything after 
+                // corresponding "set noexec on" is not executed until "set noexec off"
+                // is encounted
+                if (!settings.NoExec)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
+
+                if (settings.StatisticsIO)
+                {                 
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
+                }
+
+                if (settings.StatisticsTime)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
+                }
+            }
+
+            if (settings.ParseOnly)
+            {               
+                builderBefore.AppendFormat("{0} ", helper.GetSetParseOnlyString(true));
+                builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
+            }
+
+            // append first part of exec options
+            builderBefore.AppendFormat("{0} {1} {2}", 
+                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
+
+            if (!connection.IsSqlDW)
+            {
+                // append second part of exec options
+                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetConcatenationNullString, 
+                                        helper.SetArithAbortString, 
+                                        helper.SetLockTimeoutString, 
+                                        helper.SetQueryGovernorCostString, 
+                                        helper.SetDeadlockPriorityString, 
+                                        helper.SetTransactionIsolationLevelString,
+                                        // We treat XACT_ABORT special in that we don't add anything if the option
+                                        // isn't checked. This is because we don't want to be overwriting the server
+                                        // if it has a default of ON since that's something people would specifically
+                                        // set and having a client change it could be dangerous (the reverse is much
+                                        // less risky)
+ 
+                                        // The full fix would probably be to make the options tri-state instead of 
+                                        // just on/off, where the default is to use the servers default. Until that
+                                        // happens though this is the best solution we came up with. See TFS#7937925
+ 
+                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
+                                        // queries if they do truly want to set it off. We just don't want  to
+                                        // do it silently (since the default is going to be off)
+                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
+
+                // append Ansi options
+                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
+                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
+                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
+                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
+
+                // "set noexec on" should be the very last command, cause everything after it is not
+                // being executed unitl "set noexec off" is encounered
+                if (settings.NoExec)
+                {
+                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                }
+            }
+
+            // add connection option statements before query execution
+            if (builderBefore.Length > 0)
+            {
+                AddBatch(builderBefore.ToString(), BeforeBatches, outputFactory);
+            }
+
+            // add connection option statements after query execution
+            if (builderAfter.Length > 0)
+            {
+                AddBatch(builderAfter.ToString(), AfterBatches, outputFactory);
+            }
+        }
+
         #endregion
 
         #region IDisposable Implementation
@@ -509,7 +649,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Does this connection support XML Execution plans
         /// </summary>
-        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) {
+        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) 
+        {
             // Determining which execution plan options may be applied (may be added to for pre-yukon support)
             return (!connectionInfo.IsSqlDW && connectionInfo.MajorVersion >= 9);
         }

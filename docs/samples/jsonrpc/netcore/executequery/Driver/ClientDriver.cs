@@ -14,7 +14,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 namespace Microsoft.SqlTools.JsonRpc.Driver
 {
     /// <summary>
@@ -59,6 +59,7 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
             startTime = DateTime.Now;
 
             // Launch the process
+            this.protocolClient.Initialize();
             await this.protocolClient.Start();
             await Task.Delay(1000); // Wait for the service host to start
           
@@ -67,7 +68,7 @@ namespace Microsoft.SqlTools.JsonRpc.Driver
             // Setup events to queue for testing
             this.QueueEventsForType(ConnectionCompleteNotification.Type);
             this.QueueEventsForType(IntelliSenseReadyNotification.Type);
-            this.QueueEventsForType(QueryExecuteCompleteEvent.Type);
+            this.QueueEventsForType(QueryCompleteEvent.Type);
             this.QueueEventsForType(PublishDiagnosticsNotification.Type);
         }
 

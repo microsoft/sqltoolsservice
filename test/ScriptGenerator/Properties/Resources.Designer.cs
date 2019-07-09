@@ -66,10 +66,19 @@ namespace ScriptGenerator.Properties {
         ////****** Object:  Database [AdventureWorks]    Script Date: 9/6/2018 12:11:50 PM ******/
         ///CREATE DATABASE [AdventureWorks]
         /// CONTAINMENT = NONE
-        /// ON  PRIMARY 
-        ///( NAME = N&apos;AdventureWorks_Data&apos;, FILENAME = N&apos;D:\sql\14.0.1000.169\sqlservr\data\AdventureWorks_Data.mdf&apos; , SIZE = 174080KB , MAXSIZE = UNLIMITED, FILEGROWTH = 16384KB )
-        /// LOG ON 
-        ///( NAME = N&apos;AdventureWorks_Log&apos;, FILENAME = N&apos;D:\sql\14.0.1000.169\sqlservr\data\AdventureWorks_Log.ldf&apos; , SIZE = 18432KB , MAXSIZE = 2048GB , FILEGROWTH = [rest of string was truncated]&quot;;.
+        ///GO
+        ///ALTER DATABASE [AdventureWorks] SET COMPATIBILITY_LEVEL = 100
+        ///GO
+        ///IF (1 = FULLTEXTSERVICEPROPERTY(&apos;IsFullTextInstalled&apos;))
+        ///begin
+        ///EXEC [AdventureWorks].[dbo].[sp_fulltext_database] @action = &apos;enable&apos;
+        ///end
+        ///GO
+        ///ALTER DATABASE [AdventureWorks] SET ANSI_NULL_DEFAULT OFF 
+        ///GO
+        ///ALTER DATABASE [AdventureWorks] SET ANSI_NULLS ON 
+        ///GO
+        ///ALTER DATABASE  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AdventureWorks {
             get {

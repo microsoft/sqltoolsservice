@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype=">text/microsoft-resx</resheader>
+    <resheader name="version=">2.0</resheader>
+    <resheader name="reader=">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer=">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1="><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing=">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64=">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64=">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata=">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true=">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded=">
+          <xsd:element name="metadata=">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly=">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data=">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader=">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>An error occurred while the batch was being processed. The error message is: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} row(s) affected)</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>The previous execution is not yet complete.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>A scripting error occurred.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Incorrect syntax was encountered while {0} was being parsed.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>A fatal error occurred.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Batch execution completed {0} times...</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>You cancelled the query.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>An error occurred while the batch was being executed.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>An error occurred while the batch was being executed, but the error has been ignored.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Beginning execution loop</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>Command {0} is not supported.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>The variable {0} could not be found.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
+    <value>SQL Execution error: {0}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Batch parser wrapper execution engine batch ResultSet finished.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Canceling batch parser wrapper batch execution.</value>
+    <comment></comment>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Scripting warning.</value>
+    <comment></comment>
+  </data>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>For more information about this error, see the troubleshooting topics in the product documentation.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_CircularReference" xml:space="preserve">
+    <value>File '{0}' recursively included.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
+    <value>Missing end comment mark '*/'.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Unclosed quotation mark after the character string.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
+    <value>Incorrect syntax was encountered while parsing '{0}'.</value>
+    <comment></comment>
+  </data>
+  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
+    <value>Variable {0} is not defined.</value>
+    <comment></comment>
+  </data>
+</root>

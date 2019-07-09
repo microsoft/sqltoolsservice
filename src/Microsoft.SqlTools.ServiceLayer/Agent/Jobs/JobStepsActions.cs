@@ -5,6 +5,7 @@
 
 using System;
 using Microsoft.SqlServer.Management.Smo.Agent;
+using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -42,7 +43,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // load properties from AgentJobStepInfo
             this.data.ID = stepInfo.Id;
             this.data.Name = stepInfo.StepName;
-            this.data.Command = stepInfo.Script;
+            this.data.Command = stepInfo.Command;
+            this.data.Subsystem = stepInfo.SubSystem;
+            this.data.FailureAction = stepInfo.FailureAction;
+            this.data.SuccessAction = stepInfo.SuccessAction;
         }
 
         protected override bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)

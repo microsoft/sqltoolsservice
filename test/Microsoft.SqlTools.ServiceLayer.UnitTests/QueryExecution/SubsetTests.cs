@@ -33,12 +33,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a result set and I ask for a subset with valid arguments
             ResultSet rs = b.ResultSets.First();
-            ResultSetSubset subset = rs.GetSubset(startRow, rowCount).Result;
+            var getSubsetTask = rs.GetSubset(startRow, rowCount);
+            getSubsetTask.Wait(); // wait for task to complete
+            ResultSetSubset subset = getSubsetTask.Result;
 
             // Then:
             // ... I should get the requested number of rows back
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
         }
 
         [Theory]
@@ -82,12 +84,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Batch b = Common.GetBasicExecutedBatch();
 
             // ... And I ask for a subset with valid arguments
-            ResultSetSubset subset = b.GetSubset(0, 0, rowCount).Result;
+            var task = b.GetSubset(0, 0, rowCount);
+            task.Wait(); // wait for task to complete
+            ResultSetSubset subset = task.Result;
 
             // Then:
             // I should get the requested number of rows
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
         }
 
         [Theory]
@@ -136,6 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid set of results from it
@@ -175,8 +180,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
+            queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasStartedRead = false;
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
@@ -197,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.WorkTask;
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a set of results from it

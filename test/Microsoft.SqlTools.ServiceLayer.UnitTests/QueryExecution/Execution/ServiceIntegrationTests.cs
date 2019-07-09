@@ -4,9 +4,14 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -14,7 +19,9 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
+using NUnit.Framework;
 using Xunit;
+using Assert = Xunit.Assert;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
@@ -25,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         [Fact]
         public void ExecuteDocumentStatementTest()
-        {            
+        {
             string query = string.Format("{0}{1}GO{1}{0}", Constants.StandardQuery, Environment.NewLine);
             var workspaceService = GetDefaultWorkspaceService(query);
             var queryService = new QueryExecutionService(null, workspaceService);
@@ -80,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = new QueryExecutionService(null, workspaceService);
 
             // If: I attempt to get query text from execute document params (entire document)
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should match the constructed query
@@ -97,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = new QueryExecutionService(null, workspaceService);
 
             // If: I attempt to get query text from execute document params (partial document)
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Constants.OwnerUri, QuerySelection = Common.SubsectionDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.SubsectionDocument };
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should be a subset of the constructed query
@@ -113,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryService = new QueryExecutionService(null, null);
 
             // If: I attempt to get query text from execute string params
-            var queryParams = new ExecuteStringParams {OwnerUri = Constants.OwnerUri, Query = Constants.StandardQuery};
+            var queryParams = new ExecuteStringParams { OwnerUri = Constants.OwnerUri, Query = Constants.StandardQuery };
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should match the standard query
@@ -240,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request to execute a valid query with no results
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri};
+            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -260,19 +267,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
-        public async Task QueryExecuteSingleBatchSingleResultTest()
+        public static IEnumerable<object[]> TestResultSetsData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { r }).Take(numTests);
+
+        [Xunit.Theory]
+        [MemberData(nameof(TestResultSetsData), parameters: 5)]
+        public async Task QueryExecuteSingleBatchSingleResultTest(TestResultSet testResultSet)
         {
             // If:
             // ... I request to execute a valid query with results
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var testDataSet = new[] { testResultSet };
+            var queryService = Common.GetPrimedExecutionService(testDataSet, true, false, false, workspaceService, sizeFactor: testResultSet.Rows.Count / Common.StandardRows + 1);
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
+            List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
-                .AddStandardResultSetValidator()
+                .AddResultSetValidator(ResultSetAvailableEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
@@ -281,27 +295,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... All events should have been called as per their flow validator
-            efv.Validate();
+            efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
-        public async Task QueryExecuteSingleBatchMultipleResultTest()
+        [Xunit.Theory]
+        [MemberData(nameof(TestResultSetsData), parameters: 4)]
+        public async Task QueryExecuteSingleBatchMultipleResultTest(TestResultSet testResultSet)
         {
             // If:
             // ... I request to execute a valid query with one batch and multiple result sets
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
-            var dataset = new[] {Common.StandardTestResultSet, Common.StandardTestResultSet};
-            var queryService = Common.GetPrimedExecutionService(dataset, true, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var testDataSet = new[] { testResultSet, testResultSet };
+            var queryService = Common.GetPrimedExecutionService(testDataSet, true, false, false, workspaceService, sizeFactor: testResultSet.Rows.Count / Common.StandardRows + 1);
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
+            List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
-                .AddStandardResultSetValidator()
-                .AddStandardResultSetValidator()
+                .AddResultSetValidator(ResultSetAvailableEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
@@ -309,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... All events should have been called as per their flow validator
-            efv.Validate();
+            efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -322,16 +339,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request a to execute a valid query with multiple batches
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Constants.StandardQuery));
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
+            List<ResultSetEventParams> collectedResultSetEventParams = new List<ResultSetEventParams>();
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
-                .AddStandardResultSetValidator()
+                .AddResultSetValidator(ResultSetAvailableEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetUpdatedEvent.Type, collectedResultSetEventParams)
+                .AddResultSetValidator(ResultSetCompleteEvent.Type, collectedResultSetEventParams)
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddStandardResultSetValidator()
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(2)
@@ -340,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... All events should have been called as per their flow validator
-            efv.Validate();
+            efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -376,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
@@ -404,7 +423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
@@ -436,7 +455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request to execute a query that is invalid
             var workspaceService = GetDefaultWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -448,7 +467,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
-            // ... Am error should have been sent
+            // ... An error should have been sent
             efv.Validate();
 
             // ... There should not be an active query
@@ -475,9 +494,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             Assert.Equal(0, queryService.ActiveQueries.Count);
-            
+
         }
-        
+
         // TODO reenable and make non-flaky
         // [Fact]
         public async Task SimpleExecuteVerifyResultsTest()
@@ -497,7 +516,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // wait on the task to finish
             q.ExecutionTask.Wait();
-            
+
             efv.Validate();
 
             Assert.Equal(0, queryService.ActiveQueries.Count);
@@ -523,9 +542,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             var queries = queryService.ActiveQueries.Values.ToArray();
             var queryTasks = queries.Select(query => query.ExecutionTask);
-            
+
             await Task.WhenAll(queryTasks);
-            
+
             efv1.Validate();
             efv2.Validate();
 
@@ -548,7 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public static EventFlowValidator<SimpleExecuteResult> AddSimpleExecuteQueryResultValidator(
             this EventFlowValidator<SimpleExecuteResult> efv, TestResultSet[] testData)
         {
-            return efv.AddResultValidation(p => 
+            return efv.AddResultValidation(p =>
             {
                 Assert.Equal(p.RowCount, testData[0].Rows.Count);
             });
@@ -557,7 +576,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public static EventFlowValidator<SimpleExecuteResult> AddSimpleExecuteErrorValidator(
             this EventFlowValidator<SimpleExecuteResult> efv, string expectedMessage)
         {
-            return efv.AddSimpleErrorValidation((m, e) => 
+            return efv.AddSimpleErrorValidation((m, e) =>
             {
                 Assert.Equal(m, expectedMessage);
             });
@@ -603,15 +622,145 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             });
         }
 
-        public static EventFlowValidator<TRequestContext> AddStandardResultSetValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
+        public static EventFlowValidator<TRequestContext> AddResultSetValidator<TRequestContext, T>(
+            this EventFlowValidator<TRequestContext> efv, EventType<T> expectedEvent, List<ResultSetEventParams> resultSetEventParamList = null) where T : ResultSetEventParams
         {
-            return efv.AddEventValidation(ResultSetCompleteEvent.Type, p =>
+            return efv.SetupCallbackOnMethodSendEvent(expectedEvent, (p) =>
             {
                 // Validate OwnerURI and summary are returned
                 Assert.Equal(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.ResultSetSummary);
+                resultSetEventParamList?.Add(p);
             });
+        }
+
+        public static EventFlowValidator<TRequestContext> ValidateResultSetSummaries<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv, List<ResultSetEventParams> resultSetEventParamList)
+        {
+            string GetResultSetKey(ResultSetSummary summary) => $"BatchId:{summary.BatchId}, ResultId:{summary.Id}";
+
+            // Separate the result set resultSetEventParamsList by batchid, resultsetid and by resultseteventtype.
+            ConcurrentDictionary<string, List<ResultSetEventParams>> resultSetDictionary =
+                new ConcurrentDictionary<string, List<ResultSetEventParams>>();
+
+            foreach (var resultSetEventParam in resultSetEventParamList)
+            {
+                resultSetDictionary
+                    .GetOrAdd(GetResultSetKey(resultSetEventParam.ResultSetSummary), (key) => new List<ResultSetEventParams>())
+                    .Add(resultSetEventParam);
+            }
+
+            foreach (var (key, list) in resultSetDictionary)
+            {
+                ResultSetSummary completeSummary = null, lastResultSetSummary = null;
+                int completeFlagCount = 0;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    VerifyResultSummary(key, i, list, ref completeSummary, ref lastResultSetSummary, ref completeFlagCount);
+                }
+
+                // Verify that the completeEvent and lastResultSetSummary has same number of rows 
+                //
+                if (lastResultSetSummary != null && completeSummary != null)
+                {
+                    Assert.True(lastResultSetSummary.RowCount == completeSummary.RowCount, $"CompleteSummary and last Update Summary should have same number of rows, updateSummaryRowCount: {lastResultSetSummary.RowCount}, CompleteSummaryRowCount: {completeSummary.RowCount}");
+                }
+
+                // Verify that we got exactly on complete Flag Count.
+                //
+                Assert.True(1 == completeFlagCount, $"Complete flag should be set in exactly once on Update Result Summary Event. Observed Count: {completeFlagCount}, \r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", list.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}" );
+
+                // Verify that the complete event was set on the last updateResultSet event.
+                //
+                Assert.True(list.Last().ResultSetSummary.Complete, $"Complete flag should be set on the last Update Result Summary event, , \r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", list.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}");
+            }
+
+
+            return efv;
+        }
+
+        /// <summary>
+        /// Verifies that a ResultSummary at a given position as expected within the list of ResultSummary items
+        /// </summary>
+        /// <param name="batchIdResultSetId">The batchId and ResultSetId for this list of events</param>
+        /// <param name="position">The position with resultSetEventParamsList that we are verifying in this call<</param>
+        /// <param name="resultSetEventParamsList">The list of resultSetParams that we are verifying</param>
+        /// <param name="completeSummary"> This should be null when we start validating the list of ResultSetEventParams</param>
+        /// <param name="lastResultSetSummary"> This should be null when we start validating the list of ResultSetEventParams</param>
+        /// <param name="completeFlagCount">The number of events with complete flag set. Increments input value if current resultSummary has Complete flag set</param>
+        private static void VerifyResultSummary(string batchIdResultSetId, int position, List<ResultSetEventParams> resultSetEventParamsList, ref ResultSetSummary completeSummary, ref ResultSetSummary lastResultSetSummary, ref int completeFlagCount)
+        {
+            ResultSetEventParams resultSetEventParams = resultSetEventParamsList[position];
+            switch (resultSetEventParams.GetType().Name)
+            {
+                case nameof(ResultSetAvailableEventParams):
+                    // Verify that the availableEvent is the first and only one of this type in the sequence. Since we set lastResultSetSummary on each available or updatedEvent, we check that there has been no lastResultSetSummary previously set yet.
+                    //
+                    Assert.True(null == lastResultSetSummary,
+                        $"AvailableResultSet was not found to be the first message received for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                    );
+
+                    // Verify that Complete flag is not set on the ResultSetAvailableEventParams
+                    Assert.True(false == resultSetEventParams.ResultSetSummary.Complete,
+                        $"availableResultSummary.Complete is true for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                    );
+
+                    // Save the lastResultSetSummary for this event for other verifications.
+                    //
+                    lastResultSetSummary = resultSetEventParams.ResultSetSummary;
+
+                    break;
+                case nameof(ResultSetUpdatedEventParams):
+                    // Verify that the updateEvent is not the first in the sequence. Since we set lastResultSetSummary on each available or updatedEvent, we check that there has been no lastResultSetSummary previously set yet.
+                    //
+                    Assert.True(null != lastResultSetSummary,
+                        $"UpdateResultSet was found to be the first message received for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                    );
+
+                    // Verify that the number of rows in the current updatedSummary is >= those in the lastResultSetSummary
+                    //
+                    Assert.True(resultSetEventParams.ResultSetSummary.RowCount >= lastResultSetSummary.RowCount,
+                        $"UpdatedResultSetSummary at position: {position} has less rows than LastUpdatedSummary (or AvailableSummary) received for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                        + $"\r\n\t\t LastUpdatedSummary (or Available):{lastResultSetSummary}"
+                        + $"\r\n\t\t UpdatedResultSetSummary:{resultSetEventParams.ResultSetSummary}");
+
+                    // Save the lastResultSetSummary for this event for other verifications.
+                    //
+                    lastResultSetSummary = resultSetEventParams.ResultSetSummary;
+
+                    // increment completeFlagCount if complete flag is set.
+                    if (resultSetEventParams.ResultSetSummary.Complete)
+                    {
+                        Interlocked.Increment(ref completeFlagCount);
+                    }
+                    break;
+                case nameof(ResultSetCompleteEventParams):
+                    // Verify that there is only one completeEvent
+                    //
+                    Assert.True(null == completeSummary,
+                          $"CompleteResultSet was received multiple times for {batchIdResultSetId}"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                        );
+
+                    // Save the completeSummary for this event for other verifications.
+                    //
+                    completeSummary = resultSetEventParams.ResultSetSummary;
+
+                    // Verify that the complete flag is set
+                    //
+                    Assert.True(completeSummary.Complete,
+                          $"completeSummary.Complete is not true"
+                        + $"\r\nresultSetEventParamsList is:{string.Join("\r\n\t\t", resultSetEventParamsList.ConvertAll((p) => p.GetType() + ":" + p.ResultSetSummary))}"
+                     );
+                    break;
+                default:
+                    throw new AssertionException(
+                        $"Unknown type of ResultSetEventParams, actual type received is: {resultSetEventParams.GetType().Name}");
+            }
         }
 
         public static EventFlowValidator<TRequestContext> AddStandardQueryCompleteValidator<TRequestContext>(

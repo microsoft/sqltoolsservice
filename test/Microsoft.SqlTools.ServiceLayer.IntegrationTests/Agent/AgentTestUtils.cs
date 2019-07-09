@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Id = 1,
                 JobName = job.Name,
                 StepName = stepName,
-                SubSystem = "T-SQL",
+                SubSystem = SqlServer.Management.Smo.Agent.AgentSubSystem.TransactSql,
                 Script = "SELECT @@VERSION",
                 DatabaseName = connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName,
                 DatabaseUserName = connectionResult.ConnectionInfo.ConnectionDetails.UserName,
@@ -43,10 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             return new AgentJobInfo()
             {
                 Name = TestJobName,
-                Owner = "sa",
                 Description = "Test job description",
-                CurrentExecutionStatus = 1,
-                LastRunOutcome = 1,
+                CurrentExecutionStatus = JobExecutionStatus.Executing,
+                LastRunOutcome = CompletionResult.InProgress,
                 CurrentExecutionStep = "Step 1",
                 Enabled = false,
                 HasTarget = false,

@@ -4,8 +4,10 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Microsoft.SqlTools.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
@@ -50,41 +53,103 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await Assert.ThrowsAsync<ArgumentNullException>(() => resultSet.ReadResultToEnd(null, CancellationToken.None));
         }
 
-        [Fact]
-        public async Task ReadToEndSuccess()
+        /// <summary>
+        /// Read to End test
+        /// </summary>
+        /// <param name="testDataSet"></param>
+        [Theory]
+        [MemberData(nameof(ReadToEndSuccessData), parameters: 6)]
+        public async Task ReadToEndSuccess(TestResultSet[] testDataSet)
         {
-            // Setup: Create a callback for resultset completion
-            ResultSetSummary resultSummaryFromCallback = null;
-            ResultSet.ResultSetAsyncEventHandler callback = r =>
+            // Setup: Create a results Available callback for result set
+            //
+            ResultSetSummary resultSummaryFromAvailableCallback = null;
+
+            Task AvailableCallback(ResultSet r)
             {
-                resultSummaryFromCallback = r.Summary;
-                return Task.FromResult(0);
-            };
+                Debug.WriteLine($"available result notification sent, result summary was: {r.Summary}");
+                resultSummaryFromAvailableCallback = r.Summary;
+                return Task.CompletedTask;
+            }
+
+            // Setup: Create a results updated callback for result set
+            //
+            List<ResultSetSummary> resultSummariesFromUpdatedCallback = new List<ResultSetSummary>();
+
+            Task UpdatedCallback(ResultSet r)
+            {
+                Debug.WriteLine($"updated result notification sent, result summary was: {r.Summary}");
+                resultSummariesFromUpdatedCallback.Add(r.Summary);
+                return Task.CompletedTask;
+            }
+
+            // Setup: Create a  results complete callback for result set
+            //
+            ResultSetSummary resultSummaryFromCompleteCallback = null;
+            Task CompleteCallback(ResultSet r)
+            {
+                Debug.WriteLine($"Completed result notification sent, result summary was: {r.Summary}");
+                resultSummaryFromCompleteCallback = r.Summary;
+                return Task.CompletedTask;
+            }
 
             // If:
             // ... I create a new resultset with a valid db data reader that has data
             // ... and I read it to the end
-            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            DbDataReader mockReader = GetReader(testDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(testDataSet[0].Rows.Count/Common.StandardRows + 1);
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-            resultSet.ResultCompletion += callback;
+            resultSet.ResultAvailable += AvailableCallback;
+            resultSet.ResultUpdated += UpdatedCallback;
+            resultSet.ResultCompletion += CompleteCallback;
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            Thread.Yield();
+            resultSet.ResultAvailable -= AvailableCallback;
+            resultSet.ResultUpdated -= UpdatedCallback;
+            resultSet.ResultCompletion -= CompleteCallback;
 
             // Then:
             // ... The columns should be set
             // ... There should be rows to read back
             Assert.NotNull(resultSet.Columns);
             Assert.Equal(Common.StandardColumns, resultSet.Columns.Length);
-            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+            Assert.Equal(testDataSet[0].Rows.Count, resultSet.RowCount);
 
             // ... The summary should have the same info
             Assert.NotNull(resultSet.Summary.ColumnInfo);
             Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
-            Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
+            Assert.Equal(testDataSet[0].Rows.Count, resultSet.Summary.RowCount);
 
-            // ... The callback for result set completion should have been fired
-            Assert.NotNull(resultSummaryFromCallback);
+            // and:
+            //
+            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
         }
+
+        /// <summary>
+        /// Read to End test
+        /// </summary>
+        /// <param name="testDataSet"></param>
+        [Theory]
+        [MemberData(nameof(ReadToEndSuccessData), parameters: 3)]
+        public async Task ReadToEndSuccessSeveralTimes(TestResultSet[] testDataSet)
+        {
+            const int NumberOfInvocations = 5000;
+            List<Task> allTasks = new List<Task>();
+            Parallel.ForEach(Partitioner.Create(0, NumberOfInvocations), (range) =>
+            {
+                int start = range.Item1 == 0 ? 1 : range.Item1;
+                Task[] tasks = new Task[range.Item2 - start];
+                for (int i = start; i < range.Item2; i++)
+                {
+                    allTasks.Add(ReadToEndSuccess(testDataSet));
+                }
+
+            });
+            await Task.WhenAll(allTasks);
+        }
+
+        public static IEnumerable<object[]> ReadToEndSuccessData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(numTests);
 
         [Theory]
         [MemberData(nameof(CallMethodWithoutReadingData))]
@@ -113,7 +178,67 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 yield return new object[] {new Action<ResultSet>(rs => rs.GetExecutionPlan().Wait())};
             }
         }
-           
+
+        void VerifyReadResultToEnd(ResultSet resultSet, ResultSetSummary resultSummaryFromAvailableCallback, ResultSetSummary resultSummaryFromCompleteCallback, List<ResultSetSummary> resultSummariesFromUpdatedCallback)
+        {
+            // ... The callback for result set available, update and completion callbacks should have been fired.
+            //
+            Assert.True(null != resultSummaryFromCompleteCallback, "completeResultSummary is null" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
+            Assert.True(null != resultSummaryFromAvailableCallback, "availableResultSummary is null" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
+
+            // ... resultSetAvailable is not marked Complete
+            //
+            Assert.True(false == resultSummaryFromAvailableCallback.Complete, "availableResultSummary.Complete is true" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
+
+            // insert availableResult at the top of the resultSummariesFromUpdatedCallback list as the available result set is the first update in that series.
+            //
+            resultSummariesFromUpdatedCallback.Insert(0, resultSummaryFromAvailableCallback);
+
+            // ... The no of rows in available result set should be non-zero
+            //
+            // Assert.True(0 != resultSummaryFromAvailableCallback.RowCount, "availableResultSet RowCount is 0");
+
+            // ... The final updateResultSet must have 'Complete' flag set to true
+            //
+            Assert.True(resultSummariesFromUpdatedCallback.Last().Complete,
+                $"Complete Check failed.\r\n\t\t resultSummariesFromUpdatedCallback:{string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
+
+
+            // ... The no of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set. 
+            //
+            Assert.True(resultSummaryFromCompleteCallback.RowCount == resultSummariesFromUpdatedCallback.Last().RowCount,
+                 $"The row counts of the complete Result Set and Final update result set do not match"
+                +$"\r\n\t\tcompleteResultSet: {resultSummaryFromCompleteCallback}"
+                +$"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}"
+            );
+
+            // ... RowCount should be in increasing order in updateResultSet callbacks
+            // ..... and there should be only one resultSummary with Complete flag set to true.
+            //
+            int completeFlagCount = 0;
+            Parallel.ForEach(Partitioner.Create(0, resultSummariesFromUpdatedCallback.Count), (range) =>
+            {
+                int start = range.Item1 == 0 ? 1 : range.Item1;
+                for (int i = start; i < range.Item2; i++)
+                {
+                    Assert.True(resultSummariesFromUpdatedCallback[i].RowCount >= resultSummariesFromUpdatedCallback[i - 1].RowCount,
+                        $"Row Count of {i}th updateResultSet was smaller than that of the previous one"
+                      + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}"
+                    );
+                    if (resultSummariesFromUpdatedCallback[i].Complete)
+                    {
+                        Interlocked.Increment(ref completeFlagCount);
+                    }
+                }
+            });
+            Assert.True(completeFlagCount == 1, "Number of update events with complete flag event set should be 1" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
+        }
+
+        /// <summary>
+        /// Read to End Xml/JSon test
+        /// </summary>
+        /// <param name="forType"></param>
+        /// <returns></returns>
         [Theory]
         [InlineData("JSON")]
         [InlineData("XML")]
@@ -121,42 +246,82 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             // Setup:
             // ... Build a FOR XML or FOR JSON data set
+            //
             DbColumn[] columns = {new TestDbColumn(string.Format("{0}_F52E2B61-18A1-11d1-B105-00805F49916B", forType))};
             object[][] rows = Enumerable.Repeat(new object[] {"test data"}, Common.StandardRows).ToArray();
             TestResultSet[] dataSets = {new TestResultSet(columns, rows) };
 
-            // ... Create a callback for resultset completion
-            ResultSetSummary resultSummary = null;
-            ResultSet.ResultSetAsyncEventHandler callback = r =>
+            // Setup: Create a results Available callback for result set
+            //
+            ResultSetSummary resultSummaryFromAvailableCallback = null;
+            Task AvailableCallback(ResultSet r)
             {
-                resultSummary = r.Summary;
-                return Task.FromResult(0);
-            };
+                Debug.WriteLine($"available result notification sent, result summary was: {r.Summary}");
+                resultSummaryFromAvailableCallback = r.Summary;
+                return Task.CompletedTask;
+            }
+
+
+            // Setup: Create a results updated callback for result set
+            //
+            List<ResultSetSummary> resultSummariesFromUpdatedCallback = new List<ResultSetSummary>();
+
+            Task UpdatedCallback(ResultSet r)
+            {
+                Debug.WriteLine($"updated result notification sent, result summary was: {r.Summary}");
+                resultSummariesFromUpdatedCallback.Add(r.Summary);
+                return Task.CompletedTask;
+            }
+
+            // Setup: Create a  results complete callback for result set
+            //
+            ResultSetSummary resultSummaryFromCompleteCallback = null;
+            Task CompleteCallback(ResultSet r)
+            {
+                Debug.WriteLine($"Completed result notification sent, result summary was: {r.Summary}");
+                Assert.True(r.Summary.Complete);
+                resultSummaryFromCompleteCallback = r.Summary;
+                return Task.CompletedTask;
+            }
 
             // If:
-            // ... I create a new resultset with a valid db data reader that is FOR XML/JSON
+            // ... I create a new result set with a valid db data reader that is FOR XML/JSON
             // ... and I read it to the end
+            //
             DbDataReader mockReader = GetReader(dataSets, false, Constants.StandardQuery);
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-            resultSet.ResultCompletion += callback;
-            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
-
+            resultSet.ResultAvailable += AvailableCallback;
+            resultSet.ResultUpdated += UpdatedCallback;
+            resultSet.ResultCompletion += CompleteCallback;
+            var readResultTask = resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+            await readResultTask;
+            Debug.AutoFlush = true;
+            Debug.Assert(readResultTask.IsCompletedSuccessfully, $"readResultTask did not Complete Successfully. Status: {readResultTask.Status}");
+            Thread.Yield();
+            resultSet.ResultAvailable -= AvailableCallback;
+            resultSet.ResultUpdated -= UpdatedCallback;
+            resultSet.ResultCompletion -= CompleteCallback;
             // Then:
             // ... There should only be one column
             // ... There should only be one row
-            // ... The result should be marked as complete
+            //
             Assert.Equal(1, resultSet.Columns.Length);
             Assert.Equal(1, resultSet.RowCount);
 
-            // ... The callback should have been called
-            Assert.NotNull(resultSummary);
+
+            // and:
+            //
+            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
 
             // If:
             // ... I attempt to read back the results
             // Then: 
             // ... I should only get one row
-            var subset = await resultSet.GetSubset(0, 10);
+            //
+            var task = resultSet.GetSubset(0, 10);
+            task.Wait();
+            var subset = task.Result;
             Assert.Equal(1, subset.RowCount);
         }
 
@@ -183,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Theory]
         [InlineData(0, 3)]     // Standard scenario, 3 rows should come back
         [InlineData(0, 20)]    // Asking for too many rows, 5 rows should come back
-        [InlineData(1, 3)]     // Standard scenario from non-zero start
+        [InlineData(1, 3)]     //  Asking for proper subset of rows from non-zero start
         [InlineData(1, 20)]    // Asking for too many rows at a non-zero start
         public async Task GetSubsetSuccess(int startRow, int rowCount)
         {
@@ -197,6 +362,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // ... And attempt to get a subset with valid number of rows
             ResultSetSubset subset = await resultSet.GetSubset(startRow, rowCount);
+
+            // Then:
+            // ... rows sub-array and RowCount field of the subset should match
+            Assert.Equal(subset.RowCount, subset.Rows.Length);
 
             // Then:
             // ... There should be rows in the subset, either the number of rows or the number of
@@ -386,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)
         {
             var info = Common.CreateTestConnectionInfo(dataSet, false, throwOnRead);
-            var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
+            var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails), null);
             var command = connection.CreateCommand();
             command.CommandText = query;
             return command.ExecuteReader();

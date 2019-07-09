@@ -10,7 +10,9 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
@@ -19,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -109,6 +112,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             SecurityService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SecurityService.Instance);
+
+            DacFxService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(DacFxService.Instance);
+
+            CmsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(CmsService.Instance);
+
+            SchemaCompare.SchemaCompareService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SchemaCompareService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

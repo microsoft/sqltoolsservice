@@ -44,13 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private CDataContainer dataContainer;
         //whether we assume complete ownership over it.
         //We set this member once the dataContainer is set to be non-null
-        private bool ownDataContainer = true;
-
-        //if derived class tries to call a protected method that relies on service provider,
-        //and the service provider hasn't been set yet, we will cache the values and will
-        //propagate them when we get the provider set
-        //private System.Drawing.Icon cachedIcon = null;
-        private string cachedCaption = null;
+        private bool ownDataContainer = true;   
 
         //SMO Server connection that MUST be used for all enumerator calls
         //We'll get this object out of CDataContainer, that must be initialized

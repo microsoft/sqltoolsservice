@@ -189,6 +189,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         /// <summary>
+        /// SubSystem
+        /// </summary>
+        public AgentSubSystem Subsystem
+        {
+            get
+            {
+                return this.subSystem;
+            }
+            set
+            {
+                this.subSystem = value;
+            }
+        }
+
+        /// <summary>
         /// indicates whether the job exists on the server
         /// </summary>
         internal bool Created
@@ -350,6 +365,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 return this.failureAction;
             }
+            set
+            {
+                if (this.failureAction != value) {
+                    this.failureAction = value;
+                }
+            }
         }
 
         public JobStepData FailStep
@@ -374,6 +395,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return StepCompletionAction.GoToNextStep;
                 }
                 return this.successAction;
+            }
+            set
+            {
+                if (this.successAction != value) {
+                    this.successAction = value;
+                }
             }
         }
 

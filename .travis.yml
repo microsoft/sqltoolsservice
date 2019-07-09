@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 
 os:
   - linux
@@ -7,7 +7,8 @@ os:
 #  - osx
 
 mono: none
-dotnet: 2.1.300
+dotnet: 2.2
+# was dotnet: 2.2.100-preview3-009430
 
 # safelist
 branches:
@@ -25,7 +26,7 @@ env:
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       sudo apt-get update;
-      sudo apt-get install dotnet-sdk-2.1;
+      sudo apt-get install dotnet-sdk-2.2;
     else
       brew update;
     fi
@@ -38,4 +39,3 @@ script:
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
   - dotnet build src/Microsoft.SqlTools.CoreServices
   - dotnet test test/Microsoft.SqlTools.Hosting.UnitTests
-
