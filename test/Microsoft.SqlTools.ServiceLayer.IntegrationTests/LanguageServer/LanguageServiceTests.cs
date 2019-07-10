@@ -120,8 +120,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             var result = GetLiveAutoCompleteTestObjects();
 
-            result.TextDocumentPosition.Position.Character = 7;
-            result.ScriptFile = ScriptFileTests.GetTestScriptFile("select ");
+            result.TextDocumentPosition.Position.Character = 10;
+            result.ScriptFile = ScriptFileTests.GetTestScriptFile("select * f");
             result.TextDocumentPosition.TextDocument.Uri = result.ScriptFile.FilePath;
 
             var autoCompleteService = LanguageService.Instance;
@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 result.ScriptFile,
                 result.ConnectionInfo).Result;
 
-            Assert.True(completions.Length > 0);
+            Assert.True(completions.Length > 0 && completions[0].PreSelect.Value);
         }
 
         /// <summary>
