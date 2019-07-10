@@ -1,7 +1,6 @@
 ﻿using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
         Task Initialize(CancellationToken token);
 
         //Implement the actual completion extension logic
-        Task HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, AutoCompletionResult completions, CancellationToken token);
+        Task<CompletionItem[]> HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token);
     }
 }

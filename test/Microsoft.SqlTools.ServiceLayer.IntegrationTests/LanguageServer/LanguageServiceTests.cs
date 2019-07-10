@@ -3,13 +3,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
@@ -86,6 +93,52 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             result.ScriptFile.Contents = "select ";
 
             var autoCompleteService = LanguageService.Instance;
+            var completions = autoCompleteService.GetCompletionItems(
+                result.TextDocumentPosition,
+                result.ScriptFile,
+                result.ConnectionInfo).Result;
+
+            Assert.True(completions.Length > 0);
+        }
+
+        public static string AssemblyDirectory
+        {
+            get
+            {
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+        }
+
+        // This test currently requires a live database connection to initialize 
+        // SMO connected metadata provider.  Since we don't want a live DB dependency
+        // in the CI unit tests this scenario is currently disabled.
+        [Fact]
+        public async void AutoCompleteWithExtension()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+
+            result.TextDocumentPosition.Position.Character = 7;
+            result.ScriptFile = ScriptFileTests.GetTestScriptFile("select ");
+            result.TextDocumentPosition.TextDocument.Uri = result.ScriptFile.FilePath;
+
+            var autoCompleteService = LanguageService.Instance;
+            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<bool>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
+                .Returns(Task.FromResult(new object()));
+            var extensionParams = new CompletionExtensionParams()
+            {
+                Assembly = Path.Combine(AssemblyDirectory, "CompletionExtSample.dll"),
+                TypeName = "CompletionExtSample.CompletionExtProvider1",
+                Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
+            };
+            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
+            scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
+
             var completions = autoCompleteService.GetCompletionItems(
                 result.TextDocumentPosition,
                 result.ScriptFile,

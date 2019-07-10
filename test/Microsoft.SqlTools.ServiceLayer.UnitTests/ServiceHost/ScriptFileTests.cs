@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             "SELECT * FROM sys.objects as o2" + Environment.NewLine +
             "SELECT * FROM sys.objects as o3" + Environment.NewLine;
 
-        internal static ScriptFile GetTestScriptFile(string initialText = null)
+        public static ScriptFile GetTestScriptFile(string initialText = null)
         {
             if (initialText == null)
             {

@@ -299,10 +299,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             
             try
             {
-                ExtensionServiceProvider.AddAssembly(param.Assembly);
-                foreach (var provider in ServiceHostInstance.ServiceProvider.GetServices<ICompletionExtensionProvider>())
+                var serviceProvider = ExtensionServiceProvider.AddAssembly(param.Assembly);
+                foreach (var provider in serviceProvider.GetServices<ICompletionExtensionProvider>())
                 {
-                    var cancellationToken = new CancellationTokenSource(1000).Token;
+                    var cancellationToken = new CancellationTokenSource(5000).Token;
                     var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken);
                     if (ext == null)
                     {
@@ -1562,13 +1562,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)
             {
-                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
+                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);                
             }
 
             //invoke the completion extensions            
             foreach(var completionExt in _completionExtensions.Values)
             {
-                await completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, result, new CancellationTokenSource(100).Token).ConfigureAwait(false);
+                resultCompletionItems = await completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, resultCompletionItems, new CancellationTokenSource(200).Token).ConfigureAwait(false);
             }
             
             return resultCompletionItems;

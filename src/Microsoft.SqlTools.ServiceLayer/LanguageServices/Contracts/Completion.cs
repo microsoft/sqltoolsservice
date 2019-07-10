@@ -52,6 +52,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             File = 17,
             Reference = 18
     }
+    
+    public class Command
+    {
+        /// <summary>
+        /// The identifier of the actual command handler, like `vsintellicode.completionItemSelected`.
+        /// </summary>
+        public string command;
+
+        /// <summary>
+        /// Arguments that the command handler should be invoked with.
+        /// </summary>
+        public object[] arguments;
+    }
 
     [DebuggerDisplay("Kind = {Kind.ToString()}, Label = {Label}, Detail = {Detail}")]
     public class CompletionItem
@@ -82,5 +95,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// resolve request.
         /// </summary>
         public object Data { get; set; }
+
+        //Exposing a command field for a completion item for passing telemetry 
+        public Command Command { get; set; }
+
+        //Whether this completion item is preselected or not
+        public bool? PreSelect { get; set; }
     }
 }
