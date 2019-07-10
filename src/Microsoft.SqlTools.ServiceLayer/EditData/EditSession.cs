@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         public static void CheckResultsForInvalidColumns(ResultSet results, string tableName)
         {
-            if(SchemaContainsMultipleItems(results.Columns, col => col.BaseCatalogName)
+            if (SchemaContainsMultipleItems(results.Columns, col => col.BaseCatalogName)
                 || SchemaContainsMultipleItems(results.Columns, col => col.BaseSchemaName)
                 || SchemaContainsMultipleItems(results.Columns, col => col.BaseTableName))
             {
@@ -168,7 +168,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     throw new InvalidOperationException(SR.EditDataAliasesNotSupported);
                 }
 
-                if (col.IsExpression.HasTrue())
+                // We have changed HierarchyId column to an expression so that it can be displayed properly
+                if (!col.IsHierarchyId && col.IsExpression.HasTrue())
                 {
                     throw new InvalidOperationException(SR.EditDataExpressionsNotSupported);
                 }
@@ -480,6 +481,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Step 3) Setup the internal state
                 associatedResultSet = ValidateQueryForSession(state.Query);
+                UpdateColumnInformationWithMetadata(associatedResultSet.Columns);
                 CheckResultsForInvalidColumns(associatedResultSet, initParams.ObjectName);
 
                 NextRowId = associatedResultSet.RowCount;
@@ -499,7 +501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public static string[] GetEditTargetName(EditInitializeParams initParams)
         {
             return initParams.SchemaName != null
-                ? new [] { initParams.SchemaName, initParams.ObjectName }
+                ? new[] { initParams.SchemaName, initParams.ObjectName }
                 : FromSqlScript.DecodeMultipartIdentifier(initParams.ObjectName);
         }
 
@@ -508,7 +510,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             try
             {
                 // @TODO: Add support for transactional commits
-             
+
                 // Trust the RowEdit to sort itself appropriately
                 var editOperations = EditCache.Values.ToList();
                 editOperations.Sort();
@@ -554,7 +556,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Using the columns we know, add them to the query
-            var columns = metadata.Columns.Select(col => col.EscapedName);
+            var columns = metadata.Columns.Select(col => col.ExpressionForSelectStatement);
             var columnClause = string.Join(", ", columns);
             queryBuilder.Append(columnClause);
 
@@ -588,6 +590,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
             RowEditBase removedRow;
             EditCache.TryRemove(rowId, out removedRow);
+        }
+
+        internal void UpdateColumnInformationWithMetadata(DbColumnWrapper[] columns)
+        {
+            if (columns == null || this.objectMetadata == null)
+            {
+                return;
+            }
+
+            foreach (DbColumnWrapper col in columns)
+            {
+                var columnMetadata = objectMetadata.Columns.FirstOrDefault(cm => { return cm.EscapedName == ToSqlScript.FormatIdentifier(col.ColumnName); });
+                col.IsHierarchyId = columnMetadata != null && columnMetadata.IsHierarchyId;
+            }
         }
 
         #endregion

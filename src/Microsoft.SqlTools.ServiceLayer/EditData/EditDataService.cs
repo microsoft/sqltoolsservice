@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -149,11 +150,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleInitializeRequest(EditInitializeParams initParams,
             RequestContext<EditInitializeResult> requestContext)
         {
-            Func<Exception, Task> executionFailureHandler = (e) => SendSessionReadyEvent(requestContext, initParams.OwnerUri, false, e.Message);
-            Func<Task> executionSuccessHandler = () => SendSessionReadyEvent(requestContext, initParams.OwnerUri, true, null);
+            InitializeEditRequestContext context = new InitializeEditRequestContext(requestContext);
+            Func<Exception, Task> executionFailureHandler = (e) => SendSessionReadyEvent(context, initParams.OwnerUri, false, e.Message);
+            Func<Task> executionSuccessHandler = () => SendSessionReadyEvent(context, initParams.OwnerUri, true, null);
 
             EditSession.Connector connector = () => connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit, alwaysPersistSecurity: true);
-            EditSession.QueryRunner queryRunner = q => SessionInitializeQueryRunner(initParams.OwnerUri, requestContext, q);
+            EditSession.QueryRunner queryRunner = q => SessionInitializeQueryRunner(initParams.OwnerUri, context, q);
 
             try
             {
@@ -168,6 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 {
                     throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
                 }
+
+                context.ResultSetHandler = (ResultSetEventParams resultSetEventParams) => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
 
                 // Initialize the session
                 session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
@@ -214,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 await requestContext.SendResult(result);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await requestContext.SendError(e.Message);
             }
@@ -339,6 +343,31 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         #endregion
+
+    }
+
+    /// <summary>
+    /// Context for InitializeEditRequest, to provide a way to update the result set before sending it to UI.
+    /// </summary>
+    internal class InitializeEditRequestContext : IEventSender
+    {
+        private RequestContext<EditInitializeResult> _context;
+
+        public Action<ResultSetEventParams> ResultSetHandler { get; set; }
+
+        public InitializeEditRequestContext(RequestContext<EditInitializeResult> context)
+        {
+            this._context = context;
+        }
+
+        public Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
+        {
+            if (eventParams is ResultSetEventParams && this.ResultSetHandler != null)
+            {
+                this.ResultSetHandler(eventParams as ResultSetEventParams);
+            }
+            return _context.SendEvent(eventType, eventParams);
+        }
 
     }
 }

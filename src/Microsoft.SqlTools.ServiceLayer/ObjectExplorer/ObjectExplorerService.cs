@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 this.bindingQueue = value;
             }
-        }        
+        }
 
         /// <summary>
         /// Internal for testing only
@@ -485,7 +485,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
-                bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
@@ -507,7 +506,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -526,7 +525,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 await SendSessionFailedNotification(uri, ex.Message);
                 return null;
             }
-        }        
+        }
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
@@ -545,7 +544,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     await SendSessionFailedNotification(uri, result.ErrorMessage);
                     return null;
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -585,7 +584,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ExpandTask = task;
             Task.Run(async () =>
             {
-                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
+                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task,
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
                 if (result != null && !result.IsCompleted)
@@ -654,7 +653,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }      
+        }
 
         public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
         {
@@ -755,7 +754,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 bindingQueue.OnUnhandledException -= OnUnhandledException;
                 bindingQueue.Dispose();
-            }            
+            }
         }
 
         private async void OnUnhandledException(string queueKey, Exception ex)
@@ -810,20 +809,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection)
             {
                 ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
-                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
-                if (!isDefaultOrSystemDatabase)
-                {
-                    // Assuming the databases are in a folder under server node
-                    DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);
-                    session.Root = databaseNode;
-                }
-
-                return session;
+                return new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
             }
-            
+
         }
     }
 

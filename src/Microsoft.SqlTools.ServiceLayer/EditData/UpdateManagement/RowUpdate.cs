@@ -97,32 +97,46 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             for (int i = 0; i < AssociatedObjectMetadata.Columns.Length; i++)
             {
                 EditColumnMetadata metadata = AssociatedObjectMetadata.Columns[i];
-                
+
                 // Add the output columns regardless of whether the column is read only
                 declareColumns.Add($"{metadata.EscapedName} {ToSqlScript.FormatColumnType(metadata.DbColumn, useSemanticEquivalent: true)}");
-                outClauseColumns.Add($"inserted.{metadata.EscapedName}");
+                if (metadata.IsHierarchyId)
+                {
+                    outClauseColumns.Add($"inserted.{metadata.EscapedName}.ToString() {metadata.EscapedName}");
+                }
+                else
+                {
+                    outClauseColumns.Add($"inserted.{metadata.EscapedName}");
+                }
                 selectColumns.Add(metadata.EscapedName);
-                
+
                 // If we have a new value for the column, proccess it now
                 CellUpdate cellUpdate;
                 if (cellUpdates.TryGetValue(i, out cellUpdate))
                 {
                     string paramName = $"@Value{RowId}_{i}";
-                    setComponents.Add($"{metadata.EscapedName} = {paramName}");
-                    inParameters.Add(new SqlParameter(paramName, AssociatedResultSet.Columns[i].SqlDbType) {Value = cellUpdate.Value});
+                    if (metadata.IsHierarchyId)
+                    {
+                        setComponents.Add($"{metadata.EscapedName} = CONVERT(hierarchyid,{paramName})");
+                    }
+                    else
+                    {
+                        setComponents.Add($"{metadata.EscapedName} = {paramName}");
+                    }
+                    inParameters.Add(new SqlParameter(paramName, AssociatedResultSet.Columns[i].SqlDbType) { Value = cellUpdate.Value });
                 }
             }
-            
+
             // Put everything together into a single query
             // Step 1) Build a temp table for inserting output values into
             string tempTableName = $"@Update{RowId}Output";
             string declareStatement = string.Format(DeclareStatement, tempTableName, string.Join(", ", declareColumns));
-            
+
             // Step 2) Build the update statement
             WhereClause whereClause = GetWhereClause(true);
-            
-            string updateStatementFormat = AssociatedObjectMetadata.IsMemoryOptimized 
-                ? UpdateOutputMemOptimized 
+
+            string updateStatementFormat = AssociatedObjectMetadata.IsMemoryOptimized
+                ? UpdateOutputMemOptimized
                 : UpdateOutput;
             string updateStatement = string.Format(updateStatementFormat,
                 AssociatedObjectMetadata.EscapedMultipartName,
@@ -135,10 +149,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string validateScript = string.Format(CultureInfo.InvariantCulture, validateUpdateOnlyOneRow,
                 AssociatedObjectMetadata.EscapedMultipartName,
                 whereClause.CommandText);
-            
+
             // Step 3) Build the select statement
             string selectStatement = string.Format(SelectStatement, string.Join(", ", selectColumns), tempTableName);
-            
+
             // Step 4) Put it all together into a results object
             StringBuilder query = new StringBuilder();
             query.AppendLine(declareStatement);
@@ -146,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             query.AppendLine(updateStatement);
             query.AppendLine(selectStatement);
             query.Append("END");
-            
+
             // Build the command
             DbCommand command = connection.CreateCommand();
             command.CommandText = query.ToString();
@@ -198,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 return $"{formattedColumnName} = {formattedValue}";
             });
             string setClause = string.Join(", ", setComponents);
-            
+
             // Put everything together into a single query
             string whereClause = GetWhereClause(false).CommandText;
             string updateStatementFormat = AssociatedObjectMetadata.IsMemoryOptimized
@@ -247,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             // Validate the value and convert to object
-            ValidateColumnIsUpdatable(columnId);            
+            ValidateColumnIsUpdatable(columnId);
             CellUpdate update = new CellUpdate(AssociatedResultSet.Columns[columnId], newValue);
 
             // If the value is the same as the old value, we shouldn't make changes
