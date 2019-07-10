@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             get
             {
-                return IsHierarchyId ? string.Format("{0}.ToString() {0}", EscapedName) : EscapedName;
+                return IsHierarchyId ? string.Format("{0}.ToString() AS {0}", EscapedName) : EscapedName;
             }
         }
 

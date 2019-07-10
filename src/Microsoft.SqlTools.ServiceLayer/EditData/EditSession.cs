@@ -498,18 +498,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        internal void UpdateColumnInformationWithMetadata(DbColumnWrapper[] columns)
-        {
-            if (columns != null && this.objectMetadata != null)
-            {
-                foreach (DbColumnWrapper col in columns)
-                {
-                    var columnMetadata = objectMetadata.Columns.FirstOrDefault(cm => { return cm.EscapedName == ToSqlScript.FormatIdentifier(col.ColumnName); });
-                    col.IsHierarchyId = columnMetadata != null && columnMetadata.IsHierarchyId;
-                }
-            }
-        }
-
         public static string[] GetEditTargetName(EditInitializeParams initParams)
         {
             return initParams.SchemaName != null
@@ -602,6 +590,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
             RowEditBase removedRow;
             EditCache.TryRemove(rowId, out removedRow);
+        }
+
+        internal void UpdateColumnInformationWithMetadata(DbColumnWrapper[] columns)
+        {
+            if (columns == null || this.objectMetadata == null)
+            {
+                return;
+            }
+
+            foreach (DbColumnWrapper col in columns)
+            {
+                var columnMetadata = objectMetadata.Columns.FirstOrDefault(cm => { return cm.EscapedName == ToSqlScript.FormatIdentifier(col.ColumnName); });
+                col.IsHierarchyId = columnMetadata != null && columnMetadata.IsHierarchyId;
+            }
         }
 
         #endregion
