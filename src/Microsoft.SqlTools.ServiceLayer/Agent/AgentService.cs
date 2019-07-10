@@ -1251,7 +1251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 "[?].dbo.nb_template.job_id = msdb.dbo.sysjobs.job_id\n" +
                                 "END '\n" +  
                                 "EXEC sp_MSforeachdb @script\n";
-                            var agentnotebooks = new List<NotebookJobInfo>();
+                            var agentnotebooks = new List<AgentNotebookInfo>();
                             using( SqlCommand getJobIdsFromDatabaseQueryCommand = new SqlCommand(getJobIdsFromDatabaseQueryString, connection))
                             {
                                 SqlDataAdapter jobIdsAdapter = new SqlDataAdapter(getJobIdsFromDatabaseQueryCommand);
@@ -1274,7 +1274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 foreach (DataTable templateTable in jobIdsDataSet.Tables)
                                 {
                                     foreach (DataRow templateRow in templateTable.Rows){
-                                        NotebookJobInfo notebookJob = new NotebookJobInfo();
+                                        AgentNotebookInfo notebookJob = new AgentNotebookInfo();
                                         notebookJob.Template = (string)templateRow["json"];
                                         notebookJob.TargetDatabase = (string)templateRow["db_name"];
                                         // Setting Job using the already fetched Jobs

@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebooksResult : ResultStatus
     {
-        public NotebookJobInfo[] Notebooks {get; set;}
+        public AgentNotebookInfo[] Notebooks {get; set;}
     }
     /// <summary>
     /// SQL Agent Notebook request type
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent Notebook Job Info Class
     /// </summary>
-    public class NotebookJobInfo
+    public class AgentNotebookInfo
     {
         public AgentJobInfo Job {get; set;}
         public string Template {get; set;}
