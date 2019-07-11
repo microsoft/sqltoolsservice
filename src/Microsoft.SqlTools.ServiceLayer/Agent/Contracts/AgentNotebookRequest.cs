@@ -18,6 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string OwnerUri {get; set;}
     
     }
+    
     /// <summary>
     /// SQL Agent Notebook activity result
     /// </summary>
@@ -25,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public AgentNotebookInfo[] Notebooks {get; set;}
     }
+    
     /// <summary>
     /// SQL Agent Notebook request type
     /// </summary>
@@ -37,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         RequestType<AgentNotebooksParams, AgentNotebooksResult> Type = 
         RequestType<AgentNotebooksParams, AgentNotebooksResult>.Create("agent/notebooks");
     }
+    
     /// <summary>
     /// SQL Agent Notebook Job Info Class
     /// </summary>
@@ -46,6 +49,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string Template {get; set;}
         public string TargetDatabase {get; set;}
     }
+    
+    /// <summary>
+    /// SQL Agent Notebook history parameters
+    /// </summary>
+    public class AgentNotebookHistoryParams : GeneralRequestDetails
+    {
+        public string OwnerUri { get; set; }
+        public string JobId { get; set; }
+        public string TargetDatabase { get; set; }
+        public string JobName { get; set; }
+    }
+    
+    /// <summary>
+    /// SQL Agent Notebook history results
+    /// </summary>
+    public class AgentNotebookHistoryResult : ResultStatus
+    {
+        public AgentNotebookHistoryInfo[] Histories { get; set; }
+        public AgentJobStepInfo[] Step { get; set; }
+        public AgentScheduleInfo[] Schedules { get; set; }
+        public AgentAlertInfo[] Alerts { get; set;}
+    }
+
+    /// <summary>
+    /// SQL Agent Notebook history request type
+    /// <summary>
+    public class AgentNotebookHistoryRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<AgentNotebookHistoryParams, AgentNotebookHistoryResult> Type =
+            RequestType<AgentNotebookHistoryParams, AgentNotebookHistoryResult>.Create("agent/notebookhistory");
+    }
+    
+    /// <summary>
+    /// SQL Agent Notebook History Info Class
+    /// </summary>
+    public class AgentNotebookHistoryInfo
+    {
+        public AgentJobHistoryInfo History { get; set; }
+        public string MaterializedNotebook { get; set; }
+    }
+
 
 
 }
