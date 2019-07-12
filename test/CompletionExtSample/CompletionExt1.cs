@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 
-namespace CompletionExtSample
+namespace Microsoft.SqlTools.Test.CompletionExtension
 {
     [Export(typeof(ICompletionExtensionProvider))]
     public class CompletionExtProvider1 : ICompletionExtensionProvider
@@ -33,7 +33,6 @@ namespace CompletionExtSample
 
         void IDisposable.Dispose()
         {
-            throw new NotImplementedException();
         }
 
         async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
@@ -57,7 +56,7 @@ namespace CompletionExtSample
             //loading model logic here
             await Task.Delay(2000).ConfigureAwait(false); //for testing
             token.ThrowIfCancellationRequested();
-            Console.WriteLine("Model loaded from: " + _modelPath);       
+            Console.WriteLine("Model loaded from: " + _modelPath);
         }
 
         private async Task Run(CompletionItem[] completions, CancellationToken token)
@@ -78,7 +77,6 @@ namespace CompletionExtSample
             //code to augment the default completion list
             await Task.Delay(20); // for testing
             token.ThrowIfCancellationRequested();
-           
             Console.WriteLine("Exit ExecuteAsync");
         }
     }

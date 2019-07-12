@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.Extensibility
 {
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
-        private static readonly string[] defaultInclusionList = 
+        private static readonly string[] defaultInclusionList =
         {
             "microsofsqltoolscredentials.dll",
             "microsoft.sqltools.hosting.dll",
@@ -39,8 +39,8 @@ namespace Microsoft.SqlTools.Extensibility
 
         public static ExtensionServiceProvider CreateDefaultServiceProvider(string[] inclusionList = null)
         {
-            // only allow loading MEF dependencies from our assemblies until we can 
-            // better seperate out framework assemblies and extension assemblies                        
+            // only allow loading MEF dependencies from our assemblies until we can
+            // better seperate out framework assemblies and extension assemblies
             return CreateFromAssembliesInDirectory(inclusionList ?? defaultInclusionList);
         }
 
@@ -100,15 +100,6 @@ namespace Microsoft.SqlTools.Extensibility
                     return assembly;
                 });
             }
-            return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblies, conventions));
-        }
-
-        public static ExtensionServiceProvider AddAssembly(string path)
-        {
-            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-            assemblyCache.AddOrUpdate(assembly.FullName, assembly, (_, previous) => {
-                return assembly;
-            });
             return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblyCache.Values, conventions));
         }
 
@@ -133,7 +124,7 @@ namespace Microsoft.SqlTools.Extensibility
             }
         }
     }
-    
+
     /// <summary>
     /// A store for MEF exports of a specific type. Provides basic wrapper functionality around MEF to standarize how
     /// we lookup types and return to callers.
@@ -143,7 +134,7 @@ namespace Microsoft.SqlTools.Extensibility
         private CompositionHost host;
         private IList exports;
         private Type contractType;
-        
+
         /// <summary>
         /// Initializes the store with a type to lookup exports of, and a function that configures the
         /// lookup parameters.
@@ -168,7 +159,7 @@ namespace Microsoft.SqlTools.Extensibility
         {
             return CreateAssemblyStore<T>(typeof(ExtensionStore).GetTypeInfo().Assembly);
         }
-        
+
         public static ExtensionStore CreateAssemblyStore<T>(Assembly assembly)
         {
             Validate.IsNotNull(nameof(assembly), assembly);
@@ -180,7 +171,7 @@ namespace Microsoft.SqlTools.Extensibility
         {
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
             string directory = Path.GetDirectoryName(assemblyPath);
-            return new ExtensionStore(typeof(T), (conventions) => 
+            return new ExtensionStore(typeof(T), (conventions) =>
                 new ContainerConfiguration().WithAssembliesInPath(directory, conventions));
         }
 
@@ -192,7 +183,7 @@ namespace Microsoft.SqlTools.Extensibility
             }
             return exports.Cast<T>();
         }
-        
+
         private ConventionBuilder GetExportBuilder()
         {
             // Define exports as matching a parent type, export as that parent type
@@ -201,7 +192,7 @@ namespace Microsoft.SqlTools.Extensibility
             return builder;
         }
     }
-    
+
     public static class ContainerConfigurationExtensions
     {
         public static ContainerConfiguration WithAssembliesInPath(this ContainerConfiguration configuration, string path, SearchOption searchOption = SearchOption.TopDirectoryOnly)
@@ -248,7 +239,7 @@ namespace Microsoft.SqlTools.Extensibility
                 var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
                 if (File.Exists(apiApplicationFileInfo.FullName))
                 {
-                    // Creating a new AssemblyContext instance for the same folder puts us at risk 
+                    // Creating a new AssemblyContext instance for the same folder puts us at risk
                     // of loading the same DLL in multiple contexts, which leads to some unpredictable
                     // behavior in the loader. See https://github.com/dotnet/coreclr/issues/19632
 

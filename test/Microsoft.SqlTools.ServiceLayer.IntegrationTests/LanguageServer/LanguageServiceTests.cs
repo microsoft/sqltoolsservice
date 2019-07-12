@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
         }
 
-        // This test currently requires a live database connection to initialize 
+        // This test currently requires a live database connection to initialize
         // SMO connected metadata provider.  Since we don't want a live DB dependency
         // in the CI unit tests this scenario is currently disabled.
         [Fact]
@@ -112,9 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
         }
 
-        // This test currently requires a live database connection to initialize 
-        // SMO connected metadata provider.  Since we don't want a live DB dependency
-        // in the CI unit tests this scenario is currently disabled.
+        /// <summary>
+        /// This test currently requires a live database connection to initialize
+        /// SMO connected metadata provider.  Since we don't want a live DB dependency
+        /// in the CI unit tests this scenario is currently disabled.
+        /// </summary>
         [Fact]
         public async void AutoCompleteWithExtension()
         {
@@ -130,8 +132,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 .Returns(Task.FromResult(new object()));
             var extensionParams = new CompletionExtensionParams()
             {
-                Assembly = Path.Combine(AssemblyDirectory, "CompletionExtSample.dll"),
-                TypeName = "CompletionExtSample.CompletionExtProvider1",
+                Assembly = Path.Combine(AssemblyDirectory, "Microsoft.SqlTools.Test.CompletionExtension.dll"),
+                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExtProvider1",
                 Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
             };
             await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
@@ -208,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             // add a new connection context
             connectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
             Assert.True(LanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
-            Assert.False(object.ReferenceEquals(LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));            
-        }        
+            Assert.False(object.ReferenceEquals(LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));
+        }
     }
 }

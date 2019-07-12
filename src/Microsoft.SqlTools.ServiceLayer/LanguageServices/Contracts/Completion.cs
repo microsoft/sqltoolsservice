@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             File = 17,
             Reference = 18
     }
-    
+
     public class Command
     {
         /// <summary>
@@ -96,10 +96,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// </summary>
         public object Data { get; set; }
 
-        //Exposing a command field for a completion item for passing telemetry 
+        /// <summary>
+        /// Exposing a command field for a completion item for passing telemetry
+        /// </summary>
         public Command Command { get; set; }
 
-        //Whether this completion item is preselected or not
+        /// <summary>
+        /// Whether this completion item is preselected or not
+        /// </summary>
         public bool? PreSelect { get; set; }
     }
 }

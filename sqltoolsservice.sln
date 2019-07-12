@@ -95,7 +95,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ManagedB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ManagedBatchParser.IntegrationTests", "test\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.csproj", "{D3696EFA-FB1E-4848-A726-FF7B168AFB96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompletionExtSample", "test\CompletionExtSample\CompletionExtSample.csproj", "{0EC2B30C-0652-49AE-9594-85B3C3E9CA21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Test.CompletionExtension", "test\CompletionExtSample\Microsoft.SqlTools.Test.CompletionExtension.csproj", "{0EC2B30C-0652-49AE-9594-85B3C3E9CA21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
