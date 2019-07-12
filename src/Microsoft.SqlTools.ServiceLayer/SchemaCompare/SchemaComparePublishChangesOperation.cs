@@ -9,6 +9,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -55,6 +56,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             try
             {
                 this.PublishResult = this.ComparisonResult.PublishChangesToTarget(this.CancellationToken);
+                if (!this.PublishResult.Success)
+                {
+                    // Sending only errors and warnings - because overall message might be too big for task view
+                    ErrorMessage = string.Join(Environment.NewLine, this.PublishResult.Errors.Where(x => x.MessageType == SqlServer.Dac.DacMessageType.Error || x.MessageType == SqlServer.Dac.DacMessageType.Warning));
+                    throw new Exception(ErrorMessage);
+                }
             }
             catch (Exception e)
             {

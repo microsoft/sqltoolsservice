@@ -118,6 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     DefaultValue = defaultValue,
                     EscapedName = ToSqlScript.FormatIdentifier(smoColumn.Name),
                     Ordinal = i,
+                    IsHierarchyId = smoColumn.DataType.SqlDataType == SqlDataType.HierarchyId,
                 };
                 editColumns.Add(column);
             }

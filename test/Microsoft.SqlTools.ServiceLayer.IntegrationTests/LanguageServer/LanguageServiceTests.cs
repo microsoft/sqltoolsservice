@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -211,6 +212,64 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             connectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
             Assert.True(LanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
             Assert.False(object.ReferenceEquals(LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));
+        }
+
+        /// <summary>
+        /// Verifies that clearing the Intellisense cache correctly refreshes the cache with new info from the DB.
+        /// </summary>
+        [Fact]
+        public async Task RebuildIntellisenseCacheClearsScriptParseInfoCorrectly()
+        {
+            var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
+            try
+            {
+                var connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
+
+                var langService = LanguageService.Instance;
+                await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
+                var queryText = "SELECT * FROM dbo.";
+                connectionInfoResult.ScriptFile.SetFileContents(queryText);
+
+                var textDocumentPosition =
+                    connectionInfoResult.TextDocumentPosition ??
+                    new TextDocumentPosition()
+                    {
+                        TextDocument = new TextDocumentIdentifier
+                        {
+                            Uri = connectionInfoResult.ScriptFile.ClientFilePath
+                        },
+                        Position = new Position
+                        {
+                            Line = 0,
+                            Character = queryText.Length
+                        }
+                    };
+
+                // First check that we don't have any items in the completion list as expected
+                var initialCompletionItems = langService.GetCompletionItems(
+                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
+
+                Assert.True(initialCompletionItems.Length == 0, $"Should not have any completion items initially. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
+
+                // Now create a table that should show up in the completion list
+                testDb.RunQuery("CREATE TABLE dbo.foo(col1 int)");
+
+                // And refresh the cache
+                await langService.HandleRebuildIntelliSenseNotification(
+                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientFilePath },
+                    new TestEventContext());
+
+                // Now we should expect to see the item show up in the completion list
+                var afterTableCreationCompletionItems = langService.GetCompletionItems(
+                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
+
+                Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
+                Assert.True(afterTableCreationCompletionItems[0].InsertText == "foo", $"Expected single completion item 'foo'. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
+            }
+            finally
+            {
+                testDb.Cleanup();
+            }
         }
     }
 }

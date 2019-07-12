@@ -26,8 +26,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             this.messageWriter = messageWriter;
         }
 
-        public async Task SendEvent<TParams>(
-            EventType<TParams> eventType, 
+        public virtual async Task SendEvent<TParams>(
+            EventType<TParams> eventType,
             TParams eventParams)
         {
             await this.messageWriter.WriteEvent(

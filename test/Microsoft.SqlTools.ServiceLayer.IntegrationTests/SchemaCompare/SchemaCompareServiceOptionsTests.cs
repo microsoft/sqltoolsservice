@@ -254,10 +254,19 @@ END
                 };
 
                 SchemaCompareGenerateScriptOperation generateScriptOperation1 = new SchemaCompareGenerateScriptOperation(generateScriptParams1, schemaCompareOperation1.ComparisonResult);
-                generateScriptOperation1.Execute(TaskExecutionMode.Script);
 
-                // validate script generation failed because there were no differences
-                Assert.False(generateScriptOperation1.ScriptGenerationResult.Success);
+                try
+                {
+                    generateScriptOperation1.Execute(TaskExecutionMode.Script);
+                    Assert.True(false); //fail if it reaches here
+                }
+                catch (Exception ex)
+                {                    
+                    // validate script generation failed because there were no differences
+                    Assert.False(generateScriptOperation1.ScriptGenerationResult.Success);
+                    Assert.Equal("Performing script generation is not possible for this comparison result.", generateScriptOperation1.ScriptGenerationResult.Message);
+                    Assert.Equal("Performing script generation is not possible for this comparison result.", ex.Message);
+                }
 
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
@@ -382,7 +391,7 @@ END
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();
             schemaCompareRequestContext.Setup(x => x.SendResult(It.IsAny<SchemaCompareOptionsResult>())).Returns(Task.FromResult(new object()));
             schemaCompareRequestContext.Setup((RequestContext<SchemaCompareOptionsResult> x) => x.SendResult(It.Is<SchemaCompareOptionsResult>((options) => SchemaCompareTestUtils.ValidateOptionsEqualsDefault(options) == true))).Returns(Task.FromResult(new object()));
-            
+
             SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
             await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
         }

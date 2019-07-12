@@ -689,6 +689,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     await Task.Run(() =>
                     {
+                        // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
                         ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
                         if (scriptInfo != null && scriptInfo.IsConnected &&
                             Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
@@ -696,6 +697,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             try
                             {
                                 this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
+                                RemoveScriptParseInfo(rebuildParams.OwnerUri);
+                                UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
                             catch (Exception ex)
                             {

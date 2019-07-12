@@ -69,6 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         this.SqlTask.AddScript(SqlTaskStatus.Succeeded, ScriptGenerationResult.MasterScript);
                     }
                 }
+                if (!this.ScriptGenerationResult.Success)
+                {
+                    ErrorMessage = this.ScriptGenerationResult.Message;
+                    throw new Exception(ErrorMessage);
+                }
             }
             catch (Exception e)
             {
