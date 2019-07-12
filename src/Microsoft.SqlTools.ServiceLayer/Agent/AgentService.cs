@@ -1231,27 +1231,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
                         {
                             connection.Open();
-                            /*
-                            This query fetches all the notebook Jobs across all the databases accessible by the user.
-                             */
+                            // This query fetches all the notebook Jobs across all the databases accessible by the user.
                             string getJobIdsFromDatabaseQueryString = 
-                                "DECLARE @script as varchar(MAX)\n" +
+                                "DECLARE @script AS VARCHAR(MAX)\n" +
                                 "SET @script =\n" + 
                                 "'USE [?];\n" +
                                 "IF EXISTS\n" + 
-                                "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N''nb_template'')\n"+
+                                "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N''notebooks'' AND TABLE_NAME = N''nb_template'')\n"+
                                 "BEGIN\n" + 
-                                "select dbo.nb_template.*,\n" +
-                                "DB_NAME() as db_name,\n" +
+                                "SELECT notebooks.nb_template.*,\n" +
+                                "DB_NAME() AS db_name,\n" +
                                 "msdb.dbo.sysjobs.*\n" +
-                                "from [?].dbo.nb_template\n" +
-                                "LEFT JOIN\n" + 
+                                "FROM [?].notebooks.nb_template\n" +
+                                "INNER JOIN\n" + 
                                 "msdb.dbo.sysjobs \n" +
                                 "ON \n" + 
-                                "[?].dbo.nb_template.job_id = msdb.dbo.sysjobs.job_id\n" +
+                                "[?].notebooks.nb_template.job_id = msdb.dbo.sysjobs.job_id\n" +
                                 "END '\n" +  
                                 "EXEC sp_MSforeachdb @script\n";
-                            var agentnotebooks = new List<AgentNotebookInfo>();
+                            var agentNotebooks = new List<AgentNotebookInfo>();
                             using( SqlCommand getJobIdsFromDatabaseQueryCommand = new SqlCommand(getJobIdsFromDatabaseQueryString, connection))
                             {
                                 SqlDataAdapter jobIdsAdapter = new SqlDataAdapter(getJobIdsFromDatabaseQueryCommand);
@@ -1274,17 +1272,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 foreach (DataTable templateTable in jobIdsDataSet.Tables)
                                 {
                                     foreach (DataRow templateRow in templateTable.Rows){
-                                        AgentNotebookInfo notebookJob = new AgentNotebookInfo();
-                                        notebookJob.Template = (string)templateRow["json"];
-                                        notebookJob.TargetDatabase = (string)templateRow["db_name"];
-                                        // Setting Job using the already fetched Jobs
-                                        notebookJob.Job = AgentUtilities.ConvertToAgentJobInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
-                                        agentnotebooks.Add(notebookJob);
+                                        AgentNotebookInfo notebookJob = new AgentNotebookInfo()
+                                        {
+                                            Template = templateRow["json"] as string,
+                                            TargetDatabase = templateRow["db_name"] as string,
+                                            Job = AgentUtilities.ConvertToAgentJobInfo(allJobsHashTable[(Guid)templateRow["job_id"]])
+                                        };
+                                        agentNotebooks.Add(notebookJob);
                                     }
                                 }
                             }
                             result.Success = true;
-                            result.Notebooks = agentnotebooks.ToArray();
+                            result.Notebooks = agentNotebooks.ToArray();
                         }
                     }
                     await requestContext.SendResult(result);
