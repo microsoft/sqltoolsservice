@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                     };
 
                 // First check that we don't have any items in the completion list as expected
-                var initialCompletionItems = langService.GetCompletionItems(
+                var initialCompletionItems = await langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
                 Assert.True(initialCompletionItems.Length == 0, $"Should not have any completion items initially. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");
@@ -260,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                     new TestEventContext());
 
                 // Now we should expect to see the item show up in the completion list
-                var afterTableCreationCompletionItems = langService.GetCompletionItems(
+                var afterTableCreationCompletionItems = await langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
                 Assert.True(afterTableCreationCompletionItems.Length == 1, $"Should only have a single completion item after rebuilding Intellisense cache. Actual : [{string.Join(',', initialCompletionItems.Select(ci => ci.Label))}]");

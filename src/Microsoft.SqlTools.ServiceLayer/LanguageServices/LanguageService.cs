@@ -313,19 +313,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         await requestContext.SendError("Failed to create ICompletionExtension");
                         return;
                     }
-
-                    string extName = null;
-                    try
-                    {
-                        extName = ext.Name;
-                        await ext.Initialize(cancellationToken);
-                    }
-                    catch (NotImplementedException)
-                    {
-                    }
-                    catch (NotSupportedException)
-                    {
-                    }
+                    string extName = ext.Name;
+                    await ext.Initialize(cancellationToken);
 
                     if (!string.IsNullOrEmpty(extName))
                     {
