@@ -20,6 +20,9 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -1228,11 +1231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     if (connInfo != null)
                     {
-                        using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
-                        {
-                            connection.Open();
-                            // This query fetches all the notebook Jobs across all the databases accessible by the user.
-                            string getJobIdsFromDatabaseQueryString = 
+                        string getJobIdsFromDatabaseQueryString = 
                                 "DECLARE @script AS VARCHAR(MAX)\n" +
                                 "SET @script =\n" + 
                                 "'USE [?];\n" +
@@ -1249,6 +1248,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 "[?].notebooks.nb_template.job_id = msdb.dbo.sysjobs.job_id\n" +
                                 "END '\n" +  
                                 "EXEC sp_MSforeachdb @script\n";
+                        
+                        using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
+                        {
+                            connection.Open();
+                            // This query fetches all the notebook Jobs across all the databases accessible by the user.
+                            
                             var agentNotebooks = new List<AgentNotebookInfo>();
                             using( SqlCommand getJobIdsFromDatabaseQueryCommand = new SqlCommand(getJobIdsFromDatabaseQueryString, connection))
                             {
@@ -1272,12 +1277,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 foreach (DataTable templateTable in jobIdsDataSet.Tables)
                                 {
                                     foreach (DataRow templateRow in templateTable.Rows){
-                                        AgentNotebookInfo notebookJob = new AgentNotebookInfo()
-                                        {
-                                            Template = templateRow["json"] as string,
-                                            TargetDatabase = templateRow["db_name"] as string,
-                                            Job = AgentUtilities.ConvertToAgentJobInfo(allJobsHashTable[(Guid)templateRow["job_id"]])
-                                        };
+                                        AgentNotebookInfo notebookJob = (AgentNotebookInfo)AgentUtilities.ConvertToAgentJobInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
+                                        notebookJob.TemplateId = templateRow["template_id"] as string;
+                                        notebookJob.TargetDatabase = templateRow["db_name"] as string;
                                         agentNotebooks.Add(notebookJob);
                                     }
                                 }
@@ -1290,6 +1292,72 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
                 catch (Exception e)
                 {
+                    await requestContext.SendError(e);
+                }
+            });
+        }
+
+        internal async Task HandleAgentNotebookHistoryRequest(AgentNotebookHistoryParams parameters, RequestContext<AgentNotebookHistoryResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    var result = new AgentNotebookHistoryResult();
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                    if (connInfo != null)
+                    {
+
+                        string getNotebookHostoryQueryString = 
+                            "USE "+ parameters.TargetDatabase + ";" +
+                            "SELECT * FROM notebooks.nb_materialized " +
+                            "WHERE JOB_ID = '" + parameters.JobId + "'";
+
+                        using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
+                        {
+                            connection.Open();
+                            // This query fetches all the notebook Jobs across all the databases accessible by the user.
+                            
+                            var agentNotebooks = new List<AgentNotebookInfo>();
+                            using( SqlCommand getJobIdsFromDatabaseQueryCommand = new SqlCommand(getNotebookHostoryQueryString, connection))
+                            {
+                                SqlDataAdapter jobIdsAdapter = new SqlDataAdapter(getJobIdsFromDatabaseQueryCommand);
+                                DataSet jobIdsDataSet = new DataSet();
+                                jobIdsAdapter.Fill(jobIdsDataSet);
+                                var serverConnection = ConnectionService.OpenServerConnection(connInfo);
+                                var fetcher = new JobFetcher(serverConnection);
+                                var filter = new JobActivityFilter();
+                                // Fetching all the jobs
+                                var jobs = fetcher.FetchJobs(filter);
+                                // Creating Dictionary of jobs for effcient access later on.
+                                Dictionary<Guid, JobProperties> allJobsHashTable = new Dictionary<Guid, JobProperties>();
+                                if(jobs != null)
+                                {
+                                    foreach (var job in jobs.Values)
+                                    {
+                                        allJobsHashTable.Add(job.JobID, job);
+                                    }
+                                }                                
+                                foreach (DataTable templateTable in jobIdsDataSet.Tables)
+                                {
+                                    foreach (DataRow templateRow in templateTable.Rows){
+                                        AgentNotebookInfo notebookJob = (AgentNotebookInfo)AgentUtilities.ConvertToAgentJobInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
+                                        notebookJob.TemplateId = templateRow["template_id"] as string;
+                                        notebookJob.TargetDatabase = templateRow["db_name"] as string;
+                                        agentNotebooks.Add(notebookJob);
+                                    }
+                                }
+                            }
+                            result.Success = true;
+                            result.Notebooks = agentNotebooks.ToArray();
+                        }
+                    }
+                    await requestContext.SendResult(result);
+                }
+                catch(Exception e){
                     await requestContext.SendError(e);
                 }
             });

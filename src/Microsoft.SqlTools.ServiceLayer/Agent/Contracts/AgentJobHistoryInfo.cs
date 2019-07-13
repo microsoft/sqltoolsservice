@@ -62,9 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// a class for storing various properties of a agent notebook history
     /// </summary>
-    public class AgentNotebookHistoryInfo
+    public class AgentNotebookHistoryInfo : AgentJobHistoryInfo
     {
-        public AgentJobHistoryInfo History { get; set; }
         public string MaterializedNotebookId { get; set; }
         public int MaterializedNotebookErrorFlag { get; set; }
     }

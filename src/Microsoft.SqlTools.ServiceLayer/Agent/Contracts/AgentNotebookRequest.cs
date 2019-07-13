@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class AgentNotebookTemplateParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-        public string JobId { get; set; }
+        public string TemplateId { get; set; }
         public string TargetDatabase { get; set; }
         
     }

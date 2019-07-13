@@ -65,9 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// a class for storing variour properties of notebook Jobs
     /// </summary>
-    public class AgentNotebookInfo
+    public class AgentNotebookInfo : AgentJobInfo
     {
-        public AgentJobInfo Job {get; set;}
         public string TemplateId {get; set;}
         public string TargetDatabase {get; set;}
     }
