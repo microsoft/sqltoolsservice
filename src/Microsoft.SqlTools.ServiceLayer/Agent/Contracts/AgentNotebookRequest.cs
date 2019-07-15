@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebookHistoryResult : ResultStatus
     {
-        public AgentNotebookHistoryInfo[] history { get; set; }
+        public AgentNotebookHistoryInfo[] Histories { get; set; }
         public AgentJobStepInfo[] Steps { get; set; }
         public AgentScheduleInfo[] Schedules { get; set; }
     }

@@ -66,5 +66,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string MaterializedNotebookId { get; set; }
         public int MaterializedNotebookErrorFlag { get; set; }
+        public string MaterializedNotebookErrorInfo { get; set; }
     }
 }
