@@ -154,11 +154,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 result.ConnectionInfo).Result;
 
             //Validate completion list is not empty
-            Assert.True(completions != null && completions.Length > 0);
+            Assert.True(completions != null && completions.Length > 0, "The completion list is null or empty!");
             //Validate the first completion item in the list is preselected
-            Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value);
+            Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
             //Validate the Command object attached to the completion item by the extension
-            Assert.True(completions[0].Command != null && completions[0].Command.command == "vsintellicode.completionItemSelected");
+            Assert.True(completions[0].Command != null && completions[0].Command.command == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
         }
 
         /// <summary>
