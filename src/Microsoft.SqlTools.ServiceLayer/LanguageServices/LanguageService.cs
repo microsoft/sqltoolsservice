@@ -303,19 +303,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                var serviceProvider = ExtensionServiceProvider.Create(new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) });
+                var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
+                serviceProvider.AddAssembliesToConfiguration(new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) });
                 foreach (var provider in serviceProvider.GetServices<ICompletionExtensionProvider>())
                 {
-                    var cancellationToken = new CancellationTokenSource(ExtensionLoadingTimeout).Token;
-                    var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken);
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    cancellationTokenSource.CancelAfter(ExtensionLoadingTimeout);
+                    var cancellationToken = cancellationTokenSource.Token;
+                    var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken).WithTimeout(ExtensionLoadingTimeout);
                     if (ext == null)
                     {
                         await requestContext.SendError("Failed to create ICompletionExtension");
                         return;
                     }
                     string extName = ext.Name;
-                    await ext.Initialize(cancellationToken);
-
+                    await ext.Initialize(cancellationToken).WithTimeout(ExtensionLoadingTimeout);
+                    cancellationTokenSource.Dispose();
                     if (!string.IsNullOrEmpty(extName))
                     {
                         _completionExtensions.AddOrUpdate(extName, ext, (_, previous) =>
@@ -324,12 +327,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             return ext;
                         });
                     }
+                    await requestContext.SendResult(true);
                 }
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.Message);
             }
+            await requestContext.SendResult(false);
         }
 
 
@@ -1562,7 +1567,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             //invoke the completion extensions
             foreach(var completionExt in _completionExtensions.Values)
             {
-                resultCompletionItems = await completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, resultCompletionItems, new CancellationTokenSource(CompletionExtTimeout).Token).ConfigureAwait(false);
+                var cancellationTokenSource = new CancellationTokenSource();
+                cancellationTokenSource.CancelAfter(CompletionExtTimeout);
+                var cancellationToken = cancellationTokenSource.Token;
+                try
+                {
+                    resultCompletionItems = await completionExt.HandleCompletionAsync(connInfo, scriptDocumentInfo, resultCompletionItems, cancellationToken).WithTimeout(CompletionExtTimeout);
+                }
+                catch (Exception e)
+                {
+                    Logger.Write(TraceEventType.Error, string.Format("Exception in calling completion extension {0}:\n{1}", completionExt.Name, e.ToString()));
+                }
+
+                cancellationTokenSource.Dispose();
             }
 
             return resultCompletionItems;

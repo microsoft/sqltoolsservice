@@ -104,6 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// <summary>
         /// Whether this completion item is preselected or not
         /// </summary>
-        public bool? PreSelect { get; set; }
+        public bool? Preselect { get; set; }
     }
 }

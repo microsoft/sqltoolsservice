@@ -29,8 +29,6 @@ namespace Microsoft.SqlTools.Extensibility
 
         private Func<ConventionBuilder, ContainerConfiguration> config;
 
-        private static readonly ConcurrentDictionary<string, Assembly> assemblyCache = new ConcurrentDictionary<string, Assembly>();
-
         public ExtensionServiceProvider(Func<ConventionBuilder, ContainerConfiguration> config)
         {
             Validate.IsNotNull(nameof(config), config);
@@ -94,13 +92,7 @@ namespace Microsoft.SqlTools.Extensibility
         public static ExtensionServiceProvider Create(IEnumerable<Assembly> assemblies)
         {
             Validate.IsNotNull(nameof(assemblies), assemblies);
-            foreach (var assembly in assemblies)
-            {
-                assemblyCache.AddOrUpdate(assembly.FullName, assembly, (_, previous) => {
-                    return assembly;
-                });
-            }
-            return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblyCache.Values, conventions));
+            return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblies, conventions));
         }
 
         public static ExtensionServiceProvider Create(IEnumerable<Type> types)
@@ -123,6 +115,21 @@ namespace Microsoft.SqlTools.Extensibility
                 base.Register<T>(() => store.GetExports<T>());
             }
         }
+
+        /// <summary>
+        /// Merges in new assemblies to the existing container configuration.
+        /// </summary>
+        public void AddAssembliesToConfiguration(IEnumerable<Assembly> assemblies)
+        {
+            var previousConfig = config;
+            this.config = conventions => {
+                // Chain in the existing configuration function's result, then include additional
+                // assemblies
+                ContainerConfiguration containerConfig = previousConfig(conventions);
+                return containerConfig.WithAssemblies(assemblies, conventions);
+            };
+        }
+
     }
 
     /// <summary>

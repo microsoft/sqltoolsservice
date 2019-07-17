@@ -82,9 +82,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
         }
 
-        // This test currently requires a live database connection to initialize
-        // SMO connected metadata provider.  Since we don't want a live DB dependency
-        // in the CI unit tests this scenario is currently disabled.
+        /// <summary>
+        /// This test tests auto completion
+        /// </summary>
         [Fact]
         public void AutoCompleteFindCompletions()
         {
@@ -114,9 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         }
 
         /// <summary>
-        /// This test currently requires a live database connection to initialize
-        /// SMO connected metadata provider.  Since we don't want a live DB dependency
-        /// in the CI unit tests this scenario is currently disabled.
+        /// This test tests completion extension interface
         /// </summary>
         [Fact]
         public async void AutoCompleteWithExtension()
@@ -147,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 result.ScriptFile,
                 result.ConnectionInfo).Result;
 
-            Assert.True(completions.Length > 0 && completions[0].PreSelect.Value);
+            Assert.True(completions.Length > 0 && completions[0].Preselect.HasValue && completions[0].Preselect.Value);
         }
 
         /// <summary>

@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
@@ -64,7 +69,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             Console.WriteLine("Enter ExecuteAsync");
 
             var sortedItems = completions.OrderBy(item => item.SortText);
-            sortedItems.First().PreSelect = true;
+            sortedItems.First().Preselect = true;
             foreach(var item in sortedItems)
             {
                 item.Command = new Command

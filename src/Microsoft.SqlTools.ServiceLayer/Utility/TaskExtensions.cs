@@ -1,4 +1,4 @@
-// 
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -6,6 +6,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
@@ -17,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// Adds handling to check the Exception field of a task and log it if the task faulted
         /// </summary>
         /// <remarks>
-        /// This will effectively swallow exceptions in the task chain. 
+        /// This will effectively swallow exceptions in the task chain.
         /// </remarks>
         /// <param name="antecedent">The task to continue</param>
         /// <param name="continuationAction">
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 {
                     return;
                 }
-                
+
                 LogTaskExceptions(task.Exception);
 
                 // Run the continuation task that was provided
@@ -54,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// This version allows for async code to be ran in the continuation function.
         /// </summary>
         /// <remarks>
-        /// This will effectively swallow exceptions in the task chain. 
+        /// This will effectively swallow exceptions in the task chain.
         /// </remarks>
         /// <param name="antecedent">The task to continue</param>
         /// <param name="continuationFunc">
@@ -96,6 +97,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 sb.AppendLine(e.StackTrace);
             }
             Logger.Write(TraceEventType.Error, sb.ToString());
+        }
+
+        /// <summary>
+        /// This will enforce time out to run an async task with returning result
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="task">The async task to run</param>
+        /// <param name="timeout">Time out in milliseconds</param>
+        /// <returns></returns>
+        public static async Task<TResult> WithTimeout<TResult>(this Task<TResult> task, int timeout)
+        {
+            if (task == await Task.WhenAny(task, Task.Delay(timeout)))
+            {
+                return await task;
+            }
+            throw new TimeoutException();
+        }
+
+        /// <summary>
+        /// This will enforce time out to run an async task without returning result
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="task">The async task to run</param>
+        /// <param name="timeout">Time out in milliseconds</param>
+        /// <returns></returns>
+        public static async Task WithTimeout(this Task task, int timeout)
+        {
+            if (task == await Task.WhenAny(task, Task.Delay(timeout)))
+            {
+                await task;
+                return;
+            }
+            throw new TimeoutException();
         }
     }
 }

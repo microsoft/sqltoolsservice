@@ -30,9 +30,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
     /// </summary>
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
-        private readonly Func<ConventionBuilder, ContainerConfiguration> config;
-
-        private static readonly ConcurrentDictionary<string, Assembly> assemblyCache = new ConcurrentDictionary<string, Assembly>();
+        private Func<ConventionBuilder, ContainerConfiguration> config;
 
         public ExtensionServiceProvider(Func<ConventionBuilder, ContainerConfiguration> config)
         {
@@ -86,13 +84,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
         public static ExtensionServiceProvider Create(IEnumerable<Assembly> assemblies)
         {
             Validate.IsNotNull(nameof(assemblies), assemblies);
-            foreach(var assembly in assemblies)
-            {
-                assemblyCache.AddOrUpdate(assembly.FullName, assembly, (_, previous) => {
-                    return assembly;
-                });
-            }
-            return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblyCache.Values, conventions));
+            return new ExtensionServiceProvider(conventions => new ContainerConfiguration().WithAssemblies(assemblies, conventions));
         }
 
         public static ExtensionServiceProvider Create(IEnumerable<Type> types)
@@ -114,6 +106,20 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
                 ExtensionStore store = new ExtensionStore(typeof(T), config);
                 Register(() => store.GetExports<T>());
             }
+        }
+
+        /// <summary>
+        /// Merges in new assemblies to the existing container configuration.
+        /// </summary>
+        public void AddAssembliesToConfiguration(IEnumerable<Assembly> assemblies)
+        {
+            var previousConfig = config;
+            this.config = conventions => {
+                // Chain in the existing configuration function's result, then include additional
+                // assemblies
+                ContainerConfiguration containerConfig = previousConfig(conventions);
+                return containerConfig.WithAssemblies(assemblies, conventions);
+            };
         }
     }
 
