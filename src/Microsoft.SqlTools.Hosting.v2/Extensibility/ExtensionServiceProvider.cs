@@ -113,6 +113,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
         /// </summary>
         public void AddAssembliesToConfiguration(IEnumerable<Assembly> assemblies)
         {
+            Validate.IsNotNull(nameof(assemblies), assemblies);
             var previousConfig = config;
             this.config = conventions => {
                 // Chain in the existing configuration function's result, then include additional

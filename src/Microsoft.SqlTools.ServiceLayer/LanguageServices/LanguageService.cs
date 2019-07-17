@@ -301,12 +301,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
         {
-            bool loaded = false;
+            int extCount = 0;
             try
             {
+                //register the new assembly
                 var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
-                serviceProvider.AddAssembliesToConfiguration(new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) });
-                int extCount = 0;
+                var assemblies = new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) };
+                serviceProvider.AddAssembliesToConfiguration(assemblies);
+
+                //only load the completion providers from the new assembly
+                serviceProvider = ExtensionServiceProvider.Create(assemblies);
                 foreach (var provider in serviceProvider.GetServices<ICompletionExtensionProvider>())
                 {
                     var cancellationTokenSource = new CancellationTokenSource();
@@ -331,16 +335,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         extCount++;
                     }
                 }
-                if (extCount > 0)
-                {
-                    loaded = true;
-                }
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.Message);
             }
-            await requestContext.SendResult(loaded);
+            await requestContext.SendResult(extCount > 0);
         }
 
 

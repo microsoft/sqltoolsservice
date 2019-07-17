@@ -46,8 +46,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             {
                 return completions;
             }
-            await Run(completions, token);
-            return completions;
+            return await Run(completions, token);
         }
 
         async Task ICompletionExtension.Initialize(CancellationToken token)
@@ -64,7 +63,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             Console.WriteLine("Model loaded from: " + _modelPath);
         }
 
-        private async Task Run(CompletionItem[] completions, CancellationToken token)
+        private async Task<CompletionItem[]> Run(CompletionItem[] completions, CancellationToken token)
         {
             Console.WriteLine("Enter ExecuteAsync");
 
@@ -83,6 +82,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             await Task.Delay(20); // for testing
             token.ThrowIfCancellationRequested();
             Console.WriteLine("Exit ExecuteAsync");
+            return sortedItems.ToArray();
         }
     }
 }

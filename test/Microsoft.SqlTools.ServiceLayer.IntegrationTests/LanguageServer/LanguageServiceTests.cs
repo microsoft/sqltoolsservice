@@ -114,7 +114,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         }
 
         /// <summary>
-        /// This test tests completion extension interface
+        /// This test tests completion extension interface in following aspects
+        /// 1. Loading a sample completion extension assembly
+        /// 2. Initializing a completion extension implementation
+        /// 3. Excuting an auto completion with extension enabled
         /// </summary>
         [Fact]
         public async void AutoCompleteWithExtension()
@@ -129,23 +132,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<bool>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
                 .Returns(Task.FromResult(new object()));
+            //Create completion extension parameters
             var extensionParams = new CompletionExtensionParams()
             {
                 Assembly = Path.Combine(AssemblyDirectory, "Microsoft.SqlTools.Test.CompletionExtension.dll"),
                 TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExtProvider1",
                 Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
             };
+
+            //load and initialize completion extension
             await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
             scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
 
+            //Invoke auto completion with extension enabled
             var completions = autoCompleteService.GetCompletionItems(
                 result.TextDocumentPosition,
                 result.ScriptFile,
                 result.ConnectionInfo).Result;
 
-            Assert.True(completions.Length > 0 && completions[0].Preselect.HasValue && completions[0].Preselect.Value);
+            //Validate completion list is not empty
+            Assert.True(completions != null && completions.Length > 0);
+            //Validate the first completion item in the list is preselected
+            Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value);
+            //Validate the Command object attached to the completion item by the extension
+            Assert.True(completions[0].Command != null && completions[0].Command.command == "vsintellicode.completionItemSelected");
         }
 
         /// <summary>
