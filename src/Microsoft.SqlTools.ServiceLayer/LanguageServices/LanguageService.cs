@@ -301,10 +301,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
         {
+            bool loaded = false;
             try
             {
                 var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
                 serviceProvider.AddAssembliesToConfiguration(new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) });
+                int extCount = 0;
                 foreach (var provider in serviceProvider.GetServices<ICompletionExtensionProvider>())
                 {
                     var cancellationTokenSource = new CancellationTokenSource();
@@ -314,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (ext == null)
                     {
                         await requestContext.SendError("Failed to create ICompletionExtension");
-                        return;
+                        continue;
                     }
                     string extName = ext.Name;
                     await ext.Initialize(cancellationToken).WithTimeout(ExtensionLoadingTimeout);
@@ -326,15 +328,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             previous?.Dispose();
                             return ext;
                         });
+                        extCount++;
                     }
-                    await requestContext.SendResult(true);
+                }
+                if (extCount > 0)
+                {
+                    loaded = true;
                 }
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.Message);
             }
-            await requestContext.SendResult(false);
+            await requestContext.SendResult(loaded);
         }
 
 
