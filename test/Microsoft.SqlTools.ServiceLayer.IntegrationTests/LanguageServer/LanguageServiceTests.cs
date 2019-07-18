@@ -135,8 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             //Create completion extension parameters
             var extensionParams = new CompletionExtensionParams()
             {
-                Assembly = Path.Combine(AssemblyDirectory, "Microsoft.SqlTools.Test.CompletionExtension.dll"),
-                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExtProvider",
+                AssemblyPath = Path.Combine(AssemblyDirectory, "Microsoft.SqlTools.Test.CompletionExtension.dll"),
+                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExt",
                 Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
             };
 

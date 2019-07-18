@@ -16,24 +16,16 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 
 namespace Microsoft.SqlTools.Test.CompletionExtension
 {
-    [Export(typeof(ICompletionExtensionProvider))]
-    public class CompletionExtProvider : ICompletionExtensionProvider
-    {
-        Task<ICompletionExtension> ICompletionExtensionProvider.CreateAsync(IReadOnlyDictionary<string, object> properties, CancellationToken cancellationToken)
-        {
-            return Task.FromResult<ICompletionExtension>(new CompletionExt(properties));
-        }
-    }
 
+    [Export(typeof(ICompletionExtension))]
     public class CompletionExt : ICompletionExtension
     {
-        public string Name => "CompletionExt1";
+        public string Name => "CompletionExt";
 
-        private readonly string _modelPath;
+        private string modelPath;
 
-        public CompletionExt(IReadOnlyDictionary<string, object> properties)
+        public CompletionExt()
         {
-            _modelPath = (string)properties["modelPath"];
         }
 
         void IDisposable.Dispose()
@@ -49,8 +41,9 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             return await Run(completions, token);
         }
 
-        async Task ICompletionExtension.Initialize(CancellationToken token)
+        async Task ICompletionExtension.Initialize(IReadOnlyDictionary<string, object> properties, CancellationToken token)
         {
+            modelPath = (string)properties["modelPath"];
             await LoadModel(token).ConfigureAwait(false);
             return;
         }
@@ -60,7 +53,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             //loading model logic here
             await Task.Delay(2000).ConfigureAwait(false); //for testing
             token.ThrowIfCancellationRequested();
-            Console.WriteLine("Model loaded from: " + _modelPath);
+            Console.WriteLine("Model loaded from: " + modelPath);
         }
 
         private async Task<CompletionItem[]> Run(CompletionItem[] completions, CancellationToken token)

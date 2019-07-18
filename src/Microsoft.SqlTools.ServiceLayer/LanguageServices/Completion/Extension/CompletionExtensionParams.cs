@@ -13,15 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
     [Serializable]
     public class CompletionExtensionParams
     {
-        public string Assembly;
-        public string TypeName;
-        public Dictionary<string, object> Properties;
+        public string AssemblyPath { get; set; }
+        public string TypeName { get; set; }
+        public Dictionary<string, object> Properties { get; set; }
     }
 
-    [Serializable]
-    public class CompletionExtensionLoadStatus
-    {
-        public bool IsLoaded;
-        public string ErrorMsg;
-    }
 }

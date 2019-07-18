@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -103,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
 
         private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new ConcurrentDictionary<string, ICompletionExtension>();
-        private readonly HashSet<ICompletionExtensionProvider> completionExtensionProviders = new HashSet<ICompletionExtensionProvider>();
+        private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new ConcurrentDictionary<string, DateTime>();
 
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
@@ -302,42 +303,40 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
         {
-            int extCount = 0;
             try
             {
+                if (!CheckExtAssemblyToBeLoaded(param.AssemblyPath))
+                {
+                    await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded once or doesn't exist", param.AssemblyPath));
+                    return;
+                }
                 //register the new assembly
                 var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
-                var assemblies = new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) };
+                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
+                var assemblies = new Assembly[] { assembly };
                 serviceProvider.AddAssembliesToConfiguration(assemblies);
-                foreach (var provider in serviceProvider.GetServices<ICompletionExtensionProvider>())
+                foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
                 {
-                    if (completionExtensionProviders.Contains(provider))
+                    var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);
+                    var cancellationToken = cancellationTokenSource.Token;
+                    string extName = ext.Name;
+                    string extTypeName = ext.GetType().FullName;
+                    if (extTypeName != param.TypeName)
                     {
-                        //skipping completion providers that already loaded
                         continue;
                     }
-                    completionExtensionProviders.Add(provider);
-
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    cancellationTokenSource.CancelAfter(ExtensionLoadingTimeout);
-                    var cancellationToken = cancellationTokenSource.Token;
-                    var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken).WithTimeout(ExtensionLoadingTimeout);
-                    if (ext == null)
-                    {
-                        await requestContext.SendError("Failed to create ICompletionExtension from " + provider.GetType().FullName);
-                        return;
-                    }
-                    string extName = ext.Name;
-                    await ext.Initialize(cancellationToken).WithTimeout(ExtensionLoadingTimeout);
+                    await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
                     cancellationTokenSource.Dispose();
                     if (!string.IsNullOrEmpty(extName))
                     {
-                        completionExtensions.AddOrUpdate(extName, ext, (_, previous) =>
-                        {
-                            previous?.Dispose();
-                            return ext;
-                        });
-                        extCount++;
+                        completionExtensions[extName] = ext;
+                        await requestContext.SendResult(true);
+                        return;
+                    }
+                    else
+                    {
+                        await requestContext.SendError(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
+                        return;
                     }
                 }
             }
@@ -346,9 +345,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await requestContext.SendError(ex.Message);
                 return;
             }
-            await requestContext.SendResult(extCount > 0);
         }
 
+        /// <summary>
+        /// Check a particular assembly needs to be loaded or not
+        /// </summary>
+        /// <param name="assemblyPath"></param>
+        /// <returns></returns>
+        private bool CheckExtAssemblyToBeLoaded(string assemblyPath)
+        {
+            if (File.Exists(assemblyPath))
+            {
+                var lastModified = File.GetLastWriteTime(assemblyPath);
+                if (extAssemblyLastUpdateTime.ContainsKey(assemblyPath))
+                {
+                    if (lastModified > extAssemblyLastUpdateTime[assemblyPath])
+                    {
+                        extAssemblyLastUpdateTime[assemblyPath] = lastModified;
+                        return true;
+                    }
+                }
+                else
+                {
+                    extAssemblyLastUpdateTime[assemblyPath] = lastModified;
+                    return true;
+                }
+            }
+            return false;
+
+        }
 
         /// <summary>
         /// T-SQL syntax parse request callback
