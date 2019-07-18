@@ -164,9 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class AgentNotebookMaterializedParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-        public string JobId { get; set; }
         public string TargetDatabase { get; set; }
-        public string NotebookMaterializedID { get; set; }
+        public int NotebookMaterializedID { get; set; }
     }
 
     /// <summary>

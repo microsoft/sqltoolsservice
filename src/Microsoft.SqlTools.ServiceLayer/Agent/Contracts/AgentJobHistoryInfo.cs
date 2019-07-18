@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebookHistoryInfo : AgentJobHistoryInfo
     {
-        public string MaterializedNotebookId { get; set; }
+        public int MaterializedNotebookId { get; set; }
         public int MaterializedNotebookErrorFlag { get; set; }
         public string MaterializedNotebookErrorInfo { get; set; }
     }

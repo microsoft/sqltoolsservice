@@ -128,6 +128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             // Notebook request handlers
             this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
         }
 
         #region "Jobs Handlers"
@@ -1218,7 +1220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
                 // Notebook helper function to execute queires to be later replaced by QueryExecutionService method.
-        public DataSet executeQuery(ConnectionInfo connInfo, string SqlQuery){
+        public DataSet executeQuery(ConnectionInfo connInfo, string SqlQuery)
+        {
             DataSet resultDataSet = new DataSet();
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
@@ -1231,6 +1234,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             return resultDataSet;
         }
+
+
 
         internal async Task HandleAgentNotebooksRequest(AgentNotebooksParams parameters, RequestContext<AgentNotebooksResult> requestContext)
         {
@@ -1284,7 +1289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         foreach (DataTable templateTable in jobIdsDataSet.Tables)
                         {
                             foreach (DataRow templateRow in templateTable.Rows){
-                                AgentNotebookInfo notebookJob = (AgentNotebookInfo)AgentUtilities.ConvertToAgentJobInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
+                                AgentNotebookInfo notebookJob = AgentUtilities.convertToAgentNotebookInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
                                 notebookJob.TemplateId = templateRow["template_id"] as string;
                                 notebookJob.TargetDatabase = templateRow["db_name"] as string;
                                 agentNotebooks.Add(notebookJob);
@@ -1347,7 +1352,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
                         }
                         result.Schedules = jobSchedules.ToArray();
-                        await requestContext.SendResult(result);
                         // Add histories
                         int count = dt.Rows.Count;
                         List<AgentNotebookHistoryInfo> notebookHistories = new List<AgentNotebookHistoryInfo>();
@@ -1360,23 +1364,62 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             var tlog = t as ILogSource;
                             tlog.Initialize();
                             var logEntries = t.LogEntries;
-                            var jobHistories = AgentUtilities.ConvertToAgentJobHistoryInfo(logEntries, job, steps);
-                            Dictionary<string, AgentJobHistoryInfo> allNotebookHistoriesHashTable = new Dictionary<string, AgentJobHistoryInfo>();
-                            foreach (var jobHistory in jobHistories){
-                                allNotebookHistoriesHashTable.Add(jobHistory.RunDate.ToString("yyyyMMddHHmmss"), jobHistory);
-                            }
+                            var jobHistories = AgentUtilities.ConvertToAgentNotebookHistoryInfo(logEntries, job, steps);
+                            Dictionary<string, AgentNotebookHistoryInfo> allNotebookHistoriesHashTable = new Dictionary<string, AgentNotebookHistoryInfo>();
                             // Finally add the job histories
                             DataTable materializedNotebookTable = NotebookHistoryDataset.Tables[0];
                             foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows){
                                 string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
-                                AgentNotebookHistoryInfo notebookHistory = (AgentNotebookHistoryInfo)allNotebookHistoriesHashTable[materializedRunDateTime];
-                                notebookHistory.MaterializedNotebookId = materializedNotebookRow["materialized_id"] as string;
+                                AgentNotebookHistoryInfo notebookHistory = new AgentNotebookHistoryInfo();
+                                notebookHistory.MaterializedNotebookId = (int)materializedNotebookRow["materialized_id"];
+                                allNotebookHistoriesHashTable.Add(materializedRunDateTime, notebookHistory);
+                            }
+                            foreach (var jobHistory in jobHistories){
+                                string jobRuntime = jobHistory.RunDate.ToString("yyyyMMddHHmmss");
+                                AgentNotebookHistoryInfo notebookHistory = jobHistory;
+                                if(allNotebookHistoriesHashTable.ContainsKey(jobRuntime))
+                                    notebookHistory.MaterializedNotebookId = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookId;
                                 notebookHistories.Add(notebookHistory);
                             }
                             result.Histories = notebookHistories.ToArray();
                             result.Success = true;
                             tlog.CloseReader();
+                            await requestContext.SendResult(result);
                         }
+                    }
+                }
+                catch(Exception e){
+                    await requestContext.SendError(e);
+                }
+            });
+        }
+
+        internal async Task HandleAgentNotebookMaterializedRequest(AgentNotebookMaterializedParams parameters, RequestContext<AgentNotebookMaterializedResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    var result = new AgentNotebookMaterializedResult();
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                    if (connInfo != null)
+                    {
+                         string MaterializedNotebookQueryString = 
+                            "USE "+ parameters.TargetDatabase + ";" +
+                            "SELECT * FROM notebooks.nb_materialized " +
+                            "WHERE materialized_id = '" + parameters.NotebookMaterializedID + "'";
+
+                        DataSet MaterializedNotebookDataSet = executeQuery(connInfo, MaterializedNotebookQueryString);
+                        if (MaterializedNotebookDataSet != null){
+                            DataTable MaterializedNotebookTable = MaterializedNotebookDataSet.Tables[0];
+                            DataRow MaterializedNotebookRows = MaterializedNotebookTable.Rows[0];
+                            result.NotebookMaterializedJson = MaterializedNotebookRows["notebook"] as string;
+                        }
+                        result.Success = true;
+                        await requestContext.SendResult(result);
                     }
                 }
                 catch(Exception e){
