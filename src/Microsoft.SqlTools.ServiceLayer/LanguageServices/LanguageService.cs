@@ -253,6 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Write(TraceEventType.Verbose, "Shutting down language service");
                 DeletePeekDefinitionScripts();
+                DeleteAgentNotebooks();
                 this.Dispose();
                 await Task.FromResult(0);
             });
@@ -1753,6 +1754,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
             }
+        }
+
+        internal void DeleteAgentNotebooks()
+        {
+            if (FileUtilities.SafeDirectoryExists(FileUtilities.AgentNotebookTempFolder))
+            {
+                FileUtilities.SafeDirectoryDelete(FileUtilities.AgentNotebookTempFolder, true);
+            }            
         }
 
         internal string ParseStatementAtPosition(string sql, int line, int column)
