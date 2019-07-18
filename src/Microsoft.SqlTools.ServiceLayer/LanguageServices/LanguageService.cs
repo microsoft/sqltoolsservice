@@ -102,7 +102,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
 
-        private readonly ConcurrentDictionary<string, ICompletionExtension> _completionExtensions = new ConcurrentDictionary<string, ICompletionExtension>();
+        private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new ConcurrentDictionary<string, ICompletionExtension>();
+        private readonly HashSet<ICompletionExtensionProvider> completionExtensionProviders = new HashSet<ICompletionExtensionProvider>();
 
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
@@ -308,26 +309,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
                 var assemblies = new Assembly[] { AssemblyLoadContext.Default.LoadFromAssemblyPath(param.Assembly) };
                 serviceProvider.AddAssembliesToConfiguration(assemblies);
-
-                //only load the completion providers from the new assembly
-                serviceProvider = ExtensionServiceProvider.Create(assemblies);
                 foreach (var provider in serviceProvider.GetServices<ICompletionExtensionProvider>())
                 {
+                    if (completionExtensionProviders.Contains(provider))
+                    {
+                        //skipping completion providers that already loaded
+                        continue;
+                    }
+                    completionExtensionProviders.Add(provider);
+
                     var cancellationTokenSource = new CancellationTokenSource();
                     cancellationTokenSource.CancelAfter(ExtensionLoadingTimeout);
                     var cancellationToken = cancellationTokenSource.Token;
                     var ext = await provider.CreateAsync(param.Properties ?? new Dictionary<string, object>(), cancellationToken).WithTimeout(ExtensionLoadingTimeout);
                     if (ext == null)
                     {
-                        await requestContext.SendError("Failed to create ICompletionExtension");
-                        continue;
+                        await requestContext.SendError("Failed to create ICompletionExtension from " + provider.GetType().FullName);
+                        return;
                     }
                     string extName = ext.Name;
                     await ext.Initialize(cancellationToken).WithTimeout(ExtensionLoadingTimeout);
                     cancellationTokenSource.Dispose();
                     if (!string.IsNullOrEmpty(extName))
                     {
-                        _completionExtensions.AddOrUpdate(extName, ext, (_, previous) =>
+                        completionExtensions.AddOrUpdate(extName, ext, (_, previous) =>
                         {
                             previous?.Dispose();
                             return ext;
@@ -339,6 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.Message);
+                return;
             }
             await requestContext.SendResult(extCount > 0);
         }
@@ -1543,7 +1549,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (scriptParseInfo == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile), useLowerCaseSuggestions);
+                var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
+                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocInfo, useLowerCaseSuggestions);
+                //call completion extensions only for default completion list
+                resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocInfo);
+                return resultCompletionItems;
             }
 
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
@@ -1557,7 +1567,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
+                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
+                //call completion extensions only for default completion list
+                resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
+                return resultCompletionItems;
             }
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
             // cache the current script parse info object to resolve completions later
@@ -1568,10 +1581,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (resultCompletionItems == null)
             {
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
+                //call completion extensions only for default completion list
+                resultCompletionItems = await ApplyCompletionExtensions(connInfo, resultCompletionItems, scriptDocumentInfo);
             }
 
+            return resultCompletionItems;
+        }
+
+        /// <summary>
+        /// Run all completion extensions
+        /// </summary>
+        /// <param name="connInfo"></param>
+        /// <param name="resultCompletionItems"></param>
+        /// <param name="scriptDocumentInfo"></param>
+        /// <returns></returns>
+        private async Task<CompletionItem[]> ApplyCompletionExtensions(ConnectionInfo connInfo, CompletionItem[] resultCompletionItems, ScriptDocumentInfo scriptDocumentInfo)
+        {
             //invoke the completion extensions
-            foreach(var completionExt in _completionExtensions.Values)
+            foreach (var completionExt in completionExtensions.Values)
             {
                 var cancellationTokenSource = new CancellationTokenSource();
                 cancellationTokenSource.CancelAfter(CompletionExtTimeout);

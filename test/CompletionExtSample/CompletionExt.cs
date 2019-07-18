@@ -17,21 +17,21 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 namespace Microsoft.SqlTools.Test.CompletionExtension
 {
     [Export(typeof(ICompletionExtensionProvider))]
-    public class CompletionExtProvider1 : ICompletionExtensionProvider
+    public class CompletionExtProvider : ICompletionExtensionProvider
     {
         Task<ICompletionExtension> ICompletionExtensionProvider.CreateAsync(IReadOnlyDictionary<string, object> properties, CancellationToken cancellationToken)
         {
-            return Task.FromResult<ICompletionExtension>(new CompletionExt1(properties));
+            return Task.FromResult<ICompletionExtension>(new CompletionExt(properties));
         }
     }
 
-    public class CompletionExt1 : ICompletionExtension
+    public class CompletionExt : ICompletionExtension
     {
         public string Name => "CompletionExt1";
 
         private readonly string _modelPath;
 
-        public CompletionExt1(IReadOnlyDictionary<string, object> properties)
+        public CompletionExt(IReadOnlyDictionary<string, object> properties)
         {
             _modelPath = (string)properties["modelPath"];
         }
@@ -73,8 +73,8 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             {
                 item.Command = new Command
                 {
-                    command = "vsintellicode.completionItemSelected",
-                    arguments = new object[] { new Dictionary<string, string> { { "IsCommit", "True" } } }
+                    CommandStr = "vsintellicode.completionItemSelected",
+                    Arguments = new object[] { new Dictionary<string, string> { { "IsCommit", "True" } } }
                 };
             }
 

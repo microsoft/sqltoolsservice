@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var extensionParams = new CompletionExtensionParams()
             {
                 Assembly = Path.Combine(AssemblyDirectory, "Microsoft.SqlTools.Test.CompletionExtension.dll"),
-                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExtProvider1",
+                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExtProvider",
                 Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
             };
 
@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             //Validate the first completion item in the list is preselected
             Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
             //Validate the Command object attached to the completion item by the extension
-            Assert.True(completions[0].Command != null && completions[0].Command.command == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
+            Assert.True(completions[0].Command != null && completions[0].Command.CommandStr == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
         }
 
         /// <summary>
