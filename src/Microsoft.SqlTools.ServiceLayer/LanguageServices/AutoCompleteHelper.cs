@@ -29,14 +29,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
         private static readonly string[] DefaultCompletionText = new string[]
-        {            
+        {
+            "abs",
+            "acos",
             "all",
             "alter",
             "and",
             "apply",
+            "approx_count_distinct",
             "as",
             "asc",
+            "ascii",
+            "asin",
             "at",
+            "atan",
+            "atn2",
+            "avg",
             "backup",
             "begin",
             "between",
@@ -48,41 +56,64 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "call",
             "cascade",
             "case",
+            "cast",
             "catch",
+            "ceiling",
             "char",
             "character",
+            "charindex",
             "check",
             "checkpoint",
+            "checksum_agg",
             "close",
             "clustered",
+            "coalesce",
             "column",
             "columnstore",
             "commit",
+            "concat",
+            "concat_ws",
             "connect",
             "constraint",
             "continue",
+            "convert",
+            "cos",
+            "cot",
+            "count",
+            "count_big",
             "create",
             "cross",
             "current_date",
+            "current_timestamp",
+            "current_user",
             "cursor",
             "cursor_close_on_commit",
             "cursor_default",
             "data",
             "data_compression",
             "database",
+            "datalength",
             "date",
+            "dateadd",
+            "datediff",
+            "datefromparts",
+            "datename",
+            "datepart",
             "datetime",
             "datetime2",
+            "day",
             "days",
             "dbcc",
             "dec",
             "decimal",
             "declare",
             "default",
+            "degrees",
             "delete",
             "deny",
             "desc",
             "description",
+            "difference",
             "disabled",
             "disk",
             "distinct",
@@ -101,6 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "execute",
             "exists",
             "exit",
+            "exp",
             "external",
             "fast_forward",
             "fetch",
@@ -111,18 +143,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "filter",
             "first",
             "float",
+            "floor",
             "for",
             "foreign",
+            "format",
             "from",
             "full",
             "function",
             "geography",
             "get",
+            "getdate",
+            "getutcdate",
             "global",
             "go",
             "goto",
             "grant",
             "group",
+            "grouping",
+            "grouping_id",
             "hash",
             "hashed",
             "having",
@@ -133,6 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "identity",
             "identitycol",
             "if",
+            "iif",
             "image",
             "immediate",
             "include",
@@ -144,6 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "integer",
             "intersect",
             "into",
+            "isdate",
+            "isnull",
+            "isnumeric",
             "isolation",
             "join",
             "json",
@@ -151,18 +193,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "language",
             "last",
             "left",
+            "len",
             "level",
             "lineno",
             "load",
             "local",
             "locate",
             "location",
+            "log",
+            "log10",
             "login",
+            "lower",
+            "ltrim",
             "masked",
+            "max",
             "maxdop",
             "merge",
             "message",
+            "min",
             "modify",
+            "month",
             "move",
             "namespace",
             "native_compilation",
@@ -177,6 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "not",
             "now",
             "null",
+            "nullif",
             "numeric",
             "nvarchar",
             "object",
@@ -200,12 +251,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "partition",
             "password",
             "path",
+            "patindex",
             "percent",
             "percentage",
             "period",
             "persisted",
+            "pi",
             "plan",
             "policy",
+            "power",
             "precision",
             "predicate",
             "primary",
@@ -216,7 +270,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "public",
             "query_store",
             "quoted_identifier",
+            "quotename",
+            "radians",
             "raiserror",
+            "rand",
             "range",
             "raw",
             "read",
@@ -236,6 +293,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "relative",
             "remove",
             "reorganize",
+            "replace",
+            "replicate",
             "required",
             "restart",
             "restore",
@@ -243,14 +302,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "resume",
             "return",
             "returns",
+            "reverse",
             "revert",
             "revoke",
+            "right",
             "rollback",
             "rollup",
+            "round",
             "row",
             "rowcount",
             "rowguidcol",
             "rows",
+            "rtrim",
             "rule",
             "sample",
             "save",
@@ -266,14 +329,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "sequence",
             "server",
             "session",
+            "session_user",
+            "sessionproperty",
             "set",
             "sets",
             "setuser",
+            "sign",
             "simple",
+            "sin",
             "smallint",
             "smallmoney",
             "snapshot",
+            "soundex",
+            "space",
             "sql",
+            "sqrt",
+            "square",
             "standard",
             "start",
             "started",
@@ -283,12 +354,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "statistics",
             "statistics_norecompute",
             "status",
+            "stdev",
+            "stdevp",
             "stopped",
+            "str",
+            "string_agg",
+            "stuff",
+            "substring",
+            "sum",
+            "sysdatetime",
             "sysname",
             "system",
             "system_time",
+            "system_user",
             "table",
             "take",
+            "tan",
             "target",
             "then",
             "throw",
@@ -299,23 +380,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "top",
             "tran",
             "transaction",
+            "translate",
             "trigger",
+            "trim",
             "truncate",
             "try",
             "tsql",
             "type",
             "uncommitted",
+            "unicode",
             "union",
             "unique",
             "uniqueidentifier",
             "update",
             "updatetext",
+            "upper",
             "use",
             "user",
+            "user_name",
             "using",
             "value",
             "values",
+            "var",
             "varchar",
+            "varp",
             "version",
             "view",
             "waitfor",
@@ -328,6 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "writetext",
             "xact_abort",
             "xml",
+            "year",
         };
 
         /// <summary>
@@ -367,7 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn = scriptDocumentInfo.StartColumn;
             int endColumn = scriptDocumentInfo.EndColumn;
             string tokenText = scriptDocumentInfo.TokenText;
-            // determine how many default completion items there will be 
+            // determine how many default completion items there will be
             int listSize = DefaultCompletionText.Length;
             if (!string.IsNullOrWhiteSpace(tokenText))
             {
@@ -392,14 +481,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int completionItemIndex = 0;
             foreach (var completionText in DefaultCompletionText)
             {
-                // add item to list if the tokenText is null (meaning return whole list) 
+                // add item to list if the tokenText is null (meaning return whole list)
                 // or if the completion item begins with the tokenText
                 if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
                 {
                     completionItems[completionItemIndex] = CreateDefaultCompletionItem(
                         useLowerCase ? completionText.ToLowerInvariant() : completionText.ToUpperInvariant(),
-                        row, 
-                        startColumn, 
+                        row,
+                        startColumn,
                         endColumn);
                     ++completionItemIndex;
                 }
@@ -417,8 +506,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="endColumn"></param>
         private static CompletionItem CreateDefaultCompletionItem(
             string label,
-            int row, 
-            int startColumn, 
+            int row,
+            int startColumn,
             int endColumn)
         {
             return SqlCompletionItem.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
@@ -450,14 +539,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="cursorColumn"></param>
         /// <returns></returns>
         internal static CompletionItem[] ConvertDeclarationsToCompletionItems(
-            IEnumerable<Declaration> suggestions, 
+            IEnumerable<Declaration> suggestions,
             int row,
             int startColumn,
-            int endColumn, 
+            int endColumn,
             string tokenText = null)
-        {           
+        {
             List<CompletionItem> completions = new List<CompletionItem>();
-    
+
             foreach (var autoCompleteItem in suggestions)
             {
                 SqlCompletionItem sqlCompletionItem = new SqlCompletionItem(autoCompleteItem, tokenText);
@@ -489,7 +578,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 markedStrings[0] = new MarkedString()
                 {
                     Language = "SQL",
-                    Value = quickInfo.Text                                
+                    Value = quickInfo.Text
                 };
 
                 return new Hover()
@@ -535,7 +624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Signature label format: <name> param1, param2, ..., paramn RETURNS <type>
                     Label = method.Name + " " + method.Parameters.Select(parameter => parameter.Display).Aggregate((l, r) => l + "," + r) + " " + method.Type,
                     Documentation = method.Description,
-                    Parameters = method.Parameters.Select(parameter => 
+                    Parameters = method.Parameters.Select(parameter =>
                     {
                         return new ParameterInformation()
                         {
@@ -560,7 +649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations.ParamStartLocation != null)
             {
                 // Is the cursor past the function name?
-                var location = locations.ParamStartLocation.Value; 
+                var location = locations.ParamStartLocation.Value;
                 if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column >= location.ColumnNumber))
                 {
                     currentParameter = 0;
@@ -577,7 +666,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations.ParamEndLocation != null)
             {
                 // Is the cursor past the end of the parameter list on a different token?
-                var location = locations.ParamEndLocation.Value; 
+                var location = locations.ParamEndLocation.Value;
                 if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column > location.ColumnNumber))
                 {
                     currentParameter = -1;

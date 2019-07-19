@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// <summary>
     /// A class to calculate the numbers used by SQL parser using the text positions and content
     /// </summary>
-    internal class ScriptDocumentInfo
+    public class ScriptDocumentInfo
     {
         /// <summary>
         /// Create new instance

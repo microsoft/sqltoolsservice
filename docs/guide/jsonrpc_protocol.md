@@ -66,6 +66,10 @@ The SQL Tools Service implements the following portion Language Service Protocol
 * :leftwards_arrow_with_hook: [textDocument/references](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_references) 
 * :leftwards_arrow_with_hook: [textDocument/definition](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_definition) 
 
+### Language Service Protocol Extensions
+
+* :leftwards_arrow_with_hook: [completion/extLoad](#completion_extLoad)
+
 # Message Protocol
 
 A message consists of two parts: a header section and the message body.  For now, there is
@@ -450,7 +454,7 @@ Disconnect the connection specified in the request.
     {
         /// <summary>
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// or a virtual file representing an object in a database.
         /// </summary>
         public string OwnerUri { get; set; }
     }
@@ -619,7 +623,7 @@ Save a resultset as CSV to a file.
         /// End index of the selected rows (inclusive)
         /// </summary>
         public int? RowEndIndex { get; set; }
-        
+
         /// <summary>
         /// Start index of the selected columns (inclusive)
         /// </summary>
@@ -661,7 +665,7 @@ Save a resultset as CSV to a file.
     public class SaveResultRequestResult
     {
         /// <summary>
-        /// Error messages for saving to file. 
+        /// Error messages for saving to file.
         /// </summary>
         public string Messages { get; set; }
     }
@@ -705,7 +709,7 @@ Save a resultset as JSON to a file.
         /// End index of the selected rows (inclusive)
         /// </summary>
         public int? RowEndIndex { get; set; }
-        
+
         /// <summary>
         /// Start index of the selected columns (inclusive)
         /// </summary>
@@ -739,8 +743,42 @@ Save a resultset as JSON to a file.
     public class SaveResultRequestResult
     {
         /// <summary>
-        /// Error messages for saving to file. 
+        /// Error messages for saving to file.
         /// </summary>
         public string Messages { get; set; }
     }
+```
+
+## Language Service Protocol Extensions
+
+### <a name="completion_extload"></a>`completion/extLoad`
+
+Load a completion extension.
+
+#### Request
+
+```typescript
+    public class CompletionExtensionParams
+    {
+        /// <summary>
+        /// Absolute path for the assembly containing the completion extension
+        /// </summary>
+        public string AssemblyPath { get; set; }
+
+        /// <summary>
+        /// The type name for the completion extension
+        /// </summary>
+        public string TypeName { get; set; }
+
+        /// <summary>
+        /// Property bag for initializing the completion extension
+        /// </summary>
+        public Dictionary<string, object> Properties { get; set; }
+    }
+```
+
+#### Response
+
+```typescript
+    bool
 ```
