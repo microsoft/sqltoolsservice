@@ -29,14 +29,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
         private static readonly string[] DefaultCompletionText = new string[]
-        {            
+        {
             "all",
             "alter",
             "and",
             "apply",
+            "approx_count_distinct",
             "as",
             "asc",
             "at",
+            "avg",
             "backup",
             "begin",
             "between",
@@ -53,14 +55,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "character",
             "check",
             "checkpoint",
+            "checksum_agg",
             "close",
             "clustered",
+            "coalesce",
             "column",
             "columnstore",
             "commit",
             "connect",
             "constraint",
             "continue",
+            "count",
+            "count_big",
             "create",
             "cross",
             "current_date",
@@ -71,8 +77,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "data_compression",
             "database",
             "date",
+            "dateadd",
+            "datediff",
+            "datename",
+            "datepart",
             "datetime",
             "datetime2",
+            "day",
             "days",
             "dbcc",
             "dec",
@@ -123,6 +134,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "goto",
             "grant",
             "group",
+            "grouping",
+            "grouping_id",
             "hash",
             "hashed",
             "having",
@@ -144,6 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "integer",
             "intersect",
             "into",
+            "isdate",
             "isolation",
             "join",
             "json",
@@ -159,10 +173,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "location",
             "login",
             "masked",
+            "max",
             "maxdop",
             "merge",
             "message",
+            "min",
             "modify",
+            "month",
             "move",
             "namespace",
             "native_compilation",
@@ -269,6 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "set",
             "sets",
             "setuser",
+            "sign",
             "simple",
             "smallint",
             "smallmoney",
@@ -283,7 +301,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "statistics",
             "statistics_norecompute",
             "status",
+            "stdev",
+            "stdevp",
             "stopped",
+            "string_agg",
+            "stuff",
+            "sum",
             "sysname",
             "system",
             "system_time",
@@ -315,7 +338,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "using",
             "value",
             "values",
+            "var",
             "varchar",
+            "varp",
             "version",
             "view",
             "waitfor",
@@ -328,6 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "writetext",
             "xact_abort",
             "xml",
+            "year",
         };
 
         /// <summary>
@@ -367,7 +393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn = scriptDocumentInfo.StartColumn;
             int endColumn = scriptDocumentInfo.EndColumn;
             string tokenText = scriptDocumentInfo.TokenText;
-            // determine how many default completion items there will be 
+            // determine how many default completion items there will be
             int listSize = DefaultCompletionText.Length;
             if (!string.IsNullOrWhiteSpace(tokenText))
             {
@@ -392,14 +418,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int completionItemIndex = 0;
             foreach (var completionText in DefaultCompletionText)
             {
-                // add item to list if the tokenText is null (meaning return whole list) 
+                // add item to list if the tokenText is null (meaning return whole list)
                 // or if the completion item begins with the tokenText
                 if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
                 {
                     completionItems[completionItemIndex] = CreateDefaultCompletionItem(
                         useLowerCase ? completionText.ToLowerInvariant() : completionText.ToUpperInvariant(),
-                        row, 
-                        startColumn, 
+                        row,
+                        startColumn,
                         endColumn);
                     ++completionItemIndex;
                 }
@@ -417,8 +443,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="endColumn"></param>
         private static CompletionItem CreateDefaultCompletionItem(
             string label,
-            int row, 
-            int startColumn, 
+            int row,
+            int startColumn,
             int endColumn)
         {
             return SqlCompletionItem.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
@@ -450,14 +476,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="cursorColumn"></param>
         /// <returns></returns>
         internal static CompletionItem[] ConvertDeclarationsToCompletionItems(
-            IEnumerable<Declaration> suggestions, 
+            IEnumerable<Declaration> suggestions,
             int row,
             int startColumn,
-            int endColumn, 
+            int endColumn,
             string tokenText = null)
-        {           
+        {
             List<CompletionItem> completions = new List<CompletionItem>();
-    
+
             foreach (var autoCompleteItem in suggestions)
             {
                 SqlCompletionItem sqlCompletionItem = new SqlCompletionItem(autoCompleteItem, tokenText);
@@ -489,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 markedStrings[0] = new MarkedString()
                 {
                     Language = "SQL",
-                    Value = quickInfo.Text                                
+                    Value = quickInfo.Text
                 };
 
                 return new Hover()
@@ -535,7 +561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Signature label format: <name> param1, param2, ..., paramn RETURNS <type>
                     Label = method.Name + " " + method.Parameters.Select(parameter => parameter.Display).Aggregate((l, r) => l + "," + r) + " " + method.Type,
                     Documentation = method.Description,
-                    Parameters = method.Parameters.Select(parameter => 
+                    Parameters = method.Parameters.Select(parameter =>
                     {
                         return new ParameterInformation()
                         {
@@ -560,7 +586,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations.ParamStartLocation != null)
             {
                 // Is the cursor past the function name?
-                var location = locations.ParamStartLocation.Value; 
+                var location = locations.ParamStartLocation.Value;
                 if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column >= location.ColumnNumber))
                 {
                     currentParameter = 0;
@@ -577,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations.ParamEndLocation != null)
             {
                 // Is the cursor past the end of the parameter list on a different token?
-                var location = locations.ParamEndLocation.Value; 
+                var location = locations.ParamEndLocation.Value;
                 if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column > location.ColumnNumber))
                 {
                     currentParameter = -1;

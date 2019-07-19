@@ -305,11 +305,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                if (!CheckExtAssemblyToBeLoaded(param.AssemblyPath))
-                {
-                    await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded once or doesn't exist", param.AssemblyPath));
-                    return;
-                }
                 //register the new assembly
                 var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
@@ -325,6 +320,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         continue;
                     }
+
+                    if (!CheckIfAssemblyShouldBeLoaded(param.AssemblyPath, extTypeName))
+                    {
+                        await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
+                        return;
+                    }
+
                     await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
                     cancellationTokenSource.Dispose();
                     if (!string.IsNullOrEmpty(extName))
@@ -345,32 +347,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await requestContext.SendError(ex.Message);
                 return;
             }
+
+            await requestContext.SendError(string.Format("Couldn't discover completion extension with type {0} in {1}", param.TypeName, param.AssemblyPath));
         }
 
         /// <summary>
-        /// Check a particular assembly needs to be loaded or not
+        /// Check whether a particular assembly should be reloaded based on
+        /// whether it's been updated since it was last loaded.
         /// </summary>
-        /// <param name="assemblyPath"></param>
+        /// <param name="assemblyPath">The assembly path</param>
+        /// <param name="extTypeName">The type loading from the assembly</param>
         /// <returns></returns>
-        private bool CheckExtAssemblyToBeLoaded(string assemblyPath)
+        private bool CheckIfAssemblyShouldBeLoaded(string assemblyPath, string extTypeName)
         {
-            if (File.Exists(assemblyPath))
+            var lastModified = File.GetLastWriteTime(assemblyPath);
+            if (extAssemblyLastUpdateTime.ContainsKey(extTypeName))
             {
-                var lastModified = File.GetLastWriteTime(assemblyPath);
-                if (extAssemblyLastUpdateTime.ContainsKey(assemblyPath))
+                if (lastModified > extAssemblyLastUpdateTime[extTypeName])
                 {
-                    if (lastModified > extAssemblyLastUpdateTime[assemblyPath])
-                    {
-                        extAssemblyLastUpdateTime[assemblyPath] = lastModified;
-                        return true;
-                    }
-                }
-                else
-                {
-                    extAssemblyLastUpdateTime[assemblyPath] = lastModified;
+                    extAssemblyLastUpdateTime[extTypeName] = lastModified;
                     return true;
                 }
             }
+            else
+            {
+                extAssemblyLastUpdateTime[extTypeName] = lastModified;
+                return true;
+            }
+
             return false;
 
         }

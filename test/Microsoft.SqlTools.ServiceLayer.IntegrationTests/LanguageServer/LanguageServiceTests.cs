@@ -131,7 +131,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var autoCompleteService = LanguageService.Instance;
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<bool>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
-                .Returns(Task.FromResult(new object()));
+                .Returns(Task.FromResult(true));
+            requestContext.Setup(x => x.SendError(It.IsAny<string>(), 0))
+                .Returns(Task.FromResult(true));
+
             //Create completion extension parameters
             var extensionParams = new CompletionExtensionParams()
             {
@@ -140,8 +143,31 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
             };
 
+            //load and initialize completion extension, expect a success
+            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+
+            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Once);
+            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Never);
+
+            //Try to load the same completion extension second time, expect an error sent
+            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+
+            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Once);
+            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
+
+            //Try to load the completion extension with new modified timestamp, expect a success
+            var assemblyCopyPath = CopyFileWithNewModifiedTime(extensionParams.AssemblyPath);
+            extensionParams = new CompletionExtensionParams()
+            {
+                AssemblyPath = assemblyCopyPath,
+                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExt",
+                Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
+            };
             //load and initialize completion extension
             await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+
+            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
+            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
@@ -159,6 +185,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
             //Validate the Command object attached to the completion item by the extension
             Assert.True(completions[0].Command != null && completions[0].Command.CommandStr == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
+
+            //clean up the temp file
+            File.Delete(assemblyCopyPath);
+        }
+
+        /// <summary>
+        /// Make a copy of a file and update the last modified time
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private string CopyFileWithNewModifiedTime(string filePath)
+        {
+            var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(filePath));
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+            File.Copy(filePath, tempPath);
+            File.SetLastWriteTimeUtc(tempPath, DateTime.UtcNow);
+            return tempPath;
         }
 
         /// <summary>

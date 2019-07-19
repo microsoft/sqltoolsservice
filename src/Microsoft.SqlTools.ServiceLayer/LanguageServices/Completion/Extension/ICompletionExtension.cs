@@ -20,20 +20,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
         string Name { get; }
 
         /// <summary>
-        /// Completion extension initialization
+        /// Method for initializing the extension, this is called once when the extension is loaded
         /// </summary>
         /// <param name="properties">Parameters needed by the extension</param>
-        /// <param name="cancelToken">Cancellation token for cancel the initialization</param>
+        /// <param name="cancelToken">Cancellation token used to indicate that the initialization should be cancelled</param>
         /// <returns></returns>
         Task Initialize(IReadOnlyDictionary<string, object> properties, CancellationToken token);
 
         /// <summary>
-        /// Implement the completion extension logic
+        /// Handles the completion request, returning the modified CompletionItemList if used
         /// </summary>
         /// <param name="connInfo">Connection information for the completion session</param>
         /// <param name="scriptDocumentInfo">Script parsing information</param>
         /// <param name="completions">Current completion list</param>
-        /// <param name="cancelToken">Cancellation token for cancel the completion extension logic</param>
+        /// <param name="cancelToken">Token used to indicate that the completion request should be cancelled</param>
         /// <returns></returns>
         Task<CompletionItem[]> HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancelToken);
     }
