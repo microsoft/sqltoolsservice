@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
         public string TypeName { get; set; }
 
         /// <summary>
-        /// Property bag used for initializing the completion extension
+        /// Property bag for initializing the completion extension
         /// </summary>
         public Dictionary<string, object> Properties { get; set; }
     }
