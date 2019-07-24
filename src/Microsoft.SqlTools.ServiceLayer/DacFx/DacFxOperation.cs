@@ -5,6 +5,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
@@ -32,9 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         protected DacServices DacServices { get; private set; }
 
+        protected ConnectionInfo ConnInfo { get; private set; }
+
         protected DacFxOperation(ConnectionInfo connInfo)
         {
             Validate.IsNotNull("connectionInfo", connInfo);
+            this.ConnInfo = connInfo;
             this.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             this.OperationId = Guid.NewGuid().ToString();
         }
@@ -79,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                this.DacServices = new DacServices(this.ConnectionString);
+                // Pass in Azure authentication token if needed
+                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) : new DacServices(this.ConnectionString);
                 Execute();
             }
             catch (Exception e)
