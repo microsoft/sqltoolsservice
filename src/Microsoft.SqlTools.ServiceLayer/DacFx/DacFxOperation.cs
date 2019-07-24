@@ -38,6 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         protected DacFxOperation(ConnectionInfo connInfo)
         {
             Validate.IsNotNull("connectionInfo", connInfo);
+            Validate.IsNotNull("connectionDetails", connInfo.ConnectionDetails);
             this.ConnInfo = connInfo;
             this.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             this.OperationId = Guid.NewGuid().ToString();
