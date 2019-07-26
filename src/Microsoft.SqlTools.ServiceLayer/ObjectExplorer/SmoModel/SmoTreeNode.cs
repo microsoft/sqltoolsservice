@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             // TODO setup initialization
         }
-        
+
         /// <summary>
         /// Is this a system (MSShipped) object?
         /// </summary>
@@ -55,33 +55,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public virtual void CacheInfoFromModel(NamedSmoObject smoObject)
         {
             SmoObject = smoObject;
-            NodeValue = smoObject.Name;
-            ScriptSchemaObjectBase schemaBasecObject = smoObject as ScriptSchemaObjectBase;
-            ObjectMetadata = new Metadata.Contracts.ObjectMetadata();
-            ObjectMetadata.Name = smoObject.Name;
+            ObjectMetadata = new Metadata.Contracts.ObjectMetadata(smoObject);
 
-            try
-            {
-                if(smoObject.Urn != null)
-                {
-                    ObjectMetadata.MetadataTypeName = smoObject.Urn.Type;
-                }
-            }
-            catch
-            {
-                //Ignore the exception, sometimes the urn returns exception and I' not sure why
-            }
-            
-            if (schemaBasecObject != null)
-            {
-                ObjectMetadata.Schema = schemaBasecObject.Schema;
-                if (!string.IsNullOrEmpty(ObjectMetadata.Schema))
-                {
-                    NodeValue = $"{ObjectMetadata.Schema}.{smoObject.Name}";
-                }
-            }
+            NodeValue = string.IsNullOrEmpty(ObjectMetadata.Schema)
+                ? ObjectMetadata.Name
+                : $"{ObjectMetadata.Schema}.{ObjectMetadata.Name}";
         }
-        
+
         public virtual NamedSmoObject GetParentSmoObject()
         {
             if (SmoObject != null)

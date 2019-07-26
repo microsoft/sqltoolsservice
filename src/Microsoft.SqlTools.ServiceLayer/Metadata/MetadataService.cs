@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         public static MetadataService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;        
+        private static ConnectionService connectionService = null;
 
          /// <summary>
         /// Internal for testing purposes only
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         /// <summary>
         /// Handle a metadata query request
-        /// </summary>        
+        /// </summary>
         internal async Task HandleMetadataListRequest(
             MetadataQueryParams metadataParams,
             RequestContext<MetadataQueryResult> requestContext)
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         /// <summary>
         /// Handle a table metadata query request
-        /// </summary>        
+        /// </summary>
         internal static async Task HandleGetTableRequest(
             TableMetadataParams metadataParams,
             RequestContext<TableMetadataResult> requestContext)
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         /// <summary>
         /// Handle a view metadata query request
-        /// </summary>        
+        /// </summary>
         internal static async Task HandleGetViewRequest(
             TableMetadataParams metadataParams,
             RequestContext<TableMetadataResult> requestContext)
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         /// <summary>
         /// Handle a table pr view metadata query request
-        /// </summary>        
+        /// </summary>
         private static async Task HandleGetTableOrViewRequest(
             TableMetadataParams metadataParams,
             string objectType,
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     out connInfo);
 
                 ColumnMetadata[] metadata = null;
-                if (connInfo != null) 
+                if (connInfo != null)
                 {
                     using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
                     {
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                 await requestContext.SendResult(new TableMetadataResult
                 {
-                    Columns = metadata    
+                    Columns = metadata
                 });
             }
             catch (Exception ex)
@@ -177,12 +177,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                   FROM sys.all_objects o
                     INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
                   WHERE (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U' OR o.[type] = 'AF' OR o.[type] = 'FN' OR o.[type] = 'IF') ";
-   
+
             if (!IsSystemDatabase(sqlConn.Database))
             {
                 sql += @"AND o.is_ms_shipped != 1 ";
             }
-            
+
             sql += @"ORDER BY object_type, schema_name, object_name";
 
             using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
@@ -196,32 +196,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         var objectType = reader[2] as string;
 
                         MetadataType metadataType;
-                        string metadataTypeName;
                         if (objectType.StartsWith("V"))
                         {
                             metadataType = MetadataType.View;
-                            metadataTypeName = "View";
                         }
                         else if (objectType.StartsWith("P"))
                         {
                             metadataType = MetadataType.SProc;
-                            metadataTypeName = "StoredProcedure";
                         }
                         else if (objectType == "AF" || objectType == "FN" || objectType == "IF")
                         {
                             metadataType = MetadataType.Function;
-                            metadataTypeName = "UserDefinedFunction";
                         }
                         else
                         {
                             metadataType = MetadataType.Table;
-                            metadataTypeName = "Table";
                         }
 
                         metadata.Add(new ObjectMetadata
                         {
                             MetadataType = metadataType,
-                            MetadataTypeName = metadataTypeName,
+                            MetadataTypeName = metadataType.MetadataTypeName(),
                             Schema = schemaName,
                             Name = objectName
                         });
