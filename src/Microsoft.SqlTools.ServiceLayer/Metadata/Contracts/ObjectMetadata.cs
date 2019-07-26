@@ -56,6 +56,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
             return Contracts.MetadataType.Unknown;
         }
 
+        /// <summary>
+        /// Returns the string representation of the MetadataType
+        /// </summary>
+        /// <param name="metadataType"></param>
+        /// <returns></returns>
         public static string MetadataTypeName(this MetadataType metadataType)
         {
             switch (metadataType)
