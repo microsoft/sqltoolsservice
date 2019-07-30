@@ -163,6 +163,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private const int DefaultQueryGovernorCostLimit = 0;
 
+        /// <summary>
+        /// Flag to run query in sqlcmd mode
+        /// </summary>
+        private bool DefaultSqlCmdMode = false;
+
         #endregion
 
         #region Member Variables
@@ -633,6 +638,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             }
         }
 
+        /// <summary>
+        /// Set sqlCmd Mode
+        /// </summary>
+        public bool IsSqlCmdMode
+        {
+            get
+            {
+                return GetOptionValue<bool>("isSqlCmdMode", DefaultSqlCmdMode);
+            }
+            set
+            {
+                SetOptionValue("isSqlCmdMode", value);
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -670,6 +690,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             AnsiPadding = newSettings.AnsiPadding;
             AnsiWarnings = newSettings.AnsiWarnings;
             AnsiNulls = newSettings.AnsiNulls;
+            IsSqlCmdMode = newSettings.IsSqlCmdMode;
         }
 
         #endregion

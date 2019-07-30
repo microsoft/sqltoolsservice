@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     int offset = offsets[0];
                     int startColumn = batchInfos[0].startColumn;
                     int count = batchInfos.Count;
-                    string batchText = content.Substring(offset, batchInfos[0].length);
+                    string batchText = batchInfos[0].batchText; // content.Substring(offset, batchInfos[0].length);
 
                     // if there's only one batch then the line difference is just startLine
                     if (count > 1)
@@ -82,15 +82,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
 
                     // Generate the rest batch definitions
-                    for (int index = 1; index < count - 1; index++)
+                    for (int index = 1; index < count - 1 ; index++)
                     {
                         lineDifference = batchInfos[index + 1].startLine - batchInfos[index].startLine;
                         position = ReadLines(reader, lineDifference, endLine);
                         endLine = position.Item1;
                         endColumn = position.Item2;
                         offset = offsets[index];
-                        batchText = content.Substring(offset, batchInfos[index].length);
-                        startLine = batchInfos[index].startLine;
+                        batchText = batchInfos[index].batchText;
+                        startLine = batchInfos[index].startLine + 1; // this is done for first batch but was missing for following batches
                         startColumn = batchInfos[index].startColumn;
 
                         // make a new batch definition for each batch
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     if (count > 1)
                     {
 
-                        batchText = content.Substring(offsets[count-1], batchInfos[count - 1].length);
+                        batchText = batchInfos[count - 1].batchText;
                         BatchDefinition lastBatchDef = GetLastBatchDefinition(reader, batchInfos[count - 1], batchText);
                         batchDefinitionList.Add(lastBatchDef);
                     }
@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private static BatchDefinition GetLastBatchDefinition(StringReader reader,
             BatchInfo batchInfo, string batchText)
         {
-            int startLine = batchInfo.startLine;
+            int startLine = batchInfo.startLine + 1;
             int startColumn = batchInfo.startColumn;
             string prevLine = null;
             string line = reader.ReadLine();
@@ -328,12 +328,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Takes in a query string and returns a list of BatchDefinitions
         /// </summary>
-        public List<BatchDefinition> GetBatches(string sqlScript)
+        public List<BatchDefinition> GetBatches(string sqlScript, ExecutionEngineConditions conditions = null)
         {
             batchInfos = new List<BatchInfo>();
 
             // execute the script - all communication / integration after here happen via event handlers
-            executionEngine.ParseScript(sqlScript, notificationHandler);
+            executionEngine.ParseScript(sqlScript, notificationHandler, conditions);
 
             // retrieve a list of BatchDefinitions 
             List<BatchDefinition> batchDefinitionList = ConvertToBatchDefinitionList(sqlScript, batchInfos);
@@ -381,7 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
 
                     // Add the script info
-                    batchInfos.Add(new BatchInfo(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex, batchTextLength, args.Batch.ExpectedExecutionCount));
+                    batchInfos.Add(new BatchInfo(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex, batchTextLength, batchText, args.Batch.ExpectedExecutionCount));
                 }
             }
             catch (NotImplementedException)
@@ -474,17 +474,19 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private class BatchInfo
         {
-            public BatchInfo(int startLine, int startColumn, int length, int repeatCount = 1)
+            public BatchInfo(int startLine, int startColumn, int length, string batchText, int repeatCount = 1)
             {
                 this.startLine = startLine;
                 this.startColumn = startColumn;
                 this.length = length;
                 this.executionCount = repeatCount;
+                this.batchText = batchText;
             }
             public int startLine;
             public int startColumn;
             public int length;
             public int executionCount;
+            public string batchText;
         }
 
     }

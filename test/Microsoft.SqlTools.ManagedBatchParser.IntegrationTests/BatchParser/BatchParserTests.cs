@@ -338,6 +338,41 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
+        // Verify whether the batchParser execute SqlCmd successfully
+        [Fact]
+        public void VerifyRunSqlCmd()
+        {
+            using (ExecutionEngine executionEngine = new ExecutionEngine())
+            {
+                string sqlCmdQuery = @"
+:setvar __var1 1
+:setvar __var2 2
+:setvar __IsSqlCmdEnabled " + "\"True\"" + @"
+GO
+IF N'$(__IsSqlCmdEnabled)' NOT LIKE N'True'
+    BEGIN
+        PRINT N'SQLCMD mode must be enabled to successfully execute this script.';
+                SET NOEXEC ON;
+                END
+GO
+select $(__var1) + $(__var2) as col
+GO";
+
+                using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+                {
+                    con.Open();
+                    var condition = new ExecutionEngineConditions();
+                    condition.IsSqlCmd = true;
+                    TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, con, condition);
+                    testExecutor.Run();
+                    
+                    Assert.True(testExecutor.ResultCountQueue.Count >= 1);
+                    Assert.True(testExecutor.ErrorMessageQueue.Count == 0);
+                    
+                }
+            }
+        }
+
         // Verify whether the executionEngine execute Batch
         [Fact]
         public void VerifyExecuteBatch()

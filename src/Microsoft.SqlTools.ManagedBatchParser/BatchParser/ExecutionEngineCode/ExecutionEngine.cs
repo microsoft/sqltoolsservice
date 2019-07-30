@@ -193,14 +193,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             commandParser.SetRecognizeSqlCmdSyntax(sqlCmdMode);
             commandParser.SetBatchDelimiter(BatchSeparator);
             commandParser.ThrowOnUnresolvedVariable = true;
-            
+
             batchParser.Execute = new BatchParser.ExecuteDelegate(ExecuteBatchInternal);
             batchParser.ErrorMessage = new BatchParser.ScriptErrorDelegate(RaiseScriptError);
             batchParser.Message = new BatchParser.ScriptMessageDelegate(RaiseBatchMessage);
             batchParser.HaltParser = new BatchParser.HaltParserDelegate(OnHaltParser);
             batchParser.StartingLine = startingLine;
 
-            if (isLocalParse)
+            if (isLocalParse && !sqlCmdMode)
             {
                 batchParser.DisableVariableSubstitution();
             }
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             try
             {
-                DisconnectSqlCmdInternal();                
+                DisconnectSqlCmdInternal();
 
                 ConfigureBatchEventHandlers(currentBatch, batchEventHandlers, false);
 
@@ -325,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 batchEventHandlers.OnBatchMessage(this, args);
             }
         }
-        
+
         /// <summary>
         /// Executes a given batch given the number of times
         /// </summary>
@@ -334,8 +334,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="lineNumber"></param>
         /// <returns>True if we should continue processing, false otherwise</returns>
         private bool ExecuteBatchInternal(
-            string batchScript, 
-            int num, 
+            string batchScript,
+            int num,
             int lineNumber)
         {
             if (lineNumber == -1)
@@ -392,7 +392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 currentBatch.TextSpan = textSpan;
                 currentBatch.BatchIndex = currentBatchIndex;
                 currentBatch.ExpectedExecutionCount = numBatchExecutionTimes;
-                
+
                 currentBatchIndex++;
 
                 if (conditions != null)
@@ -1021,7 +1021,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         #endregion
 
         #region Public members
-        
+
         /// <summary>
         /// Executes the script
         /// </summary>
@@ -1049,19 +1049,22 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <remarks>
         /// The batch parser functionality is used in this case
         /// </remarks>
-        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler)
+        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler, ExecutionEngineConditions conditions = null)
         {
             Validate.IsNotNull(nameof(script), script);
             Validate.IsNotNull(nameof(batchEventsHandler), batchEventsHandler);
 
-
+            if (conditions != null)
+            {
+                this.conditions = conditions;
+            }
             this.script = script;
             batchEventHandlers = batchEventsHandler;
             isLocalParse = true;
 
             DoExecute(/* isBatchParser */ true);
         }
-                        
+
         /// <summary>
         /// Close the current connection
         /// </summary>
