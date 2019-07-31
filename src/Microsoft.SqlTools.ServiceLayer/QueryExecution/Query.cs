@@ -30,12 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     public class Query : IDisposable
     {
         #region Constants
-
+        
         /// <summary>
         /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
         /// </summary>
         private const int DatabaseContextChangeErrorNumber = 5701;
-
+        
         /// <summary>
         /// ON keyword
         /// </summary>
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// OFF keyword
         /// </summary>
         private const string Off = "OFF";
-
+        
         /// <summary>
         /// showplan_xml statement
         /// </summary>
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// statistics xml statement
         /// </summary>
         private const string SetStatisticsXml = "SET STATISTICS XML {0}";
-
+        
         #endregion
 
         #region Member Variables
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Name of the new database if the database name was changed in the query
         /// </summary>
-        private string newDatabaseName;
+        private string newDatabaseName;        
 
         #endregion
 
@@ -96,9 +96,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
         public Query(
-            string queryText,
-            ConnectionInfo connection,
-            QueryExecutionSettings settings,
+            string queryText, 
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
             IFileStreamFactory outputFactory,
             bool getFullColumnSchema = false,
             bool applyExecutionSettings = false)
@@ -121,17 +121,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 conditions = new ExecutionEngineConditions();
                 conditions.IsSqlCmd = settings.IsSqlCmdMode;
-            }            
+            }
             List<BatchDefinition> parserResult = parser.GetBatches(queryText, conditions);
 
             var batchSelection = parserResult
                 .Select((batchDefinition, index) =>
-                    new Batch(batchDefinition.BatchText,
+                    new Batch(batchDefinition.BatchText, 
                         new SelectionData(
                             batchDefinition.StartLine-1,
                             batchDefinition.StartColumn-1,
                             batchDefinition.EndLine-1,
-                            batchDefinition.EndColumn-1),
+                            batchDefinition.EndColumn-1),                       
                         index, outputFactory,
                         batchDefinition.BatchExecutionCount,
                         getFullColumnSchema));
@@ -155,14 +155,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="query">The query that completed</param>
         public delegate Task QueryAsyncEventHandler(Query query);
-
+        
         /// <summary>
         /// Delegate type for callback when a query fails
         /// </summary>
         /// <param name="query">Query that raised the event</param>
         /// <param name="exception">Exception that caused the query to fail</param>
         public delegate Task QueryAsyncErrorEventHandler(Query query, Exception exception);
-
+        
         /// <summary>
         /// Event to be called when a batch is completed.
         /// </summary>
@@ -357,7 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </param>
         /// <param name="successHandler">Delegate to call when the request completes successfully</param>
         /// <param name="failureHandler">Delegate to call if the request fails</param>
-        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory, 
             ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Sanity check to make sure that the batch is within bounds
@@ -386,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Mark that we've internally executed
                 hasExecuteBeenCalled = true;
-
+                
                 // Don't actually execute if there aren't any batches to execute
                 if (Batches.Length == 0)
                 {
@@ -400,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     return;
                 }
-
+                
                 // Locate and setup the connection
                 DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
                 sqlConn = queryConnection as ReliableSqlConnection;
@@ -411,7 +411,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
                 }
 
-
+            
                 // Execute beforeBatches synchronously, before the user defined batches 
                 foreach (Batch b in BeforeBatches)
                 {
@@ -464,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
-
+                
                 // If any message notified us we had changed databases, then we must let the connection service know 
                 if (newDatabaseName != null)
                 {
@@ -512,8 +512,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         private void ApplyExecutionSettings(
-            ConnectionInfo connection,
-            QueryExecutionSettings settings,
+            ConnectionInfo connection, 
+            QueryExecutionSettings settings, 
             IFileStreamFactory outputFactory)
         {
             QuerySettingsHelper helper = new QuerySettingsHelper(settings);
@@ -549,7 +549,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 if (settings.StatisticsIO)
-                {
+                {                 
                     builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
                     builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
                 }
@@ -562,35 +562,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             if (settings.ParseOnly)
-            {
+            {               
                 builderBefore.AppendFormat("{0} ", helper.GetSetParseOnlyString(true));
                 builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
             }
 
             // append first part of exec options
-            builderBefore.AppendFormat("{0} {1} {2}",
+            builderBefore.AppendFormat("{0} {1} {2}", 
                 helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
 
             if (!connection.IsSqlDW)
             {
                 // append second part of exec options
                 builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
-                                        helper.SetConcatenationNullString,
-                                        helper.SetArithAbortString,
-                                        helper.SetLockTimeoutString,
-                                        helper.SetQueryGovernorCostString,
-                                        helper.SetDeadlockPriorityString,
+                                        helper.SetConcatenationNullString, 
+                                        helper.SetArithAbortString, 
+                                        helper.SetLockTimeoutString, 
+                                        helper.SetQueryGovernorCostString, 
+                                        helper.SetDeadlockPriorityString, 
                                         helper.SetTransactionIsolationLevelString,
                                         // We treat XACT_ABORT special in that we don't add anything if the option
                                         // isn't checked. This is because we don't want to be overwriting the server
                                         // if it has a default of ON since that's something people would specifically
                                         // set and having a client change it could be dangerous (the reverse is much
                                         // less risky)
-
+ 
                                         // The full fix would probably be to make the options tri-state instead of 
                                         // just on/off, where the default is to use the servers default. Until that
                                         // happens though this is the best solution we came up with. See TFS#7937925
-
+ 
                                         // Note that users can always specifically add SET XACT_ABORT OFF to their 
                                         // queries if they do truly want to set it off. We just don't want  to
                                         // do it silently (since the default is going to be off)
@@ -655,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Does this connection support XML Execution plans
         /// </summary>
-        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo)
+        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) 
         {
             // Determining which execution plan options may be applied (may be added to for pre-yukon support)
             return (!connectionInfo.IsSqlDW && connectionInfo.MajorVersion >= 9);
