@@ -84,6 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
+        // For testability only
+        internal Task DelayedDiagnosticsTask = null;
+
         private ConnectionService connectionService = null;
 
         private WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
@@ -844,7 +847,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     shouldBlock = true; // the provider will continue to be mssql
                 }
-                    if (shouldBlock) {
+                if (shouldBlock) {
                     this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
                     if (CurrentWorkspace.ContainsFile(changeParams.Uri))
                     {
@@ -1743,7 +1746,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
-                    DelayThenInvokeDiagnostics(
+                    this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
                         LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,

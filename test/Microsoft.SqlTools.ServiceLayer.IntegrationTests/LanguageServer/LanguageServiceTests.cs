@@ -17,6 +17,10 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Moq;
 using Xunit;
 
@@ -327,6 +331,72 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 testDb.Cleanup();
             }
+        }
+
+        [Fact]
+        // This test validates switching off editor intellisesnse for now. 
+        // Will change to better handling once we have specific SQLCMD intellisense in Language Service
+        public async Task HandleReuestTochangeToSQLCMDFile()
+        {
+
+            var scriptFile = new ScriptFile() { ClientFilePath = "HandleReuestToChangeToSQLCMDFile_" + DateTime.Now.ToLongDateString() + "_.sql" };
+
+            try
+            {
+                // Prepare a script file
+                scriptFile.SetFileContents("koko wants a bananas");
+                File.WriteAllText(scriptFile.ClientFilePath, scriptFile.Contents);
+
+                // Create a workspace and add file to it so that its found for intellense building
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
+                var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService }; 
+                langService.CurrentWorkspace.GetFile(scriptFile.ClientFilePath);
+                langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+
+                // Add a connection to ensure the intellisense building works            
+                ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
+                langService.ConnectionServiceInstance.OwnerToConnectionMap.Add(scriptFile.ClientFilePath, connectionInfo);
+
+                // Test SQL
+                int countOfValidationCalls = 0;
+                var eventContextSql = new Mock<SqlTools.Hosting.Protocol.EventContext>();
+                eventContextSql.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 2, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
+                await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
+                {
+                    Uri = scriptFile.ClientFilePath,
+                    Language = LanguageService.SQL_LANG.ToLower(),
+                    Flavor = "MSSQL"
+                }, eventContextSql.Object);
+                await langService.DelayedDiagnosticsTask; // to ensure completion and validation before moveing to next step
+
+                // Test SQL CMD
+                var eventContextSqlCmd = new Mock<SqlTools.Hosting.Protocol.EventContext>();
+                eventContextSqlCmd.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 0, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
+                await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
+                {
+                    Uri = scriptFile.ClientFilePath,
+                    Language = LanguageService.SQL_CMD_LANG.ToLower(),
+                    Flavor = "MSSQL"
+                }, eventContextSqlCmd.Object);
+                await langService.DelayedDiagnosticsTask;
+
+                Assert.True(countOfValidationCalls == 2, string.Format("Validation should be call 2 time but is called {0} times", countOfValidationCalls));
+            }
+            finally
+            {
+                if (File.Exists(scriptFile.ClientFilePath))
+                {
+                    File.Delete(scriptFile.ClientFilePath);
+                }
+            }
+        }
+
+        private bool ValidateNotification(PublishDiagnosticsNotification notif, int errors, ref int countofValidationCalls)
+        {
+            countofValidationCalls++;
+            Assert.True(notif.Diagnostics.Length == errors, string.Format("Notification errors {0} are not as expected {1}", notif.Diagnostics.Length, errors));
+            return true;
         }
     }
 }
