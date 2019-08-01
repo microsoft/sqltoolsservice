@@ -33,26 +33,67 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "SerializationService initialized");
-            serviceHost.SetRequestHandler(SerializeDataRequest.Type, HandleSerializeDataRequest);
+            serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest);
+            serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest);
         }
 
         /// <summary>
-        /// Process request to save a resultSet to a file in CSV format
+        /// Begin to process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal async Task HandleSerializeDataRequest(SerializeDataRequestParams serializeParams,
+        internal async Task HandleSerializeStartRequest(SerializeDataStartRequestParams serializeParams,
             RequestContext<SerializeDataResult> requestContext)
         {
             try
             {
                 Validate.IsNotNull(nameof(serializeParams), serializeParams);
                 Validate.IsNotNullOrWhitespaceString("FilePath", serializeParams.FilePath);
+
+                DataSerializer serializer = null;
+                bool hasSerializer = inProgressSerializations.TryGetValue(serializeParams.FilePath, out serializer);
+                if (hasSerializer)
+                {
+                    throw new Exception(string.Format("A request for file {0} is already in progress", serializeParams.FilePath));
+                }
+                
+                serializer = new DataSerializer(serializeParams);
+                if (!serializeParams.IsLastBatch)
+                {
+                    inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
+                }
+                Func<Task<SerializeDataResult>> writeData = () =>
+                {
+                    return Task.Factory.StartNew(() =>
+                    {
+                        var result = serializer.ProcessRequest(serializeParams);
+                        return result;
+                    });
+                };
+                await HandleRequest(writeData, requestContext, "HandleSerializeStartRequest");
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Process request to save a resultSet to a file in CSV format
+        /// </summary>
+        internal async Task HandleSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams,
+            RequestContext<SerializeDataResult> requestContext)
+        {
+            try
+            {
+                Validate.IsNotNull(nameof(serializeParams), serializeParams);
+                Validate.IsNotNullOrWhitespaceString("FilePath", serializeParams.FilePath);
+
                 DataSerializer serializer = null;
                 bool hasSerializer = inProgressSerializations.TryGetValue(serializeParams.FilePath, out serializer);
                 if (!hasSerializer)
                 {
-                    serializer = new DataSerializer(serializeParams);
-                    inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
+                    throw new Exception(string.Format("Cannot serialize more data as no request for file {0} could be found", serializeParams.FilePath));
                 }
+                
                 Func<Task<SerializeDataResult>> writeData = () =>
                 {
                     return Task.Factory.StartNew(() =>
@@ -66,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         return result;
                     });
                 };
-                await HandleRequest(writeData, requestContext, "HandleSerializeDataRequest");
+                await HandleRequest(writeData, requestContext, "HandleSerializeContinueRequest");
             }
             catch (Exception ex)
             {
@@ -92,12 +133,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     class DataSerializer
     {
         private IFileStreamWriter writer;
-        private SerializeDataRequestParams requestParams;
+        private SerializeDataStartRequestParams requestParams;
         private IList<DbColumnWrapper> columns;
 
         public string FilePath { get; private set; }
 
-        public DataSerializer(SerializeDataRequestParams requestParams)
+        public DataSerializer(SerializeDataStartRequestParams requestParams)
         {
             this.requestParams = requestParams;
             this.columns = this.MapColumns(requestParams.Columns);
@@ -116,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
 
-        public SerializeDataResult ProcessRequest(SerializeDataRequestParams serializeParams)
+        public SerializeDataResult ProcessRequest(ISerializationParams serializeParams)
         {
             SerializeDataResult result = new SerializeDataResult();
             try

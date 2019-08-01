@@ -31,10 +31,49 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         }
     }
 
+    public interface ISerializationParams
+    {
+        
+        /// <summary>
+        /// Path to file that the serialized results will be stored in
+        /// </summary>
+        string FilePath { get; set; }
+
+        /// <summary>
+        /// Results that are to be serialized into 'SaveFormat' format
+        /// </summary>
+        DbCellValue[][] Rows { get; set; }
+
+        /// <summary>
+        /// Whether the current set of Rows passed in is the last for this file
+        // </summary>
+        bool IsLastBatch { get; set; }
+    }
     /// <summary>
     /// Class used for storing results and how the results are to be serialized
     /// </summary>
-    public class SerializeDataRequestParams : GeneralRequestDetails
+    public class SerializeDataContinueRequestParams : ISerializationParams
+    {
+        /// <summary>
+        /// Path to file that the serialized results will be stored in
+        /// </summary>
+        public string FilePath { get; set; }
+
+        /// <summary>
+        /// Results that are to be serialized into 'SaveFormat' format
+        /// </summary>
+        public DbCellValue[][] Rows { get; set; }
+
+        /// <summary>
+        /// Whether the current set of Rows passed in is the last for this file
+        // </summary>
+        public bool IsLastBatch { get; set; }
+
+    }
+    /// <summary>
+    /// Class used for storing results and how the results are to be serialized
+    /// </summary>
+    public class SerializeDataStartRequestParams : GeneralRequestDetails, ISerializationParams
     {
         /// <summary>
         /// String representation of the type that service is supposed to serialize to
@@ -55,17 +94,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public ColumnInfo[] Columns { get; set; }
 
         /// <summary>
-        /// Whether the current set of Rows passed in is the last for this file
+        /// Whether this is the only request expected for this file.
         // </summary>
         public bool IsLastBatch { get; set; }
 
-        public SerializeDataRequestParams()
+        public SerializeDataStartRequestParams()
         {
         }
         /// <summary>
         /// Constructor
         /// </summary>
-        public SerializeDataRequestParams(string saveFormat, 
+        public SerializeDataStartRequestParams(string saveFormat, 
             string savePath, 
             DbCellValue[][] rows, 
             bool isLast)
@@ -120,11 +159,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool Succeeded { get; set; }
     }
 
-    public class SerializeDataRequest
+    public class SerializeStartRequest
     {
-        public static readonly
-            RequestType<SerializeDataRequestParams, SerializeDataResult> Type =
-            RequestType<SerializeDataRequestParams, SerializeDataResult>.Create("query/saveAs");
+        public static readonly RequestType<SerializeDataStartRequestParams, SerializeDataResult> Type = RequestType<SerializeDataStartRequestParams, SerializeDataResult>.Create("serialize/start");
+    }
+    public class SerializeContinueRequest
+    {
+        public static readonly RequestType<SerializeDataContinueRequestParams, SerializeDataResult> Type = RequestType<SerializeDataContinueRequestParams, SerializeDataResult>.Create("serialize/continue");
     }
 
     class SerializationOptionsHelper

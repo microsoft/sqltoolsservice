@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             {
                 // Given: 
                 // ... A simple data set that requires 1 message
-                SerializeDataRequestParams saveParams = new SerializeDataRequestParams()
+                SerializeDataStartRequestParams saveParams = new SerializeDataStartRequestParams()
                 {
                     FilePath = filePath,
                     Columns = DefaultColumns,
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     .AddStandardResultValidator()
                     .Complete();
 
-                await SerializationService.HandleSerializeDataRequest(saveParams, efv.Object);
+                await SerializationService.HandleSerializeStartRequest(saveParams, efv.Object);
 
                 // Then:
                 // ... There should not have been an error
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         }
         private async Task TestSaveAsCsvMultiRequestSuccess(bool includeHeaders)
         {
-            Action<SerializeDataRequestParams> setParams = (serializeParams) => {
+            Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "csv";
                 serializeParams.IncludeHeaders = includeHeaders;
             };
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Fact]
         private async Task SaveAsJsonMultiRequestSuccess()
         {
-            Action<SerializeDataRequestParams> setParams = (serializeParams) => {
+            Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "json";
             };
             Action<string> validation = (filePath) => {
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Fact]
         private async Task SaveAsXmlMultiRequestSuccess()
         {
-            Action<SerializeDataRequestParams> setParams = (serializeParams) => {
+            Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "xml";
             };
             Action<string> validation = (filePath) => {
@@ -149,42 +149,60 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
         }
 
-        private async Task TestSerializeDataMultiRequestSuccess(Action<SerializeDataRequestParams> setStandardParams, Action<string> verify)
+        private async Task TestSerializeDataMultiRequestSuccess(Action<SerializeDataStartRequestParams> setStandardParams, Action<string> verify)
         {
             await this.RunFileSaveTest(async (filePath) =>
             {
                 // Given: 
                 // ... A simple data set that requires 3 messages
-                var serializeParams = new SerializeDataRequestParams()
+                var startParams = new SerializeDataStartRequestParams()
                 {
                     FilePath = filePath,
                     Columns = DefaultColumns,
                     Rows = new DbCellValue[][] { DefaultData[0] },
                     IsLastBatch = false
                 };
-                setStandardParams(serializeParams);
+                setStandardParams(startParams);
 
                 // When I send all 3 messages
-                await SendAndVerifySerializeRequest(serializeParams);
-                serializeParams.Rows = new DbCellValue[][] { DefaultData[1] };
-                await SendAndVerifySerializeRequest(serializeParams);
-                serializeParams.Rows = new DbCellValue[][] { DefaultData[2] };
-                serializeParams.IsLastBatch = true;
-                await SendAndVerifySerializeRequest(serializeParams);
+                await SendAndVerifySerializeStartRequest(startParams);
+                var continueParams = new SerializeDataContinueRequestParams()
+                {
+                    FilePath = filePath,
+                    Rows = new DbCellValue[][] { DefaultData[1] },
+                    IsLastBatch = false
+                };
+                await SendAndVerifySerializeContinueRequest(continueParams);
+                continueParams.Rows = new DbCellValue[][] { DefaultData[2] };
+                continueParams.IsLastBatch = true;
+                await SendAndVerifySerializeContinueRequest(continueParams);
 
                 // ... Then the file should look as expected
                 verify(filePath);
             });
         }
 
-        private async Task SendAndVerifySerializeRequest(SerializeDataRequestParams request1)
+        private async Task SendAndVerifySerializeStartRequest(SerializeDataStartRequestParams request1)
         {
             // When: I attempt to save this to a file
             var efv = new EventFlowValidator<SerializeDataResult>()
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.HandleSerializeDataRequest(request1, efv.Object);
+            await SerializationService.HandleSerializeStartRequest(request1, efv.Object);
+
+            // Then:
+            // ... There should not have been an error
+            efv.Validate();
+        }
+        private async Task SendAndVerifySerializeContinueRequest(SerializeDataContinueRequestParams request1)
+        {
+            // When: I attempt to save this to a file
+            var efv = new EventFlowValidator<SerializeDataResult>()
+                .AddStandardResultValidator()
+                .Complete();
+
+            await SerializationService.HandleSerializeContinueRequest(request1, efv.Object);
 
             // Then:
             // ... There should not have been an error
