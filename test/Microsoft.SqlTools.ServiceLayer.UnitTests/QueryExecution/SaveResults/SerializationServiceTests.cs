@@ -149,18 +149,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
         }
 
-        [Fact]
-        private async Task SaveAsExcelMultiRequestSuccess()
-        {
-            Action<SerializeDataRequestParams> setParams = (serializeParams) => {
-                serializeParams.SaveFormat = "excel";
-            };
-            Action<string> validation = (filePath) => {
-                VerifyContents.VerifyXmlMatchesData(DefaultData, DefaultColumns, filePath);
-            };
-            await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
-        }
-
         private async Task TestSerializeDataMultiRequestSuccess(Action<SerializeDataRequestParams> setStandardParams, Action<string> verify)
         {
             await this.RunFileSaveTest(async (filePath) =>
