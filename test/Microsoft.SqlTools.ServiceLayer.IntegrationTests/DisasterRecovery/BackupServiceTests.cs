@@ -42,7 +42,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// Get backup configuration info
         /// </summary>
         /// Test is failing in code coverage runs. Reenable when stable.
-        ///[Fact]
+        [Fact]
         public async void GetBackupConfigInfoTest()
         {
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999); 
@@ -306,7 +306,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             }
         }
 
-        //[Fact]
+        [Fact]
         public async void BackupFileBrowserTest()
         {
             string databaseName = "testfilebrowser_" + new Random().Next(10000000, 99999999);

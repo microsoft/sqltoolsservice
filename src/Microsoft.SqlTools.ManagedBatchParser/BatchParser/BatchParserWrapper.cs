@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     int offset = offsets[0];
                     int startColumn = batchInfos[0].startColumn;
                     int count = batchInfos.Count;
-                    string batchText = batchInfos[0].batchText; // content.Substring(offset, batchInfos[0].length);
+                    string batchText = batchInfos[0].batchText;
 
                     // if there's only one batch then the line difference is just startLine
                     if (count > 1)
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         endColumn = position.Item2;
                         offset = offsets[index];
                         batchText = batchInfos[index].batchText;
-                        startLine = batchInfos[index].startLine + 1; // this is done for first batch but was missing for following batches
+                        startLine = batchInfos[index].startLine + 1; //positions is 0 index based
                         startColumn = batchInfos[index].startColumn;
 
                         // make a new batch definition for each batch
@@ -381,7 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
 
                     // Add the script info
-                    batchInfos.Add(new BatchInfo(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex, batchTextLength, batchText, args.Batch.ExpectedExecutionCount));
+                    batchInfos.Add(new BatchInfo(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex, batchText, args.Batch.ExpectedExecutionCount));
                 }
             }
             catch (NotImplementedException)
@@ -474,17 +474,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private class BatchInfo
         {
-            public BatchInfo(int startLine, int startColumn, int length, string batchText, int repeatCount = 1)
+            public BatchInfo(int startLine, int startColumn, string batchText, int repeatCount = 1)
             {
                 this.startLine = startLine;
                 this.startColumn = startColumn;
-                this.length = length;
                 this.executionCount = repeatCount;
                 this.batchText = batchText;
             }
             public int startLine;
             public int startColumn;
-            public int length;
             public int executionCount;
             public string batchText;
         }

@@ -338,7 +338,9 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
-        // Verify whether the batchParser execute SqlCmd successfully
+        /// <summary>
+        /// Verify whether the batchParser execute SqlCmd successfully
+        /// </summary>
         [Fact]
         public void VerifyRunSqlCmd()
         {
@@ -361,8 +363,7 @@ GO";
                 using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
                 {
                     con.Open();
-                    var condition = new ExecutionEngineConditions();
-                    condition.IsSqlCmd = true;
+                    var condition = new ExecutionEngineConditions() { IsSqlCmd = true };
                     TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, con, condition);
                     testExecutor.Run();
                     

@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.Utility
     {
         public GeneralRequestDetails()
         {
-            Options = new Dictionary<string, object>(new OptionsKeyComparer());
+            Options = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public T GetOptionValue<T>(string name, T defaultValue = default(T))
@@ -110,22 +110,6 @@ namespace Microsoft.SqlTools.Utility
         /// Gets or Sets the options
         /// </summary>
         public Dictionary<string, object> Options { get; set; }
-    }
-           
-    /// <summary>
-    /// Compare class for Execution Setting options to ensure ignoring case in dictionary keys
-    /// </summary>
-    public class OptionsKeyComparer : IEqualityComparer<string>
-    {
-        public bool Equals(string x, string y)
-        {
-            return string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        public int GetHashCode(string obj)
-        {
-            return obj.ToLowerInvariant().GetHashCode();
-        }
     }
 }
 

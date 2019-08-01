@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private const int DefaultQueryGovernorCostLimit = 0;
 
         /// <summary>
-        /// Flag to run query in sqlcmd mode
+        /// Default value for flag to run query in sqlcmd mode
         /// </summary>
         private bool DefaultSqlCmdMode = false;
 

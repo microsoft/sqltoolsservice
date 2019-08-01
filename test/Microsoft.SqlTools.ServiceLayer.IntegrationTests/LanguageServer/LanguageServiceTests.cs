@@ -333,13 +333,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
         }
 
-        [Fact]
+        /// <summary>
         // This test validates switching off editor intellisesnse for now. 
         // Will change to better handling once we have specific SQLCMD intellisense in Language Service
-        public async Task HandleReuestTochangeToSQLCMDFile()
+        /// </summary>
+        [Fact]
+        public async Task HandleRequestToChangeToSqlcmdFile()
         {
 
-            var scriptFile = new ScriptFile() { ClientFilePath = "HandleReuestToChangeToSQLCMDFile_" + DateTime.Now.ToLongDateString() + "_.sql" };
+            var scriptFile = new ScriptFile() { ClientFilePath = "HandleRequestToChangeToSqlcmdFile_" + DateTime.Now.ToLongDateString() + "_.sql" };
 
             try
             {
@@ -381,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 }, eventContextSqlCmd.Object);
                 await langService.DelayedDiagnosticsTask;
 
-                Assert.True(countOfValidationCalls == 2, string.Format("Validation should be call 2 time but is called {0} times", countOfValidationCalls));
+                Assert.True(countOfValidationCalls == 2, string.Format("Validation should be called 2 time but is called {0} times", countOfValidationCalls));
             }
             finally
             {
@@ -392,9 +394,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
         }
 
-        private bool ValidateNotification(PublishDiagnosticsNotification notif, int errors, ref int countofValidationCalls)
+        private bool ValidateNotification(PublishDiagnosticsNotification notif, int errors, ref int countOfValidationCalls)
         {
-            countofValidationCalls++;
+            countOfValidationCalls++;
             Assert.True(notif.Diagnostics.Length == errors, string.Format("Notification errors {0} are not as expected {1}", notif.Diagnostics.Length, errors));
             return true;
         }

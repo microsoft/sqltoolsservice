@@ -119,8 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ExecutionEngineConditions conditions = null;
             if (settings.IsSqlCmdMode)
             {
-                conditions = new ExecutionEngineConditions();
-                conditions.IsSqlCmd = settings.IsSqlCmdMode;
+                conditions = new ExecutionEngineConditions() { IsSqlCmd = settings.IsSqlCmdMode };
             }
             List<BatchDefinition> parserResult = parser.GetBatches(queryText, conditions);
 
