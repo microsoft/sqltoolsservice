@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return Task.Factory.StartNew(() =>
                     {
                         var result = serializer.ProcessRequest(serializeParams);
-                        if (serializeParams.IsComplete)
+                        if (serializeParams.IsLastBatch)
                         {
                             // Cleanup the serializer
                             this.inProgressSerializations.TryRemove(serializer.FilePath, out serializer);
@@ -118,13 +118,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public SerializeDataResult ProcessRequest(SerializeDataRequestParams serializeParams)
         {
-            SerializeDataResult result = new SerializeDataResult()
-            {
-            };
+            SerializeDataResult result = new SerializeDataResult();
             try
             {
-                this.WriteData(serializeParams.Rows, serializeParams.IsComplete);
-                if (serializeParams.IsComplete)
+                this.WriteData(serializeParams.Rows, serializeParams.IsLastBatch);
+                if (serializeParams.IsLastBatch)
                 {
                     this.CloseStreams();
                 }

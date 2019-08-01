@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Whether the current set of Rows passed in is the last for this file
         // </summary>
-        public bool IsComplete { get; set; }
+        public bool IsLastBatch { get; set; }
 
         public SerializeDataRequestParams()
         {
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             this.SaveFormat = saveFormat;
             this.FilePath = savePath;
             this.Rows = Rows;
-            this.IsComplete = isLast;
+            this.IsLastBatch = isLast;
         }
 
         internal bool IncludeHeaders

@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     FilePath = filePath,
                     Columns = DefaultColumns,
                     Rows = DefaultData,
-                    IsComplete = true,
+                    IsLastBatch = true,
                     SaveFormat = "csv",
                     IncludeHeaders = includeHeaders
                 };
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     FilePath = filePath,
                     Columns = DefaultColumns,
                     Rows = new DbCellValue[][] { DefaultData[0] },
-                    IsComplete = false
+                    IsLastBatch = false
                 };
                 setStandardParams(serializeParams);
 
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 serializeParams.Rows = new DbCellValue[][] { DefaultData[1] };
                 await SendAndVerifySerializeRequest(serializeParams);
                 serializeParams.Rows = new DbCellValue[][] { DefaultData[2] };
-                serializeParams.IsComplete = true;
+                serializeParams.IsLastBatch = true;
                 await SendAndVerifySerializeRequest(serializeParams);
 
                 // ... Then the file should look as expected
