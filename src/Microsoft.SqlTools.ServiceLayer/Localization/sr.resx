@@ -327,6 +327,16 @@
     <comment>.
  Parameters: 0 - formatName (string) </comment>
   </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>A request for file {0} is already in progress</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>Cannot serialize more data as no request for file {0} could be found</value>
+    <comment>.
+ Parameters: 0 - filePath (string) </comment>
+  </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
     <comment>.

@@ -2999,6 +2999,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.SerializationServiceUnsupportedFormat, formatName);
         }
 
+        public static string SerializationServiceRequestInProgress(string filePath)
+        {
+            return Keys.GetString(Keys.SerializationServiceRequestInProgress, filePath);
+        }
+
+        public static string SerializationServiceRequestNotFound(string filePath)
+        {
+            return Keys.GetString(Keys.SerializationServiceRequestNotFound, filePath);
+        }
+
         public static string PeekDefinitionAzureError(string errorMessage)
         {
             return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
@@ -3260,6 +3270,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";
+
+
+            public const string SerializationServiceRequestInProgress = "SerializationServiceRequestInProgress";
+
+
+            public const string SerializationServiceRequestNotFound = "SerializationServiceRequestNotFound";
 
 
             public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";

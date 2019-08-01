@@ -143,6 +143,8 @@ QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from th
 # Serialization Service
 
 SerializationServiceUnsupportedFormat (string formatName) = Unsupported Save Format: {0}
+SerializationServiceRequestInProgress (string filePath) = A request for file {0} is already in progress
+SerializationServiceRequestNotFound (string filePath) = Cannot serialize more data as no request for file {0} could be found
  
 ############################################################################
 # Language Service

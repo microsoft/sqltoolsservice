@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 bool hasSerializer = inProgressSerializations.TryGetValue(serializeParams.FilePath, out serializer);
                 if (hasSerializer)
                 {
-                    throw new Exception(string.Format("A request for file {0} is already in progress", serializeParams.FilePath));
+                    throw new Exception(SR.SerializationServiceRequestInProgress(serializeParams.FilePath));
                 }
                 
                 serializer = new DataSerializer(serializeParams);
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 bool hasSerializer = inProgressSerializations.TryGetValue(serializeParams.FilePath, out serializer);
                 if (!hasSerializer)
                 {
-                    throw new Exception(string.Format("Cannot serialize more data as no request for file {0} could be found", serializeParams.FilePath));
+                    throw new Exception(SR.SerializationServiceRequestNotFound(serializeParams.FilePath));
                 }
                 
                 Func<Task<SerializeDataResult>> writeData = () =>
