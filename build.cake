@@ -556,101 +556,104 @@ Task("SRGen")
 {
     // save current working directory to restore at end of task
     var taskStartedWorkingDirectory = System.IO.Directory.GetCurrentDirectory();
-    var relativePathPrefix = "." + System.IO.Path.DirectorySeparatorChar.ToString();
+    try
+    {
+        var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
+        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
 
-    var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-    var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
+        foreach(var project in projects) {
+            var projectDir = System.IO.Path.GetDirectoryName(project);
 
-    foreach(var project in projects) {
-        var projectDir = System.IO.Path.GetDirectoryName(project);
+            // set current directory to this project so relative paths can be reliably
+            // used. This is to address an issue with quoting differences between Windows
+            // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around 
+            // the arguments stripped off.  This causes SRGen to interpret the arg values as options
+            System.IO.Directory.SetCurrentDirectory(projectDir);
+            
+            // build remaining paths relative to the project directory
+            var localizationDir = System.IO.Path.Combine(".", "Localization");
+            var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
+            var projectNameSpace = projectName + ".Localization";
+            var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
 
-        // set current directory to this project so relative paths can be reliably
-        // used. This is to address an issue with quoting differences between Windows
-        // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around 
-        // the arguments stripped off.  This causes SRGen to interpret the arg values as options
-        System.IO.Directory.SetCurrentDirectory(projectDir);
-        
-        // build remaining paths relative to the project directory
-        var localizationDir = System.IO.Path.Combine(relativePathPrefix, "Localization");
-        var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
-        var projectNameSpace = projectName + ".Localization";
-        var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
-
-        if (!System.IO.File.Exists(projectStrings))
-        {
-            Information("Project {0} doesn't contain 'sr.strings' file", projectName);
-            continue;
-        }
-
-        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "tools", "netcoreapp2.2", "any", "srgen.dll");
-        var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
-        var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
-        var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
-        var outputCs = System.IO.Path.Combine(localizationDir, "sr.cs");
-
-        // Delete preexisting resx and designer files
-        if (System.IO.File.Exists(outputResx))
-        {
-            System.IO.File.Delete(outputResx);
-        }
-        if (System.IO.File.Exists(outputCs))
-        {
-            System.IO.File.Delete(outputCs);
-        }
-
-        if (!System.IO.Directory.Exists(inputXliff)) 
-        {
-            System.IO.Directory.CreateDirectory(inputXliff);
-        }
-
-        // Run SRGen
-        var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
-        srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
-        Information("{0}", dotnetcli);
-        Information("{0}", dotnetArgs);
-        Run(dotnetcli, dotnetArgs)
-        .ExceptionOnError("Failed to run SRGen.");
-
-        // Update XLF file from new Resx file
-        var doc = new XliffParser.XlfDocument(outputXlf);
-        doc.UpdateFromSource();
-        var outputXlfFile = doc.Files.Single();
-        foreach (var unit in outputXlfFile.TransUnits)
-        {
-            unit.Target = unit.Source;
-        }
-        doc.Save();
-
-        // Update ResX files from new xliff files
-        var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
-        foreach(var docName in xlfDocNames)
-        {
-            // load our language XLIFF
-            var xlfDoc = new XliffParser.XlfDocument(docName);
-            var xlfFile = xlfDoc.Files.Single();
-
-            // load a language template 
-            var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
-            var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
-            var templateFile = templateDoc.Files.Single(); 
-
-            // iterate through our tranlation units and prune invalid units
-            foreach (var unit in xlfFile.TransUnits)
+            if (!System.IO.File.Exists(projectStrings))
             {
-                // if a unit does not have a target it is invalid 
-                if (unit.Target != null) {
-                    templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
-                }
-            } 
+                Information("Project {0} doesn't contain 'sr.strings' file", projectName);
+                continue;
+            }
 
-            // export modified template to RESX
-            var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-            templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
+            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "tools", "netcoreapp2.2", "any", "srgen.dll");
+            var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
+            var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
+            var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
+            var outputCs = System.IO.Path.Combine(localizationDir, "sr.cs");
+
+            // Delete preexisting resx and designer files
+            if (System.IO.File.Exists(outputResx))
+            {
+                System.IO.File.Delete(outputResx);
+            }
+            if (System.IO.File.Exists(outputCs))
+            {
+                System.IO.File.Delete(outputCs);
+            }
+
+            if (!System.IO.Directory.Exists(inputXliff)) 
+            {
+                System.IO.Directory.CreateDirectory(inputXliff);
+            }
+
+            // Run SRGen
+            var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+            srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
+            Information("{0}", dotnetcli);
+            Information("{0}", dotnetArgs);
+            Run(dotnetcli, dotnetArgs)
+            .ExceptionOnError("Failed to run SRGen.");
+
+            // Update XLF file from new Resx file
+            var doc = new XliffParser.XlfDocument(outputXlf);
+            doc.UpdateFromSource();
+            var outputXlfFile = doc.Files.Single();
+            foreach (var unit in outputXlfFile.TransUnits)
+            {
+                unit.Target = unit.Source;
+            }
+            doc.Save();
+
+            // Update ResX files from new xliff files
+            var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
+            foreach(var docName in xlfDocNames)
+            {
+                // load our language XLIFF
+                var xlfDoc = new XliffParser.XlfDocument(docName);
+                var xlfFile = xlfDoc.Files.Single();
+
+                // load a language template 
+                var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
+                var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
+                var templateFile = templateDoc.Files.Single(); 
+
+                // iterate through our tranlation units and prune invalid units
+                foreach (var unit in xlfFile.TransUnits)
+                {
+                    // if a unit does not have a target it is invalid 
+                    if (unit.Target != null) {
+                        templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
+                    }
+                } 
+
+                // export modified template to RESX
+                var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
+                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
+            }
         }
     }
-
-    // restore the original working directory
-    System.IO.Directory.SetCurrentDirectory(taskStartedWorkingDirectory);
+    finally
+    {
+        // restore the original working directory
+        System.IO.Directory.SetCurrentDirectory(taskStartedWorkingDirectory);
+    }
 });
 
 /// <summary>
