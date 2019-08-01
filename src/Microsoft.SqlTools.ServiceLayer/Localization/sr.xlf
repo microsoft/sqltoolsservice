@@ -2006,6 +2006,12 @@
         <target state="new">Could not find the schema compare session to cancel</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SerializationServiceUnsupportedFormat">
+        <source>Unsupported Save Format: {0}</source>
+        <target state="new">Unsupported Save Format: {0}</target>
+        <note>.
+ Parameters: 0 - formatName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

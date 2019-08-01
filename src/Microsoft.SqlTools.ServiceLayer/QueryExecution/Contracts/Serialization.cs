@@ -126,4 +126,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             RequestType<SerializeDataRequestParams, SerializeDataResult> Type =
             RequestType<SerializeDataRequestParams, SerializeDataResult>.Create("query/saveAs");
     }
+
+    class SerializationOptionsHelper
+    {
+        internal const string IncludeHeaders = "includeHeaders";
+        internal const string Delimiter = "delimiter";
+        internal const string LineSeparator = "lineSeparator";
+        internal const string TextIdentifier = "textIdentifier";
+        internal const string Encoding = "encoding";
+        internal const string Formatted = "formatted";
+    }
 }

@@ -1,5 +1,3 @@
-
-
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -25,13 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     [Export(typeof(IHostedService))]
     public class SerializationService : HostedService<SerializationService>, IComposableService
     {
-        private ConcurrentDictionary<string,DataSerializer> inProgressSerializations;
+        private ConcurrentDictionary<string, DataSerializer> inProgressSerializations;
 
         public SerializationService()
         {
-            inProgressSerializations = new ConcurrentDictionary<string,DataSerializer>();
+            inProgressSerializations = new ConcurrentDictionary<string, DataSerializer>();
         }
-
 
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
@@ -45,7 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSerializeDataRequest(SerializeDataRequestParams serializeParams,
             RequestContext<SerializeDataResult> requestContext)
         {
-            try {
+            try
+            {
                 Validate.IsNotNull(nameof(serializeParams), serializeParams);
                 Validate.IsNotNullOrWhitespaceString("FilePath", serializeParams.FilePath);
                 DataSerializer serializer = null;
@@ -53,10 +51,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (!hasSerializer)
                 {
                     serializer = new DataSerializer(serializeParams);
-                    inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer,  (key, old) => serializer);
+                    inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
                 }
-                Func<Task<SerializeDataResult>> writeData = () => {
-                    return Task.Factory.StartNew(() => {
+                Func<Task<SerializeDataResult>> writeData = () =>
+                {
+                    return Task.Factory.StartNew(() =>
+                    {
                         var result = serializer.ProcessRequest(serializeParams);
                         if (serializeParams.IsComplete)
                         {
@@ -88,11 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(ex.Message);
             }
         }
-
-
     }
-
-    public class DataSerializer
+    class DataSerializer
     {
         private IFileStreamWriter writer;
         private SerializeDataRequestParams requestParams;
@@ -110,7 +107,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private IList<DbColumnWrapper> MapColumns(ColumnInfo[] columns)
         {
             List<DbColumnWrapper> columnWrappers = new List<DbColumnWrapper>();
-            foreach (ColumnInfo column in columns) {
+            foreach (ColumnInfo column in columns)
+            {
                 DbColumnWrapper wrapper = new DbColumnWrapper(column);
                 columnWrappers.Add(wrapper);
             }
@@ -144,7 +142,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public void WriteData(DbCellValue[][] rows, bool isComplete)
         {
             this.EnsureWriterCreated();
-            foreach (var row in rows) {
+            foreach (var row in rows)
+            {
                 SetRawObjects(row);
                 writer.WriteRow(row, this.columns);
             }
@@ -199,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         };
                         break;
                     default:
-                        throw new Exception("Unsupported Save Format: " + this.requestParams.SaveFormat);
+                        throw new Exception(SR.SerializationServiceUnsupportedFormat(this.requestParams.SaveFormat));
                 }
                 this.writer = factory.GetWriter(requestParams.FilePath);
             }
@@ -253,15 +252,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Encoding = this.requestParams.Encoding
             };
         }
-    }
-
-    class SerializationOptionsHelper
-    {
-        internal const string IncludeHeaders = "includeHeaders";
-        internal const string Delimiter = "delimiter";
-        internal const string LineSeparator = "lineSeparator";
-        internal const string TextIdentifier = "textIdentifier";
-        internal const string Encoding = "encoding";
-        internal const string Formatted = "formatted";
     }
 }

@@ -1,96 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -105,1375 +27,457 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>Параметры подключения должны быть указаны, значение не может быть неопределенным (null)</value>
-  </data>
-  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri не может быть неопределенным или пустым</value>
-  </data>
-  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri «{0}» не имеет существующего подключения</value>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>Значение «{0}» недопустимо для AuthenticationType. Ожидается значение «Integrated» или «SqlLogin».</value>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>Значение «{0}» недопустимо для ApplicationIntent. Ожидается значение «ReadWrite» или «ReadOnly».</value>
-  </data>
-  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
-    <value>Подключение к серверу отменено.</value>
-  </data>
-  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri не может быть неопределенным или пустым</value>
-  </data>
-  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>Параметры подключения не могут быть неопределенными</value>
-  </data>
-  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
-    <value>Имя сервера не может быть неопределенным или пустым</value>
-  </data>
-  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>{0} не может быть неопределенным или пустым при использовании проверки подлинности SqlLogin</value>
-  </data>
-  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
-    <value>Запрос уже был выполнен, отмена невозможна</value>
-  </data>
-  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>Запрос успешно отменен, но удалить запрос не удалось. Владелец URI не найден.</value>
-  </data>
-  <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>Выполнение запроса отменено пользователем</value>
-  </data>
-  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
-    <value>Пакет еще не завершен</value>
-  </data>
-  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
-    <value>Индекс пакета не может быть меньше нуля или больше числа пакетов</value>
-  </data>
-  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
-    <value>Индекс не может быть меньше нуля или больше количества записей в наборе</value>
-  </data>
-  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
-    <value>Максимальное количество возвращаемых байтов должно быть больше нуля</value>
-  </data>
-  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
-    <value>Максимальное количество возвращаемых символов должно быть больше нуля</value>
-  </data>
-  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
-    <value>Максимальное количество возвращаемых из XML байтов должно быть больше нуля</value>
-  </data>
-  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>Метод доступа не может быть только для записи.</value>
-  </data>
-  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
-    <value>FileStreamWrapper должен быть инициализирован перед выполнением операций</value>
-  </data>
-  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
-    <value>Этот экземпляр FileStreamWrapper не может быть использован для записи</value>
-  </data>
-  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>(одна строка затронута)</value>
-  </data>
-  <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} строк затронуто)</value>
-  </data>
-  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>Выполнение команд успешно завершено.</value>
-  </data>
-  <data name="QueryServiceErrorFormat" xml:space="preserve">
-    <value>Сообщение {0}, Уровень {1}, Состояние {2}, Строка {3}{4}{5}</value>
-  </data>
-  <data name="QueryServiceQueryFailed" xml:space="preserve">
-    <value>Не удалось выполнить запрос: {0}</value>
-  </data>
-  <data name="QueryServiceColumnNull" xml:space="preserve">
-    <value>(Нет имени столбца)</value>
-  </data>
-  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
-    <value>Указанный запрос не найден</value>
-  </data>
-  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>Этот редактор не подключен к базе данных</value>
-  </data>
-  <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>Запрос уже выполняется для данного сеанса редактора. Отмените запрос или дождитесь завершения его выполнения.</value>
-  </data>
-  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
-    <value>В качестве отправителя (sender) для события OnInfoMessage ожидается экземпляр SqlConnection</value>
-  </data>
-  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
-    <value>Результат не может быть сохранен до завершения выполнения запроса</value>
-  </data>
-  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
-    <value>При запуске задачи сохранения произошла внутренняя ошибка</value>
-  </data>
-  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
-    <value>По указанному пути уже выполняется сохранение результатов</value>
-  </data>
-  <data name="QueryServiceSaveAsFail" xml:space="preserve">
-    <value>Не удалось сохранить {0}: {1}</value>
-  </data>
-  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
-    <value>Невозможно прочитать подмножество, поскольку результаты еще не были получены с сервера</value>
-  </data>
-  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
-    <value>Индекс начальной строки не может быть меньше нуля или больше количества строк, находящихся в результирующем наборе</value>
-  </data>
-  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
-    <value>Число строк должно быть положительным целым числом</value>
-  </data>
-  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
-    <value>Не удалось получить столбец схемы для результирующего набора</value>
-  </data>
-  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Не удалось получить план выполнения из результирующего набора</value>
-  </data>
-  <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>В настоящее время эта функция не поддерживается Azure SQL DB и Data Warehouse: {0}</value>
-  </data>
-  <data name="PeekDefinitionError" xml:space="preserve">
-    <value>Произошла непредвиденная ошибка во время выполнения Peek Definition: {0}</value>
-  </data>
-  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
-    <value>Результаты не найдены.</value>
-  </data>
-  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
-    <value>Объект базы данных не был получен.</value>
-  </data>
-  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
-    <value>Подключитесь к серверу.</value>
-  </data>
-  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
-    <value>Истекло время ожидания операции.</value>
-  </data>
-  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>В настоящее время этот тип объекта не поддерживается этим средством.</value>
-  </data>
-  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>Позиция выходит за пределы диапазона строк файла</value>
-  </data>
-  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>Позиция выходит за пределы диапазона столбцов строки {0}</value>
-  </data>
-  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>Начальная позиция ({0}, {1}) должна быть меньше либо равна конечной ({2}, {3})</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}, строка {3}</value>
-  </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}</value>
-  </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>При обработке пакета произошла ошибка: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} строк затронуто)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>Предыдущее выполнение еще не завершено.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Произошла ошибка сценария.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Обнаружен неправильный синтаксис при обработке {0}.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Произошла неустранимая ошибка.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Выполнение завершено такое количество раз: {0}...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Пользователь отменил запрос.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>При выполнении пакета произошла ошибка.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Команда {0} не поддерживается.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Переменная {0} не найдена.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>Ошибка выполнения SQL: {0}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>BatchParserWrapper: {0} найдено; строка {1}: {2}; описание: {3}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>BatchParserWrapper получено сообщение: {0}. Детали: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>BatchParserWrapper выполнение пакетной обработки ResultSet. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>BatchParserWrapper: обработка завершена.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>BatchParserWrapper: выполнение пакета отменено.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Сценарий содержит предупреждения.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Для получения дополнительной информации об этой ошибке, обратитесь к разделам по устранению неполадок в документации по продукту.</value>
-  </data>
-  <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>Обнаружена рекурсивная ссылка на файл «{0}».</value>
-  </data>
-  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Отсутствует обозначение конца комментария - «*/».</value>
-  </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Незакрытые кавычки в конце символьной строки.</value>
-  </data>
-  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>При разборе «{0}» обнаружен неправильный синтаксис.</value>
-  </data>
-  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>Переменная {0} не определена.</value>
-  </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>тест</value>
-  </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>Замена пустой строки на пустую строку.</value>
-  </data>
-  <data name="EditDataSessionNotFound" xml:space="preserve">
-    <value>Сеанс не найден.</value>
-  </data>
-  <data name="EditDataQueryNotCompleted" xml:space="preserve">
-    <value>Выполнение запроса не завершено</value>
-  </data>
-  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
-    <value>Запрос должен содержать только один набор результатов</value>
-  </data>
-  <data name="EditDataFailedAddRow" xml:space="preserve">
-    <value>Не удалось добавить новую строку в кэш обновлений</value>
-  </data>
-  <data name="EditDataRowOutOfRange" xml:space="preserve">
-    <value>Указанный идентификатор строки находится за пределами диапазона строк в кэше редактирования</value>
-  </data>
-  <data name="EditDataUpdatePending" xml:space="preserve">
-    <value>Обновление уже отправлено для этой строки и должно быть отменено первым</value>
-  </data>
-  <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>Для указанной строки нет обновлений в очереди</value>
-  </data>
-  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
-    <value>Не удалось найти метаданные таблицы или представления</value>
-  </data>
-  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
-    <value>Недопустимый формат данных для двоичного столбца</value>
-  </data>
-  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Логические столбцы должны содержать число 1 или 0, либо строку true или false</value>
-  </data>
-  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>Недопустимое значение ячейки</value>
-  </data>
-  <data name="EditDataDeleteSetCell" xml:space="preserve">
-    <value>Обновление ячейки не может быть применено, поскольку для данной строки ожидается удаление.</value>
-  </data>
-  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
-    <value>Идентификатор столбца должен находиться в диапазоне столбцов запроса</value>
-  </data>
-  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
-    <value>Столбец не может быть изменен</value>
-  </data>
-  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
-    <value>Ключевые поля не найдены</value>
-  </data>
-  <data name="EditDataScriptFilePathNull" xml:space="preserve">
-    <value>Должно быть указано имя выходного файла</value>
-  </data>
-  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
-    <value>Объект базы данных {0} не может использоваться для редактирования.</value>
-  </data>
-  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>Указанный URI '{0}' не имеет соединения по умолчанию</value>
-  </data>
-  <data name="EditDataCommitInProgress" xml:space="preserve">
-    <value>Выполняется фиксация. Пожалуйста, дождитесь завершения.</value>
-  </data>
-  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>В десятичном столбце отсутствует числовая точность или масштаб</value>
-  </data>
-  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
-    <value>&lt;TBD&gt;</value>
-  </data>
-  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>Невозможно добавить строку в файл буфера, поток не содержит строк</value>
-  </data>
-  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>Значение столбца TIME должно находиться в диапазоне между 00:00:00.0000000 и 23:59:59.9999999</value>
-  </data>
-  <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>Значение NULL недопустимо в этом столбце.</value>
-  </data>
-  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
-    <value>Сеанс редактирования уже существует.</value>
-  </data>
-  <data name="EditDataSessionNotInitialized" xml:space="preserve">
-    <value>Сеанс редактирования не был инициализирован.</value>
-  </data>
-  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
-    <value>Сеанс редактирования уже был инициализирован.</value>
-  </data>
-  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
-    <value>Сеанс редактирования уже был инициализирован или находится в процессе инициализации</value>
-  </data>
-  <data name="EditDataQueryFailed" xml:space="preserve">
-    <value>Не удалось выполнить запрос, см. сообщения для получения подробностей</value>
-  </data>
-  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
-    <value>Значение, определяющее ограничение числа записей, не может быть отрицательным</value>
-  </data>
-  <data name="QueryServiceCellNull" xml:space="preserve">
-    <value>NULL</value>
-  </data>
-  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
-    <value>Должно быть указано имя объекта</value>
-  </data>
-  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
-    <value>Явное указание сервера или базы данных не поддерживается</value>
-  </data>
-  <data name="EditDataMetadataNotExtended" xml:space="preserve">
-    <value>Метаданные таблицы не имеют расширенных свойств</value>
-  </data>
-  <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>Запрошенная таблица или представление не найдены.</value>
-  </data>
-  <data name="TreeNodeError" xml:space="preserve">
-    <value>Ошибка при расширении: {0}</value>
-  </data>
-  <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>Ошибка при подключении к {0}</value>
-  </data>
-  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>Статистические выражения</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>Роли сервера</value>
-  </data>
-  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Роли приложения</value>
-  </data>
-  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>Сборки</value>
-  </data>
-  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>Файлы сборки</value>
-  </data>
-  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>Асимметричные ключи</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>Асимметричные ключи</value>
-  </data>
-  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>Параметры сжатия данных</value>
-  </data>
-  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>Сертификаты</value>
-  </data>
-  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>Объекты FileTable</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>Сертификаты</value>
-  </data>
-  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Проверочные ограничения</value>
-  </data>
-  <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>Столбцы</value>
-  </data>
-  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>Ограничения</value>
-  </data>
-  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>Контракты</value>
-  </data>
-  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>Учетные данные</value>
-  </data>
-  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>Сообщения об ошибках</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>Участие в роли сервера</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>Параметры базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>Роли базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>Членства в роли</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>Триггеры базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>Ограничения по умолчанию</value>
-  </data>
-  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>Значения по умолчанию</value>
-  </data>
-  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>Последовательности</value>
-  </data>
-  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>Конечные точки</value>
-  </data>
-  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>Уведомления о событиях</value>
-  </data>
-  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>Уведомления о событиях сервера</value>
-  </data>
-  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>Расширенные свойства</value>
-  </data>
-  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>Файловые группы</value>
-  </data>
-  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>Внешние ключи</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>Полнотекстовые каталоги</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>Полнотекстовые индексы</value>
-  </data>
-  <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>Функции</value>
-  </data>
-  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>Индексы</value>
-  </data>
-  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>Встроенная функции</value>
-  </data>
-  <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>Ключи</value>
-  </data>
-  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>Связанные серверы</value>
-  </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Имена входа на связанный сервер</value>
-  </data>
-  <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Имена входа</value>
-  </data>
-  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>Главный ключ</value>
-  </data>
-  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>Главные ключи</value>
-  </data>
-  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>Типы сообщений</value>
-  </data>
-  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Функция с табличным значением</value>
-  </data>
-  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>Параметры</value>
-  </data>
-  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>Функции секционирования</value>
-  </data>
-  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>Схемы секционирования</value>
-  </data>
-  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>Разрешения</value>
-  </data>
-  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>Первичные ключи</value>
-  </data>
-  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Программируемость</value>
-  </data>
-  <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>Списки ожидания</value>
-  </data>
-  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>Привязки удаленных служб</value>
-  </data>
-  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Возвращенные столбцы</value>
-  </data>
-  <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>Роли</value>
-  </data>
-  <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>Маршруты</value>
-  </data>
-  <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>Правила</value>
-  </data>
-  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>Схемы</value>
-  </data>
-  <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>Безопасность</value>
-  </data>
-  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>Объекты сервера</value>
-  </data>
-  <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>Управление</value>
-  </data>
-  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>Триггеры</value>
-  </data>
-  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
-    <value>Компонент Service Broker</value>
-  </data>
-  <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>Службы</value>
-  </data>
-  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>Сигнатуры</value>
-  </data>
-  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>Файлы журнала</value>
-  </data>
-  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>Статистика</value>
-  </data>
-  <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>Хранилище</value>
-  </data>
-  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>Хранимые процедуры</value>
-  </data>
-  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>Симметричные ключи</value>
-  </data>
-  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>Синонимы</value>
-  </data>
-  <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>Таблицы</value>
-  </data>
-  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>Триггеры</value>
-  </data>
-  <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>Типы</value>
-  </data>
-  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>Уникальные ключи</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>Определяемые пользователем типы данных</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>Определяемые пользователем типы (CLR)</value>
-  </data>
-  <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>Пользователи</value>
-  </data>
-  <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>Представления</value>
-  </data>
-  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML-индексы</value>
-  </data>
-  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>Коллекция схем XML</value>
-  </data>
-  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>Определяемые пользователем типы таблиц</value>
-  </data>
-  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>Файлы</value>
-  </data>
-  <data name="MissingCaption" xml:space="preserve">
-    <value>Отсутствует заголовок</value>
-  </data>
-  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Приоритеты брокера</value>
-  </data>
-  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>Поставщики служб шифрования</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>Спецификации аудита базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>Ключи шифрования базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>Сеансы событий</value>
-  </data>
-  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>Полнотекстовые списки стоп-слов</value>
-  </data>
-  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>Пулы ресурсов</value>
-  </data>
-  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>Аудит</value>
-  </data>
-  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>Спецификации аудита сервера</value>
-  </data>
-  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>Пространственные индексы</value>
-  </data>
-  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>Группы рабочей нагрузки</value>
-  </data>
-  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>Файлы SQL</value>
-  </data>
-  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>Функции сервера</value>
-  </data>
-  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>Тип SQL</value>
-  </data>
-  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>Параметры сервера</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Диаграммы базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>Системные таблицы</value>
-  </data>
-  <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>Базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>Системные контракты</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>Системные базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>Системные типы сообщений</value>
-  </data>
-  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>Системные очереди</value>
-  </data>
-  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>Системные службы</value>
-  </data>
-  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>Системные хранимые процедуры</value>
-  </data>
-  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>Системные представления</value>
-  </data>
-  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>Приложения уровня данных</value>
-  </data>
-  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>Расширенные хранимые процедуры</value>
-  </data>
-  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>Агрегатные функции</value>
-  </data>
-  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Приблизительные числовые значения</value>
-  </data>
-  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>Двоичные строки</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>Символьные строки</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>Типы данных CLR</value>
-  </data>
-  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Функции конфигурации</value>
-  </data>
-  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>Функции работы с курсорами</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>Системные типы данных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>Дата и время</value>
-  </data>
-  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>Функции даты и времени</value>
-  </data>
-  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>Точные числовые значения</value>
-  </data>
-  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>Системные функции</value>
-  </data>
-  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>Функции идентификаторов иерархии</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>Математические функции</value>
-  </data>
-  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>Функции метаданных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Другие типы данных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Другие функции</value>
-  </data>
-  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Функции набора строк</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>Функции безопасности</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>Пространственные типы данных</value>
-  </data>
-  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>Строковые функции</value>
-  </data>
-  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>Системные статистические функции</value>
-  </data>
-  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Функции для работы с изображениями и текстом</value>
-  </data>
-  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Строки символов в Юникоде</value>
-  </data>
-  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>Агрегатные функции</value>
-  </data>
-  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>Скалярные функции</value>
-  </data>
-  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>Функции с табличным значением</value>
-  </data>
-  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>Системные расширенные хранимые процедуры</value>
-  </data>
-  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>Встроенные типы</value>
-  </data>
-  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>Встроенные роли сервера</value>
-  </data>
-  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>Пользователь с паролем</value>
-  </data>
-  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>Список свойств поиска</value>
-  </data>
-  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>Политики безопасности</value>
-  </data>
-  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>Предикаты безопасности</value>
-  </data>
-  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>Роль сервера</value>
-  </data>
-  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>Списки свойств поиска</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>Индексы хранилища столбцов</value>
-  </data>
-  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>Индексы типов таблиц</value>
-  </data>
-  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>Селективные XML-индексы</value>
-  </data>
-  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>Пространства имен XML</value>
-  </data>
-  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>Типизированные повышенные пути XML</value>
-  </data>
-  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>Типизированные повышенные пути T-SQL</value>
-  </data>
-  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>Учетные данные для базы данных</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>Внешние источники данных</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>Внешние форматы файлов</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>Внешние ресурсы</value>
-  </data>
-  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>Внешние таблицы</value>
-  </data>
-  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Ключи Always Encrypted</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Главные ключи столбца</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>Ключи шифрования столбца</value>
-  </data>
-  <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>Сервер</value>
-  </data>
-  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Ошибка при анализе свойства ScriptingParams.ConnectionString.</value>
-  </data>
-  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>Недопустимый каталог указан в свойстве ScriptingParams.FilePath.</value>
-  </data>
-  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
-    <value>{0} ({1}, {2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>Нет значения по умолчанию</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>Входной</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>Входной/выходной</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>Входной/только для чтения</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>Входной/выходной/только для чтения</value>
-  </data>
-  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>Значение по умолчанию</value>
-  </data>
-  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>null</value>
-  </data>
-  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>not null</value>
-  </data>
-  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
-    <value>{0} ({1}, {2})</value>
-  </data>
-  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1})</value>
-  </data>
-  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} (вычислено {1}, {2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0} (вычислено {1})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (набор столбцов, {1})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (набор столбцов, {1}{2}, {3})</value>
-  </data>
-  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (набор столбцов, {1}, {2}, {3})</value>
-  </data>
-  <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>UNIQUE</value>
-  </data>
-  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>Неуникальный</value>
-  </data>
-  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Кластеризованный</value>
-  </data>
-  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Некластеризованный</value>
-  </data>
-  <data name="History_LabelPart" xml:space="preserve">
-    <value>Журнал</value>
-  </data>
-  <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>Системно-версионный</value>
-  </data>
-  <data name="unavailable" xml:space="preserve">
-    <value>Недоступно</value>
-  </data>
-  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
-    <value>Текущая файловая группа по умолчанию: {0}</value>
-  </data>
-  <data name="filegroup_dialog_title" xml:space="preserve">
-    <value>Создание файловой группы для {0}</value>
-  </data>
-  <data name="filegroups_default" xml:space="preserve">
-    <value>Значение по умолчанию</value>
-  </data>
-  <data name="filegroups_files" xml:space="preserve">
-    <value>Файлы</value>
-  </data>
-  <data name="filegroups_name" xml:space="preserve">
-    <value>Имя</value>
-  </data>
-  <data name="filegroups_readonly" xml:space="preserve">
-    <value>Только для чтения</value>
-  </data>
-  <data name="general_autogrowth" xml:space="preserve">
-    <value>Автоувеличение/максимальный размер</value>
-  </data>
-  <data name="general_builderText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="general_default" xml:space="preserve">
-    <value>&lt;по умолчанию&gt;</value>
-  </data>
-  <data name="general_fileGroup" xml:space="preserve">
-    <value>Группа файлов</value>
-  </data>
-  <data name="general_fileName" xml:space="preserve">
-    <value>Логическое имя</value>
-  </data>
-  <data name="general_fileType" xml:space="preserve">
-    <value>Тип файла</value>
-  </data>
-  <data name="general_initialSize" xml:space="preserve">
-    <value>Начальный размер (МБ)</value>
-  </data>
-  <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;создать файловую группу&gt;</value>
-  </data>
-  <data name="general_path" xml:space="preserve">
-    <value>Путь</value>
-  </data>
-  <data name="general_physicalFileName" xml:space="preserve">
-    <value>Имя файла</value>
-  </data>
-  <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;неформатированный носитель&gt;</value>
-  </data>
-  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
-    <value>С неполным протоколированием</value>
-  </data>
-  <data name="general_recoveryModel_full" xml:space="preserve">
-    <value>Полная</value>
-  </data>
-  <data name="general_recoveryModel_simple" xml:space="preserve">
-    <value>Простая</value>
-  </data>
-  <data name="general_titleSearchOwner" xml:space="preserve">
-    <value>Выбор владельца базы данных</value>
-  </data>
-  <data name="prototype_autogrowth_disabled" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
-    <value>С шагом по {0} МБ до {1} МБ</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
-    <value>С шагом по {0}% до {1} МБ </value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
-    <value>С шагом по {0} МБ, без ограничений</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
-    <value>С шагом по {0} %, без ограничений</value>
-  </data>
-  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
-    <value>Без ограничений</value>
-  </data>
-  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
-    <value>Ограничено {0} МБ</value>
-  </data>
-  <data name="prototype_db_category_automatic" xml:space="preserve">
-    <value>Автоматически</value>
-  </data>
-  <data name="prototype_db_category_servicebroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="prototype_db_category_collation" xml:space="preserve">
-    <value>Параметры сортировки</value>
-  </data>
-  <data name="prototype_db_category_cursor" xml:space="preserve">
-    <value>Курсор</value>
-  </data>
-  <data name="prototype_db_category_misc" xml:space="preserve">
-    <value>Прочее</value>
-  </data>
-  <data name="prototype_db_category_recovery" xml:space="preserve">
-    <value>Восстановление</value>
-  </data>
-  <data name="prototype_db_category_state" xml:space="preserve">
-    <value>Состояние</value>
-  </data>
-  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
-    <value>По умолчанию ANSI NULL</value>
-  </data>
-  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
-    <value>Значения ANSI NULLS включены</value>
-  </data>
-  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
-    <value>Включено заполнение ANSI </value>
-  </data>
-  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
-    <value>Включены предупреждения ANSI</value>
-  </data>
-  <data name="prototype_db_prop_arithabort" xml:space="preserve">
-    <value>Включено прерывание при делении на ноль </value>
-  </data>
-  <data name="prototype_db_prop_autoClose" xml:space="preserve">
-    <value>Auto Close</value>
-  </data>
-  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
-    <value>Автоматическое создание статистики</value>
-  </data>
-  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
-    <value>Автоматическое сжатие</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
-    <value>Автоматическое обновление статистики </value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
-    <value>Асинхронное автообновление статистики</value>
-  </data>
-  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
-    <value>Case Sensitive</value>
-  </data>
-  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
-    <value>Закрывать курсор при разрешении фиксации </value>
-  </data>
-  <data name="prototype_db_prop_collation" xml:space="preserve">
-    <value>Параметры сортировки</value>
-  </data>
-  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
-    <value>Объединение со значением NULL дает NULL </value>
-  </data>
-  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
-    <value>Уровень совместимости базы данных</value>
-  </data>
-  <data name="prototype_db_prop_databaseState" xml:space="preserve">
-    <value>Состояние базы данных </value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
-    <value>Курсор по умолчанию</value>
-  </data>
-  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
-    <value>Полнотекстовое индексирование включено </value>
-  </data>
-  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
-    <value>Автоокругление чисел </value>
-  </data>
-  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
-    <value>Проверка страниц </value>
-  </data>
-  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
-    <value>Включены заключенные в кавычки идентификаторы</value>
-  </data>
-  <data name="prototype_db_prop_readOnly" xml:space="preserve">
-    <value>База данных только для чтения</value>
-  </data>
-  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
-    <value>Включены рекурсивные триггеры </value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
-    <value>Ограничение доступа</value>
-  </data>
-  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
-    <value>Выбор/Массовое копирование </value>
-  </data>
-  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
-    <value>Учитывать приоритет компонента Honor Broker</value>
-  </data>
-  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
-    <value>Идентификатор компонента Service Broker</value>
-  </data>
-  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
-    <value>Включен компонент Broker</value>
-  </data>
-  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
-    <value>Усечение журнала на контрольной точке </value>
-  </data>
-  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
-    <value>Межбазовые цепочки владения включены</value>
-  </data>
-  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
-    <value>Заслуживает доверия</value>
-  </data>
-  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
-    <value>Принудительное</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
-    <value>Простая</value>
-  </data>
-  <data name="prototype_file_dataFile" xml:space="preserve">
-    <value>Данные СТРОК</value>
-  </data>
-  <data name="prototype_file_logFile" xml:space="preserve">
-    <value>ЖУРНАЛ</value>
-  </data>
-  <data name="prototype_file_filestreamFile" xml:space="preserve">
-    <value>Данные FILESTREAM</value>
-  </data>
-  <data name="prototype_file_noFileGroup" xml:space="preserve">
-    <value>Неприменимо</value>
-  </data>
-  <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;default path&gt;</value>
-  </data>
-  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>Открытые соединения</value>
-  </data>
-  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>Чтобы изменить свойства базы данных, SQL Server должен закрыть все остальные соединения с этой базой данных. Изменить свойства и закрыть остальные соединения?</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
-    <value>AUTO_CLOSED</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
-    <value>EMERGENCY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
-    <value>INACCESSIBLE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
-    <value>NORMAL</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
-    <value>OFFLINE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
-    <value>RECOVERING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
-    <value>RECOVERY PENDING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
-    <value>RESTORING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
-    <value>SHUTDOWN</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
-    <value>STANDBY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
-    <value>SUSPECT</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
-    <value>GLOBAL</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
-    <value>LOCAL</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
-    <value>MULTI_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
-    <value>RESTRICTED_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
-    <value>SINGLE_USER</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
-    <value>CHECKSUM</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
-    <value>TORN_PAGE_DETECTION</value>
-  </data>
-  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
-    <value>Включен формат хранения VarDecimal</value>
-  </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-  </data>
-  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
-    <value>Шифрование включено</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
-    <value>ОТКЛ.</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
-    <value>ВКЛ.</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
-    <value>ПЕРВИЧНЫЙ</value>
-  </data>
-  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
-    <value>Для политики распространения HASH количество начальных хэш-столбцов указывать не обязательно. Оно может составлять от 1 до 16 столбцов</value>
-  </data>
-  <data name="compatibilityLevel_denali" xml:space="preserve">
-    <value>SQL Server 2012 (110)</value>
-  </data>
-  <data name="compatibilityLevel_sql14" xml:space="preserve">
-    <value>SQL Server 2014 (120)</value>
-  </data>
-  <data name="compatibilityLevel_sql15" xml:space="preserve">
-    <value>SQL Server 2016 (130)</value>
-  </data>
-  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
-    <value>SQL Server vNext (140)</value>
-  </data>
-  <data name="general_containmentType_None" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="general_containmentType_Partial" xml:space="preserve">
-    <value>Частично</value>
-  </data>
-  <data name="filegroups_filestreamFiles" xml:space="preserve">
-    <value>Файлы FILESTREAM</value>
-  </data>
-  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
-    <value>Применимая файловая группа отсутствует</value>
-  </data>
-  <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>База данных {0} недоступна.</value>
-  </data>
-  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>запрос не имеет результатов</value>
-  </data>
-  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>Pезультатов слишком много строк для безопасной загрузки</value>
-  </data>
-  <data name="prototype_db_prop_parameterization" xml:space="preserve">
-    <value>Параметризация</value>
-  </data>
-  <data name="ConflictWithNoRecovery" xml:space="preserve">
-    <value>Не разрешается указывать этот параметр при восстановлении резервной копии с параметром NORECOVERY.</value>
-  </data>
-  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
-    <value>Недопустимый путь к файлу базы данных: {0}""""</value>
-  </data>
-  <data name="Log" xml:space="preserve">
-    <value>Журнал</value>
-  </data>
-  <data name="RestorePlanFailed" xml:space="preserve">
-    <value>Не удалось создать план восстановления </value>
-  </data>
-  <data name="RestoreNotSupported" xml:space="preserve">
-    <value>Восстановление базы данных не поддерживается</value>
-  </data>
-  <data name="RestoreTaskName" xml:space="preserve">
-    <value>Восстановление базы данных</value>
-  </data>
-  <data name="RestoreCopyOnly" xml:space="preserve">
-    <value>(Копировать только)</value>
-  </data>
-  <data name="RestoreBackupSetComponent" xml:space="preserve">
-    <value>Тип копии</value>
-  </data>
-  <data name="RestoreBackupSetType" xml:space="preserve">
-    <value>Тип</value>
-  </data>
-  <data name="RestoreBackupSetServer" xml:space="preserve">
-    <value>Сервер</value>
-  </data>
-  <data name="RestoreBackupSetDatabase" xml:space="preserve">
-    <value>База данных</value>
-  </data>
-  <data name="RestoreBackupSetPosition" xml:space="preserve">
-    <value>Положение</value>
-  </data>
-  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
-    <value>Первый номер LSN</value>
-  </data>
-  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
-    <value>Последний номер LSN</value>
-  </data>
-  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
-    <value>Номер LSN для контрольной точки</value>
-  </data>
-  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
-    <value>Полный номер LSN</value>
-  </data>
-  <data name="RestoreBackupSetStartDate" xml:space="preserve">
-    <value>Дата начала</value>
-  </data>
-  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
-    <value>Дата завершения</value>
-  </data>
-  <data name="RestoreBackupSetSize" xml:space="preserve">
-    <value>Размер</value>
-  </data>
-  <data name="RestoreBackupSetUserName" xml:space="preserve">
-    <value>Имя пользователя</value>
-  </data>
-  <data name="RestoreBackupSetExpiration" xml:space="preserve">
-    <value>Истечение срока</value>
-  </data>
-  <data name="RestoreBackupSetName" xml:space="preserve">
-    <value>Имя</value>
-  </data>
-  <data name="TheLastBackupTaken" xml:space="preserve">
-    <value>Последняя созданная резервная копия ({0})</value>
-  </data>
-  <data name="BackupTaskName" xml:space="preserve">
-    <value>Создание резервной копии базы данных</value>
-  </data>
-  <data name="TaskInProgress" xml:space="preserve">
-    <value>Выполняется</value>
-  </data>
-  <data name="TaskCompleted" xml:space="preserve">
-    <value>Завершен</value>
-  </data>
-  <data name="ScriptTaskName" xml:space="preserve">
-    <value>Скрипты</value>
-  </data>
-  <data name="ProfilerConnectionNotFound" xml:space="preserve">
-    <value>Соединение не найдено</value>
-  </data>
-  <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>Указанное имя файла является также именем каталога: {0}</value>
-  </data>
-  <data name="InvalidBackupPathError" xml:space="preserve">
-    <value>Невозможно проверить существование расположения файла резервной копии: {0}</value>
-  </data>
-  <data name="InvalidPathError" xml:space="preserve">
-    <value>Указанный путь на сервере недоступен: {0}</value>
-  </data>
-  <data name="NoBackupsetsToRestore" xml:space="preserve">
-    <value>Для восстановления не выбран резервный набор данных</value>
-  </data>
-  <data name="NeverBackedUp" xml:space="preserve">
-    <value>Никогда </value>
-  </data>
-</root>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ConnectionServiceConnectErrorNullParams"><value>Параметры подключения должны быть указаны, значение не может быть неопределенным (null)</value></data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri"><value>OwnerUri не может быть неопределенным или пустым</value></data>
+  <data name="ConnectionServiceListDbErrorNotConnected"><value>SpecifiedUri «{0}» не имеет существующего подключения</value></data>
+  <data name="ConnectionServiceConnStringInvalidAuthType"><value>Значение «{0}» недопустимо для AuthenticationType. Ожидается значение «Integrated» или «SqlLogin».</value></data>
+  <data name="ConnectionServiceConnStringInvalidIntent"><value>Значение «{0}» недопустимо для ApplicationIntent. Ожидается значение «ReadWrite» или «ReadOnly».</value></data>
+  <data name="ConnectionServiceConnectionCanceled"><value>Подключение к серверу отменено.</value></data>
+  <data name="ConnectionParamsValidateNullOwnerUri"><value>OwnerUri не может быть неопределенным или пустым</value></data>
+  <data name="ConnectionParamsValidateNullConnection"><value>Параметры подключения не могут быть неопределенными</value></data>
+  <data name="ConnectionParamsValidateNullServerName"><value>Имя сервера не может быть неопределенным или пустым</value></data>
+  <data name="ConnectionParamsValidateNullSqlAuth"><value>{0} не может быть неопределенным или пустым при использовании проверки подлинности SqlLogin</value></data>
+  <data name="QueryServiceCancelAlreadyCompleted"><value>Запрос уже был выполнен, отмена невозможна</value></data>
+  <data name="QueryServiceCancelDisposeFailed"><value>Запрос успешно отменен, но удалить запрос не удалось. Владелец URI не найден.</value></data>
+  <data name="QueryServiceQueryCancelled"><value>Выполнение запроса отменено пользователем</value></data>
+  <data name="QueryServiceSubsetBatchNotCompleted"><value>Пакет еще не завершен</value></data>
+  <data name="QueryServiceSubsetBatchOutOfRange"><value>Индекс пакета не может быть меньше нуля или больше числа пакетов</value></data>
+  <data name="QueryServiceSubsetResultSetOutOfRange"><value>Индекс не может быть меньше нуля или больше количества записей в наборе</value></data>
+  <data name="QueryServiceDataReaderByteCountInvalid"><value>Максимальное количество возвращаемых байтов должно быть больше нуля</value></data>
+  <data name="QueryServiceDataReaderCharCountInvalid"><value>Максимальное количество возвращаемых символов должно быть больше нуля</value></data>
+  <data name="QueryServiceDataReaderXmlCountInvalid"><value>Максимальное количество возвращаемых из XML байтов должно быть больше нуля</value></data>
+  <data name="QueryServiceFileWrapperWriteOnly"><value>Метод доступа не может быть только для записи.</value></data>
+  <data name="QueryServiceFileWrapperNotInitialized"><value>FileStreamWrapper должен быть инициализирован перед выполнением операций</value></data>
+  <data name="QueryServiceFileWrapperReadOnly"><value>Этот экземпляр FileStreamWrapper не может быть использован для записи</value></data>
+  <data name="QueryServiceAffectedOneRow"><value>(одна строка затронута)</value></data>
+  <data name="QueryServiceAffectedRows"><value>({0} строк затронуто)</value></data>
+  <data name="QueryServiceCompletedSuccessfully"><value>Выполнение команд успешно завершено.</value></data>
+  <data name="QueryServiceErrorFormat"><value>Сообщение {0}, Уровень {1}, Состояние {2}, Строка {3}{4}{5}</value></data>
+  <data name="QueryServiceQueryFailed"><value>Не удалось выполнить запрос: {0}</value></data>
+  <data name="QueryServiceColumnNull"><value>(Нет имени столбца)</value></data>
+  <data name="QueryServiceRequestsNoQuery"><value>Указанный запрос не найден</value></data>
+  <data name="QueryServiceQueryInvalidOwnerUri"><value>Этот редактор не подключен к базе данных</value></data>
+  <data name="QueryServiceQueryInProgress"><value>Запрос уже выполняется для данного сеанса редактора. Отмените запрос или дождитесь завершения его выполнения.</value></data>
+  <data name="QueryServiceMessageSenderNotSql"><value>В качестве отправителя (sender) для события OnInfoMessage ожидается экземпляр SqlConnection</value></data>
+  <data name="QueryServiceSaveAsResultSetNotComplete"><value>Результат не может быть сохранен до завершения выполнения запроса</value></data>
+  <data name="QueryServiceSaveAsMiscStartingError"><value>При запуске задачи сохранения произошла внутренняя ошибка</value></data>
+  <data name="QueryServiceSaveAsInProgress"><value>По указанному пути уже выполняется сохранение результатов</value></data>
+  <data name="QueryServiceSaveAsFail"><value>Не удалось сохранить {0}: {1}</value></data>
+  <data name="QueryServiceResultSetNotRead"><value>Невозможно прочитать подмножество, поскольку результаты еще не были получены с сервера</value></data>
+  <data name="QueryServiceResultSetStartRowOutOfRange"><value>Индекс начальной строки не может быть меньше нуля или больше количества строк, находящихся в результирующем наборе</value></data>
+  <data name="QueryServiceResultSetRowCountOutOfRange"><value>Число строк должно быть положительным целым числом</value></data>
+  <data name="QueryServiceResultSetNoColumnSchema"><value>Не удалось получить столбец схемы для результирующего набора</value></data>
+  <data name="QueryServiceExecutionPlanNotFound"><value>Не удалось получить план выполнения из результирующего набора</value></data>
+  <data name="PeekDefinitionAzureError"><value>В настоящее время эта функция не поддерживается Azure SQL DB и Data Warehouse: {0}</value></data>
+  <data name="PeekDefinitionError"><value>Произошла непредвиденная ошибка во время выполнения Peek Definition: {0}</value></data>
+  <data name="PeekDefinitionNoResultsError"><value>Результаты не найдены.</value></data>
+  <data name="PeekDefinitionDatabaseError"><value>Объект базы данных не был получен.</value></data>
+  <data name="PeekDefinitionNotConnectedError"><value>Подключитесь к серверу.</value></data>
+  <data name="PeekDefinitionTimedoutError"><value>Истекло время ожидания операции.</value></data>
+  <data name="PeekDefinitionTypeNotSupportedError"><value>В настоящее время этот тип объекта не поддерживается этим средством.</value></data>
+  <data name="WorkspaceServicePositionLineOutOfRange"><value>Позиция выходит за пределы диапазона строк файла</value></data>
+  <data name="WorkspaceServicePositionColumnOutOfRange"><value>Позиция выходит за пределы диапазона столбцов строки {0}</value></data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder"><value>Начальная позиция ({0}, {1}) должна быть меньше либо равна конечной ({2}, {3})</value></data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo"><value>Сообщение {0}, уровень {1}, состояние {2}, строка {3}</value></data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo"><value>Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</value></data>
+  <data name="EE_BatchSqlMessageNoLineInfo"><value>Сообщение {0}, уровень {1}, состояние {2}</value></data>
+  <data name="EE_BatchError_Exception"><value>При обработке пакета произошла ошибка: {0}</value></data>
+  <data name="EE_BatchExecutionInfo_RowsAffected"><value>({0} строк затронуто)</value></data>
+  <data name="EE_ExecutionNotYetCompleteError"><value>Предыдущее выполнение еще не завершено.</value></data>
+  <data name="EE_ScriptError_Error"><value>Произошла ошибка сценария.</value></data>
+  <data name="EE_ScriptError_ParsingSyntax"><value>Обнаружен неправильный синтаксис при обработке {0}.</value></data>
+  <data name="EE_ScriptError_FatalError"><value>Произошла неустранимая ошибка.</value></data>
+  <data name="EE_ExecutionInfo_FinalizingLoop"><value>Выполнение завершено такое количество раз: {0}...</value></data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser"><value>Пользователь отменил запрос.</value></data>
+  <data name="EE_BatchExecutionError_Halting"><value>При выполнении пакета произошла ошибка.</value></data>
+  <data name="EE_BatchExecutionError_Ignoring"><value>В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</value></data>
+  <data name="EE_ExecutionInfo_InitializingLoop"><value>Beginning execution loop</value></data>
+  <data name="EE_ExecutionError_CommandNotSupported"><value>Команда {0} не поддерживается.</value></data>
+  <data name="EE_ExecutionError_VariableNotFound"><value>Переменная {0} не найдена.</value></data>
+  <data name="BatchParserWrapperExecutionEngineError"><value>Ошибка выполнения SQL: {0}</value></data>
+  <data name="BatchParserWrapperExecutionError"><value>BatchParserWrapper: {0} найдено; строка {1}: {2}; описание: {3}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage"><value>BatchParserWrapper получено сообщение: {0}. Детали: {1}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing"><value>BatchParserWrapper выполнение пакетной обработки ResultSet. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished"><value>BatchParserWrapper: обработка завершена.</value></data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling"><value>BatchParserWrapper: выполнение пакета отменено.</value></data>
+  <data name="EE_ScriptError_Warning"><value>Сценарий содержит предупреждения.</value></data>
+  <data name="TroubleshootingAssistanceMessage"><value>Для получения дополнительной информации об этой ошибке, обратитесь к разделам по устранению неполадок в документации по продукту.</value></data>
+  <data name="BatchParser_CircularReference"><value>Обнаружена рекурсивная ссылка на файл «{0}».</value></data>
+  <data name="BatchParser_CommentNotTerminated"><value>Отсутствует обозначение конца комментария - «*/».</value></data>
+  <data name="BatchParser_StringNotTerminated"><value>Незакрытые кавычки в конце символьной строки.</value></data>
+  <data name="BatchParser_IncorrectSyntax"><value>При разборе «{0}» обнаружен неправильный синтаксис.</value></data>
+  <data name="BatchParser_VariableNotDefined"><value>Переменная {0} не определена.</value></data>
+  <data name="TestLocalizationConstant"><value>тест</value></data>
+  <data name="ErrorEmptyStringReplacement"><value>Замена пустой строки на пустую строку.</value></data>
+  <data name="EditDataSessionNotFound"><value>Сеанс не найден.</value></data>
+  <data name="EditDataQueryNotCompleted"><value>Выполнение запроса не завершено</value></data>
+  <data name="EditDataQueryImproperResultSets"><value>Запрос должен содержать только один набор результатов</value></data>
+  <data name="EditDataFailedAddRow"><value>Не удалось добавить новую строку в кэш обновлений</value></data>
+  <data name="EditDataRowOutOfRange"><value>Указанный идентификатор строки находится за пределами диапазона строк в кэше редактирования</value></data>
+  <data name="EditDataUpdatePending"><value>Обновление уже отправлено для этой строки и должно быть отменено первым</value></data>
+  <data name="EditDataUpdateNotPending"><value>Для указанной строки нет обновлений в очереди</value></data>
+  <data name="EditDataObjectMetadataNotFound"><value>Не удалось найти метаданные таблицы или представления</value></data>
+  <data name="EditDataInvalidFormatBinary"><value>Недопустимый формат данных для двоичного столбца</value></data>
+  <data name="EditDataInvalidFormatBoolean"><value>Логические столбцы должны содержать число 1 или 0, либо строку true или false</value></data>
+  <data name="EditDataCreateScriptMissingValue"><value>Недопустимое значение ячейки</value></data>
+  <data name="EditDataDeleteSetCell"><value>Обновление ячейки не может быть применено, поскольку для данной строки ожидается удаление.</value></data>
+  <data name="EditDataColumnIdOutOfRange"><value>Идентификатор столбца должен находиться в диапазоне столбцов запроса</value></data>
+  <data name="EditDataColumnCannotBeEdited"><value>Столбец не может быть изменен</value></data>
+  <data name="EditDataColumnNoKeyColumns"><value>Ключевые поля не найдены</value></data>
+  <data name="EditDataScriptFilePathNull"><value>Должно быть указано имя выходного файла</value></data>
+  <data name="EditDataUnsupportedObjectType"><value>Объект базы данных {0} не может использоваться для редактирования.</value></data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected"><value>Указанный URI '{0}' не имеет соединения по умолчанию</value></data>
+  <data name="EditDataCommitInProgress"><value>Выполняется фиксация. Пожалуйста, дождитесь завершения.</value></data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision"><value>В десятичном столбце отсутствует числовая точность или масштаб</value></data>
+  <data name="EditDataComputedColumnPlaceholder"><value>&lt;TBD&gt;</value></data>
+  <data name="QueryServiceResultSetAddNoRows"><value>Невозможно добавить строку в файл буфера, поток не содержит строк</value></data>
+  <data name="EditDataTimeOver24Hrs"><value>Значение столбца TIME должно находиться в диапазоне между 00:00:00.0000000 и 23:59:59.9999999</value></data>
+  <data name="EditDataNullNotAllowed"><value>Значение NULL недопустимо в этом столбце.</value></data>
+  <data name="EditDataSessionAlreadyExists"><value>Сеанс редактирования уже существует.</value></data>
+  <data name="EditDataSessionNotInitialized"><value>Сеанс редактирования не был инициализирован.</value></data>
+  <data name="EditDataSessionAlreadyInitialized"><value>Сеанс редактирования уже был инициализирован.</value></data>
+  <data name="EditDataSessionAlreadyInitializing"><value>Сеанс редактирования уже был инициализирован или находится в процессе инициализации</value></data>
+  <data name="EditDataQueryFailed"><value>Не удалось выполнить запрос, см. сообщения для получения подробностей</value></data>
+  <data name="EditDataFilteringNegativeLimit"><value>Значение, определяющее ограничение числа записей, не может быть отрицательным</value></data>
+  <data name="QueryServiceCellNull"><value>NULL</value></data>
+  <data name="EditDataMetadataObjectNameRequired"><value>Должно быть указано имя объекта</value></data>
+  <data name="EditDataMetadataTooManyIdentifiers"><value>Явное указание сервера или базы данных не поддерживается</value></data>
+  <data name="EditDataMetadataNotExtended"><value>Метаданные таблицы не имеют расширенных свойств</value></data>
+  <data name="EditDataObjectNotFound"><value>Запрошенная таблица или представление не найдены.</value></data>
+  <data name="TreeNodeError"><value>Ошибка при расширении: {0}</value></data>
+  <data name="ServerNodeConnectionError"><value>Ошибка при подключении к {0}</value></data>
+  <data name="SchemaHierarchy_Aggregates"><value>Статистические выражения</value></data>
+  <data name="SchemaHierarchy_ServerRoles"><value>Роли сервера</value></data>
+  <data name="SchemaHierarchy_ApplicationRoles"><value>Роли приложения</value></data>
+  <data name="SchemaHierarchy_Assemblies"><value>Сборки</value></data>
+  <data name="SchemaHierarchy_AssemblyFiles"><value>Файлы сборки</value></data>
+  <data name="SchemaHierarchy_AsymmetricKeys"><value>Асимметричные ключи</value></data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys"><value>Асимметричные ключи</value></data>
+  <data name="SchemaHierarchy_DataCompressionOptions"><value>Параметры сжатия данных</value></data>
+  <data name="SchemaHierarchy_Certificates"><value>Сертификаты</value></data>
+  <data name="SchemaHierarchy_FileTables"><value>Объекты FileTable</value></data>
+  <data name="SchemaHierarchy_DatabaseCertificates"><value>Сертификаты</value></data>
+  <data name="SchemaHierarchy_CheckConstraints"><value>Проверочные ограничения</value></data>
+  <data name="SchemaHierarchy_Columns"><value>Столбцы</value></data>
+  <data name="SchemaHierarchy_Constraints"><value>Ограничения</value></data>
+  <data name="SchemaHierarchy_Contracts"><value>Контракты</value></data>
+  <data name="SchemaHierarchy_Credentials"><value>Учетные данные</value></data>
+  <data name="SchemaHierarchy_ErrorMessages"><value>Сообщения об ошибках</value></data>
+  <data name="SchemaHierarchy_ServerRoleMembership"><value>Участие в роли сервера</value></data>
+  <data name="SchemaHierarchy_DatabaseOptions"><value>Параметры базы данных</value></data>
+  <data name="SchemaHierarchy_DatabaseRoles"><value>Роли базы данных</value></data>
+  <data name="SchemaHierarchy_RoleMemberships"><value>Членства в роли</value></data>
+  <data name="SchemaHierarchy_DatabaseTriggers"><value>Триггеры базы данных</value></data>
+  <data name="SchemaHierarchy_DefaultConstraints"><value>Ограничения по умолчанию</value></data>
+  <data name="SchemaHierarchy_Defaults"><value>Значения по умолчанию</value></data>
+  <data name="SchemaHierarchy_Sequences"><value>Последовательности</value></data>
+  <data name="SchemaHierarchy_Endpoints"><value>Конечные точки</value></data>
+  <data name="SchemaHierarchy_EventNotifications"><value>Уведомления о событиях</value></data>
+  <data name="SchemaHierarchy_ServerEventNotifications"><value>Уведомления о событиях сервера</value></data>
+  <data name="SchemaHierarchy_ExtendedProperties"><value>Расширенные свойства</value></data>
+  <data name="SchemaHierarchy_FileGroups"><value>Файловые группы</value></data>
+  <data name="SchemaHierarchy_ForeignKeys"><value>Внешние ключи</value></data>
+  <data name="SchemaHierarchy_FullTextCatalogs"><value>Полнотекстовые каталоги</value></data>
+  <data name="SchemaHierarchy_FullTextIndexes"><value>Полнотекстовые индексы</value></data>
+  <data name="SchemaHierarchy_Functions"><value>Функции</value></data>
+  <data name="SchemaHierarchy_Indexes"><value>Индексы</value></data>
+  <data name="SchemaHierarchy_InlineFunctions"><value>Встроенная функции</value></data>
+  <data name="SchemaHierarchy_Keys"><value>Ключи</value></data>
+  <data name="SchemaHierarchy_LinkedServers"><value>Связанные серверы</value></data>
+  <data name="SchemaHierarchy_LinkedServerLogins"><value>Имена входа на связанный сервер</value></data>
+  <data name="SchemaHierarchy_Logins"><value>Имена входа</value></data>
+  <data name="SchemaHierarchy_MasterKey"><value>Главный ключ</value></data>
+  <data name="SchemaHierarchy_MasterKeys"><value>Главные ключи</value></data>
+  <data name="SchemaHierarchy_MessageTypes"><value>Типы сообщений</value></data>
+  <data name="SchemaHierarchy_MultiSelectFunctions"><value>Функция с табличным значением</value></data>
+  <data name="SchemaHierarchy_Parameters"><value>Параметры</value></data>
+  <data name="SchemaHierarchy_PartitionFunctions"><value>Функции секционирования</value></data>
+  <data name="SchemaHierarchy_PartitionSchemes"><value>Схемы секционирования</value></data>
+  <data name="SchemaHierarchy_Permissions"><value>Разрешения</value></data>
+  <data name="SchemaHierarchy_PrimaryKeys"><value>Первичные ключи</value></data>
+  <data name="SchemaHierarchy_Programmability"><value>Программируемость</value></data>
+  <data name="SchemaHierarchy_Queues"><value>Списки ожидания</value></data>
+  <data name="SchemaHierarchy_RemoteServiceBindings"><value>Привязки удаленных служб</value></data>
+  <data name="SchemaHierarchy_ReturnedColumns"><value>Возвращенные столбцы</value></data>
+  <data name="SchemaHierarchy_Roles"><value>Роли</value></data>
+  <data name="SchemaHierarchy_Routes"><value>Маршруты</value></data>
+  <data name="SchemaHierarchy_Rules"><value>Правила</value></data>
+  <data name="SchemaHierarchy_Schemas"><value>Схемы</value></data>
+  <data name="SchemaHierarchy_Security"><value>Безопасность</value></data>
+  <data name="SchemaHierarchy_ServerObjects"><value>Объекты сервера</value></data>
+  <data name="SchemaHierarchy_Management"><value>Управление</value></data>
+  <data name="SchemaHierarchy_ServerTriggers"><value>Триггеры</value></data>
+  <data name="SchemaHierarchy_ServiceBroker"><value>Компонент Service Broker</value></data>
+  <data name="SchemaHierarchy_Services"><value>Службы</value></data>
+  <data name="SchemaHierarchy_Signatures"><value>Сигнатуры</value></data>
+  <data name="SchemaHierarchy_LogFiles"><value>Файлы журнала</value></data>
+  <data name="SchemaHierarchy_Statistics"><value>Статистика</value></data>
+  <data name="SchemaHierarchy_Storage"><value>Хранилище</value></data>
+  <data name="SchemaHierarchy_StoredProcedures"><value>Хранимые процедуры</value></data>
+  <data name="SchemaHierarchy_SymmetricKeys"><value>Симметричные ключи</value></data>
+  <data name="SchemaHierarchy_Synonyms"><value>Синонимы</value></data>
+  <data name="SchemaHierarchy_Tables"><value>Таблицы</value></data>
+  <data name="SchemaHierarchy_Triggers"><value>Триггеры</value></data>
+  <data name="SchemaHierarchy_Types"><value>Типы</value></data>
+  <data name="SchemaHierarchy_UniqueKeys"><value>Уникальные ключи</value></data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes"><value>Определяемые пользователем типы данных</value></data>
+  <data name="SchemaHierarchy_UserDefinedTypes"><value>Определяемые пользователем типы (CLR)</value></data>
+  <data name="SchemaHierarchy_Users"><value>Пользователи</value></data>
+  <data name="SchemaHierarchy_Views"><value>Представления</value></data>
+  <data name="SchemaHierarchy_XmlIndexes"><value>XML-индексы</value></data>
+  <data name="SchemaHierarchy_XMLSchemaCollections"><value>Коллекция схем XML</value></data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes"><value>Определяемые пользователем типы таблиц</value></data>
+  <data name="SchemaHierarchy_FilegroupFiles"><value>Файлы</value></data>
+  <data name="MissingCaption"><value>Отсутствует заголовок</value></data>
+  <data name="SchemaHierarchy_BrokerPriorities"><value>Приоритеты брокера</value></data>
+  <data name="SchemaHierarchy_CryptographicProviders"><value>Поставщики служб шифрования</value></data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications"><value>Спецификации аудита базы данных</value></data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys"><value>Ключи шифрования базы данных</value></data>
+  <data name="SchemaHierarchy_EventSessions"><value>Сеансы событий</value></data>
+  <data name="SchemaHierarchy_FullTextStopLists"><value>Полнотекстовые списки стоп-слов</value></data>
+  <data name="SchemaHierarchy_ResourcePools"><value>Пулы ресурсов</value></data>
+  <data name="SchemaHierarchy_ServerAudits"><value>Аудит</value></data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications"><value>Спецификации аудита сервера</value></data>
+  <data name="SchemaHierarchy_SpatialIndexes"><value>Пространственные индексы</value></data>
+  <data name="SchemaHierarchy_WorkloadGroups"><value>Группы рабочей нагрузки</value></data>
+  <data name="SchemaHierarchy_SqlFiles"><value>Файлы SQL</value></data>
+  <data name="SchemaHierarchy_ServerFunctions"><value>Функции сервера</value></data>
+  <data name="SchemaHierarchy_SqlType"><value>Тип SQL</value></data>
+  <data name="SchemaHierarchy_ServerOptions"><value>Параметры сервера</value></data>
+  <data name="SchemaHierarchy_DatabaseDiagrams"><value>Диаграммы базы данных</value></data>
+  <data name="SchemaHierarchy_SystemTables"><value>Системные таблицы</value></data>
+  <data name="SchemaHierarchy_Databases"><value>Базы данных</value></data>
+  <data name="SchemaHierarchy_SystemContracts"><value>Системные контракты</value></data>
+  <data name="SchemaHierarchy_SystemDatabases"><value>Системные базы данных</value></data>
+  <data name="SchemaHierarchy_SystemMessageTypes"><value>Системные типы сообщений</value></data>
+  <data name="SchemaHierarchy_SystemQueues"><value>Системные очереди</value></data>
+  <data name="SchemaHierarchy_SystemServices"><value>Системные службы</value></data>
+  <data name="SchemaHierarchy_SystemStoredProcedures"><value>Системные хранимые процедуры</value></data>
+  <data name="SchemaHierarchy_SystemViews"><value>Системные представления</value></data>
+  <data name="SchemaHierarchy_DataTierApplications"><value>Приложения уровня данных</value></data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures"><value>Расширенные хранимые процедуры</value></data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions"><value>Агрегатные функции</value></data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics"><value>Приблизительные числовые значения</value></data>
+  <data name="SchemaHierarchy_SystemBinaryStrings"><value>Двоичные строки</value></data>
+  <data name="SchemaHierarchy_SystemCharacterStrings"><value>Символьные строки</value></data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes"><value>Типы данных CLR</value></data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions"><value>Функции конфигурации</value></data>
+  <data name="SchemaHierarchy_SystemCursorFunctions"><value>Функции работы с курсорами</value></data>
+  <data name="SchemaHierarchy_SystemDataTypes"><value>Системные типы данных</value></data>
+  <data name="SchemaHierarchy_SystemDateAndTime"><value>Дата и время</value></data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions"><value>Функции даты и времени</value></data>
+  <data name="SchemaHierarchy_SystemExactNumerics"><value>Точные числовые значения</value></data>
+  <data name="SchemaHierarchy_SystemFunctions"><value>Системные функции</value></data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions"><value>Функции идентификаторов иерархии</value></data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions"><value>Математические функции</value></data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions"><value>Функции метаданных</value></data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes"><value>Другие типы данных</value></data>
+  <data name="SchemaHierarchy_SystemOtherFunctions"><value>Другие функции</value></data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions"><value>Функции набора строк</value></data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions"><value>Функции безопасности</value></data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes"><value>Пространственные типы данных</value></data>
+  <data name="SchemaHierarchy_SystemStringFunctions"><value>Строковые функции</value></data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions"><value>Системные статистические функции</value></data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions"><value>Функции для работы с изображениями и текстом</value></data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings"><value>Строки символов в Юникоде</value></data>
+  <data name="SchemaHierarchy_AggregateFunctions"><value>Агрегатные функции</value></data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions"><value>Скалярные функции</value></data>
+  <data name="SchemaHierarchy_TableValuedFunctions"><value>Функции с табличным значением</value></data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures"><value>Системные расширенные хранимые процедуры</value></data>
+  <data name="SchemaHierarchy_BuiltInType"><value>Встроенные типы</value></data>
+  <data name="SchemaHierarchy_BuiltInServerRole"><value>Встроенные роли сервера</value></data>
+  <data name="SchemaHierarchy_UserWithPassword"><value>Пользователь с паролем</value></data>
+  <data name="SchemaHierarchy_SearchPropertyList"><value>Список свойств поиска</value></data>
+  <data name="SchemaHierarchy_SecurityPolicies"><value>Политики безопасности</value></data>
+  <data name="SchemaHierarchy_SecurityPredicates"><value>Предикаты безопасности</value></data>
+  <data name="SchemaHierarchy_ServerRole"><value>Роль сервера</value></data>
+  <data name="SchemaHierarchy_SearchPropertyLists"><value>Списки свойств поиска</value></data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes"><value>Индексы хранилища столбцов</value></data>
+  <data name="SchemaHierarchy_TableTypeIndexes"><value>Индексы типов таблиц</value></data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes"><value>Селективные XML-индексы</value></data>
+  <data name="SchemaHierarchy_XmlNamespaces"><value>Пространства имен XML</value></data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths"><value>Типизированные повышенные пути XML</value></data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths"><value>Типизированные повышенные пути T-SQL</value></data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials"><value>Учетные данные для базы данных</value></data>
+  <data name="SchemaHierarchy_ExternalDataSources"><value>Внешние источники данных</value></data>
+  <data name="SchemaHierarchy_ExternalFileFormats"><value>Внешние форматы файлов</value></data>
+  <data name="SchemaHierarchy_ExternalResources"><value>Внешние ресурсы</value></data>
+  <data name="SchemaHierarchy_ExternalTables"><value>Внешние таблицы</value></data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys"><value>Ключи Always Encrypted</value></data>
+  <data name="SchemaHierarchy_ColumnMasterKeys"><value>Главные ключи столбца</value></data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys"><value>Ключи шифрования столбца</value></data>
+  <data name="SchemaHierarchy_Server"><value>Сервер</value></data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid"><value>Ошибка при анализе свойства ScriptingParams.ConnectionString.</value></data>
+  <data name="ScriptingParams_FilePath_Property_Invalid"><value>Недопустимый каталог указан в свойстве ScriptingParams.FilePath.</value></data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid"><value>Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString"><value>{0} ({1}, {2}, {3})</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel"><value>Нет значения по умолчанию</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel"><value>Входной</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel"><value>Входной/выходной</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel"><value>Входной/только для чтения</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel"><value>Входной/выходной/только для чтения</value></data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel"><value>Значение по умолчанию</value></data>
+  <data name="SchemaHierarchy_NullColumn_Label"><value>null</value></data>
+  <data name="SchemaHierarchy_NotNullColumn_Label"><value>not null</value></data>
+  <data name="SchemaHierarchy_UDDTLabelWithType"><value>{0} ({1}, {2})</value></data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType"><value>{0} ({1})</value></data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType"><value>{0} (вычислено {1}, {2}, {3})</value></data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType"><value>{0} (вычислено {1})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType"><value>{0} (набор столбцов, {1})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType"><value>{0} (набор столбцов, {1}{2}, {3})</value></data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString"><value>{0} (набор столбцов, {1}, {2}, {3})</value></data>
+  <data name="UniqueIndex_LabelPart"><value>UNIQUE</value></data>
+  <data name="NonUniqueIndex_LabelPart"><value>Неуникальный</value></data>
+  <data name="ClusteredIndex_LabelPart"><value>Кластеризованный</value></data>
+  <data name="NonClusteredIndex_LabelPart"><value>Некластеризованный</value></data>
+  <data name="History_LabelPart"><value>Журнал</value></data>
+  <data name="SystemVersioned_LabelPart"><value>Системно-версионный</value></data>
+  <data name="unavailable"><value>Недоступно</value></data>
+  <data name="filegroup_dialog_defaultFilegroup"><value>Текущая файловая группа по умолчанию: {0}</value></data>
+  <data name="filegroup_dialog_title"><value>Создание файловой группы для {0}</value></data>
+  <data name="filegroups_default"><value>Значение по умолчанию</value></data>
+  <data name="filegroups_files"><value>Файлы</value></data>
+  <data name="filegroups_name"><value>Имя</value></data>
+  <data name="filegroups_readonly"><value>Только для чтения</value></data>
+  <data name="general_autogrowth"><value>Автоувеличение/максимальный размер</value></data>
+  <data name="general_builderText"><value>...</value></data>
+  <data name="general_default"><value>&lt;по умолчанию&gt;</value></data>
+  <data name="general_fileGroup"><value>Группа файлов</value></data>
+  <data name="general_fileName"><value>Логическое имя</value></data>
+  <data name="general_fileType"><value>Тип файла</value></data>
+  <data name="general_initialSize"><value>Начальный размер (МБ)</value></data>
+  <data name="general_newFilegroup"><value>&lt;создать файловую группу&gt;</value></data>
+  <data name="general_path"><value>Путь</value></data>
+  <data name="general_physicalFileName"><value>Имя файла</value></data>
+  <data name="general_rawDevice"><value>&lt;неформатированный носитель&gt;</value></data>
+  <data name="general_recoveryModel_bulkLogged"><value>С неполным протоколированием</value></data>
+  <data name="general_recoveryModel_full"><value>Полная</value></data>
+  <data name="general_recoveryModel_simple"><value>Простая</value></data>
+  <data name="general_titleSearchOwner"><value>Выбор владельца базы данных</value></data>
+  <data name="prototype_autogrowth_disabled"><value>Нет</value></data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB"><value>С шагом по {0} МБ до {1} МБ</value></data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent"><value>С шагом по {0}% до {1} МБ </value></data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB"><value>С шагом по {0} МБ, без ограничений</value></data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent"><value>С шагом по {0} %, без ограничений</value></data>
+  <data name="prototype_autogrowth_unlimitedfilestream"><value>Без ограничений</value></data>
+  <data name="prototype_autogrowth_limitedfilestream"><value>Ограничено {0} МБ</value></data>
+  <data name="prototype_db_category_automatic"><value>Автоматически</value></data>
+  <data name="prototype_db_category_servicebroker"><value>Service Broker</value></data>
+  <data name="prototype_db_category_collation"><value>Параметры сортировки</value></data>
+  <data name="prototype_db_category_cursor"><value>Курсор</value></data>
+  <data name="prototype_db_category_misc"><value>Прочее</value></data>
+  <data name="prototype_db_category_recovery"><value>Восстановление</value></data>
+  <data name="prototype_db_category_state"><value>Состояние</value></data>
+  <data name="prototype_db_prop_ansiNullDefault"><value>По умолчанию ANSI NULL</value></data>
+  <data name="prototype_db_prop_ansiNulls"><value>Значения ANSI NULLS включены</value></data>
+  <data name="prototype_db_prop_ansiPadding"><value>Включено заполнение ANSI </value></data>
+  <data name="prototype_db_prop_ansiWarnings"><value>Включены предупреждения ANSI</value></data>
+  <data name="prototype_db_prop_arithabort"><value>Включено прерывание при делении на ноль </value></data>
+  <data name="prototype_db_prop_autoClose"><value>Auto Close</value></data>
+  <data name="prototype_db_prop_autoCreateStatistics"><value>Автоматическое создание статистики</value></data>
+  <data name="prototype_db_prop_autoShrink"><value>Автоматическое сжатие</value></data>
+  <data name="prototype_db_prop_autoUpdateStatistics"><value>Автоматическое обновление статистики </value></data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync"><value>Асинхронное автообновление статистики</value></data>
+  <data name="prototype_db_prop_caseSensitive"><value>Case Sensitive</value></data>
+  <data name="prototype_db_prop_closeCursorOnCommit"><value>Закрывать курсор при разрешении фиксации </value></data>
+  <data name="prototype_db_prop_collation"><value>Параметры сортировки</value></data>
+  <data name="prototype_db_prop_concatNullYieldsNull"><value>Объединение со значением NULL дает NULL </value></data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel"><value>Уровень совместимости базы данных</value></data>
+  <data name="prototype_db_prop_databaseState"><value>Состояние базы данных </value></data>
+  <data name="prototype_db_prop_defaultCursor"><value>Курсор по умолчанию</value></data>
+  <data name="prototype_db_prop_fullTextIndexing"><value>Полнотекстовое индексирование включено </value></data>
+  <data name="prototype_db_prop_numericRoundAbort"><value>Автоокругление чисел </value></data>
+  <data name="prototype_db_prop_pageVerify"><value>Проверка страниц </value></data>
+  <data name="prototype_db_prop_quotedIdentifier"><value>Включены заключенные в кавычки идентификаторы</value></data>
+  <data name="prototype_db_prop_readOnly"><value>База данных только для чтения</value></data>
+  <data name="prototype_db_prop_recursiveTriggers"><value>Включены рекурсивные триггеры </value></data>
+  <data name="prototype_db_prop_restrictAccess"><value>Ограничение доступа</value></data>
+  <data name="prototype_db_prop_selectIntoBulkCopy"><value>Выбор/Массовое копирование </value></data>
+  <data name="prototype_db_prop_honorBrokerPriority"><value>Учитывать приоритет компонента Honor Broker</value></data>
+  <data name="prototype_db_prop_serviceBrokerGuid"><value>Идентификатор компонента Service Broker</value></data>
+  <data name="prototype_db_prop_brokerEnabled"><value>Включен компонент Broker</value></data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint"><value>Усечение журнала на контрольной точке </value></data>
+  <data name="prototype_db_prop_dbChaining"><value>Межбазовые цепочки владения включены</value></data>
+  <data name="prototype_db_prop_trustworthy"><value>Заслуживает доверия</value></data>
+  <data name="prototype_db_prop_dateCorrelationOptimization"><value>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</value></data>
+  <data name="prototype_db_prop_parameterization_value_forced"><value>Принудительное</value></data>
+  <data name="prototype_db_prop_parameterization_value_simple"><value>Простая</value></data>
+  <data name="prototype_file_dataFile"><value>Данные СТРОК</value></data>
+  <data name="prototype_file_logFile"><value>ЖУРНАЛ</value></data>
+  <data name="prototype_file_filestreamFile"><value>Данные FILESTREAM</value></data>
+  <data name="prototype_file_noFileGroup"><value>Неприменимо</value></data>
+  <data name="prototype_file_defaultpathstring"><value>&lt;default path&gt;</value></data>
+  <data name="title_openConnectionsMustBeClosed"><value>Открытые соединения</value></data>
+  <data name="warning_openConnectionsMustBeClosed"><value>Чтобы изменить свойства базы данных, SQL Server должен закрыть все остальные соединения с этой базой данных. Изменить свойства и закрыть остальные соединения?</value></data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed"><value>AUTO_CLOSED</value></data>
+  <data name="prototype_db_prop_databaseState_value_emergency"><value>EMERGENCY</value></data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible"><value>INACCESSIBLE</value></data>
+  <data name="prototype_db_prop_databaseState_value_normal"><value>NORMAL</value></data>
+  <data name="prototype_db_prop_databaseState_value_offline"><value>OFFLINE</value></data>
+  <data name="prototype_db_prop_databaseState_value_recovering"><value>RECOVERING</value></data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending"><value>RECOVERY PENDING</value></data>
+  <data name="prototype_db_prop_databaseState_value_restoring"><value>RESTORING</value></data>
+  <data name="prototype_db_prop_databaseState_value_shutdown"><value>SHUTDOWN</value></data>
+  <data name="prototype_db_prop_databaseState_value_standby"><value>STANDBY</value></data>
+  <data name="prototype_db_prop_databaseState_value_suspect"><value>SUSPECT</value></data>
+  <data name="prototype_db_prop_defaultCursor_value_global"><value>GLOBAL</value></data>
+  <data name="prototype_db_prop_defaultCursor_value_local"><value>LOCAL</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple"><value>MULTI_USER</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted"><value>RESTRICTED_USER</value></data>
+  <data name="prototype_db_prop_restrictAccess_value_single"><value>SINGLE_USER</value></data>
+  <data name="prototype_db_prop_pageVerify_value_checksum"><value>CHECKSUM</value></data>
+  <data name="prototype_db_prop_pageVerify_value_none"><value>Нет</value></data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection"><value>TORN_PAGE_DETECTION</value></data>
+  <data name="prototype_db_prop_varDecimalEnabled"><value>Включен формат хранения VarDecimal</value></data>
+  <data name="compatibilityLevel_katmai"><value>SQL Server 2008 (100)</value></data>
+  <data name="prototype_db_prop_encryptionEnabled"><value>Шифрование включено</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off"><value>ОТКЛ.</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on"><value>ВКЛ.</value></data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary"><value>ПЕРВИЧНЫЙ</value></data>
+  <data name="error_db_prop_invalidleadingColumns"><value>Для политики распространения HASH количество начальных хэш-столбцов указывать не обязательно. Оно может составлять от 1 до 16 столбцов</value></data>
+  <data name="compatibilityLevel_denali"><value>SQL Server 2012 (110)</value></data>
+  <data name="compatibilityLevel_sql14"><value>SQL Server 2014 (120)</value></data>
+  <data name="compatibilityLevel_sql15"><value>SQL Server 2016 (130)</value></data>
+  <data name="compatibilityLevel_sqlvNext"><value>SQL Server vNext (140)</value></data>
+  <data name="general_containmentType_None"><value>Нет</value></data>
+  <data name="general_containmentType_Partial"><value>Частично</value></data>
+  <data name="filegroups_filestreamFiles"><value>Файлы FILESTREAM</value></data>
+  <data name="prototype_file_noApplicableFileGroup"><value>Применимая файловая группа отсутствует</value></data>
+  <data name="DatabaseNotAccessible"><value>База данных {0} недоступна.</value></data>
+  <data name="QueryServiceResultSetHasNoResults"><value>запрос не имеет результатов</value></data>
+  <data name="QueryServiceResultSetTooLarge"><value>Pезультатов слишком много строк для безопасной загрузки</value></data>
+  <data name="prototype_db_prop_parameterization"><value>Параметризация</value></data>
+  <data name="ConflictWithNoRecovery"><value>Не разрешается указывать этот параметр при восстановлении резервной копии с параметром NORECOVERY.</value></data>
+  <data name="InvalidPathForDatabaseFile"><value>Недопустимый путь к файлу базы данных: {0}""""</value></data>
+  <data name="Log"><value>Журнал</value></data>
+  <data name="RestorePlanFailed"><value>Не удалось создать план восстановления </value></data>
+  <data name="RestoreNotSupported"><value>Восстановление базы данных не поддерживается</value></data>
+  <data name="RestoreTaskName"><value>Восстановление базы данных</value></data>
+  <data name="RestoreCopyOnly"><value>(Копировать только)</value></data>
+  <data name="RestoreBackupSetComponent"><value>Тип копии</value></data>
+  <data name="RestoreBackupSetType"><value>Тип</value></data>
+  <data name="RestoreBackupSetServer"><value>Сервер</value></data>
+  <data name="RestoreBackupSetDatabase"><value>База данных</value></data>
+  <data name="RestoreBackupSetPosition"><value>Положение</value></data>
+  <data name="RestoreBackupSetFirstLsn"><value>Первый номер LSN</value></data>
+  <data name="RestoreBackupSetLastLsn"><value>Последний номер LSN</value></data>
+  <data name="RestoreBackupSetCheckpointLsn"><value>Номер LSN для контрольной точки</value></data>
+  <data name="RestoreBackupSetFullLsn"><value>Полный номер LSN</value></data>
+  <data name="RestoreBackupSetStartDate"><value>Дата начала</value></data>
+  <data name="RestoreBackupSetFinishDate"><value>Дата завершения</value></data>
+  <data name="RestoreBackupSetSize"><value>Размер</value></data>
+  <data name="RestoreBackupSetUserName"><value>Имя пользователя</value></data>
+  <data name="RestoreBackupSetExpiration"><value>Истечение срока</value></data>
+  <data name="RestoreBackupSetName"><value>Имя</value></data>
+  <data name="TheLastBackupTaken"><value>Последняя созданная резервная копия ({0})</value></data>
+  <data name="BackupTaskName"><value>Создание резервной копии базы данных</value></data>
+  <data name="TaskInProgress"><value>Выполняется</value></data>
+  <data name="TaskCompleted"><value>Завершен</value></data>
+  <data name="ScriptTaskName"><value>Скрипты</value></data>
+  <data name="ProfilerConnectionNotFound"><value>Соединение не найдено</value></data>
+  <data name="BackupPathIsFolderError"><value>Указанное имя файла является также именем каталога: {0}</value></data>
+  <data name="InvalidBackupPathError"><value>Невозможно проверить существование расположения файла резервной копии: {0}</value></data>
+  <data name="InvalidPathError"><value>Указанный путь на сервере недоступен: {0}</value></data>
+  <data name="NoBackupsetsToRestore"><value>Для восстановления не выбран резервный набор данных</value></data>
+  <data name="NeverBackedUp"><value>Никогда </value></data>
+  </root>

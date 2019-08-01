@@ -228,7 +228,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
     public static class VerifyContents
     {
-        
         public static void VerifyCsvMatchesData(DbCellValue[][] data, ColumnInfo[] columns, bool includeHeaders, string filePath)
         {
             Assert.True(File.Exists(filePath), "Expected file to have been written");
