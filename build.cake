@@ -554,12 +554,24 @@ Task("SetPackageVersions")
 Task("SRGen")
 	.Does(() =>
 {
+    // save current working directory to restore at end of task
+    var taskStartedWorkingDirectory = System.IO.Directory.GetCurrentDirectory();
+    var relativePathPrefix = "." + System.IO.Path.DirectorySeparatorChar.ToString();
+
     var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
     var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
 
     foreach(var project in projects) {
         var projectDir = System.IO.Path.GetDirectoryName(project);
-        var localizationDir = System.IO.Path.Combine(projectDir, "Localization");
+
+        // set current directory to this project so relative paths can be reliably
+        // used. This is to address an issue with quoting differences between Windows
+        // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around 
+        // the arguments stripped off.  This causes SRGen to interpret the arg values as options
+        System.IO.Directory.SetCurrentDirectory(projectDir);
+        
+        // build remaining paths relative to the project directory
+        var localizationDir = System.IO.Path.Combine(relativePathPrefix, "Localization");
         var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
         var projectNameSpace = projectName + ".Localization";
         var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
@@ -570,7 +582,7 @@ Task("SRGen")
             continue;
         }
 
-        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
+        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "tools", "netcoreapp2.2", "any", "srgen.dll");
         var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
         var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
         var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
@@ -594,6 +606,7 @@ Task("SRGen")
         // Run SRGen
         var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
         srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
+        Information("{0}", dotnetcli);
         Information("{0}", dotnetArgs);
         Run(dotnetcli, dotnetArgs)
         .ExceptionOnError("Failed to run SRGen.");
@@ -635,6 +648,9 @@ Task("SRGen")
             templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
         }
     }
+
+    // restore the original working directory
+    System.IO.Directory.SetCurrentDirectory(taskStartedWorkingDirectory);
 });
 
 /// <summary>
