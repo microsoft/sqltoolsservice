@@ -39,4 +39,7 @@
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
+  </ItemGroup>
 </Project>

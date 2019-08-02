@@ -23,6 +23,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -130,6 +132,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest);
             this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
             this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
+
+            serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+            {
+                DeleteAgentNotebooks();
+                await Task.FromResult(0);
+            });
+
         }
 
         #region "Jobs Handlers"
@@ -199,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
                         ServerConnection connection = tuple.Item3;
-                        
+
                         // Send Steps, Alerts and Schedules with job history in background
                         // Add steps to the job if any
                         JobStepCollection steps = jobs[parameters.JobName].JobSteps;
@@ -279,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                         var jobHelper = new JobHelper(serverConnection);
                         jobHelper.JobName = parameters.JobName;
-                        switch(parameters.Action)
+                        switch (parameters.Action)
                         {
                             case "run":
                                 jobHelper.Start();
@@ -483,7 +493,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             IsEnabled = alert.IsEnabled,
                             JobId = alert.JobID.ToString(),
                             JobName = alert.JobName,
-                            LastOccurrenceDate =alert.LastOccurrenceDate.ToString(),
+                            LastOccurrenceDate = alert.LastOccurrenceDate.ToString(),
                             LastResponseDate = alert.LastResponseDate.ToString(),
                             MessageId = alert.MessageID,
                             NotificationMessage = alert.NotificationMessage,
@@ -923,9 +933,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
                     {
                         foreach (AgentJobStepInfo step in jobInfo.JobSteps)
-                        {   
+                        {
                             configAction = ConfigAction.Create;
-                            foreach(JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
+                            foreach (JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
                             {
                                 // any changes made to step other than name or ordering
                                 if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
@@ -936,7 +946,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 {
                                     configAction = ConfigAction.Update;
                                     break;
-                                } 
+                                }
                             }
                             await ConfigureAgentJobStep(ownerUri, step, configAction, runType, jobData, dataContainer);
                         }
@@ -1026,9 +1036,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ConnectionInfo connInfo;
                         ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                         dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    } 
-                    else 
-                    {   
+                    }
+                    else
+                    {
                         if (jobData == null)
                         {
                             // If the alert is being created inside a job
@@ -1170,7 +1180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             STParameters param = new STParameters(dataContainer.Document);
             string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;
-            param.SetParam("job",  configAction == ConfigAction.Update ? jobName : string.Empty);
+            param.SetParam("job", configAction == ConfigAction.Update ? jobName : string.Empty);
             param.SetParam("jobid", string.Empty);
 
             jobData = new JobData(dataContainer, jobInfo, configAction);
@@ -1219,14 +1229,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
         }
 
-                // Notebook helper function to execute queires to be later replaced by QueryExecutionService method.
-        public DataSet executeQuery(ConnectionInfo connInfo, string SqlQuery)
+        /**
+         * Notebook helper function to execute queires to be later replaced by QueryExecutionService method.
+         */
+        public DataSet ExecuteQuery(ConnectionInfo connInfo, string SqlQuery)
         {
             DataSet resultDataSet = new DataSet();
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
                 connection.Open();
-                using( SqlCommand SqlQueryCommand = new SqlCommand(SqlQuery, connection))
+                using (SqlCommand SqlQueryCommand = new SqlCommand(SqlQuery, connection))
                 {
                     SqlDataAdapter SqlCommandAdapter = new SqlDataAdapter(SqlQueryCommand);
                     SqlCommandAdapter.Fill(resultDataSet);
@@ -1241,70 +1253,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
+                var result = new AgentNotebooksResult();
                 try
                 {
-                    var result = new AgentNotebooksResult();
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
                         out connInfo);
-
-                    if (connInfo != null)
+                    string getJobIdsFromDatabaseQueryString =
+                            @"
+                            DECLARE @script AS VARCHAR(MAX)
+                            SET @script =
+                            'USE [?];
+                            IF EXISTS 
+                            (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N''notebooks'' AND TABLE_NAME = N''nb_template'')
+                            BEGIN
+                            SELECT [notebooks].[nb_template].*,
+                            DB_NAME() AS db_name,
+                            [msdb].[dbo].[sysjobs].*
+                            FROM [?].notebooks.nb_template
+                            INNER JOIN
+                            msdb.dbo.sysjobs 
+                            ON
+                            [?].notebooks.nb_template.job_id = msdb.dbo.sysjobs.job_id
+                            END'
+                            EXEC sp_MSforeachdb @script";
+                    var agentNotebooks = new List<AgentNotebookInfo>();
+                    DataSet jobIdsDataSet = ExecuteQuery(connInfo, getJobIdsFromDatabaseQueryString);
+                    var serverConnection = ConnectionService.OpenServerConnection(connInfo);
+                    var fetcher = new JobFetcher(serverConnection);
+                    var filter = new JobActivityFilter();
+                    var jobs = fetcher.FetchJobs(filter);
+                    Dictionary<Guid, JobProperties> allJobsHashTable = new Dictionary<Guid, JobProperties>();
+                    if (jobs != null)
                     {
-                        string getJobIdsFromDatabaseQueryString = 
-                                "DECLARE @script AS VARCHAR(MAX)\n" +
-                                "SET @script =\n" + 
-                                "'USE [?];\n" +
-                                "IF EXISTS\n" + 
-                                "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N''notebooks'' AND TABLE_NAME = N''nb_template'')\n"+
-                                "BEGIN\n" + 
-                                "SELECT notebooks.nb_template.*,\n" +
-                                "DB_NAME() AS db_name,\n" +
-                                "msdb.dbo.sysjobs.*\n" +
-                                "FROM [?].notebooks.nb_template\n" +
-                                "INNER JOIN\n" + 
-                                "msdb.dbo.sysjobs \n" +
-                                "ON \n" + 
-                                "[?].notebooks.nb_template.job_id = msdb.dbo.sysjobs.job_id\n" +
-                                "END '\n" +  
-                                "EXEC sp_MSforeachdb @script\n";
-                            // This query fetches all the notebook Jobs across all the databases accessible by the user.
-                            
-                        var agentNotebooks = new List<AgentNotebookInfo>();
-                        DataSet jobIdsDataSet = executeQuery(connInfo, getJobIdsFromDatabaseQueryString);
-                        var serverConnection = ConnectionService.OpenServerConnection(connInfo);
-                        var fetcher = new JobFetcher(serverConnection);
-                        var filter = new JobActivityFilter();
-                        // Fetching all the jobs
-                        var jobs = fetcher.FetchJobs(filter);
-                        // Creating Dictionary of jobs for effcient access later on.
-                        Dictionary<Guid, JobProperties> allJobsHashTable = new Dictionary<Guid, JobProperties>();
-                        if(jobs != null)
+                        foreach (var job in jobs.Values)
                         {
-                            foreach (var job in jobs.Values)
-                            {
-                                allJobsHashTable.Add(job.JobID, job);
-                            }
-                        }                                
-                        foreach (DataTable templateTable in jobIdsDataSet.Tables)
-                        {
-                            foreach (DataRow templateRow in templateTable.Rows){
-                                AgentNotebookInfo notebookJob = AgentUtilities.convertToAgentNotebookInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
-                                notebookJob.TemplateId = templateRow["template_id"] as string;
-                                notebookJob.TargetDatabase = templateRow["db_name"] as string;
-                                agentNotebooks.Add(notebookJob);
-                            }
+                            allJobsHashTable.Add(job.JobID, job);
                         }
-                    
-                        result.Success = true;
-                        result.Notebooks = agentNotebooks.ToArray();
-                        await requestContext.SendResult(result);
                     }
+                    foreach (DataTable templateTable in jobIdsDataSet.Tables)
+                    {
+                        foreach (DataRow templateRow in templateTable.Rows)
+                        {
+                            AgentNotebookInfo notebookJob = AgentUtilities.ConvertToAgentNotebookInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
+                            notebookJob.TemplateId = templateRow["template_id"] as string;
+                            notebookJob.TargetDatabase = templateRow["db_name"] as string;
+                            agentNotebooks.Add(notebookJob);
+                        }
+                    }
+                    result.Success = true;
+                    result.Notebooks = agentNotebooks.ToArray();
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
                 }
+                await requestContext.SendResult(result);
             });
         }
 
@@ -1312,29 +1318,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
+                var result = new AgentNotebookHistoryResult();
                 try
                 {
-                    var result = new AgentNotebookHistoryResult();
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
                         out connInfo);
                     if (connInfo != null)
                     {
-                        string getNotebookHistoryQueryString = 
-                            "USE "+ parameters.TargetDatabase + ";" +
-                            "SELECT * FROM notebooks.nb_materialized " +
-                            "WHERE JOB_ID = '" + parameters.JobId + "'";
-
-                        DataSet NotebookHistoryDataset = executeQuery(connInfo, getNotebookHistoryQueryString);
+                        string getNotebookHistoryQueryString =
+                        @"
+                        USE [{0}] ;
+                        SELECT * FROM notebooks.nb_materialized 
+                        WHERE JOB_ID = '{1}'";
+                        getNotebookHistoryQueryString = string.Format(getNotebookHistoryQueryString, parameters.TargetDatabase, parameters.JobId);
+                        DataSet notebookHistoryDataset = ExecuteQuery(connInfo, getNotebookHistoryQueryString);
                         CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                         var jobServer = dataContainer.Server.JobServer;
                         var jobs = jobServer.Jobs;
                         Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, parameters.JobId);
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
-                        ServerConnection connection = tuple.Item3;
-
                         var agentNotebookHistories = new List<AgentNotebookHistoryInfo>();
                         JobStepCollection steps = jobs[parameters.JobName].JobSteps;
                         var jobSteps = new List<AgentJobStepInfo>();
@@ -1367,30 +1372,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             var jobHistories = AgentUtilities.ConvertToAgentNotebookHistoryInfo(logEntries, job, steps);
                             Dictionary<string, AgentNotebookHistoryInfo> allNotebookHistoriesHashTable = new Dictionary<string, AgentNotebookHistoryInfo>();
                             // Finally add the job histories
-                            DataTable materializedNotebookTable = NotebookHistoryDataset.Tables[0];
-                            foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows){
+                            DataTable materializedNotebookTable = notebookHistoryDataset.Tables[0];
+                            foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
+                            {
                                 string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
                                 AgentNotebookHistoryInfo notebookHistory = new AgentNotebookHistoryInfo();
                                 notebookHistory.MaterializedNotebookId = (int)materializedNotebookRow["materialized_id"];
                                 allNotebookHistoriesHashTable.Add(materializedRunDateTime, notebookHistory);
                             }
-                            foreach (var jobHistory in jobHistories){
+                            foreach (var jobHistory in jobHistories)
+                            {
                                 string jobRuntime = jobHistory.RunDate.ToString("yyyyMMddHHmmss");
                                 AgentNotebookHistoryInfo notebookHistory = jobHistory;
-                                if(allNotebookHistoriesHashTable.ContainsKey(jobRuntime))
+                                if (allNotebookHistoriesHashTable.ContainsKey(jobRuntime))
                                     notebookHistory.MaterializedNotebookId = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookId;
                                 notebookHistories.Add(notebookHistory);
                             }
                             result.Histories = notebookHistories.ToArray();
-                            result.Success = true;
                             tlog.CloseReader();
-                            await requestContext.SendResult(result);
                         }
+                        result.Success = true;
                     }
                 }
-                catch(Exception e){
-                    await requestContext.SendError(e);
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
                 }
+                await requestContext.SendResult(result);
             });
         }
 
@@ -1398,36 +1407,220 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
+                var result = new AgentNotebookMaterializedResult();
                 try
                 {
-                    var result = new AgentNotebookMaterializedResult();
+
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
+                                                parameters.OwnerUri,
+                                                out connInfo);
+
                     if (connInfo != null)
                     {
-                         string MaterializedNotebookQueryString = 
-                            "USE "+ parameters.TargetDatabase + ";" +
-                            "SELECT * FROM notebooks.nb_materialized " +
-                            "WHERE materialized_id = '" + parameters.NotebookMaterializedID + "'";
-
-                        DataSet MaterializedNotebookDataSet = executeQuery(connInfo, MaterializedNotebookQueryString);
-                        if (MaterializedNotebookDataSet != null){
-                            DataTable MaterializedNotebookTable = MaterializedNotebookDataSet.Tables[0];
-                            DataRow MaterializedNotebookRows = MaterializedNotebookTable.Rows[0];
-                            result.NotebookMaterializedJson = MaterializedNotebookRows["notebook"] as string;
+                        string materializedNotebookQueryString =
+                        @"USE [{0}] ;
+                        SELECT * FROM notebooks.nb_materialized 
+                        WHERE materialized_id = '{1}'";
+                        materializedNotebookQueryString = string.Format(materializedNotebookQueryString, parameters.TargetDatabase, parameters.NotebookMaterializedID);
+                        DataSet materializedNotebookDataSet = ExecuteQuery(connInfo, materializedNotebookQueryString);
+                        if (materializedNotebookDataSet != null)
+                        {
+                            DataTable materializedNotebookTable = materializedNotebookDataSet.Tables[0];
+                            DataRow materializedNotebookRows = materializedNotebookTable.Rows[0];
+                            result.NotebookMaterializedJson = materializedNotebookRows["notebook"] as string;
                         }
-                        result.Success = true;
-                        await requestContext.SendResult(result);
                     }
+                    result.Success = true;
                 }
-                catch(Exception e){
-                    await requestContext.SendError(e);
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
                 }
+                await requestContext.SendResult(result);
             });
         }
-        
+
+        internal async Task HandleCreateAgentNotebookRequest(CreateAgentNotebookParams parameters, RequestContext<CreateAgentNotebookResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new CreateAgentNotebookResult();
+                try
+                {
+                    var assembly = Assembly.GetAssembly(typeof(AgentService));
+                    using (Stream scriptStream = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.Agent.NotebookResources.NotebookJobScript.ps1"))
+                    {
+                        using (StreamReader reader = new StreamReader(scriptStream))
+                        {
+                            string execNotebookScript = "$TargetDatabase = \"{0}\"" + reader.ReadToEnd();
+                            execNotebookScript = string.Format(execNotebookScript, parameters.Notebook.TargetDatabase);
+                            AgentJobStepInfo notebookJobStep = new AgentJobStepInfo()
+                            {
+                                AppendLogToTable = false,
+                                AppendToLogFile = false,
+                                AppendToStepHist = false,
+                                Command = execNotebookScript,
+                                CommandExecutionSuccessCode = 0,
+                                DatabaseName = "",
+                                DatabaseUserName = null,
+                                FailStepId = 0,
+                                FailureAction = StepCompletionAction.QuitWithFailure,
+                                Id = 1,
+                                JobId = null,
+                                JobName = parameters.Notebook.Name,
+                                OutputFileName = null,
+                                ProxyName = null,
+                                RetryAttempts = 0,
+                                RetryInterval = 0,
+                                Script = execNotebookScript,
+                                ScriptName = null,
+                                Server = "",
+                                StepName = "Exec-Notebook",
+                                SubSystem = AgentSubSystem.PowerShell,
+                                SuccessAction = StepCompletionAction.QuitWithSuccess,
+                                SuccessStepId = 0,
+                                WriteLogToTable = false,
+                            };
+                            parameters.Notebook.JobSteps = new AgentJobStepInfo[1];
+                            parameters.Notebook.JobSteps[0] = notebookJobStep;
+                            var ownerUri = parameters.OwnerUri;
+                            var jobName = parameters.Notebook.Name;
+                            var jobInfo = parameters.Notebook;
+                            var configAction = ConfigAction.Create;
+                            var runType = RunType.RunNow;
+                            JobData jobData;
+                            CDataContainer dataContainer;
+                            CreateJobData(ownerUri, jobName, out dataContainer, out jobData, configAction, jobInfo);
+
+                            using (JobActions actions = new JobActions(dataContainer, jobData, configAction))
+                            {
+                                ExecuteAction(actions, runType);
+                            }
+
+
+                            ConnectionInfo connInfo;
+                            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                            if (connInfo != null)
+                            {
+                                dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                            }
+
+                            // Execute step actions if they exist
+                            if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
+                            {
+                                foreach (AgentJobStepInfo step in jobInfo.JobSteps)
+                                {
+                                    configAction = ConfigAction.Create;
+                                    foreach (JobStep jobStep in dataContainer.Server.JobServer.Jobs[jobName].JobSteps)
+                                    {
+                                        // any changes made to step other than name or ordering
+                                        if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
+                                            // if the step name was changed
+                                            (step.StepName != jobStep.Name && step.Id == jobStep.ID) ||
+                                            // if the step ordering was changed
+                                            (step.StepName == jobStep.Name && step.Id != jobStep.ID))
+                                        {
+                                            configAction = ConfigAction.Update;
+                                            break;
+                                        }
+                                    }
+                                    await ConfigureAgentJobStep(ownerUri, step, configAction, runType, jobData, dataContainer);
+                                }
+                            }
+
+                            string templateFilePath = parameters.TemplateFilePath;
+                            string templateFileContents = File.ReadAllText(templateFilePath);
+                            string targetDatabase = parameters.Notebook.TargetDatabase;
+                            string notebookDatabaseSetup =
+                            @"
+                            USE [{0}];
+                            IF NOT EXISTS (
+                            SELECT  schema_name
+                            FROM    information_schema.schemata
+                            WHERE   schema_name = 'notebooks' ) 
+                            BEGIN
+                            EXEC sp_executesql N'CREATE SCHEMA notebooks'
+                            END
+
+                            IF  NOT EXISTS (SELECT * FROM sys.objects 
+                            WHERE object_id = OBJECT_ID(N'[notebooks].[nb_template]') AND TYPE IN (N'U'))
+                            BEGIN
+                            CREATE TABLE [notebooks].[nb_template](
+                                template_id INT PRIMARY KEY IDENTITY(1,1), 
+                                job_id UNIQUEIDENTIFIER NOT NULL, 
+                                notebook NVARCHAR(MAX) 
+                            ) 
+                            END
+
+                            IF  NOT EXISTS (SELECT * FROM sys.objects 
+                            WHERE object_id = OBJECT_ID(N'[notebooks].[nb_materialized]') AND TYPE IN (N'U'))
+                            BEGIN
+                            CREATE TABLE [notebooks].[nb_materialized](
+                                materialized_id INT PRIMARY KEY IDENTITY(1,1), 
+                                job_id UNIQUEIDENTIFIER NOT NULL, 
+                                run_time VARCHAR(100), 
+                                run_date VARCHAR(100), 
+                                notebook NVARCHAR(MAX) 
+                            ) 
+                            END
+                            USE [msdb];
+                            select job_id from msdb.dbo.sysjobs where name='{1}';
+                            ";
+                            notebookDatabaseSetup = string.Format(notebookDatabaseSetup, targetDatabase, jobName);
+                            DataSet jobIdDataSet = ExecuteQuery(connInfo, notebookDatabaseSetup);
+                            DataTable jobIdDataTable = jobIdDataSet.Tables[0];
+                            DataRow jobIdDataRow = jobIdDataTable.Rows[0];
+                            string jobId = ((Guid)jobIdDataRow["job_id"]).ToString();
+                            templateFileContents = templateFileContents.Replace("'","''");
+                            string insertTemplateJsonQuery = 
+                            @"
+                            USE [{0}];
+                            INSERT INTO notebooks.nb_template VALUES (N'{1}', N'{2}')
+                            ";
+                            insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents);
+                            ExecuteQuery(connInfo, insertTemplateJsonQuery);
+                        }
+                    }
+                    result.Success = true;
+                    result.Job = parameters.Notebook;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleAgentNotebooksDeleteRequest(DeleteAgentNotebookParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new CreateAgentNotebookResult();
+                try
+                {
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
         #endregion // "Helpers"
+
+        internal void DeleteAgentNotebooks()
+        {
+            if (FileUtilities.SafeDirectoryExists(FileUtilities.AgentNotebookTempFolder))
+            {
+                FileUtilities.SafeDirectoryDelete(FileUtilities.AgentNotebookTempFolder, true);
+            }
+        }
     }
 }

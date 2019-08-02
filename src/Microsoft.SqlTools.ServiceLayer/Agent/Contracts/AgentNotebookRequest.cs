@@ -82,7 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class CreateAgentNotebookParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-        public AgentNotebookInfo Job { get; set; }
+        public AgentNotebookInfo Notebook { get; set; }
+        public string TemplateFilePath { get; set; }
     }
 
     /// <summary>

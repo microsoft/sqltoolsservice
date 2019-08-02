@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
-        public static AgentNotebookInfo convertToAgentNotebookInfo(JobProperties job)
+        public static AgentNotebookInfo ConvertToAgentNotebookInfo(JobProperties job)
         {
             return new AgentNotebookInfo(){
                 Name = job.Name,
