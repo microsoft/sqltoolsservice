@@ -133,6 +133,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
             this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
             this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
+
 
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
@@ -1455,8 +1458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         using (StreamReader reader = new StreamReader(scriptStream))
                         {
-                            string execNotebookScript = "$TargetDatabase = \"{0}\"" + reader.ReadToEnd();
-                            execNotebookScript = string.Format(execNotebookScript, parameters.Notebook.TargetDatabase);
+                            string execNotebookScript = "$TargetDatabase = \"" + parameters.Notebook.TargetDatabase + "\"\n" + reader.ReadToEnd();
                             AgentJobStepInfo notebookJobStep = new AgentJobStepInfo()
                             {
                                 AppendLogToTable = false,
@@ -1574,8 +1576,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             DataTable jobIdDataTable = jobIdDataSet.Tables[0];
                             DataRow jobIdDataRow = jobIdDataTable.Rows[0];
                             string jobId = ((Guid)jobIdDataRow["job_id"]).ToString();
-                            templateFileContents = templateFileContents.Replace("'","''");
-                            string insertTemplateJsonQuery = 
+                            templateFileContents = templateFileContents.Replace("'", "''");
+                            string insertTemplateJsonQuery =
                             @"
                             USE [{0}];
                             INSERT INTO notebooks.nb_template VALUES (N'{1}', N'{2}')
@@ -1596,13 +1598,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        internal async Task HandleAgentNotebooksDeleteRequest(DeleteAgentNotebookParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleDeleteAgentNotebooksRequest(DeleteAgentNotebookParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {
-                var result = new CreateAgentNotebookResult();
+                var result = new ResultStatus();
                 try
                 {
+
+                    string DeleteNotebookRowQuery =
+                    @"
+                    USE[{0}];
+                    DELETE FROM notebooks.nb_template
+                    WHERE 
+                    job_id = '{1}';
+                    DELETE FROM notebooks.nb_materialized
+                    WHERE
+                    job_id = '{1}';
+                    IF NOT EXISTS (SELECT * FROM notebooks.nb_template)
+                    BEGIN
+                        DROP TABLE notebooks.nb_template;
+                        DROP TABLE notebooks.nb_materialized;
+                        DROP SCHEMA notebooks;
+                    END
+                    ";
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    DeleteNotebookRowQuery = string.Format(DeleteNotebookRowQuery, parameters.Notebook.TargetDatabase, parameters.Notebook.JobId);
+                    ExecuteQuery(connInfo, DeleteNotebookRowQuery);
+                    await ConfigureAgentJob(
+                        parameters.OwnerUri,
+                        parameters.Notebook.Name,
+                        parameters.Notebook,
+                        ConfigAction.Drop,
+                        ManagementUtils.asRunType(parameters.TaskExecutionMode));
+
                     result.Success = true;
                 }
                 catch (Exception e)
@@ -1613,6 +1643,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 await requestContext.SendResult(result);
             });
         }
+
+        internal async Task HandleUpdateAgentNotebookRequest(UpdateAgentNotebookParams parameters, RequestContext<UpdateAgentNotebookResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new UpdateAgentNotebookResult();
+                try
+                {
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    if (parameters.TemplateFilePath != null)
+                    {
+                        string targetDatabase = parameters.Notebook.TargetDatabase;
+                        string jobId = parameters.Notebook.JobId;
+                        string templateFilePath = parameters.TemplateFilePath;
+                        string templateFileContents = File.ReadAllText(templateFilePath);
+                        templateFileContents = templateFileContents.Replace("'", "''");
+                        string insertTemplateJsonQuery =
+                        @"
+                            USE [{0}];
+                            UPDATE notebooks.nb_template SET notebook = '{2}' WHERE job_id = '{1}'
+                            ";
+                        insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents);
+                        ExecuteQuery(connInfo, insertTemplateJsonQuery);
+                    }
+                    var tempResult = 
+                    await ConfigureAgentJob(
+                        parameters.OwnerUri,
+                        parameters.OriginalNotebookName,
+                        parameters.Notebook,
+                        ConfigAction.Update,
+                        ManagementUtils.asRunType(parameters.TaskExecutionMode));
+                        
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
         #endregion // "Helpers"
 
         internal void DeleteAgentNotebooks()

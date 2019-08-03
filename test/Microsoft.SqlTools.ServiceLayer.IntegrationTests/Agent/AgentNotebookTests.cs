@@ -44,13 +44,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                         await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                         {
                             OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                            Job = job,
+                            Notebook = job,
                             TemplateFilePath = tempTestNotebookFilePath
                         }, context.Object);
                         await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                         {
                             OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                            Job = job,
+                            Notebook = job,
                             TemplateFilePath = tempTestNotebookFilePath
                         }, context.Object);
                         var context2 = new Mock<RequestContext<AgentNotebooksResult>>();
@@ -83,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 LastRun = "today",
                 NextRun = "tomorrow",
                 JobId = Guid.NewGuid().ToString(),
-                TargetDatabase = TargetDatabase
+                TargetDatabase = TargetDatabase,
+                Owner = "sa"
             };
         }
 

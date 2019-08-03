@@ -111,9 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string OwnerUri { get; set; }
 
-        public string OriginalJobName { get; set; }
+        public string OriginalNotebookName { get; set; }
 
-        public AgentNotebookInfo Job { get; set; }
+        public AgentNotebookInfo Notebook { get; set; }
+        public string TemplateFilePath { get; set; }
+
     }
 
     /// <summary>
@@ -143,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string OwnerUri { get; set; }
 
-        public AgentNotebookInfo Job { get; set; }
+        public AgentNotebookInfo Notebook { get; set; }
     }
 
     /// <summary>

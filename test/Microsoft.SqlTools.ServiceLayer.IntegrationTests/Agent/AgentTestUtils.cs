@@ -57,7 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 CategoryType = 1,
                 LastRun = "today",
                 NextRun = "tomorrow",
-                JobId = Guid.NewGuid().ToString()
+                JobId = Guid.NewGuid().ToString(),
+                Owner = "sa"
             };
         }
 
