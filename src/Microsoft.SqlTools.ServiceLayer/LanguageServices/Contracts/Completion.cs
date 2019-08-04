@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// <summary>
         /// The identifier of the actual command handler, like `vsintellicode.completionItemSelected`.
         /// </summary>
-        public string CommandStr { get; set; }
+        public string command { get; set; }
 
         /// <summary>
         /// Arguments that the command handler should be invoked with.
