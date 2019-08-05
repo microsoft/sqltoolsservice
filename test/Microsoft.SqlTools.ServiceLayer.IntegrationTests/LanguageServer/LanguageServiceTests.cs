@@ -157,37 +157,42 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             //Try to load the completion extension with new modified timestamp, expect a success
             var assemblyCopyPath = CopyFileWithNewModifiedTime(extensionParams.AssemblyPath);
-            extensionParams = new CompletionExtensionParams()
+            try
             {
-                AssemblyPath = assemblyCopyPath,
-                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExt",
-                Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
-            };
-            //load and initialize completion extension
-            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+                extensionParams = new CompletionExtensionParams()
+                {
+                    AssemblyPath = assemblyCopyPath,
+                    TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExt",
+                    Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
+                };
+                //load and initialize completion extension
+                await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
 
-            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
-            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
+                requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
+                requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
-            scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
+                ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+                autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
+                scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
 
-            //Invoke auto completion with extension enabled
-            var completions = autoCompleteService.GetCompletionItems(
-                result.TextDocumentPosition,
-                result.ScriptFile,
-                result.ConnectionInfo).Result;
+                //Invoke auto completion with extension enabled
+                var completions = autoCompleteService.GetCompletionItems(
+                    result.TextDocumentPosition,
+                    result.ScriptFile,
+                    result.ConnectionInfo).Result;
 
-            //Validate completion list is not empty
-            Assert.True(completions != null && completions.Length > 0, "The completion list is null or empty!");
-            //Validate the first completion item in the list is preselected
-            Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
-            //Validate the Command object attached to the completion item by the extension
-            Assert.True(completions[0].Command != null && completions[0].Command.CommandStr == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
-
-            //clean up the temp file
-            File.Delete(assemblyCopyPath);
+                //Validate completion list is not empty
+                Assert.True(completions != null && completions.Length > 0, "The completion list is null or empty!");
+                //Validate the first completion item in the list is preselected
+                Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
+                //Validate the Command object attached to the completion item by the extension
+                Assert.True(completions[0].Command != null && completions[0].Command.CommandStr == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
+            }
+            finally
+            {
+                //clean up the temp file
+                File.Delete(assemblyCopyPath);
+            }
         }
 
         /// <summary>
@@ -198,11 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         private string CopyFileWithNewModifiedTime(string filePath)
         {
             var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(filePath));
-            if (File.Exists(tempPath))
-            {
-                File.Delete(tempPath);
-            }
-            File.Copy(filePath, tempPath);
+            File.Copy(filePath, tempPath, overwrite: true);
             File.SetLastWriteTimeUtc(tempPath, DateTime.UtcNow);
             return tempPath;
         }
