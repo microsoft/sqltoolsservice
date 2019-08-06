@@ -45,6 +45,23 @@ CREATE TABLE [dbo].[table3]
     [col1] INT NULL,
 )";
 
+        private const string CreateKey = @"CREATE COLUMN MASTER KEY [CMK_Auto1]
+WITH (
+     KEY_STORE_PROVIDER_NAME = N'MSSQL_CERTIFICATE_STORE',
+     KEY_PATH = N'CurrentUser/my/1234'
+);
+CREATE COLUMN ENCRYPTION KEY [CEK_Auto1]
+WITH VALUES
+(
+     COLUMN_MASTER_KEY = [CMK_Auto1],
+     ALGORITHM = N'RSA_OAEP',
+     ENCRYPTED_VALUE = 0x0000
+);";
+
+        private const string CreateFileGroup = @"ALTER DATABASE {0} 
+    ADD FILEGROUP [MyFileGroup] CONTAINS MEMORY_OPTIMIZED_DATA;
+    GO";
+
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs
         /// </summary>
@@ -653,7 +670,7 @@ CREATE TABLE [dbo].[table3]
 
                 await SchemaCompareService.Instance.HandleSchemaCompareOpenScmpRequest(openScmpParams, openScmpRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
-                SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);                
+                SchemaCompareTestUtils.VerifyAndCleanup(scmpFilePath);
             }
             finally
             {
@@ -710,6 +727,82 @@ CREATE TABLE [dbo].[table3]
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
+        }
+
+        /// <summary>
+        /// test to verify recent dacfx bugs 
+        /// does not need all combinations of db and dacpacs
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareCEKAndFilegoupTest()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, CreateKey, "SchemaCompareSource");
+            sourceDb.RunQuery(string.Format(CreateFileGroup, sourceDb.DatabaseName));
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+                DeploymentOptions options = new DeploymentOptions();
+
+                // ensure that files are excluded seperate from filegroups
+                Assert.True(options.ExcludeObjectTypes.Contains(SqlServer.Dac.ObjectType.Files));
+                Assert.False(options.ExcludeObjectTypes.Contains(SqlServer.Dac.ObjectType.Filegroups));
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo,
+                    DeploymentOptions = options
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                // validate CEK script
+                var cek = schemaCompareOperation.ComparisonResult.Differences.First(x => x.Name == "SqlColumnEncryptionKey");
+                Assert.NotNull(cek);
+                Assert.True(cek.SourceObject != null, "CEK obect is null");
+                Assert.True(cek.SourceObject.Name.ToString() == "[CEK_Auto1]", string.Format("CEK object name incorrect. Expected {0}, Actual {1}", "CEK_Auto1", cek.SourceObject.Name.ToString()));
+                Assert.True(CreateKey.Contains(cek.SourceObject.GetScript().Trim()), string.Format("Expected script : {0}, Actual Script {1}", cek.SourceObject.GetScript(), CreateKey));
+                
+                // validate CMK script
+                var cmk = schemaCompareOperation.ComparisonResult.Differences.First(x => x.Name == "SqlColumnMasterKey");
+                Assert.NotNull(cmk);
+                Assert.True(cmk.SourceObject != null, "CMK obect is null");
+                Assert.True(cmk.SourceObject.Name.ToString() == "[CMK_Auto1]", string.Format("CMK object name incorrect. Expected {0}, Actual {1}", "CEK_Auto1", cmk.SourceObject.Name.ToString()));
+                Assert.True(CreateKey.Contains(cmk.SourceObject.GetScript().Trim()), string.Format("Expected script : {0}, Actual Script {1}", cmk.SourceObject.GetScript(), CreateKey));
+
+                // validate filegroup's presence
+                var filegroup = schemaCompareOperation.ComparisonResult.Differences.First(x => x.Name == "SqlFilegroup");
+                Assert.NotNull(filegroup);
+                Assert.True(filegroup.SourceObject != null, "File group obect is null");
+
+                // validate file's absense
+                bool filepresent = schemaCompareOperation.ComparisonResult.Differences.Any(x => x.Name == "SqlFile");
+                Assert.False(filepresent, "SqlFile should not be present");
+                var objectsWithFileInName = schemaCompareOperation.ComparisonResult.Differences.Where(x => x.Name.Contains("File"));
+                Assert.True(1 == objectsWithFileInName.Count(), string.Format("Only one File/Filegroup object was to be found, but found {0}", objectsWithFileInName.Count()));
+
+            }
+            finally
+            {
+                // cleanup
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+
         }
 
         private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
