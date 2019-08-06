@@ -1381,6 +1381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
                                 AgentNotebookHistoryInfo notebookHistory = new AgentNotebookHistoryInfo();
                                 notebookHistory.MaterializedNotebookId = (int)materializedNotebookRow["materialized_id"];
+                                notebookHistory.MaterializedNotebookErrorInfo = materializedNotebookRow["notebook_error"] as string;
                                 allNotebookHistoriesHashTable.Add(materializedRunDateTime, notebookHistory);
                             }
                             foreach (var jobHistory in jobHistories)
@@ -1388,7 +1389,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 string jobRuntime = jobHistory.RunDate.ToString("yyyyMMddHHmmss");
                                 AgentNotebookHistoryInfo notebookHistory = jobHistory;
                                 if (allNotebookHistoriesHashTable.ContainsKey(jobRuntime))
+                                if(allNotebookHistoriesHashTable[jobRuntime] != null){
                                     notebookHistory.MaterializedNotebookId = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookId;
+                                    notebookHistory.MaterializedNotebookErrorInfo = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookErrorInfo;
+                                }
                                 notebookHistories.Add(notebookHistory);
                             }
                             result.Histories = notebookHistories.ToArray();
@@ -1458,7 +1462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         using (StreamReader reader = new StreamReader(scriptStream))
                         {
-                            string execNotebookScript = "$TargetDatabase = \"" + parameters.Notebook.TargetDatabase + "\"\n" + reader.ReadToEnd();
+                            string execNotebookScript = "$TargetDatabase = \"" + parameters.Notebook.TargetDatabase + "\"" + Environment.NewLine + reader.ReadToEnd();
                             AgentJobStepInfo notebookJobStep = new AgentJobStepInfo()
                             {
                                 AppendLogToTable = false,
@@ -1565,7 +1569,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 job_id UNIQUEIDENTIFIER NOT NULL, 
                                 run_time VARCHAR(100), 
                                 run_date VARCHAR(100), 
-                                notebook NVARCHAR(MAX) 
+                                notebook NVARCHAR(MAX),
+                                notebook_error NVARCHAR(MAX)
                             ) 
                             END
                             USE [msdb];

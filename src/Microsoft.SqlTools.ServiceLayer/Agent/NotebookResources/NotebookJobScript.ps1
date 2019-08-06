@@ -3,6 +3,7 @@ $StartTime = $(ESCAPE_SQUOTE(STRTTM))
 $StartDate = $(ESCAPE_SQUOTE(STRTDT))
 $JSONTable = "select * from notebooks.nb_template where job_id = $JobId"
 $sqlResult = Invoke-Sqlcmd -Query $JSONTable -Database $TargetDatabase -MaxCharLength 2147483647
+$FirstNotebookError = $null
 function ParseTableToNotebookOutput {
     param (
         [System.Data.DataTable]
@@ -99,7 +100,14 @@ foreach ($NotebookCell in $TemplateNotebookJsonObject.cells) {
     if ($NotebookCell.cell_type -eq "markdown" -or $NotebookCell.cell_type -eq "raw" -or $NotebookCell.source -eq "") {
         continue;
     }
-    $DatabaseQueryHashTable["Query"] = $NotebookCell.source
+    switch($NotebookCell.source.getType()){
+        System.Object[] {
+            $DatabaseQueryHashTable["Query"] = ($NotebookCell.source -join "`r`n" | Out-String)
+        }
+        String  {
+            $DatabaseQueryHashTable["Query"] = $NotebookCell.source
+        }
+    }
     $SqlQueryExecutionTime = Measure-Command { $SqlQueryResult = @(Invoke-Sqlcmd @DatabaseQueryHashTable  4>&1) }
     $NotebookCell.execution_count = $CellExcecutionCount++
     $NotebookCellTableOutputs = @()
@@ -117,6 +125,9 @@ foreach ($NotebookCell in $TemplateNotebookJsonObject.cells) {
         }
     }
     if ($SqlQueryError) {
+        if(!$FirstNotebookError){
+            $FirstNotebookError = $SqlQueryError.Exception.Message.Replace("'", "''")
+        }
         $NotebookCellOutputs += ParseQueryErrorToNotebookOutput($SqlQueryError)
     }
     if ($SqlQueryExecutionTime) {
@@ -130,5 +141,5 @@ foreach ($NotebookCell in $TemplateNotebookJsonObject.cells) {
 $result = ($TemplateNotebookJsonObject | ConvertTo-Json -Depth 100)
 Write-Output $result
 $result = $result.Replace("'","''")
-$InsertQuery = "INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook) VALUES ($JobID, $StartTime, $StartDate,'$result')"
+$InsertQuery = "INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error) VALUES ($JobID, $StartTime, $StartDate,'$result','$FirstNotebookError')"
 $SqlResult = Invoke-Sqlcmd -Query $InsertQuery -Database $TargetDatabase
