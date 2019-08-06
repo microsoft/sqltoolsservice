@@ -143,3 +143,5 @@ Write-Output $result
 $result = $result.Replace("'","''")
 $InsertQuery = "INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error) VALUES ($JobID, $StartTime, $StartDate,'$result','$FirstNotebookError')"
 $SqlResult = Invoke-Sqlcmd -Query $InsertQuery -Database $TargetDatabase
+$InsertQuery = "UPDATE notebooks.nb_template SET last_run_notebook_error = '$FirstNotebookError' where job_id = $JobID"
+$SqlResult = Invoke-Sqlcmd -Query $InsertQuery -Database $TargetDatabase

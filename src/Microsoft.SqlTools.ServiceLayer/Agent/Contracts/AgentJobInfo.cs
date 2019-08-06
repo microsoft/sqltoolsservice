@@ -69,6 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string TemplateId {get; set;}
         public string TargetDatabase {get; set;}
+        public string LastRunNotebookError {get; set;}
     }
     
 }

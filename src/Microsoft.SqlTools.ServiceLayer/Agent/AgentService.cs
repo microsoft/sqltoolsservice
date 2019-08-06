@@ -1302,6 +1302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             AgentNotebookInfo notebookJob = AgentUtilities.ConvertToAgentNotebookInfo(allJobsHashTable[(Guid)templateRow["job_id"]]);
                             notebookJob.TemplateId = templateRow["template_id"] as string;
                             notebookJob.TargetDatabase = templateRow["db_name"] as string;
+                            notebookJob.LastRunNotebookError = templateRow["last_run_notebook_error"] as string;
                             agentNotebooks.Add(notebookJob);
                         }
                     }
@@ -1557,7 +1558,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             CREATE TABLE [notebooks].[nb_template](
                                 template_id INT PRIMARY KEY IDENTITY(1,1), 
                                 job_id UNIQUEIDENTIFIER NOT NULL, 
-                                notebook NVARCHAR(MAX) 
+                                notebook NVARCHAR(MAX),
+                                last_run_notebook_error NVARCHAR(MAX)
                             ) 
                             END
 
@@ -1585,7 +1587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             string insertTemplateJsonQuery =
                             @"
                             USE [{0}];
-                            INSERT INTO notebooks.nb_template VALUES (N'{1}', N'{2}')
+                            INSERT INTO notebooks.nb_template(job_id, notebook, last_run_notebook_error) VALUES (N'{1}', N'{2}', N'')
                             ";
                             insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents);
                             ExecuteQuery(connInfo, insertTemplateJsonQuery);
