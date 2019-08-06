@@ -140,6 +140,13 @@ QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for resul
 QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from the result set 
 
 ############################################################################
+# Serialization Service
+
+SerializationServiceUnsupportedFormat (string formatName) = Unsupported Save Format: {0}
+SerializationServiceRequestInProgress (string filePath) = A request for file {0} is already in progress
+SerializationServiceRequestNotFound (string filePath) = Cannot serialize more data as no request for file {0} could be found
+ 
+############################################################################
 # Language Service
 
 PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
@@ -798,4 +805,4 @@ ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the for
 PublishChangesTaskName = Apply schema compare changes
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
 OpenScmpConnectionBasedModelParsingError = Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'
-SchemaCompareSessionNotFound =  Could not find the schema compare session to cancel
+SchemaCompareSessionNotFound = Could not find the schema compare session to cancel

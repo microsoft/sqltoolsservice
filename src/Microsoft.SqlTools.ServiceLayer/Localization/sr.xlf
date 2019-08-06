@@ -2006,6 +2006,24 @@
         <target state="new">Could not find the schema compare session to cancel</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SerializationServiceUnsupportedFormat">
+        <source>Unsupported Save Format: {0}</source>
+        <target state="new">Unsupported Save Format: {0}</target>
+        <note>.
+ Parameters: 0 - formatName (string) </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceRequestInProgress">
+        <source>A request for file {0} is already in progress</source>
+        <target state="new">A request for file {0} is already in progress</target>
+        <note>.
+ Parameters: 0 - filePath (string) </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceRequestNotFound">
+        <source>Cannot serialize more data as no request for file {0} could be found</source>
+        <target state="new">Cannot serialize more data as no request for file {0} could be found</target>
+        <note>.
+ Parameters: 0 - filePath (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
