@@ -56,9 +56,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
     public class Command
     {
         /// <summary>
+        /// Title of the command.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
         /// The identifier of the actual command handler, like `vsintellicode.completionItemSelected`.
         /// </summary>
         public string command { get; set; }
+
+        /// <summary>
+        /// A tooltip for the command, when represented in the UI.
+        /// </summary>
+        public string Tooltip { get; set; }
 
         /// <summary>
         /// Arguments that the command handler should be invoked with.
