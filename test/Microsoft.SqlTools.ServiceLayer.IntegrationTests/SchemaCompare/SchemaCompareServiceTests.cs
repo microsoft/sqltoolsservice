@@ -794,7 +794,6 @@ WITH VALUES
                 Assert.False(filepresent, "SqlFile should not be present");
                 var objectsWithFileInName = schemaCompareOperation.ComparisonResult.Differences.Where(x => x.Name.Contains("File"));
                 Assert.True(1 == objectsWithFileInName.Count(), string.Format("Only one File/Filegroup object was to be found, but found {0}", objectsWithFileInName.Count()));
-
             }
             finally
             {
