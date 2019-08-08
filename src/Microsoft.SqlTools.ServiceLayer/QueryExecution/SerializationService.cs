@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Task.Run(async () => {
                 await RunSerializeStartRequest(serializeParams, requestContext);
             }).ContinueWithOnFaulted(async t => await SendErrorAndCleanup(serializeParams?.FilePath, requestContext, t.Exception));
-            return Task.FromResult<bool>(true);
+            return Task.CompletedTask;
         }
 
         internal async Task RunSerializeStartRequest(SerializeDataStartRequestParams serializeParams, RequestContext<SerializeDataResult> requestContext)
@@ -91,6 +91,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     DataSerializer removed;
                     inProgressSerializations.TryRemove(filePath, out removed);
+                    if (removed != null)
+                    {
+                        // Flush any contents to disk and remove the writer
+                        removed.CloseStreams();
+                    }
                 }
                 catch
                 {
@@ -111,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await RunSerializeContinueRequest(serializeParams, requestContext);
             }).ContinueWithOnFaulted(async t => await SendErrorAndCleanup(serializeParams?.FilePath, requestContext, t.Exception));
-            return Task.FromResult<bool>(true);
+            return Task.CompletedTask;
         }
 
         internal async Task RunSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams, RequestContext<SerializeDataResult> requestContext)
@@ -256,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 this.writer = factory.GetWriter(requestParams.FilePath);
             }
         }
-        private void CloseStreams()
+        public void CloseStreams()
         {
             if (this.writer != null)
             {
