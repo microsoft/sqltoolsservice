@@ -20,5 +20,10 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// Error message
         /// </summary>
         public string Message { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("Error(Code={0},Message='{1}'", Code, Message);
+        }
     }
 }

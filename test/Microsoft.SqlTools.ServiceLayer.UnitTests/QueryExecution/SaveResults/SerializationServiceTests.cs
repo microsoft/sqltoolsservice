@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     .AddStandardResultValidator()
                     .Complete();
 
-                await SerializationService.HandleSerializeStartRequest(saveParams, efv.Object);
+                await SerializationService.RunSerializeStartRequest(saveParams, efv.Object);
 
                 // Then:
                 // ... There should not have been an error
@@ -189,8 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.HandleSerializeStartRequest(request1, efv.Object);
-
+            await SerializationService.RunSerializeStartRequest(request1, efv.Object);
+        
             // Then:
             // ... There should not have been an error
             efv.Validate();
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.HandleSerializeContinueRequest(request1, efv.Object);
+            await SerializationService.RunSerializeContinueRequest(request1, efv.Object);
 
             // Then:
             // ... There should not have been an error
