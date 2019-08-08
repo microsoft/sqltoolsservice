@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
 
         public override string ToString()
         {
-            return string.Format("Error(Code={0},Message='{1}'", Code, Message);
+            return $"Error(Code={Code},Message='{Message}'";
         }
     }
 }
