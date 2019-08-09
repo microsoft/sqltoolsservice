@@ -346,7 +346,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
             {
-                string sqlCmdQuery = @"
+                const string sqlCmdQuery = @"
 :setvar __var1 1
 :setvar __var2 2
 :setvar __IsSqlCmdEnabled " + "\"True\"" + @"

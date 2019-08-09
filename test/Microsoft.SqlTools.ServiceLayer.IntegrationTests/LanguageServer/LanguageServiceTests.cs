@@ -383,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 }, eventContextSqlCmd.Object);
                 await langService.DelayedDiagnosticsTask;
 
-                Assert.True(countOfValidationCalls == 2, string.Format("Validation should be called 2 time but is called {0} times", countOfValidationCalls));
+                Assert.True(countOfValidationCalls == 2, $"Validation should be called 2 time but is called {countOfValidationCalls} times");
             }
             finally
             {
@@ -397,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         private bool ValidateNotification(PublishDiagnosticsNotification notif, int errors, ref int countOfValidationCalls)
         {
             countOfValidationCalls++;
-            Assert.True(notif.Diagnostics.Length == errors, string.Format("Notification errors {0} are not as expected {1}", notif.Diagnostics.Length, errors));
+            Assert.True(notif.Diagnostics.Length == errors, $"Notification errors {notif.Diagnostics.Length} are not as expected {errors}");
             return true;
         }
     }
