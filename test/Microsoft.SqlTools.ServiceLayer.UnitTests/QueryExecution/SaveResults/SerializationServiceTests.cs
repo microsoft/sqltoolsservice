@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     .AddStandardResultValidator()
                     .Complete();
 
-                await SerializationService.HandleSerializeStartRequest(saveParams, efv.Object);
+                await SerializationService.RunSerializeStartRequest(saveParams, efv.Object);
 
                 // Then:
                 // ... There should not have been an error
@@ -189,8 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.HandleSerializeStartRequest(request1, efv.Object);
-
+            await SerializationService.RunSerializeStartRequest(request1, efv.Object);
+        
             // Then:
             // ... There should not have been an error
             efv.Validate();
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 .AddStandardResultValidator()
                 .Complete();
 
-            await SerializationService.HandleSerializeContinueRequest(request1, efv.Object);
+            await SerializationService.RunSerializeContinueRequest(request1, efv.Object);
 
             // Then:
             // ... There should not have been an error
@@ -260,10 +260,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         private static void AssertLineEquals(string line, string[] expected)
         {
             var actual = line.Split(',');
-            Assert.True(actual.Length == expected.Length, string.Format("Line '{0}' does not match values {1}", line, string.Join(",", expected)));
+            Assert.True(actual.Length == expected.Length, $"Line '{line}' does not match values {string.Join(",", expected)}");
             for (int i = 0; i < actual.Length; i++)
             {
-                Assert.True(expected[i] == actual[i], string.Format("Line '{0}' does not match values '{1}' as '{2}' does not equal '{3}'", line, string.Join(",", expected), expected[i], actual[i]));
+                Assert.True(expected[i] == actual[i], $"Line '{line}' does not match values '{string.Join(",", expected)}' as '{expected[i]}' does not equal '{actual[i]}'");
             }
         }
 
