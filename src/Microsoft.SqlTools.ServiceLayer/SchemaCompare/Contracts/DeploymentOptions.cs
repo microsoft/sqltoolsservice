@@ -116,6 +116,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
         public int CommandTimeout { get; set; } = 120;
 
+        public int LongRunningCommandTimeout { get; set; } = 0;
+
+        public int DatabaseLockTimeout { get; set; } = 60;
+
         public bool BlockWhenDriftDetected { get; set; }
 
         public bool BlockOnPossibleDataLoss { get; set; }
@@ -176,6 +180,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
         public bool IgnoreColumnOrder { get; set; }
 
+        public string AdditionalDeploymentContributorPaths { get; set; } = string.Empty;
+
         public ObjectType[] DoNotDropObjectTypes { get; set; } = null;
 
         public ObjectType[] ExcludeObjectTypes { get; set; } =
@@ -185,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 ObjectType.LinkedServerLogins,
                 ObjectType.Endpoints,
                 ObjectType.ErrorMessages,
-                ObjectType.Filegroups,
+                ObjectType.Files,
                 ObjectType.Logins,
                 ObjectType.LinkedServers,
                 ObjectType.Credentials,

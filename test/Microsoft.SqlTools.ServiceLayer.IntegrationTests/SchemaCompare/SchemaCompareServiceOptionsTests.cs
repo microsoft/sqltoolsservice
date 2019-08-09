@@ -85,6 +85,7 @@ END
                 ObjectType.Endpoints,
                 ObjectType.ErrorMessages,
                 ObjectType.Filegroups,
+                ObjectType.Files,
                 ObjectType.Logins,
                 ObjectType.LinkedServers,
                 ObjectType.Credentials,
