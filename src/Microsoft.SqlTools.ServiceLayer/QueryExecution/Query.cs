@@ -116,7 +116,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Process the query into batches 
             BatchParserWrapper parser = new BatchParserWrapper();
-            List<BatchDefinition> parserResult = parser.GetBatches(queryText);
+            ExecutionEngineConditions conditions = null;
+            if (settings.IsSqlCmdMode)
+            {
+                conditions = new ExecutionEngineConditions() { IsSqlCmd = settings.IsSqlCmdMode };
+            }
+            List<BatchDefinition> parserResult = parser.GetBatches(queryText, conditions);
 
             var batchSelection = parserResult
                 .Select((batchDefinition, index) =>

@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             batchParser.HaltParser = new BatchParser.HaltParserDelegate(OnHaltParser);
             batchParser.StartingLine = startingLine;
 
-            if (isLocalParse)
+            if (isLocalParse && !sqlCmdMode)
             {
                 batchParser.DisableVariableSubstitution();
             }
@@ -1045,23 +1045,27 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// Parses the script locally
         /// </summary>
         /// <param name="script">script to parse</param>
-        /// <param name="batchEventsHandler">batch handler</param>        
+        /// <param name="batchEventsHandler">batch handler</param>   
+        /// <param name="conditions">execution engine conditions if specified</param>
         /// <remarks>
         /// The batch parser functionality is used in this case
         /// </remarks>
-        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler)
+        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler, ExecutionEngineConditions conditions = null)
         {
             Validate.IsNotNull(nameof(script), script);
             Validate.IsNotNull(nameof(batchEventsHandler), batchEventsHandler);
 
-
+            if (conditions != null)
+            {
+                this.conditions = conditions;
+            }
             this.script = script;
             batchEventHandlers = batchEventsHandler;
             isLocalParse = true;
 
             DoExecute(/* isBatchParser */ true);
         }
-                        
+
         /// <summary>
         /// Close the current connection
         /// </summary>

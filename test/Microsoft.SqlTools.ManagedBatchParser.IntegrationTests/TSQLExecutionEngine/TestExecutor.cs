@@ -231,6 +231,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             conditions.IsNoExec = exeCondition.IsNoExec;
             conditions.IsStatisticsIO = exeCondition.IsStatisticsIO;
             conditions.IsStatisticsTime = exeCondition.IsStatisticsTime;
+            conditions.IsSqlCmd = exeCondition.IsSqlCmd;
 
             _cancel = cancelExecution;
             connection = conn;
