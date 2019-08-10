@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             {
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                var job = GetTestNotebookInfo("test1", "master");
+                var job1 = GetTestNotebookInfo("test1", "master");
                 var job2 = GetTestNotebookInfo("test2", "master");
                 Assembly assembly = Assembly.GetAssembly(typeof(AgentNotebookTests));
                 using (Stream scriptStream = assembly.GetManifestResourceStream(assembly.GetName().Name + ".Agent.NotebookResources.testNotebook.ipynb"))
@@ -44,19 +44,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                         await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                         {
                             OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                            Notebook = job,
+                            Notebook = job1,
                             TemplateFilePath = tempTestNotebookFilePath
                         }, context.Object);
                         await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
                         {
                             OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                            Notebook = job,
+                            Notebook = job2,
                             TemplateFilePath = tempTestNotebookFilePath
                         }, context.Object);
                         var context2 = new Mock<RequestContext<AgentNotebooksResult>>();
                         await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
                             OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                         }, context2.Object);
+                
                         File.Delete(tempTestNotebookFilePath);
                     }
                 }

@@ -67,9 +67,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebookInfo : AgentJobInfo
     {
-        public string TemplateId {get; set;}
-        public string TargetDatabase {get; set;}
-        public string LastRunNotebookError {get; set;}
+        public string TemplateId { get; set; }
+        public string TargetDatabase { get; set; }
+        public string LastRunNotebookError { get; set; }
+        public string ExecuteDatabase { get; set; }
     }
     
 }

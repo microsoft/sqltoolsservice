@@ -1303,6 +1303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             notebookJob.TemplateId = templateRow["template_id"] as string;
                             notebookJob.TargetDatabase = templateRow["db_name"] as string;
                             notebookJob.LastRunNotebookError = templateRow["last_run_notebook_error"] as string;
+                            notebookJob.ExecuteDatabase = templateRow["execute_database"] as string;
                             agentNotebooks.Add(notebookJob);
                         }
                     }
@@ -1390,10 +1391,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 string jobRuntime = jobHistory.RunDate.ToString("yyyyMMddHHmmss");
                                 AgentNotebookHistoryInfo notebookHistory = jobHistory;
                                 if (allNotebookHistoriesHashTable.ContainsKey(jobRuntime))
-                                if(allNotebookHistoriesHashTable[jobRuntime] != null){
-                                    notebookHistory.MaterializedNotebookId = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookId;
-                                    notebookHistory.MaterializedNotebookErrorInfo = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookErrorInfo;
-                                }
+                                    if (allNotebookHistoriesHashTable[jobRuntime] != null)
+                                    {
+                                        notebookHistory.MaterializedNotebookId = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookId;
+                                        notebookHistory.MaterializedNotebookErrorInfo = allNotebookHistoriesHashTable[jobRuntime].MaterializedNotebookErrorInfo;
+                                    }
                                 notebookHistories.Add(notebookHistory);
                             }
                             result.Histories = notebookHistories.ToArray();
@@ -1559,6 +1561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 template_id INT PRIMARY KEY IDENTITY(1,1), 
                                 job_id UNIQUEIDENTIFIER NOT NULL, 
                                 notebook NVARCHAR(MAX),
+                                execute_database NVARCHAR(MAX),
                                 last_run_notebook_error NVARCHAR(MAX)
                             ) 
                             END
@@ -1587,9 +1590,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             string insertTemplateJsonQuery =
                             @"
                             USE [{0}];
-                            INSERT INTO notebooks.nb_template(job_id, notebook, last_run_notebook_error) VALUES (N'{1}', N'{2}', N'')
+                            INSERT INTO notebooks.nb_template(job_id, notebook, last_run_notebook_error, execute_database) VALUES (N'{1}', N'{2}', N'', N'{3}')
                             ";
-                            insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents);
+                            insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents, parameters.Notebook.ExecuteDatabase);
                             ExecuteQuery(connInfo, insertTemplateJsonQuery);
                         }
                     }
@@ -1663,10 +1666,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(
                                                 parameters.OwnerUri,
                                                 out connInfo);
+                    string targetDatabase = parameters.Notebook.TargetDatabase;
+                    string jobId = parameters.Notebook.JobId;
                     if (parameters.TemplateFilePath != null)
                     {
-                        string targetDatabase = parameters.Notebook.TargetDatabase;
-                        string jobId = parameters.Notebook.JobId;
+
                         string templateFilePath = parameters.TemplateFilePath;
                         string templateFileContents = File.ReadAllText(templateFilePath);
                         templateFileContents = templateFileContents.Replace("'", "''");
@@ -1678,14 +1682,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents);
                         ExecuteQuery(connInfo, insertTemplateJsonQuery);
                     }
-                    var tempResult = 
+                    string updateExecuteDatabaseQuery =
+                    @"
+                     USE [{0}];
+                     UPDATE notebooks.nb_template SET execute_database = '{2}' WHERE job_id = '{1}'
+                    ";
+                    updateExecuteDatabaseQuery = string.Format(updateExecuteDatabaseQuery, targetDatabase, jobId, parameters.Notebook.ExecuteDatabase);
+                    ExecuteQuery(connInfo, updateExecuteDatabaseQuery);
+                    var tempResult =
                     await ConfigureAgentJob(
                         parameters.OwnerUri,
                         parameters.OriginalNotebookName,
                         parameters.Notebook,
                         ConfigAction.Update,
                         ManagementUtils.asRunType(parameters.TaskExecutionMode));
-                        
+
                     result.Success = true;
                 }
                 catch (Exception e)

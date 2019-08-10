@@ -82,6 +82,7 @@ function ParseStringToNotebookOutput {
 }
 
 $TemplateNotebook = $sqlResult.notebook
+$executeDatabase = $sqlResult.execute_database
 try {
     $TemplateNotebookJsonObject = ConvertFrom-Json -InputObject $TemplateNotebook
 }
@@ -93,6 +94,7 @@ $DatabaseQueryHashTable = @{ }
 $DatabaseQueryHashTable["Verbose"] = $true
 $DatabaseQueryHashTable["ErrorVariable"] = "SqlQueryError"
 $DatabaseQueryHashTable["OutputAs"] = "DataTables"
+$DatabaseQueryHashTable["Database"] = $executeDatabase
 $CellExcecutionCount = 1
 
 foreach ($NotebookCell in $TemplateNotebookJsonObject.cells) {
