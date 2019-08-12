@@ -5,6 +5,7 @@
 
 using System.Diagnostics;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
@@ -21,6 +22,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public static readonly
             RequestType<CompletionItem, CompletionItem> Type =
             RequestType<CompletionItem, CompletionItem>.Create("completionItem/resolve");
+    }
+
+    public class CompletionExtLoadRequest
+    {
+        public static readonly
+            RequestType<CompletionExtensionParams, bool> Type =
+            RequestType<CompletionExtensionParams, bool>.Create("completion/extLoad");
     }
 
     public enum CompletionItemKind
@@ -43,6 +51,29 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             Color = 16,
             File = 17,
             Reference = 18
+    }
+
+    public class Command
+    {
+        /// <summary>
+        /// Title of the command.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// The identifier of the actual command handler, like `vsintellicode.completionItemSelected`.
+        /// </summary>
+        public string command { get; set; }
+
+        /// <summary>
+        /// A tooltip for the command, when represented in the UI.
+        /// </summary>
+        public string Tooltip { get; set; }
+
+        /// <summary>
+        /// Arguments that the command handler should be invoked with.
+        /// </summary>
+        public object[] Arguments { get; set; }
     }
 
     [DebuggerDisplay("Kind = {Kind.ToString()}, Label = {Label}, Detail = {Detail}")]
@@ -74,5 +105,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// resolve request.
         /// </summary>
         public object Data { get; set; }
+
+        /// <summary>
+        /// Exposing a command field for a completion item for passing telemetry
+        /// </summary>
+        public Command Command { get; set; }
+
+        /// <summary>
+        /// Whether this completion item is preselected or not
+        /// </summary>
+        public bool? Preselect { get; set; }
     }
 }

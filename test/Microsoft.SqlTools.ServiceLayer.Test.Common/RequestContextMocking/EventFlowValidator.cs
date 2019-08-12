@@ -153,7 +153,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
                 ReceivedEvent received = ReceivedEvents[i];
 
                 // Step 1) Make sure the event type matches
-                Assert.Equal(expected.EventType, received.EventType);
+                Assert.True(expected.EventType.Equals(received.EventType),
+                    string.Format("Expected EventType {0} but got {1}. Received object is {2}", expected.EventType, received.EventType, received.EventObject.ToString()));
                 
                 // Step 2) Make sure the param type matches
                 Assert.True( expected.ParamType == received.EventObject.GetType()

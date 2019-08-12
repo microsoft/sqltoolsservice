@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// <summary>
     /// Class for storing cached metadata regarding a parsed SQL file
     /// </summary>
-    internal class ScriptParseInfo
+    public class ScriptParseInfo
     {
         private object buildingMetadataLock = new object();
 

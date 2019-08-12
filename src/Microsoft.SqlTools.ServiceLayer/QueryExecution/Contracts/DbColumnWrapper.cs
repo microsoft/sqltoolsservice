@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -93,104 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             DataType = column.DataType;
             DataTypeName = column.DataTypeName.ToLowerInvariant();
 
-            // Determine the SqlDbType
-            SqlDbType type;
-            if (Enum.TryParse(DataTypeName, true, out type))
-            {
-                SqlDbType = type;
-            }
-            else
-            {
-                switch (DataTypeName)
-                {
-                    case "numeric":
-                        SqlDbType = SqlDbType.Decimal;
-                        break;
-                    case "sql_variant":
-                        SqlDbType = SqlDbType.Variant;
-                        break;
-                    case "timestamp":
-                        SqlDbType = SqlDbType.VarBinary;
-                        break;
-                    case "sysname":
-                        SqlDbType = SqlDbType.NVarChar;
-                        break;
-                    default:
-                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.NVarChar : SqlDbType.Udt;
-                        break;
-                }
-            }
-
-            // We want the display name for the column to always exist
-            ColumnName = string.IsNullOrEmpty(column.ColumnName)
-                ? SR.QueryServiceColumnNull
-                : column.ColumnName;
-
-            switch (DataTypeName)
-            {
-                case "varchar":
-                case "nvarchar":
-                    IsChars = true;
-
-                    Debug.Assert(ColumnSize.HasValue);
-                    if (ColumnSize.Value == int.MaxValue)
-                    {
-                        //For Yukon, special case nvarchar(max) with column name == "Microsoft SQL Server 2005 XML Showplan" -
-                        //assume it is an XML showplan.
-                        //Please note this field must be in sync with a similar field defined in QESQLBatch.cs.
-                        //This is not the best fix that we could do but we are trying to minimize code impact
-                        //at this point. Post Yukon we should review this code again and avoid
-                        //hard-coding special column name in multiple places.
-                        const string yukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
-                        if (column.ColumnName == yukonXmlShowPlanColumn)
-                        {
-                            // Indicate that this is xml to apply the right size limit
-                            // Note we leave chars type as well to use the right retrieval mechanism.
-                            IsXml = true;
-                        }
-                        IsLong = true;
-                    }
-                    break;
-                case "text":
-                case "ntext":
-                    IsChars = true;
-                    IsLong = true;
-                    break;
-                case "xml":
-                    IsXml = true;
-                    IsLong = true;
-                    break;
-                case "binary":
-                case "image":
-                    IsBytes = true;
-                    IsLong = true;
-                    break;
-                case "varbinary":
-                case "rowversion":
-                    IsBytes = true;
-
-                    Debug.Assert(ColumnSize.HasValue);
-                    if (ColumnSize.Value == int.MaxValue)
-                    {
-                        IsLong = true;
-                    }
-                    break;
-                case "sql_variant":
-                    IsSqlVariant = true;
-                    break;
-                default:
-                    if (!AllServerDataTypes.Contains(DataTypeName))
-                    {
-                        // treat all UDT's as long/bytes data types to prevent the CLR from attempting
-                        // to load the UDT assembly into our process to call ToString() on the object.
-
-                        IsUdt = true;
-                        IsBytes = true;
-                        IsLong = true;
-                    }
-                    break;
-            }
-
+            DetermineSqlDbType();
+            AddNameAndDataFields(column.ColumnName);
 
             if (IsUdt)
             {
@@ -214,6 +119,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                 DataType = column.DataType;
             }
         }
+
+        public DbColumnWrapper(ColumnInfo columnInfo)
+        {
+            DataTypeName = columnInfo.DataTypeName.ToLowerInvariant();
+            DetermineSqlDbType();
+            DataType = TypeConvertor.ToNetType(this.SqlDbType);
+            if (DataType == typeof(String))
+            {
+                this.ColumnSize = int.MaxValue;
+            }
+            AddNameAndDataFields(columnInfo.Name);
+        }
+
 
         /// <summary>
         /// Default constructor, used for deserializing JSON RPC only
@@ -299,5 +217,176 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 
         #endregion
 
+
+        private void DetermineSqlDbType()
+        {
+            // Determine the SqlDbType
+            SqlDbType type;
+            if (Enum.TryParse(DataTypeName, true, out type))
+            {
+                SqlDbType = type;
+            }
+            else
+            {
+                switch (DataTypeName)
+                {
+                    case "numeric":
+                        SqlDbType = SqlDbType.Decimal;
+                        break;
+                    case "sql_variant":
+                        SqlDbType = SqlDbType.Variant;
+                        break;
+                    case "timestamp":
+                        SqlDbType = SqlDbType.VarBinary;
+                        break;
+                    case "sysname":
+                        SqlDbType = SqlDbType.NVarChar;
+                        break;
+                    default:
+                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.NVarChar : SqlDbType.Udt;
+                        break;
+                }
+            }
+        }
+
+        private void AddNameAndDataFields(string columnName)
+        {
+            // We want the display name for the column to always exist
+            ColumnName = string.IsNullOrEmpty(columnName)
+                ? SR.QueryServiceColumnNull
+                : columnName;
+
+            switch (DataTypeName)
+            {
+                case "varchar":
+                case "nvarchar":
+                    IsChars = true;
+
+                    Debug.Assert(ColumnSize.HasValue);
+                    if (ColumnSize.Value == int.MaxValue)
+                    {
+                        //For Yukon, special case nvarchar(max) with column name == "Microsoft SQL Server 2005 XML Showplan" -
+                        //assume it is an XML showplan.
+                        //Please note this field must be in sync with a similar field defined in QESQLBatch.cs.
+                        //This is not the best fix that we could do but we are trying to minimize code impact
+                        //at this point. Post Yukon we should review this code again and avoid
+                        //hard-coding special column name in multiple places.
+                        const string yukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
+                        if (columnName == yukonXmlShowPlanColumn)
+                        {
+                            // Indicate that this is xml to apply the right size limit
+                            // Note we leave chars type as well to use the right retrieval mechanism.
+                            IsXml = true;
+                        }
+                        IsLong = true;
+                    }
+                    break;
+                case "text":
+                case "ntext":
+                    IsChars = true;
+                    IsLong = true;
+                    break;
+                case "xml":
+                    IsXml = true;
+                    IsLong = true;
+                    break;
+                case "binary":
+                case "image":
+                    IsBytes = true;
+                    IsLong = true;
+                    break;
+                case "varbinary":
+                case "rowversion":
+                    IsBytes = true;
+
+                    Debug.Assert(ColumnSize.HasValue);
+                    if (ColumnSize.Value == int.MaxValue)
+                    {
+                        IsLong = true;
+                    }
+                    break;
+                case "sql_variant":
+                    IsSqlVariant = true;
+                    break;
+                default:
+                    if (!AllServerDataTypes.Contains(DataTypeName))
+                    {
+                        // treat all UDT's as long/bytes data types to prevent the CLR from attempting
+                        // to load the UDT assembly into our process to call ToString() on the object.
+
+                        IsUdt = true;
+                        IsBytes = true;
+                        IsLong = true;
+                    }
+                    break;
+            }
+        }
+    }
+
+
+
+    /// <summary>
+    /// Convert a base data type to another base data type
+    /// </summary>
+    public sealed class TypeConvertor
+    {
+        private static Dictionary<SqlDbType,Type> _typeMap = new Dictionary<SqlDbType,Type>();
+
+        static TypeConvertor()
+        {
+            _typeMap[SqlDbType.BigInt] = typeof(Int64);
+            _typeMap[SqlDbType.Binary] = typeof(Byte);
+            _typeMap[SqlDbType.Bit] = typeof(Boolean);
+            _typeMap[SqlDbType.Char] = typeof(String);
+            _typeMap[SqlDbType.DateTime] = typeof(DateTime);
+            _typeMap[SqlDbType.Decimal] = typeof(Decimal);
+            _typeMap[SqlDbType.Float] = typeof(Double);
+            _typeMap[SqlDbType.Image] = typeof(Byte[]);
+            _typeMap[SqlDbType.Int] = typeof(Int32);
+            _typeMap[SqlDbType.Money] = typeof(Decimal);
+            _typeMap[SqlDbType.NChar] = typeof(String);
+            _typeMap[SqlDbType.NChar] = typeof(String);
+            _typeMap[SqlDbType.NChar] = typeof(String);
+            _typeMap[SqlDbType.NText] = typeof(String);
+            _typeMap[SqlDbType.NVarChar] = typeof(String);
+            _typeMap[SqlDbType.Real] = typeof(Single);
+            _typeMap[SqlDbType.UniqueIdentifier] = typeof(Guid);
+            _typeMap[SqlDbType.SmallDateTime] = typeof(DateTime);
+            _typeMap[SqlDbType.SmallInt] = typeof(Int16);
+            _typeMap[SqlDbType.SmallMoney] = typeof(Decimal);
+            _typeMap[SqlDbType.Text] = typeof(String);
+            _typeMap[SqlDbType.Timestamp] = typeof(Byte[]);
+            _typeMap[SqlDbType.TinyInt] = typeof(Byte);
+            _typeMap[SqlDbType.VarBinary] = typeof(Byte[]);
+            _typeMap[SqlDbType.VarChar] = typeof(String);
+            _typeMap[SqlDbType.Variant] = typeof(Object);
+            // Note: treating as string
+            _typeMap[SqlDbType.Xml] = typeof(String);
+            _typeMap[SqlDbType.TinyInt] = typeof(Byte);
+            _typeMap[SqlDbType.TinyInt] = typeof(Byte);
+            _typeMap[SqlDbType.TinyInt] = typeof(Byte);
+            _typeMap[SqlDbType.TinyInt] = typeof(Byte);
+        }
+
+        private TypeConvertor()
+        {
+
+        }
+
+
+        /// <summary>
+        /// Convert TSQL type to .Net data type
+        /// </summary>
+        /// <param name="sqlDbType"></param>
+        /// <returns></returns>
+        public static Type ToNetType(SqlDbType sqlDbType)
+        {
+            Type netType;
+            if (!_typeMap.TryGetValue(sqlDbType, out netType))
+            {
+                netType = typeof(String);
+            }
+            return netType;
+        }
     }
 }

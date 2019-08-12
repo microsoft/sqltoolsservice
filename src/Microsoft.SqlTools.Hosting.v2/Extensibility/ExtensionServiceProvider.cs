@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Composition.Convention;
 using System.Composition.Hosting;
@@ -17,19 +18,19 @@ using Microsoft.SqlTools.Hosting.Utility;
 namespace Microsoft.SqlTools.Hosting.Extensibility
 {
     /// <summary>
-    /// A MEF-based service provider. Supports any MEF-based configuration but is optimized for 
+    /// A MEF-based service provider. Supports any MEF-based configuration but is optimized for
     /// service discovery over a set of DLLs in an application scope. Any service registering using
     /// the <c>[Export(IServiceContract)]</c> attribute will be discovered and used by this service
     /// provider if it's in the set of Assemblies / Types specified during its construction. Manual
-    /// override of this is supported by calling 
+    /// override of this is supported by calling
     /// <see cref="RegisteredServiceProvider.RegisterSingleService" /> and similar methods, since
-    /// this will initialize that service contract and avoid the MEF-based search and discovery 
+    /// this will initialize that service contract and avoid the MEF-based search and discovery
     /// process. This allows the service provider to link into existing singleton / known services
     /// while using MEF-based dependency injection and inversion of control for most of the code.
     /// </summary>
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {
-        private readonly Func<ConventionBuilder, ContainerConfiguration> config;
+        private Func<ConventionBuilder, ContainerConfiguration> config;
 
         public ExtensionServiceProvider(Func<ConventionBuilder, ContainerConfiguration> config)
         {
@@ -106,8 +107,23 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
                 Register(() => store.GetExports<T>());
             }
         }
+
+        /// <summary>
+        /// Merges in new assemblies to the existing container configuration.
+        /// </summary>
+        public void AddAssembliesToConfiguration(IEnumerable<Assembly> assemblies)
+        {
+            Validate.IsNotNull(nameof(assemblies), assemblies);
+            var previousConfig = config;
+            this.config = conventions => {
+                // Chain in the existing configuration function's result, then include additional
+                // assemblies
+                ContainerConfiguration containerConfig = previousConfig(conventions);
+                return containerConfig.WithAssemblies(assemblies, conventions);
+            };
+        }
     }
-    
+
     /// <summary>
     /// A store for MEF exports of a specific type. Provides basic wrapper functionality around MEF to standarize how
     /// we lookup types and return to callers.
@@ -117,7 +133,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
         private readonly CompositionHost host;
         private IList exports;
         private readonly Type contractType;
-        
+
         /// <summary>
         /// Initializes the store with a type to lookup exports of, and a function that configures the
         /// lookup parameters.
@@ -142,7 +158,7 @@ namespace Microsoft.SqlTools.Hosting.Extensibility
             }
             return exports.Cast<T>();
         }
-        
+
         private ConventionBuilder GetExportBuilder()
         {
             // Define exports as matching a parent type, export as that parent type
