@@ -1235,15 +1235,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /**
          * Notebook helper function to execute queires to be later replaced by QueryExecutionService method.
          */
-        public DataSet ExecuteQuery(ConnectionInfo connInfo, string SqlQuery)
+        public DataSet ExecuteQuery(ConnectionInfo connInfo, string sqlQuery, List<SqlParameter> commandParameters, string executeDatabase = null)
         {
             DataSet resultDataSet = new DataSet();
+            if (executeDatabase != null)
+            {
+                connInfo.ConnectionDetails.DatabaseName = executeDatabase;
+            }
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
                 connection.Open();
-                using (SqlCommand SqlQueryCommand = new SqlCommand(SqlQuery, connection))
+                using (SqlCommand sqlQueryCommand = new SqlCommand(sqlQuery, connection))
                 {
-                    SqlDataAdapter SqlCommandAdapter = new SqlDataAdapter(SqlQueryCommand);
+                    foreach (SqlParameter param in commandParameters)
+                    {
+                        sqlQueryCommand.Parameters.Add(param);
+                    }
+                    SqlDataAdapter SqlCommandAdapter = new SqlDataAdapter(sqlQueryCommand);
                     SqlCommandAdapter.Fill(resultDataSet);
                 }
             }
@@ -1282,7 +1290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             END'
                             EXEC sp_MSforeachdb @script";
                     var agentNotebooks = new List<AgentNotebookInfo>();
-                    DataSet jobIdsDataSet = ExecuteQuery(connInfo, getJobIdsFromDatabaseQueryString);
+                    DataSet jobIdsDataSet = ExecuteQuery(connInfo, getJobIdsFromDatabaseQueryString, new List<SqlParameter>());
                     var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                     var fetcher = new JobFetcher(serverConnection);
                     var filter = new JobActivityFilter();
@@ -1334,11 +1342,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         string getNotebookHistoryQueryString =
                         @"
-                        USE [{0}] ;
                         SELECT * FROM notebooks.nb_materialized 
-                        WHERE JOB_ID = '{1}'";
-                        getNotebookHistoryQueryString = string.Format(getNotebookHistoryQueryString, parameters.TargetDatabase, parameters.JobId);
-                        DataSet notebookHistoryDataset = ExecuteQuery(connInfo, getNotebookHistoryQueryString);
+                        WHERE JOB_ID = @jobId";
+                        List<SqlParameter> getNotebookHistoryQueryParams = new List<SqlParameter>();
+                        getNotebookHistoryQueryParams.Add(new SqlParameter("jobId", parameters.JobId));
+                        DataSet notebookHistoryDataset = ExecuteQuery(connInfo, getNotebookHistoryQueryString, getNotebookHistoryQueryParams, parameters.TargetDatabase);
                         CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                         var jobServer = dataContainer.Server.JobServer;
                         var jobs = jobServer.Jobs;
@@ -1429,11 +1437,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (connInfo != null)
                     {
                         string materializedNotebookQueryString =
-                        @"USE [{0}] ;
+                        @"
                         SELECT * FROM notebooks.nb_materialized 
-                        WHERE materialized_id = '{1}'";
-                        materializedNotebookQueryString = string.Format(materializedNotebookQueryString, parameters.TargetDatabase, parameters.NotebookMaterializedID);
-                        DataSet materializedNotebookDataSet = ExecuteQuery(connInfo, materializedNotebookQueryString);
+                        WHERE materialized_id = @notebookMaterializedID";
+                        List<SqlParameter> materializedNotebookQueryParams = new List<SqlParameter>();
+                        materializedNotebookQueryParams.Add(new SqlParameter("notebookMaterializedID", parameters.NotebookMaterializedID));
+                        DataSet materializedNotebookDataSet = ExecuteQuery(connInfo, materializedNotebookQueryString, materializedNotebookQueryParams, parameters.TargetDatabase);
                         if (materializedNotebookDataSet != null)
                         {
                             DataTable materializedNotebookTable = materializedNotebookDataSet.Tables[0];
@@ -1495,57 +1504,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             };
                             parameters.Notebook.JobSteps = new AgentJobStepInfo[1];
                             parameters.Notebook.JobSteps[0] = notebookJobStep;
-                            var ownerUri = parameters.OwnerUri;
-                            var jobName = parameters.Notebook.Name;
-                            var jobInfo = parameters.Notebook;
-                            var configAction = ConfigAction.Create;
-                            var runType = RunType.RunNow;
-                            JobData jobData;
-                            CDataContainer dataContainer;
-                            CreateJobData(ownerUri, jobName, out dataContainer, out jobData, configAction, jobInfo);
-
-                            using (JobActions actions = new JobActions(dataContainer, jobData, configAction))
-                            {
-                                ExecuteAction(actions, runType);
-                            }
-
-
+                            var result2 = await ConfigureAgentJob(
+                                parameters.OwnerUri,
+                                parameters.Notebook.Name,
+                                parameters.Notebook,
+                                ConfigAction.Create,
+                                ManagementUtils.asRunType(parameters.TaskExecutionMode));
                             ConnectionInfo connInfo;
-                            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
-                            if (connInfo != null)
-                            {
-                                dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                            }
-
-                            // Execute step actions if they exist
-                            if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
-                            {
-                                foreach (AgentJobStepInfo step in jobInfo.JobSteps)
-                                {
-                                    configAction = ConfigAction.Create;
-                                    foreach (JobStep jobStep in dataContainer.Server.JobServer.Jobs[jobName].JobSteps)
-                                    {
-                                        // any changes made to step other than name or ordering
-                                        if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
-                                            // if the step name was changed
-                                            (step.StepName != jobStep.Name && step.Id == jobStep.ID) ||
-                                            // if the step ordering was changed
-                                            (step.StepName == jobStep.Name && step.Id != jobStep.ID))
-                                        {
-                                            configAction = ConfigAction.Update;
-                                            break;
-                                        }
-                                    }
-                                    await ConfigureAgentJobStep(ownerUri, step, configAction, runType, jobData, dataContainer);
-                                }
-                            }
-
+                            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                             string templateFilePath = parameters.TemplateFilePath;
                             string templateFileContents = File.ReadAllText(templateFilePath);
                             string targetDatabase = parameters.Notebook.TargetDatabase;
-                            string notebookDatabaseSetup =
+                            string notebookDatabaseSetupQueryString =
                             @"
-                            USE [{0}];
                             IF NOT EXISTS (
                             SELECT  schema_name
                             FROM    information_schema.schemata
@@ -1579,21 +1550,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             ) 
                             END
                             USE [msdb];
-                            select job_id from msdb.dbo.sysjobs where name='{1}';
+                            select job_id from msdb.dbo.sysjobs where name= @jobName;
                             ";
-                            notebookDatabaseSetup = string.Format(notebookDatabaseSetup, targetDatabase, jobName);
-                            DataSet jobIdDataSet = ExecuteQuery(connInfo, notebookDatabaseSetup);
+                            List<SqlParameter> notebookDatabaseSetupQueryParams = new List<SqlParameter>();
+                            notebookDatabaseSetupQueryParams.Add(new SqlParameter("jobName", parameters.Notebook.Name));
+                            DataSet jobIdDataSet = ExecuteQuery(connInfo, notebookDatabaseSetupQueryString, notebookDatabaseSetupQueryParams, targetDatabase);
                             DataTable jobIdDataTable = jobIdDataSet.Tables[0];
                             DataRow jobIdDataRow = jobIdDataTable.Rows[0];
                             string jobId = ((Guid)jobIdDataRow["job_id"]).ToString();
                             templateFileContents = templateFileContents.Replace("'", "''");
                             string insertTemplateJsonQuery =
                             @"
-                            USE [{0}];
-                            INSERT INTO notebooks.nb_template(job_id, notebook, last_run_notebook_error, execute_database) VALUES (N'{1}', N'{2}', N'', N'{3}')
+                            INSERT INTO notebooks.nb_template(job_id, notebook, last_run_notebook_error, execute_database) VALUES (@jobId, @templateFileContents, N'', @executeDatabase)
                             ";
-                            insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents, parameters.Notebook.ExecuteDatabase);
-                            ExecuteQuery(connInfo, insertTemplateJsonQuery);
+                            List<SqlParameter> insertTemplateJsonQueryParams = new List<SqlParameter>();
+                            insertTemplateJsonQueryParams.Add(new SqlParameter("jobId", jobId));
+                            insertTemplateJsonQueryParams.Add(new SqlParameter("templateFileContents", templateFileContents));
+                            insertTemplateJsonQueryParams.Add(new SqlParameter("executeDatabase", parameters.Notebook.ExecuteDatabase));
+                            ExecuteQuery(connInfo, insertTemplateJsonQuery, insertTemplateJsonQueryParams, targetDatabase);
                         }
                     }
                     result.Success = true;
@@ -1616,15 +1590,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 try
                 {
 
-                    string DeleteNotebookRowQuery =
+                    string deleteNotebookRowQuery =
                     @"
-                    USE[{0}];
                     DELETE FROM notebooks.nb_template
                     WHERE 
-                    job_id = '{1}';
+                    job_id = @jobId;
                     DELETE FROM notebooks.nb_materialized
                     WHERE
-                    job_id = '{1}';
+                    job_id = @jobId;
                     IF NOT EXISTS (SELECT * FROM notebooks.nb_template)
                     BEGIN
                         DROP TABLE notebooks.nb_template;
@@ -1634,8 +1607,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ";
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-                    DeleteNotebookRowQuery = string.Format(DeleteNotebookRowQuery, parameters.Notebook.TargetDatabase, parameters.Notebook.JobId);
-                    ExecuteQuery(connInfo, DeleteNotebookRowQuery);
+                    List<SqlParameter> deleteNotebookRowQueryParams = new List<SqlParameter>();
+                    deleteNotebookRowQueryParams.Add(new SqlParameter("jobId", parameters.Notebook.JobId));
+                    ExecuteQuery(connInfo, deleteNotebookRowQuery, deleteNotebookRowQueryParams, parameters.Notebook.TargetDatabase);
                     await ConfigureAgentJob(
                         parameters.OwnerUri,
                         parameters.Notebook.Name,
@@ -1676,19 +1650,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         templateFileContents = templateFileContents.Replace("'", "''");
                         string insertTemplateJsonQuery =
                         @"
-                            USE [{0}];
-                            UPDATE notebooks.nb_template SET notebook = '{2}' WHERE job_id = '{1}'
-                            ";
-                        insertTemplateJsonQuery = string.Format(insertTemplateJsonQuery, targetDatabase, jobId, templateFileContents);
-                        ExecuteQuery(connInfo, insertTemplateJsonQuery);
+                        UPDATE notebooks.nb_template SET notebook = @templateFileContents WHERE job_id = @jobId
+                        ";
+                        List<SqlParameter> insertTemplateJsonQueryParams = new List<SqlParameter>();
+                        insertTemplateJsonQueryParams.Add(new SqlParameter("templateFileContents", templateFileContents));
+                        insertTemplateJsonQueryParams.Add(new SqlParameter("jobId", jobId));
+                        ExecuteQuery(connInfo, insertTemplateJsonQuery, insertTemplateJsonQueryParams, targetDatabase);
                     }
                     string updateExecuteDatabaseQuery =
                     @"
-                     USE [{0}];
-                     UPDATE notebooks.nb_template SET execute_database = '{2}' WHERE job_id = '{1}'
+                     UPDATE notebooks.nb_template SET execute_database = @executeDatabase WHERE job_id = @jobId
                     ";
-                    updateExecuteDatabaseQuery = string.Format(updateExecuteDatabaseQuery, targetDatabase, jobId, parameters.Notebook.ExecuteDatabase);
-                    ExecuteQuery(connInfo, updateExecuteDatabaseQuery);
+                    List<SqlParameter> updateExecuteDatabaseQueryParams = new List<SqlParameter>();
+                    updateExecuteDatabaseQueryParams.Add(new SqlParameter("executeDatabase", parameters.Notebook.ExecuteDatabase));
+                    updateExecuteDatabaseQueryParams.Add(new SqlParameter("jobId", jobId));
+                    ExecuteQuery(connInfo, updateExecuteDatabaseQuery, updateExecuteDatabaseQueryParams, targetDatabase);
                     var tempResult =
                     await ConfigureAgentJob(
                         parameters.OwnerUri,
