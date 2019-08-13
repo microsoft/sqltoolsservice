@@ -27,7 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var initialFetchContext = new Mock<RequestContext<AgentNotebooksResult>>();
-                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
+                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams()
+                {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 }, initialFetchContext.Object);
                 initialFetchContext.VerifyAll();
@@ -36,36 +37,41 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 StreamReader reader = new StreamReader(scriptStream);
                 string testNotebookString = reader.ReadToEnd();
                 string tempNotebookPath = System.IO.Path.GetTempFileName().Replace(".tmp", ".ipynb");
-                if(!File.Exists(tempNotebookPath)){
+                if (!File.Exists(tempNotebookPath))
+                {
                     File.WriteAllText(tempNotebookPath, testNotebookString);
                 }
                 var notebook = GetTestNotebookInfo("test1", "master");
                 var createNotebookJobContext = new Mock<RequestContext<CreateAgentNotebookResult>>();
-                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams(){
+                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
+                {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook,
                     TemplateFilePath = tempNotebookPath
                 }, createNotebookJobContext.Object);
                 createNotebookJobContext.VerifyAll();
                 initialFetchContext = new Mock<RequestContext<AgentNotebooksResult>>();
-                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
+                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams()
+                {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 }, initialFetchContext.Object);
                 initialFetchContext.VerifyAll();
                 var deleteNotebookJobContext = new Mock<RequestContext<ResultStatus>>();
-                await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams(){
+                await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams()
+                {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     Notebook = notebook
                 }, deleteNotebookJobContext.Object);
                 initialFetchContext = new Mock<RequestContext<AgentNotebooksResult>>();
-                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
+                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams()
+                {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 }, initialFetchContext.Object);
                 initialFetchContext.VerifyAll();
             }
         }
 
-        
+
         internal static AgentNotebookInfo GetTestNotebookInfo(string TestJobName, string TargetDatabase)
         {
             return new AgentNotebookInfo()

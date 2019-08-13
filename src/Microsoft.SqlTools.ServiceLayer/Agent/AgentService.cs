@@ -1232,9 +1232,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
         }
 
-        /**
-         * Notebook helper function to execute queires to be later replaced by QueryExecutionService method.
-         */
         public DataSet ExecuteQuery(ConnectionInfo connInfo, string sqlQuery, List<SqlParameter> commandParameters, string executeDatabase = null)
         {
             DataSet resultDataSet = new DataSet();
@@ -1443,12 +1440,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         List<SqlParameter> materializedNotebookQueryParams = new List<SqlParameter>();
                         materializedNotebookQueryParams.Add(new SqlParameter("notebookMaterializedID", parameters.NotebookMaterializedID));
                         DataSet materializedNotebookDataSet = ExecuteQuery(connInfo, materializedNotebookQueryString, materializedNotebookQueryParams, parameters.TargetDatabase);
-                        if (materializedNotebookDataSet != null)
-                        {
-                            DataTable materializedNotebookTable = materializedNotebookDataSet.Tables[0];
-                            DataRow materializedNotebookRows = materializedNotebookTable.Rows[0];
-                            result.NotebookMaterializedJson = materializedNotebookRows["notebook"] as string;
-                        }
+                        DataTable materializedNotebookTable = materializedNotebookDataSet.Tables[0];
+                        DataRow materializedNotebookRows = materializedNotebookTable.Rows[0];
+                        result.NotebookMaterializedJson = materializedNotebookRows["notebook"] as string;
                     }
                     result.Success = true;
                 }

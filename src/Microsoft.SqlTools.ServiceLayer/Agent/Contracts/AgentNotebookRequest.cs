@@ -15,18 +15,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebooksParams : GeneralRequestDetails
     {
-        public string OwnerUri {get; set;}
-    
+        public string OwnerUri { get; set; }
+
     }
-    
+
     /// <summary>
     /// SQL Agent Notebook activity result
     /// </summary>
     public class AgentNotebooksResult : ResultStatus
     {
-        public AgentNotebookInfo[] Notebooks {get; set;}
+        public AgentNotebookInfo[] Notebooks { get; set; }
     }
-    
+
     /// <summary>
     /// SQL Agent Notebook request type
     /// </summary>
@@ -36,12 +36,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-        RequestType<AgentNotebooksParams, AgentNotebooksResult> Type = 
+        RequestType<AgentNotebooksParams, AgentNotebooksResult> Type =
         RequestType<AgentNotebooksParams, AgentNotebooksResult>.Create("agent/notebooks");
     }
-    
 
-    
+
+
     /// <summary>
     /// SQL Agent Notebook history parameters
     /// </summary>
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string TargetDatabase { get; set; }
         public string JobName { get; set; }
     }
-    
+
     /// <summary>
     /// SQL Agent Notebook history results
     /// </summary>
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// <summary>
     /// SQL Agent create Notebook result
     /// </summary>
-    public class CreateAgentNotebookResult  : ResultStatus
+    public class CreateAgentNotebookResult : ResultStatus
     {
         public AgentNotebookInfo Job { get; set; }
     }
@@ -197,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public string OwnerUri { get; set; }
         public string TemplateId { get; set; }
         public string TargetDatabase { get; set; }
-        
+
     }
 
     /// <summary>
