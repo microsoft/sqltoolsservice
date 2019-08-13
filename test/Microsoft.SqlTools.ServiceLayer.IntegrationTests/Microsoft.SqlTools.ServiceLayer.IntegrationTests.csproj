@@ -45,15 +45,9 @@
     <DefineConstants>$(DefineConstants);WINDOWS_ONLY_BUILD</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Content Remove=".\Agent\NotebookResources\NotebookJobScript.ps1" />
+    <Content Remove=".\Agent\NotebookResources\TestNotebook.ipynb" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove=".\Agent\NotebookResources\testNotebook.ipynb" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include=".\Agent\NotebookResources\testNotebook.ipynb" />
+    <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
   </ItemGroup>
 </Project>

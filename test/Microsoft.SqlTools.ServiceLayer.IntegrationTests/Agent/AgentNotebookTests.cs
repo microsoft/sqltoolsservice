@@ -5,8 +5,8 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using Moq;
@@ -26,44 +26,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             {
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-                var job1 = GetTestNotebookInfo("test1", "master");
-                var job2 = GetTestNotebookInfo("test2", "master");
+                var initialFetchContext = new Mock<RequestContext<AgentNotebooksResult>>();
+                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                }, initialFetchContext.Object);
+                initialFetchContext.VerifyAll();
                 Assembly assembly = Assembly.GetAssembly(typeof(AgentNotebookTests));
-                using (Stream scriptStream = assembly.GetManifestResourceStream(assembly.GetName().Name + ".Agent.NotebookResources.testNotebook.ipynb"))
-                {
-                    using (StreamReader reader = new StreamReader(scriptStream))
-                    {
-                        string testNotebook = reader.ReadToEnd();
-                        
-                        string tempTestNotebookFilePath = Path.GetTempFileName();
-                        var tempFile = File.Create(tempTestNotebookFilePath);
-                        var tempFileWriter = new StreamWriter(tempFile);
-                        tempFileWriter.Write(testNotebook);
-                        tempFileWriter.Close();
-                        var context = new Mock<RequestContext<CreateAgentNotebookResult>>();
-                        await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
-                        {
-                            OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                            Notebook = job1,
-                            TemplateFilePath = tempTestNotebookFilePath
-                        }, context.Object);
-                        await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams()
-                        {
-                            OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                            Notebook = job2,
-                            TemplateFilePath = tempTestNotebookFilePath
-                        }, context.Object);
-                        var context2 = new Mock<RequestContext<AgentNotebooksResult>>();
-                        await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
-                            OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-                        }, context2.Object);
-                
-                        File.Delete(tempTestNotebookFilePath);
-                    }
+                Stream scriptStream = assembly.GetManifestResourceStream(assembly.GetName().Name + ".Agent.NotebookResources.TestNotebook.ipynb");
+                StreamReader reader = new StreamReader(scriptStream);
+                string testNotebookString = reader.ReadToEnd();
+                string tempNotebookPath = System.IO.Path.GetTempFileName().Replace(".tmp", ".ipynb");
+                if(!File.Exists(tempNotebookPath)){
+                    File.WriteAllText(tempNotebookPath, testNotebookString);
                 }
-
+                var notebook = GetTestNotebookInfo("test1", "master");
+                var createNotebookJobContext = new Mock<RequestContext<CreateAgentNotebookResult>>();
+                await service.HandleCreateAgentNotebookRequest(new CreateAgentNotebookParams(){
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Notebook = notebook,
+                    TemplateFilePath = tempNotebookPath
+                }, createNotebookJobContext.Object);
+                createNotebookJobContext.VerifyAll();
+                initialFetchContext = new Mock<RequestContext<AgentNotebooksResult>>();
+                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                }, initialFetchContext.Object);
+                initialFetchContext.VerifyAll();
+                var deleteNotebookJobContext = new Mock<RequestContext<ResultStatus>>();
+                await service.HandleDeleteAgentNotebooksRequest(new DeleteAgentNotebookParams(){
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Notebook = notebook
+                }, deleteNotebookJobContext.Object);
+                initialFetchContext = new Mock<RequestContext<AgentNotebooksResult>>();
+                await service.HandleAgentNotebooksRequest(new AgentNotebooksParams(){
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                }, initialFetchContext.Object);
+                initialFetchContext.VerifyAll();
             }
         }
+
+        
         internal static AgentNotebookInfo GetTestNotebookInfo(string TestJobName, string TargetDatabase)
         {
             return new AgentNotebookInfo()
@@ -85,7 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 NextRun = "tomorrow",
                 JobId = Guid.NewGuid().ToString(),
                 TargetDatabase = TargetDatabase,
-                Owner = "sa"
+                Owner = "sa",
+                ExecuteDatabase = TargetDatabase
             };
         }
 
