@@ -50,7 +50,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             Snippet = 15,
             Color = 16,
             File = 17,
-            Reference = 18
+            Reference = 18,
+
+            Table = 1000,
+            View = 1001,
+            StoredProcedure = 1002,
+            TableValueFunction = 1003,
+            Column = 1004,
+            SqlFunction = 1005
     }
 
     public class Command

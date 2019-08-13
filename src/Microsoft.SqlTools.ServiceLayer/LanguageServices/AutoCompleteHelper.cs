@@ -510,7 +510,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn,
             int endColumn)
         {
-            return SqlCompletionItem.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
+            return SqlCompletionItem.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.View, row, startColumn, endColumn);
         }
 
         internal static CompletionItem[] AddTokenToItems(CompletionItem[] currentList, Token token, int row,
@@ -524,7 +524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ))
             {
                 var list = currentList.ToList();
-                list.Insert(0, SqlCompletionItem.CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
+                list.Insert(0, SqlCompletionItem.CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.View, row, startColumn, endColumn));
                 return list.ToArray();
             }
             return currentList;
