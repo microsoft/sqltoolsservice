@@ -58,6 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public AgentNotebookHistoryInfo[] Histories { get; set; }
         public AgentJobStepInfo[] Steps { get; set; }
+
         public AgentScheduleInfo[] Schedules { get; set; }
     }
 
@@ -108,12 +109,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class UpdateAgentNotebookParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-
         public string OriginalNotebookName { get; set; }
-
         public AgentNotebookInfo Notebook { get; set; }
         public string TemplateFilePath { get; set; }
-
     }
 
     /// <summary>
@@ -142,7 +140,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class DeleteAgentNotebookParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-
         public AgentNotebookInfo Notebook { get; set; }
     }
 

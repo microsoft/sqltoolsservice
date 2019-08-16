@@ -1237,7 +1237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         parameters.OwnerUri,
                         out connInfo);
                     result.Success = true;
-                    result.Notebooks = AgentNotebookHelper.GetAgentNotebooks(connInfo);
+                    result.Notebooks = AgentNotebookHelper.GetAgentNotebooks(connInfo).Result;
                 }
                 catch (Exception e)
                 {
@@ -1292,7 +1292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(
                                                 parameters.OwnerUri,
                                                 out connInfo);
-                    result.NotebookMaterialized = AgentNotebookHelper.GetMaterializedNotebook(connInfo, parameters.NotebookMaterializedId, parameters.TargetDatabase);
+                    result.NotebookMaterialized = AgentNotebookHelper.GetMaterializedNotebook(connInfo, parameters.NotebookMaterializedId, parameters.TargetDatabase).Result;
                     result.Success = true;
                 }
                 catch (Exception e)
@@ -1433,7 +1433,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 var jobHistories = AgentUtilities.ConvertToAgentNotebookHistoryInfo(logEntries, job, steps);
                 // fetching notebook part of histories
                 Dictionary<string, DataRow> notebookHistoriesDict = new Dictionary<string, DataRow>();
-                DataTable materializedNotebookTable = AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase);
+                DataTable materializedNotebookTable = AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase).Result;
                 foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
                 {
                     string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();

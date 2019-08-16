@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Reflection;
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -8,19 +6,14 @@ using System.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using System.IO;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Agent;
-
-
-
-
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -34,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="queryParameters">sql parameters required by the query</param>
         /// <param name="targetDatabase">the database on which the query will be executed</param>
         /// <returns></returns>
-        public static DataSet ExecuteSqlQueries(
+        public static async Task<DataSet> ExecuteSqlQueries(
             ConnectionInfo connInfo,
             string sqlQuery,
             List<SqlParameter> queryParameters = null,
@@ -48,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
+                await connection.OpenAsync();
                 using (SqlCommand sqlQueryCommand = new SqlCommand(sqlQuery, connection))
                 {
                     if (queryParameters != null)
@@ -67,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// </summary>
         /// <param name="connInfo">connectionInfo generated from OwnerUri</param>
         /// <returns>array of agent notebooks</returns>
-        public static AgentNotebookInfo[] GetAgentNotebooks(ConnectionInfo connInfo)
+        public static async Task<AgentNotebookInfo[]> GetAgentNotebooks(ConnectionInfo connInfo)
         {
             AgentNotebookInfo[] result;
             // Fetching all agent Jobs accessible to the user
@@ -101,7 +95,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 TABLE_NAME = N''nb_template''
             )
             BEGIN
-                SELECT [notebooks].[nb_template].*,
+                SELECT 
+                [notebooks].[nb_template].job_id,
+                [notebooks].[nb_template].template_id,
+                [notebooks].[nb_template].last_run_notebook_error,
+                [notebooks].[nb_template].execute_database,
                 DB_NAME() AS db_name                            
                 FROM [?].notebooks.nb_template
                 INNER JOIN
@@ -112,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             '
             EXEC sp_MSforeachdb @script";
             var agentNotebooks = new List<AgentNotebookInfo>();
-            DataSet jobIdsDataSet = ExecuteSqlQueries(connInfo, getJobIdsFromDatabaseQueryString);
+            DataSet jobIdsDataSet = await ExecuteSqlQueries(connInfo, getJobIdsFromDatabaseQueryString);
             foreach (DataTable templateTable in jobIdsDataSet.Tables)
             {
                 foreach (DataRow templateRow in templateTable.Rows)
@@ -164,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             // creating notebook metadata for the job
             string jobId =
-            SetUpNotebookAndGetJobId(
+            await SetUpNotebookAndGetJobId(
                 connInfo,
                 notebook.Name,
                 notebook.TargetDatabase,
@@ -197,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new Exception(deleteJobResult.Item2);
             }
             // deleting notebook metadata from target database
-            DeleteNotebookMetadata(
+            await DeleteNotebookMetadata(
                 connInfo,
                 notebook.JobId,
                 notebook.TargetDatabase);
@@ -253,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="JobId">unique ID of the sql agent notebook job</param>
         /// <param name="targetDatabase">database used to store notebook metadata</param>
         /// <returns>array of notebook history info</returns>
-        public static DataTable GetAgentNotebookHistories(
+        public static async Task<DataTable> GetAgentNotebookHistories(
             ConnectionInfo connInfo,
             string JobId,
             string targetDatabase)
@@ -261,12 +259,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             DataTable result;
             string getNotebookHistoryQueryString =
             @"
-            SELECT * FROM notebooks.nb_materialized 
+            SELECT
+            materialized_id,
+            run_time,
+            run_date
+            FROM 
+            notebooks.nb_materialized 
             WHERE JOB_ID = @jobId";
             List<SqlParameter> getNotebookHistoryQueryParams = new List<SqlParameter>();
             getNotebookHistoryQueryParams.Add(new SqlParameter("jobId", JobId));
             DataSet notebookHistoriesDataSet =
-            ExecuteSqlQueries(
+            await ExecuteSqlQueries(
                 connInfo,
                 getNotebookHistoryQueryString,
                 getNotebookHistoryQueryParams,
@@ -282,19 +285,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <param name="materializedId"></param>
         /// <param name="targetDatabase"></param>
         /// <returns></returns>
-        public static string GetMaterializedNotebook(
+        public static async Task<string> GetMaterializedNotebook(
             ConnectionInfo connInfo,
             int materializedId,
             string targetDatabase)
         {
             string materializedNotebookQueryString =
             @"
-            SELECT * FROM notebooks.nb_materialized 
-            WHERE materialized_id = @notebookMaterializedID";
+            SELECT
+            notebook 
+            FROM 
+            notebooks.nb_materialized 
+            WHERE 
+            materialized_id = @notebookMaterializedID";
             List<SqlParameter> materializedNotebookQueryParams = new List<SqlParameter>();
             materializedNotebookQueryParams.Add(new SqlParameter("notebookMaterializedID", materializedId));
             DataSet materializedNotebookDataSet =
-            ExecuteSqlQueries(
+            await ExecuteSqlQueries(
                 connInfo,
                 materializedNotebookQueryString,
                 materializedNotebookQueryParams,
@@ -361,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return result;
         }
 
-        public static string SetUpNotebookAndGetJobId(
+        public static async Task<string> SetUpNotebookAndGetJobId(
             ConnectionInfo connInfo,
             string notebookName,
             string targetDatabase,
@@ -404,12 +411,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ) 
             END
             USE [msdb];
-            select job_id from msdb.dbo.sysjobs where name= @jobName;
+            SELECT 
+            job_id
+            FROM
+            msdb.dbo.sysjobs 
+            WHERE 
+            name= @jobName;
             ";
             List<SqlParameter> notebookDatabaseSetupQueryParams = new List<SqlParameter>();
             notebookDatabaseSetupQueryParams.Add(new SqlParameter("jobName", notebookName));
             DataSet jobIdDataSet =
-            ExecuteSqlQueries(
+            await ExecuteSqlQueries(
                 connInfo,
                 notebookDatabaseSetupQueryString,
                 notebookDatabaseSetupQueryParams,
@@ -426,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return jobId;
         }
 
-        static void StoreNotebookTemplate(
+        static async void StoreNotebookTemplate(
             ConnectionInfo connInfo,
             string jobId,
             string templatePath,
@@ -436,22 +448,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string templateFileContents = File.ReadAllText(templatePath);
             string insertTemplateJsonQuery =
             @"
-            INSERT INTO 
-            notebooks.nb_template(job_id, notebook, last_run_notebook_error, execute_database) 
-            VALUES (@jobId, @templateFileContents, N'', @executeDatabase)
+            INSERT 
+            INTO 
+            notebooks.nb_template(
+                job_id, 
+                notebook, 
+                last_run_notebook_error, 
+                execute_database) 
+            VALUES 
+            (@jobId, @templateFileContents, N'', @executeDatabase)
             ";
             List<SqlParameter> insertTemplateJsonQueryParams = new List<SqlParameter>();
             insertTemplateJsonQueryParams.Add(new SqlParameter("jobId", jobId));
             insertTemplateJsonQueryParams.Add(new SqlParameter("templateFileContents", templateFileContents));
             insertTemplateJsonQueryParams.Add(new SqlParameter("executeDatabase", executionDatabase));
-            ExecuteSqlQueries(
+            await ExecuteSqlQueries(
                 connInfo,
                 insertTemplateJsonQuery,
                 insertTemplateJsonQueryParams,
                 targetDatabase);
         }
 
-        public static void DeleteNotebookMetadata(ConnectionInfo connInfo, string jobId, string targetDatabase)
+        public static async Task DeleteNotebookMetadata(ConnectionInfo connInfo, string jobId, string targetDatabase)
         {
             string deleteNotebookRowQuery =
             @"
@@ -470,10 +488,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ";
             List<SqlParameter> deleteNotebookRowQueryParams = new List<SqlParameter>();
             deleteNotebookRowQueryParams.Add(new SqlParameter("jobId", jobId));
-            ExecuteSqlQueries(connInfo, deleteNotebookRowQuery, deleteNotebookRowQueryParams, targetDatabase);
+            await ExecuteSqlQueries(connInfo, deleteNotebookRowQuery, deleteNotebookRowQueryParams, targetDatabase);
         }
 
-        public static void UpdateNotebookInfo(
+        public static async void UpdateNotebookInfo(
             ConnectionInfo connInfo,
             string jobId,
             string templatePath,
@@ -494,7 +512,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 List<SqlParameter> insertTemplateJsonQueryParams = new List<SqlParameter>();
                 insertTemplateJsonQueryParams.Add(new SqlParameter("templateFileContents", templateFileContents));
                 insertTemplateJsonQueryParams.Add(new SqlParameter("jobId", jobId));
-                ExecuteSqlQueries(
+                await ExecuteSqlQueries(
                     connInfo,
                     insertTemplateJsonQuery,
                     insertTemplateJsonQueryParams,
@@ -511,14 +529,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             List<SqlParameter> updateExecuteDatabaseQueryParams = new List<SqlParameter>();
             updateExecuteDatabaseQueryParams.Add(new SqlParameter("executeDatabase", executionDatabase));
             updateExecuteDatabaseQueryParams.Add(new SqlParameter("jobId", jobId));
-            ExecuteSqlQueries(
+            await ExecuteSqlQueries(
                 connInfo,
                 updateExecuteDatabaseQuery,
                 updateExecuteDatabaseQueryParams,
                 targetDatabase);
         }
 
-        public static string GetTemplateFile(
+        public static async Task<string> GetTemplateFile(
             ConnectionInfo connInfo,
             string job_id,
             string targetDatabase,
@@ -534,7 +552,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ";
             List<SqlParameter> getNotebookTemplateQueryParams = new List<SqlParameter>();
             getNotebookTemplateQueryParams.Add(new SqlParameter("job_id", getNotebookTemplateQueryParams));
-            DataSet templateDataSet = AgentNotebookHelper.ExecuteSqlQueries(
+            DataSet templateDataSet = await AgentNotebookHelper.ExecuteSqlQueries(
                 connInfo,
                 getNotebookTemplateQuery,
                 getNotebookTemplateQueryParams,

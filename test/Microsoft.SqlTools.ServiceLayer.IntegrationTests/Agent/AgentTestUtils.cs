@@ -4,15 +4,12 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -379,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             return createdNotebook;
         }
 
-        public static async void CleanupNotebookJob(TestConnectionResult connectionResult, AgentNotebookInfo notebook)
+        public static async Task CleanupNotebookJob(TestConnectionResult connectionResult, AgentNotebookInfo notebook)
         {
             var service = new AgentService();
             await AgentNotebookHelper.DeleteNotebook(
@@ -391,7 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         }
 
         public static AgentNotebookInfo GetNotebook(TestConnectionResult connectionResult, string name){
-             var notebookList = AgentNotebookHelper.GetAgentNotebooks(connectionResult.ConnectionInfo);
+             var notebookList = AgentNotebookHelper.GetAgentNotebooks(connectionResult.ConnectionInfo).Result;
              foreach(AgentNotebookInfo n in notebookList)
              {
                  if(n.Name == name)
@@ -405,7 +402,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 
         public static bool VerifyNotebook(TestConnectionResult connectionResult, AgentNotebookInfo notebook)
         {
-            var notebookList = AgentNotebookHelper.GetAgentNotebooks(connectionResult.ConnectionInfo);
+            var notebookList = AgentNotebookHelper.GetAgentNotebooks(connectionResult.ConnectionInfo).Result;
             foreach (AgentNotebookInfo n in notebookList)
             {
                 if (NotebookObjectEquals(notebook, n))

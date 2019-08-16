@@ -1,18 +1,12 @@
-using System.Linq;
-using System.Net;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using Moq;
 using Xunit;
 
@@ -56,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 notebook = AgentTestUtils.SetupNotebookJob(connectionResult).Result;
                 Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
-                AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+                await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
             }
         }
 
@@ -113,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     TemplateFilePath = AgentTestUtils.CreateTemplateNotebookFile()
                 }, createNotebookContext.Object);
                 createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == false)));
-                AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+                await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
             }
         }
 
@@ -139,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == true)));
                 Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 var createdNotebook = AgentTestUtils.GetNotebook(connectionResult, notebook.Name);
-                AgentTestUtils.CleanupNotebookJob(connectionResult, createdNotebook);
+                await AgentTestUtils.CleanupNotebookJob(connectionResult, createdNotebook);
             }
         }
 
@@ -251,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 updateNotebookContext.Verify(x => x.SendResult(It.Is<UpdateAgentNotebookResult>(p => p.Success == false)));
 
                 //cleaning up the job
-                AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+                await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
                 Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
             }
         }
@@ -287,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
                 //cleaning up the job
-                AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+                await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
             }
         }
     }
