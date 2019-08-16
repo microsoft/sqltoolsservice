@@ -40,8 +40,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         RequestType<AgentNotebooksParams, AgentNotebooksResult>.Create("agent/notebooks");
     }
 
-
-
     /// <summary>
     /// SQL Agent Notebook history parameters
     /// </summary>
@@ -168,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public string OwnerUri { get; set; }
         public string TargetDatabase { get; set; }
-        public int NotebookMaterializedID { get; set; }
+        public int NotebookMaterializedId { get; set; }
     }
 
     /// <summary>
@@ -176,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebookMaterializedResult : ResultStatus
     {
-        public string NotebookMaterializedJson { get; set; }
+        public string NotebookMaterialized { get; set; }
     }
 
     /// <summary>
@@ -217,8 +215,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
             RequestType<AgentNotebookTemplateParams, AgentNotebookTemplateResult> Type =
             RequestType<AgentNotebookTemplateParams, AgentNotebookTemplateResult>.Create("agent/notebooktemplate");
     }
-
-
-
-
 }
