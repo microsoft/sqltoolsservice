@@ -262,7 +262,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             SELECT
             materialized_id,
             run_time,
-            run_date
+            run_date,
+            notebook_error
             FROM 
             notebooks.nb_materialized 
             WHERE JOB_ID = @jobId";

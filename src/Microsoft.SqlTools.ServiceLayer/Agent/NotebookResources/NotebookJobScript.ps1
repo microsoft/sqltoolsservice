@@ -3,7 +3,7 @@ $StartTime = "$(ESCAPE_SQUOTE(STRTTM))"
 $StartDate = "$(ESCAPE_SQUOTE(STRTDT))"
 $JSONTable = "select * from notebooks.nb_template where job_id = $JobId"
 $sqlResult = Invoke-Sqlcmd -Query $JSONTable -Database $TargetDatabase -MaxCharLength 2147483647
-$FirstNotebookError = $null
+$FirstNotebookError = ""
 function ParseTableToNotebookOutput {
     param (
         [System.Data.DataTable]
