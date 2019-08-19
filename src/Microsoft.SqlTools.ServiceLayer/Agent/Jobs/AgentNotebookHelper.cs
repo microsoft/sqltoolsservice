@@ -312,6 +312,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return materializedNotebookRows["notebook"] as string;
         }
 
+        public static async Task<string> GetTemplateNotebook(
+            ConnectionInfo connInfo,
+            string jobId,
+            string targetDatabase)
+        {
+            string templateNotebookQueryString =
+            @"
+            SELECT
+            notebook 
+            FROM 
+            notebooks.nb_template 
+            WHERE 
+            job_id = @jobId";
+            List<SqlParameter> templateNotebookQueryParams = new List<SqlParameter>();
+            templateNotebookQueryParams.Add(new SqlParameter("jobId", jobId));
+            DataSet templateNotebookDataSet =
+            await ExecuteSqlQueries(
+                connInfo,
+                templateNotebookQueryString,
+                templateNotebookQueryParams,
+                targetDatabase);
+            DataTable templateNotebookTable = templateNotebookDataSet.Tables[0];
+            DataRow templateNotebookRows = templateNotebookTable.Rows[0];
+            return templateNotebookRows["notebook"] as string;
+        }
+
         /// <summary>
         /// 
         /// </summary>

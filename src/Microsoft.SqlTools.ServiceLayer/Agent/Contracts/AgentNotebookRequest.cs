@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class AgentNotebookTemplateParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-        public string TemplateId { get; set; }
+        public string JobId { get; set; }
         public string TargetDatabase { get; set; }
 
     }
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     /// </summary>
     public class AgentNotebookTemplateResult : ResultStatus
     {
-        public string NotebookTemplateJson { get; set; }
+        public string NotebookTemplate { get; set; }
     }
 
     /// <summary>

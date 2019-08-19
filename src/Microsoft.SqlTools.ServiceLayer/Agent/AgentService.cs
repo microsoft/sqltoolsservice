@@ -125,6 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest);
             this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
             this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebookTemplateRequest.Type, HandleAgentNotebookTemplateRequest);
             this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
@@ -1293,6 +1294,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                                 parameters.OwnerUri,
                                                 out connInfo);
                     result.NotebookMaterialized = AgentNotebookHelper.GetMaterializedNotebook(connInfo, parameters.NotebookMaterializedId, parameters.TargetDatabase).Result;
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleAgentNotebookTemplateRequest(AgentNotebookTemplateParams parameters, RequestContext<AgentNotebookTemplateResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentNotebookTemplateResult();
+                try
+                {
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    result.NotebookTemplate = AgentNotebookHelper.GetTemplateNotebook(connInfo, parameters.JobId, parameters.TargetDatabase).Result;
                     result.Success = true;
                 }
                 catch (Exception e)
