@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, string connectionString, ConnectionInfo connInfo)
+        internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, ConnectionInfo connInfo)
         {
             switch (endpointInfo.EndpointType)
             {
@@ -118,7 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 case SchemaCompareEndpointType.Database:
                     {
-                        return connInfo.ConnectionDetails != null && connInfo.ConnectionDetails.AzureAccountToken != null 
+                        string connectionString = GetConnectionString(connInfo, endpointInfo.DatabaseName);
+                        return connInfo.ConnectionDetails?.AzureAccountToken != null 
                             ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken))
                             : new SchemaCompareDatabaseEndpoint(connectionString);
                     }

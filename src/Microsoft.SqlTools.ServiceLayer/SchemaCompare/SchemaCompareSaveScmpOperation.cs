@@ -32,10 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaCompareSaveScmpParams Parameters { get; set; }
 
-        public string SourceConnectionString { get; set; }
-
-        public string TargetConnectionString { get; set; }
-
         public ConnectionInfo SourceConnectionInfo { get; set; }
 
         public ConnectionInfo TargetConnectionInfo { get; set; }
@@ -47,8 +43,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.Parameters = parameters;
             this.SourceConnectionInfo = sourceConnInfo;
             this.TargetConnectionInfo = targetConnInfo;
-            this.SourceConnectionString = SchemaCompareUtils.GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
-            this.TargetConnectionString = SchemaCompareUtils.GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -61,8 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString, this.SourceConnectionInfo);
-                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString, this.TargetConnectionInfo);
+                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionInfo);
+                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionInfo);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 
