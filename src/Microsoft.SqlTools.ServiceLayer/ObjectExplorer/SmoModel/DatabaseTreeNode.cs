@@ -19,13 +19,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             Parent = serverNode;
             NodeValue = databaseName;
-            Database db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, this.NodeValue);
+            var db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, this.NodeValue);
             db.Refresh();
+            // If we got this far, the connection is valid. However, it's possible
+            // the user connected directly to the master of a readable secondary
+            // In that case, the name in the connection string won't be found in sys.databases
+            // We detect that here and fall back to master
+            if (db.State == SqlSmoState.Creating)
+            {
+                db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, "master");
+                db.Refresh();
+            }
             CacheInfoFromModel(db);
         }
 
         /// <summary>
-        /// Initializes the context and ensures that 
+        /// Initializes the context and sets its ValidFor property 
         /// </summary>
         protected override void EnsureContextInitialized()
         {
@@ -33,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 base.EnsureContextInitialized();
                 Database db = SmoObject as Database;
-                if (context != null && db != null)
+                if (db != null)
                 {
                     context.Database = db;
                 }
@@ -43,8 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
-            SmoQueryContext context = this.GetContextAs<SmoQueryContext>();
-            if (IsAccessible(context))
+            var smoQueryContext = this.GetContextAs<SmoQueryContext>();
+            if (IsAccessible(smoQueryContext))
             {
                 base.PopulateChildren(refresh, name, cancellationToken);
             }
@@ -53,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (string.IsNullOrEmpty(ErrorMessage))
                 {
                     // Write error message if it wasn't already set during IsAccessible check
-                    ErrorMessage = string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, context.Database.Name);
+                    ErrorMessage = string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, this.NodeValue);
                 }
             }
         }
@@ -62,11 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             try
             {
-                if (context == null || context.Database == null)
-                {
-                    return true;
-                }
-                return context.Database.IsAccessible;
+                return context?.Database == null || context.Database.IsAccessible;
             }
             catch (Exception ex)
             {
