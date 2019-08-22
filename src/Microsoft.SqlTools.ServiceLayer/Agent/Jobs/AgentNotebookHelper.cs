@@ -593,7 +593,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             DataRow templateDataRow = templateDataTable.Rows[0];
             return templateDataRow["notebook"] as string;
         }
-
+        
         public static async Task UpdateMaterializedNotebookName(
             ConnectionInfo connInfo,
             int materializedId,
