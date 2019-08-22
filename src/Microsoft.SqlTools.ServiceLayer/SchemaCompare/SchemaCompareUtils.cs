@@ -7,6 +7,7 @@ using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
         }
 
-        internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, string connectionString)
+        internal static SchemaCompareEndpoint CreateSchemaCompareEndpoint(SchemaCompareEndpointInfo endpointInfo, ConnectionInfo connInfo)
         {
             switch (endpointInfo.EndpointType)
             {
@@ -117,7 +118,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 case SchemaCompareEndpointType.Database:
                     {
-                        return new SchemaCompareDatabaseEndpoint(connectionString);
+                        string connectionString = GetConnectionString(connInfo, endpointInfo.DatabaseName);
+                        return connInfo.ConnectionDetails?.AzureAccountToken != null 
+                            ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken))
+                            : new SchemaCompareDatabaseEndpoint(connectionString);
                     }
                 default:
                     {
