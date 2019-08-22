@@ -212,4 +212,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
             RequestType<AgentNotebookTemplateParams, AgentNotebookTemplateResult> Type =
             RequestType<AgentNotebookTemplateParams, AgentNotebookTemplateResult>.Create("agent/notebooktemplate");
     }
+
+    /// <summary>
+    /// SQL Agent Notebook templates params 
+    /// </summary>
+    public class UpdateAgentNotebookRunNameParams : TaskRequestDetails
+    {
+        public string OwnerUri { get; set; }
+        public int MaterializedId { get; set; }
+        public string MaterializedNotebookName { get; set; }
+        public string TargetDatabase { get; set; }
+
+    }
+
+    /// <summary>
+    /// SQL Agent Notebook templates request type
+    /// </summary>
+    public class UpdateAgentNotebookRunNameRequest
+    {
+        public static readonly
+            RequestType<UpdateAgentNotebookRunNameParams, ResultStatus> Type =
+            RequestType<UpdateAgentNotebookRunNameParams, ResultStatus>.Create("agent/notebookname");
+    }
+
+    /// <summary>
+    /// SQL Agent Notebook templates params 
+    /// </summary>
+    public class UpdateAgentNotebookRunPinParams : TaskRequestDetails
+    {
+        public string OwnerUri { get; set; }
+        public string MaterializedId { get; set; }
+        public bool MaterializedNotebookPin { get; set; }
+        public string TargetDatabase { get; set; }
+
+    }
+
+    /// <summary>
+    /// SQL Agent Notebook templates request type
+    /// </summary>
+    public class UpdateAgentNotebookRunPinRequest
+    {
+        public static readonly
+            RequestType<UpdateAgentNotebookRunPinParams, ResultStatus> Type =
+            RequestType<UpdateAgentNotebookRunPinParams, ResultStatus>.Create("agent/notebookpin");
+    }
 }

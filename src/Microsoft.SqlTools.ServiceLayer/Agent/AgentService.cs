@@ -129,6 +129,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest);
 
 
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -1410,6 +1412,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
+        internal async Task HandleUpdateAgentNotebookRunNameRequest(UpdateAgentNotebookRunNameParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    // Calling update helper function
+                    await AgentNotebookHelper.UpdateMaterializedNotebookName(
+                        connInfo,
+                        parameters.MaterializedId,
+                        parameters.TargetDatabase,
+                        parameters.MaterializedNotebookName);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleUpdateAgentNotebookRunPinRequest(UpdateAgentNotebookRunPinParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    // Calling update helper function
+                    await AgentNotebookHelper.UpdateMaterializedNotebookPin(
+                        connInfo,
+                        parameters.MaterializedId,
+                        parameters.TargetDatabase,
+                        parameters.MaterializedNotebookPin);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
         public AgentNotebookHistoryResult GetAgentNotebookHistories(
             ConnectionInfo connInfo,
             string jobId,
@@ -1475,6 +1535,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     {
                         notebookHistory.MaterializedNotebookId = (int)notebookHistoriesDict[jobRuntime]["materialized_id"];
                         notebookHistory.MaterializedNotebookErrorInfo = notebookHistoriesDict[jobRuntime]["notebook_error"] as string;
+                        notebookHistory.MaterializedNotebookName = notebookHistoriesDict[jobRuntime]["notebook_name"] as string;
+                        notebookHistory.MaterializedNotebookPin = (bool)notebookHistoriesDict[jobRuntime]["pin"];
                     }
                     notebookHistories.Add(notebookHistory);
                 }
