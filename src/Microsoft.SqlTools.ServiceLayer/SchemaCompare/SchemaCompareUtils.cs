@@ -118,7 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 case SchemaCompareEndpointType.Database:
                     {
-                        return connInfo.ConnectionDetails.AzureAccountToken != null ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken)) : new SchemaCompareDatabaseEndpoint(connectionString);
+                        return connInfo.ConnectionDetails != null && connInfo.ConnectionDetails.AzureAccountToken != null ? 
+                            new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken)) : new SchemaCompareDatabaseEndpoint(connectionString);
                     }
                 default:
                     {
