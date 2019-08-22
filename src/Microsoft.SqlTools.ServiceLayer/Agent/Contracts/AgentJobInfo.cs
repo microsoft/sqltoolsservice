@@ -61,4 +61,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public AgentScheduleInfo[] JobSchedules { get; set; }
         public AgentAlertInfo[] Alerts { get; set; }
     }
+
+    /// <summary>
+    /// a class for storing variour properties of notebook Jobs
+    /// </summary>
+    public class AgentNotebookInfo : AgentJobInfo
+    {
+        public string TemplateId { get; set; }
+        public string TargetDatabase { get; set; }
+        public string LastRunNotebookError { get; set; }
+        public string ExecuteDatabase { get; set; }
+    }
+    
 }

@@ -66,6 +66,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
         }
 
+        public static AgentNotebookInfo ConvertToAgentNotebookInfo(JobProperties job)
+        {
+            return new AgentNotebookInfo(){
+                Name = job.Name,
+                Description = job.Description,
+                CurrentExecutionStatus = (Contracts.JobExecutionStatus) job.CurrentExecutionStatus,
+                LastRunOutcome = (Contracts.CompletionResult) job.LastRunOutcome,
+                CurrentExecutionStep = job.CurrentExecutionStep,
+                Enabled = job.Enabled,
+                HasTarget = job.HasTarget,
+                HasSchedule = job.HasSchedule,
+                HasStep = job.HasStep, 
+                Runnable = job.Runnable,
+                Category = job.Category,
+                CategoryId = job.CategoryID,
+                CategoryType = job.CategoryType,
+                LastRun = job.LastRun != null ? job.LastRun.ToString() : string.Empty,
+                NextRun = job.NextRun != null ? job.NextRun.ToString() : string.Empty,
+                JobId = job.JobID != null ? job.JobID.ToString() : null,
+                OperatorToEmail = job.OperatorToEmail,
+                OperatorToPage = job.OperatorToPage,
+                StartStepId = job.StartStepID,
+                EmailLevel = job.EmailLevel,
+                PageLevel = job.PageLevel,
+                EventLogLevel = job.EventLogLevel,
+                DeleteLevel = job.DeleteLevel,
+                Owner = job.Owner
+            };
+
+        }
+
         internal static AgentJobStep ConvertToAgentJobStep(JobStep step, LogSourceJobHistory.LogEntryJobHistory logEntry, string jobId)
         {
             AgentJobStepInfo stepInfo = new AgentJobStepInfo();
@@ -120,6 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             stepInfo.ProxyName = step.ProxyName;
             return stepInfo;
         }
+        
 
         internal static AgentScheduleInfo ConvertToAgentScheduleInfo(JobSchedule schedule)
         {
@@ -188,6 +220,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 // Make a new AgentJobHistoryInfo object
                 var jobHistoryInfo = new AgentJobHistoryInfo();
+                jobHistoryInfo.InstanceId = Convert.ToInt32(jobRow[UrnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
+                jobHistoryInfo.JobId = (Guid) jobRow[UrnJobId];
+                var logEntry = entry as LogSourceJobHistory.LogEntryJobHistory;
+                jobHistoryInfo.RunStatus = entry.Severity == SeverityClass.Error ? 0 : 1;
+                jobHistoryInfo.SqlMessageId = logEntry.SqlMessageID;
+                jobHistoryInfo.Message = logEntry.Message;
+                jobHistoryInfo.StepId = logEntry.StepID;
+                jobHistoryInfo.StepName = logEntry.StepName;
+                jobHistoryInfo.SqlSeverity = logEntry.SqlSeverity;
+                jobHistoryInfo.JobName = logEntry.JobName;
+                jobHistoryInfo.RunDate = entry.PointInTime;
+                jobHistoryInfo.RunDuration = logEntry.Duration;
+                jobHistoryInfo.OperatorEmailed = logEntry.OperatorEmailed;
+                jobHistoryInfo.OperatorNetsent = logEntry.OperatorNetsent;
+                jobHistoryInfo.OperatorPaged = logEntry.OperatorPaged;
+                jobHistoryInfo.RetriesAttempted = logEntry.RetriesAttempted;
+                jobHistoryInfo.Server = logEntry.Server;
+
+                // Add steps to the job if any
+                var jobSteps = new List<AgentJobStep>();
+                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries)
+                {
+                    if (steps.Contains(subEntry.StepName))
+                    {                                              
+                        var jobId = jobRow[UrnJobId].ToString();
+                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(steps.ItemById(Convert.ToInt32(subEntry.StepID)), logEntry, jobId));
+                    }
+                }
+                jobHistoryInfo.Steps = jobSteps.ToArray();
+                jobs.Add(jobHistoryInfo);
+            }
+            return jobs;
+        }
+
+        public static List<AgentNotebookHistoryInfo> ConvertToAgentNotebookHistoryInfo(List<ILogEntry> logEntries, DataRow jobRow, JobStepCollection steps) 
+        {
+            List<AgentNotebookHistoryInfo> jobs = new List<AgentNotebookHistoryInfo>();
+            // get all the values for a job history
+            foreach (ILogEntry entry in logEntries) 
+            {
+                // Make a new AgentJobHistoryInfo object
+                var jobHistoryInfo = new AgentNotebookHistoryInfo();
                 jobHistoryInfo.InstanceId = Convert.ToInt32(jobRow[UrnInstanceID], System.Globalization.CultureInfo.InvariantCulture);
                 jobHistoryInfo.JobId = (Guid) jobRow[UrnJobId];
                 var logEntry = entry as LogSourceJobHistory.LogEntryJobHistory;
