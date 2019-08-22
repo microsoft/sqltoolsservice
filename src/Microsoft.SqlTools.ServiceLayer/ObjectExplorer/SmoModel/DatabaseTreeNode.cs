@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (context == null)
             {
                 base.EnsureContextInitialized();
-                Database db = SmoObject as Database;
+                var db = SmoObject as Database;
                 if (db != null)
                 {
                     context.Database = db;
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch (Exception ex)
             {
-                string error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
+                var error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
                 ErrorMessage = ex.Message;
