@@ -2,6 +2,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <SmoPackageVersion>150.18147.0</SmoPackageVersion>
+    <SqlClientPackageVersion>1.0.19128.1-Preview</SqlClientPackageVersion>
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
