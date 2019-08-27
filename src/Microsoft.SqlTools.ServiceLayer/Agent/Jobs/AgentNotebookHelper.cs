@@ -408,9 +408,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string notebookDatabaseSetupQueryString =
             @"
             IF NOT EXISTS (
-            SELECT  schema_name
-            FROM    information_schema.schemata
-            WHERE   schema_name = 'notebooks' ) 
+            SELECT  SCHEMA_NAME
+            FROM    INFORMATION_SCHEMA.SCHEMATA
+            WHERE   SCHEMA_NAME = 'notebooks' ) 
             BEGIN
             EXEC sp_executesql N'CREATE SCHEMA notebooks'
             END
