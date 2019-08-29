@@ -1498,7 +1498,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        public async Task<AgentNotebookHistoryResult> GetAgentNotebookHistories(
+        public async Task<AgentNotebookHistoryResult> GetAgentNotebookHistories
+        (
             ConnectionInfo connInfo,
             string jobId,
             string jobName,
@@ -1547,7 +1548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 var jobHistories = AgentUtilities.ConvertToAgentNotebookHistoryInfo(logEntries, job, steps);
                 // fetching notebook part of histories
                 Dictionary<string, DataRow> notebookHistoriesDict = new Dictionary<string, DataRow>();
-                DataTable materializedNotebookTable = AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase).Result;
+                DataTable materializedNotebookTable = await AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase);
                 foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
                 {
                     string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
