@@ -573,7 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string targetDatabase,
             string templateFileContents)
         {
-            String getNotebookTemplateQuery =
+            string getNotebookTemplateQuery =
             @"
             SELECT notebook 
             from 
@@ -600,7 +600,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string targetDatabase,
             string name)
         {
-            String updateMaterializedNotebookNameQuery =
+            string updateMaterializedNotebookNameQuery =
              @"
                 UPDATE notebooks.nb_materialized 
                 SET 
@@ -624,7 +624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string targetDatabase,
             bool pin)
         {
-            String updateMaterializedNotebookPinQuery =
+            string updateMaterializedNotebookPinQuery =
              @"
                 UPDATE notebooks.nb_materialized 
                 SET 

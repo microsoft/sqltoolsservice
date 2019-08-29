@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public static readonly
             RequestType<UpdateAgentNotebookRunNameParams, ResultStatus> Type =
-            RequestType<UpdateAgentNotebookRunNameParams, ResultStatus>.Create("agent/notebookname");
+            RequestType<UpdateAgentNotebookRunNameParams, ResultStatus>.Create("agent/updatenotebookname");
     }
 
     /// <summary>
@@ -254,6 +254,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     {
         public static readonly
             RequestType<UpdateAgentNotebookRunPinParams, ResultStatus> Type =
-            RequestType<UpdateAgentNotebookRunPinParams, ResultStatus>.Create("agent/notebookpin");
+            RequestType<UpdateAgentNotebookRunPinParams, ResultStatus>.Create("agent/updatenotebookpin");
     }
 }
