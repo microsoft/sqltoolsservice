@@ -219,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class UpdateAgentNotebookRunNameParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-        public int MaterializedId { get; set; }
+        public AgentNotebookHistoryInfo agentNotebookHistory { get; set; }
         public string MaterializedNotebookName { get; set; }
         public string TargetDatabase { get; set; }
 
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class UpdateAgentNotebookRunPinParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-        public string MaterializedId { get; set; }
+        public AgentNotebookHistoryInfo agentNotebookHistory{ get; set; }
         public bool MaterializedNotebookPin { get; set; }
         public string TargetDatabase { get; set; }
 
@@ -255,5 +255,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public static readonly
             RequestType<UpdateAgentNotebookRunPinParams, ResultStatus> Type =
             RequestType<UpdateAgentNotebookRunPinParams, ResultStatus>.Create("agent/updatenotebookpin");
+    }
+
+     /// <summary>
+    /// SQL Agent Notebook materialized params
+    /// </summary>
+    public class DeleteNotebookMaterializedParams : TaskRequestDetails
+    {
+        public string OwnerUri { get; set; }
+        public string TargetDatabase { get; set; }
+        public AgentNotebookHistoryInfo agentNotebookHistory { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent Notebook materialized result
+    /// </summary>
+    public class DeleteNotebookMaterializedResult : ResultStatus
+    {
+        public string NotebookMaterialized { get; set; }
+    }
+
+    /// <summary>
+    /// SQL Agent Notebook materialized request type
+    /// </summary>
+    public class DeleteNotebookMaterializedRequest
+    {
+        public static readonly
+            RequestType<DeleteNotebookMaterializedParams, ResultStatus> Type =
+            RequestType<DeleteNotebookMaterializedParams, ResultStatus>.Create("agent/deletenotebookmaterialized");
     }
 }
