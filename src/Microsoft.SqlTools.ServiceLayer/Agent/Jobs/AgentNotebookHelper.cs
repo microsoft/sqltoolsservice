@@ -263,7 +263,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             materialized_id,
             run_time,
             run_date,
-            notebook_error
+            notebook_error,
+            pin,
+            notebook_name
             FROM 
             notebooks.nb_materialized 
             WHERE JOB_ID = @jobId";
@@ -406,9 +408,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string notebookDatabaseSetupQueryString =
             @"
             IF NOT EXISTS (
-            SELECT  schema_name
-            FROM    information_schema.schemata
-            WHERE   schema_name = 'notebooks' ) 
+            SELECT  SCHEMA_NAME
+            FROM    INFORMATION_SCHEMA.SCHEMATA
+            WHERE   SCHEMA_NAME = 'notebooks' ) 
             BEGIN
             EXEC sp_executesql N'CREATE SCHEMA notebooks'
             END
@@ -434,7 +436,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 run_time VARCHAR(100), 
                 run_date VARCHAR(100), 
                 notebook NVARCHAR(MAX),
-                notebook_error NVARCHAR(MAX)
+                notebook_error NVARCHAR(MAX),
+                pin BIT NOT NULL DEFAULT 0,
+                notebook_name NVARCHAR(MAX) NOT NULL default('')
             ) 
             END
             USE [msdb];
@@ -569,7 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string targetDatabase,
             string templateFileContents)
         {
-            String getNotebookTemplateQuery =
+            string getNotebookTemplateQuery =
             @"
             SELECT notebook 
             from 
@@ -588,6 +592,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             DataTable templateDataTable = templateDataSet.Tables[0];
             DataRow templateDataRow = templateDataTable.Rows[0];
             return templateDataRow["notebook"] as string;
+        }
+        
+        public static async Task UpdateMaterializedNotebookName(
+            ConnectionInfo connInfo,
+            int materializedId,
+            string targetDatabase,
+            string name)
+        {
+            string updateMaterializedNotebookNameQuery =
+             @"
+                UPDATE notebooks.nb_materialized 
+                SET 
+                notebook_name = @notebookName 
+                WHERE 
+                materialized_id = @materializedId
+            ";
+            List<SqlParameter> updateMaterializedNotebookNameParams = new List<SqlParameter>();
+            updateMaterializedNotebookNameParams.Add(new SqlParameter("notebookName", name));
+            updateMaterializedNotebookNameParams.Add(new SqlParameter("materializedId", materializedId));
+            await AgentNotebookHelper.ExecuteSqlQueries(
+                connInfo,
+                updateMaterializedNotebookNameQuery,
+                updateMaterializedNotebookNameParams,
+                targetDatabase);
+        }
+
+        public static async Task UpdateMaterializedNotebookPin(
+            ConnectionInfo connInfo,
+            string materializedId,
+            string targetDatabase,
+            bool pin)
+        {
+            string updateMaterializedNotebookPinQuery =
+             @"
+                UPDATE notebooks.nb_materialized 
+                SET 
+                pin = @notebookPin 
+                WHERE 
+                materialized_id = @materializedId
+            ";
+            List<SqlParameter> updateMaterializedNotebookPinParams = new List<SqlParameter>();
+            updateMaterializedNotebookPinParams.Add(new SqlParameter("notebookPin", pin));
+            updateMaterializedNotebookPinParams.Add(new SqlParameter("materializedId", materializedId));
+            await AgentNotebookHelper.ExecuteSqlQueries(
+                connInfo,
+                updateMaterializedNotebookPinQuery,
+                updateMaterializedNotebookPinParams,
+                targetDatabase);
         }
     }
 }
