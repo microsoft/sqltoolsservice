@@ -602,36 +602,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string targetDatabase,
             string name)
         {
-            string updateMaterializedNotebookNameQuery;
-            List<SqlParameter> updateMaterializedNotebookNameParams = new List<SqlParameter>();
-            if (agentNotebookHistory.MaterializedNotebookId == 0)
-            {
-                updateMaterializedNotebookNameQuery =
-                @"
-                INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error, notebook_name) 
-                VALUES 
-                (@jobID, @startTime, @startDate, @notebook, @notebook_error, @notebookName)
-                ";
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("jobID", agentNotebookHistory.JobId));
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("startTime", agentNotebookHistory.RunDate.ToString("HHmmss")));
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("startDate", agentNotebookHistory.RunDate.ToString("yyyyMMdd")));
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("notebook", ""));
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("notebook_error", ""));
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("notebookName", name));
-            }
-            else
-            {
-                updateMaterializedNotebookNameQuery =
+            string updateMaterializedNotebookNameQuery =
             @"
+            IF EXISTS
+            (SELECT * FROM notebooks.nb_materialized 
+            WHERE job_id = @jobId AND run_time = @startTime AND run_date = @startDate)
+            BEGIN
                 UPDATE notebooks.nb_materialized 
                 SET 
-                notebook_name = @notebookName 
+                notebook_name = @notebookName
                 WHERE 
-                materialized_id = @materializedId
+                job_id = @jobId AND run_time = @startTime AND run_date = @startDate
+            END
+            ELSE
+            BEGIN
+                INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error, notebook_name) 
+                VALUES 
+                (@jobID, @startTime, @startDate, '', '', @notebookName)
+            END
             ";
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("notebookName", name));
-                updateMaterializedNotebookNameParams.Add(new SqlParameter("materializedId", agentNotebookHistory.MaterializedNotebookId));
-            }
+            List<SqlParameter> updateMaterializedNotebookNameParams = new List<SqlParameter>();
+            updateMaterializedNotebookNameParams.Add(new SqlParameter("jobID", agentNotebookHistory.JobId));
+            updateMaterializedNotebookNameParams.Add(new SqlParameter("startTime", agentNotebookHistory.RunDate.ToString("HHmmss")));
+            updateMaterializedNotebookNameParams.Add(new SqlParameter("startDate", agentNotebookHistory.RunDate.ToString("yyyyMMdd")));
+            updateMaterializedNotebookNameParams.Add(new SqlParameter("notebookName", name));
             await AgentNotebookHelper.ExecuteSqlQueries(
                 connInfo,
                 updateMaterializedNotebookNameQuery,
@@ -645,38 +639,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string targetDatabase,
             bool pin)
         {
-            string updateMaterializedNotebookPinQuery;
-            List<SqlParameter> updateMaterializedNotebookPinParams = new List<SqlParameter>();
-            if (agentNotebookHistory.MaterializedNotebookId == 0)
-            {
-                updateMaterializedNotebookPinQuery =
-                @"
-                INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error, pin) 
-                VALUES 
-                (@jobID, @startTime, @startDate, @notebook, @notebook_error, @notebookPin)
-                ";
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("jobID", agentNotebookHistory.JobId));
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("startTime", agentNotebookHistory.RunDate.ToString("HHmmss")));
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("startDate", agentNotebookHistory.RunDate.ToString("yyyyMMdd")));
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("notebook", ""));
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("notebook_error", ""));
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("notebookPin", pin));
-            }
-            else
-            {
-                updateMaterializedNotebookPinQuery =
+            string updateMaterializedNotebookPinQuery =
             @"
+            IF EXISTS
+            (SELECT * FROM notebooks.nb_materialized 
+            WHERE job_id = @jobId AND run_time = @startTime AND run_date = @startDate)
+            BEGIN
                 UPDATE notebooks.nb_materialized 
                 SET 
-                pin = @notebookPin 
+                pin = @notebookPin
                 WHERE 
-                materialized_id = @materializedId
+                job_id = @jobId AND run_time = @startTime AND run_date = @startDate
+            END
+            ELSE
+            BEGIN
+                INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error, pin) 
+                VALUES 
+                (@jobID, @startTime, @startDate, '', '', @notebookPin)
+            END
             ";
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("notebookPin", pin));
-                updateMaterializedNotebookPinParams.Add(new SqlParameter("materializedId", agentNotebookHistory.MaterializedNotebookId));
-            }
-
-
+            List<SqlParameter> updateMaterializedNotebookPinParams = new List<SqlParameter>();
+            updateMaterializedNotebookPinParams.Add(new SqlParameter("jobID", agentNotebookHistory.JobId));
+            updateMaterializedNotebookPinParams.Add(new SqlParameter("startTime", agentNotebookHistory.RunDate.ToString("HHmmss")));
+            updateMaterializedNotebookPinParams.Add(new SqlParameter("startDate", agentNotebookHistory.RunDate.ToString("yyyyMMdd")));
+            updateMaterializedNotebookPinParams.Add(new SqlParameter("notebookPin", pin));
             await AgentNotebookHelper.ExecuteSqlQueries(
                 connInfo,
                 updateMaterializedNotebookPinQuery,
@@ -689,36 +675,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             AgentNotebookHistoryInfo agentNotebookHistory,
             string targetDatabase)
         {
-            string deleteMaterializedNotebookQuery;
-            List<SqlParameter> deleteMaterializedNotebookParams = new List<SqlParameter>();
-            if (agentNotebookHistory.MaterializedNotebookId == 0)
-            {
-                deleteMaterializedNotebookQuery =
-                @"
-                INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error, is_deleted) 
-                VALUES 
-                (@jobID, @startTime, @startDate, @notebook, @notebook_error, 1)
-                ";
-                deleteMaterializedNotebookParams.Add(new SqlParameter("jobID", agentNotebookHistory.JobId));
-                deleteMaterializedNotebookParams.Add(new SqlParameter("startTime", agentNotebookHistory.RunDate.ToString("HHmmss")));
-                deleteMaterializedNotebookParams.Add(new SqlParameter("startDate", agentNotebookHistory.RunDate.ToString("yyyyMMdd")));
-                deleteMaterializedNotebookParams.Add(new SqlParameter("notebook", ""));
-                deleteMaterializedNotebookParams.Add(new SqlParameter("notebook_error", ""));
-            }
-            else
-            {
-                deleteMaterializedNotebookQuery =
-                @"
+            string deleteMaterializedNotebookQuery =
+            @"
+            IF EXISTS
+            (SELECT * FROM notebooks.nb_materialized 
+            WHERE job_id = @jobId AND run_time = @startTime AND run_date = @startDate)
+            BEGIN
                 UPDATE notebooks.nb_materialized 
-                SET 
-                is_deleted = 1,
+                SET is_deleted = 1,
                 notebook = ''
                 WHERE 
-                materialized_id = @materializedId
-                ";
-                deleteMaterializedNotebookParams.Add(new SqlParameter("materializedId", agentNotebookHistory.MaterializedNotebookId));
-            }
-
+                job_id = @jobId AND run_time = @startTime AND run_date = @startDate
+            END
+            ELSE
+            BEGIN
+                INSERT INTO notebooks.nb_materialized (job_id, run_time, run_date, notebook, notebook_error, is_deleted) 
+                VALUES 
+                (@jobID, @startTime, @startDate, '', '', 1)
+            END
+            ";
+            List<SqlParameter> deleteMaterializedNotebookParams = new List<SqlParameter>();
+            deleteMaterializedNotebookParams.Add(new SqlParameter("jobID", agentNotebookHistory.JobId));
+            deleteMaterializedNotebookParams.Add(new SqlParameter("startTime", agentNotebookHistory.RunDate.ToString("HHmmss")));
+            deleteMaterializedNotebookParams.Add(new SqlParameter("startDate", agentNotebookHistory.RunDate.ToString("yyyyMMdd")));
+            deleteMaterializedNotebookParams.Add(new SqlParameter("materializedId", agentNotebookHistory.MaterializedNotebookId));
             await AgentNotebookHelper.ExecuteSqlQueries(
                 connInfo,
                 deleteMaterializedNotebookQuery,
