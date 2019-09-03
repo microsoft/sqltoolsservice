@@ -219,11 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     public class UpdateAgentNotebookRunNameParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
-<<<<<<< HEAD
         public AgentNotebookHistoryInfo agentNotebookHistory { get; set; }
-=======
-        public int MaterializedId { get; set; }
->>>>>>> c6e3b33c3503a0e4ac14620340098d13b0e00603
         public string MaterializedNotebookName { get; set; }
         public string TargetDatabase { get; set; }
 
