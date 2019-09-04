@@ -282,13 +282,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connInfo"></param>
-        /// <param name="materializedId"></param>
-        /// <param name="targetDatabase"></param>
-        /// <returns></returns>
         public static async Task<string> GetMaterializedNotebook(
             ConnectionInfo connInfo,
             int materializedId,
@@ -341,12 +334,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return templateNotebookRows["notebook"] as string;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="notebookName"></param>
-        /// <param name="storageDatabase"></param>
-        /// <returns></returns>
         public static AgentJobStepInfo[] CreateNotebookPowerShellStep(
             string notebookName,
             string storageDatabase)
@@ -569,33 +556,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 targetDatabase);
         }
 
-        public static async Task<string> GetTemplateFile(
-            ConnectionInfo connInfo,
-            string job_id,
-            string targetDatabase,
-            string templateFileContents)
-        {
-            string getNotebookTemplateQuery =
-            @"
-            SELECT notebook 
-            from 
-            notebooks.nb_template
-            where
-            job_id = @jobId;
-            ";
-            List<SqlParameter> getNotebookTemplateQueryParams = new List<SqlParameter>();
-            getNotebookTemplateQueryParams.Add(new SqlParameter("job_id", getNotebookTemplateQueryParams));
-            DataSet templateDataSet = await AgentNotebookHelper.ExecuteSqlQueries(
-                connInfo,
-                getNotebookTemplateQuery,
-                getNotebookTemplateQueryParams,
-                targetDatabase);
-
-            DataTable templateDataTable = templateDataSet.Tables[0];
-            DataRow templateDataRow = templateDataTable.Rows[0];
-            return templateDataRow["notebook"] as string;
-        }
-
+        /// <summary>
+        /// Changing the name of materialized notebook runs. Special case is handled where new row is 
+        /// added for failed jobs which do not have an entry into the materialized table
+        /// </summary>
+        /// <param name="connInfo">connectionInfo generated from OwnerUri</param>
+        /// <param name="agentNotebookHistory">actual history item to be pinned</param>
+        /// <param name="targetDatabase">database on which the notebook history is stored</param>
+        /// <param name="name">name for the materialized history</param>
+        /// <returns></returns>
         public static async Task UpdateMaterializedNotebookName(
             ConnectionInfo connInfo,
             AgentNotebookHistoryInfo agentNotebookHistory,
@@ -633,6 +602,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 targetDatabase);
         }
 
+        /// <summary>
+        /// Changing the pin state of materialized notebook runs. Special case is handled where new row is 
+        /// added for failed jobs which do not have an entry into the materialized table
+        /// </summary>
+        /// <param name="connInfo">connectionInfo generated from OwnerUri</param>
+        /// <param name="agentNotebookHistory">actual history item to be pinned</param>
+        /// <param name="targetDatabase">database on which the notebook history is stored</param>
+        /// <param name="pin">pin state for the history</param>
+        /// <returns></returns>
         public static async Task UpdateMaterializedNotebookPin(
             ConnectionInfo connInfo,
             AgentNotebookHistoryInfo agentNotebookHistory,
@@ -670,6 +648,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 targetDatabase);
         }
 
+        /// <summary>
+        /// Delete a particular run of the job. Deletion mainly including clearing out the notebook,
+        /// and notebook-error. The API doesn't delete the row because some notebook runs that have job
+        /// error in them don't have an entry in the materialized table. For keeping track of those notebook
+        /// runs the entry is added into the table with is_delete set to 1.
+        /// </summary>
+        /// <param name="connInfo">connectionInfo generated from OwnerUri</param>
+        /// <param name="agentNotebookHistory">Actual history item to be deleted</param>
+        /// <param name="targetDatabase">database on which the notebook history is stored</param>
+        /// <returns></returns>
         public static async Task DeleteMaterializedNotebook(
             ConnectionInfo connInfo,
             AgentNotebookHistoryInfo agentNotebookHistory,
@@ -683,7 +671,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             BEGIN
                 UPDATE notebooks.nb_materialized 
                 SET is_deleted = 1,
-                notebook = ''
+                notebook = '',
+                notebook_error = '',
                 WHERE 
                 job_id = @jobId AND run_time = @startTime AND run_date = @startDate
             END

@@ -1320,7 +1320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(
                                                 parameters.OwnerUri,
                                                 out connInfo);
-                    result.NotebookTemplate = AgentNotebookHelper.GetTemplateNotebook(connInfo, parameters.JobId, parameters.TargetDatabase).Result;
+                    result.NotebookTemplate = await AgentNotebookHelper.GetTemplateNotebook(connInfo, parameters.JobId, parameters.TargetDatabase);
                     result.Success = true;
                 }
                 catch (Exception e)
