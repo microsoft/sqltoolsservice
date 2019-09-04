@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest);
             this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest);
-
+            this.ServiceHost.SetRequestHandler(DeleteNotebookMaterializedRequest.Type, HandleDeleteNotebookMaterializedRequest);
 
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
@@ -1265,7 +1265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         parameters.OwnerUri,
                         out connInfo);
 
-                    result = GetAgentNotebookHistories(
+                    result = await GetAgentNotebookHistories(
                         connInfo,
                         parameters.JobId,
                         parameters.JobName,
@@ -1320,7 +1320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     ConnectionServiceInstance.TryFindConnection(
                                                 parameters.OwnerUri,
                                                 out connInfo);
-                    result.NotebookTemplate = AgentNotebookHelper.GetTemplateNotebook(connInfo, parameters.JobId, parameters.TargetDatabase).Result;
+                    result.NotebookTemplate = await AgentNotebookHelper.GetTemplateNotebook(connInfo, parameters.JobId, parameters.TargetDatabase);
                     result.Success = true;
                 }
                 catch (Exception e)
@@ -1426,7 +1426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     // Calling update helper function
                     await AgentNotebookHelper.UpdateMaterializedNotebookName(
                         connInfo,
-                        parameters.MaterializedId,
+                        parameters.agentNotebookHistory,
                         parameters.TargetDatabase,
                         parameters.MaterializedNotebookName);
                     result.Success = true;
@@ -1455,7 +1455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     // Calling update helper function
                     await AgentNotebookHelper.UpdateMaterializedNotebookPin(
                         connInfo,
-                        parameters.MaterializedId,
+                        parameters.agentNotebookHistory,
                         parameters.TargetDatabase,
                         parameters.MaterializedNotebookPin);
                     result.Success = true;
@@ -1470,7 +1470,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        public AgentNotebookHistoryResult GetAgentNotebookHistories(
+        internal async Task HandleDeleteNotebookMaterializedRequest(DeleteNotebookMaterializedParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    // Calling update helper function
+                    await AgentNotebookHelper.DeleteMaterializedNotebook(
+                        connInfo,
+                        parameters.agentNotebookHistory,
+                        parameters.TargetDatabase);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        public async Task<AgentNotebookHistoryResult> GetAgentNotebookHistories
+        (
             ConnectionInfo connInfo,
             string jobId,
             string jobName,
@@ -1519,7 +1548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 var jobHistories = AgentUtilities.ConvertToAgentNotebookHistoryInfo(logEntries, job, steps);
                 // fetching notebook part of histories
                 Dictionary<string, DataRow> notebookHistoriesDict = new Dictionary<string, DataRow>();
-                DataTable materializedNotebookTable = AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase).Result;
+                DataTable materializedNotebookTable = await AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase);
                 foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
                 {
                     string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
@@ -1537,8 +1566,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         notebookHistory.MaterializedNotebookErrorInfo = notebookHistoriesDict[jobRuntime]["notebook_error"] as string;
                         notebookHistory.MaterializedNotebookName = notebookHistoriesDict[jobRuntime]["notebook_name"] as string;
                         notebookHistory.MaterializedNotebookPin = (bool)notebookHistoriesDict[jobRuntime]["pin"];
+                        notebookHistory.MaterializedNotebookDeleted = (bool)notebookHistoriesDict[jobRuntime]["is_deleted"];
+                    }
+                    if (notebookHistory.MaterializedNotebookDeleted)
+                    {
+                        continue;
                     }
                     notebookHistories.Add(notebookHistory);
+
                 }
                 result.Histories = notebookHistories.ToArray();
                 tlog.CloseReader();
