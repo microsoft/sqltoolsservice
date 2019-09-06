@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             is_deleted
             FROM 
             notebooks.nb_materialized 
-            WHERE JOB_ID = @jobId";
+            WHERE job_id = @jobId";
             List<SqlParameter> getNotebookHistoryQueryParams = new List<SqlParameter>();
             getNotebookHistoryQueryParams.Add(new SqlParameter("jobId", JobId));
             DataSet notebookHistoriesDataSet =
