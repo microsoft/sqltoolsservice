@@ -199,8 +199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 connInfo,
                 notebook.JobId,
                 notebook.TargetDatabase);
-
-
         }
 
         internal static async Task UpdateNotebook(
@@ -241,7 +239,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 templatePath,
                 notebook.ExecuteDatabase,
                 notebook.TargetDatabase);
-
         }
 
         /// <summary>
@@ -269,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             is_deleted
             FROM 
             notebooks.nb_materialized 
-            WHERE JOB_ID = @jobId";
+            WHERE job_id = @jobId";
             List<SqlParameter> getNotebookHistoryQueryParams = new List<SqlParameter>();
             getNotebookHistoryQueryParams.Add(new SqlParameter("jobId", JobId));
             DataSet notebookHistoriesDataSet =
@@ -672,7 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 UPDATE notebooks.nb_materialized 
                 SET is_deleted = 1,
                 notebook = '',
-                notebook_error = '',
+                notebook_error = ''
                 WHERE 
                 job_id = @jobId AND run_time = @startTime AND run_date = @startDate
             END
