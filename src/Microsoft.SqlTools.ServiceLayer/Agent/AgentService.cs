@@ -1470,7 +1470,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             });
         }
 
-        internal async Task HandleDeleteNotebookMaterializedRequest(DeleteNotebookMaterializedParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleDeleteNotebookMaterializedRequest(DeleteMaterializedNotebookParams parameters, RequestContext<ResultStatus> requestContext)
         {
             await Task.Run(async () =>
             {

@@ -199,8 +199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 connInfo,
                 notebook.JobId,
                 notebook.TargetDatabase);
-
-
         }
 
         internal static async Task UpdateNotebook(
@@ -241,7 +239,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 templatePath,
                 notebook.ExecuteDatabase,
                 notebook.TargetDatabase);
-
         }
 
         /// <summary>
