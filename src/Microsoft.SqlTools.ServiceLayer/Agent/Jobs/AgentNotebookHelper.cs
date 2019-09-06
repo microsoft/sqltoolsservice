@@ -669,7 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 UPDATE notebooks.nb_materialized 
                 SET is_deleted = 1,
                 notebook = '',
-                notebook_error = '',
+                notebook_error = ''
                 WHERE 
                 job_id = @jobId AND run_time = @startTime AND run_date = @startDate
             END
