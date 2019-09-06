@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Notebook templates params 
+    /// SQL Agent Notebook name update params 
     /// </summary>
     public class UpdateAgentNotebookRunNameParams : TaskRequestDetails
     {
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Notebook templates request type
+    /// SQL Agent Notebook name update request type
     /// </summary>
     public class UpdateAgentNotebookRunNameRequest
     {
@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Notebook templates params 
+    /// SQL Agent Notebook name update params 
     /// </summary>
     public class UpdateAgentNotebookRunPinParams : TaskRequestDetails
     {
@@ -248,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Notebook templates request type
+    /// SQL Agent Notebook pin request type
     /// </summary>
     public class UpdateAgentNotebookRunPinRequest
     {
@@ -258,9 +258,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
      /// <summary>
-    /// SQL Agent Notebook materialized params
+    /// SQL Agent Notebook pin params
     /// </summary>
-    public class DeleteNotebookMaterializedParams : TaskRequestDetails
+    public class DeleteMaterializedNotebookParams : TaskRequestDetails
     {
         public string OwnerUri { get; set; }
         public string TargetDatabase { get; set; }
@@ -268,20 +268,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
     }
 
     /// <summary>
-    /// SQL Agent Notebook materialized result
+    /// SQL Agent delete Notebook materialized result
     /// </summary>
-    public class DeleteNotebookMaterializedResult : ResultStatus
+    public class DeleteMaterializedNotebookResult : ResultStatus
     {
-        public string NotebookMaterialized { get; set; }
+        public string MaterializedNotebook { get; set; }
     }
 
     /// <summary>
-    /// SQL Agent Notebook materialized request type
+    /// SQL Agent delete materialized request type
     /// </summary>
     public class DeleteNotebookMaterializedRequest
     {
         public static readonly
-            RequestType<DeleteNotebookMaterializedParams, ResultStatus> Type =
-            RequestType<DeleteNotebookMaterializedParams, ResultStatus>.Create("agent/deletenotebookmaterialized");
+            RequestType<DeleteMaterializedNotebookParams, ResultStatus> Type =
+            RequestType<DeleteMaterializedNotebookParams, ResultStatus>.Create("agent/deletematerializednotebook");
     }
 }
