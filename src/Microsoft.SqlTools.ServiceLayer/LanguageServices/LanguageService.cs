@@ -452,7 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientFilePath,
+                        scriptFile.ClientUri,
                         out connInfo);
 
                     var completionItems = await GetCompletionItems(
@@ -514,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     DefinitionResult definitionResult = null;
                     if (scriptFile != null)
                     {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
 
@@ -723,7 +723,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 ConnectionInfo connInfo;
                 ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientFilePath,
+                    scriptFile.ClientUri,
                     out connInfo);
 
                 // check that there is an active connection for the current editor
@@ -809,7 +809,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                         foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
                         {
-                            await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
+                            await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
                         }
                     }
                     // otherwise rerun diagnostic analysis on all opened SQL files
@@ -898,7 +898,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // get or create the current parse info object
-            ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientFilePath, createIfNotExists: true);
+            ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
             if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
             {
@@ -1130,7 +1130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private bool ShouldSkipNonMssqlFile(ScriptFile scriptFile)
         {
-            return ShouldSkipNonMssqlFile(scriptFile.ClientFilePath);
+            return ShouldSkipNonMssqlFile(scriptFile.ClientUri);
         }
 
         /// <summary>
@@ -1335,7 +1335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo == null)
             {
                 return null;
@@ -1450,7 +1450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 textDocumentPosition.Position.Character);
             int endColumn = textDocumentPosition.Position.Character;
 
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
             {
                 if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
@@ -1499,7 +1499,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startLine = textDocumentPosition.Position.Line;
             int endColumn = textDocumentPosition.Position.Character;
 
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
 
             if (scriptParseInfo == null)
             {
@@ -1509,7 +1509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
-                scriptFile.ClientFilePath,
+                scriptFile.ClientUri,
                 out connInfo);
 
             // reparse and bind the SQL statement if needed
@@ -1587,7 +1587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             // get the current script parse info object
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientFilePath);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
 
             if (scriptParseInfo == null)
             {
@@ -1672,7 +1672,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
-                scriptFile.ClientFilePath,
+                scriptFile.ClientUri,
                 out connInfo);
 
             var parseResult = ParseAndBind(scriptFile, connInfo);
@@ -1797,10 +1797,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     continue;
                 }
-                else if (ShouldSkipNonMssqlFile(scriptFile.ClientFilePath))
+                else if (ShouldSkipNonMssqlFile(scriptFile.ClientUri))
                 {
                     // Clear out any existing markers in case file type was changed
-                    await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientFilePath, eventContext);
+                    await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
                     continue;
                 }
 
@@ -1884,9 +1884,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         internal bool IsPreviewWindow(ScriptFile scriptFile)
         {
-            if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
+            if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientUri))
             {
-                return scriptFile.ClientFilePath.StartsWith("tsqloutput:");
+                return scriptFile.ClientUri.StartsWith("tsqloutput:");
             }
             else
             {

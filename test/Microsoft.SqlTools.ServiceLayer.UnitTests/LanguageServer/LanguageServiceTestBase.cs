@@ -69,12 +69,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // set up file for returning the query
             scriptFile = new Mock<ScriptFile>();
             scriptFile.SetupGet(file => file.Contents).Returns(GlobalCommon.Constants.StandardQuery);
-            scriptFile.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
+            scriptFile.SetupGet(file => file.ClientUri).Returns(this.testScriptUri);
 
             // set up workspace mock
             workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(scriptFile.Object);
+                .Returns((string filePath) => { return filePath == this.testScriptUri ? scriptFile.Object : null; });
 
             // setup binding queue mock
             bindingQueue = new Mock<ConnectedBindingQueue>();

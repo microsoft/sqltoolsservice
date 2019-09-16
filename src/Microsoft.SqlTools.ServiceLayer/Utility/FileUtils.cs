@@ -143,18 +143,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// defaulting to the original filePath if that fails. 
         /// </summary>
         /// <param name="filePath">The file path to resolve</param>
-        /// <param name="clientFilePath">The full file path URI used by the client</param>
+        /// <param name="clientUri">The full file path URI used by the client</param>
         /// <returns></returns>
-        internal static ResolvedFile TryGetFullPath(string filePath, string clientFilePath)
+        internal static ResolvedFile TryGetFullPath(string filePath, string clientUri)
         {
             try
             {
-                return new ResolvedFile(Path.GetFullPath(filePath), clientFilePath, true);
+                return new ResolvedFile(Path.GetFullPath(filePath), clientUri, true);
             }
             catch(NotSupportedException)
             {
                 // This is not a standard path. 
-                return new ResolvedFile(filePath, clientFilePath, false);
+                return new ResolvedFile(filePath, clientUri, false);
             }
         }
     }

@@ -3,23 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -91,11 +84,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Fact]
-        public void GetDefinitionInvalidTextDocument()
+        public async void HandleDefinitionRequest_InvalidTextDocument_SendsEmptyListResponse()
         {
             InitializeTestObjects();
             textDocument.TextDocument.Uri = "invaliduri";
-            Assert.Null(langService.GetDefinition(textDocument, null, null));
+
+            // setup the mock for SendResult
+            var definitionRequestContext = new Mock<RequestContext<Location[]>>();
+            Location[] result = null;
+            definitionRequestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
+            .Returns<Location[]>((resultDetails) => {
+                result = resultDetails;
+                return Task.FromResult(0);
+            });
+
+            await langService.HandleDefinitionRequest(textDocument, definitionRequestContext.Object);
+            // Should get an empty array when passed
+            Assert.NotNull(result);
+            Assert.True(result.Length == 0, $"Unexpected values passed to SendResult : [{ string.Join(",", (object[])result)}]");
         }
 
         [Fact]
@@ -113,11 +119,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Fact]
-        public void GetCompletionItemsInvalidTextDocument()
+        public async void HandleCompletionRequest_InvalidTextDocument_SendsNullResult()
         {
             InitializeTestObjects();
+            // setup the mock for SendResult to capture the items
+            CompletionItem[] completionItems = null;
+            requestContext.Setup(x => x.SendResult(It.IsAny<CompletionItem[]>()))
+                .Returns<CompletionItem[]>((resultDetails) => {
+                    completionItems = resultDetails;
+                    return Task.FromResult(0);
+                });
+
             textDocument.TextDocument.Uri = "somethinggoeshere";
-            Assert.True(langService.GetCompletionItems(textDocument, scriptFile.Object, null).Result.Length > 0);
+            await langService.HandleCompletionRequest(textDocument, requestContext.Object);
+            requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
+            Assert.Null(completionItems);
         }
 
         [Fact]
