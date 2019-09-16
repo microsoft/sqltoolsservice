@@ -32,11 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public bool CanReadFromDisk { get; private set; }
 
-        public string LowercaseFilePath
+        public string LowercaseClientFilePath
         {
             get
             {
-                return FilePath?.ToLower();
+                return ClientFilePath?.ToLower();
             }
         }
     }

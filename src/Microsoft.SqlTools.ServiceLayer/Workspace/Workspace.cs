@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseFilePath;
+            string keyName = resolvedFile.LowercaseClientFilePath;
 
             ScriptFile scriptFile = null;
             return this.workspaceFiles.TryGetValue(keyName, out scriptFile);
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseFilePath;
+            string keyName = resolvedFile.LowercaseClientFilePath;
 
             // Make sure the file isn't already loaded into the workspace
             ScriptFile scriptFile = null;
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseFilePath;
+            string keyName = resolvedFile.LowercaseClientFilePath;
 
             // Make sure the file isn't already loaded into the workspace
             ScriptFile scriptFile = null;
