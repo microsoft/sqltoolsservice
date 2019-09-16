@@ -708,6 +708,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public class ClusterEndpoint
         {
             public string ServiceName;
+            public string Description;
+            public string Endpoint;
+            public string Protocol;
             public string IpAddress;
             public int Port;
         }
@@ -782,12 +785,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
                     }
 
-                    if (reader.FieldCount > 6)
-                    {
-                        serverInfo.Options = new Dictionary<string, object>();
-                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, reader.GetInt32(6));
-                    }
-
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,
                     Version serverVersion = new Version(serverInfo.ServerVersion);
 
@@ -824,29 +821,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo.OsVersion = reader[0].ToString();
                 });
 
+                serverInfo.Options = new Dictionary<string, object>();
+
                 // Get BDC endpoints
                 if (!serverInfo.IsCloud)
                 {
-                    serverInfo.Options = new Dictionary<string, object>();
                     List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                    serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+
                     try
                     {
-                        ExecuteReader(
-                        connection,
-                        SqlConnectionHelperScripts.GetClusterEndpoints,
-                        delegate (IDataReader reader)
-                        {
-                            while (reader.Read())
-                            {
-                                clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
-                            }
-                            serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
-                            serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
-                        });
+                        LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
                     }
                     catch (SqlException)
                     {
-                        serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                        // Failed to find cluster endpoints DMV / table, this must not be a cluster
+                        // or user does not have permissions to see cluster info
                         serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                     }
                 }
@@ -867,6 +857,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
 
             return result;
+        }
+
+        private static void LookupClusterEndpoints(IDbConnection connection, ServerInfo serverInfo, List<ClusterEndpoint> clusterEndpoints)
+        {
+            try
+            {
+                ExecuteReader(
+                    connection,
+                    SqlConnectionHelperScripts.GetClusterEndpoints,
+                    delegate (IDataReader reader)
+                    {
+                        while (reader.Read())
+                        {
+                            clusterEndpoints.Add(new ClusterEndpoint {
+                                ServiceName = reader.GetString(0),
+                                Description = reader.GetString(1),
+                                Endpoint = reader.GetString(2),
+                                Protocol = reader.GetString(3)
+                            });
+                        }
+                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
+                    }
+                );
+            }
+            catch (Exception)
+            {
+                // Fallback to using previous CTP logic.
+                // TODO #847 remove this logic once we've stopped supporting CTPs
+                ExecuteReader(
+                    connection,
+                    SqlConnectionHelperScripts.GetClusterEndpoints_CTP,
+                    delegate (IDataReader reader)
+                    {
+                        while (reader.Read())
+                        {
+                            clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
+                        }
+                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
+                    }
+                );
+
+            }
         }
 
         public static string GetServerName(IDbConnection connection)

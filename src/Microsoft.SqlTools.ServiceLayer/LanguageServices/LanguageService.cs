@@ -58,11 +58,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #endregion
 
-        #region Private / internal instance fields and constructor
-        private const int PrepopulateBindTimeout = 60000;
+        #region Instance fields and constructor
 
         public const string SQL_LANG = "SQL";
+
+        public const string SQL_CMD_LANG = "SQLCMD";
+
         private const int OneSecond = 1000;
+
+        private const int PrepopulateBindTimeout = 60000;
 
         internal const string DefaultBatchSeperator = "GO";
 
@@ -79,6 +83,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal const int ExtensionLoadingTimeout = 10 * OneSecond;
 
         internal const int CompletionExtTimeout = 200;
+
+        // For testability only
+        internal Task DelayedDiagnosticsTask = null;
 
         private ConnectionService connectionService = null;
 
@@ -836,7 +843,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase)) {
                     shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
                 }
-
+                if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
+                {
+                    shouldBlock = true; // the provider will continue to be mssql
+                }
                 if (shouldBlock) {
                     this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
                     if (CurrentWorkspace.ContainsFile(changeParams.Uri))
@@ -848,7 +858,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bool value;
                     this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
-                }
+                    // should rebuild intellisense when re-considering as sql 
+                    RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
+                    await HandleRebuildIntelliSenseNotification(param, eventContext);              
+                }                
             }
             catch (Exception ex)
             {
@@ -1733,7 +1746,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
-                    DelayThenInvokeDiagnostics(
+                    this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
                         LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,

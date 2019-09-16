@@ -17,6 +17,10 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Moq;
 using Xunit;
 
@@ -157,37 +161,42 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             //Try to load the completion extension with new modified timestamp, expect a success
             var assemblyCopyPath = CopyFileWithNewModifiedTime(extensionParams.AssemblyPath);
-            extensionParams = new CompletionExtensionParams()
+            try
             {
-                AssemblyPath = assemblyCopyPath,
-                TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExt",
-                Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
-            };
-            //load and initialize completion extension
-            await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
+                extensionParams = new CompletionExtensionParams()
+                {
+                    AssemblyPath = assemblyCopyPath,
+                    TypeName = "Microsoft.SqlTools.Test.CompletionExtension.CompletionExt",
+                    Properties = new Dictionary<string, object> { { "modelPath", "testModel" } }
+                };
+                //load and initialize completion extension
+                await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
 
-            requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
-            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
+                requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
+                requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
-            scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
+                ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+                autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
+                scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
 
-            //Invoke auto completion with extension enabled
-            var completions = autoCompleteService.GetCompletionItems(
-                result.TextDocumentPosition,
-                result.ScriptFile,
-                result.ConnectionInfo).Result;
+                //Invoke auto completion with extension enabled
+                var completions = autoCompleteService.GetCompletionItems(
+                    result.TextDocumentPosition,
+                    result.ScriptFile,
+                    result.ConnectionInfo).Result;
 
-            //Validate completion list is not empty
-            Assert.True(completions != null && completions.Length > 0, "The completion list is null or empty!");
-            //Validate the first completion item in the list is preselected
-            Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
-            //Validate the Command object attached to the completion item by the extension
-            Assert.True(completions[0].Command != null && completions[0].Command.CommandStr == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
-
-            //clean up the temp file
-            File.Delete(assemblyCopyPath);
+                //Validate completion list is not empty
+                Assert.True(completions != null && completions.Length > 0, "The completion list is null or empty!");
+                //Validate the first completion item in the list is preselected
+                Assert.True(completions[0].Preselect.HasValue && completions[0].Preselect.Value, "Preselect is not set properly in the first completion item by the completion extension!");
+                //Validate the Command object attached to the completion item by the extension
+                Assert.True(completions[0].Command != null && completions[0].Command.command == "vsintellicode.completionItemSelected", "Command is not set properly in the first completion item by the completion extension!");
+            }
+            finally
+            {
+                //clean up the temp file
+                File.Delete(assemblyCopyPath);
+            }
         }
 
         /// <summary>
@@ -198,11 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         private string CopyFileWithNewModifiedTime(string filePath)
         {
             var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(filePath));
-            if (File.Exists(tempPath))
-            {
-                File.Delete(tempPath);
-            }
-            File.Copy(filePath, tempPath);
+            File.Copy(filePath, tempPath, overwrite: true);
             File.SetLastWriteTimeUtc(tempPath, DateTime.UtcNow);
             return tempPath;
         }
@@ -327,6 +332,74 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 testDb.Cleanup();
             }
+        }
+
+        /// <summary>
+        // This test validates switching off editor intellisesnse for now. 
+        // Will change to better handling once we have specific SQLCMD intellisense in Language Service
+        /// </summary>
+        [Fact]
+        public async Task HandleRequestToChangeToSqlcmdFile()
+        {
+
+            var scriptFile = new ScriptFile() { ClientFilePath = "HandleRequestToChangeToSqlcmdFile_" + DateTime.Now.ToLongDateString() + "_.sql" };
+
+            try
+            {
+                // Prepare a script file
+                scriptFile.SetFileContents("koko wants a bananas");
+                File.WriteAllText(scriptFile.ClientFilePath, scriptFile.Contents);
+
+                // Create a workspace and add file to it so that its found for intellense building
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
+                var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService }; 
+                langService.CurrentWorkspace.GetFile(scriptFile.ClientFilePath);
+                langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+
+                // Add a connection to ensure the intellisense building works            
+                ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
+                langService.ConnectionServiceInstance.OwnerToConnectionMap.Add(scriptFile.ClientFilePath, connectionInfo);
+
+                // Test SQL
+                int countOfValidationCalls = 0;
+                var eventContextSql = new Mock<SqlTools.Hosting.Protocol.EventContext>();
+                eventContextSql.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 2, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
+                await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
+                {
+                    Uri = scriptFile.ClientFilePath,
+                    Language = LanguageService.SQL_LANG.ToLower(),
+                    Flavor = "MSSQL"
+                }, eventContextSql.Object);
+                await langService.DelayedDiagnosticsTask; // to ensure completion and validation before moveing to next step
+
+                // Test SQL CMD
+                var eventContextSqlCmd = new Mock<SqlTools.Hosting.Protocol.EventContext>();
+                eventContextSqlCmd.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 0, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
+                await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
+                {
+                    Uri = scriptFile.ClientFilePath,
+                    Language = LanguageService.SQL_CMD_LANG.ToLower(),
+                    Flavor = "MSSQL"
+                }, eventContextSqlCmd.Object);
+                await langService.DelayedDiagnosticsTask;
+
+                Assert.True(countOfValidationCalls == 2, $"Validation should be called 2 time but is called {countOfValidationCalls} times");
+            }
+            finally
+            {
+                if (File.Exists(scriptFile.ClientFilePath))
+                {
+                    File.Delete(scriptFile.ClientFilePath);
+                }
+            }
+        }
+
+        private bool ValidateNotification(PublishDiagnosticsNotification notif, int errors, ref int countOfValidationCalls)
+        {
+            countOfValidationCalls++;
+            Assert.True(notif.Diagnostics.Length == errors, $"Notification errors {notif.Diagnostics.Length} are not as expected {errors}");
+            return true;
         }
     }
 }

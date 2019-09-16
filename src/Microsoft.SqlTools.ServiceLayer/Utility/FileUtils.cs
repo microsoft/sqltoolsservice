@@ -9,6 +9,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     internal static class FileUtilities
     {
         internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
+        internal static string AgentNotebookTempFolder = Path.GetTempPath() + "mssql_notebooks";
         internal static bool PeekDefinitionTempFolderCreated = false;
 
         internal static string GetPeekDefinitionTempFolder()

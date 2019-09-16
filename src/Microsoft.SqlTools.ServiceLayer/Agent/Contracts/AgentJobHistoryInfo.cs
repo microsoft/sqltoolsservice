@@ -58,4 +58,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
         public CompletionResult runStatus;
         public AgentJobStepInfo stepDetails;
 	}
+
+    /// <summary>
+    /// a class for storing various properties of a agent notebook history
+    /// </summary>
+    public class AgentNotebookHistoryInfo : AgentJobHistoryInfo
+    {
+        public int MaterializedNotebookId { get; set; }
+        public bool MaterializedNotebookPin { get; set; }
+        public string MaterializedNotebookName { get; set; }
+        public int MaterializedNotebookErrorFlag { get; set; }
+        public string MaterializedNotebookErrorInfo { get; set; }
+        public bool MaterializedNotebookDeleted { get; set; }
+    }
 }

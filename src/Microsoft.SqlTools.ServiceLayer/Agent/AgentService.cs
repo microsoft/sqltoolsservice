@@ -13,7 +13,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -122,6 +121,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest);
             this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest);
 
+            // Notebook request handlers
+            this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebookTemplateRequest.Type, HandleAgentNotebookTemplateRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
+            this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest);
+            this.ServiceHost.SetRequestHandler(DeleteNotebookMaterializedRequest.Type, HandleDeleteNotebookMaterializedRequest);
+
+            serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+            {
+                DeleteAgentNotebooksTempFiles();
+                await Task.FromResult(0);
+            });
+
         }
 
         #region "Jobs Handlers"
@@ -191,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         SqlConnectionInfo sqlConnInfo = tuple.Item1;
                         DataTable dt = tuple.Item2;
                         ServerConnection connection = tuple.Item3;
-                        
+
                         // Send Steps, Alerts and Schedules with job history in background
                         // Add steps to the job if any
                         JobStepCollection steps = jobs[parameters.JobName].JobSteps;
@@ -271,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         var serverConnection = ConnectionService.OpenServerConnection(connInfo);
                         var jobHelper = new JobHelper(serverConnection);
                         jobHelper.JobName = parameters.JobName;
-                        switch(parameters.Action)
+                        switch (parameters.Action)
                         {
                             case "run":
                                 jobHelper.Start();
@@ -475,7 +492,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                             IsEnabled = alert.IsEnabled,
                             JobId = alert.JobID.ToString(),
                             JobName = alert.JobName,
-                            LastOccurrenceDate =alert.LastOccurrenceDate.ToString(),
+                            LastOccurrenceDate = alert.LastOccurrenceDate.ToString(),
                             LastResponseDate = alert.LastResponseDate.ToString(),
                             MessageId = alert.MessageID,
                             NotificationMessage = alert.NotificationMessage,
@@ -912,12 +929,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     }
 
                     // Execute step actions if they exist
-                    if (jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
+                    if (configAction != ConfigAction.Drop && jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
                     {
                         foreach (AgentJobStepInfo step in jobInfo.JobSteps)
-                        {   
+                        {
                             configAction = ConfigAction.Create;
-                            foreach(JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
+                            foreach (JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
                             {
                                 // any changes made to step other than name or ordering
                                 if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||
@@ -928,7 +945,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                                 {
                                     configAction = ConfigAction.Update;
                                     break;
-                                } 
+                                }
                             }
                             await ConfigureAgentJobStep(ownerUri, step, configAction, runType, jobData, dataContainer);
                         }
@@ -1018,9 +1035,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         ConnectionInfo connInfo;
                         ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
                         dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    } 
-                    else 
-                    {   
+                    }
+                    else
+                    {
                         if (jobData == null)
                         {
                             // If the alert is being created inside a job
@@ -1162,7 +1179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             STParameters param = new STParameters(dataContainer.Document);
             string originalName = jobInfo != null && !string.Equals(jobName, jobInfo.Name) ? jobName : string.Empty;
-            param.SetParam("job",  configAction == ConfigAction.Update ? jobName : string.Empty);
+            param.SetParam("job", configAction == ConfigAction.Update ? jobName : string.Empty);
             param.SetParam("jobid", string.Empty);
 
             jobData = new JobData(dataContainer, jobInfo, configAction);
@@ -1211,6 +1228,367 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return new Tuple<SqlConnectionInfo, DataTable, ServerConnection>(sqlConnInfo, dt, serverConnection);
         }
 
+        internal async Task HandleAgentNotebooksRequest(AgentNotebooksParams parameters, RequestContext<AgentNotebooksResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentNotebooksResult();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                    result.Success = true;
+                    result.Notebooks = AgentNotebookHelper.GetAgentNotebooks(connInfo).Result;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleAgentNotebookHistoryRequest(
+            AgentNotebookHistoryParams parameters, RequestContext<AgentNotebookHistoryResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentNotebookHistoryResult();
+                try
+                {
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+
+                    result = await GetAgentNotebookHistories(
+                        connInfo,
+                        parameters.JobId,
+                        parameters.JobName,
+                        parameters.TargetDatabase
+                    );
+
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleAgentNotebookMaterializedRequest(AgentNotebookMaterializedParams parameters, RequestContext<AgentNotebookMaterializedResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentNotebookMaterializedResult();
+                try
+                {
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    result.NotebookMaterialized = AgentNotebookHelper.GetMaterializedNotebook(connInfo, parameters.NotebookMaterializedId, parameters.TargetDatabase).Result;
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleAgentNotebookTemplateRequest(AgentNotebookTemplateParams parameters, RequestContext<AgentNotebookTemplateResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new AgentNotebookTemplateResult();
+                try
+                {
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    result.NotebookTemplate = await AgentNotebookHelper.GetTemplateNotebook(connInfo, parameters.JobId, parameters.TargetDatabase);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleCreateAgentNotebookRequest(CreateAgentNotebookParams parameters, RequestContext<CreateAgentNotebookResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new CreateAgentNotebookResult();
+                try
+                {
+                    // storing result
+                    result.Success = true;
+                    await AgentNotebookHelper.CreateNotebook(
+                        this,
+                        parameters.OwnerUri,
+                        parameters.Notebook,
+                        parameters.TemplateFilePath,
+                        ManagementUtils.asRunType(parameters.TaskExecutionMode)
+                    );
+
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleDeleteAgentNotebooksRequest(DeleteAgentNotebookParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    // Calling delete notebook helper function
+                    await AgentNotebookHelper.DeleteNotebook(
+                        this,
+                        parameters.OwnerUri,
+                        parameters.Notebook,
+                        ManagementUtils.asRunType(parameters.TaskExecutionMode)
+                    );
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleUpdateAgentNotebookRequest(UpdateAgentNotebookParams parameters, RequestContext<UpdateAgentNotebookResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new UpdateAgentNotebookResult();
+                try
+                {
+                    // Calling update helper function
+                    await AgentNotebookHelper.UpdateNotebook(
+                        this,
+                        parameters.OwnerUri,
+                        parameters.OriginalNotebookName,
+                        parameters.Notebook,
+                        parameters.TemplateFilePath,
+                        ManagementUtils.asRunType(parameters.TaskExecutionMode));
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleUpdateAgentNotebookRunNameRequest(UpdateAgentNotebookRunNameParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    // Calling update helper function
+                    await AgentNotebookHelper.UpdateMaterializedNotebookName(
+                        connInfo,
+                        parameters.agentNotebookHistory,
+                        parameters.TargetDatabase,
+                        parameters.MaterializedNotebookName);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleUpdateAgentNotebookRunPinRequest(UpdateAgentNotebookRunPinParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    // Calling update helper function
+                    await AgentNotebookHelper.UpdateMaterializedNotebookPin(
+                        connInfo,
+                        parameters.agentNotebookHistory,
+                        parameters.TargetDatabase,
+                        parameters.MaterializedNotebookPin);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        internal async Task HandleDeleteNotebookMaterializedRequest(DeleteMaterializedNotebookParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                var result = new ResultStatus();
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                                                parameters.OwnerUri,
+                                                out connInfo);
+                    // Calling update helper function
+                    await AgentNotebookHelper.DeleteMaterializedNotebook(
+                        connInfo,
+                        parameters.agentNotebookHistory,
+                        parameters.TargetDatabase);
+                    result.Success = true;
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = e.ToString();
+
+                }
+                await requestContext.SendResult(result);
+            });
+        }
+
+        public async Task<AgentNotebookHistoryResult> GetAgentNotebookHistories
+        (
+            ConnectionInfo connInfo,
+            string jobId,
+            string jobName,
+            string targetDatabase
+        )
+        {
+            AgentNotebookHistoryResult result = new AgentNotebookHistoryResult();
+            // fetching Job information
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            var jobServer = dataContainer.Server.JobServer;
+            var jobs = jobServer.Jobs;
+            Tuple<SqlConnectionInfo, DataTable, ServerConnection> tuple = CreateSqlConnection(connInfo, jobId);
+            SqlConnectionInfo sqlConnInfo = tuple.Item1;
+            DataTable dt = tuple.Item2;
+
+            // add steps to the job if any
+            JobStepCollection steps = jobs[jobName].JobSteps;
+            var jobSteps = new List<AgentJobStepInfo>();
+            foreach (JobStep step in steps)
+            {
+                jobSteps.Add(AgentUtilities.ConvertToAgentJobStepInfo(step, jobId, jobName));
+            }
+            result.Steps = jobSteps.ToArray();
+
+            // add schedules to the job if any
+            JobScheduleCollection schedules = jobs[jobName].JobSchedules;
+            var jobSchedules = new List<AgentScheduleInfo>();
+            foreach (JobSchedule schedule in schedules)
+            {
+                jobSchedules.Add(AgentUtilities.ConvertToAgentScheduleInfo(schedule));
+            }
+            result.Schedules = jobSchedules.ToArray();
+
+            // add histories
+            int count = dt.Rows.Count;
+            List<AgentNotebookHistoryInfo> notebookHistories = new List<AgentNotebookHistoryInfo>();
+            if (count > 0)
+            {
+                var job = dt.Rows[0];
+                Guid tempjobId = (Guid)job[AgentUtilities.UrnJobId];
+                int runStatus = Convert.ToInt32(job[AgentUtilities.UrnRunStatus], System.Globalization.CultureInfo.InvariantCulture);
+                var t = new LogSourceJobHistory(jobName, sqlConnInfo, null, runStatus, tempjobId, null);
+                var tlog = t as ILogSource;
+                tlog.Initialize();
+                var logEntries = t.LogEntries;
+                var jobHistories = AgentUtilities.ConvertToAgentNotebookHistoryInfo(logEntries, job, steps);
+                // fetching notebook part of histories
+                Dictionary<string, DataRow> notebookHistoriesDict = new Dictionary<string, DataRow>();
+                DataTable materializedNotebookTable = await AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase);
+                foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
+                {
+                    string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
+                    notebookHistoriesDict.Add(materializedRunDateTime, materializedNotebookRow);
+                }
+
+                // adding notebook information to job histories
+                foreach (var jobHistory in jobHistories)
+                {
+                    string jobRuntime = jobHistory.RunDate.ToString("yyyyMMddHHmmss");
+                    AgentNotebookHistoryInfo notebookHistory = jobHistory;
+                    if (notebookHistoriesDict.ContainsKey(jobRuntime))
+                    {
+                        notebookHistory.MaterializedNotebookId = (int)notebookHistoriesDict[jobRuntime]["materialized_id"];
+                        notebookHistory.MaterializedNotebookErrorInfo = notebookHistoriesDict[jobRuntime]["notebook_error"] as string;
+                        notebookHistory.MaterializedNotebookName = notebookHistoriesDict[jobRuntime]["notebook_name"] as string;
+                        notebookHistory.MaterializedNotebookPin = (bool)notebookHistoriesDict[jobRuntime]["pin"];
+                        notebookHistory.MaterializedNotebookDeleted = (bool)notebookHistoriesDict[jobRuntime]["is_deleted"];
+                    }
+                    if (notebookHistory.MaterializedNotebookDeleted)
+                    {
+                        continue;
+                    }
+                    notebookHistories.Add(notebookHistory);
+
+                }
+                result.Histories = notebookHistories.ToArray();
+                tlog.CloseReader();
+            }
+            return result;
+        }
+
         #endregion // "Helpers"
+
+        internal void DeleteAgentNotebooksTempFiles()
+        {
+            if (FileUtilities.SafeDirectoryExists(FileUtilities.AgentNotebookTempFolder))
+            {
+                FileUtilities.SafeDirectoryDelete(FileUtilities.AgentNotebookTempFolder, true);
+            }
+        }
     }
 }

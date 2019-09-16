@@ -31,9 +31,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaCompareParams Parameters { get; set; }
 
-        public string SourceConnectionString { get; set; }
+        public ConnectionInfo SourceConnectionInfo { get; set; }
 
-        public string TargetConnectionString { get; set; }
+        public ConnectionInfo TargetConnectionInfo { get; set; }
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 
@@ -43,8 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
-            this.SourceConnectionString = SchemaCompareUtils.GetConnectionString(sourceConnInfo, parameters.SourceEndpointInfo.DatabaseName);
-            this.TargetConnectionString = SchemaCompareUtils.GetConnectionString(targetConnInfo, parameters.TargetEndpointInfo.DatabaseName);
+            this.SourceConnectionInfo = sourceConnInfo;
+            this.TargetConnectionInfo = targetConnInfo;
             this.OperationId = !string.IsNullOrEmpty(parameters.OperationId) ? parameters.OperationId : Guid.NewGuid().ToString();
         }
 
@@ -82,8 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionString);
-                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionString);
+                SchemaCompareEndpoint sourceEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.SourceEndpointInfo, this.SourceConnectionInfo);
+                SchemaCompareEndpoint targetEndpoint = SchemaCompareUtils.CreateSchemaCompareEndpoint(this.Parameters.TargetEndpointInfo, this.TargetConnectionInfo);
 
                 SchemaComparison comparison = new SchemaComparison(sourceEndpoint, targetEndpoint);
 

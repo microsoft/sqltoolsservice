@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             {
                 item.Command = new Command
                 {
-                    CommandStr = "vsintellicode.completionItemSelected",
+                    command = "vsintellicode.completionItemSelected",
                     Arguments = new object[] { new Dictionary<string, string> { { "IsCommit", "True" } } }
                 };
             }

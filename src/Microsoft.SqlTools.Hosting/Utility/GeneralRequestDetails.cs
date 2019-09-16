@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.Utility
     {
         public GeneralRequestDetails()
         {
-            Options = new Dictionary<string, object>();
+            Options = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public T GetOptionValue<T>(string name, T defaultValue = default(T))
@@ -112,3 +112,4 @@ namespace Microsoft.SqlTools.Utility
         public Dictionary<string, object> Options { get; set; }
     }
 }
+

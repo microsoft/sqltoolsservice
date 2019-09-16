@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts.Utilities
         public override bool CanRead => true;
 
         #region Public Methods
-        
+
         public override bool CanConvert(Type objectType)
         {
             return objectType.IsEnum && objectType.GetCustomAttribute(typeof(FlagsAttribute)) != null;
@@ -26,16 +26,21 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts.Utilities
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            // TODO: Fix to handle nullables properly
-            
-            int[] values = JArray.Load(reader).Values<int>().ToArray();
+            var jToken = JToken.Load(reader);
+            if (jToken.Type == JTokenType.Null)
+            {
+                return null;
+            }
 
-            FieldInfo[] enumFields = objectType.GetFields(BindingFlags.Public | BindingFlags.Static);
+            int[] values = ((JArray)jToken).Values<int>().ToArray();
+            var pureType = NullableUtils.GetUnderlyingTypeIfNullable(objectType);
+
+            FieldInfo[] enumFields = pureType.GetFields(BindingFlags.Public | BindingFlags.Static);
             int setFlags = 0;
             foreach (FieldInfo enumField in enumFields)
             {
-                int enumValue = (int) enumField.GetValue(null);
-                
+                int enumValue = (int)enumField.GetValue(null);
+
                 // If there is a serialize value set for the enum value, look for that instead of the int value
                 SerializeValueAttribute serializeValue = enumField.GetCustomAttribute<SerializeValueAttribute>();
                 int searchValue = serializeValue?.Value ?? enumValue;
@@ -45,7 +50,7 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts.Utilities
                 }
             }
 
-            return Enum.ToObject(objectType, setFlags);
+            return Enum.ToObject(pureType, setFlags);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -56,22 +61,22 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts.Utilities
             {
                 // Make sure the flag is set before doing expensive reflection
                 int enumValue = (int)enumField.GetValue(null);
-                if (((int) value & enumValue) == 0)
+                if (((int)value & enumValue) == 0)
                 {
                     continue;
                 }
-                
+
                 // If there is a serialize value set for the member, use that instead of the int value
                 SerializeValueAttribute serializeValue = enumField.GetCustomAttribute<SerializeValueAttribute>();
-                int flagValue = serializeValue?.Value ?? enumValue; 
+                int flagValue = serializeValue?.Value ?? enumValue;
                 setFlags.Add(flagValue);
             }
 
             string joinedFlags = string.Join(", ", setFlags);
             writer.WriteRawValue($"[{joinedFlags}]");
         }
-        
-        #endregion
+
+        #endregion Public Methods
 
         [AttributeUsage(AttributeTargets.Field)]
         internal class SerializeValueAttribute : Attribute
@@ -82,6 +87,6 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts.Utilities
             {
                 Value = value;
             }
-        }  
+        }
     }
 }
