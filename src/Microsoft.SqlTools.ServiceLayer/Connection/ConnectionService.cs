@@ -53,8 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private DatabaseLocksManager lockedDatabaseManager;
 
         /// <summary>
-        /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair.
-        /// Entries in this map correspond to DbConnection instances that are in the process of connecting.
+        /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair. 
+        /// Entries in this map correspond to DbConnection instances that are in the process of connecting. 
         /// </summary>
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost { get; set;}
+        internal IProtocolEndpoint ServiceHost { get; set; }
 
         /// <summary>
         /// Gets the connection queue
@@ -204,10 +204,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
-        /// Validates the given ConnectParams object.
+        /// Validates the given ConnectParams object. 
         /// </summary>
         /// <param name="connectionParams">The params to validate</param>
-        /// <returns>A ConnectionCompleteParams object upon validation error,
+        /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TrySetConnectionType(connectionParams);
 
             connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
-            // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
+            // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
             bool connectionChanged = false;
@@ -285,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Return information about the connected SQL Server instance
             ConnectionCompleteParams completeParams = GetConnectionCompleteParams(connectionParams.Type, connectionInfo);
-            // Invoke callback notifications
+            // Invoke callback notifications          
             InvokeOnConnectionActivities(connectionInfo, connectionParams);
 
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
@@ -383,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Creates a ConnectionCompleteParams as a response to a successful connection.
+        /// Creates a ConnectionCompleteParams as a response to a successful connection. 
         /// Also sets the DatabaseName and IsAzure properties of ConnectionInfo.
         /// </summary>
         /// <returns>A ConnectionCompleteParams in response to the successful connection</returns>
@@ -465,16 +465,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             if (SqlAzureEdition.Equals(serverEdition, StringComparison.OrdinalIgnoreCase))
             {
-                switch(serverInfo.EngineEditionId)
+                switch (serverInfo.EngineEditionId)
                 {
-                    case (int) DatabaseEngineEdition.SqlDataWarehouse:
+                    case (int)DatabaseEngineEdition.SqlDataWarehouse:
                         serverEdition = SR.AzureSqlDwEdition;
                         break;
-                    case (int) DatabaseEngineEdition.SqlStretchDatabase:
+                    case (int)DatabaseEngineEdition.SqlStretchDatabase:
                         serverEdition = SR.AzureSqlStretchEdition;
                         break;
                     default:
-                        serverEdition =  SR.AzureSqlDbEdition;
+                        serverEdition = SR.AzureSqlDbEdition;
                         break;
                 }
             }
@@ -564,8 +564,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Gets the existing connection with the given URI and connection type string. If none exists,
-        /// creates a new connection. This cannot be used to create a default connection or to create a
+        /// Gets the existing connection with the given URI and connection type string. If none exists, 
+        /// creates a new connection. This cannot be used to create a default connection or to create a 
         /// connection if a default connection does not exist.
         /// </summary>
         /// <param name="ownerUri">URI identifying the resource mapped to this connection</param>
@@ -599,7 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
 
-            if(IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            if (IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
             {
                 // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
                 connection = defaultConnection;
@@ -622,7 +622,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             bool alwaysPersistSecurity, ConnectionInfo connectionInfo)
         {
             // If the DbConnection does not exist and is not the default connection, create one.
-            // We can't create the default (initial) connection here because we won't have a ConnectionDetails
+            // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
             // if Connect() has not yet been called.
             bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
             if (alwaysPersistSecurity)
@@ -793,14 +793,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// If connectionType is not null, cancel the connection with the given connectionType
         /// If connectionType is null, cancel all pending connections associated with ownerUri.
         /// </summary>
-        /// <returns>true if a single pending connection associated with the non-null connectionType was
+        /// <returns>true if a single pending connection associated with the non-null connectionType was 
         /// found and cancelled, false otherwise</returns>
         private bool CancelConnections(string ownerUri, string connectionType)
         {
             // Cancel the connection of the given type
             if (connectionType != null)
             {
-                // If we are trying to disconnect a specific connection and it was just cancelled,
+                // If we are trying to disconnect a specific connection and it was just cancelled, 
                 // this will return true
                 return CancelConnect(new CancelConnectParams() { OwnerUri = ownerUri, Type = connectionType });
             }
@@ -820,7 +820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Closes DbConnections associated with the given ConnectionInfo.
+        /// Closes DbConnections associated with the given ConnectionInfo. 
         /// If connectionType is not null, closes the DbConnection with the type given by connectionType.
         /// If connectionType is null, closes all DbConnections.
         /// </summary>
@@ -890,7 +890,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connection.Open();
 
             List<string> results = new List<string>();
-            var systemDatabases = new[] {"master", "model", "msdb", "tempdb"};
+            var systemDatabases = new[] { "master", "model", "msdb", "tempdb" };
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText = @"SELECT name FROM sys.databases WHERE state_desc='ONLINE' ORDER BY name ASC";
@@ -933,10 +933,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
         }
 
-        /// <summary>
-        /// Add a new method to be called when the onconnection request is submitted
-        /// </summary>
-        /// <param name="activity"></param>
+        /// <summary> 
+        /// Add a new method to be called when the onconnection request is submitted 
+        /// </summary> 
+        /// <param name="activity"></param> 
         public void RegisterOnConnectionTask(OnConnectionHandler activity)
         {
             onConnectionActivities.Add(activity);
@@ -980,7 +980,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    // result is null if the ConnectParams was successfully validated
+                    // result is null if the ConnectParams was successfully validated 
                     ConnectionCompleteParams result = ValidateConnectParams(connectParams);
                     if (result != null)
                     {
@@ -1017,7 +1017,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool result = CancelConnect(cancelParams);
                 await requestContext.SendResult(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
@@ -1037,7 +1037,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool result = Instance.Disconnect(disconnectParams);
                 await requestContext.SendResult(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
@@ -1058,7 +1058,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ListDatabasesResponse result = ListDatabases(listDatabasesParams);
                 await requestContext.SendResult(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
@@ -1121,7 +1121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
             {
-                switch(connectionDetails.AuthenticationType)
+                switch (connectionDetails.AuthenticationType)
                 {
                     case "Integrated":
                         connectionBuilder.IntegratedSecurity = true;
