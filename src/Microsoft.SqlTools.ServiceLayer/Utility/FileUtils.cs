@@ -137,16 +137,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
         }
 
-        internal static ResolvedFile TryGetFullPath(string filePath)
+        /// <summary>
+        /// Attempts to resolve the given filePath to an absolute path to a file on disk, 
+        /// defaulting to the original filePath if that fails. 
+        /// </summary>
+        /// <param name="filePath">The file path to resolve</param>
+        /// <param name="clientFilePath">The full file path URI used by the client</param>
+        /// <returns></returns>
+        internal static ResolvedFile TryGetFullPath(string filePath, string clientFilePath)
         {
             try
             {
-                return new ResolvedFile(Path.GetFullPath(filePath), true);
+                return new ResolvedFile(Path.GetFullPath(filePath), clientFilePath, true);
             }
             catch(NotSupportedException)
             {
                 // This is not a standard path. 
-                return new ResolvedFile(filePath, false);
+                return new ResolvedFile(filePath, clientFilePath, false);
             }
         }
     }

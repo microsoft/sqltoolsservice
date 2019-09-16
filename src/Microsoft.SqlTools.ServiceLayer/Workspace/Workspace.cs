@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 using (FileStream fileStream = new FileStream(resolvedFile.FilePath, FileMode.Open, FileAccess.Read))
                 using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    scriptFile = new ScriptFile(resolvedFile.FilePath, filePath,streamReader);
+                    scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientFilePath,streamReader);
 
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
@@ -128,20 +128,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return scriptFile;
         }
         
-        private ResolvedFile ResolveFilePath(string filePath)
+        private ResolvedFile ResolveFilePath(string clientFilePath)
         {
             bool canReadFromDisk = false;
-            if (!IsPathInMemoryOrNonFileUri(filePath))
+            string filePath = clientFilePath;
+            if (!IsPathInMemoryOrNonFileUri(clientFilePath))
             {
-                if (filePath.StartsWith(@"file://"))
+                if (clientFilePath.StartsWith(@"file://"))
                 {
                     // VS Code encodes the ':' character in the drive name, which can lead to problems parsing
                     // the URI, so unencode it if present. See https://github.com/Microsoft/vscode/issues/2990
-                    filePath = filePath.Replace("%3A/", ":/", StringComparison.OrdinalIgnoreCase);
+                    clientFilePath = clientFilePath.Replace("%3A/", ":/", StringComparison.OrdinalIgnoreCase);
 
                     // Client sent the path in URI format, extract the local path and trim
                     // any extraneous slashes
-                    Uri fileUri = new Uri(filePath);
+                    Uri fileUri = new Uri(clientFilePath);
                     filePath = fileUri.LocalPath;
                     if (filePath.StartsWith("//") || filePath.StartsWith("\\\\") || filePath.StartsWith("/")) 
                     {
@@ -153,22 +154,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 // will not handle.  These paths will get appropriately escaped just before being passed
                 // into the SqlTools engine.
                 filePath = UnescapePath(filePath);
+                clientFilePath = UnescapePath(clientFilePath);
 
                 // switch to unix path separators on non-Windows platforms
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     filePath = filePath.Replace('\\', '/');
+                    clientFilePath = clientFilePath.Replace('\\', '/');
                 }
 
                 // Get the absolute file path
-                ResolvedFile resolvedFile = FileUtilities.TryGetFullPath(filePath);
+                ResolvedFile resolvedFile = FileUtilities.TryGetFullPath(filePath, clientFilePath);
                 filePath = resolvedFile.FilePath;
                 canReadFromDisk = resolvedFile.CanReadFromDisk;
             }
 
-            Logger.Write(TraceEventType.Verbose, "Resolved path: " + filePath);
+            Logger.Write(TraceEventType.Verbose, "Resolved path: " + clientFilePath);
 
-            return new ResolvedFile(filePath, canReadFromDisk);
+            return new ResolvedFile(filePath, clientFilePath, canReadFromDisk);
         }
         
         /// <summary>
@@ -210,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
-                scriptFile = new ScriptFile(resolvedFile.FilePath, filePath, initialBuffer);
+                scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientFilePath, initialBuffer);
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 

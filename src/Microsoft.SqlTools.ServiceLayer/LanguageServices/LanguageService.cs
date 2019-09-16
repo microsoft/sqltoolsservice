@@ -1574,7 +1574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             // get the current script parse info object
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientFilePath);
 
             if (scriptParseInfo == null)
             {
