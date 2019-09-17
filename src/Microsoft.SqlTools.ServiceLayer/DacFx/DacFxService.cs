@@ -114,6 +114,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
+                    // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
+                    connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
                     await ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
                 }
