@@ -235,7 +235,11 @@ GO";
             .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, Func<Exception, object>, int?, int?>(
                 (key, bindOperation, timeoutOperation, errHandler, t1, t2) =>
                 {
-                    timeoutResult = (DefinitionResult)timeoutOperation((IBindingContext)null);
+                    if(timeoutOperation != null)
+                    {
+                        timeoutResult = (DefinitionResult)timeoutOperation(null);
+                    }
+                    
                     itemMock.Object.Result = timeoutResult;
                 })
             .Returns(() => itemMock.Object);
@@ -251,14 +255,14 @@ GO";
             };
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
-            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             scriptFile.Contents = "select * from dbo.func ()";
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+            languageService.ScriptParseInfoMap.Add(scriptFile.ClientUri, scriptInfo);
 
-            // When I call the language service
-            var result = languageService.GetDefinition(textDocument, scriptFile, connInfo);
+            // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
+            // before we want it to (this is testing the timeout trying to fetch the definitions after the parse)
+            var result = languageService.GetDefinition(textDocument, scriptFile, null);
 
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
