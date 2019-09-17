@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 

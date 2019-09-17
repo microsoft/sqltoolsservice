@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -826,17 +826,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 // Get BDC endpoints
                 if (!serverInfo.IsCloud)
                 {
-                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
-                    serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                    if (serverInfo.ServerMajorVersion >= 15)
+                    {
+                        List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                        serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
 
-                    try
-                    {
-                        LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
+                        try
+                        {
+                            LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
+                        }
+                        catch (SqlException)
+                        {
+                            // Failed to find cluster endpoints DMV / table, this must not be a cluster
+                            // or user does not have permissions to see cluster info
+                            serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
+                        }
                     }
-                    catch (SqlException)
+                    else
                     {
-                        // Failed to find cluster endpoints DMV / table, this must not be a cluster
-                        // or user does not have permissions to see cluster info
                         serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                     }
                 }
