@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseFilePath;
+            string keyName = resolvedFile.LowercaseClientUri;
 
             ScriptFile scriptFile = null;
             return this.workspaceFiles.TryGetValue(keyName, out scriptFile);
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseFilePath;
+            string keyName = resolvedFile.LowercaseClientUri;
 
             // Make sure the file isn't already loaded into the workspace
             ScriptFile scriptFile = null;
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 using (FileStream fileStream = new FileStream(resolvedFile.FilePath, FileMode.Open, FileAccess.Read))
                 using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    scriptFile = new ScriptFile(resolvedFile.FilePath, filePath,streamReader);
+                    scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri,streamReader);
 
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
@@ -128,20 +128,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return scriptFile;
         }
         
-        private ResolvedFile ResolveFilePath(string filePath)
+        /// <summary>
+        /// Resolves a URI identifier into an actual file on disk if it exists. 
+        /// </summary>
+        /// <param name="clientUri">The URI identifying the file</param>
+        /// <returns></returns>
+        private ResolvedFile ResolveFilePath(string clientUri)
         {
             bool canReadFromDisk = false;
-            if (!IsPathInMemoryOrNonFileUri(filePath))
+            string filePath = clientUri;
+            if (!IsPathInMemoryOrNonFileUri(clientUri))
             {
-                if (filePath.StartsWith(@"file://"))
+                if (clientUri.StartsWith(@"file://"))
                 {
                     // VS Code encodes the ':' character in the drive name, which can lead to problems parsing
                     // the URI, so unencode it if present. See https://github.com/Microsoft/vscode/issues/2990
-                    filePath = filePath.Replace("%3A/", ":/", StringComparison.OrdinalIgnoreCase);
+                    clientUri = clientUri.Replace("%3A/", ":/", StringComparison.OrdinalIgnoreCase);
 
                     // Client sent the path in URI format, extract the local path and trim
                     // any extraneous slashes
-                    Uri fileUri = new Uri(filePath);
+                    Uri fileUri = new Uri(clientUri);
                     filePath = fileUri.LocalPath;
                     if (filePath.StartsWith("//") || filePath.StartsWith("\\\\") || filePath.StartsWith("/")) 
                     {
@@ -154,21 +160,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 // into the SqlTools engine.
                 filePath = UnescapePath(filePath);
 
+                // Client paths are handled a bit differently because of how we currently identifiers in
+                // ADS. The URI is passed around as an identifier - but for things we control like connecting
+                // an editor the URI we pass in is NOT escaped fully. This is a problem for certain functionality
+                // which is handled by VS Code - such as Intellise Completion - as the URI passed in there is
+                // the fully escaped URI. That means we need to do some extra work to make sure that the URI values
+                // are consistent.
+                // So to solve that we'll make sure to unescape ALL uri's that are passed in and store that value for
+                // use as an identifier (filePath will be the actual file path on disk). 
+                // # and ? are still always escaped though by ADS so we need to escape those again to get them to actually
+                // match
+                clientUri = Uri.UnescapeDataString(UnescapePath(clientUri));
+                clientUri = clientUri.Replace("#", "%23");
+                clientUri = clientUri.Replace("?", "%3F");
+
                 // switch to unix path separators on non-Windows platforms
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     filePath = filePath.Replace('\\', '/');
+                    clientUri = clientUri.Replace('\\', '/');
                 }
 
                 // Get the absolute file path
-                ResolvedFile resolvedFile = FileUtilities.TryGetFullPath(filePath);
+                ResolvedFile resolvedFile = FileUtilities.TryGetFullPath(filePath, clientUri);
                 filePath = resolvedFile.FilePath;
                 canReadFromDisk = resolvedFile.CanReadFromDisk;
             }
 
-            Logger.Write(TraceEventType.Verbose, "Resolved path: " + filePath);
+            Logger.Write(TraceEventType.Verbose, "Resolved path: " + clientUri);
 
-            return new ResolvedFile(filePath, canReadFromDisk);
+            return new ResolvedFile(filePath, clientUri, canReadFromDisk);
         }
         
         /// <summary>
@@ -204,13 +225,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
             // Resolve the full file path 
             ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseFilePath;
+            string keyName = resolvedFile.LowercaseClientUri;
 
             // Make sure the file isn't already loaded into the workspace
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
-                scriptFile = new ScriptFile(resolvedFile.FilePath, filePath, initialBuffer);
+                scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri, initialBuffer);
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 

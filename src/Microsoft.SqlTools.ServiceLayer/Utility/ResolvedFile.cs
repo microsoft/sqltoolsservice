@@ -19,20 +19,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     /// </summary>
     internal class ResolvedFile
     {
-        public ResolvedFile(string filePath, bool canReadFromDisk)
+        public ResolvedFile(string filePath, string clientUri, bool canReadFromDisk)
         {
             FilePath = filePath;
+            ClientUri = clientUri;
             CanReadFromDisk = canReadFromDisk;
         }
 
         public string FilePath { get; private set; }
+
+        public string ClientUri { get; private set; }
+
         public bool CanReadFromDisk { get; private set; }
 
-        public string LowercaseFilePath
+        public string LowercaseClientUri
         {
             get
             {
-                return FilePath?.ToLower();
+                return ClientUri?.ToLower();
             }
         }
     }

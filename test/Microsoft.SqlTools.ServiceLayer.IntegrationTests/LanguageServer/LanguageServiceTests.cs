@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 TextDocument = new TextDocumentIdentifier
                 {
-                    Uri = result.ScriptFile.ClientFilePath
+                    Uri = result.ScriptFile.ClientUri
                 },
                 Position = new Position
                 {
@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Thread.Sleep(2000);
 
             // We should get back a non-null ScriptParseInfo
-            ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientFilePath);
+            ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
             Assert.NotNull(parseInfo);
 
             // And we should get back a non-null SignatureHelp
@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                     {
                         TextDocument = new TextDocumentIdentifier
                         {
-                            Uri = connectionInfoResult.ScriptFile.ClientFilePath
+                            Uri = connectionInfoResult.ScriptFile.ClientUri
                         },
                         Position = new Position
                         {
@@ -318,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 // And refresh the cache
                 await langService.HandleRebuildIntelliSenseNotification(
-                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientFilePath },
+                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());
 
                 // Now we should expect to see the item show up in the completion list
@@ -342,24 +342,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         public async Task HandleRequestToChangeToSqlcmdFile()
         {
 
-            var scriptFile = new ScriptFile() { ClientFilePath = "HandleRequestToChangeToSqlcmdFile_" + DateTime.Now.ToLongDateString() + "_.sql" };
+            var scriptFile = new ScriptFile() { ClientUri = "HandleRequestToChangeToSqlcmdFile_" + DateTime.Now.ToLongDateString() + "_.sql" };
 
             try
             {
                 // Prepare a script file
                 scriptFile.SetFileContents("koko wants a bananas");
-                File.WriteAllText(scriptFile.ClientFilePath, scriptFile.Contents);
+                File.WriteAllText(scriptFile.ClientUri, scriptFile.Contents);
 
                 // Create a workspace and add file to it so that its found for intellense building
                 var workspace = new ServiceLayer.Workspace.Workspace();
                 var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
                 var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService }; 
-                langService.CurrentWorkspace.GetFile(scriptFile.ClientFilePath);
+                langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
                 langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
 
                 // Add a connection to ensure the intellisense building works            
                 ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
-                langService.ConnectionServiceInstance.OwnerToConnectionMap.Add(scriptFile.ClientFilePath, connectionInfo);
+                langService.ConnectionServiceInstance.OwnerToConnectionMap.Add(scriptFile.ClientUri, connectionInfo);
 
                 // Test SQL
                 int countOfValidationCalls = 0;
@@ -367,7 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 eventContextSql.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 2, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
-                    Uri = scriptFile.ClientFilePath,
+                    Uri = scriptFile.ClientUri,
                     Language = LanguageService.SQL_LANG.ToLower(),
                     Flavor = "MSSQL"
                 }, eventContextSql.Object);
@@ -378,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 eventContextSqlCmd.Setup(x => x.SendEvent(PublishDiagnosticsNotification.Type, It.Is<PublishDiagnosticsNotification>((notif) => ValidateNotification(notif, 0, ref countOfValidationCalls)))).Returns(Task.FromResult(new object()));
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
-                    Uri = scriptFile.ClientFilePath,
+                    Uri = scriptFile.ClientUri,
                     Language = LanguageService.SQL_CMD_LANG.ToLower(),
                     Flavor = "MSSQL"
                 }, eventContextSqlCmd.Object);
@@ -388,9 +388,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             }
             finally
             {
-                if (File.Exists(scriptFile.ClientFilePath))
+                if (File.Exists(scriptFile.ClientUri))
                 {
-                    File.Delete(scriptFile.ClientFilePath);
+                    File.Delete(scriptFile.ClientUri);
                 }
             }
         }

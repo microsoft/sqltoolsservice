@@ -21,11 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <summary>
         /// Gets a unique string that identifies this file.  At this time,
         /// this property returns a normalized version of the value stored
-        /// in the FilePath property.
+        /// in the ClientUri property.
         /// </summary>
         public string Id
         {
-            get { return this.FilePath.ToLower(); }
+            get { return this.ClientUri.ToLower(); }
         }
 
         /// <summary>
@@ -34,11 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         public string FilePath { get; private set; }
 
         /// <summary>
-        /// Gets or sets the path which the editor client uses to identify this file.
+        /// Gets or sets the URI which the editor client uses to identify this file.
         /// Setter for testing purposes only
         /// virtual to allow mocking.
         /// </summary>
-        public virtual string ClientFilePath { get; internal set; }
+        public virtual string ClientUri { get; internal set; }
 
         /// <summary>
         /// Gets or sets a boolean that determines whether
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// </summary>
         public ScriptFile()
         {
-            ClientFilePath = "test.sql";
+            ClientUri = "test.sql";
         }
 
         /// <summary>
@@ -111,15 +111,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// the given TextReader.
         /// </summary>
         /// <param name="filePath">The path at which the script file resides.</param>
-        /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
+        /// <param name="clientUri">The URI which the client uses to identify the file.</param>
         /// <param name="textReader">The TextReader to use for reading the file's contents.</param>
         public ScriptFile(
             string filePath,
-            string clientFilePath,
+            string clientUri,
             TextReader textReader)
         {
             FilePath = filePath;
-            ClientFilePath = clientFilePath;
+            ClientUri = clientUri;
             IsAnalysisEnabled = true;
             IsInMemory = Workspace.IsPathInMemoryOrNonFileUri(filePath);
 
@@ -130,15 +130,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// Creates a new ScriptFile instance with the specified file contents.
         /// </summary>
         /// <param name="filePath">The path at which the script file resides.</param>
-        /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
+        /// <param name="clientUri">The path which the client uses to identify the file.</param>
         /// <param name="initialBuffer">The initial contents of the script file.</param>
         public ScriptFile(
             string filePath,
-            string clientFilePath,
+            string clientUri,
             string initialBuffer)
         {
             FilePath = filePath;
-            ClientFilePath = clientFilePath;
+            ClientUri = clientUri;
             IsAnalysisEnabled = true;
 
             SetFileContents(initialBuffer);

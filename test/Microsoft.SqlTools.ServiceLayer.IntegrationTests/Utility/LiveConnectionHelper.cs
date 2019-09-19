@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             {
                 ownerUri = GetTestSqlFile();
                 scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
-                ownerUri = scriptFile.ClientFilePath;
+                ownerUri = scriptFile.ClientUri;
             }
             var connectionService = GetLiveTestConnectionService();
             var connectionResult =
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             {
                 ownerUri = GetTestSqlFile();
                 scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
-                ownerUri = scriptFile.ClientFilePath;
+                ownerUri = scriptFile.ClientUri;
             }
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
 
