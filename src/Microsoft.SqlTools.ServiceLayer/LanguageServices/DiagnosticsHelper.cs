@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 PublishDiagnosticsNotification.Type,
                 new PublishDiagnosticsNotification
                 {
-                    Uri = scriptFile.ClientFilePath,
+                    Uri = scriptFile.ClientUri,
                     Diagnostics =
                        allMarkers
                             .Select(GetDiagnosticFromMarker)
