@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 await requestContext.SendResult(new ResultStatus()
                 {
-                    Success = true,
+                    Success = operation.Success,
                     ErrorMessage = operation.ErrorMessage
                 });
             }
