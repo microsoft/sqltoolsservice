@@ -18,6 +18,7 @@ using Microsoft.SqlTools.Utility;
 using System.Globalization;
 using System.Collections.ObjectModel;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -71,7 +72,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId,
-            IFileStreamFactory outputFileFactory, int executionCount = 1, bool getFullColumnSchema = false)
+          IFileStreamFactory outputFileFactory, SqlCmdCommand sqlCmdCommand, int executionCount = 1, bool getFullColumnSchema = false) : this(batchText, selection, ordinalId,
+             outputFileFactory, executionCount, getFullColumnSchema)
+        {
+            this.SqlCmdCommand = sqlCmdCommand;
+        }
+
+        internal Batch(string batchText, SelectionData selection, int ordinalId,
+        IFileStreamFactory outputFileFactory, int executionCount = 1, bool getFullColumnSchema = false)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -146,6 +154,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
+
+        public SqlCmdCommand SqlCmdCommand { get; set; }
 
         public int BatchExecutionCount { get; private set; }
         /// <summary>
@@ -243,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Public Methods
-        
+
         /// <summary>
         /// Executes this batch and captures any server messages that are returned.
         /// </summary>
@@ -270,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
             }
-            
+
             try
             {
                 await DoExecute(conn, cancellationToken);
@@ -445,7 +455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
         {
             if (columnSchemas.Count != results.Count)
-            {   
+            {
                 return;
             }
 
@@ -729,7 +739,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private SpecialAction ProcessResultSetSpecialActions()
         {
-            foreach (ResultSet resultSet in resultSets) 
+            foreach (ResultSet resultSet in resultSets)
             {
                 specialAction.CombineSpecialAction(resultSet.Summary.SpecialAction);
             }

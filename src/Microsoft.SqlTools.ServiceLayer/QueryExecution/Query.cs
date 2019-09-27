@@ -132,6 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batchDefinition.EndLine-1,
                             batchDefinition.EndColumn-1),                       
                         index, outputFactory,
+                        batchDefinition.SqlCmdCommand,
                         batchDefinition.BatchExecutionCount,
                         getFullColumnSchema));
 
@@ -427,6 +428,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.ResultSetCompletion += ResultSetCompleted;
                     b.ResultSetAvailable += ResultSetAvailable;
                     b.ResultSetUpdated += ResultSetUpdated;
+                    if(b.SqlCmdCommand.LexerTokenType == LexerTokenType.Connect)
+                    {
+                        // For example
+                        // TryConnectFunction(b.sqlCmdCommand.Argument)
+                    }
                     await b.Execute(queryConnection, cancellationSource.Token);
                 }
 

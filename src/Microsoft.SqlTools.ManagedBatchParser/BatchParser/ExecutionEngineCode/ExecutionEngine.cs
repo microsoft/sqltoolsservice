@@ -281,14 +281,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         /// <param name="batch"></param>
         /// <param name="batchResult"></param>
-        private void RaiseBatchParserExecutionFinished(Batch batch, ScriptExecutionResult batchResult)
+        private void RaiseBatchParserExecutionFinished(Batch batch, ScriptExecutionResult batchResult, SqlCmdCommand sqlCmdCommand)
         {
             Debug.Assert(batch != null);
 
             EventHandler<BatchParserExecutionFinishedEventArgs> cache = BatchParserExecutionFinished;
             if (cache != null)
             {
-                BatchParserExecutionFinishedEventArgs args = new BatchParserExecutionFinishedEventArgs(batchResult, batch);
+                BatchParserExecutionFinishedEventArgs args = new BatchParserExecutionFinishedEventArgs(batchResult, batch, sqlCmdCommand);
                 cache(this, args);
             }
         }
@@ -336,7 +336,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private bool ExecuteBatchInternal(
             string batchScript, 
             int num, 
-            int lineNumber)
+            int lineNumber,
+            SqlCmdCommand sqlCmdCommand)
         {
             if (lineNumber == -1)
             {
@@ -353,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             {
                 bool continueProcessing = true;
                 numBatchExecutionTimes = num;
-                ExecuteBatchTextSpanInternal(batchScript, localTextSpan, out continueProcessing);
+                ExecuteBatchTextSpanInternal(batchScript, localTextSpan, out continueProcessing, sqlCmdCommand);
                 return continueProcessing;
             }
             else
@@ -368,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="batchScript"></param>
         /// <param name="textSpan"></param>
         /// <param name="continueProcessing"></param>
-        private void ExecuteBatchTextSpanInternal(string batchScript, TextSpan textSpan, out bool continueProcessing)
+        private void ExecuteBatchTextSpanInternal(string batchScript, TextSpan textSpan, out bool continueProcessing, SqlCmdCommand sqlCmdCommand)
         {
             Debug.Assert(!String.IsNullOrEmpty(batchScript));
             continueProcessing = true;
@@ -443,7 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
                 if (!isExecutionDiscarded)
                 {
-                    RaiseBatchParserExecutionFinished(currentBatch, batchResult);
+                    RaiseBatchParserExecutionFinished(currentBatch, batchResult, sqlCmdCommand);
                 }
             }
             else
@@ -501,7 +502,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
             else
             {
-                ExecuteBatchInternal(script, /* num */ 1, /* lineNumber */ 0);
+                ExecuteBatchInternal(script, /* num */ 1, /* lineNumber */ 0, /* sqlcmdCommand required for parsing only*/ null);
             }
 
         }

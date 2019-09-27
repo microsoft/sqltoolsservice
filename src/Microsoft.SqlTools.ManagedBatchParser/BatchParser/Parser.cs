@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private Lexer lexer;
         private List<Token> tokenBuffer;
         private readonly IVariableResolver variableResolver;
+        private SqlCmdCommand sqlCmdCommand;
 
         /// <summary>
         /// Constructor for the Parser class
@@ -200,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private void ExecuteBatch(int repeatCount)
         {
             BatchParserAction action;
-            action = commandHandler.Go(new TextBlock(this, tokenBuffer), repeatCount);
+            action = commandHandler.Go(new TextBlock(this, tokenBuffer), repeatCount, this.sqlCmdCommand);
 
             if (action == BatchParserAction.Abort)
             {
@@ -406,6 +407,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         ParseSetvar(setvarToken);
                         break;
                     case LexerTokenType.Connect:
+                        Token connectToken = LookaheadToken;
+                        RemoveLastWhitespaceToken();
+                        Accept();
+                        ParseConnect(connectToken);
+                        break;
                     case LexerTokenType.Ed:
                     case LexerTokenType.ErrorCommand:
                     case LexerTokenType.Execute:
@@ -520,6 +526,25 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
 
             variableResolver.SetVariable(setvarToken.Begin, variableName, variableValue);
+        }
+
+
+        private void ParseConnect(Token connectToken)
+        {
+            string serverName;
+            Accept(LexerTokenType.Whitespace);
+            Expect(LexerTokenType.Text);
+
+            serverName = LookaheadToken.Text;
+
+            Accept();
+            Accept(LexerTokenType.Whitespace);
+            this.sqlCmdCommand = new SqlCmdCommand(LexerTokenType.Connect, serverName);
+        }
+
+        private void ConnectAction()
+        {
+            throw new NotImplementedException();
         }
 
         internal void RaiseError(ErrorCode errorCode, string message = null)

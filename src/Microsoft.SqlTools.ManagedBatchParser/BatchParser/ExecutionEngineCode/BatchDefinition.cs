@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor method for a BatchDefinition
         /// </summary>
-        public BatchDefinition(string batchText, int startLine, int endLine, int startColumn, int endColumn, int executionCount)
+        public BatchDefinition(string batchText, int startLine, int endLine, int startColumn, int endColumn, int executionCount, SqlCmdCommand command)
         {
             BatchText = batchText;
             StartLine = startLine;
@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             EndColumn = endColumn;
             // set the batch execution count, with min value of 1
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
+            SqlCmdCommand = command;
         }
         
         /// <summary>
@@ -60,6 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// Get batch text associated with the BatchDefinition
         /// </summary>
         public string BatchText
+        {
+            get; private set;
+        }
+
+        public SqlCmdCommand SqlCmdCommand
         {
             get; private set;
         }
