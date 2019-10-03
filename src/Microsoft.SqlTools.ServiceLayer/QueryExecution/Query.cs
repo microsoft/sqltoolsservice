@@ -515,6 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryExecutionSettings settings, 
             IFileStreamFactory outputFactory)
         {
+            outputFactory.QueryExecutionSettings = settings;
             QuerySettingsHelper helper = new QuerySettingsHelper(settings);
 
             // set query execution plan options
