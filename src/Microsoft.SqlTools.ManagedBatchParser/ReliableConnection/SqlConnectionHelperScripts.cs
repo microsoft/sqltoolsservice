@@ -47,12 +47,6 @@ SELECT @filepath AS FilePath
 ";
 
     public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' on ', LOWER(@@version)))";
-    // TODO: #847 remove the Throw condition from endpoints query when removing the GetClusterEndpoints_CTP code.
-    // This is needed for 1 monthly release, to support back compatibility with CTP 3.2
-    public const string GetClusterEndpoints = @"IF OBJECT_ID (N'sys.dm_cluster_endpoints') IS NOT NULL
-SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluster_endpoints];
-ELSE THROW 50000, 'Use older DMV', 1";
-    public const string GetClusterEndpoints_CTP = @"IF OBJECT_ID (N'master.dbo.cluster_endpoint_info') IS NOT NULL
-SELECT [service_name], [ip_address], [port] FROM [master].[dbo].[cluster_endpoint_info];";
+        public const string GetClusterEndpoints = @"SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluster_endpoints];";
     }
 }
