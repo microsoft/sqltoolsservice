@@ -824,28 +824,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 serverInfo.Options = new Dictionary<string, object>();
 
                 // Get BDC endpoints
-                if (!serverInfo.IsCloud && serverInfo.ServerMajorVersion >= 14)
+                if (!serverInfo.IsCloud && serverInfo.ServerMajorVersion >= 15)
                 {
-                    if (serverInfo.ServerMajorVersion >= 15)
-                    {
-                        List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
-                        serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                    serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
 
-                        try
-                        {
-                            LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
-                        }
-                        catch (SqlException)
-                        {
-                            // Failed to find cluster endpoints DMV / table, this must not be a cluster
-                            // or user does not have permissions to see cluster info
-                            serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
-                        }
-                    }
-                    else
+                    try
                     {
+                        LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
+                    }
+                    catch (SqlException)
+                    {
+                        // Failed to find cluster endpoints DMV, this must not be a cluster
+                        // or user does not have permissions to see cluster info
                         serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                     }
+                }
+                else
+                {
+                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                 }
 
                 return serverInfo;
