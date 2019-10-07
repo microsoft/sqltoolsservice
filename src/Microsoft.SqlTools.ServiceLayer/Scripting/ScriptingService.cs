@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -124,6 +125,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     {
                         throw new Exception("Could not find ConnectionInfo");
                     }
+                }
+
+                if (parameters.FilePath == null)
+                {
+                    parameters.FilePath = Path.Join(Path.GetTempPath(), $"{Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8)}-{DateTime.Now:yyyy-MM-dd_hh-mm-ss-fff}");
                 }
 
                 if (!ShouldCreateScriptAsOperation(parameters))
