@@ -129,6 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 if (parameters.FilePath == null)
                 {
+                    // Create a temporary file to handle this request
                     parameters.FilePath = Path.Join(Path.GetTempPath(), $"{Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8)}-{DateTime.Now:yyyy-MM-dd_hh-mm-ss-fff}");
                 }
 
