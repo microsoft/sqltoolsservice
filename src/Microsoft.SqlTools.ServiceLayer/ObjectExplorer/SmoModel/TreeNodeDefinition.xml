@@ -48,7 +48,7 @@
 
   <Node Name="ServerLevelLinkedServerLogins" LocLabel="SR.SchemaHierarchy_LinkedServerLogins" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelLinkedServerLogin" ChildQuerierTypes="SqlLinkedServerLogin" ValidFor="AllOnPrem"/>
   <Node Name="ServerLevelLogins" LocLabel="SR.SchemaHierarchy_Logins" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelLogin" ChildQuerierTypes="SqlLogin"/>
-  <Node Name="ServerLevelServerRoles" LocLabel="SR.SchemaHierarchy_ServerRoles" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerRole" ChildQuerierTypes="SqlServerRole" ValidFor="AllOnPrem"/>
+  <Node Name="ServerLevelServerRoles" LocLabel="SR.SchemaHierarchy_ServerRoles" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerRole" ChildQuerierTypes="SqlServerRole" ValidFor="AllOnPrem|SqlOnDemand"/>
   <Node Name="ServerLevelCredentials" LocLabel="SR.SchemaHierarchy_Credentials" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelCredential" ChildQuerierTypes="SqlCredential" ValidFor="AllOnPrem"/>
   <Node Name="ServerLevelCryptographicProviders" LocLabel="SR.SchemaHierarchy_CryptographicProviders" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelCryptographicProvider" ChildQuerierTypes="SqlCryptographicProvider"  ValidFor="AllOnPrem"/>
   <Node Name="ServerLevelServerAudits" LocLabel="SR.SchemaHierarchy_ServerAudits" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerAudit" ChildQuerierTypes="SqlServerAudit" ValidFor="AllOnPrem"/>
@@ -70,7 +70,7 @@
     <Child Name="Security"/>
   </Node>
 
-  <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode">
+  <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="NotSqlDemand">
     <Filters >
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
       <Filter Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
@@ -107,7 +107,7 @@
     -->
     <Child Name="Sequences"/>
   </Node>
-  <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016|Sql2017|AzureV12">
+  <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand">
     <Child Name="ExternalDataSources"/>
     <Child Name="ExternalFileFormats"/>
   </Node>
@@ -164,8 +164,8 @@
     <Filters >
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
-  </Node>
-  -->
+  </Node> -->
+
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
@@ -207,7 +207,7 @@
   </Node>
   <Node Name="Constraints" LocLabel="SR.SchemaHierarchy_Constraints" BaseClass="ModelBased" NodeType="Constraint" Strategy="ElementsInRelationship" ChildQuerierTypes="SqlDefaultConstraint;SqlCheck"/>
   <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
-  <Node Name="Indexes" LocLabel="SR.SchemaHierarchy_Indexes" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Index" ChildQuerierTypes="SqlIndex;SqlFullTextIndex">
+  <Node Name="Indexes" LocLabel="SR.SchemaHierarchy_Indexes" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Index" ChildQuerierTypes="SqlIndex;SqlFullTextIndex" ValidFor="NotSqlDemand">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
         <Value>IndexKeyType.None</Value>
@@ -216,7 +216,7 @@
       </Filter>
     </Filters>
   </Node>
-  <Node Name="Statistics" LocLabel="SR.SchemaHierarchy_Statistics" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Statistic" ChildQuerierTypes="SqlStatistic"/>
+  <Node Name="Statistics" LocLabel="SR.SchemaHierarchy_Statistics" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Statistic" ChildQuerierTypes="SqlStatistic" ValidFor="NotSqlDemand"/>
 
   <Node Name="SystemViews" LocLabel="SR.SchemaHierarchy_SystemViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
     <Filters>
@@ -231,7 +231,7 @@
     <Child Name="Statistics"/>
   </Node>
 
-  <Node Name="Functions" LocLabel="SR.SchemaHierarchy_Functions" BaseClass="ModelBased" >
+  <Node Name="Functions" LocLabel="SR.SchemaHierarchy_Functions" BaseClass="ModelBased" ValidFor="NotSqlDemand">
     <Child Name="SystemFunctions" IsSystemObject="1"/>
     <Child Name="TableValuedFunctions"/>
     <Child Name="ScalarValuedFunctions"/>
@@ -245,7 +245,7 @@
 
   <Node Name="DatabaseTriggers" LocLabel="SR.SchemaHierarchy_DatabaseTriggers" BaseClass="ModelBased" NodeType="DatabaseTrigger" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseDdlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
   <Node Name="Assemblies" LocLabel="SR.SchemaHierarchy_Assemblies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Assembly" ChildQuerierTypes="SqlAssembly" ValidFor="AllOnPrem|AzureV12"/>
-  <Node Name="Types" LocLabel="SR.SchemaHierarchy_Types" BaseClass="ModelBased" >
+  <Node Name="Types" LocLabel="SR.SchemaHierarchy_Types" BaseClass="ModelBased" ValidFor="NotSqlDemand">
     <Child Name="SystemDataTypes" IsSystemObject="1"/>
     <Child Name="UserDefinedDataTypes"/>
     <Child Name="UserDefinedTableTypes"/>
@@ -301,8 +301,8 @@
   <Node Name="SystemSpatialDataTypes" LocLabel="SR.SchemaHierarchy_SystemSpatialDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemSpatialDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
 
   <!-- Childs of ExternalResources -->
-  <Node Name="ExternalDataSources" LocLabel="SR.SchemaHierarchy_ExternalDataSources" BaseClass="ModelBased" NodeType="ExternalDataSource" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalDataSource" ValidFor="Sql2016|Sql2017|AzureV12"/>
-  <Node Name="ExternalFileFormats" LocLabel="SR.SchemaHierarchy_ExternalFileFormats" BaseClass="ModelBased" NodeType="ExternalFileFormat" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalFileFormat" ValidFor="Sql2016|Sql2017"/>
+  <Node Name="ExternalDataSources" LocLabel="SR.SchemaHierarchy_ExternalDataSources" BaseClass="ModelBased" NodeType="ExternalDataSource" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalDataSource" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand"/>
+  <Node Name="ExternalFileFormats" LocLabel="SR.SchemaHierarchy_ExternalFileFormats" BaseClass="ModelBased" NodeType="ExternalFileFormat" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalFileFormat" ValidFor="Sql2016|Sql2017|SqlOnDemand"/>
   
   <Node Name="StoredProcedures" LocLabel="SR.SchemaHierarchy_StoredProcedures" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlProcedure" TreeNode="StoredProcedureTreeNode">
     <Filters >
@@ -413,7 +413,7 @@
   <Node Name="Signatures" LocLabel="SR.SchemaHierarchy_Signatures" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSignature" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017"/>
   -->
   <Node Name="DatabaseAuditSpecifications" LocLabel="SR.SchemaHierarchy_DatabaseAuditSpecifications" BaseClass="ModelBased" NodeType="DatabaseAuditSpecification" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseAuditSpecification" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017"/>
-  <Node Name="SecurityPolicies" LocLabel="SR.SchemaHierarchy_SecurityPolicies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SecurityPolicy" ChildQuerierTypes="SqlSecurityPolicy" ValidFor="Sql2016|Sql2017|AzureV12"/>
+  <Node Name="SecurityPolicies" LocLabel="SR.SchemaHierarchy_SecurityPolicies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SecurityPolicy" ChildQuerierTypes="SqlSecurityPolicy" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand"/>
   <Node Name="DatabaseScopedCredentials" LocLabel="SR.SchemaHierarchy_DatabaseScopedCredentials" BaseClass="ModelBased" NodeType="DatabaseScopedCredential" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseCredential" ValidFor="Sql2016|Sql2017|AzureV12"/>
   <Node Name="AlwaysEncryptedKeys" LocLabel="SR.SchemaHierarchy_AlwaysEncryptedKeys" BaseClass="ModelBased" ValidFor="Sql2016|Sql2017|AzureV12">
     <Child Name="ColumnMasterKeys"/>

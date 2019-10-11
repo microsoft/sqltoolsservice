@@ -30,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             VerifyGetValidForFlag(SqlServerType.Sql2014, ValidForFlag.Sql2014);
             VerifyGetValidForFlag(SqlServerType.Sql2016, ValidForFlag.Sql2016);
             VerifyGetValidForFlag(SqlServerType.Sql2017, ValidForFlag.Sql2017);
+            VerifyGetValidForFlag(SqlServerType.SqlOnDemand, ValidForFlag.SqlOnDemand);
         }
 
         [Fact]
@@ -135,6 +136,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             VerifyIsValidFor(serverValidFor, validFor, expected);
         }
 
+        [Fact]
+        public void CalculateServerTypeShouldReturnSqlOnDemandGivenEngineEdition()
+        {
+            int engineEdition = 11;
+            SqlServerType expected = SqlServerType.SqlOnDemand;
+            VerifyCalculateServerTypeForEngineEdition(engineEdition, expected);
+        }
+
         private void VerifyIsValidFor(ValidForFlag serverValidFor, ValidForFlag validFor, bool expected)
         {
             bool actual = ServerVersionHelper.IsValidFor(serverValidFor, validFor);
@@ -147,6 +156,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             {
                 ServerVersion = serverVersion
             };
+            SqlServerType actual = ServerVersionHelper.CalculateServerType(serverInfo);
+            Assert.Equal(expected, actual);
+        }
+
+        private void VerifyCalculateServerTypeForEngineEdition(int engineEdition, SqlServerType expected)
+        {
+            ServerInfo serverInfo = new ServerInfo
+            {
+                EngineEditionId = engineEdition
+            };
+
             SqlServerType actual = ServerVersionHelper.CalculateServerType(serverInfo);
             Assert.Equal(expected, actual);
         }

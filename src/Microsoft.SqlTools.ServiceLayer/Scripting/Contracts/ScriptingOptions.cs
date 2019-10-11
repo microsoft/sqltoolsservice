@@ -149,7 +149,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   SqlAzureDatabaseEdition
         ///   SqlDatawarehouseEdition
         ///   SqlServerStretchEdition 
-        ///   SqlManagedInstanceEdition 
+        ///   SqlManagedInstanceEdition
+        ///   SqlServerOnDemandEdition
         /// </summary>
         public virtual string TargetDatabaseEngineEdition { get; set; } = "SqlServerEnterpriseEdition";
 

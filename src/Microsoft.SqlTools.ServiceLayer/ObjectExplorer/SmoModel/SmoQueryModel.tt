@@ -309,6 +309,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	   {
 			flags.Add("ValidForFlag.NotSqlDw");
        }
+	   if (validForStr.Contains("SqlOnDemand"))
+	   {
+			flags.Add("ValidForFlag.SqlOnDemand");
+	   }
+	   if (validForStr == "NotSqlDemand")
+	   {
+			flags.Add("ValidForFlag.NotSqlDemand");
+	   }
 	   if (validForStr == "All")
 	   {
 			flags.Add("ValidForFlag.All");
