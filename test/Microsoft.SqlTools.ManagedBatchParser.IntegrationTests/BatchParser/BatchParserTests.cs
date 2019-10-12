@@ -17,7 +17,6 @@ using System.Text;
 using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
