@@ -168,7 +168,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             SqlServerType actual = ServerVersionHelper.CalculateServerType(serverInfo);
-            Assert.Equal(expected, actual);
+            
+            Assert.True(actual.ToString().Equals(expected.ToString()), "Verify correct engine edition number");
         }
 
         private void VerifyGetValidForFlag(SqlServerType serverType, ValidForFlag validForFlag)
