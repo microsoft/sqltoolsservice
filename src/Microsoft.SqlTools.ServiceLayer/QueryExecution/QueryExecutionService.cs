@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     BufferFileStreamFactory = new ServiceBufferFileStreamFactory
                     {
-                        ExecutionSettings = Settings.QueryExecutionSettings
+                        QueryExecutionSettings = Settings.QueryExecutionSettings
                     };
                 }
                 return BufferFileStreamFactory;
@@ -757,6 +757,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BufferFileFactory, 
                 executeParams.GetFullColumnSchema,
                 applyExecutionSettings);
+
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {
                 newQuery.Dispose();

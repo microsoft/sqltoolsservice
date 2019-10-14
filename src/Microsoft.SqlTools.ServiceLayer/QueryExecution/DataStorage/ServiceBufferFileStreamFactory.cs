@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// The settings for query execution
         /// </summary>
-        public QueryExecutionSettings ExecutionSettings { get; set; }
+        public QueryExecutionSettings QueryExecutionSettings { get; set; }
 
         #endregion
 
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamReader"/></returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), ExecutionSettings);
+            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), QueryExecutionSettings);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite), ExecutionSettings);
+            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite), QueryExecutionSettings);
         }
 
         /// <summary>

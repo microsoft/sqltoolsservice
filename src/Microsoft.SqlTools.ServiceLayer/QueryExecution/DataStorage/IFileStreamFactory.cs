@@ -18,5 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         void DisposeFile(string fileName);
 
+        SqlContext.QueryExecutionSettings QueryExecutionSettings { get; set; }
+
     }
 }
