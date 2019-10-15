@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 <#
 	var directory = Path.GetDirectoryName(Host.TemplateFile);
 	string xmlFile = Path.Combine(directory, "SmoQueryModelDefinition.xml");
-    
+	
 	/////////
 	// Now generate all the Query methods
 	/////////
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		WriteLine("");
 
 		// Query impl
- 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)");
+		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)");
 		WriteLine("{");
 		PushIndent(indent);
 
@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		}
 		return typesList.ToArray();
 	}
-    
+	
 	public static XmlElement GetNodeElement(string xmlFile, string nodeName)
 	{
 		XmlDocument doc = new XmlDocument();
@@ -250,77 +250,77 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/SmoQueryModel/Node[@Name='{0}']/{1}", parentName, childNode));
 		foreach (var item in nodeList)
 		{
-		   XmlElement itemAsElement = item as XmlElement;
-		   if (itemAsElement != null)
-		   {
-		      retElements.Add(itemAsElement);
-		   }
+			XmlElement itemAsElement = item as XmlElement;
+			if (itemAsElement != null)
+			{
+				retElements.Add(itemAsElement);
+			}
 		}
 		return retElements;
 	}
 
 	 public static string GetValidForFlags(string validForStr)
 	{
-	   List<string> flags = new List<string>();
-	   if (validForStr.Contains("Sql2005"))
-	   {
+		List<string> flags = new List<string>();
+		if (validForStr.Contains("Sql2005"))
+		{
 			flags.Add("ValidForFlag.Sql2005");
-	   }
+		}
 
-	   if (validForStr.Contains("Sql2008"))
-	   {
+		if (validForStr.Contains("Sql2008"))
+		{
 			flags.Add("ValidForFlag.Sql2008");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2012"))
-	   {
+		if (validForStr.Contains("Sql2012"))
+		{
 			flags.Add("ValidForFlag.Sql2012");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2014"))
-	   {
+		if (validForStr.Contains("Sql2014"))
+		{
 			flags.Add("ValidForFlag.Sql2014");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2016"))
-	   {
+		if (validForStr.Contains("Sql2016"))
+		{
 			flags.Add("ValidForFlag.Sql2016");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2017"))
-	   {
+		if (validForStr.Contains("Sql2017"))
+		{
 			flags.Add("ValidForFlag.Sql2017");
-       }
+		}
 
-	   if (validForStr.Contains("AzureV12"))
-	   {
+		if (validForStr.Contains("AzureV12"))
+		{
 			flags.Add("ValidForFlag.AzureV12");
-	   }
+		}
 
-	   if (validForStr.Contains("AllOnPrem"))
-	   {
+		if (validForStr.Contains("AllOnPrem"))
+		{
 			flags.Add("ValidForFlag.AllOnPrem");
-       }
-	   if (validForStr.Contains("AllAzure"))
-	   {
+		}
+		if (validForStr.Contains("AllAzure"))
+		{
 			flags.Add("ValidForFlag.AllAzure");
-       }
-	   if (validForStr.Contains("NotSqlDw"))
-	   {
+		}
+		if (validForStr.Contains("NotSqlDw"))
+		{
 			flags.Add("ValidForFlag.NotSqlDw");
-       }
-	   if (validForStr.Contains("SqlOnDemand"))
-	   {
+		}
+		if (validForStr.Contains("SqlOnDemand"))
+		{
 			flags.Add("ValidForFlag.SqlOnDemand");
-	   }
-	   if (validForStr == "NotSqlDemand")
-	   {
+		}
+		if (validForStr == "NotSqlDemand")
+		{
 			flags.Add("ValidForFlag.NotSqlDemand");
-	   }
-	   if (validForStr == "All")
-	   {
+		}
+		if (validForStr == "All")
+		{
 			flags.Add("ValidForFlag.All");
-       }
+		}
 
 		return string.Join("|", flags);
 	}

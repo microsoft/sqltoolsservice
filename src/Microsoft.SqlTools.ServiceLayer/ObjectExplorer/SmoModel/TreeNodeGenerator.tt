@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 <#
 	var directory = Path.GetDirectoryName(Host.TemplateFile);
 	string xmlFile = Path.Combine(directory, "TreeNodeDefinition.xml");
-    
+	
 	/////////
 	// TODO - is Generate all the ReverseDependencies needed?
 	/////////
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine(string.Format("    internal partial class {0}ChildFactory : {1}", type, childFactoryBaseClass));
 			
 			WriteLine("    {");
- 			WriteLine(string.Format("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ \"{0}\" }}; }}", type));
+			WriteLine(string.Format("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ \"{0}\" }}; }}", type));
 			
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> filters = GetNodeFilters(xmlFile, type);
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					}
 					else
 					{
-					    WriteLine("            currentChildren.Add(new FolderNode {");
+						WriteLine("            currentChildren.Add(new FolderNode {");
 						WriteLine(string.Format("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel")));
 						WriteLine(string.Format("                NodeType = \"{0}\",", "Folder"));
 						WriteLine(string.Format("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name")));
@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 							WriteLine(string.Format("                ValidFor = {0},", GetValidForFlags(validFor)));
 						}
 						WriteLine("                SortPriority = SmoTreeNode.NextSortPriority,");
-					    WriteLine("            });");
+						WriteLine("            });");
 					}
 				}
 				WriteLine("        }");
@@ -341,68 +341,68 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 }
 
 <#+
-    public static string GetValidForFlags(string validForStr)
+	public static string GetValidForFlags(string validForStr)
 	{
-	   List<string> flags = new List<string>();
-	   if (validForStr.Contains("Sql2005"))
-	   {
+		List<string> flags = new List<string>();
+		if (validForStr.Contains("Sql2005"))
+		{
 			flags.Add("ValidForFlag.Sql2005");
-	   }
+		}
 
-	   if (validForStr.Contains("Sql2008"))
-	   {
+		if (validForStr.Contains("Sql2008"))
+		{
 			flags.Add("ValidForFlag.Sql2008");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2012"))
-	   {
+		if (validForStr.Contains("Sql2012"))
+		{
 			flags.Add("ValidForFlag.Sql2012");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2014"))
-	   {
+		if (validForStr.Contains("Sql2014"))
+		{
 			flags.Add("ValidForFlag.Sql2014");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2016"))
-	   {
+		if (validForStr.Contains("Sql2016"))
+		{
 			flags.Add("ValidForFlag.Sql2016");
-       }
+		}
 
-	   if (validForStr.Contains("Sql2017"))
-	   {
+		if (validForStr.Contains("Sql2017"))
+		{
 			flags.Add("ValidForFlag.Sql2017");
-       }
+		}
 
-	   if (validForStr.Contains("AzureV12"))
-	   {
+		if (validForStr.Contains("AzureV12"))
+		{
 			flags.Add("ValidForFlag.AzureV12");
-	   }
+		}
 
-	   if (validForStr.Contains("AllOnPrem"))
-	   {
+		if (validForStr.Contains("AllOnPrem"))
+		{
 			flags.Add("ValidForFlag.AllOnPrem");
-       }
-	   if (validForStr.Contains("AllAzure"))
-	   {
+		}
+		if (validForStr.Contains("AllAzure"))
+		{
 			flags.Add("ValidForFlag.AllAzure");
-       }
-	   if (validForStr.Contains("NotSqlDw"))
-	   {
+		}
+		if (validForStr.Contains("NotSqlDw"))
+		{
 			flags.Add("ValidForFlag.NotSqlDw");
-       }
-	   if (validForStr.Contains("SqlOnDemand"))
-	   {
+		}
+		if (validForStr.Contains("SqlOnDemand"))
+		{
 			flags.Add("ValidForFlag.SqlOnDemand");
-	   }
-	   if (validForStr == "NotSqlDemand")
-	   {
+		}
+		if (validForStr == "NotSqlDemand")
+		{
 			flags.Add("ValidForFlag.NotSqlDemand");
-	   }
-	   if (validForStr == "All")
-	   {
+		}
+		if (validForStr == "All")
+		{
 			flags.Add("ValidForFlag.All");
-       }
+		}
 
 		return string.Join("|", flags);
 	}
@@ -425,7 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		}
 		return typesList.ToArray();
 	}
-    
+	
 	public static Dictionary<string, List<string>> GetReverseDependencies(string xmlFile)
 	{
 		Dictionary<string, List<string>> dependencyMap = new Dictionary<string, List<string>>();
@@ -448,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					}
 					else
 					{
-					    string[] allDepedencies = dependency.Split(new [] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+						string[] allDepedencies = dependency.Split(new [] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 						dependenciesForType = new List<string>();
 						dependenciesForType.AddRange(allDepedencies);
 						dependencyMap.Add(typeName, dependenciesForType);
@@ -484,11 +484,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/CodeGenOptions/UniqueTreeNode");
 		foreach (var item in nodeList)
 		{
-		   XmlElement itemAsElement = item as XmlElement;
-		   if (itemAsElement != null)
-		   {
-		      retElements.Add(itemAsElement);
-		   }
+			XmlElement itemAsElement = item as XmlElement;
+			if (itemAsElement != null)
+			{
+				retElements.Add(itemAsElement);
+			}
 		}
 		return retElements;
 	}
@@ -503,11 +503,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Child", parentName));
 		foreach (var item in nodeList)
 		{
-		   XmlElement itemAsElement = item as XmlElement;
-		   if (itemAsElement != null)
-		   {
-		      retElements.Add(itemAsElement);
-		   }
+			XmlElement itemAsElement = item as XmlElement;
+			if (itemAsElement != null)
+			{
+			  retElements.Add(itemAsElement);
+			}
 		}
 		return retElements;
 	}
@@ -522,11 +522,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Filters/Filter", parentName));
 		foreach (var item in nodeList)
 		{
-		   XmlElement itemAsElement = item as XmlElement;
-		   if (itemAsElement != null)
-		   {
-		      retElements.Add(itemAsElement);
-		   }
+			XmlElement itemAsElement = item as XmlElement;
+			if (itemAsElement != null)
+			{
+				retElements.Add(itemAsElement);
+			}
 		}
 		return retElements;
 	}
@@ -542,11 +542,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Properties/Property", parentName));
 		foreach (var item in nodeList)
 		{
-		   XmlElement itemAsElement = item as XmlElement;
-		   if (itemAsElement != null)
-		   {
-		      retElements.Add(itemAsElement);
-		   }
+			XmlElement itemAsElement = item as XmlElement;
+			if (itemAsElement != null)
+			{
+			  retElements.Add(itemAsElement);
+			}
 		}
 		return retElements;
 	}
@@ -561,11 +561,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Filters/Filter[@Property='{1}']/Value", parentName, filterProperty));
 		foreach (var item in nodeList)
 		{
-		   XmlElement itemAsElement = item as XmlElement;
-		   if (itemAsElement != null)
-		   {
-		      retElements.Add(itemAsElement);
-		   }
+			XmlElement itemAsElement = item as XmlElement;
+			if (itemAsElement != null)
+			{
+				retElements.Add(itemAsElement);
+			}
 		}
 		return retElements;
 	}
