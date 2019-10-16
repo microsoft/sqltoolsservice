@@ -61,7 +61,6 @@
   
   <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel">
     <Child Name="Tables"/>
-    <Child Name="ExternalTables"/>
     <Child Name="Views"/>
     <Child Name="Synonyms"/>
     <Child Name="Programmability"/>
@@ -161,13 +160,12 @@
       <Filter Property="IsFileTable" Value="1" Type="bool" />
     </Filters>
   </Node>
-  -->
-  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="SqlOnDemand">
+  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016|Sql2017|AzureV12">
     <Filters >
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
   </Node>
-
+-->
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
@@ -175,6 +173,7 @@
       </Filter>
     </Filters>
     <Child Name="Columns"/>
+    <Child Name="ExternalTable"/>
     <Child Name="Keys"/>
     <Child Name="Constraints"/>
     <Child Name="Triggers"/>
@@ -192,7 +191,7 @@
   </Node>
 
   <!-- TODO This should use display item not ChildQuerierTypes -->
-  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|Sql2017|AzureV12">
+  <Node Name="ExternalTable" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="SqlOnDemand">
     <Child Name="Columns"/>
     <Child Name="Statistics"/>
   </Node>

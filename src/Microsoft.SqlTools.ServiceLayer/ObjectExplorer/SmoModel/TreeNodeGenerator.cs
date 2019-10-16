@@ -677,14 +677,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ExternalTables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ExternalTables,
-                IsSystemObject = false,
-                ValidFor = ValidForFlag.SqlOnDemand,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Views,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Views,
@@ -1303,43 +1295,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
-    internal partial class ExternalTablesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalTables" }; }
-
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsExternal",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
-                });
-                return filters;
-           }
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new ExternalTableTreeNode();
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
     internal partial class TableChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Table" }; }
@@ -1373,6 +1328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
+            currentChildren.Add(new ExternalTableTreeNode { SortPriority = SmoTreeNode.NextSortPriority } );
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Keys,
                 NodeType = "Folder",
