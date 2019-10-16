@@ -45,27 +45,28 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         ///[Fact]
         public async void GetBackupConfigInfoTest()
         {
-            string databaseName = "testbackup_" + new Random().Next(10000000, 99999999); 
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
-            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-
-            var requestContext = new Mock<RequestContext<BackupConfigInfoResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<BackupConfigInfoResponse>()))
-                .Returns(Task.FromResult(new object()));
-            
-            var dbParams = new DefaultDatabaseInfoParams
+            string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
             {
-                OwnerUri = liveConnection.ConnectionInfo.OwnerUri
-            };
 
-            DisasterRecoveryService service = new DisasterRecoveryService();
-            await service.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
 
-            requestContext.Verify(x => x.SendResult(It.Is<BackupConfigInfoResponse>
-                (p => p.BackupConfigInfo.RecoveryModel != string.Empty
-                && p.BackupConfigInfo.DefaultBackupFolder != string.Empty)));
-            
-            testDb.Cleanup();
+                var requestContext = new Mock<RequestContext<BackupConfigInfoResponse>>();
+                requestContext.Setup(x => x.SendResult(It.IsAny<BackupConfigInfoResponse>()))
+                    .Returns(Task.FromResult(new object()));
+
+                var dbParams = new DefaultDatabaseInfoParams
+                {
+                    OwnerUri = liveConnection.ConnectionInfo.OwnerUri
+                };
+
+                DisasterRecoveryService service = new DisasterRecoveryService();
+                await service.HandleBackupConfigInfoRequest(dbParams, requestContext.Object);
+
+                requestContext.Verify(x => x.SendResult(It.Is<BackupConfigInfoResponse>
+                    (p => p.BackupConfigInfo.RecoveryModel != string.Empty
+                    && p.BackupConfigInfo.DefaultBackupFolder != string.Empty)));
+            }
         }
 
         /// <summary>
@@ -76,14 +77,12 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "SqlToolsService_TestBackup_" + new Random().Next(10000000, 99999999);
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);            
 
-            try
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
+            using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true))
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
-
                 string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
                 BackupInfo backupInfo = CreateDefaultBackupInfo(databaseName,
@@ -95,12 +94,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 // Backup the database
                 service.PerformBackup(backupOperation);
 
-                VerifyAndCleanBackup(backupPath);
-                sqlConn.Close();
-            }
-            finally
-            {
-                testDb.Cleanup();
+                VerifyAndCleanBackup(sqlConn, backupPath);
             }
         }
 
@@ -109,13 +103,12 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "SqlToolsService_TestBackup_" + new Random().Next(10000000, 99999999);
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
 
-            try
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
+            using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true))
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
                 string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
 
@@ -133,15 +126,10 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 // Execute the script
                 testDb.RunQuery(script);
 
-                VerifyAndCleanBackup(backupPath);
-                sqlConn.Close();
-            }
-            finally
-            {
-                testDb.Cleanup();
+                VerifyAndCleanBackup(sqlConn, backupPath);
             }
         }
-        
+
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
@@ -150,13 +138,12 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "SqlToolsService_TestBackup_" + new Random().Next(10000000, 99999999);
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
 
-            try
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
+            using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true))
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
                 string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
                 string certificateName = CreateCertificate(testDb);
@@ -186,19 +173,11 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
 
                 // Remove the backup file
                 Console.WriteLine("Verify the backup file exists and remove..");
-                VerifyAndCleanBackup(backupPath);
+                VerifyAndCleanBackup(sqlConn, backupPath);
 
                 // Delete certificate and master key
                 Console.WriteLine("Remove certificate and master key..");
                 testDb.RunQuery(cleanupCertificateQuery);
-
-                sqlConn.Close();
-            }
-            finally
-            {
-                // Clean up the database
-                Console.WriteLine("Clean up database..");
-                testDb.Cleanup();
             }
         }
 
@@ -210,13 +189,12 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "SqlToolsService_TestBackup_" + new Random().Next(10000000, 99999999);
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
 
-            try
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
+            using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true))
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
-                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(liveConnection.ConnectionInfo, databaseExists: true);
-                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo);
                 string backupPath = GetDefaultBackupFullPath(service, databaseName, helper.DataContainer, sqlConn);
 
                 string certificateName = CreateCertificate(testDb);
@@ -248,18 +226,11 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
 
                 // Remove the backup file
                 Console.WriteLine("Verify the backup file exists and remove..");
-                VerifyAndCleanBackup(backupPath);
+                VerifyAndCleanBackup(sqlConn, backupPath);
 
                 // Delete certificate and master key
                 Console.WriteLine("Remove certificate and master key..");
                 testDb.RunQuery(cleanupCertificateQuery);
-                sqlConn.Close();
-            }
-            finally
-            {
-                // Clean up the database
-                Console.WriteLine("Clean up database..");
-                testDb.Cleanup();
             }
         }
 
@@ -270,9 +241,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         public void ScriptBackupWithDifferentActionTypesTest()
         {
             string databaseName = "SqlToolsService_TestBackup_" + new Random().Next(10000000, 99999999);
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);
-
-            try
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
             {
                 // Create Full backup script
                 string script = GenerateScriptForBackupType(BackupType.Full, databaseName);
@@ -297,12 +266,6 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 Assert.Contains("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
                 Assert.DoesNotContain("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
                 Assert.Contains("WITH  DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
-            }
-            finally
-            {
-                // Clean up the database
-                Console.WriteLine("Clean up database..");
-                testDb.Cleanup();
             }
         }
 
@@ -366,7 +329,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                     Assert.True(eventParams.Children.Length > 0);
                 })
                 .Complete();
-            
+
             // Expand the node in file browser
             await service.RunFileBrowserExpandTask(expandParams, expandEventFlowValidator.Object);
 
@@ -383,7 +346,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             var validateEventFlowValidator = new EventFlowValidator<bool>()
                 .AddEventValidation(FileBrowserValidatedNotification.Type, eventParams => Assert.True(eventParams.Succeeded))
                 .Complete();
-            
+
             // Validate selected files in the browser
             await service.RunFileBrowserValidateTask(validateParams, validateEventFlowValidator.Object);
 
@@ -404,7 +367,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             string certificateName = "backupcertificate" + new Random().Next(10000000, 99999999);
             string masterkeyPassword = Guid.NewGuid().ToString();
             string createCertificateQuery = string.Format(CreateCertificateQueryFormat, masterkeyPassword, certificateName);
-            
+
             // create master key and certificate
             Console.WriteLine("Create master key and certificate..");
             testDb.RunQuery(createCertificateQuery);
@@ -444,16 +407,42 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             return service.CreateBackupOperation(dataContainer, sqlConn, backupParams.BackupInfo);
         }
 
-        private void VerifyAndCleanBackup(string backupPath)
+        private void VerifyAndCleanBackup(SqlConnection sqlConn, string backupPath)
         {
-            // Verify it created backup
-            Assert.True(File.Exists(backupPath));
-
-            // Remove the backup file
-            if (File.Exists(backupPath))
+            try
             {
-                File.Delete(backupPath);
+                sqlConn.Open();
+                using (SqlCommand sqlCmd = sqlConn.CreateCommand())
+                {
+                    sqlCmd.CommandText = @"
+DECLARE @Files TABLE 
+ (fileName nvarchar(max)
+  ,depth int
+  ,isFile int)
+
+INSERT INTO @Files 
+EXEC xp_dirtree @Path,1,1
+
+SELECT CASE WHEN COUNT(*) > 0 THEN 'true' ELSE 'false' END FROM @Files where isFile=1 and fileName=@FileName";
+                    sqlCmd.Parameters.AddWithValue("@Path", Path.GetDirectoryName(backupPath));
+                    sqlCmd.Parameters.AddWithValue("@FileName", Path.GetFileName(backupPath));
+                    var ret = bool.Parse(sqlCmd.ExecuteScalar().ToString());
+
+                    // Verify it created backup
+                    Assert.True(ret, $"Backup file {backupPath} was not created");
+                }
             }
+            finally
+            {
+                using (SqlCommand sqlCmd = sqlConn.CreateCommand())
+                {
+                    sqlCmd.CommandText = "EXECUTE master.dbo.xp_delete_file 0,@Path";
+                    sqlCmd.Parameters.AddWithValue("@Path", backupPath);
+                    sqlCmd.ExecuteNonQuery();
+                }
+            }
+
+
         }
 
         private bool ContainsFileInTheFolder(FileTreeNode folderNode, string filePath)

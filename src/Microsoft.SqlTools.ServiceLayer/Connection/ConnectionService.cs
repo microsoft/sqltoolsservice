@@ -1472,7 +1472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
+        public static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {

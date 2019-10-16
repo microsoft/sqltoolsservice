@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         internal static void VerifyAndCleanup(string filePath)
         {
             // Verify it was created
-            Assert.True(File.Exists(filePath));
+            Assert.True(File.Exists(filePath), $"File {filePath} was expected to exist but did not"); 
 
             // Remove the file
             if (File.Exists(filePath))

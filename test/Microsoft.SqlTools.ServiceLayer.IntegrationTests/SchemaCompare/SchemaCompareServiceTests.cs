@@ -1150,7 +1150,7 @@ WITH VALUES
                 }
                 retry--;
             }
-            Assert.Equal(false, TaskService.Instance.TaskManager.Tasks.Any());
+            Assert.False(TaskService.Instance.TaskManager.Tasks.Any(), $"No tasks were expected to exist but had {TaskService.Instance.TaskManager.Tasks.Count} [{string.Join(",", TaskService.Instance.TaskManager.Tasks.Select(t => t.TaskId))}]");
             TaskService.Instance.TaskManager.Reset();
         }
     }
