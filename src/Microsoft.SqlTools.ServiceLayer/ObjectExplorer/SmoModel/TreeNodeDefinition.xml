@@ -70,7 +70,7 @@
     <Child Name="Security"/>
   </Node>
 
-  <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="NotSqlDemand">
+  <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode">
     <Filters >
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
       <Filter Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
@@ -85,6 +85,7 @@
       <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
+    <Child Name="ExternalTables"/>
   </Node>
 
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
@@ -149,7 +150,7 @@
   </Node>
 
   <!-- Childs of Tables -->
-  <Node Name="SystemTables" LocLabel="SR.SchemaHierarchy_SystemTables" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="NotSqlDemand">
+  <Node Name="SystemTables" LocLabel="SR.SchemaHierarchy_SystemTables" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode">
     <Filters >
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
     </Filters>
@@ -160,12 +161,13 @@
       <Filter Property="IsFileTable" Value="1" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016|Sql2017|AzureV12">
+  -->
+  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="SqlOnDemand">
     <Filters >
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
   </Node>
--->
+
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
@@ -173,7 +175,6 @@
       </Filter>
     </Filters>
     <Child Name="Columns"/>
-    <Child Name="ExternalTable"/>
     <Child Name="Keys"/>
     <Child Name="Constraints"/>
     <Child Name="Triggers"/>
@@ -190,8 +191,7 @@
     <Child Name="Statistics"/>
   </Node>
 
-  <!-- TODO This should use display item not ChildQuerierTypes -->
-  <Node Name="ExternalTable" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="SqlOnDemand">
+  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|Sql2017|AzureV12">
     <Child Name="Columns"/>
     <Child Name="Statistics"/>
   </Node>
