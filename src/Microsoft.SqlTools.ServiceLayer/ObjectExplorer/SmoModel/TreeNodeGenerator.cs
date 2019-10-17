@@ -802,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsExternal",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand
                 });
                 return properties;
            }

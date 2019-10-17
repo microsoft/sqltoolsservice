@@ -82,7 +82,7 @@
       <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017"/>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
 	    <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
-      <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|AzureV12"/>
+      <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <Child Name="ExternalTables"/>
