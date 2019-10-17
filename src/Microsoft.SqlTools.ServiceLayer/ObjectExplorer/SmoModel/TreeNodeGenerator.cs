@@ -818,14 +818,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_ExternalTables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.ExternalTables,
-                IsSystemObject = false,
-                ValidFor = ValidForFlag.SqlOnDemand,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
         }
 
         internal override Type[] ChildQuerierTypes
@@ -1294,43 +1286,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new TableTreeNode();
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ExternalTablesChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalTables" }; }
-
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsExternal",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
-                });
-                return filters;
-           }
-        }
-
-        internal override Type[] ChildQuerierTypes
-        {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new ExternalTableTreeNode();
             InitializeChild(parent, child, context);
             return child;
         }
