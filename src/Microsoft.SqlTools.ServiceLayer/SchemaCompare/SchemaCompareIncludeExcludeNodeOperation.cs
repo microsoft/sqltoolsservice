@@ -38,6 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
+        public List<DiffEntry> ChangedDifferences;
+
+
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -58,7 +61,45 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
                 }
 
+                // Check first if the dependencies will allow this if it's an exclude request
+                if (!this.Parameters.IncludeRequest)
+                {
+                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetExcludeDependencies(node);
+
+                    bool block = false;
+                    foreach (SchemaDifference entry in dependencies)
+                    {
+                        if (entry.Included)
+                        {
+                            block = true;
+                            break;
+                        }
+                    }
+
+                    if (block)
+                    {
+                        this.Success = false;
+                        return;
+                    }
+                }
+
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
+
+                // send affected dependencies of this request
+                if (this.Success)
+                {
+                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetIncludeDependencies(node);
+
+                    this.ChangedDifferences = new List<DiffEntry>();
+                    if (dependencies != null)
+                    {
+                        foreach (SchemaDifference difference in dependencies)
+                        {
+                            DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
+                            this.ChangedDifferences.Add(diffEntry);
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -97,10 +138,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
             {
-                result = result &&
-                    ((prop.GetValue(diffEntry) == null &&
-                    prop.GetValue(entryFromDifference) == null) ||
-                    prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+                if (prop.Name != "Included")
+                {
+                    result = result &&
+                        ((prop.GetValue(diffEntry) == null &&
+                        prop.GetValue(entryFromDifference) == null) ||
+                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+                }
             }
 
             return result;
