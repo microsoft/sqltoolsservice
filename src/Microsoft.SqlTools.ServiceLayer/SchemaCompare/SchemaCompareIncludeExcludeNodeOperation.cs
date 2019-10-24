@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -70,16 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetExcludeDependencies(node);
 
-                    bool block = false;
-                    foreach (SchemaDifference entry in dependencies)
-                    {
-                        if (entry.Included)
-                        {
-                            block = true;
-                            break;
-                        }
-                    }
-
+                    bool block = dependencies.Any(d => d.Included);
                     if (block)
                     {
                         this.Success = false;
@@ -93,16 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 if (this.Success)
                 {
                     IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetIncludeDependencies(node);
-
-                    this.ChangedDifferences = new List<DiffEntry>();
-                    if (dependencies != null)
-                    {
-                        foreach (SchemaDifference difference in dependencies)
-                        {
-                            DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
-                            this.ChangedDifferences.Add(diffEntry);
-                        }
-                    }
+                    this.ChangedDifferences = dependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
                 }
             }
             catch (Exception e)
@@ -145,10 +128,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // Don't need to check if included is the same when verifying if the difference is equal
                 if (prop.Name != "Included")
                 {
-                    result = result &&
-                        ((prop.GetValue(diffEntry) == null &&
+                    if(!((prop.GetValue(diffEntry) == null &&
                         prop.GetValue(entryFromDifference) == null) ||
-                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString())))
+                    {
+                        return false;
+                    }
                 }
             }
 
