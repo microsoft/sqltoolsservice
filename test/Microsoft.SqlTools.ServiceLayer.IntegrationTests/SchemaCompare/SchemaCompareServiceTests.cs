@@ -31,8 +31,7 @@ CREATE TABLE [dbo].[table2]
 (
     [ID] INT NOT NULL PRIMARY KEY,
     [col1] NCHAR(10) NULL
-)
-CREATE VIEW v1 as select 1 as col1";
+)";
 
         private const string TargetScript = @"CREATE TABLE [dbo].[table2]
 (
@@ -818,7 +817,7 @@ WITH VALUES
         }
 
         /// <summary>
-        /// Verify the schema compare request with failing excludes
+        /// Verify the schema compare request with failing exclude request because of dependencies
         /// </summary>
         [Fact]
         public async void SchemaCompareIncludeExclude()
@@ -901,7 +900,7 @@ WITH VALUES
                 Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be included");
                 Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included");
                 Assert.True(v1IncludeOperation.ChangedDifferences != null && v1IncludeOperation.ChangedDifferences.Count == 1, "There should be one difference");
-                Assert.True(v1IncludeOperation.ChangedDifferences.First().Name == "t2", "The affected difference of including v1 should be t2");
+                Assert.True(v1IncludeOperation.ChangedDifferences.First().SourceValue[1] == "t2", "The affected difference of including v1 should be t2");
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);

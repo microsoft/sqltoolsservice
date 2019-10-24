@@ -40,7 +40,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public List<DiffEntry> ChangedDifferences;
 
-
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -49,6 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.ComparisonResult = comparisonResult;
         }
 
+        /// <summary>
+        /// Exclude will return false if included dependencies are found. Include will also include dependencies that need to be included. 
+        /// This is the same behavior as SSDT
+        /// </summary>
+        /// <param name="mode"></param>
         public void Execute(TaskExecutionMode mode)
         {
             this.CancellationToken.ThrowIfCancellationRequested();
@@ -85,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
-                // send affected dependencies of this request
+                // create list of affected dependencies of this request
                 if (this.Success)
                 {
                     IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetIncludeDependencies(node);
@@ -138,6 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
             {
+                // Don't need to check if included is the same when verifying if the difference is equal
                 if (prop.Name != "Included")
                 {
                     result = result &&
