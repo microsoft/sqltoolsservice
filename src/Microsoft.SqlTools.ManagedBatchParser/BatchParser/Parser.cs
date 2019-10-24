@@ -370,12 +370,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 LexerTokenType tokenType = LookaheadTokenType;
                 switch (tokenType)
                 {
-                    case LexerTokenType.OnError:
-                        RemoveLastWhitespaceToken();
-                        Token onErrorToken = LookaheadToken;
-                        Accept();
-                        ParseOnErrorCommand(onErrorToken);
-                        break;
                     case LexerTokenType.Eof:
                         if (tokenBuffer.Count > 0)
                         {
@@ -386,11 +380,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         RemoveLastWhitespaceToken();
                         Accept();
                         ParseGo();
-                        break;
-                    case LexerTokenType.Include:
-                        RemoveLastWhitespaceToken();
-                        Accept();
-                        ParseInclude();
                         break;
                     case LexerTokenType.Comment:
                     case LexerTokenType.NewLine:
@@ -405,17 +394,21 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         Accept();
                         ParseSetvar(setvarToken);
                         break;
+                    // Supported by SSMS but not by ADS
+                    case LexerTokenType.Include:
+                    case LexerTokenType.OnError:
                     case LexerTokenType.Connect:
-                    case LexerTokenType.Ed:
                     case LexerTokenType.ErrorCommand:
                     case LexerTokenType.Execute:
                     case LexerTokenType.Exit:
+                    case LexerTokenType.Out:
+                    case LexerTokenType.Quit:
+                    // not supported on SSMS or ADS
+                    case LexerTokenType.Ed:
                     case LexerTokenType.Help:
                     case LexerTokenType.List:
                     case LexerTokenType.ListVar:
-                    case LexerTokenType.Out:
                     case LexerTokenType.Perftrace:
-                    case LexerTokenType.Quit:
                     case LexerTokenType.Reset:
                     case LexerTokenType.Serverlist:
                     case LexerTokenType.Xml:
