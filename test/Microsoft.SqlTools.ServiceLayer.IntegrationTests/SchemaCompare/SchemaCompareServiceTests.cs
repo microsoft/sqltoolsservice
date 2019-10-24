@@ -817,10 +817,10 @@ WITH VALUES
         }
 
         /// <summary>
-        /// Verify the schema compare request with failing exclude request because of dependencies
+        /// Verify the schema compare request with failing exclude request because of dependencies and that include will include dependencies
         /// </summary>
         [Fact]
-        public async void SchemaCompareIncludeExclude()
+        public async void SchemaCompareIncludeExcludeWithDependencies()
         {
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceIncludeExcludeScript, "SchemaCompareSource");
