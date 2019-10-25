@@ -485,7 +485,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 }
                 catch (BatchParserException ex)
                 {
-                    if (ex.ErrorCode != ErrorCode.Aborted)
+                    if (ex.ErrorCode == ErrorCode.UnsupportedCommand)
+                    {
+                        result = ScriptExecutionResult.Failure;
+                        RaiseScriptError(string.Format(CultureInfo.CurrentCulture, ex.Message), ScriptMessageType.FatalError);
+                    }
+                    else if (ex.ErrorCode != ErrorCode.Aborted)
                     {
                         result = ScriptExecutionResult.Failure;
                         string info = ex.Text;
