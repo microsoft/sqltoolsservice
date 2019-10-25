@@ -101,6 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public string TargetScript { get; set; }
         public string SourceObjectType { get; set; }
         public string TargetObjectType { get; set; }
+        public bool Included { get; set; }
     }
 
     /// <summary>

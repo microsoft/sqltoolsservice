@@ -6,6 +6,7 @@
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
@@ -39,5 +40,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     {
         public static readonly RequestType<SchemaCompareNodeParams, ResultStatus> Type =
        RequestType<SchemaCompareNodeParams, ResultStatus>.Create("schemaCompare/includeExcludeNode");
+    }
+
+    /// <summary>
+    /// Parameters returned from a schema compare include/exclude request.
+    /// </summary>
+    public class SchemaCompareIncludeExcludeResult : ResultStatus
+    {
+        public List<DiffEntry> ChangedDifferences { get; set; }
     }
 }

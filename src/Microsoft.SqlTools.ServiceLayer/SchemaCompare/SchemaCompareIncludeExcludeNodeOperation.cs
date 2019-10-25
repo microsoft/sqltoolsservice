@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -38,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
+        public List<DiffEntry> ChangedDifferences;
+
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -46,6 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.ComparisonResult = comparisonResult;
         }
 
+        /// <summary>
+        /// Exclude will return false if included dependencies are found. Include will also include dependencies that need to be included. 
+        /// This is the same behavior as SSDT
+        /// </summary>
+        /// <param name="mode"></param>
         public void Execute(TaskExecutionMode mode)
         {
             this.CancellationToken.ThrowIfCancellationRequested();
@@ -58,7 +66,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
                 }
 
+                // Check first if the dependencies will allow this if it's an exclude request
+                if (!this.Parameters.IncludeRequest)
+                {
+                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetExcludeDependencies(node);
+
+                    bool block = dependencies.Any(d => d.Included);
+                    if (block)
+                    {
+                        this.Success = false;
+                        return;
+                    }
+                }
+
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
+
+                // create list of affected dependencies of this request
+                if (this.Success)
+                {
+                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetIncludeDependencies(node);
+                    this.ChangedDifferences = dependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
+                }
             }
             catch (Exception e)
             {
@@ -97,10 +125,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
             {
-                result = result &&
-                    ((prop.GetValue(diffEntry) == null &&
-                    prop.GetValue(entryFromDifference) == null) ||
-                    prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+                // Don't need to check if included is the same when verifying if the difference is equal
+                if (prop.Name != "Included")
+                {
+                    if(!((prop.GetValue(diffEntry) == null &&
+                        prop.GetValue(entryFromDifference) == null) ||
+                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString())))
+                    {
+                        return false;
+                    }
+                }
             }
 
             return result;
