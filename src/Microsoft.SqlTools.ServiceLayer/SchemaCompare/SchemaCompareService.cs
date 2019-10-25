@@ -255,7 +255,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     Success = operation.Success,
                     ErrorMessage = operation.ErrorMessage,
-                    Dependencies = operation.Dependencies
+                    AffectedDependencies = operation.AffectedDependencies,
+                    BlockingDependencies = operation.BlockingDependencies
                 });
             }
             catch (Exception e)
