@@ -70,18 +70,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
-                // if successful, send dependencies that might have been affected by this request
-                if(this.Success)
+                // if include request (pass or fail), send dependencies that might have been affected by this request, given by GetIncludeDependencies()
+                if(this.Parameters.IncludeRequest)
                 {
                     IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
                     this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
                 }
                 else
-                {
-                    // if not successful, send exclude dependencies that caused it to fail
-                    IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
-                    blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
-                    this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
+                    if(this.Success)
+                    {
+                        IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
+                        this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    }
+                    // if not successful, send back the exclude dependencies that caused it to fail
+                    else
+                    {
+                        IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
+                        blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
+                        this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    }
+                   
                 }
             }
             catch (Exception e)
