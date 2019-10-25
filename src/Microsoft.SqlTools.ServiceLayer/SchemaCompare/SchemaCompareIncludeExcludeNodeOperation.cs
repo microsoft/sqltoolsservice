@@ -74,14 +74,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 if(this.Success)
                 {
                     IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
+                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
                 }
                 else
                 {
                     // if not successful, send exclude dependencies that caused it to fail
                     IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
                     blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
-                    this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
+                    this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
                 }
             }
             catch (Exception e)
