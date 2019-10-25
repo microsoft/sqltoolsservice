@@ -96,7 +96,7 @@
   </Node>
 
   <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|AzureV12"/>
-  <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased">
+  <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
     <Child Name="StoredProcedures"/>
     <Child Name="Functions"/>
     <Child Name="DatabaseTriggers"/>

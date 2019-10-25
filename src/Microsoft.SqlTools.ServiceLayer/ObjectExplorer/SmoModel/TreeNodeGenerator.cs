@@ -695,6 +695,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Programmability,
                 IsSystemObject = false,
+                ValidFor = ValidForFlag.NotSqlDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
