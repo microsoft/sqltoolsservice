@@ -47,6 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     public class SchemaCompareIncludeExcludeResult : ResultStatus
     {
-        public List<DiffEntry> ChangedDifferences { get; set; }
+        public List<DiffEntry> Dependencies { get; set; }
     }
 }

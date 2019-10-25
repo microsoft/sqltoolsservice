@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
-        public List<DiffEntry> ChangedDifferences;
+        public List<DiffEntry> Dependencies;
 
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
@@ -66,27 +66,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
                 }
 
-                // Check first if the dependencies will allow this if it's an exclude request
-                if (!this.Parameters.IncludeRequest)
-                {
-                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetExcludeDependencies(node);
-
-                    bool block = dependencies.Any(d => d.Included);
-                    if (block)
-                    {
-                        this.Success = false;
-                        return;
-                    }
-                }
-
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
-                // create list of affected dependencies of this request
-                if (this.Success)
-                {
-                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                    this.ChangedDifferences = dependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
-                }
+                // create list of dependencies of this schema difference
+                // if not successful, send exclude dependencies that caused it to fail
+                // if successful, send dependencies that might have been affected by this request
+                IEnumerable<SchemaDifference> dependencies = this.Success ? this.ComparisonResult.GetIncludeDependencies(node) : this.ComparisonResult.GetExcludeDependencies(node);
+                this.Dependencies = dependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
             }
             catch (Exception e)
             {
