@@ -47,6 +47,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     public class SchemaCompareIncludeExcludeResult : ResultStatus
     {
-        public List<DiffEntry> ChangedDifferences { get; set; }
+        /// <summary>
+        /// Dependencies that may have been affected by the include/exclude request
+        /// </summary>
+        public List<DiffEntry> AffectedDependencies { get; set; }
+
+        /// <summary>
+        /// Dependencies that caused the include/exclude to fail
+        /// </summary>
+        public List<DiffEntry> BlockingDependencies { get; set; }
+
     }
 }

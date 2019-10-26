@@ -39,7 +39,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
-        public List<DiffEntry> ChangedDifferences;
+        public List<DiffEntry> AffectedDependencies;
+        public List<DiffEntry> BlockingDependencies;
+
 
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
@@ -66,26 +68,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
                 }
 
-                // Check first if the dependencies will allow this if it's an exclude request
-                if (!this.Parameters.IncludeRequest)
-                {
-                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetExcludeDependencies(node);
-
-                    bool block = dependencies.Any(d => d.Included);
-                    if (block)
-                    {
-                        this.Success = false;
-                        return;
-                    }
-                }
-
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
-                // create list of affected dependencies of this request
-                if (this.Success)
+                // if include request (pass or fail), send dependencies that might have been affected by this request, given by GetIncludeDependencies()
+                if(this.Parameters.IncludeRequest)
                 {
-                    IEnumerable<SchemaDifference> dependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                    this.ChangedDifferences = dependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference, null)).ToList();
+                    IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
+                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                }
+                else
+                {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
+                    if(this.Success)
+                    {
+                        IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
+                        this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    }
+                    // if not successful, send back the exclude dependencies that caused it to fail
+                    else
+                    {
+                        IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
+                        blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
+                        this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    }
+                   
                 }
             }
             catch (Exception e)

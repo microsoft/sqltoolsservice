@@ -864,8 +864,10 @@ WITH VALUES
                 t2ExcludeOperation.Execute(TaskExecutionMode.Execute);
                 Assert.False(t2ExcludeOperation.Success, "Excluding Table t2 should fail because view v1 depends on it");
                 Assert.True(t2ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included because the exclude request failed");
+                Assert.True(t2ExcludeOperation.BlockingDependencies.Count == 1, "There should be one dependency");
+                Assert.True(t2ExcludeOperation.BlockingDependencies[0].SourceValue[1] == "v1",  "Dependency should be View v1");
 
-                // exclude view first, then excluding t2 should work
+                // exclude view v1, then t2 should also get excluded by this
                 DiffEntry v1Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First(), null);
                 SchemaCompareNodeParams v1ExcludeParams = new SchemaCompareNodeParams()
                 {
@@ -878,12 +880,10 @@ WITH VALUES
                 SchemaCompareIncludeExcludeNodeOperation v1ExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(v1ExcludeParams, schemaCompareOperation.ComparisonResult);
                 v1ExcludeOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(v1ExcludeOperation.Success, "Excluding View v1 should succeed");
-                Assert.False(t2ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be excluded");
-
-                // try to exclude t2 again and it should succeed this time
-                t2ExcludeOperation.Execute(TaskExecutionMode.Execute);
-                Assert.True(t2ExcludeOperation.Success, "Excluding Table t2 should succeed");
-                Assert.False(t2ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be excluded");
+                Assert.False(v1ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be excluded");
+                Assert.False(v1ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should be excluded");
+                Assert.True(v1ExcludeOperation.AffectedDependencies.Count == 1, "There should be one dependency");
+                Assert.False(v1ExcludeOperation.AffectedDependencies[0].Included, "The dependency Table t2 should be excluded");
 
                 // including v1 should also include t2
                 SchemaCompareNodeParams v1IncludeParams = new SchemaCompareNodeParams()
@@ -899,8 +899,8 @@ WITH VALUES
                 Assert.True(v1IncludeOperation.Success, "Including v1 should succeed");
                 Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be included");
                 Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included");
-                Assert.True(v1IncludeOperation.ChangedDifferences != null && v1IncludeOperation.ChangedDifferences.Count == 1, "There should be one difference");
-                Assert.True(v1IncludeOperation.ChangedDifferences.First().SourceValue[1] == "t2", "The affected difference of including v1 should be t2");
+                Assert.True(v1IncludeOperation.AffectedDependencies != null && v1IncludeOperation.AffectedDependencies.Count == 1, "There should be one difference");
+                Assert.True(v1IncludeOperation.AffectedDependencies.First().SourceValue[1] == "t2", "The affected difference of including v1 should be t2");
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
