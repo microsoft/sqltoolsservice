@@ -522,6 +522,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
+        /// Determines if the type of database that a connection is being made to is SqlOnDemand.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns>True if the database is SqlOnDemand</returns>
+        public static bool IsSqlOnDemand(IDbConnection connection)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            Func<string, bool> executeCommand = commandText =>
+            {
+                bool result = false;
+                ExecuteReader(connection,
+                              commandText,
+                              readResult: (reader) =>
+                              {
+                                  reader.Read();
+                                  int engineEditionId = int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+
+                                  result = engineEditionId == (int)DatabaseEngineEdition.SqlOnDemand;
+                              }
+                    );
+                return result;
+            };
+
+            bool isSqlOnDemand = false;
+            try
+            {
+                isSqlOnDemand = executeCommand(SqlConnectionHelperScripts.EngineEdition);
+            }
+            catch (SqlException)
+            {
+                // The default query contains a WITH (NOLOCK).  This doesn't work for SqlOnDemand, so when things don't work out, 
+                // we'll fall back to a version without NOLOCK and try again.
+                isSqlOnDemand = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
+            }
+
+            return isSqlOnDemand;
+        }
+        
+        /// <summary>
         /// Handles the exceptions typically thrown when a SQLConnection is being opened
         /// </summary>
         /// <returns>True if the exception was handled</returns>

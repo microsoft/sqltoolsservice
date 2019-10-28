@@ -50,6 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private RetryPolicy _commandRetryPolicy;
         private Guid _azureSessionId;
         private bool _isSqlDwDatabase;
+        private bool _checkedForSqlOnDemand;
+        private bool _isSqlOnDemand;
 
         /// <summary>
         /// Initializes a new instance of the ReliableSqlConnection class with a given connection string
@@ -121,6 +123,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
 
             return _isSqlDwDatabase;
+        }
+
+        /// <summary>
+        /// Determines if a connection is being made to SQLOnDemand.
+        /// </summary>
+        /// <param name="conn">A connection object.</param>
+        private bool IsSqlOnDemandConnection(IDbConnection conn)
+        {
+            if (!_checkedForSqlOnDemand)
+            {
+                _isSqlOnDemand = ReliableConnectionHelper.IsSqlOnDemand(conn);
+                _checkedForSqlOnDemand = true;
+            }
+
+            return _isSqlOnDemand;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
@@ -430,7 +447,7 @@ SET NUMERIC_ROUNDABORT OFF;";
                 using (IDbCommand command = CreateReliableCommand())
                 {
                     IDbConnection connection = command.Connection;
-                    if (!IsSqlDwConnection(connection))
+                    if (!IsSqlDwConnection(connection) && !IsSqlOnDemandConnection(connection))
                     {
                         command.CommandText = QueryAzureSessionId;
                         object result = command.ExecuteScalar();
@@ -524,7 +541,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             Tuple<string,bool>[] sessionSettings = new Tuple<string,bool>[2];
 
             IDbConnection connection = originalCommand.Connection;
-            if (IsSqlDwConnection(connection))
+            if (IsSqlDwConnection(connection) || IsSqlOnDemandConnection(connection))
             {
                 // SESSIONPROPERTY is not supported. Use default values for now
                 sessionSettings[0] = Tuple.Create("ANSI_NULLS", true);
