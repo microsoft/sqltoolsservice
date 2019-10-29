@@ -6,6 +6,7 @@
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Xunit;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
@@ -26,45 +27,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             // Set sqlDw result into cache
             string dataSource = "testDataSource";
-            bool isSqlDwResult;
+            DatabaseEngineEdition engineEdition;
             SqlConnectionStringBuilder testSource = new SqlConnectionStringBuilder
             {
                 DataSource = dataSource,
                 InitialCatalog = string.Empty
             };
-            cache.AddOrUpdateCache(testSource, true, CachedServerInfo.CacheVariable.IsSqlDw);
+            cache.AddOrUpdateCache(testSource, DatabaseEngineEdition.SqlDataWarehouse, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the same returned result
-            Assert.True(cache.TryGetIsSqlDw(testSource, out isSqlDwResult));
-            Assert.True(isSqlDwResult);
+            Assert.Equal(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.SqlDataWarehouse);
 
             // And expect the same for the null string
-            Assert.True(cache.TryGetIsSqlDw(new SqlConnectionStringBuilder
+            Assert.Equal(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
             {
                 DataSource = dataSource
                 // Initial Catalog is null. Can't set explicitly as this throws
-            }, out isSqlDwResult));
-            Assert.True(isSqlDwResult);
+            }, out engineEdition), DatabaseEngineEdition.SqlDataWarehouse);
 
-            // But expect false for a different DB
-            Assert.False(cache.TryGetIsSqlDw(new SqlConnectionStringBuilder
+            // But expect NotEqual for a different DB
+            Assert.NotEqual(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
             {
                 DataSource = dataSource,
                 InitialCatalog = "OtherDb"
-            }, out isSqlDwResult));
+            }, out engineEdition), DatabaseEngineEdition.SqlDataWarehouse);
         }
 
         [Theory]
-        [InlineData(null, true)]  // is SqlDW instance
-        [InlineData("", true)]  // is SqlDW instance
-        [InlineData("myDb", true)]  // is SqlDW instance
-        [InlineData(null, false)]   // is not a SqlDw Instance
-        [InlineData("", false)]   // is not a SqlDw Instance
-        [InlineData("myDb", false)]  // is not SqlDW instance
-        public void AddOrUpdateIsSqlDw(string dbName, bool state)
+        [InlineData(null, DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
+        [InlineData("", DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
+        [InlineData("myDb", DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
+        [InlineData(null, DatabaseEngineEdition.SqlOnDemand)]   // is not a SqlDw Instance
+        [InlineData("", DatabaseEngineEdition.SqlOnDemand)]   // is not a SqlDw Instance
+        [InlineData("myDb", DatabaseEngineEdition.SqlOnDemand)]  // is not SqlDW instance
+        public void AddOrUpdateSqlDW(string dbName, DatabaseEngineEdition state)
         {
-            // Set sqlDw result into cache
-            bool isSqlDwResult;
+            // Set result into cache
+            DatabaseEngineEdition engineEdition;
             SqlConnectionStringBuilder testSource = new SqlConnectionStringBuilder
             {
                 DataSource = "testDataSource"
@@ -74,41 +73,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 testSource.InitialCatalog = dbName;
             }
 
-            cache.AddOrUpdateCache(testSource, state, CachedServerInfo.CacheVariable.IsSqlDw);
+            cache.AddOrUpdateCache(testSource, state, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the same returned result
-            Assert.True(cache.TryGetIsSqlDw(testSource, out isSqlDwResult));
-            Assert.Equal(isSqlDwResult, state);
+            Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
+            Assert.Equal(engineEdition, state);
         }
 
         [Theory]
-        [InlineData(true)]  // is SqlDW instance
-        [InlineData(false)]   // is not a SqlDw Instance
-        public void AddOrUpdateIsSqlDwFalseToggle(bool state)
+        [InlineData(DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
+        [InlineData(DatabaseEngineEdition.SqlOnDemand)]   // is not a SqlDw Instance
+        public void AddOrUpdateIsSqlDwFalseToggle(DatabaseEngineEdition state)
         {
             // Set sqlDw result into cache
-            bool isSqlDwResult;
+            DatabaseEngineEdition engineEdition;
             SqlConnectionStringBuilder testSource = new SqlConnectionStringBuilder
             {
                 DataSource = "testDataSource"
             };
-            cache.AddOrUpdateCache(testSource, state, CachedServerInfo.CacheVariable.IsSqlDw);
+            cache.AddOrUpdateCache(testSource, state, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the same returned result
-            Assert.True(cache.TryGetIsSqlDw(testSource, out isSqlDwResult));
-            Assert.Equal(isSqlDwResult, state);
+            Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
+            Assert.Equal(engineEdition, state);
 
-            // Toggle isSqlDw cache state
-            bool isSqlDwResultToggle;
-            cache.AddOrUpdateCache(testSource, !state, CachedServerInfo.CacheVariable.IsSqlDw);
+            DatabaseEngineEdition newState;
+            if (state == DatabaseEngineEdition.SqlDataWarehouse)
+                newState = DatabaseEngineEdition.SqlOnDemand;
+            else
+                newState = DatabaseEngineEdition.SqlDataWarehouse;
+
+            cache.AddOrUpdateCache(testSource, newState, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the oppisite returned result
-            Assert.True(cache.TryGetIsSqlDw(testSource, out isSqlDwResultToggle));
-            Assert.Equal(isSqlDwResultToggle, !state);
+            Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
+            Assert.Equal(engineEdition, newState);
 
         }
 
-       // [Fact]
+       /* [Fact]
         public void AddOrUpdateIsSqlDwFalseToggle()
         {
             bool state = true;
@@ -148,16 +151,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Equal(isSqlDwResult3, !state);
 
         }
+        */
 
         [Fact]
         public void AskforSqlDwBeforeCached()
         {
-            bool isSqlDwResult;
-            Assert.False(cache.TryGetIsSqlDw(new SqlConnectionStringBuilder
+            DatabaseEngineEdition engineEdition;
+            Assert.Equal(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
             {
                 DataSource = "testDataSourceUnCached"
             }, 
-            out isSqlDwResult));
+            out engineEdition), DatabaseEngineEdition.Unknown);
         }
     }
 }
