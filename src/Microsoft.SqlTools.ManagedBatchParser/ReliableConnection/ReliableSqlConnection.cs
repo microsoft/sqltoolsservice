@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             if (CachedServerInfo.Instance.TryGetEngineEdition(conn, out _engineEdition) == DatabaseEngineEdition.Unknown)
             {
                 _engineEdition = ReliableConnectionHelper.GetEngineEdition(conn);
-                CachedServerInfo.Instance.AddOrUpdateEngineEdition(conn, _engineEdition); ;
+                CachedServerInfo.Instance.AddOrUpdateEngineEdition(conn, _engineEdition);
             }
 
             return _engineEdition;

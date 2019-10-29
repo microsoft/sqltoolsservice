@@ -57,10 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [InlineData(null, DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
         [InlineData("", DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
         [InlineData("myDb", DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
-        [InlineData(null, DatabaseEngineEdition.SqlOnDemand)]   // is not a SqlDw Instance
-        [InlineData("", DatabaseEngineEdition.SqlOnDemand)]   // is not a SqlDw Instance
-        [InlineData("myDb", DatabaseEngineEdition.SqlOnDemand)]  // is not SqlDW instance
-        public void AddOrUpdateSqlDW(string dbName, DatabaseEngineEdition state)
+        [InlineData(null, DatabaseEngineEdition.SqlOnDemand)]   // is SqlOnDemand Instance
+        [InlineData("", DatabaseEngineEdition.SqlOnDemand)]   // is SqlOnDemand Instance
+        [InlineData("myDb", DatabaseEngineEdition.SqlOnDemand)]  // is SqlOnDemand instance
+        public void AddOrUpdateEngineEditiopn(string dbName, DatabaseEngineEdition state)
         {
             // Set result into cache
             DatabaseEngineEdition engineEdition;
@@ -82,10 +82,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
         [Theory]
         [InlineData(DatabaseEngineEdition.SqlDataWarehouse)]  // is SqlDW instance
-        [InlineData(DatabaseEngineEdition.SqlOnDemand)]   // is not a SqlDw Instance
-        public void AddOrUpdateIsSqlDwFalseToggle(DatabaseEngineEdition state)
+        [InlineData(DatabaseEngineEdition.SqlOnDemand)]   // is SqlOnDemand Instance
+        public void AddOrUpdateEngineEditionToggle(DatabaseEngineEdition state)
         {
-            // Set sqlDw result into cache
+            // Set result into cache
             DatabaseEngineEdition engineEdition;
             SqlConnectionStringBuilder testSource = new SqlConnectionStringBuilder
             {
@@ -97,18 +97,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
             Assert.Equal(engineEdition, state);
 
-            DatabaseEngineEdition newState;
-            if (state == DatabaseEngineEdition.SqlDataWarehouse)
-                newState = DatabaseEngineEdition.SqlOnDemand;
-            else
-                newState = DatabaseEngineEdition.SqlDataWarehouse;
+            DatabaseEngineEdition newState = state == DatabaseEngineEdition.SqlDataWarehouse ?
+                DatabaseEngineEdition.SqlOnDemand : DatabaseEngineEdition.SqlDataWarehouse;
 
             cache.AddOrUpdateCache(testSource, newState, CachedServerInfo.CacheVariable.EngineEdition);
 
-            // Expect the oppisite returned result
+            // Expect the opposite returned result
             Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
             Assert.Equal(engineEdition, newState);
-
         }
 
        /* [Fact]
@@ -154,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         */
 
         [Fact]
-        public void AskforSqlDwBeforeCached()
+        public void AskforEngineEditionBeforeCached()
         {
             DatabaseEngineEdition engineEdition;
             Assert.Equal(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
