@@ -473,6 +473,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case (int)DatabaseEngineEdition.SqlStretchDatabase:
                         serverEdition = SR.AzureSqlStretchEdition;
                         break;
+                    case (int)DatabaseEngineEdition.SqlOnDemand:
+                        serverEdition = SR.AzureSqlAnalyticsOnDemandEdition;
+                        break;
                     default:
                         serverEdition = SR.AzureSqlDbEdition;
                         break;
