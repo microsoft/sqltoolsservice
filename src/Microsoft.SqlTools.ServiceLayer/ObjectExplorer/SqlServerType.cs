@@ -21,8 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         Sql2014,
         Sql2016,
         Sql2017,
-        AzureV12,
-        SqlOnDemand
+        AzureV12
     }
 
     /// <summary>
@@ -63,10 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 {
                     validforFlag = ValidForFlag.SqlDw;
                 }
-                else if (serverType == SqlServerType.SqlOnDemand)
-                {
-                    validforFlag = ValidForFlag.SqlOnDemand;
-                }
                 else
                 {
                     //TODO: not supporting SQL DW for on prem 
@@ -84,11 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             SqlServerType serverType = SqlServerType.Unknown;
             string serverVersion = serverInfo.ServerVersion;
 
-            if (serverInfo.EngineEditionId == 11)
-            {
-                serverType = SqlServerType.SqlOnDemand;
-            }
-            else if (serverInfo.IsCloud)
+            if (serverInfo.IsCloud)
             {
                 serverType = SqlServerType.AzureV12;
             }

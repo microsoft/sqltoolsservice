@@ -41,7 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlDataWarehouse, "SqlDatawarehouseEdition");
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlStretchDatabase, "SqlServerStretchEdition");
             targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlManagedInstance, "SqlServerManagedInstance");
-            targetDatabaseEngineEditionMap.Add(DatabaseEngineEdition.SqlOnDemand, "SqlOnDemand");
 
             // Mapping for database engine type
             serverVersionMap.Add(9, "Script90Compat");

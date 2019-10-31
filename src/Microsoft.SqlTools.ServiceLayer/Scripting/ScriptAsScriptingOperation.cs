@@ -628,9 +628,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerManagedInstanceEdition:
                         scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlManagedInstance;
                         break;
-                    case SqlScriptOptions.ScriptDatabaseEngineEdition.SqlServerOnDemandEdition:
-                        scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.SqlOnDemand;
-                        break;
                     default:
                         scriptingOptions.TargetDatabaseEngineEdition = DatabaseEngineEdition.Standard;
                         break;
