@@ -101,14 +101,6 @@ namespace Microsoft.SqlTools.CoreServices
             }
         }
 
-        public static string AzureSqlAnalyticsOnDemandEdition
-        {
-            get
-            {
-                return Keys.GetString(Keys.AzureSqlAnalyticsOnDemandEdition);
-            }
-        }
-
         public static string QueryServiceCancelAlreadyCompleted
         {
             get
@@ -3770,9 +3762,6 @@ namespace Microsoft.SqlTools.CoreServices
 
 
             public const string AzureSqlStretchEdition = "AzureSqlStretchEdition";
-
-
-            public const string AzureSqlAnalyticsOnDemandEdition = "AzureSqlAnalyticsOnDemandEdition";
 
 
             public const string QueryServiceCancelAlreadyCompleted = "QueryServiceCancelAlreadyCompleted";

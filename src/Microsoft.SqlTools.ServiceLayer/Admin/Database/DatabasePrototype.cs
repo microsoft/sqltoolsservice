@@ -2278,13 +2278,10 @@ WHERE do.database_id = @DbID
             {
                 try
                 {
-                    if (this.context.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlOnDemand)
+                    foreach (LogFile logfile in database.LogFiles)
                     {
-                        foreach (LogFile logfile in database.LogFiles)
-                        {
-                            DatabaseFilePrototype logfilePrototype = new DatabaseFilePrototype(this, logfile);
-                            this.Add(logfilePrototype);
-                        }
+                        DatabaseFilePrototype logfilePrototype = new DatabaseFilePrototype(this, logfile);
+                        this.Add(logfilePrototype);
                     }
                 }
                 catch (ExecutionFailureException)

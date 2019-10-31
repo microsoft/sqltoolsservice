@@ -421,42 +421,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             cmd.CommandTimeout = CachedServerInfo.Instance.GetQueryTimeoutSeconds(cmd.Connection);
         }
 
-        public static DatabaseEngineEdition GetEngineEdition(IDbConnection connection)
-        {
-            Validate.IsNotNull(nameof(connection), connection);
-            if (!(connection.State == ConnectionState.Open))
-            {
-                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
-            }
-
-            Func<string, DatabaseEngineEdition> executeCommand = commandText =>
-            {
-                DatabaseEngineEdition result = DatabaseEngineEdition.Unknown;
-                ExecuteReader(connection,
-                    commandText,
-                    readResult: (reader) =>
-                    {
-                        reader.Read();
-                        result = (DatabaseEngineEdition)int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-                    }
-                );
-                return result;
-            };
-
-            DatabaseEngineEdition engineEdition = DatabaseEngineEdition.Unknown;
-            try
-            {
-                engineEdition = executeCommand(SqlConnectionHelperScripts.EngineEdition);
-            }
-            catch (SqlException)
-            {
-                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW or SqlOnDemand, so when things don't work out, 
-                // we'll fall back to a version without NOLOCK and try again.
-                engineEdition = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
-            }
-
-            return engineEdition;
-        }
 
         /// <summary>
         /// Return true if the database is an Azure database
@@ -465,11 +429,96 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <returns></returns>
         public static bool IsCloud(IDbConnection connection)
         {
-            return IsCloudEngineId((int)GetEngineEdition(connection));
+            Validate.IsNotNull(nameof(connection), connection);
+            if (!(connection.State == ConnectionState.Open))
+            {
+                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
+            }
+
+            Func<string, bool> executeCommand = commandText =>
+            {
+                bool result = false;
+                ExecuteReader(connection,
+                          commandText,
+                          readResult: (reader) =>
+                          {
+                              reader.Read();
+                              int engineEditionId = int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+
+                              result = IsCloudEngineId(engineEditionId);
+                          }
+                );
+                return result;
+            };
+
+            bool isSqlCloud = false;
+            try
+            {
+                isSqlCloud = executeCommand(SqlConnectionHelperScripts.EngineEdition);
+            }
+            catch (SqlException)
+            {
+                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW, so when things don't work out, 
+                // we'll fall back to a version without NOLOCK and try again.
+                isSqlCloud = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
+            }
+
+            return isSqlCloud;
         }
+
         private static bool IsCloudEngineId(int engineEditionId)
         {
             return cloudEditions.Value.Contains(engineEditionId);
+        }
+
+        /// <summary>
+        /// Determines if the type of database that a connection is being made to is SQL data warehouse.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns>True if the database is a SQL data warehouse</returns>
+        public static bool IsSqlDwDatabase(IDbConnection connection)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            Func<string, bool> executeCommand = commandText =>
+            {
+                bool result = false;
+                ExecuteReader(connection,
+                              commandText,
+                              readResult: (reader) =>
+                              {
+                                  reader.Read();
+                                  int engineEditionId = int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+
+                                  result = IsSqlDwEngineId(engineEditionId);
+                              }
+                    );
+                return result;
+            };
+
+            bool isSqlDw = false;
+            try
+            {
+                isSqlDw = executeCommand(SqlConnectionHelperScripts.EngineEdition);
+            }
+            catch (SqlException)
+            {
+                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW, so when things don't work out, 
+                // we'll fall back to a version without NOLOCK and try again.
+                isSqlDw = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
+            }
+
+            return isSqlDw;
+        }
+
+        /// <summary>
+        /// Compares the engine edition id of a given database with that of SQL data warehouse.
+        /// </summary>
+        /// <param name="engineEditionId"></param>
+        /// <returns>True if the engine edition id is that of SQL data warehouse</returns>
+        private static bool IsSqlDwEngineId(int engineEditionId)
+        {
+            return engineEditionId == SqlDwEngineEditionId;
         }
 
         /// <summary>

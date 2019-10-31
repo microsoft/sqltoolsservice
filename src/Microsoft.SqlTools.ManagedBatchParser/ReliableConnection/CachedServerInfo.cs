@@ -9,8 +9,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Dmf;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
@@ -39,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         public enum CacheVariable {
-            EngineEdition,
+            IsSqlDw,
             IsAzure,
             IsCloud
         }
@@ -103,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         {
             public bool IsAzure;
             public DateTime LastUpdate;
-            public DatabaseEngineEdition EngineEdition;
+            public bool IsSqlDw;
         }
 
         private const int _maxCacheSize = 1024;
@@ -165,51 +163,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             AddOrUpdateCache(connection, isAzure, CacheVariable.IsAzure);
         }
 
-        public void AddOrUpdateEngineEdition(IDbConnection connection, DatabaseEngineEdition engineEdition)
+        public void AddOrUpdateIsSqlDw(IDbConnection connection, bool isSqlDw)
         {
-            AddOrUpdateCache(connection, engineEdition, CacheVariable.EngineEdition);
+            AddOrUpdateCache(connection, isSqlDw, CacheVariable.IsSqlDw);
         }
 
-        private void AddOrUpdateCache(IDbConnection connection, object newState, CacheVariable cacheVar)
+        private void AddOrUpdateCache(IDbConnection connection, bool newState, CacheVariable cacheVar)
         {
             Validate.IsNotNull(nameof(connection), connection);
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
             AddOrUpdateCache(builder, newState, cacheVar);
         }
 
-        private bool IsAppropriateType(object newState, CacheVariable cacheVar)
+        public void AddOrUpdateCache(SqlConnectionStringBuilder builder, bool newState, CacheVariable cacheVar)
         {
-            if (newState is DatabaseEngineEdition)
-            {
-                return cacheVar == CacheVariable.EngineEdition;
-            }
-
-            if (newState is bool)
-            {
-                return cacheVar == CacheVariable.IsAzure || cacheVar == CacheVariable.IsCloud;
-            }
-
-            return false;
-        }
-
-        private T ConvertState<T>(object state)
-        {
-            return (T) Convert.ChangeType(state, typeof(T));
-        }
-
-        public void AddOrUpdateCache(SqlConnectionStringBuilder builder, object newState, CacheVariable cacheVar)
-        {
-            if (!IsAppropriateType(newState, cacheVar))
-            {
-                throw new FunctionWrongArgumentTypeException("AddOrUpdateCache: mismatch between expected type of CacheVariable and the type of provided update object");
-            }
             Validate.IsNotNull(nameof(builder), builder);
             Validate.IsNotNullOrWhitespaceString(nameof(builder) + ".DataSource", builder.DataSource);
             CachedInfo info;
             bool hasFound = TryGetCacheValue(builder, out info);
 
-            if (cacheVar == CacheVariable.EngineEdition && hasFound && info.EngineEdition == ConvertState<DatabaseEngineEdition>(newState) ||
-                cacheVar == CacheVariable.IsAzure && hasFound && info.IsAzure == ConvertState<bool>(newState))
+            if ((cacheVar == CacheVariable.IsSqlDw && hasFound && info.IsSqlDw == newState) || 
+                (cacheVar == CacheVariable.IsAzure && hasFound && info.IsAzure == newState)) 
             {
                 // No change needed
                 return;
@@ -222,13 +196,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     CacheKey key = new CacheKey(builder);
                     CleanupCache(key);
 
-                    if (cacheVar == CacheVariable.EngineEdition)
+                    if (cacheVar == CacheVariable.IsSqlDw)
                     {
-                        info.EngineEdition = ConvertState<DatabaseEngineEdition>(newState);
+                        info.IsSqlDw = newState;
                     }
                     else if (cacheVar == CacheVariable.IsAzure)
                     {
-                        info.IsAzure = ConvertState<bool>(newState);
+                        info.IsAzure = newState;
                     }
                     info.LastUpdate = DateTime.UtcNow;
                     _cache.AddOrUpdate(key, info, (k, oldValue) => info);
@@ -258,15 +232,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
-        public DatabaseEngineEdition TryGetEngineEdition(IDbConnection connection, out DatabaseEngineEdition engineEdition)
+        public bool TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
         {
             Validate.IsNotNull(nameof(connection), connection);
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            return TryGetEngineEdition(builder, out engineEdition);
+            return TryGetIsSqlDw(builder, out isSqlDw);
         }
 
-        public DatabaseEngineEdition TryGetEngineEdition(SqlConnectionStringBuilder builder, out DatabaseEngineEdition engineEdition)
+        public bool TryGetIsSqlDw(SqlConnectionStringBuilder builder, out bool isSqlDw)
         {
             Validate.IsNotNull(nameof(builder), builder);
             Validate.IsNotNullOrWhitespaceString(nameof(builder) + ".DataSource", builder.DataSource);
@@ -275,11 +249,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             if(hasFound)
             {
-                engineEdition = info.EngineEdition;
-                return engineEdition;
+                isSqlDw = info.IsSqlDw;
+                return true;
             }
-
-            return engineEdition = DatabaseEngineEdition.Unknown;
+            
+            isSqlDw = false;
+            return false;
         }
 
         private static SqlConnectionStringBuilder SafeGetConnectionStringFromConnection(IDbConnection connection)
