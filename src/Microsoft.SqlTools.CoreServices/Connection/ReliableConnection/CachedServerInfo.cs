@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Utility;

@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;

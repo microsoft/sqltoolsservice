@@ -5,7 +5,7 @@
 
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection

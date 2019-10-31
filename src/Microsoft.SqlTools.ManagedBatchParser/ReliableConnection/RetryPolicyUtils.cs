@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.Utility;
