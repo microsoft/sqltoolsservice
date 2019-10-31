@@ -82,7 +82,7 @@
       <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017"/>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
 	    <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
-      <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand"/>
+      <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <Child Name="ExternalTables"/>
@@ -161,12 +161,13 @@
       <Filter Property="IsFileTable" Value="1" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016|Sql2017|AzureV12">
+  -->
+  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="SqlOnDemand">
     <Filters >
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
   </Node>
-  -->
+
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
@@ -190,7 +191,7 @@
     <Child Name="Statistics"/>
   </Node>
 
-  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand">
+  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|Sql2017|AzureV12">
     <Child Name="Columns"/>
     <Child Name="Statistics"/>
   </Node>
