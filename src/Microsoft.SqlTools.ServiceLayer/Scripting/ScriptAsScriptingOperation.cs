@@ -550,16 +550,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private static Dictionary<string, SqlServerVersion> LoadScriptCompatabilityMap()
         {
-            Dictionary<string, SqlServerVersion> map = new Dictionary<string, SqlServerVersion>();
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script140Compat.ToString(), SqlServerVersion.Version140);
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script130Compat.ToString(), SqlServerVersion.Version130);
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script120Compat.ToString(), SqlServerVersion.Version120);
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script110Compat.ToString(), SqlServerVersion.Version110);
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script105Compat.ToString(), SqlServerVersion.Version105);
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script100Compat.ToString(), SqlServerVersion.Version100);
-            map.Add(SqlScriptOptions.ScriptCompatabilityOptions.Script90Compat.ToString(), SqlServerVersion.Version90);
-
-            return map;
+            return new Dictionary<string, SqlServerVersion>
+            {
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script150Compat.ToString(), SqlServerVersion.Version150},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script140Compat.ToString(), SqlServerVersion.Version140},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script130Compat.ToString(), SqlServerVersion.Version130},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script120Compat.ToString(), SqlServerVersion.Version120},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script110Compat.ToString(), SqlServerVersion.Version110},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script105Compat.ToString(), SqlServerVersion.Version105},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script100Compat.ToString(), SqlServerVersion.Version100},
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script90Compat.ToString(), SqlServerVersion.Version90}
+            };
         }
 
         private void SetScriptingOptions(ScriptingOptions scriptingOptions)
