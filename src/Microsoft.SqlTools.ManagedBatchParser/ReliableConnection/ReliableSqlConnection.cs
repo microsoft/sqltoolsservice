@@ -33,6 +33,7 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
@@ -49,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private readonly RetryPolicy _connectionRetryPolicy;
         private RetryPolicy _commandRetryPolicy;
         private Guid _azureSessionId;
-        private bool _isSqlDwDatabase;
+        private DatabaseEngineEdition _engineEdition;
 
         /// <summary>
         /// Initializes a new instance of the ReliableSqlConnection class with a given connection string
@@ -104,23 +105,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
+        private DatabaseEngineEdition GetOrReadCachedEngineEdition(IDbConnection conn)
+        {
+            if (CachedServerInfo.Instance.TryGetEngineEdition(conn, out _engineEdition) == DatabaseEngineEdition.Unknown)
+            {
+                _engineEdition = ReliableConnectionHelper.GetEngineEdition(conn);
+                CachedServerInfo.Instance.AddOrUpdateEngineEdition(conn, _engineEdition);
+            }
+
+            return _engineEdition;
+        }
+
         /// <summary>
         /// Determines if a connection is being made to a SQL DW database.
         /// </summary>
         /// <param name="conn">A connection object.</param>
         private bool IsSqlDwConnection(IDbConnection conn)
         {
-            //Set the connection only if it has not been set earlier.
-            //This is assuming that it is highly unlikely for a connection to change between instances.
-            //Hence any subsequent calls to this method will just return the cached value and not 
-            //verify again if this is a SQL DW database connection or not.
-            if (!CachedServerInfo.Instance.TryGetIsSqlDw(conn, out _isSqlDwDatabase))
-            {
-                _isSqlDwDatabase = ReliableConnectionHelper.IsSqlDwDatabase(conn);
-                CachedServerInfo.Instance.AddOrUpdateIsSqlDw(conn, _isSqlDwDatabase);;
-            }
+            return GetOrReadCachedEngineEdition(conn) == DatabaseEngineEdition.SqlDataWarehouse;
+        }
 
-            return _isSqlDwDatabase;
+        /// <summary>
+        /// Determines if a connection is being made to SQLOnDemand.
+        /// </summary>
+        /// <param name="conn">A connection object.</param>
+        private bool IsSqlOnDemandConnection(IDbConnection conn)
+        {
+            return GetOrReadCachedEngineEdition(conn) == DatabaseEngineEdition.SqlOnDemand;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
@@ -430,7 +441,7 @@ SET NUMERIC_ROUNDABORT OFF;";
                 using (IDbCommand command = CreateReliableCommand())
                 {
                     IDbConnection connection = command.Connection;
-                    if (!IsSqlDwConnection(connection))
+                    if (!IsSqlDwConnection(connection) && !IsSqlOnDemandConnection(connection))
                     {
                         command.CommandText = QueryAzureSessionId;
                         object result = command.ExecuteScalar();
@@ -524,7 +535,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             Tuple<string,bool>[] sessionSettings = new Tuple<string,bool>[2];
 
             IDbConnection connection = originalCommand.Connection;
-            if (IsSqlDwConnection(connection))
+            if (IsSqlDwConnection(connection) || IsSqlOnDemandConnection(connection))
             {
                 // SESSIONPROPERTY is not supported. Use default values for now
                 sessionSettings[0] = Tuple.Create("ANSI_NULLS", true);
