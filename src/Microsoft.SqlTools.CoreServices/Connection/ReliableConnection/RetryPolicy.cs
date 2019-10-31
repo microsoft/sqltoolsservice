@@ -24,7 +24,7 @@
 // namespace Microsoft.SqlServer.Management.Common
 
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;

@@ -78,7 +78,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
                 RegisteredServerName = name,
                 RegisteredServerDescription = "My Registered Test Server",
                 ParentOwnerUri = connectParams.OwnerUri,
-                RegisteredServerConnectionDetails = new ConnectionDetails { ServerName = name},
                 RelativePath = "RegisteredServersStore/ServerGroup[@Name='DatabaseEngineServerGroup']" //Top level
             };
 
