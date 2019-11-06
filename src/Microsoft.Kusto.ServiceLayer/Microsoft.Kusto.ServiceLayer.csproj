@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyName>KustoServiceLayer</AssemblyName>
+    <AssemblyName>MicrosoftKustoServiceLayer</AssemblyName>
     <OutputType>Exe</OutputType>
     <EnableDefaultItems>false</EnableDefaultItems>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

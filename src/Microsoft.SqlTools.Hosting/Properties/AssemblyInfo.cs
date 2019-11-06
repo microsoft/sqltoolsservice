@@ -47,4 +47,5 @@ using System.Runtime.InteropServices;
 
 // Temporary work around for SRGen protection issues
 [assembly: InternalsVisibleTo("MicrosoftSqlToolsServiceLayer")]
+[assembly: InternalsVisibleTo("MicrosoftKustoServiceLayer")]
 [assembly: InternalsVisibleTo("MicrosoftSqlToolsCredentials")]
