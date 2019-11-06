@@ -10,20 +10,18 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
     public class BatchParserTests : BaselinedTest
     {
-        private bool testFailed = false;
-        private static ScriptExecutionResult executionResult = ScriptExecutionResult.All;
-        private const string CONNECTION_STRING = "Data Source=.;Initial Catalog=master;Integrated Security=True";
-
         public BatchParserTests()
         {
             InitializeTest();
@@ -150,15 +148,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         public void VerifyExecute()
         {
             Batch batch = new Batch(sqlText: "SELECT 1+1", isResultExpected: true, execTimeout: 15);
-            using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                con.Open();
-                if (con.State.ToString().ToLower() == "open")
-                {
-                    executionResult = batch.Execute(con, ShowPlanType.AllShowPlan);
-                }
+                var executionResult = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
+                Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, executionResult);
             }
-            Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, executionResult);
+            
         }
 
         // Verify the exeception is handled by passing invalid keyword.
@@ -166,13 +162,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         public void VerifyHandleExceptionMessage()
         {
             Batch batch = new Batch(sqlText: "SEL@ECT 1+1", isResultExpected: true, execTimeout: 15);
-            using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                con.Open();
-                if (con.State.ToString().ToLower() == "open")
-                {
-                    ScriptExecutionResult result = batch.Execute(con, ShowPlanType.AllShowPlan);
-                }
+                ScriptExecutionResult result = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
             }
             ScriptExecutionResult finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
@@ -185,13 +178,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         {
             Batch batch = new Batch(sqlText: null, isResultExpected: true, execTimeout: 15);
             ScriptExecutionResult finalResult = ScriptExecutionResult.All;
-            using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                con.Open();
-                if (con.State.ToString().ToLower() == "open")
-                {
-                    ScriptExecutionResult result = batch.Execute(con, ShowPlanType.AllShowPlan);
-                }
+                ScriptExecutionResult result = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
             }
             finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
@@ -204,19 +194,19 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         {
             ScriptExecutionResult result = ScriptExecutionResult.All;
             Batch batch = new Batch(sqlText: "SELECT 1+1", isResultExpected: true, execTimeout: 15);
-            using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
-                con.Open();
-                if (con.State.ToString().ToLower() == "open")
-                {
-                    batch.Cancel();
-                    result = batch.Execute(con, ShowPlanType.AllShowPlan);
-                }
+                batch.Cancel();
+                result = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
             }
             Assert.Equal<ScriptExecutionResult>(result, ScriptExecutionResult.Cancel);
         }
 
-        // verify weather lexer can consume token for SqlCmd variable
+        // 
+        /// <summary>
+        /// Verify whether lexer can consume token for SqlCmd variable
+        /// </summary>
         [Fact]
         public void VerifyLexerSetState()
         {
@@ -228,14 +218,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 {
                     lexer.ConsumeToken();
                 }
-                executionResult = ScriptExecutionResult.Success;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                executionResult = ScriptExecutionResult.Failure;
+                Assert.True(false, $"Unexpected error consuming token : {e.Message}");
             }
             //  we doesn't expect any exception or testCase failures
-            Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, executionResult);
+            
         }
 
         // This test case is to verify that, Powershell's Invoke-SqlCmd handles ":!!if" in an inconsistent way
@@ -308,10 +297,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 string query = @"SELECT 1+2
                                 Go 2";
-                using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
                 {
-                    con.Open();
-                    TestExecutor testExecutor = new TestExecutor(query, con, new ExecutionEngineConditions());
+                    TestExecutor testExecutor = new TestExecutor(query, sqlConn, new ExecutionEngineConditions());
                     testExecutor.Run();
 
                     ScriptExecutionResult result = (testExecutor.ExecutionResult == ScriptExecutionResult.Success) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
@@ -328,10 +317,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             using (ExecutionEngine executionEngine = new ExecutionEngine())
             {
                 string query = @"sqlcmd -Q ""select 1 + 2 as col"" ";
-                using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
                 {
-                    con.Open();
-                    TestExecutor testExecutor = new TestExecutor(query, con, new ExecutionEngineConditions());
+                    TestExecutor testExecutor = new TestExecutor(query, sqlConn, new ExecutionEngineConditions());
                     testExecutor.Run();
                     Assert.True(testExecutor.ResultCountQueue.Count >= 1);
                 }
@@ -360,16 +349,15 @@ GO
 select $(__var1) + $(__var2) as col
 GO";
 
-                using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                var condition = new ExecutionEngineConditions() { IsSqlCmd = true };
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                using (TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, sqlConn, condition))
                 {
-                    con.Open();
-                    var condition = new ExecutionEngineConditions() { IsSqlCmd = true };
-                    TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, con, condition);
                     testExecutor.Run();
-                    
-                    Assert.True(testExecutor.ResultCountQueue.Count >= 1);
-                    Assert.True(testExecutor.ErrorMessageQueue.Count == 0);
-                    
+
+                    Assert.True(testExecutor.ResultCountQueue.Count >= 1, $"Unexpected number of ResultCount items - expected 0 but got {testExecutor.ResultCountQueue.Count}");
+                    Assert.True(testExecutor.ErrorMessageQueue.Count == 0, $"Unexpected error messages from test executor : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
                 }
             }
         }
@@ -381,21 +369,20 @@ GO";
             using (ExecutionEngine executionEngine = new ExecutionEngine())
             {
                 string query = "SELECT 1+2";
-                using (SqlConnection con = new SqlConnection(CONNECTION_STRING))
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
                 {
-                    con.Open();
-
-                    executionEngine.BatchParserExecutionFinished += OnBatchParserExecutionFinished;
-                    executionEngine.ExecuteBatch(new ScriptExecutionArgs(query, con, 15, new ExecutionEngineConditions(), new BatchParserMockEventHandler()));
-                    Assert.Equal(ScriptExecutionResult.Success, executionResult);
+                    var executionPromise = new TaskCompletionSource<bool>();
+                    executionEngine.BatchParserExecutionFinished += (object sender, BatchParserExecutionFinishedEventArgs e) =>
+                    {
+                        Assert.Equal(ScriptExecutionResult.Success, e.ExecutionResult);
+                        executionPromise.SetResult(true);
+                    };
+                    executionEngine.ExecuteBatch(new ScriptExecutionArgs(query, sqlConn, 15, new ExecutionEngineConditions(), new BatchParserMockEventHandler()));
+                    Task.WaitAny(executionPromise.Task, Task.Delay(5000));
+                    Assert.True(executionPromise.Task.IsCompleted, "Execution did not finish in time");
                 }
             }
-        }
-
-        // Capture the event once batch finish execution.
-        private void OnBatchParserExecutionFinished(object sender, BatchParserExecutionFinishedEventArgs e)
-        {
-            executionResult = e.ExecutionResult;
         }
 
         [Fact]
@@ -487,42 +474,6 @@ GO";
         {
             File.Copy(Path.Combine(sourceDirectory, filename), filename, true);
             FileUtilities.SetFileReadWrite(filename);
-        }
-
-        // [Fact]
-        public void BatchParserTest()
-        {
-            CopyToOutput(FilesLocation, "TS-err-cycle1.txt");
-            CopyToOutput(FilesLocation, "cycle2.txt");
-            Start("err-blockComment");
-            Start("err-blockComment2");
-            Start("err-varDefinition");
-            Start("err-varDefinition2");
-            Start("err-varDefinition3");
-            Start("err-varDefinition4");
-            Start("err-varDefinition5");
-            Start("err-varDefinition6");
-            Start("err-varDefinition7");
-            Start("err-varDefinition8");
-            Start("err-varDefinition9");
-            Start("err-variableRef");
-            Start("err-variableRef2");
-            Start("err-variableRef3");
-            Start("err-variableRef4");
-            Start("err-cycle1");
-            Start("input");
-            Start("input2");
-            Start("pass-blockComment");
-            Start("pass-lineComment");
-            Start("pass-lineComment2");
-            Start("pass-noBlockComments");
-            Start("pass-noLineComments");
-            Start("pass-varDefinition");
-            Start("pass-varDefinition2");
-            Start("pass-varDefinition3");
-            Start("pass-varDefinition4");
-            Start("pass-command-and-comment");
-            Assert.False(testFailed, "At least one of test cases failed. Check output for details.");
         }
 
         public void TestParser(string filename, StringBuilder output)
@@ -620,7 +571,6 @@ GO";
                 Console.WriteLine(":: To update the baseline:");
                 Console.WriteLine("copy \"" + outputFilename + "\" \"" + baselineFilename + "\"");
                 Console.WriteLine();
-                testFailed = true;
             }
         }
     }

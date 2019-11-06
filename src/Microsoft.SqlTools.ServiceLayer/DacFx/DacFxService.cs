@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx

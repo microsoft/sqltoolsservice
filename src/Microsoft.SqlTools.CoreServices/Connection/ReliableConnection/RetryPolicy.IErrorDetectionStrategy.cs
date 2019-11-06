@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
 {

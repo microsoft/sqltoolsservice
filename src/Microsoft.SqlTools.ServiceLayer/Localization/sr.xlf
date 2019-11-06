@@ -1590,6 +1590,11 @@
         <source>Azure SQL Stretch Database</source>
         <target state="new">Azure SQL Stretch Database</target>
         <note></note>
+      </trans-unit>	  
+      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
+        <source>Azure SQL Analytics on-demand</source>
+        <target state="new">Azure SQL Analytics on-demand</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EditDataValueTooLarge">
         <source>Value {0} is too large to fit in column of type {1}</source>

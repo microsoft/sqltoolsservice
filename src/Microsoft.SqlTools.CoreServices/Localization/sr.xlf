@@ -2296,6 +2296,11 @@
         <target state="new">Azure SQL Stretch Database</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
+        <source>Azure SQL Analytics on-demand</source>
+        <target state="new">Azure SQL Analytics on-demand</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="Error_InvalidDirectoryName">
         <source>Path {0} is not a valid directory </source>
         <target state="new">Path {0} is not a valid directory </target>

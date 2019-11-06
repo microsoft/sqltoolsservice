@@ -245,10 +245,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 operation.Execute(parameters.TaskExecutionMode);
 
-                await requestContext.SendResult(new ResultStatus()
+                // update the comparison result if the include/exclude was successful
+                if(operation.Success)
                 {
-                    Success = true,
-                    ErrorMessage = operation.ErrorMessage
+                    schemaCompareResults.Value[parameters.OperationId] = operation.ComparisonResult;
+                }
+
+                await requestContext.SendResult(new SchemaCompareIncludeExcludeResult()
+                {
+                    Success = operation.Success,
+                    ErrorMessage = operation.ErrorMessage,
+                    AffectedDependencies = operation.AffectedDependencies,
+                    BlockingDependencies = operation.BlockingDependencies
                 });
             }
             catch (Exception e)

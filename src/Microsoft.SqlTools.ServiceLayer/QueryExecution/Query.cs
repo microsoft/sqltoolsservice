@@ -5,7 +5,7 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -515,6 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryExecutionSettings settings, 
             IFileStreamFactory outputFactory)
         {
+            outputFactory.QueryExecutionSettings = settings;
             QuerySettingsHelper helper = new QuerySettingsHelper(settings);
 
             // set query execution plan options

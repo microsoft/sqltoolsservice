@@ -14,7 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     public static class AzureSqlDbHelper
     {
-        
         /// <summary>
         /// Registry sub key for the AzureServiceObjectives overrides
         /// </summary>

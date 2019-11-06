@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -421,6 +421,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             cmd.CommandTimeout = CachedServerInfo.Instance.GetQueryTimeoutSeconds(cmd.Connection);
         }
 
+        public static DatabaseEngineEdition GetEngineEdition(IDbConnection connection)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+            if (!(connection.State == ConnectionState.Open))
+            {
+                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
+            }
+
+            Func<string, DatabaseEngineEdition> executeCommand = commandText =>
+            {
+                DatabaseEngineEdition result = DatabaseEngineEdition.Unknown;
+                ExecuteReader(connection,
+                    commandText,
+                    readResult: (reader) =>
+                    {
+                        reader.Read();
+                        result = (DatabaseEngineEdition)int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+                    }
+                );
+                return result;
+            };
+
+            DatabaseEngineEdition engineEdition = DatabaseEngineEdition.Unknown;
+            try
+            {
+                engineEdition = executeCommand(SqlConnectionHelperScripts.EngineEdition);
+            }
+            catch (SqlException)
+            {
+                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW or SqlOnDemand, so when things don't work out, 
+                // we'll fall back to a version without NOLOCK and try again.
+                engineEdition = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
+            }
+
+            return engineEdition;
+        }
 
         /// <summary>
         /// Return true if the database is an Azure database
@@ -429,96 +465,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <returns></returns>
         public static bool IsCloud(IDbConnection connection)
         {
-            Validate.IsNotNull(nameof(connection), connection);
-            if (!(connection.State == ConnectionState.Open))
-            {
-                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
-            }
-
-            Func<string, bool> executeCommand = commandText =>
-            {
-                bool result = false;
-                ExecuteReader(connection,
-                          commandText,
-                          readResult: (reader) =>
-                          {
-                              reader.Read();
-                              int engineEditionId = int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-
-                              result = IsCloudEngineId(engineEditionId);
-                          }
-                );
-                return result;
-            };
-
-            bool isSqlCloud = false;
-            try
-            {
-                isSqlCloud = executeCommand(SqlConnectionHelperScripts.EngineEdition);
-            }
-            catch (SqlException)
-            {
-                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW, so when things don't work out, 
-                // we'll fall back to a version without NOLOCK and try again.
-                isSqlCloud = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
-            }
-
-            return isSqlCloud;
+            return IsCloudEngineId((int)GetEngineEdition(connection));
         }
-
         private static bool IsCloudEngineId(int engineEditionId)
         {
             return cloudEditions.Value.Contains(engineEditionId);
-        }
-
-        /// <summary>
-        /// Determines if the type of database that a connection is being made to is SQL data warehouse.
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <returns>True if the database is a SQL data warehouse</returns>
-        public static bool IsSqlDwDatabase(IDbConnection connection)
-        {
-            Validate.IsNotNull(nameof(connection), connection);
-
-            Func<string, bool> executeCommand = commandText =>
-            {
-                bool result = false;
-                ExecuteReader(connection,
-                              commandText,
-                              readResult: (reader) =>
-                              {
-                                  reader.Read();
-                                  int engineEditionId = int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-
-                                  result = IsSqlDwEngineId(engineEditionId);
-                              }
-                    );
-                return result;
-            };
-
-            bool isSqlDw = false;
-            try
-            {
-                isSqlDw = executeCommand(SqlConnectionHelperScripts.EngineEdition);
-            }
-            catch (SqlException)
-            {
-                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW, so when things don't work out, 
-                // we'll fall back to a version without NOLOCK and try again.
-                isSqlDw = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
-            }
-
-            return isSqlDw;
-        }
-
-        /// <summary>
-        /// Compares the engine edition id of a given database with that of SQL data warehouse.
-        /// </summary>
-        /// <param name="engineEditionId"></param>
-        /// <returns>True if the engine edition id is that of SQL data warehouse</returns>
-        private static bool IsSqlDwEngineId(int engineEditionId)
-        {
-            return engineEditionId == SqlDwEngineEditionId;
         }
 
         /// <summary>
@@ -824,28 +775,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 serverInfo.Options = new Dictionary<string, object>();
 
                 // Get BDC endpoints
-                if (!serverInfo.IsCloud)
+                if (!serverInfo.IsCloud && serverInfo.ServerMajorVersion >= 15)
                 {
-                    if (serverInfo.ServerMajorVersion >= 15)
-                    {
-                        List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
-                        serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
+                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
+                    serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
 
-                        try
-                        {
-                            LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
-                        }
-                        catch (SqlException)
-                        {
-                            // Failed to find cluster endpoints DMV / table, this must not be a cluster
-                            // or user does not have permissions to see cluster info
-                            serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
-                        }
-                    }
-                    else
+                    try
                     {
+                        LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
+                    }
+                    catch (SqlException)
+                    {
+                        // Failed to find cluster endpoints DMV, this must not be a cluster
+                        // or user does not have permissions to see cluster info
                         serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                     }
+                }
+                else
+                {
+                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
                 }
 
                 return serverInfo;
@@ -868,44 +816,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         private static void LookupClusterEndpoints(IDbConnection connection, ServerInfo serverInfo, List<ClusterEndpoint> clusterEndpoints)
         {
-            try
-            {
-                ExecuteReader(
-                    connection,
-                    SqlConnectionHelperScripts.GetClusterEndpoints,
-                    delegate (IDataReader reader)
+            ExecuteReader(
+                connection,
+                SqlConnectionHelperScripts.GetClusterEndpoints,
+                delegate (IDataReader reader)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            clusterEndpoints.Add(new ClusterEndpoint {
-                                ServiceName = reader.GetString(0),
-                                Description = reader.GetString(1),
-                                Endpoint = reader.GetString(2),
-                                Protocol = reader.GetString(3)
-                            });
-                        }
-                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
+                        clusterEndpoints.Add(new ClusterEndpoint {
+                            ServiceName = reader.GetString(0),
+                            Description = reader.GetString(1),
+                            Endpoint = reader.GetString(2),
+                            Protocol = reader.GetString(3)
+                        });
                     }
-                );
-            }
-            catch (Exception)
-            {
-                // Fallback to using previous CTP logic.
-                // TODO #847 remove this logic once we've stopped supporting CTPs
-                ExecuteReader(
-                    connection,
-                    SqlConnectionHelperScripts.GetClusterEndpoints_CTP,
-                    delegate (IDataReader reader)
-                    {
-                        while (reader.Read())
-                        {
-                            clusterEndpoints.Add(new ClusterEndpoint { ServiceName = reader.GetString(0), IpAddress = reader.GetString(1), Port = reader.GetInt32(2) });
-                        }
-                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
-                    }
-                );
-
-            }
+                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
+                }
+            );
         }
 
         public static string GetServerName(IDbConnection connection)

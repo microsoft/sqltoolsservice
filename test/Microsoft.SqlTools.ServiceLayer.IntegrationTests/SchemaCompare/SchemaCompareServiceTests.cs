@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,6 +44,19 @@ CREATE TABLE [dbo].[table3]
     [ID] INT NOT NULL PRIMARY KEY,
     [col1] INT NULL,
 )";
+
+        private const string SourceIncludeExcludeScript = @"CREATE TABLE t1(c1 INT PRIMARY KEY, c2 INT)
+GO
+CREATE TABLE t2(c1 INT PRIMARY KEY, c2 INT)
+GO
+cREATE VIEW v1 as SELECT c1 FROM t2";
+
+        private const string TargetIncludeExcludeScript = @"CREATE TABLE t1 (c1 INT PRIMARY KEY)
+GO
+CREATE TABLE t3 (c3 INT PRIMARY KEY, c2 INT)
+GO
+CREATE VIEW v2 as SELECT t1.c1, t3.c3 FROM t1, t3
+GO";
 
         private const string CreateKey = @"CREATE COLUMN MASTER KEY [CMK_Auto1]
 WITH (
@@ -801,7 +814,102 @@ WITH VALUES
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
+        }
 
+        /// <summary>
+        /// Verify the schema compare request with failing exclude request because of dependencies and that include will include dependencies
+        /// </summary>
+        [Fact]
+        public async void SchemaCompareIncludeExcludeWithDependencies()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceIncludeExcludeScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetIncludeExcludeScript, "SchemaCompareTarget");
+
+            try
+            {
+                string targetDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(targetDb);
+
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                targetInfo.PackageFilePath = targetDacpacFilePath;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, null);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                // try to exclude
+                DiffEntry t2Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null);
+                SchemaCompareNodeParams t2ExcludeParams = new SchemaCompareNodeParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    DiffEntry = t2Diff,
+                    IncludeRequest = false,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                SchemaCompareIncludeExcludeNodeOperation t2ExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(t2ExcludeParams, schemaCompareOperation.ComparisonResult);
+                t2ExcludeOperation.Execute(TaskExecutionMode.Execute);
+                Assert.False(t2ExcludeOperation.Success, "Excluding Table t2 should fail because view v1 depends on it");
+                Assert.True(t2ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included because the exclude request failed");
+                Assert.True(t2ExcludeOperation.BlockingDependencies.Count == 1, "There should be one dependency");
+                Assert.True(t2ExcludeOperation.BlockingDependencies[0].SourceValue[1] == "v1",  "Dependency should be View v1");
+
+                // exclude view v1, then t2 should also get excluded by this
+                DiffEntry v1Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First(), null);
+                SchemaCompareNodeParams v1ExcludeParams = new SchemaCompareNodeParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    DiffEntry = v1Diff,
+                    IncludeRequest = false,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                SchemaCompareIncludeExcludeNodeOperation v1ExcludeOperation = new SchemaCompareIncludeExcludeNodeOperation(v1ExcludeParams, schemaCompareOperation.ComparisonResult);
+                v1ExcludeOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(v1ExcludeOperation.Success, "Excluding View v1 should succeed");
+                Assert.False(v1ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be excluded");
+                Assert.False(v1ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should be excluded");
+                Assert.True(v1ExcludeOperation.AffectedDependencies.Count == 1, "There should be one dependency");
+                Assert.False(v1ExcludeOperation.AffectedDependencies[0].Included, "The dependency Table t2 should be excluded");
+
+                // including v1 should also include t2
+                SchemaCompareNodeParams v1IncludeParams = new SchemaCompareNodeParams()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    DiffEntry = v1Diff,
+                    IncludeRequest = true,
+                    TaskExecutionMode = TaskExecutionMode.Execute
+                };
+
+                SchemaCompareIncludeExcludeNodeOperation v1IncludeOperation = new SchemaCompareIncludeExcludeNodeOperation(v1IncludeParams, t2ExcludeOperation.ComparisonResult);
+                v1IncludeOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(v1IncludeOperation.Success, "Including v1 should succeed");
+                Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First().Included, "Difference View v1 should be included");
+                Assert.True(v1IncludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included");
+                Assert.True(v1IncludeOperation.AffectedDependencies != null && v1IncludeOperation.AffectedDependencies.Count == 1, "There should be one difference");
+                Assert.True(v1IncludeOperation.AffectedDependencies.First().SourceValue[1] == "t2", "The affected difference of including v1 should be t2");
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
         }
 
         private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
@@ -1150,7 +1258,7 @@ WITH VALUES
                 }
                 retry--;
             }
-            Assert.Equal(false, TaskService.Instance.TaskManager.Tasks.Any());
+            Assert.False(TaskService.Instance.TaskManager.Tasks.Any(), $"No tasks were expected to exist but had {TaskService.Instance.TaskManager.Tasks.Count} [{string.Join(",", TaskService.Instance.TaskManager.Tasks.Select(t => t.TaskId))}]");
             TaskService.Instance.TaskManager.Reset();
         }
     }

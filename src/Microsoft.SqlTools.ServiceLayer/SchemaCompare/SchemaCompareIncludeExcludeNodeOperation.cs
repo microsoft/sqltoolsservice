@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -38,6 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public bool Success { get; set; }
 
+        public List<DiffEntry> AffectedDependencies;
+        public List<DiffEntry> BlockingDependencies;
+
+
         public SchemaCompareIncludeExcludeNodeOperation(SchemaCompareNodeParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -46,6 +51,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             this.ComparisonResult = comparisonResult;
         }
 
+        /// <summary>
+        /// Exclude will return false if included dependencies are found. Include will also include dependencies that need to be included. 
+        /// This is the same behavior as SSDT
+        /// </summary>
+        /// <param name="mode"></param>
         public void Execute(TaskExecutionMode mode)
         {
             this.CancellationToken.ThrowIfCancellationRequested();
@@ -59,6 +69,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
 
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
+
+                // if include request (pass or fail), send dependencies that might have been affected by this request, given by GetIncludeDependencies()
+                if(this.Parameters.IncludeRequest)
+                {
+                    IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
+                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                }
+                else
+                {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
+                    if(this.Success)
+                    {
+                        IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
+                        this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    }
+                    // if not successful, send back the exclude dependencies that caused it to fail
+                    else
+                    {
+                        IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
+                        blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
+                        this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    }
+                   
+                }
             }
             catch (Exception e)
             {
@@ -97,10 +130,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
             {
-                result = result &&
-                    ((prop.GetValue(diffEntry) == null &&
-                    prop.GetValue(entryFromDifference) == null) ||
-                    prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString()));
+                // Don't need to check if included is the same when verifying if the difference is equal
+                if (prop.Name != "Included")
+                {
+                    if(!((prop.GetValue(diffEntry) == null &&
+                        prop.GetValue(entryFromDifference) == null) ||
+                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString())))
+                    {
+                        return false;
+                    }
+                }
             }
 
             return result;

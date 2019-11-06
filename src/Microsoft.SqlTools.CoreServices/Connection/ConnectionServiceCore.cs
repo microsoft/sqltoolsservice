@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -477,8 +477,11 @@ namespace Microsoft.SqlTools.CoreServices.Connection
                     case (int) DatabaseEngineEdition.SqlDataWarehouse:
                         serverEdition = SR.AzureSqlDwEdition;
                         break;
-                    case (int) DatabaseEngineEdition.SqlStretchDatabase:
+                    case (int)DatabaseEngineEdition.SqlStretchDatabase:
                         serverEdition = SR.AzureSqlStretchEdition;
+                        break;
+                    case (int)DatabaseEngineEdition.SqlOnDemand:
+                        serverEdition = SR.AzureSqlAnalyticsOnDemandEdition;
                         break;
                     default:
                         serverEdition =  SR.AzureSqlDbEdition;

@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
             diffEntry.Name = difference.Name;
+            diffEntry.Included = difference.Included;
 
             if (difference.SourceObject != null)
             {

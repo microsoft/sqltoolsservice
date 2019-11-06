@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -472,6 +472,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         break;
                     case (int)DatabaseEngineEdition.SqlStretchDatabase:
                         serverEdition = SR.AzureSqlStretchEdition;
+                        break;
+                    case (int)DatabaseEngineEdition.SqlOnDemand:
+                        serverEdition = SR.AzureSqlAnalyticsOnDemandEdition;
                         break;
                     default:
                         serverEdition = SR.AzureSqlDbEdition;
@@ -1472,7 +1475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
+        public static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
