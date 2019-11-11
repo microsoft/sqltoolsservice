@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Xunit;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection

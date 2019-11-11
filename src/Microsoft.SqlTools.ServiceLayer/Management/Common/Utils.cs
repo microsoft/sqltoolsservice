@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
