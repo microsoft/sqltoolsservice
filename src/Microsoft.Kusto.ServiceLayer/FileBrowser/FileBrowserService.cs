@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;

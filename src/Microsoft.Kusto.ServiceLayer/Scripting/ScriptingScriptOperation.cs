@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
