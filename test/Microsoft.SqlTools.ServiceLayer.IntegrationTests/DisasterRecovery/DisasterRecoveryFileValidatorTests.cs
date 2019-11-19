@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;

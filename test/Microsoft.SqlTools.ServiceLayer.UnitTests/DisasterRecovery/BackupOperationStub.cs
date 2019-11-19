@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery

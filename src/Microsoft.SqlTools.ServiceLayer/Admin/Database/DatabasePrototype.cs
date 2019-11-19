@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Globalization;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
@@ -2278,10 +2278,13 @@ WHERE do.database_id = @DbID
             {
                 try
                 {
-                    foreach (LogFile logfile in database.LogFiles)
+                    if (this.context.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlOnDemand)
                     {
-                        DatabaseFilePrototype logfilePrototype = new DatabaseFilePrototype(this, logfile);
-                        this.Add(logfilePrototype);
+                        foreach (LogFile logfile in database.LogFiles)
+                        {
+                            DatabaseFilePrototype logfilePrototype = new DatabaseFilePrototype(this, logfile);
+                            this.Add(logfilePrototype);
+                        }
                     }
                 }
                 catch (ExecutionFailureException)
