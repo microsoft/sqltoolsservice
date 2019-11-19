@@ -33,12 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
-                    logFilePath = Logger.GenerateLogFilePath("sqltools");
+                    logFilePath = Logger.GenerateLogFilePath("kustoservice");
                 }
 
                 Logger.AutoFlush = commandOptions.AutoFlushLog;
 
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "kustoservice");
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
