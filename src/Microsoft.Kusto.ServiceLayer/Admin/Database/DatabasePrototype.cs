@@ -177,7 +177,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
 
                 this.targetRecoveryTime = 0;
 
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
                 //in katmai var decimal going to be true by default
                 if (context.Server.Information.Version.Major >= 10)
@@ -300,7 +300,7 @@ WHERE do.database_id = @DbID
 
                 isSystemDB = db.IsSystemObject;
 
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
                 try
                 {
@@ -994,7 +994,7 @@ WHERE do.database_id = @DbID
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.restrictAccess)
@@ -1020,7 +1020,7 @@ WHERE do.database_id = @DbID
             }
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
                 if (value == manager.GetString("prototype_db_prop_restrictAccess_value_multiple"))
                 {
@@ -1050,7 +1050,7 @@ WHERE do.database_id = @DbID
             get
             {
                 string result = null;
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 
                 if ((this.currentState.databaseState & DatabaseStatus.Normal) != 0)
                 {
@@ -1156,7 +1156,7 @@ WHERE do.database_id = @DbID
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.defaultCursor)
@@ -1177,7 +1177,7 @@ WHERE do.database_id = @DbID
 
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 
                 if (value == manager.GetString("prototype_db_prop_defaultCursor_value_local"))
                 {
@@ -2674,7 +2674,7 @@ WHERE do.database_id = @DbID
         {
 
             TypeConverter.StandardValuesCollection result = null;
-            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             List<string> standardValues = new List<string>();
 
             if (context.PropertyDescriptor.Name == "DefaultCursorDisplay")

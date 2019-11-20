@@ -49,7 +49,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.pageVerify)
@@ -75,7 +75,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
 
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 if (value == manager.GetString("prototype_db_prop_pageVerify_value_checksum"))
                 {
                     this.currentState.pageVerify = PageVerify.Checksum;
@@ -194,7 +194,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         {
             base.SaveProperties(db);
 
-            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             // never set the real database collation to "<server default>" - there is no
             // real collation with that name. "<server default>" is only valid for new
@@ -253,7 +253,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
 
             if (context.PropertyDescriptor.Name == "PageVerifyDisplay")
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 List<string> standardValues = new List<string>();
 
                 if (this.IsYukonOrLater)

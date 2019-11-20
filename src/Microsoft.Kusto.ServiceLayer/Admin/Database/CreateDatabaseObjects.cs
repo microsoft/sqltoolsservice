@@ -733,7 +733,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <returns>The string representation</returns>
         public override string ToString()
         {
-            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             string result = "";
 
             if (this.IsEnabled)
@@ -834,7 +834,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 if (file.FileName.EndsWith(":", StringComparison.Ordinal))
                 {
                     // the data file is on a raw device
-                    ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                    ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                     this.physicalName = manager.GetString("general_rawDevice");
                     this.folder = file.FileName;
                 }
@@ -880,7 +880,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                     if (file.FileName.EndsWith(":", StringComparison.Ordinal))
                     {
                         // the log file is on a raw device
-                        ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                        ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                         this.physicalName = manager.GetString("general_rawDevice");
                         this.folder = file.FileName;
                     }
@@ -894,7 +894,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 }
                 catch (Exception)
                 {
-                    ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                    ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                     this.physicalName = manager.GetString("unavailable");
                     this.folder = manager.GetString("unavailable");
                     this.initialSize = 0;
@@ -2031,7 +2031,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
 
             if (isAllWhitespace || (0 == fileName.Length) || (-1 != fileName.IndexOfAny(badFileCharacters)))
             {
-                ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager resourceManager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             
 
                 string message = String.Empty;
@@ -2116,7 +2116,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <exception cref="InvalidOperationException">If logical name is empty, or physical name is invalid.</exception>
         private string MakeDiskFileName(string logicalName, string preferredPhysicalName, string suffix)
         {
-            ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager resourceManager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             string filePath = String.Empty; // returned to the caller.
             if (String.IsNullOrEmpty(preferredPhysicalName))
@@ -2463,7 +2463,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <returns>List of Restrict Access Types </returns>
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             List<string> standardValues = new List<string>();
             TypeConverter.StandardValuesCollection result = null;
 

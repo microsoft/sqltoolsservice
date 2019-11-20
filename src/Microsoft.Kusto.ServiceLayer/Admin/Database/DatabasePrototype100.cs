@@ -254,7 +254,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <returns>A string from the resource manager representing the value.</returns>
         private string GetDatabaseScopedConfigDisplayText(DatabaseScopedConfigurationOnOff onOffValue)
         {
-            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
             string result = null;
 
             switch (onOffValue)
@@ -283,7 +283,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <returns>The database scoped configuration enum value that matches the display text.</returns>
         private DatabaseScopedConfigurationOnOff SetDatabaseScopedConfigHelper(string displayText, bool forSecondary)
         {
-            ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             if (displayText == manager.GetString("prototype_db_prop_databasescopedconfig_value_off"))
             {

@@ -47,7 +47,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = null;
 
                 switch (this.currentState.pageVerify)
@@ -73,7 +73,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
 
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 if (value == manager.GetString("prototype_db_prop_pageVerify_value_checksum"))
                 {
                     this.currentState.pageVerify = PageVerify.Checksum;
@@ -188,7 +188,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         {
             get
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 string result = this.currentState.parameterization ?
                 manager.GetString("prototype_db_prop_parameterization_value_forced") :
                 manager.GetString("prototype_db_prop_parameterization_value_simple");
@@ -197,7 +197,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
             }
             set
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 this.currentState.parameterization = (value == manager.GetString("prototype_db_prop_parameterization_value_forced"));
                 this.NotifyObservers();
             }
@@ -263,7 +263,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
 
             if (context.PropertyDescriptor.Name == "Parameterization")
             {
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
                 List<string> standardValues = new List<string>();
                 standardValues.Add(manager.GetString("prototype_db_prop_parameterization_value_forced"));
                 standardValues.Add(manager.GetString("prototype_db_prop_parameterization_value_simple"));
