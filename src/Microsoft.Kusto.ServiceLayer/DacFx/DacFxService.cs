@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DacFx.Contracts;
+using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx
+namespace Microsoft.Kusto.ServiceLayer.DacFx
 {
     /// <summary>
     /// Main class for DacFx service

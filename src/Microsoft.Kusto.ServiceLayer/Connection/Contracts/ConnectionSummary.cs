@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
 {
 
     public interface IConnectionSummary

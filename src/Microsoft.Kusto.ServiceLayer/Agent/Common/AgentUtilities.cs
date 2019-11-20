@@ -11,9 +11,9 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.Kusto.ServiceLayer.Agent.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent 
+namespace Microsoft.Kusto.ServiceLayer.Agent 
 {
     public class AgentUtilities
     {

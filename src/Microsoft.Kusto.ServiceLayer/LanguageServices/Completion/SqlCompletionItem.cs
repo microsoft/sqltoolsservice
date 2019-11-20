@@ -7,11 +7,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion
 {
     /// <summary>
     /// Creates a completion item from SQL parser declaration item

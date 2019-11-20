@@ -5,8 +5,8 @@
 
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections;
@@ -16,7 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     public class DatabaseTaskHelper: IDisposable
     {

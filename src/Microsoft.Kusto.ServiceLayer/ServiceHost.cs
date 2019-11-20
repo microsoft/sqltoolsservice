@@ -14,12 +14,12 @@ using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting
+namespace Microsoft.Kusto.ServiceLayer.Hosting
 {
     /// <summary>
     /// SQL Tools VS Code Language Server request handler. Provides the entire JSON RPC

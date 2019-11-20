@@ -4,11 +4,11 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Agent.Contracts;
+using Microsoft.Kusto.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     /// <summary>
     /// JobActions provides basic SQL Server Agent Job configuration actions

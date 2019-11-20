@@ -10,10 +10,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     /// <summary>
     /// Extension methods used by the scripting service.

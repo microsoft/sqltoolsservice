@@ -14,11 +14,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler
+namespace Microsoft.Kusto.ServiceLayer.Profiler
 {
     /// <summary>
     /// Class to monitor active profiler sessions

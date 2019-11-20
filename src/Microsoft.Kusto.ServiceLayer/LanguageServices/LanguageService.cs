@@ -22,21 +22,23 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion.Extension;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Scripting;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
+using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
+using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Workspace;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Location;
+using SqlToolsSettings = Microsoft.Kusto.ServiceLayer.SqlContext.SqlToolsSettings;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     /// <summary>
     /// Main class for Language Service functionality including anything that requires knowledge of

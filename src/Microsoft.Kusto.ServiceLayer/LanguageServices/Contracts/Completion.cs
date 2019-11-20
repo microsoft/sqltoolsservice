@@ -5,10 +5,10 @@
 
 using System.Diagnostics;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion.Extension;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
 {
     public class CompletionRequest
     {

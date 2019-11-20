@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
     /// Parameters sent when a list objects operation has completed.

@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
+namespace Microsoft.Kusto.ServiceLayer.TaskServices.Contracts
 {
     /// <summary>
     /// Expand notification mapping entry 

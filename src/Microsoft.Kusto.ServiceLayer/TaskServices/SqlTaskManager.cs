@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     /// <summary>
     /// A singleton class to manager the current long running operations 

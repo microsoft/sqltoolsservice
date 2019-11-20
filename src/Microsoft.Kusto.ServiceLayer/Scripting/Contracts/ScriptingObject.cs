@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
     /// Class to represent a database object that can be scripted.

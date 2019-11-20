@@ -5,9 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.Kusto.ServiceLayer.Agent;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Security.Contracts
 {
     /// <summary>
     /// a class for storing various credential properties

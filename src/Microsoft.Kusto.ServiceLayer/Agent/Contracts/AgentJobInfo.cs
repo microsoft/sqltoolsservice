@@ -4,9 +4,9 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.Kusto.ServiceLayer.Agent;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Agent.Contracts
 {
     public enum JobCompletionActionCondition
     {

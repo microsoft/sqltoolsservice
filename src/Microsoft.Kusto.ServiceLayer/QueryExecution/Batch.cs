@@ -12,14 +12,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
 using System.Collections.ObjectModel;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
     /// <summary>
     /// This class represents a batch within a query

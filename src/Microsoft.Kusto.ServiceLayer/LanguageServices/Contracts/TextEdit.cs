@@ -4,9 +4,9 @@
 //
 
 using System.Diagnostics;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
 {
 
     [DebuggerDisplay("NewText = {NewText}, Range = {Range.Start.Line}:{Range.Start.Character} - {Range.End.Line}:{Range.End.Character}")]

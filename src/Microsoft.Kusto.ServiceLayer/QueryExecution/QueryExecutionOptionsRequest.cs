@@ -4,9 +4,9 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Parameters for the query execution options request

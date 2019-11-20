@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.Kusto.ServiceLayer
 {
     /// <summary>
     /// A class to calculate the value for the metrics using the given bucket

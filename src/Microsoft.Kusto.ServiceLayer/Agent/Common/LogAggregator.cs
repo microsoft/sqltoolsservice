@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
 
 #region LogSourceAggregation - ILogSource info built from multiple other sources

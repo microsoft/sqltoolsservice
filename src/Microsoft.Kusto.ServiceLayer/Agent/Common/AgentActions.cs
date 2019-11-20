@@ -15,10 +15,10 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
 
     #region AgentAction class

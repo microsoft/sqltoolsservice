@@ -12,9 +12,9 @@ using System.Linq;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     /// <summary>
     /// Summary description for JobStepSubSystems.

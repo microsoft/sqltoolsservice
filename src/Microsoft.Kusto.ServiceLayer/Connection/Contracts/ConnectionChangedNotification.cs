@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
 {
     /// <summary>
     /// ConnectionChanged notification mapping entry 

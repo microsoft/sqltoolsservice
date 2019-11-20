@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     /// <summary>
     /// Utility object holding a result of a file resolve action.

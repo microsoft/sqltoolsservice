@@ -15,10 +15,10 @@ using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.Kusto.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Agent;
 
-namespace Microsoft.SqlTools.ServiceLayer.Management
+namespace Microsoft.Kusto.ServiceLayer.Management
 {
     /// <summary>
     /// base class that can be used to derived from for the main classes

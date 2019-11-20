@@ -17,18 +17,18 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
+using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
     /// <summary>
     /// A Service to support querying server and database information as an Object Explorer tree.

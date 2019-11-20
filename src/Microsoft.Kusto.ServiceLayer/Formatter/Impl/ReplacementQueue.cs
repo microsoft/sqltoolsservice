@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using System.Collections;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     internal class ReplacementQueue : IEnumerable
     {

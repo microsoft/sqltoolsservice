@@ -11,7 +11,7 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
     internal partial class DatabaseTreeNode
     {

@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Writer for writing rows of results to a CSV file

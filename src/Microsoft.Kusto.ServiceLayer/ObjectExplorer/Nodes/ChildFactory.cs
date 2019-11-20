@@ -5,9 +5,9 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
     /// <summary>
     /// A <see cref="ChildFactory"/> supports creation of <see cref="TreeNode"/> children

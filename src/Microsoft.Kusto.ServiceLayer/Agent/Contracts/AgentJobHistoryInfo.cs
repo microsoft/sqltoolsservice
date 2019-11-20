@@ -7,9 +7,9 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.Kusto.ServiceLayer.Agent;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Agent.Contracts
 {
     /// <summary>
     /// a class for storing various properties of agent jobs, 

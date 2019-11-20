@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     /// <summary>
     /// Class to represent an in-progress list objects operation.

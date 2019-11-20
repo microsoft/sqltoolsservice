@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// Internal for testing purposes only. This class provides wrapper functionality

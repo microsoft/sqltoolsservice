@@ -15,11 +15,11 @@ using Microsoft.SqlServer.Management.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Diagnostics;
-using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using AzureEdition = Microsoft.Kusto.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using Microsoft.Kusto.ServiceLayer.Management;
 using System.Data.SqlClient;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     /// <summary>
     /// Database Prototype

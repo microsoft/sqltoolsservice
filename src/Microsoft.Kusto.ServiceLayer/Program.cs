@@ -2,14 +2,15 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.IO;
 using System.Diagnostics;
+//using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
 
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.Kusto.ServiceLayer
 {
     /// <summary>
     /// Main application class for SQL Tools API Service Host executable

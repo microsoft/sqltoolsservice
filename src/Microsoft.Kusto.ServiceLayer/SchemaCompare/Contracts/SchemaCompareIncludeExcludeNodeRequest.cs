@@ -4,10 +4,10 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
+namespace Microsoft.Kusto.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Parameters for a schema compare include specific node request

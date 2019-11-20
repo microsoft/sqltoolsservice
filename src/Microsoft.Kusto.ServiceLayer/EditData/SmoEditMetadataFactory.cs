@@ -9,12 +9,12 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData
+namespace Microsoft.Kusto.ServiceLayer.EditData
 {
     /// <summary>
     /// Factory that generates metadata using a combination of SMO and SqlClient metadata

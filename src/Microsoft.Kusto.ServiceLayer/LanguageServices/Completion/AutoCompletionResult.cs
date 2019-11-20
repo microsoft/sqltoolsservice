@@ -6,9 +6,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion
 {
     /// <summary>
     /// Includes the objects created by auto completion service

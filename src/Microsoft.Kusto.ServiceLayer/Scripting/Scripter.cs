@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.Utility;
 using  Microsoft.SqlServer.Management.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
 	internal partial class Scripter
     {

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlContext
+namespace Microsoft.Kusto.ServiceLayer.SqlContext
 {
     /// <summary>
     /// Defines the common settings used by the tools service

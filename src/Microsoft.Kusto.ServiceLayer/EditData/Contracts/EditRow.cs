@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+namespace Microsoft.Kusto.ServiceLayer.EditData.Contracts
 {
     /// <summary>
     /// A way to return a row in a result set that is being edited. It contains state about whether

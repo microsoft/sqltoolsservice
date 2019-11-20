@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     /// <summary>
     /// Admin task service class

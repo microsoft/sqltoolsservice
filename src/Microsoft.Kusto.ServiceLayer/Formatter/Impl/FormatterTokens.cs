@@ -6,7 +6,7 @@
 using System.ComponentModel;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     /// <summary>
     /// Dynamically resolves the token IDs to match the values in the enum Microsoft.SqlServer.Management.SqlParser.Parser.Tokens.

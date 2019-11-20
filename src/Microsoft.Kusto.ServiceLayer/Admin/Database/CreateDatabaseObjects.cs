@@ -18,10 +18,10 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
-using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using AzureEdition = Microsoft.Kusto.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using Microsoft.Kusto.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     public enum DefaultCursor
     {

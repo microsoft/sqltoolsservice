@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery
 {
 
     /// <summary>

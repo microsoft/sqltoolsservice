@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Admin.Contracts
 {
     public class DatabaseInfo
     {

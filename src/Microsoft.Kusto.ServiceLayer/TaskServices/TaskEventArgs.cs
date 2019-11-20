@@ -6,7 +6,7 @@
 using System;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     public sealed class TaskEventArgs<T> : EventArgs
     {

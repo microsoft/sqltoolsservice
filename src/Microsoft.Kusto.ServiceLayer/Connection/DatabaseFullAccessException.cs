@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     public class DatabaseFullAccessException: Exception
     {

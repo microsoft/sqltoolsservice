@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
 {
     /// <summary>
     /// Parameters to the <see cref="ExpandRequest"/>.

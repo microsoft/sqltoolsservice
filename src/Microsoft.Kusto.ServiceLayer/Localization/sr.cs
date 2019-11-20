@@ -3,7 +3,7 @@
 // from information in sr.strings
 // DO NOT MODIFY THIS FILE'S CONTENTS, THEY WILL BE OVERWRITTEN
 //
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.Kusto.ServiceLayer
 {
     using System;
     using System.Reflection;

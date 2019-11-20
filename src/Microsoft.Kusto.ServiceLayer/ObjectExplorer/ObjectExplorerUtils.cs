@@ -5,10 +5,10 @@
 
 using System;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
     /// <summary>
     /// Utility class for Object Explorer related operations

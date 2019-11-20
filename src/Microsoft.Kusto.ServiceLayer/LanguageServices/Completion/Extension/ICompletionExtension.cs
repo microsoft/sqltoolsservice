@@ -3,14 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion.Extension
 {
     public interface ICompletionExtension : IDisposable
     {

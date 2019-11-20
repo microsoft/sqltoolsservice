@@ -6,9 +6,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// Status for triggers

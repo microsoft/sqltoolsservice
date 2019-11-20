@@ -10,12 +10,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace
+namespace Microsoft.Kusto.ServiceLayer.Workspace
 {
     /// <summary>
     /// Manages a "workspace" of script files that are open for a particular

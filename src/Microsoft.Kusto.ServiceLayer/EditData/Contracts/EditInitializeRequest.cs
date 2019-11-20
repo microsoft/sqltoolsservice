@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+namespace Microsoft.Kusto.ServiceLayer.EditData.Contracts
 {
     /// <summary>
     /// Parameters of the edit session initialize request

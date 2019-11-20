@@ -4,10 +4,10 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Agent.Contracts
 {
     /// <summary>
     /// SQL Agent Schedules parameters

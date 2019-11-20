@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     /// <summary>
     /// Describes a string editing action which requests that a particular

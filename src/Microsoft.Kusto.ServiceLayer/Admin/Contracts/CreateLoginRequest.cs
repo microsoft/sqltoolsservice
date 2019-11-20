@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Admin.Contracts
 {
     public class CreateLoginParams
     {

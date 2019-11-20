@@ -6,7 +6,7 @@
 using System.Composition;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     [Export(typeof(ASTNodeFormatterFactory))]
     internal class SqlBatchFormatterFactory : ASTNodeFormatterFactoryT<SqlBatch>

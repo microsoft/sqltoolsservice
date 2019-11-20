@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {
     // A xlsx file is a zip with specific folder structure.
     // http://www.ecma-international.org/publications/standards/Ecma-376.htm

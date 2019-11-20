@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     /// <summary>
     /// Class for storing cached metadata regarding a parsed SQL file

@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+namespace Microsoft.Kusto.ServiceLayer.EditData.Contracts
 {
     /// <summary>
     /// Cell that wraps info from <see cref="DbCellValue"/> for edit purposes

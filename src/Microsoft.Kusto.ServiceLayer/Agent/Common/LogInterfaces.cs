@@ -11,7 +11,7 @@ using System.Collections;
 using Microsoft.SqlServer.Management.Diagnostics;
 using System.Collections.ObjectModel;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     public class GridColumnType
     {

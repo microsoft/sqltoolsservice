@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     /// <summary>
     /// Class for the binding context for connected sessions

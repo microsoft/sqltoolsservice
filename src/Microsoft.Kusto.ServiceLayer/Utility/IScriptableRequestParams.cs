@@ -4,9 +4,9 @@
 //
 
 
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     public interface IScriptableRequestParams : IRequestParams
     {

@@ -18,10 +18,10 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Assembly = System.Reflection.Assembly;
 
-namespace Microsoft.SqlTools.ServiceLayer.Management
+namespace Microsoft.Kusto.ServiceLayer.Management
 {
     /// <summary>
     /// CDataContainer

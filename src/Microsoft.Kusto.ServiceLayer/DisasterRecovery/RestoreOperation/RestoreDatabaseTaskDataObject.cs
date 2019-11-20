@@ -10,14 +10,14 @@ using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.RestoreOperation
 {
     public interface IRestoreDatabaseTaskDataObject
     {

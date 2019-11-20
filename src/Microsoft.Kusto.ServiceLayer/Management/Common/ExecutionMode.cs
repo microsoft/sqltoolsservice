@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Management
+namespace Microsoft.Kusto.ServiceLayer.Management
 {
     /// <summary>
     /// Execution mode enumeration Success if execution succeeded of Failure otherwise for now.

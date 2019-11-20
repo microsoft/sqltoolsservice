@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
+namespace Microsoft.Kusto.ServiceLayer.SchemaCompare.Contracts
 {
     public class SchemaCompareObjectId
     {

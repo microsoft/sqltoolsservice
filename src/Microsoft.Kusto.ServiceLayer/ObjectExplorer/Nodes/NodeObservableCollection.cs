@@ -3,13 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
     /// <summary>
     /// A collection class for <see cref="TreeNode"/>

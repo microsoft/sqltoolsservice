@@ -4,7 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.TaskServices.Contracts;
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting;
@@ -13,7 +13,7 @@ using Microsoft.SqlTools.Utility;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     public class TaskService: HostedService<TaskService>, IComposableService
     {

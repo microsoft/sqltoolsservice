@@ -9,7 +9,7 @@ using System.Linq;
 using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlContext
+namespace Microsoft.Kusto.ServiceLayer.SqlContext
 {
     /// <summary>
     /// Class that is used to serialize and deserialize SQL Tools settings

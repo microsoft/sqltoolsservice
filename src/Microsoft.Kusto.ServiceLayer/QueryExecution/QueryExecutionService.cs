@@ -8,19 +8,19 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
+using Microsoft.Kusto.ServiceLayer.Workspace;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
     /// <summary>
     /// Service for executing queries

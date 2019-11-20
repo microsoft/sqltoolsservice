@@ -4,9 +4,9 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
+namespace Microsoft.Kusto.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Defines paramaters for Get default options call

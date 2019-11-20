@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
 {
     public class TelemetryProperties
     {

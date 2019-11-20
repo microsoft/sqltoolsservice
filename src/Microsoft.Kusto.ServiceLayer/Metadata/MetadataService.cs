@@ -8,12 +8,12 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Metadata
+namespace Microsoft.Kusto.ServiceLayer.Metadata
 {
     /// <summary>
     /// Main class for Metadata Service functionality

@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DacFx.Contracts;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx
+namespace Microsoft.Kusto.ServiceLayer.DacFx
 {
     /// <summary>
     /// Class to represent an in-progress generate deploy script operation

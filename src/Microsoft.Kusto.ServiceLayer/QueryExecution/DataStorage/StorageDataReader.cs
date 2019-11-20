@@ -13,10 +13,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Wrapper around a DbData reader to perform some special operations more simply

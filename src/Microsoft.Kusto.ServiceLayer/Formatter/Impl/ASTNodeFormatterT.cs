@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     internal abstract class ASTNodeFormatterT<T> : ASTNodeFormatter where T : SqlCodeObject
     {

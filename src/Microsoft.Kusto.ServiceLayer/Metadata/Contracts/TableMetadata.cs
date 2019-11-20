@@ -4,10 +4,10 @@
 //
 
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Metadata
+namespace Microsoft.Kusto.ServiceLayer.Metadata
 {
     /// <summary>
     /// Provides metadata about the table or view being edited

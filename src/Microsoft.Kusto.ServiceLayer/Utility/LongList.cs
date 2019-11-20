@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     /// <summary>
     /// Collection class that permits storage of over <c>int.MaxValue</c> items. This is performed

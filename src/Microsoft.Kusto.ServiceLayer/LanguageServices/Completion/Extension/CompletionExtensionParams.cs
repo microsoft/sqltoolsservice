@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion.Extension
 {
 
     [Serializable]

@@ -11,10 +11,10 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
 	
 <#

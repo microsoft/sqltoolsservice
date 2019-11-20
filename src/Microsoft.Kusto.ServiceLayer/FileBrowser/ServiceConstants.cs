@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser
 {
     /// <summary>
     /// List of services that provide file validation callback to file browser service

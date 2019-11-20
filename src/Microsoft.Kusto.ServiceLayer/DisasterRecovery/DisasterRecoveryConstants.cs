@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery
 {
 
     public static class BackupConstants

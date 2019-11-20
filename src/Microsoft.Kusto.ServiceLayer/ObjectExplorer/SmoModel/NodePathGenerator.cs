@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
     public class NodePathGenerator
     {

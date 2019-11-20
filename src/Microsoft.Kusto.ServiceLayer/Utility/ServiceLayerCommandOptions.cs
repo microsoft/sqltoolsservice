@@ -5,7 +5,7 @@
 using System.Globalization;
 using Microsoft.SqlTools.Hosting.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     class ServiceLayerCommandOptions : CommandOptions
     {

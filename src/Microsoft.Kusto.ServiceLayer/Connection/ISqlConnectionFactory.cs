@@ -5,7 +5,7 @@
 
 using System.Data.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Interface for the SQL Connection factory

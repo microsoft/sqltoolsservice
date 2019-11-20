@@ -5,10 +5,10 @@
 
 using System.Linq;
 using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Profiler.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler
+namespace Microsoft.Kusto.ServiceLayer.Profiler
 {
     /// <summary>
     /// Class to access underlying XEvent session.

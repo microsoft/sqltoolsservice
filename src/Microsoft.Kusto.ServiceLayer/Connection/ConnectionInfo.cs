@@ -7,10 +7,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Information pertaining to a unique connection instance.

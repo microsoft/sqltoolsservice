@@ -4,9 +4,9 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.Kusto.ServiceLayer.Profiler.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler
+namespace Microsoft.Kusto.ServiceLayer.Profiler
 {
     public interface IProfilerSessionListener
     {

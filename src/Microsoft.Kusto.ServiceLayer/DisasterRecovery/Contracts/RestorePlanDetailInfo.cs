@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
     /// Class to include the plan detail 

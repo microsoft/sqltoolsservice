@@ -8,7 +8,7 @@ using System.Collections;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Management
+namespace Microsoft.Kusto.ServiceLayer.Management
 {
 
     /// <summary>

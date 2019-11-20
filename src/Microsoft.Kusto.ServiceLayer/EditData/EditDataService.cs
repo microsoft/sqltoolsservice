@@ -9,15 +9,15 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.EditData.Contracts;
+using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.QueryExecution;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.Utility;
-using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
+using ConnectionType = Microsoft.Kusto.ServiceLayer.Connection.ConnectionType;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData
+namespace Microsoft.Kusto.ServiceLayer.EditData
 {
     /// <summary>
     /// Service that handles edit data scenarios

@@ -7,7 +7,7 @@ using System.Data;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
 
 

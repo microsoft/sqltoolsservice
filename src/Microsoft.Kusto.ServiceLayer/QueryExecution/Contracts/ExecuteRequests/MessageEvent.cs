@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
     /// Parameters to be sent back with a message notification

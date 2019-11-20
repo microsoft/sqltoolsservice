@@ -4,7 +4,7 @@
 //
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
     /// Provides database info for backup.

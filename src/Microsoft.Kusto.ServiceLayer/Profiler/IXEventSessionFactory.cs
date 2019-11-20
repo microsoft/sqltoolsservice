@@ -6,9 +6,9 @@
 
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler
+namespace Microsoft.Kusto.ServiceLayer.Profiler
 {
     /// <summary>
     /// Main class for Profiler Service functionality

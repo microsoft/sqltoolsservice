@@ -8,10 +8,10 @@ using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion
 {
     /// <summary>
     /// A service to create auto complete list for given script document 

@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     public enum SqlTaskStatus
     {

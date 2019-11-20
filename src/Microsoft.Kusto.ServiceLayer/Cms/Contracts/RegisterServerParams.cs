@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Cms.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Cms.Contracts
 {
     /// <summary>
     /// Paramaters to create Top level Central Management Server

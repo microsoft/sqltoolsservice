@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Result message object with timestamp and actual message

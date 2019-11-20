@@ -6,10 +6,10 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.RegisteredServers;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Cms.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.Cms.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.Cms
+namespace Microsoft.Kusto.ServiceLayer.Cms
 {
     /// <summary>
     /// Main class for CmsService

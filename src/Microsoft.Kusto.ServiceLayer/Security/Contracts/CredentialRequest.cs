@@ -4,10 +4,10 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Security.Contracts
 {
     /// <summary>
     /// Get Credential parameters

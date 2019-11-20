@@ -5,9 +5,9 @@
 
 using System;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
     /// <summary>
     /// Server Types

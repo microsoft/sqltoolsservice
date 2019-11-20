@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
     /// <summary>
     /// Class that represents a Special Action which occured by user request during the query 

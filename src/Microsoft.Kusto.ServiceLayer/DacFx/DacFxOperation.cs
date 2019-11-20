@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx
+namespace Microsoft.Kusto.ServiceLayer.DacFx
 {
     /// <summary>
     /// Base class for DacFx operations

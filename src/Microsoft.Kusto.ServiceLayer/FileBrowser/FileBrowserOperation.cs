@@ -9,9 +9,9 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
+using Microsoft.Kusto.ServiceLayer.FileBrowser.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser
 {
     /// <summary>
     /// Implementation for file browser operation

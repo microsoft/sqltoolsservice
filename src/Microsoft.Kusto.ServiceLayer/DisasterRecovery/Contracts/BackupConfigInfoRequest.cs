@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
     /// Response class which returns backup configuration information

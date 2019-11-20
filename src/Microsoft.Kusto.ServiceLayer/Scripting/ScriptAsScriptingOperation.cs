@@ -6,8 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -15,11 +15,11 @@ using System.Collections.Specialized;
 using System.Text;
 using System.Globalization;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     /// <summary>
     /// Class to generate script as for one smo object

@@ -4,7 +4,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
     /// Base class of parameters to return when a result set is available, updated or completed

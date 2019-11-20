@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.Kusto.ServiceLayer.SchemaCompare.Contracts;
+using Microsoft.Kusto.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Diagnostics;
@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
+namespace Microsoft.Kusto.ServiceLayer.SchemaCompare
 {
     /// <summary>
     /// Class to represent an in-progress schema compare publish changes operation

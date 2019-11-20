@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
     /// Parameters for executing a query directly

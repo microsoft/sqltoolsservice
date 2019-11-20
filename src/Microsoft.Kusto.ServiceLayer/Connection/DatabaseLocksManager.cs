@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     public class DatabaseLocksManager: IDisposable
     {

@@ -4,9 +4,9 @@
 //
 
 
-using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.Hosting;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
+namespace Microsoft.Kusto.ServiceLayer.TaskServices.Contracts
 {
     public class TaskInfo
     {

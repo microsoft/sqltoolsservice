@@ -8,26 +8,27 @@ using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Agent;
-using Microsoft.SqlTools.ServiceLayer.Cms;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
-using Microsoft.SqlTools.ServiceLayer.EditData;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Metadata;
-using Microsoft.SqlTools.ServiceLayer.Profiler;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Security;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.Kusto.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Agent;
+using Microsoft.Kusto.ServiceLayer.Cms;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DacFx;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery;
+using Microsoft.Kusto.ServiceLayer.EditData;
+using Microsoft.Kusto.ServiceLayer.FileBrowser;
+using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.Metadata;
+using Microsoft.Kusto.ServiceLayer.Profiler;
+using Microsoft.Kusto.ServiceLayer.QueryExecution;
+using Microsoft.Kusto.ServiceLayer.SchemaCompare;
+using Microsoft.Kusto.ServiceLayer.Scripting;
+using Microsoft.Kusto.ServiceLayer.Security;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
+using Microsoft.Kusto.ServiceLayer.Workspace;
+using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
 
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.Kusto.ServiceLayer
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
+namespace Microsoft.Kusto.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Class to define deployment options. 

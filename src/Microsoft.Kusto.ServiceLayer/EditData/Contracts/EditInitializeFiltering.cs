@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+namespace Microsoft.Kusto.ServiceLayer.EditData.Contracts
 {
     /// <summary>
     /// Parameters for filtering a the rows in a table to make querying easier

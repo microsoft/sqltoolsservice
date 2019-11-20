@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser.Contracts
 {
     /// <summary>
     /// Tree node to represent file or folder

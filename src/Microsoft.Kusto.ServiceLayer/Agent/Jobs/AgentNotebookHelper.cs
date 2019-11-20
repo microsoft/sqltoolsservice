@@ -9,13 +9,13 @@ using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Agent.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Management;
 using System.Data.SqlClient;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     internal class AgentNotebookHelper
     {

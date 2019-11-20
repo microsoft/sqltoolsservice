@@ -4,10 +4,10 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlContext
+namespace Microsoft.Kusto.ServiceLayer.SqlContext
 {
     /// <summary>
     /// Collection of settings related to the execution of queries

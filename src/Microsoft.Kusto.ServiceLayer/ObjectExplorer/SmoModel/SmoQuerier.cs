@@ -9,7 +9,7 @@ using System.Data;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// A <see cref="SmoQuerier"/> handles SMO queries for one or more SMO object types.

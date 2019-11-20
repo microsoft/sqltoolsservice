@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+namespace Microsoft.Kusto.ServiceLayer.EditData.Contracts
 {
     public class EditSessionReadyParams
     {

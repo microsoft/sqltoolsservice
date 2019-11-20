@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Profiler.Contracts
 {
     /// <summary>
     /// Class that contains data for a single profile event

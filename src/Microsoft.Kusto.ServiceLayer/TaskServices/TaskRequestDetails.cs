@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     public class TaskRequestDetails : GeneralRequestDetails
     {

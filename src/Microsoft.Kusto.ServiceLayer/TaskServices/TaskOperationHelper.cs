@@ -6,7 +6,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     /// <summary>
     /// Helper class for task operations

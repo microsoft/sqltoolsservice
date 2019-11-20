@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts
 {
     public class LocalizedPropertyInfo
     {

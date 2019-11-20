@@ -12,10 +12,10 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
+using Microsoft.Kusto.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Security.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.Kusto.ServiceLayer.Security
 {
     internal class CredentialData : IDisposable
     {

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.RestoreOperation
 {
     /// <summary>
     /// Class include info about selected back sets

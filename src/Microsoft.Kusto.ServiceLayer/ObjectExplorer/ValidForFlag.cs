@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
     /// <summary>
     /// Indicates which type of server a given node type is valid for

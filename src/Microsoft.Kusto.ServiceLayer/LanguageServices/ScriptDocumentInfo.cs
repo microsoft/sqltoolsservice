@@ -6,10 +6,10 @@
 using System;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion
 {
     /// <summary>
     /// A class to calculate the numbers used by SQL parser using the text positions and content

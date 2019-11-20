@@ -6,7 +6,7 @@
 using System;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// Filters the history tables to only return ones related to the parent table

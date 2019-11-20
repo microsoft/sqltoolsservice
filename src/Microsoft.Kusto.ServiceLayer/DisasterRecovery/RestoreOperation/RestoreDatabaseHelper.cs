@@ -9,15 +9,15 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.Utility;
 using System.Collections.Concurrent;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.RestoreOperation
 {
     /// <summary>
     /// Includes method to all restore operations

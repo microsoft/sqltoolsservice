@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
 {
     /// <summary>
     /// Contract for information on the connected SQL Server instance.

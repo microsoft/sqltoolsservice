@@ -15,10 +15,10 @@ using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Admin;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     /// <summary>
     /// Summary description for Form1.

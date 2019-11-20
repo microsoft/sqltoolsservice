@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler
+namespace Microsoft.Kusto.ServiceLayer.Profiler
 {
     /// <summary>
     /// Main class for Profiler Service functionality

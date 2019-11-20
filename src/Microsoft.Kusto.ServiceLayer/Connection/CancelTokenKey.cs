@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Used to uniquely identify a CancellationTokenSource associated with both

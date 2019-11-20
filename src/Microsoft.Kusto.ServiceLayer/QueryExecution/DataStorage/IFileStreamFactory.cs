@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Interface for a factory that creates filesystem readers/writers

@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Reader for service buffer formatted file streams

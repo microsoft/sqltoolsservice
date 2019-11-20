@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Formatter;
+using Microsoft.Kusto.ServiceLayer.Formatter;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlContext
+namespace Microsoft.Kusto.ServiceLayer.SqlContext
 {
     /// <summary>
     /// Contract for receiving formatter-specific settings as part of workspace settings

@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.TaskServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.TaskServices
+namespace Microsoft.Kusto.ServiceLayer.TaskServices
 {
     /// <summary>
     /// A wrapper to a long running database operation. The class holds a refrence to the actual task that's running 

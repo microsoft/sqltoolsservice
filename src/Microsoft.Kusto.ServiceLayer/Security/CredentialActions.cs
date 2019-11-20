@@ -4,10 +4,11 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
+using Microsoft.Kusto.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Security.Contracts;
+using Microsoft.Kusto.ServiceLayer.Security;
 
-namespace  Microsoft.SqlTools.ServiceLayer.Security
+namespace  Microsoft.Kusto.ServiceLayer.Security
 {
     internal class CredentialActions : ManagementActionBase
     {

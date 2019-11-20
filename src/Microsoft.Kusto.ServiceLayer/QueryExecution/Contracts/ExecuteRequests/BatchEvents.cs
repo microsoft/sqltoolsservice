@@ -4,7 +4,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
     /// Parameters to be sent back as part of a batch start or complete event to indicate that a

@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.Smo.Agent;
 using SMO = Microsoft.SqlServer.Management.Smo;
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
      /// <summary>
     /// severity associated with a log entry (ILogEntry)

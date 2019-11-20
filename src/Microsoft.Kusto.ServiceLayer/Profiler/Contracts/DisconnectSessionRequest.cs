@@ -4,11 +4,11 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Profiler.Contracts
 {
     /// <summary>
     /// Disconnect Session request parameters

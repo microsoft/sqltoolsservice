@@ -6,7 +6,7 @@
 using System;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     internal static class FormatterUtilities
     {

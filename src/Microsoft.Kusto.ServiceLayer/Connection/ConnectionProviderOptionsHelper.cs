@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Helper class for providing metadata about connection options

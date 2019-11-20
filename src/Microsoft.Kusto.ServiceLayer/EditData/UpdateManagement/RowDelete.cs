@@ -8,12 +8,12 @@ using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.EditData.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
+namespace Microsoft.Kusto.ServiceLayer.EditData.UpdateManagement
 {
     /// <summary>
     /// Represents a row that should be deleted. This will generate a DELETE statement

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+﻿namespace Microsoft.Kusto.ServiceLayer.EditData.Contracts
 {
     /// <summary>
     /// Parameters to return when a cell is updated in isolation

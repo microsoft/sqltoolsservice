@@ -9,9 +9,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.RestoreOperation
 {
     /// <summary>
     /// Backup set Information

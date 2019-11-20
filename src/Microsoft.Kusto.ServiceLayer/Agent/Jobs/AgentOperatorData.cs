@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Kusto.ServiceLayer.Agent.Contracts;
+using Microsoft.Kusto.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     /// <summary>
     /// Proxy class for the AgentOperators dialog and property pages.

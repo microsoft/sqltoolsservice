@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     public static class TaskExtensions
     {

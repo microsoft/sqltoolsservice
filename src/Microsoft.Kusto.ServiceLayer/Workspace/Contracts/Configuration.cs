@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
 {
     public class DidChangeConfigurationNotification<TConfig> 
     {

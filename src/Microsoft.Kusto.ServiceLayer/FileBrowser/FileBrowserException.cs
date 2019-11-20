@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser
 {
     /// <summary>
     /// Exception raised from file browser operation

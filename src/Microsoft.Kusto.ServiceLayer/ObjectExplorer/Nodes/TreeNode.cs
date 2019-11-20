@@ -9,13 +9,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Base class for elements in the object explorer tree. Provides common methods for tree navigation

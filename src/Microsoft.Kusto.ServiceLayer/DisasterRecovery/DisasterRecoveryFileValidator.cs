@@ -11,11 +11,11 @@ using System.Globalization;
 using System.IO;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.FileBrowser;
+using Microsoft.Kusto.ServiceLayer.FileBrowser;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery
 {
     /// <summary>
     /// Validate selected file paths for backup/restore operations

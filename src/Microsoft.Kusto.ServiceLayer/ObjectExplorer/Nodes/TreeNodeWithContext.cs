@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
     public class TreeNodeWithContext
     {

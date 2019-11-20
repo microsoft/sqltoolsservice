@@ -6,7 +6,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
     /// <summary>
     /// Implementation of IEventSender that swallows events without doing anything with them.

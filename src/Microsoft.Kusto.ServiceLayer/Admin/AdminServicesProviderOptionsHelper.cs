@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     /// <summary>
     /// Helper class for providing metadata about admin services

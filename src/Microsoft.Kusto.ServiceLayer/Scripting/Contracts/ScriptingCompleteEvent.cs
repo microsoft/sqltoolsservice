@@ -5,7 +5,7 @@
 
     using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
     /// Parameters sent to when a scripting operation has completed.

@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Text;
 using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.Kusto.ServiceLayer.Agent;
 
-namespace Microsoft.SqlTools.ServiceLayer.Management
+namespace Microsoft.Kusto.ServiceLayer.Management
 {
     /// <summary>
     /// defines mandatory interface that an action must implement

@@ -4,9 +4,9 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.Kusto.ServiceLayer.SqlContext;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
     /// <summary>
     /// Service for executing queries

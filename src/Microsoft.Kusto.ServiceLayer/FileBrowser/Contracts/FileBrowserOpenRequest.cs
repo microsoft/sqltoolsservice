@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser.Contracts
 {
     /// <summary>
     /// Parameters for opening file browser

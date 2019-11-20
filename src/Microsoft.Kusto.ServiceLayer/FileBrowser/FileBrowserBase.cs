@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Data.SqlClient;
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser
 {
     public struct FileInfo
     {

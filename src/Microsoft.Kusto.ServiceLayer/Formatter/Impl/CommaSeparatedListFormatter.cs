@@ -9,7 +9,7 @@ using Babel.ParserGenerator;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
 
     internal class CommaSeparatedListFormatter : ASTNodeFormatterT<SqlCodeObject>

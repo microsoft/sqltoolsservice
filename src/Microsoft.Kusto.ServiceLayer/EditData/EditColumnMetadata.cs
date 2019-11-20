@@ -4,10 +4,10 @@
 //
 
 using System.Data;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData
+namespace Microsoft.Kusto.ServiceLayer.EditData
 {
     /// <summary>
     /// Small class that stores information needed by the edit data service to properly process

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Class used to represent an execution plan from a query for transmission across JSON RPC

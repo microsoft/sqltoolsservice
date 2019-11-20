@@ -4,8 +4,8 @@
 //
 
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
@@ -14,7 +14,7 @@ using System.IO;
 using System.Reflection;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     /// <summary>
     /// Base class for all SMO scripting operations

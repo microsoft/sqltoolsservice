@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
 {
     /// <summary>
     /// Parameters sent back with an IntelliSense ready event

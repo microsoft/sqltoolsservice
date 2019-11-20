@@ -6,9 +6,9 @@
 using System;
 using System.Data;
 using System.Globalization;
-using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using Microsoft.Kusto.ServiceLayer.Agent.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     /// <summary>
     /// a class for storing various properties of agent jobs, 

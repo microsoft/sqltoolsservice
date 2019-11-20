@@ -25,7 +25,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
+namespace Microsoft.Kusto.ServiceLayer.Connection.ReliableConnection
 {
     /// <summary>
     /// Defines a arguments for event handler which will be invoked whenever a retry condition is encountered.

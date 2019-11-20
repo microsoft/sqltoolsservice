@@ -11,7 +11,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Extensibility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     /// <summary>
     /// The main entry point for our formatter implementation, via the <see cref="Format(string, FormatOptions, bool, Replacement.OnReplace)"/> method. 

@@ -9,7 +9,7 @@ using System.Text;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.Kusto.ServiceLayer.Agent
 {
     // these map to the values for @execution_status
     // that can be passed to sp_help_job (except the first one!)

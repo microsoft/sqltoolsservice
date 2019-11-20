@@ -5,7 +5,7 @@
 
 using System.Data.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData
+namespace Microsoft.Kusto.ServiceLayer.EditData
 {
     /// <summary>
     /// Interface for a factory that generates metadata for an object to edit

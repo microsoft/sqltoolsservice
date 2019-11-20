@@ -4,10 +4,10 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Profiler.Contracts
 {
     /// <summary>
     /// Start Profiling request parameters

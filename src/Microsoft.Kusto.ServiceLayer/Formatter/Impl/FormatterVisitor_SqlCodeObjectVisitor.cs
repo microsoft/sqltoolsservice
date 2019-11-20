@@ -6,7 +6,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     // Any new SqlCodeObject types should have a Visit method added, and this class should then be updated with a matching
     // Visit implementation that routes to the Format method.

@@ -11,10 +11,10 @@ using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using Microsoft.Kusto.ServiceLayer.Management;
+using AzureEdition = Microsoft.Kusto.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     /// <summary>
     /// Database properties for SQL Azure DB.

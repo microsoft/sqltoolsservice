@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Has information for SMO object properties to be loaded with the SMO object

@@ -6,7 +6,7 @@
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Factory class to create SqlClientConnections

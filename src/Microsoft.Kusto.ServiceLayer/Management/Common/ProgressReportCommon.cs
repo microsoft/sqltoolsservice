@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Threading;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.Management
+namespace Microsoft.Kusto.ServiceLayer.Management
 {
 	/// <summary>
 	/// Enumeration for status of individual actions

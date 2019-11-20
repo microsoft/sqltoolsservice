@@ -4,7 +4,7 @@
 //
 using System;
 using System.IO;
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     internal static class FileUtilities
     {

@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Babel.ParserGenerator;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     /// <summary>
     /// Common base class for objects dealing with sys comments. These follow

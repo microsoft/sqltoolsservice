@@ -5,11 +5,11 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery
 {
     public class RestoreOptionsHelper
     {

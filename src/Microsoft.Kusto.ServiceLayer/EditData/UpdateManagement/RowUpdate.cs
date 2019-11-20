@@ -13,13 +13,13 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using Microsoft.Kusto.ServiceLayer.EditData.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
+namespace Microsoft.Kusto.ServiceLayer.EditData.UpdateManagement
 {
     /// <summary>
     /// An update to apply to a row of a result set. This will generate an UPDATE statement.

@@ -6,9 +6,9 @@
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Hosting.Contracts;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
+using Microsoft.Kusto.ServiceLayer.DisasterRecovery;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     public class FeaturesMetadataProviderHelper
     {

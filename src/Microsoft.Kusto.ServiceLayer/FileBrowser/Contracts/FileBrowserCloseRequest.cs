@@ -4,7 +4,7 @@
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts
+namespace Microsoft.Kusto.ServiceLayer.FileBrowser.Contracts
 {
     /// <summary>
     /// Parameters to pass to close file browser

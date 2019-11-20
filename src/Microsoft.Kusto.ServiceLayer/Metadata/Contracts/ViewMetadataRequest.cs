@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Metadata.Contracts
 {
     /// <summary>
     /// Retreive metadata for the view described in the TableMetadataParams value.

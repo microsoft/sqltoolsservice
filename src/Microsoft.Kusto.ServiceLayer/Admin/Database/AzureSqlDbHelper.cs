@@ -7,10 +7,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using SizeUnits = Microsoft.SqlTools.ServiceLayer.Management.DbSize.SizeUnits;
+using Microsoft.Kusto.ServiceLayer.Management;
+using SizeUnits = Microsoft.Kusto.ServiceLayer.Management.DbSize.SizeUnits;
 
-namespace Microsoft.SqlTools.ServiceLayer.Admin
+namespace Microsoft.Kusto.ServiceLayer.Admin
 {
     public static class AzureSqlDbHelper
     {

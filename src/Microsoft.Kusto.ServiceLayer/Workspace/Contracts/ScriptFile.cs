@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
 {
     /// <summary>
     /// Contains the details and contents of an open script file.

@@ -6,11 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData
+namespace Microsoft.Kusto.ServiceLayer.EditData
 {
     /// <summary>
     /// Provides metadata about the table or view being edited

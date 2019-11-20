@@ -10,7 +10,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using System.Globalization;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.RestoreOperation
 {
     public class RestoreUtil
     {

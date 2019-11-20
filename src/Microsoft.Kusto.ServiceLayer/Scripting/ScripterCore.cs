@@ -14,20 +14,20 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using ConnectionType = Microsoft.Kusto.ServiceLayer.Connection.ConnectionType;
+using Location = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Location;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
 using System.Data;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     internal partial class Scripter
     {

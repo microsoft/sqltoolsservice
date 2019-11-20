@@ -8,7 +8,7 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion
 {
     /// <summary>
     /// SqlParserWrapper interface

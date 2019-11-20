@@ -6,7 +6,7 @@
 using System.Linq;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
+namespace Microsoft.Kusto.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
     /// Class includes information about a file related to a database operation. 

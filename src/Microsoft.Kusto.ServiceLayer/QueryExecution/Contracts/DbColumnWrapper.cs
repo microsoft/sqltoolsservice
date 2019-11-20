@@ -11,7 +11,7 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Wrapper around a DbColumn, which provides extra functionality, but can be used as a

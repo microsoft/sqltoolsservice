@@ -7,7 +7,7 @@ using System.Composition;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]

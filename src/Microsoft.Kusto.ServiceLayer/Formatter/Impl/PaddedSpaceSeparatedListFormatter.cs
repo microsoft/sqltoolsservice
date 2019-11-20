@@ -10,7 +10,7 @@ using System.Diagnostics;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     internal class PaddedSpaceSeparatedListFormatter : SpaceSeparatedListFormatter
     {

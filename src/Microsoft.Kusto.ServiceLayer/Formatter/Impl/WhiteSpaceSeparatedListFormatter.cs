@@ -6,7 +6,7 @@
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     /// <summary>
     /// Base class for a set of utility formatters that are used by Node-specific formatters when dealing with whitespace

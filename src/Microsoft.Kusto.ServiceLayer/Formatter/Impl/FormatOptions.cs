@@ -6,7 +6,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
 
     public enum CasingOptions { None, Uppercase, Lowercase };

@@ -2,8 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     /// <summary>
     /// /// Result object for PeekDefinition

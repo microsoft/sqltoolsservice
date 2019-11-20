@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
+namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
     /// Parameters to indicate the script operation has resolved the objects to be scripted.

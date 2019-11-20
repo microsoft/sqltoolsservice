@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
 {
     /// <summary>
     /// Information describing a Node in the Object Explorer tree. 

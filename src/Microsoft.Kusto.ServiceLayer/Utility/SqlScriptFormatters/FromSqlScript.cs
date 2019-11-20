@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
+namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters
 {
     /// <summary>
     /// Provides utilities for converting from SQL script syntax into POCOs.

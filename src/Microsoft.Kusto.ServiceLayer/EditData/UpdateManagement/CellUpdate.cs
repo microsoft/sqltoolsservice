@@ -6,12 +6,12 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using Microsoft.Kusto.ServiceLayer.EditData.Contracts;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
+namespace Microsoft.Kusto.ServiceLayer.EditData.UpdateManagement
 {
     /// <summary>
     /// Representation of a cell that should have a value inserted or updated

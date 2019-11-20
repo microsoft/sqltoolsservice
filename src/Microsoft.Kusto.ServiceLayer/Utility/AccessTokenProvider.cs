@@ -1,7 +1,7 @@
 ﻿using Microsoft.SqlServer.Dac;
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     class AccessTokenProvider : IUniversalAuthProvider
     {
