@@ -24,7 +24,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             var assembly = typeof(ObjectExplorerService).Assembly;
-            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.TreeNodeDefinition.xml");
+            var resource = assembly.GetManifestResourceStream("Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel.TreeNodeDefinition.xml");
             var serializer = new XmlSerializer(typeof(ServerExplorerTree));
             NodeTypeDictionary = new Dictionary<string, HashSet<Node>>();
             using (var reader = new StreamReader(resource))
