@@ -48,9 +48,17 @@ namespace Microsoft.SqlTools.ServiceLayer
 
                 serviceHost.WaitForExit();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {e}");
+                try 
+                {
+                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");                    
+                }
+                catch (Exception loggerEx)
+                {
+                    Console.WriteLine($"Error: Logger unavailable: {loggerEx}");
+                    Console.WriteLine($"An unhandled exception occurred: {ex}");
+                }
                 Environment.Exit(1);
             }
             finally
