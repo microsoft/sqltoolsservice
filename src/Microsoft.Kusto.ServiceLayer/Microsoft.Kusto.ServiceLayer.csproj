@@ -22,6 +22,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4534.2-preview" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="8.0.2" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />

@@ -4,6 +4,7 @@
 //
 
 using System.Data.Common;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
@@ -22,7 +23,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
+            return new ReliableKustoClient(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
         }
     }
 }

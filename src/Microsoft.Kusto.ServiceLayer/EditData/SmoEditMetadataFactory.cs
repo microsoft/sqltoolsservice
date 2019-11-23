@@ -10,7 +10,6 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters;
 using Microsoft.SqlTools.Utility;
 
@@ -45,7 +44,7 @@ namespace Microsoft.Kusto.ServiceLayer.EditData
             if (sqlConn == null)
             {
                 // It's not actually a SqlConnection, so let's try a reliable SQL connection
-                ReliableSqlConnection reliableConn = connection as ReliableSqlConnection;
+                ReliableKustoClient reliableConn = connection as ReliableKustoClient;
                 if (reliableConn == null)
                 {
                     // If we don't have connection we can use with SMO, just give up on using SMO

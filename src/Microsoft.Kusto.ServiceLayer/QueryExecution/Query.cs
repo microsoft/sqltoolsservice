@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
@@ -377,7 +376,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         private async Task ExecuteInternal()
         {
-            ReliableSqlConnection sqlConn = null;
+            ReliableKustoClient sqlConn = null;
             try
             {
                 // check for cancellation token before actually making connection
@@ -402,7 +401,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 
                 // Locate and setup the connection
                 DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-                sqlConn = queryConnection as ReliableSqlConnection;
+                sqlConn = queryConnection as ReliableKustoClient;
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages

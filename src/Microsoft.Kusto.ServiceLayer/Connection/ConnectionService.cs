@@ -15,13 +15,14 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -422,7 +423,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                 response.ConnectionId = connectionInfo.ConnectionId.ToString();
 
-                var reliableConnection = connection as ReliableSqlConnection;
+                var reliableConnection = connection as ReliableKustoClient;
                 DbConnection underlyingConnection = reliableConnection != null
                     ? reliableConnection.GetUnderlyingConnection()
                     : connection;
@@ -682,7 +683,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private bool TryGetAsSqlConnection(DbConnection dbConn, out SqlConnection sqlConn)
         {
-            ReliableSqlConnection reliableConn = dbConn as ReliableSqlConnection;
+            ReliableKustoClient reliableConn = dbConn as ReliableKustoClient;
             if (reliableConn != null)
             {
                 sqlConn = reliableConn.GetUnderlyingConnection();

@@ -11,13 +11,12 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
 using System.Collections.ObjectModel;
-using Microsoft.Kusto.ServiceLayer.Connection;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -265,7 +264,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
             // Register the message Listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
-            ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+            ReliableKustoClient sqlConn = conn as ReliableKustoClient;
             if (sqlConn != null)
             {
                 sqlConn.GetUnderlyingConnection().InfoMessage += ServerMessageHandler;
@@ -480,7 +479,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         {
             // Register the message Listener to *this instance* of the batch
             // Note: This is being done to associate messages with batches
-            ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+            ReliableKustoClient sqlConn = conn as ReliableKustoClient;
             DbCommand dbCommand;
             if (sqlConn != null)
             {
@@ -494,10 +493,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 dbCommand = conn.CreateCommand();
             }
-
-            // Make sure we aren't using a ReliableCommad since we do not want automatic retry
-            Debug.Assert(!(dbCommand is ReliableSqlConnection.ReliableSqlCommand),
-                "ReliableSqlCommand command should not be used to execute queries");
 
             return dbCommand;
         }
