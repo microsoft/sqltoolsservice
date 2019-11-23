@@ -6,5 +6,4 @@
     </PackageDescription>
     <Description>$(PackageDescription)</Description>
   </PropertyGroup>
-  <Import Project="..\sqltools.common.targets" />
 </Project>
