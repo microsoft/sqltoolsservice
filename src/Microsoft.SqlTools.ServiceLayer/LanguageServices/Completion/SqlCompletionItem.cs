@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@#][\p{L}\p{N}@$#_]{0,127}$");
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]" };
-        private static DelimitedIdentifier FunctionIdentifiers = new DelimitedIdentifier { Start = "", End = "()" };
+        private static DelimitedIdentifier FunctionPostfix = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
             new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier { Start = "\"", End = "\"" } };
 
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.ScalarValuedFunction:
                     case DeclarationType.TableValuedFunction:
                         // Functions we add on the () at the end since they'll always have them
-                        InsertText = WithDelimitedIdentifier(FunctionIdentifiers, DeclarationTitle);
+                        InsertText = WithDelimitedIdentifier(FunctionPostfix, DeclarationTitle);
                         break;
                 }
             }
