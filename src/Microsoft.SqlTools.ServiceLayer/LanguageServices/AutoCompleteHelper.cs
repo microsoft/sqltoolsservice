@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
-        private static readonly string[] DefaultCompletionText = new string[]
+        public static readonly string[] DefaultCompletionText = new string[]
         {
             "abs",
             "acos",

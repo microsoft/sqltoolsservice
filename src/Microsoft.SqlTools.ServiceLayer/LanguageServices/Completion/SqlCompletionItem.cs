@@ -19,10 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     public class SqlCompletionItem
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@#][\p{L}\p{N}@$#_]{0,127}$");
-        private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
+        private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]" };
         private static DelimitedIdentifier FunctionIdentifiers = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
-            new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };
+            new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier { Start = "\"", End = "\"" } };
 
         /// <summary>
         /// Create new instance given the SQL parser declaration
@@ -49,23 +49,38 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         private void Init()
         {
             InsertText = DeclarationTitle;
-            DelimitedIdentifier delimitedIdentifier = GetDelimitedIdentifier(TokenText);
             Label = DeclarationTitle;
+            DelimitedIdentifier delimitedIdentifier = GetDelimitedIdentifier(TokenText);
 
-            // Bracket quote valid SQL names that aren't specified as reserved keywords already
-            if (delimitedIdentifier == null && !string.IsNullOrEmpty(DeclarationTitle) && 
-                (!ValidSqlNameRegex.IsMatch(DeclarationTitle) ||
-                AutoCompleteHelper.IsReservedWord(InsertText) && )
-                // https://github.com/Microsoft/vscode-mssql/issues/473
+            // If we're not already going to quote this then handle special cases for various
+            // DeclarationTypes
+            if (delimitedIdentifier == null && !string.IsNullOrEmpty(DeclarationTitle))
             {
-                InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
+                switch (this.DeclarationType)
+                {
+                    case DeclarationType.Server:
+                    case DeclarationType.Database:
+                    case DeclarationType.Table:
+                    case DeclarationType.Column:
+                    case DeclarationType.View:
+                    case DeclarationType.Schema:
+                        // Only quote if we need to - i.e. if this isn't a valid name (has characters that need escaping such as [) 
+                        // or if it's a reserved word
+                        if (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText)) {
+                            InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
+                        }
+                        break;
+                    case DeclarationType.BuiltInFunction:
+                    case DeclarationType.ScalarValuedFunction:
+                    case DeclarationType.TableValuedFunction:
+                        // Functions we add on the () at the end since they'll always have them
+                        InsertText = WithDelimitedIdentifier(FunctionIdentifiers, DeclarationTitle);
+                        break;
+                }
             }
-            else if (this.DeclarationType == DeclarationType.BuiltInFunction || 
-                this.DeclarationType == DeclarationType.ScalarValuedFunction ||
-                this.DeclarationType == DeclarationType.TableValuedFunction)
-            {
-                InsertText = WithDelimitedIdentifier(FunctionIdentifiers, DeclarationTitle);
-            }
+
+            // If the user typed a token that starts with a delimiter then always quote both
+            // the display label and text to be inserted
             if (delimitedIdentifier != null)
             {
                 Label = WithDelimitedIdentifier(delimitedIdentifier, Label);

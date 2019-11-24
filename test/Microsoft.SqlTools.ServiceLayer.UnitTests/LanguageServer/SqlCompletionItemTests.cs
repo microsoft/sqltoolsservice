@@ -5,6 +5,7 @@
 
 using System;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Xunit;
@@ -13,303 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
     public class SqlCompletionItemTests
     {
-        private static readonly string[] ReservedWords = new string[]
-        {
-            "all",
-            "alter",
-            "and",
-            "apply",
-            "as",
-            "asc",
-            "at",
-            "backup",
-            "begin",
-            "binary",
-            "bit",
-            "break",
-            "bulk",
-            "by",
-            "call",
-            "cascade",
-            "case",
-            "catch",
-            "char",
-            "character",
-            "check",
-            "checkpoint",
-            "close",
-            "clustered",
-            "column",
-            "columnstore",
-            "commit",
-            "connect",
-            "constraint",
-            "continue",
-            "create",
-            "cross",
-            "current_date",
-            "cursor",
-            "cursor_close_on_commit",
-            "cursor_default",
-            "data",
-            "data_compression",
-            "database",
-            "date",
-            "datetime",
-            "datetime2",
-            "days",
-            "dbcc",
-            "dec",
-            "decimal",
-            "declare",
-            "default",
-            "delete",
-            "deny",
-            "desc",
-            "description",
-            "disabled",
-            "disk",
-            "distinct",
-            "double",
-            "drop",
-            "drop_existing",
-            "dump",
-            "dynamic",
-            "else",
-            "enable",
-            "encrypted",
-            "end",
-            "end-exec",
-            "exec",
-            "execute",
-            "exists",
-            "exit",
-            "external",
-            "fast_forward",
-            "fetch",
-            "file",
-            "filegroup",
-            "filename",
-            "filestream",
-            "filter",
-            "first",
-            "float",
-            "for",
-            "foreign",
-            "from",
-            "full",
-            "function",
-            "geography",
-            "get",
-            "global",
-            "go",
-            "goto",
-            "grant",
-            "group",
-            "hash",
-            "hashed",
-            "having",
-            "hidden",
-            "hierarchyid",
-            "holdlock",
-            "hours",
-            "identity",
-            "identitycol",
-            "if",
-            "image",
-            "immediate",
-            "include",
-            "index",
-            "inner",
-            "insert",
-            "instead",
-            "int",
-            "integer",
-            "intersect",
-            "into",
-            "isolation",
-            "join",
-            "json",
-            "key",
-            "language",
-            "last",
-            "left",
-            "level",
-            "lineno",
-            "load",
-            "local",
-            "locate",
-            "location",
-            "login",
-            "masked",
-            "maxdop",
-            "merge",
-            "message",
-            "modify",
-            "move",
-            "namespace",
-            "native_compilation",
-            "nchar",
-            "next",
-            "no",
-            "nocheck",
-            "nocount",
-            "nonclustered",
-            "none",
-            "norecompute",
-            "not",
-            "now",
-            "null",
-            "numeric",
-            "object",
-            "of",
-            "off",
-            "offsets",
-            "on",
-            "online",
-            "open",
-            "openrowset",
-            "openxml",
-            "option",
-            "or",
-            "order",
-            "out",
-            "outer",
-            "output",
-            "over",
-            "owner",
-            "partial",
-            "partition",
-            "password",
-            "path",
-            "percent",
-            "percentage",
-            "period",
-            "persisted",
-            "plan",
-            "policy",
-            "precision",
-            "predicate",
-            "primary",
-            "print",
-            "prior",
-            "proc",
-            "procedure",
-            "public",
-            "query_store",
-            "quoted_identifier",
-            "raiserror",
-            "range",
-            "raw",
-            "read",
-            "read_committed_snapshot",
-            "read_only",
-            "read_write",
-            "readonly",
-            "readtext",
-            "real",
-            "rebuild",
-            "receive",
-            "reconfigure",
-            "recovery",
-            "recursive",
-            "recursive_triggers",
-            "references",
-            "relative",
-            "remove",
-            "reorganize",
-            "required",
-            "restart",
-            "restore",
-            "restrict",
-            "resume",
-            "return",
-            "returns",
-            "revert",
-            "revoke",
-            "rollback",
-            "rollup",
-            "row",
-            "rowcount",
-            "rowguidcol",
-            "rows",
-            "rule",
-            "sample",
-            "save",
-            "schema",
-            "schemabinding",
-            "scoped",
-            "scroll",
-            "secondary",
-            "security",
-            "select",
-            "send",
-            "sent",
-            "sequence",
-            "server",
-            "session",
-            "set",
-            "sets",
-            "setuser",
-            "simple",
-            "smallint",
-            "smallmoney",
-            "snapshot",
-            "sql",
-            "standard",
-            "start",
-            "started",
-            "state",
-            "statement",
-            "static",
-            "statistics",
-            "statistics_norecompute",
-            "status",
-            "stopped",
-            "sysname",
-            "system",
-            "system_time",
-            "table",
-            "take",
-            "target",
-            "then",
-            "throw",
-            "time",
-            "timestamp",
-            "tinyint",
-            "to",
-            "top",
-            "tran",
-            "transaction",
-            "trigger",
-            "truncate",
-            "try",
-            "tsql",
-            "type",
-            "uncommitted",
-            "union",
-            "unique",
-            "uniqueidentifier",
-            "updatetext",
-            "use",
-            "user",
-            "using",
-            "value",
-            "values",
-            "varchar",
-            "version",
-            "view",
-            "waitfor",
-            "when",
-            "where",
-            "while",
-            "with",
-            "within",
-            "without",
-            "writetext",
-            "xact_abort",
-            "xml",
-        };
 
         [Fact]
         public void InsertTextShouldIncludeBracketGivenNameWithSpace()
@@ -479,10 +183,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void InsertTextShouldNotIncludeBracketGivenReservedName()
         {
-            foreach (string word in ReservedWords)
+            foreach (string word in AutoCompleteHelper.DefaultCompletionText)
             {
                 string declarationTitle = word;
-                DeclarationType declarationType = DeclarationType.Table;
+                DeclarationType declarationType = DeclarationType.ApplicationRole;
                 string tokenText = "";
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
@@ -544,28 +248,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [InlineData(DeclarationType.TableValuedFunction)]
         public void FunctionsShouldHaveParenthesesAdded(DeclarationType declarationType)
         {
+            foreach (string word in AutoCompleteHelper.DefaultCompletionText)
+            {
+                string declarationTitle = word;
+                string tokenText = "";
+                SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+                CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+                Assert.Equal(declarationTitle, completionItem.Label);
+                Assert.Equal($"{declarationTitle}()", completionItem.InsertText);
+                Assert.Equal(declarationTitle, completionItem.Detail);
+            }
+            
+        }
+
+        [Theory]
+        [InlineData(DeclarationType.Server)]
+        [InlineData(DeclarationType.Database)]
+        [InlineData(DeclarationType.Table)]
+        [InlineData(DeclarationType.Column)]
+        [InlineData(DeclarationType.View)]
+        [InlineData(DeclarationType.Schema)]
+        public void NamedIdentifiersShouldBeBracketQuoted(DeclarationType declarationType)
+        {
             string declarationTitle = declarationType.ToString();
             string tokenText = "";
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
             Assert.Equal(declarationTitle, completionItem.Label);
-            Assert.Equal($"{declarationTitle}()", completionItem.InsertText);
+            Assert.Equal($"[{declarationTitle}]", completionItem.InsertText);
             Assert.Equal(declarationTitle, completionItem.Detail);
-        }
-
-        public void BuiltInFunctionsShouldHaveParenthesesAdded()
-        {
-            string declarationTitle = "MyFunction";
-            string expected = $"{declarationTitle}()";
-            DeclarationType declarationType = DeclarationType.TableValuedFunction;
-            string tokenText = "";
-            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
-            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
-
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
         }
 
         [Fact]
